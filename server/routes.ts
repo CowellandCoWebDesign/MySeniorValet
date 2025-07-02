@@ -6,8 +6,65 @@ import { z } from "zod";
 import { aiRecommendationEngine, RecommendationRequest } from "./ai-recommendations";
 import { ComprehensiveScraper } from "./scraper";
 import { licensingScraper } from "./licensing-scraper";
+import fs from 'fs';
+import path from 'path';
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  
+  // ===============================
+  // COMPLIANCE MIDDLEWARE - APPLIED FIRST
+  // ===============================
+
+  // Filter validation middleware for non-discrimination compliance
+  const validateSearchFilters = (req: any, res: any, next: any) => {
+    const allowedFilters = [
+      'location', 'careType', 'budget', 'availability', 
+      'amenities', 'distance', 'minRating'
+    ];
+    
+    // Check for prohibited filter keys that could enable discrimination
+    const prohibitedFilters = [
+      'religion', 'ethnicity', 'race', 'gender', 'sexual_orientation',
+      'marital_status', 'national_origin', 'disability_status'
+    ];
+
+    const queryKeys = Object.keys(req.query);
+    const bodyKeys = req.body ? Object.keys(req.body) : [];
+    const allKeys = [...queryKeys, ...bodyKeys];
+
+    const hasProhibitedFilters = allKeys.some(key => 
+      prohibitedFilters.includes(key.toLowerCase())
+    );
+
+    const hasUnsupportedFilters = allKeys.some(key => 
+      !allowedFilters.includes(key)
+    );
+
+    if (hasProhibitedFilters) {
+      return res.status(400).json({
+        error: 'Prohibited filter detected',
+        message: 'Filters based on protected characteristics are not permitted',
+        code: 'DISCRIMINATION_FILTER_BLOCKED'
+      });
+    }
+
+    if (hasUnsupportedFilters) {
+      const unsupported = allKeys.filter(key => !allowedFilters.includes(key));
+      return res.status(400).json({
+        error: 'Unsupported filter keys',
+        message: `The following filters are not supported: ${unsupported.join(', ')}`,
+        supportedFilters: allowedFilters,
+        code: 'UNSUPPORTED_FILTER'
+      });
+    }
+
+    next();
+  };
+
+  // Apply filter validation to search endpoints
+  app.use('/api/communities/search', validateSearchFilters);
+  app.use('/api/recommend', validateSearchFilters);
+
   // Get all communities
   app.get("/api/communities", async (req, res) => {
     try {
@@ -349,7 +406,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         recommendations,
         totalCommunities: communities.length,
         requestId: Math.random().toString(36).substr(2, 9),
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        disclaimer: "This ranking is informational. TrueView receives no referral fees and is not a licensed placement agency. Verify suitability directly with each community."
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -790,6 +848,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: false,
         error: 'Failed to fetch licensing statistics',
         details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // ===============================
+  // COMPLIANCE API ENDPOINTS
+  // ===============================
+
+  // Get state compliance information
+  app.get('/api/compliance/state/:code', async (req, res) => {
+    try {
+      const stateCode = req.params.code.toUpperCase();
+      
+      // Load licensing matrix
+      const matrixPath = path.join(process.cwd(), 'server/compliance/licensingMatrix.json');
+      const matrixData = JSON.parse(fs.readFileSync(matrixPath, 'utf8'));
+      
+      if (!matrixData[stateCode]) {
+        return res.status(404).json({
+          error: 'State not found',
+          message: `No compliance data available for state: ${stateCode}`
+        });
+      }
+
+      res.json(matrixData[stateCode]);
+    } catch (error) {
+      console.error('Error fetching state compliance:', error);
+      res.status(500).json({
+        error: 'Failed to fetch compliance data',
+        message: 'Unable to load state licensing requirements'
+      });
+    }
+  });
+
+  // Get all states compliance summary
+  app.get('/api/compliance/states', async (req, res) => {
+    try {
+      const matrixPath = path.join(process.cwd(), 'server/compliance/licensingMatrix.json');
+      const matrixData = JSON.parse(fs.readFileSync(matrixPath, 'utf8'));
+      
+      // Return summary with requiresLicense status for each state
+      const summary = Object.entries(matrixData).map(([code, data]: [string, any]) => ({
+        state: code,
+        requiresLicense: data.requiresLicense,
+        statute: data.statute,
+        description: data.description
+      }));
+
+      res.json(summary);
+    } catch (error) {
+      console.error('Error fetching states compliance:', error);
+      res.status(500).json({
+        error: 'Failed to fetch compliance data',
+        message: 'Unable to load licensing requirements'
       });
     }
   });
