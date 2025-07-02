@@ -220,6 +220,7 @@ export const searchCommunitySchema = z.object({
   location: z.string().optional(),
   careType: z.string().optional(),
   budget: z.string().optional(),
+  availability: z.string().optional(),
   distance: z.number().optional(),
   amenities: z.array(z.string()).optional(),
   minRating: z.number().optional(),

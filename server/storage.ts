@@ -185,7 +185,13 @@ export class MemStorage implements IStorage {
 
     if (params.amenities && params.amenities.length > 0) {
       results = results.filter(community =>
-        params.amenities!.some(amenity => community.amenities.includes(amenity))
+        community.amenities && params.amenities!.some(amenity => community.amenities.includes(amenity))
+      );
+    }
+
+    if (params.availability && params.availability !== "All Status") {
+      results = results.filter(community =>
+        community.availabilityStatus === params.availability
       );
     }
 
@@ -303,6 +309,10 @@ export class DatabaseStorage implements IStorage {
 
     if (params.minRating) {
       conditions.push(gte(communities.rating, params.minRating.toString()));
+    }
+
+    if (params.availability && params.availability !== "All Status") {
+      conditions.push(eq(communities.availabilityStatus, params.availability));
     }
 
     if (conditions.length > 0) {
