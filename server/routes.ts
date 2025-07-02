@@ -566,26 +566,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json([]);
       }
 
-      // Get unique cities and states from our database
-      const communities = await storage.getAllCommunities();
+      const query = q.toLowerCase().trim();
       const locations = new Set<string>();
       
+      // Get unique cities and states from our database
+      const communities = await storage.getAllCommunities();
       communities.forEach(community => {
         const cityState = `${community.city}, ${community.state}`;
-        const city = community.city;
+        const city = community.city.toLowerCase();
+        const state = community.state.toLowerCase();
         
-        if (cityState.toLowerCase().includes(q.toLowerCase())) {
+        // Prioritize exact matches and starts-with matches
+        if (city.startsWith(query) || cityState.toLowerCase().startsWith(query)) {
           locations.add(cityState);
-        } else if (city.toLowerCase().includes(q.toLowerCase())) {
+        } else if (city.includes(query) || state.includes(query)) {
           locations.add(cityState);
         }
       });
 
-      // Convert to array and limit results
-      const results = Array.from(locations).slice(0, 10).map(location => ({
-        label: location,
-        value: location
-      }));
+      // Add popular California cities for better autocomplete experience
+      const popularCities = [
+        'Los Angeles, CA', 'San Francisco, CA', 'San Diego, CA', 'Sacramento, CA',
+        'San Jose, CA', 'Fresno, CA', 'Long Beach, CA', 'Oakland, CA', 
+        'Bakersfield, CA', 'Anaheim, CA', 'Santa Ana, CA', 'Riverside, CA',
+        'Stockton, CA', 'Irvine, CA', 'Chula Vista, CA', 'Fremont, CA',
+        'Santa Clarita, CA', 'Salinas, CA', 'Hayward, CA', 'Sunnyvale, CA',
+        'Redding, CA', 'Modesto, CA', 'Visalia, CA', 'Concord, CA'
+      ];
+
+      popularCities.forEach(cityState => {
+        const city = cityState.split(',')[0].toLowerCase();
+        if (city.startsWith(query) || cityState.toLowerCase().includes(query)) {
+          locations.add(cityState);
+        }
+      });
+
+      // Convert to array, sort by relevance, and limit results
+      const results = Array.from(locations)
+        .sort((a, b) => {
+          const aLower = a.toLowerCase();
+          const bLower = b.toLowerCase();
+          // Prioritize starts-with matches
+          const aStarts = aLower.startsWith(query);
+          const bStarts = bLower.startsWith(query);
+          if (aStarts && !bStarts) return -1;
+          if (!aStarts && bStarts) return 1;
+          return a.localeCompare(b);
+        })
+        .slice(0, 8)
+        .map(location => ({
+          label: location,
+          value: location
+        }));
       
       res.json(results);
     } catch (error) {
