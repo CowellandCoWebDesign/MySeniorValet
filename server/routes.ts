@@ -392,7 +392,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           location: `${community.city}, ${community.state}`,
           careTypes: community.careTypes,
           pricing: {
-            basePrice: community.baseMonthlyRate || null,
+            basePrice: null, // No basePrice field in schema, using priceRange instead
             priceRange: community.priceRange || null,
             lastPriceUpdate: community.lastPriceUpdate
           },
@@ -403,14 +403,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           licensing: {
             licenseNumber: community.licenseNumber,
             status: community.licenseStatus,
-            lastInspection: community.lastInspectionDate
+            lastInspection: community.lastInspection
           },
           amenities: community.amenities?.slice(0, 10) || [],
           services: community.services?.slice(0, 10) || [],
           medicalRestrictions: community.medicalRestrictions || [],
           ratings: {
-            average: community.averageRating,
-            reviewCount: community.reviewCount,
+            average: parseFloat(community.rating || "0"),
+            reviewCount: community.reviewCount || 0,
             trustedSources: community.trustedReviews
           }
         })),
@@ -473,10 +473,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         licensing: {
           licenseNumber: community.licenseNumber,
           status: community.licenseStatus,
-          issueDate: community.licenseIssueDate,
-          expirationDate: community.licenseExpirationDate,
-          lastInspectionDate: community.lastInspectionDate,
-          isLicenseRequired: this.isLicenseRequired(community.careTypes)
+          issueDate: null, // Not in current schema
+          expirationDate: null, // Not in current schema
+          lastInspectionDate: community.lastInspection,
+          isLicenseRequired: isLicenseRequired(community.careTypes)
         },
         inspections: inspections.map(inspection => ({
           id: inspection.id,
@@ -488,7 +488,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         })),
         transparency: {
           hasPublicRecords: !!community.licenseNumber,
-          lastUpdated: community.lastInspectionDate,
+          lastUpdated: community.lastInspection,
           violationCount: inspections.reduce((count, insp) => count + (insp.violations?.length || 0), 0)
         }
       };
@@ -526,17 +526,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           careTypes: community.careTypes
         },
         pricing: {
-          hasPublicPricing: !!community.basePrice,
-          basePrice: community.basePrice,
+          hasPublicPricing: !!community.priceRange,
+          basePrice: null, // Not in current schema
           priceRange: community.priceRange,
           lastPriceUpdate: community.lastPriceUpdate,
-          pricePerCareType: community.pricePerCareType || {},
-          additionalFees: community.additionalFees || [],
-          transparencyScore: this.calculateTransparencyScore(community)
+          pricePerCareType: {}, // Not in current schema
+          additionalFees: [], // Not in current schema
+          transparencyScore: calculateTransparencyScore(community)
         },
         availability: {
           status: community.availabilityStatus,
-          waitlistLength: community.waitlistLength,
+          waitlistLength: null, // Not in current schema
           lastUpdated: community.lastAvailabilityUpdate
         }
       };
@@ -551,11 +551,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Helper function to calculate pricing transparency score
   function calculateTransparencyScore(community: any): number {
     let score = 0;
-    if (community.basePrice) score += 30;
-    if (community.priceRange) score += 20;
+    if (community.priceRange) score += 50;
     if (community.lastPriceUpdate && new Date(community.lastPriceUpdate) > new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)) score += 25;
-    if (community.pricePerCareType && Object.keys(community.pricePerCareType).length > 0) score += 15;
-    if (community.additionalFees) score += 10;
+    if (community.availabilityStatus && community.availabilityStatus !== "Contact") score += 15;
+    if (community.rating && parseFloat(community.rating) > 0) score += 10;
     return Math.min(score, 100);
   }
 

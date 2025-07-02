@@ -86,7 +86,7 @@ export class AIRecommendationEngine {
     Name: ${c.name}
     Location: ${c.city}, ${c.state}
     Care Types: ${c.careTypes.join(", ")}
-    Pricing: ${c.basePrice ? `$${c.basePrice}/month` : "Contact for pricing"} 
+    Pricing: ${c.priceRange ? `$${c.priceRange}/month` : "Contact for pricing"} 
     Availability: ${c.availabilityStatus}
     Amenities: ${c.amenities?.join(", ") || "Standard amenities"}
     Services: ${c.services?.join(", ") || "Standard services"}
