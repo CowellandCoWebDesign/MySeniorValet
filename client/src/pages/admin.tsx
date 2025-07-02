@@ -24,13 +24,16 @@ export default function Admin() {
     setLoading(prev => ({ ...prev, [state]: true }));
     
     try {
-      const response = await apiRequest(`/api/admin/scrape-licensing/${state}`, {
-        method: 'POST'
+      const response = await fetch(`/api/admin/scrape-licensing/${state}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
       });
+      
+      const data = await response.json();
       
       toast({
         title: "Scraping Initiated",
-        description: `${response.message}`,
+        description: data.message || `Started ${state} licensing database scraping`,
         variant: "default",
       });
     } catch (error) {
@@ -48,19 +51,22 @@ export default function Admin() {
     setLoading(prev => ({ ...prev, all: true }));
     
     try {
-      const response = await apiRequest('/api/admin/scrape-licensing', {
-        method: 'POST'
+      const response = await fetch('/api/admin/scrape-licensing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
       });
       
+      const data = await response.json();
+      
       toast({
-        title: "All State Scraping Initiated",
-        description: "Scraping all state licensing databases...",
+        title: "Comprehensive Search Initiated",
+        description: "Collecting both licensed facilities and unlicensed senior communities...",
         variant: "default",
       });
     } catch (error) {
       toast({
         title: "Scraping Failed",
-        description: "Failed to initiate comprehensive licensing scrape",
+        description: "Failed to initiate comprehensive data collection",
         variant: "destructive",
       });
     } finally {
@@ -72,8 +78,9 @@ export default function Admin() {
     setLoading(prev => ({ ...prev, stats: true }));
     
     try {
-      const response = await apiRequest('/api/admin/licensing-stats');
-      setStats(response);
+      const response = await fetch('/api/admin/licensing-stats');
+      const data = await response.json();
+      setStats(data);
     } catch (error) {
       toast({
         title: "Stats Failed",
