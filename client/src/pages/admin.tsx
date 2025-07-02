@@ -104,9 +104,12 @@ export default function Admin() {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">State Licensing Database Integration</h1>
+          <h1 className="text-3xl font-bold">Comprehensive Senior Living Data Collection</h1>
           <p className="text-muted-foreground">
-            Manage and monitor authentic senior living facility data from state licensing databases
+            Hybrid approach: Licensed facilities from state databases + unlicensed communities from general searches
+          </p>
+          <p className="text-sm text-blue-600 mt-1">
+            Captures ALL senior living options - Independent Living, 55+ Communities, and licensed facilities
           </p>
         </div>
         <Button
@@ -170,9 +173,9 @@ export default function Admin() {
       {/* State-by-State Scraping */}
       <Card>
         <CardHeader>
-          <CardTitle>State Licensing Database Scraping</CardTitle>
+          <CardTitle>Comprehensive Data Collection</CardTitle>
           <CardDescription>
-            Scrape authentic facility data from official state licensing databases
+            Licensed facilities from state databases + unlicensed communities from general searches
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -187,7 +190,7 @@ export default function Admin() {
               ) : (
                 <Database className="h-4 w-4 mr-2" />
               )}
-              Scrape All States
+              Collect All Senior Living Data
             </Button>
           </div>
 
@@ -281,7 +284,8 @@ export default function Admin() {
 
       <div className="text-center text-sm text-muted-foreground">
         <AlertCircle className="h-4 w-4 inline mr-1" />
-        Data sourced from official state licensing databases for maximum authenticity and transparency
+        Hybrid approach ensures complete coverage: Licensed facilities from official state databases + 
+        unlicensed communities (Independent Living, 55+ Housing) that market themselves for easy discovery
       </div>
     </div>
   );
