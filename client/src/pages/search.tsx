@@ -5,6 +5,7 @@ import { Footer } from "@/components/footer";
 import { SearchBar } from "@/components/search-bar";
 import { Filters } from "@/components/filters";
 import { CommunityCard } from "@/components/community-card";
+import { MapView } from "@/components/map-view";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { List, Map as MapIcon } from "lucide-react";
@@ -14,6 +15,7 @@ export default function Search() {
   const [searchParams, setSearchParams] = useState<SearchCommunity>({});
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
 
   // Parse URL parameters on mount
   useEffect(() => {
@@ -130,10 +132,28 @@ export default function Search() {
             {/* Results */}
             <div className="lg:col-span-2">
               {viewMode === 'map' ? (
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-                  <MapIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Map View</h3>
-                  <p className="text-gray-600">Interactive map integration would be implemented here using services like Google Maps or Mapbox.</p>
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden" style={{ height: '600px' }}>
+                  {isLoading ? (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-center">
+                        <MapIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                        <p className="text-gray-600">Loading map...</p>
+                      </div>
+                    </div>
+                  ) : communities && communities.length > 0 ? (
+                    <MapView 
+                      communities={communities} 
+                      selectedCommunity={selectedCommunity}
+                      onCommunitySelect={setSelectedCommunity}
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-center">
+                        <MapIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                        <p className="text-gray-600">No communities to display on map</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-6">

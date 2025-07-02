@@ -147,9 +147,7 @@ export async function seedDatabase() {
     ];
 
     // Insert the communities
-    for (const community of sampleCommunities) {
-      await db.insert(communities).values(community);
-    }
+    await db.insert(communities).values(sampleCommunities);
 
     console.log("Successfully seeded database with", sampleCommunities.length, "communities");
   } catch (error) {
