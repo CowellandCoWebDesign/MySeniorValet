@@ -387,6 +387,199 @@ export async function seedDatabase() {
         lastPriceUpdate: new Date("2024-06-30"),
         lastAvailabilityUpdate: new Date("2024-07-02"),
       },
+      
+      // BAY AREA COMMUNITIES (EXPANDED NORTHERN CALIFORNIA MARKET)
+      {
+        name: "Jewish Home & Rehab Center",
+        address: "302 Silver Avenue",
+        city: "San Francisco",
+        state: "CA",
+        zipCode: "94112",
+        phone: "(415) 334-2500",
+        email: "info@jhrehab.org",
+        website: "www.jhrehab.org",
+        description: "Comprehensive senior care facility offering skilled nursing, rehabilitation, and memory care in San Francisco's Mission District.",
+        careTypes: ["Skilled Nursing", "Memory Care", "Rehabilitation"],
+        amenities: ["WiFi", "Parking", "Dining", "Therapy", "Activities", "Chapel", "Garden"],
+        services: ["Physical Therapy", "Occupational Therapy", "Speech Therapy", "24/7 Nursing", "Memory Care"],
+        careServices: ["Skilled Nursing", "Post-Acute Care", "Rehabilitation Services", "Memory Care", "Hospice Care"],
+        medicalRestrictions: [],
+        photos: [
+          "https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+          "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"
+        ],
+        virtualTourUrl: "https://virtualtour.example.com/jewish-home-sf",
+        
+        spaServices: ["Massage Therapy", "Hair Salon", "Manicure Services"],
+        healthcareServices: ["Physical Therapy", "Occupational Therapy", "Speech Therapy", "24/7 Nursing Care", "Memory Care Specialists"],
+        fitnessServices: ["Physical Therapy Gym", "Rehabilitation Equipment", "Walking Programs"],
+        diningServices: ["Kosher Dining", "Nutritionist Consultation", "Special Dietary Plans"],
+        transportationServices: ["Medical Appointments", "Local Transportation"],
+        socialServices: ["Activity Programs", "Spiritual Care", "Family Support Groups"],
+        
+        yelpReviews: [
+          {
+            rating: 4,
+            author: "Sarah R.",
+            text: "Quality care facility. The rehabilitation team is excellent and helped my father recover quickly.",
+            date: "2024-11-08",
+            isPositive: true
+          }
+        ],
+        careComReviews: [
+          {
+            rating: 5,
+            author: "David L.",
+            text: "Professional staff and excellent medical care. Would recommend for skilled nursing needs.",
+            date: "2024-10-25",
+            isPositive: true
+          }
+        ],
+        seniorAdvisorReviews: [],
+        aplaceformomReviews: [],
+        
+        priceRange: { min: 8200, max: 12500 },
+        pricingDetails: {
+          specialOffers: [
+            {
+              title: "Assessment Special",
+              savings: 500,
+              description: "Free assessment for new residents"
+            }
+          ]
+        },
+        availabilityStatus: "Available Now",
+        availableUnits: 5,
+        totalUnits: 180,
+        rating: "4.3",
+        reviewCount: 67,
+        googleRating: "4.3",
+        googleReviewCount: 67,
+        googleReviewSnippets: [
+          {
+            rating: 5,
+            author: "Lisa C.",
+            text: "Excellent care for my mother. The staff is compassionate and professional. The rehabilitation services helped her regain mobility after surgery.",
+            date: "2024-11-20",
+            isPositive: true
+          },
+          {
+            rating: 4,
+            author: "Michael D.",
+            text: "Good facility with skilled nursing care. The kosher dining options are appreciated. Staff could be more responsive at times.",
+            date: "2024-10-15",
+            isPositive: true
+          }
+        ],
+        trustedReviews: [
+          { source: "Google", rating: 4.3, reviewCount: 67, url: "https://google.com/reviews" },
+          { source: "Yelp", rating: 4.2, reviewCount: 23, url: "https://yelp.com/reviews" }
+        ],
+        imageUrl: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3",
+        imageGallery: [
+          "https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3",
+          "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?ixlib=rb-4.0.3"
+        ],
+        latitude: "37.7353307",
+        longitude: "-122.4066274",
+        licenseNumber: "CA-SN-1234",
+        licenseStatus: "Licensed",
+        lastInspection: new Date("2024-08-15"),
+        violations: 0,
+        isVerified: true,
+        isClaimed: true,
+        lastPriceUpdate: new Date("2024-11-01"),
+        lastAvailabilityUpdate: new Date("2024-11-15"),
+      },
+      
+      {
+        name: "The Heritage on the Marina",
+        address: "3400 Laguna Street", 
+        city: "San Francisco",
+        state: "CA",
+        zipCode: "94123",
+        phone: "(415) 567-8800",
+        email: "info@heritagemarina.com",
+        website: "www.heritagemarina.com",
+        description: "Luxury senior living in the heart of the Marina District with spectacular bay views and premium amenities.",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["WiFi", "Parking", "Fine Dining", "Fitness", "Concierge", "Bay Views", "Library", "Spa"],
+        services: ["Concierge", "Housekeeping", "Transportation", "Wellness Programs", "Personal Care"],
+        careServices: ["Independent Living", "Assisted Living", "Personal Care Services", "Wellness Programs"],
+        medicalRestrictions: ["No Skilled Nursing"],
+        photos: [
+          "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+          "https://images.unsplash.com/photo-1576091160501-bbe57469278f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"
+        ],
+        virtualTourUrl: "https://virtualtour.example.com/heritage-marina-sf",
+        
+        spaServices: ["Full-Service Spa", "Massage Therapy", "Facial Treatments", "Hair & Nail Salon"],
+        healthcareServices: ["Wellness Clinic", "Physical Therapy", "Health Monitoring", "Medication Management"],
+        fitnessServices: ["State-of-the-Art Fitness Center", "Personal Training", "Water Aerobics", "Yoga Classes"],
+        diningServices: ["Fine Dining Restaurant", "Private Dining", "Wine Cellar", "Chef-Prepared Meals"],
+        transportationServices: ["Luxury Transportation", "Airport Service", "Shopping Trips", "Theater Outings"],
+        socialServices: ["Activity Director", "Cultural Events", "Social Clubs", "Educational Programs"],
+        
+        yelpReviews: [
+          {
+            rating: 5,
+            author: "Monica W.",
+            text: "Luxury senior living at its finest. The Marina location is perfect and the amenities are outstanding.",
+            date: "2024-11-12",
+            isPositive: true
+          }
+        ],
+        careComReviews: [],
+        seniorAdvisorReviews: [],
+        aplaceformomReviews: [],
+        
+        priceRange: { min: 12000, max: 18500 },
+        pricingDetails: {
+          specialOffers: []
+        },
+        availabilityStatus: "Waitlist",
+        availableUnits: 0,
+        totalUnits: 95,
+        rating: "4.7",
+        reviewCount: 124,
+        googleRating: "4.7",
+        googleReviewCount: 124,
+        googleReviewSnippets: [
+          {
+            rating: 5,
+            author: "Elizabeth M.",
+            text: "Absolutely stunning facility with incredible bay views. The staff treats residents like family. Worth every penny for the luxury and care.",
+            date: "2024-11-18",
+            isPositive: true
+          },
+          {
+            rating: 5,
+            author: "James P.",
+            text: "My mother loves living here. The dining is exceptional and the concierge service is top-notch. Highly recommend.",
+            date: "2024-10-30",
+            isPositive: true
+          }
+        ],
+        trustedReviews: [
+          { source: "Google", rating: 4.7, reviewCount: 124, url: "https://google.com/reviews" },
+          { source: "Yelp", rating: 4.8, reviewCount: 89, url: "https://yelp.com/reviews" }
+        ],
+        imageUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3",
+        imageGallery: [
+          "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3",
+          "https://images.unsplash.com/photo-1576091160501-bbe57469278f?ixlib=rb-4.0.3"
+        ],
+        latitude: "37.8044557",
+        longitude: "-122.4412784",
+        licenseNumber: "CA-AL-5678",
+        licenseStatus: "Licensed",
+        lastInspection: new Date("2024-09-20"),
+        violations: 0,
+        isVerified: true,
+        isClaimed: true,
+        lastPriceUpdate: new Date("2024-10-15"),
+        lastAvailabilityUpdate: new Date("2024-11-10"),
+      },
     ];
 
     // Insert the communities

@@ -77,16 +77,18 @@ export function CommunityCard({ community }: CommunityCardProps) {
   const getPriceTransparency = () => {
     if (!community.priceRange) return null;
     
-    const priceTransparency = community.priceTransparency as any;
-    const hasPublicPricing = priceTransparency?.hasPublicPricing;
-    const lastUpdated = priceTransparency?.lastUpdated;
+    const hasPublicPricing = community.priceRange && community.priceRange.min > 0;
+    const isRecent = community.lastPriceUpdate && 
+      (new Date().getTime() - new Date(community.lastPriceUpdate).getTime()) < (30 * 24 * 60 * 60 * 1000);
     
     return {
       hasPublicPricing,
-      lastUpdated: lastUpdated ? new Date(lastUpdated) : null,
-      isRecent: lastUpdated ? (new Date().getTime() - new Date(lastUpdated).getTime()) < (30 * 24 * 60 * 60 * 1000) : false
+      isRecent,
+      lastUpdated: community.lastPriceUpdate
     };
   };
+
+  const priceTransparency = getPriceTransparency();
 
   const availability = getAvailabilityConfig(community.availabilityStatus || "Contact for Availability");
   const pricing = formatPrice(community.priceRange);
