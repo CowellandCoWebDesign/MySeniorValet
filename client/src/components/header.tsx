@@ -22,7 +22,10 @@ export function Header() {
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <Home className="text-white text-sm" />
               </div>
-              <span className="text-xl font-display font-semibold text-gray-900">TrueView</span>
+              <div className="flex flex-col">
+                <span className="text-xl font-display font-semibold text-gray-900">TrueView</span>
+                <span className="text-xs text-gray-500 -mt-1">A Resource for Seniors</span>
+              </div>
             </Link>
             <nav className="hidden md:flex space-x-6">
               {navigation.map((item) => (
