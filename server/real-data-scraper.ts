@@ -1,4 +1,5 @@
-import cheerio from 'cheerio';
+import axios from 'axios';
+import * as cheerio from 'cheerio';
 import { InsertCommunity } from '@shared/schema';
 import { storage } from './storage';
 
@@ -18,22 +19,128 @@ export class RealDataScraper {
   // Search Google for actual senior living communities
   async searchGoogleForRealCommunities(city: string, state: string): Promise<RealCommunityData[]> {
     const communities: RealCommunityData[] = [];
+    
+    // For now, let's search specific business directories that are publicly accessible
     const searchTerms = [
-      `"${city} ${state}" senior living communities`,
-      `"${city} ${state}" assisted living facilities`,
-      `"${city} ${state}" memory care`,
-      `"${city} ${state}" independent living`,
-      `"${city} ${state}" retirement homes`
+      `"${city}, ${state}" "senior living"`,
+      `"${city}, ${state}" "assisted living"`,
+      `"${city}, ${state}" "memory care"`,
+      `"${city}, ${state}" "independent living"`
     ];
 
     console.log(`Searching for real senior living communities in ${city}, ${state}...`);
 
-    // Since we can't make actual Google searches without API keys,
-    // let's manually curate verified real communities for Redding, CA
-    if (city.toLowerCase() === 'redding' && state.toUpperCase() === 'CA') {
+    // Try to search A Place for Mom, which is a public directory
+    try {
+      const aplaceformomResults = await this.searchAPlaceForMom(city, state);
+      communities.push(...aplaceformomResults);
+    } catch (error) {
+      console.error('Error searching A Place for Mom:', error);
+    }
+
+    // Try to search Caring.com directory
+    try {
+      const caringResults = await this.searchCaringDirectory(city, state);
+      communities.push(...caringResults);
+    } catch (error) {
+      console.error('Error searching Caring.com:', error);
+    }
+
+    // If no results from web scraping, fall back to known communities
+    if (communities.length === 0 && city.toLowerCase() === 'redding' && state.toUpperCase() === 'CA') {
       return await this.getReddingRealCommunities();
     }
 
+    return communities;
+  }
+
+  // Search A Place for Mom directory
+  private async searchAPlaceForMom(city: string, state: string): Promise<RealCommunityData[]> {
+    const communities: RealCommunityData[] = [];
+    
+    try {
+      const searchUrl = `https://www.aplaceformom.com/senior-living/${state.toLowerCase()}/${city.toLowerCase().replace(/\s+/g, '-')}`;
+      console.log(`Searching A Place for Mom: ${searchUrl}`);
+      
+      const response = await axios.get(searchUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        },
+        timeout: 10000
+      });
+
+      const $ = cheerio.load(response.data);
+      
+      // Look for community listings
+      $('.community-card, .listing-card, [data-testid="community-card"]').each((i, element) => {
+        const $el = $(element);
+        const name = $el.find('h2, h3, .community-name, [data-testid="community-name"]').first().text().trim();
+        const address = $el.find('.address, .location, [data-testid="address"]').first().text().trim();
+        const phone = $el.find('.phone, [href^="tel:"], [data-testid="phone"]').first().text().trim();
+        
+        if (name && address) {
+          communities.push({
+            name,
+            address,
+            city,
+            state,
+            phone: phone || undefined,
+            website: null,
+            description: `Senior living community found via web search`,
+            careTypes: ["Independent Living", "Assisted Living"]
+          });
+        }
+      });
+      
+    } catch (error) {
+      console.error('A Place for Mom search failed:', error);
+    }
+    
+    return communities;
+  }
+
+  // Search Caring.com directory
+  private async searchCaringDirectory(city: string, state: string): Promise<RealCommunityData[]> {
+    const communities: RealCommunityData[] = [];
+    
+    try {
+      const searchUrl = `https://www.caring.com/senior-living/${state.toLowerCase()}/${city.toLowerCase()}`;
+      console.log(`Searching Caring.com: ${searchUrl}`);
+      
+      const response = await axios.get(searchUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        },
+        timeout: 10000
+      });
+
+      const $ = cheerio.load(response.data);
+      
+      // Look for community listings
+      $('.facility-card, .listing-item, .community-listing').each((i, element) => {
+        const $el = $(element);
+        const name = $el.find('h2, h3, .facility-name, .community-name').first().text().trim();
+        const address = $el.find('.address, .location').first().text().trim();
+        const phone = $el.find('.phone, [href^="tel:"]').first().text().trim();
+        
+        if (name && address) {
+          communities.push({
+            name,
+            address,
+            city,
+            state,
+            phone: phone || undefined,
+            website: null,
+            description: `Senior living community found via web search`,
+            careTypes: ["Independent Living", "Assisted Living"]
+          });
+        }
+      });
+      
+    } catch (error) {
+      console.error('Caring.com search failed:', error);
+    }
+    
     return communities;
   }
 
