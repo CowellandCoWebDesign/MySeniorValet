@@ -65,37 +65,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/communities/search', validateSearchFilters);
   app.use('/api/recommend', validateSearchFilters);
 
-  // Search communities - REDDING, CA FOCUSED ALGORITHM (MUST BE FIRST)
+  // Search communities - NORTHERN CALIFORNIA FOCUSED ALGORITHM (MUST BE FIRST)
   app.get("/api/communities/search", async (req, res) => {
     try {
       // Parse and validate search parameters
       const searchParams = searchCommunitySchema.parse(req.query);
       
-      // REDDING, CA MARKET FOCUS: Prioritize Redding area searches
+      // NORTHERN CALIFORNIA MARKET FOCUS: Prioritize Bay Area + Redding
       let communities;
       
-      if (!searchParams.location || searchParams.location.toLowerCase().includes('redding')) {
-        // Default to Redding, CA or specifically searching for Redding
+      const norcalCities = ['redding', 'san francisco', 'oakland', 'san jose', 'fremont', 'sacramento', 'santa clara', 'sunnyvale', 'berkeley', 'concord', 'antioch', 'richmond', 'hayward', 'santa rosa', 'vallejo', 'fairfield', 'walnut creek', 'livermore', 'san mateo', 'daly city'];
+      
+      if (!searchParams.location) {
+        // Default search - get all Northern California communities
         communities = await storage.searchCommunities({
           ...searchParams,
-          location: "Redding, CA"
+          location: "CA"
         });
-        
-        // If no results in Redding and user searched elsewhere, expand to broader CA
-        if (communities.length === 0 && searchParams.location && !searchParams.location.toLowerCase().includes('redding')) {
-          communities = await storage.searchCommunities(searchParams);
-        }
+      } else if (norcalCities.some(city => searchParams.location!.toLowerCase().includes(city))) {
+        // Searching for a Northern California city
+        communities = await storage.searchCommunities(searchParams);
       } else {
-        // User searching outside Redding - use their search but prioritize CA
+        // User searching outside NorCal - use their search but prioritize CA
         communities = await storage.searchCommunities({
           ...searchParams,
           location: searchParams.location.includes('CA') ? searchParams.location : `${searchParams.location}, CA`
         });
       }
       
-      // REDDING ALGORITHM: Sort by relevance to Redding market
+      // NORTHERN CALIFORNIA ALGORITHM: Sort by market relevance
       const sortedCommunities = communities.sort((a, b) => {
-        // Prioritize Redding communities first
+        // Priority 1: Bay Area cities (tech hub, highest demand)
+        const bayAreaCities = ['san francisco', 'oakland', 'san jose', 'fremont', 'santa clara', 'sunnyvale', 'berkeley', 'san mateo', 'daly city'];
+        const aIsBayArea = bayAreaCities.some(city => a.city.toLowerCase().includes(city));
+        const bIsBayArea = bayAreaCities.some(city => b.city.toLowerCase().includes(city));
+        
+        if (aIsBayArea && !bIsBayArea) return -1;
+        if (!aIsBayArea && bIsBayArea) return 1;
+        
+        // Priority 2: Redding (our original market)
         const aIsRedding = a.city.toLowerCase() === 'redding';
         const bIsRedding = b.city.toLowerCase() === 'redding';
         
@@ -798,6 +806,79 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // REAL DATA SCRAPING ENDPOINTS FOR NORTHERN CALIFORNIA
+  app.post("/api/admin/scrape/norcal", async (req, res) => {
+    try {
+      const { city, state = 'CA' } = req.body;
+      
+      if (!city) {
+        return res.status(400).json({ message: "City is required" });
+      }
+      
+      // Start scraping real communities for Northern California
+      console.log(`Starting real data scraping for ${city}, ${state}`);
+      
+      const { realDataScraper } = await import('./real-data-scraper');
+      const scrapedCount = await realDataScraper.addRealCommunitiesToDatabase(city, state);
+      
+      res.json({
+        success: true,
+        message: `Successfully scraped ${scrapedCount} real communities for ${city}, ${state}`,
+        scrapedCount
+      });
+    } catch (error) {
+      console.error("Scraping error:", error);
+      res.status(500).json({ 
+        message: "Failed to scrape community data",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  app.post("/api/admin/scrape/licensing", async (req, res) => {
+    try {
+      const { state = 'CA' } = req.body;
+      
+      console.log(`Starting licensing data scraping for ${state}`);
+      
+      const { licensingScraper } = await import('./licensing-scraper');
+      await licensingScraper.scrapeAllStateLicensing();
+      
+      res.json({
+        success: true,
+        message: `Successfully scraped licensing data for ${state}`
+      });
+    } catch (error) {
+      console.error("Licensing scraping error:", error);
+      res.status(500).json({
+        message: "Failed to scrape licensing data",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  app.get("/api/admin/scrape/status", async (req, res) => {
+    try {
+      const totalCommunities = await storage.getAllCommunities();
+      const verifiedCommunities = totalCommunities.filter(c => c.isVerified);
+      const claimedCommunities = totalCommunities.filter(c => c.isClaimed);
+      
+      res.json({
+        total: totalCommunities.length,
+        verified: verifiedCommunities.length,
+        claimed: claimedCommunities.length,
+        verificationRate: `${((verifiedCommunities.length / totalCommunities.length) * 100).toFixed(1)}%`,
+        lastUpdate: new Date().toISOString(),
+        byCity: totalCommunities.reduce((acc, c) => {
+          acc[c.city] = (acc[c.city] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>)
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get scraping status" });
+    }
+  });
+
   // Real data collection endpoint
   app.post('/api/collect-real-data/:city/:state', async (req, res) => {
     try {
@@ -1015,6 +1096,236 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({
         error: 'Failed to fetch compliance data',
         message: 'Unable to load licensing requirements'
+      });
+    }
+  });
+
+  // Manual database seeding endpoint
+  app.post("/api/seed", async (req, res) => {
+    try {
+      const { seedDatabase } = await import("./seed");
+      await seedDatabase();
+      res.json({ message: "Database seeded successfully" });
+    } catch (error) {
+      console.error("Seeding error:", error);
+      res.status(500).json({ error: "Failed to seed database" });
+    }
+  });
+
+  // Enhanced data collection and verification endpoints
+  app.post("/api/communities/verify-and-collect", async (req, res) => {
+    try {
+      const { city, state, verificationLevel = 'enhanced', maxResults = 25 } = req.body;
+      
+      if (!city || !state) {
+        return res.status(400).json({ error: "City and state are required" });
+      }
+
+      const { enhancedScraper } = await import("./enhanced-scraper");
+      
+      console.log(`Starting enhanced data collection for ${city}, ${state}`);
+      
+      const scrapingResult = await enhancedScraper.comprehensiveDataCollection(
+        city, 
+        state, 
+        { 
+          verificationLevel: verificationLevel as 'basic' | 'enhanced' | 'comprehensive',
+          maxResults: parseInt(maxResults) || 25
+        }
+      );
+      
+      // Save verified communities to database
+      const savedCount = await enhancedScraper.saveVerifiedCommunities(
+        scrapingResult.communities, 
+        city, 
+        state
+      );
+      
+      res.json({
+        success: true,
+        message: `Enhanced data collection completed for ${city}, ${state}`,
+        results: {
+          totalFound: scrapingResult.totalFound,
+          verifiedCount: scrapingResult.verifiedCount,
+          savedToDatabase: savedCount,
+          duplicatesRemoved: scrapingResult.duplicatesRemoved,
+          verificationLevel,
+          communities: scrapingResult.communities.map(c => ({
+            name: c.name,
+            address: c.address,
+            phone: c.phone,
+            website: c.website,
+            careTypes: c.careTypes,
+            verificationSources: c.verificationSources,
+            confidence: c.confidence,
+            crossReferencedData: c.crossReferencedData
+          }))
+        },
+        errors: scrapingResult.errors
+      });
+      
+    } catch (error) {
+      console.error("Enhanced data collection error:", error);
+      res.status(500).json({ 
+        error: "Enhanced data collection failed", 
+        message: error.message 
+      });
+    }
+  });
+
+  // Multi-source verification endpoint
+  app.post("/api/communities/multi-verify", async (req, res) => {
+    try {
+      const { communityName, city, state } = req.body;
+      
+      if (!communityName || !city || !state) {
+        return res.status(400).json({ error: "Community name, city, and state are required" });
+      }
+
+      const { multiSourceVerifier } = await import("./multi-source-verifier");
+      
+      const verificationResults = await multiSourceVerifier.verifyAndEnrichCommunityData(
+        communityName, 
+        city, 
+        state
+      );
+      
+      res.json({
+        success: true,
+        community: communityName,
+        location: `${city}, ${state}`,
+        verificationResults: verificationResults.map(result => ({
+          name: result.name,
+          address: result.address,
+          phone: result.phone,
+          website: result.website,
+          careTypes: result.careTypes,
+          verificationSources: result.verificationSources,
+          confidence: result.confidence,
+          crossReferencedData: result.crossReferencedData
+        }))
+      });
+      
+    } catch (error) {
+      console.error("Multi-source verification error:", error);
+      res.status(500).json({ 
+        error: "Multi-source verification failed", 
+        message: error.message 
+      });
+    }
+  });
+
+  // Verification statistics endpoint
+  app.get("/api/communities/verification-stats", async (req, res) => {
+    try {
+      const { city, state } = req.query;
+      
+      let query = db.select().from(communities);
+      
+      if (city && state) {
+        query = query.where(and(
+          eq(communities.city, city as string),
+          eq(communities.state, state as string)
+        ));
+      }
+      
+      const allCommunities = await query;
+      
+      const stats = {
+        total: allCommunities.length,
+        verified: allCommunities.filter(c => c.isVerified).length,
+        withLicense: allCommunities.filter(c => c.licenseNumber).length,
+        withPhone: allCommunities.filter(c => c.phone).length,
+        withWebsite: allCommunities.filter(c => c.website).length,
+        averageConfidence: allCommunities.reduce((acc, c) => acc + (c.confidenceScore || 0), 0) / allCommunities.length,
+        verificationSources: this.getTopVerificationSources(allCommunities),
+        careTypeDistribution: this.getCareTypeDistribution(allCommunities)
+      };
+      
+      res.json({
+        success: true,
+        location: city && state ? `${city}, ${state}` : 'All locations',
+        verificationStatistics: stats
+      });
+      
+    } catch (error) {
+      console.error("Verification stats error:", error);
+      res.status(500).json({ 
+        error: "Failed to get verification statistics", 
+        message: error.message 
+      });
+    }
+  });
+
+  // Enhanced search with verification data
+  app.get("/api/communities/verified-search", async (req, res) => {
+    try {
+      const { 
+        location, 
+        careType, 
+        minConfidence = 50,
+        verificationLevel = 'basic',
+        limit = 20 
+      } = req.query;
+      
+      let query = db.select().from(communities);
+      const conditions: any[] = [];
+      
+      // Location filtering
+      if (location) {
+        const [city, state] = (location as string).split(',').map(s => s.trim());
+        if (city && state) {
+          conditions.push(
+            and(
+              eq(communities.city, city),
+              eq(communities.state, state)
+            )
+          );
+        }
+      }
+      
+      // Care type filtering
+      if (careType && careType !== 'All') {
+        conditions.push(sql`${communities.careTypes} && ARRAY[${careType}]`);
+      }
+      
+      // Confidence filtering
+      const confidenceThreshold = parseInt(minConfidence as string) || 50;
+      conditions.push(gte(communities.confidenceScore || 0, confidenceThreshold));
+      
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions));
+      }
+      
+      query = query.limit(parseInt(limit as string) || 20);
+      
+      const results = await query;
+      
+      res.json({
+        success: true,
+        searchCriteria: {
+          location,
+          careType,
+          minConfidence: confidenceThreshold,
+          verificationLevel
+        },
+        communities: results.map(community => ({
+          ...community,
+          verificationDetails: {
+            confidenceScore: community.confidenceScore,
+            verificationSources: community.verificationSources,
+            crossReferencedData: community.crossReferencedData,
+            isVerified: community.isVerified,
+            licenseStatus: community.licenseStatus
+          }
+        }))
+      });
+      
+    } catch (error) {
+      console.error("Verified search error:", error);
+      res.status(500).json({ 
+        error: "Verified search failed", 
+        message: error.message 
       });
     }
   });

@@ -21,7 +21,7 @@ interface SearchBarProps {
 export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilters }: SearchBarProps) {
   const [, setLocation] = useLocation();
   const [searchParams, setSearchParams] = useState({
-    location: "Redding, CA", // DEFAULT TO REDDING, CA MARKET
+    location: "", // DEFAULT TO NORTHERN CALIFORNIA MARKET
     careType: "All Types",
     budget: "Any Budget",
     availability: "All Status",
