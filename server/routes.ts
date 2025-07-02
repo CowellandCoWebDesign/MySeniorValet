@@ -1520,6 +1520,131 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Multi-source verification endpoint
+  app.post('/api/verify/multi-source', async (req, res) => {
+    try {
+      const { communityId, testLevel = 'basic' } = req.body;
+      
+      const community = await storage.getCommunity(communityId);
+      if (!community) {
+        return res.status(404).json({ message: 'Community not found' });
+      }
+
+      console.log(`Starting multi-source verification for: ${community.name}`);
+      
+      const { multiSourceVerifier } = await import("./multi-source-verifier");
+      
+      // Run 6-layer verification system
+      const verificationData = await multiSourceVerifier.verifyAndEnrichCommunityData(
+        community.name,
+        community.city,
+        community.state
+      );
+
+      // Calculate verification confidence score
+      let confidenceScore = 0;
+      let verificationSources: string[] = [];
+      let crossReferences = {
+        phoneVerified: false,
+        addressVerified: false,
+        licenseVerified: false,
+        businessRegistrationVerified: false
+      };
+
+      if (verificationData.length > 0) {
+        const bestMatch = verificationData[0];
+        confidenceScore = bestMatch.confidence;
+        verificationSources = bestMatch.verificationSources;
+        crossReferences = bestMatch.crossReferencedData;
+      }
+
+      res.json({
+        success: true,
+        community: community.name,
+        verificationLevel: testLevel,
+        results: {
+          confidenceScore,
+          verificationSources,
+          crossReferences,
+          isVerified: confidenceScore >= 70,
+          verificationData: verificationData.slice(0, 3) // Top 3 matches
+        }
+      });
+
+    } catch (error) {
+      console.error('Multi-source verification error:', error);
+      res.status(500).json({ 
+        message: 'Verification failed',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Google Places enrichment endpoint
+  app.post('/api/enrich/google-places', async (req, res) => {
+    try {
+      const { city, state, limit = 3 } = req.body;
+      
+      const communities = await storage.searchCommunities({
+        location: `${city}, ${state}`,
+        limit: limit
+      });
+      
+      if (communities.length === 0) {
+        return res.json({
+          success: true,
+          message: `No communities found in ${city}, ${state}`,
+          processed: 0
+        });
+      }
+
+      const { googlePlacesIntegration } = await import("./google-places-integration");
+      const enrichmentResults = await googlePlacesIntegration.enrichCommunitiesBatch(communities);
+      
+      // Apply enrichment results to database
+      let updatedCount = 0;
+      for (const [communityId, enrichment] of enrichmentResults) {
+        if (enrichment.success) {
+          const community = communities.find(c => c.id === communityId);
+          const existingPhotos = community?.photos || [];
+          
+          await storage.updateCommunity(communityId, {
+            googlePlacesId: enrichment.placeId,
+            googleRating: enrichment.rating,
+            googleReviews: enrichment.reviews,
+            googlePhotos: enrichment.photos,
+            rating: Math.max(community?.rating || 0, enrichment.rating),
+            photos: [...existingPhotos, ...enrichment.photos].slice(0, 15)
+          });
+          updatedCount++;
+        }
+      }
+      
+      res.json({
+        success: true,
+        message: `Google Places enrichment completed for ${city}, ${state}`,
+        results: {
+          totalCommunities: communities.length,
+          enriched: enrichmentResults.size,
+          updated: updatedCount,
+          usageStats: googlePlacesIntegration.getUsageStats(),
+          costBreakdown: Array.from(enrichmentResults.entries()).map(([id, result]) => ({
+            communityId: id,
+            success: result.success,
+            costIncurred: result.costIncurred
+          }))
+        }
+      });
+      
+    } catch (error) {
+      console.error('Google Places enrichment error:', error);
+      res.status(500).json({ 
+        message: 'Google Places enrichment failed',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
