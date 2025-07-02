@@ -30,8 +30,18 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
   // Fetch location suggestions
-  const { data: locationSuggestions = [] } = useQuery<Array<{label: string, value: string}>>({
+  const { data: locationSuggestions = [], isLoading: isSuggestionsLoading } = useQuery<Array<{label: string, value: string}>>({
     queryKey: ['/api/locations/search', locationQuery],
+    queryFn: async ({ queryKey }) => {
+      const [, query] = queryKey;
+      if (!query || (query as string).length < 2) return [];
+      console.log('Fetching suggestions for:', query);
+      const response = await fetch(`/api/locations/search?q=${encodeURIComponent(query as string)}`);
+      if (!response.ok) throw new Error('Failed to fetch locations');
+      const results = await response.json();
+      console.log('Got suggestions:', results);
+      return results;
+    },
     enabled: locationQuery.length >= 2,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -50,6 +60,7 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
   }, []);
 
   const handleLocationInputChange = (value: string) => {
+    console.log('Location input changed:', value);
     setLocationQuery(value);
     setSearchParams(prev => ({ ...prev, location: value }));
     setShowSuggestions(value.length >= 2);
@@ -95,27 +106,33 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
               />
               
               {/* Location Suggestions Dropdown */}
-              {showSuggestions && locationSuggestions.length > 0 && (
+              {showSuggestions && (
                 <div 
                   ref={suggestionsRef}
                   className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-xl z-30 max-h-56 overflow-y-auto mt-2"
                   style={{ boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)' }}
                 >
-                  {locationSuggestions.map((suggestion: any, index: number) => (
-                    <button
-                      key={index}
-                      type="button"
-                      onClick={() => handleLocationSelect(suggestion.value)}
-                      className="w-full px-4 py-3 text-left hover:bg-blue-50 focus:bg-blue-50 focus:outline-none transition-colors duration-150 first:rounded-t-lg last:rounded-b-lg border-b border-gray-100 last:border-b-0"
-                    >
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                          <MapPin className="h-3 w-3 text-blue-600" />
+                  {isSuggestionsLoading ? (
+                    <div className="px-4 py-3 text-sm text-gray-500">Loading...</div>
+                  ) : locationSuggestions.length > 0 ? (
+                    locationSuggestions.map((suggestion: any, index: number) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => handleLocationSelect(suggestion.value)}
+                        className="w-full px-4 py-3 text-left hover:bg-blue-50 focus:bg-blue-50 focus:outline-none transition-colors duration-150 first:rounded-t-lg last:rounded-b-lg border-b border-gray-100 last:border-b-0"
+                      >
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                            <MapPin className="h-3 w-3 text-blue-600" />
+                          </div>
+                          <span className="text-sm text-gray-900 font-medium">{suggestion.label}</span>
                         </div>
-                        <span className="text-sm text-gray-900 font-medium">{suggestion.label}</span>
-                      </div>
-                    </button>
-                  ))}
+                      </button>
+                    ))
+                  ) : (
+                    <div className="px-4 py-3 text-sm text-gray-500">No locations found</div>
+                  )}
                 </div>
               )}
             </div>
