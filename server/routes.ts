@@ -1325,7 +1325,197 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Verified search error:", error);
       res.status(500).json({ 
         error: "Verified search failed", 
-        message: error.message 
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Yelp enrichment endpoints
+  app.post("/api/communities/yelp-enrich", async (req, res) => {
+    try {
+      const { communityId } = req.body;
+      
+      if (!communityId) {
+        return res.status(400).json({ error: "Community ID is required" });
+      }
+
+      const community = await storage.getCommunity(communityId);
+      if (!community) {
+        return res.status(404).json({ error: "Community not found" });
+      }
+
+      const { yelpIntegration } = await import("./yelp-integration");
+      const enrichmentResult = await yelpIntegration.enrichCommunityWithYelp(community);
+      
+      if (enrichmentResult && enrichmentResult.success) {
+        // Update community with Yelp data
+        await storage.updateCommunity(communityId, {
+          yelpId: enrichmentResult.yelpId,
+          yelpRating: enrichmentResult.rating,
+          yelpReviewCount: enrichmentResult.reviewCount,
+          yelpPhotos: enrichmentResult.photos,
+          yelpUrl: enrichmentResult.yelpUrl,
+          yelpCategories: enrichmentResult.categories
+        });
+        
+        res.json({
+          success: true,
+          message: `Successfully enriched ${community.name} with Yelp data`,
+          enrichmentData: enrichmentResult,
+          usageStats: yelpIntegration.getUsageStats()
+        });
+      } else {
+        res.json({
+          success: false,
+          message: `No Yelp data found for ${community.name}`,
+          error: enrichmentResult?.error,
+          usageStats: yelpIntegration.getUsageStats()
+        });
+      }
+      
+    } catch (error) {
+      console.error("Yelp enrichment error:", error);
+      res.status(500).json({ 
+        error: "Yelp enrichment failed", 
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Batch Yelp enrichment for multiple communities
+  app.post("/api/communities/yelp-enrich-batch", async (req, res) => {
+    try {
+      const { city, state, limit = 10 } = req.body;
+      
+      if (!city || !state) {
+        return res.status(400).json({ error: "City and state are required" });
+      }
+
+      // Get communities that need Yelp enrichment (less than 3 photos)
+      const communitiesQuery = await storage.searchCommunities({
+        city,
+        state,
+        limit: parseInt(limit)
+      });
+      
+      const communitiesNeedingEnrichment = communitiesQuery.filter(c => 
+        !c.photos || c.photos.length < 3
+      );
+
+      if (communitiesNeedingEnrichment.length === 0) {
+        return res.json({
+          success: true,
+          message: `No communities in ${city}, ${state} need Yelp enrichment`,
+          processed: 0
+        });
+      }
+
+      const { yelpIntegration } = await import("./yelp-integration");
+      const enrichmentResults = await yelpIntegration.enrichCommunitiesBatch(communitiesNeedingEnrichment);
+      
+      // Update communities with Yelp data
+      let updatedCount = 0;
+      for (const [communityId, result] of enrichmentResults) {
+        if (result.success) {
+          await storage.updateCommunity(communityId, {
+            yelpId: result.yelpId,
+            yelpRating: result.rating,
+            yelpReviewCount: result.reviewCount,
+            yelpPhotos: result.photos,
+            yelpUrl: result.yelpUrl,
+            yelpCategories: result.categories
+          });
+          updatedCount++;
+        }
+      }
+      
+      res.json({
+        success: true,
+        message: `Batch Yelp enrichment completed for ${city}, ${state}`,
+        results: {
+          totalCommunities: communitiesNeedingEnrichment.length,
+          enriched: enrichmentResults.size,
+          updated: updatedCount,
+          usageStats: yelpIntegration.getUsageStats()
+        }
+      });
+      
+    } catch (error) {
+      console.error("Batch Yelp enrichment error:", error);
+      res.status(500).json({ 
+        error: "Batch Yelp enrichment failed", 
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Three-market verification test as recommended by OpenAI
+  app.post("/api/communities/three-market-test", async (req, res) => {
+    try {
+      const testMarkets = [
+        { city: "San Francisco", state: "CA", type: "Urban" },
+        { city: "Phoenix", state: "AZ", type: "Suburban" },
+        { city: "Little Rock", state: "AR", type: "Rural" }
+      ];
+      
+      const results = [];
+      
+      for (const market of testMarkets) {
+        console.log(`Testing verification system in ${market.city}, ${market.state}`);
+        
+        // Get all communities in this market
+        const communities = await storage.searchCommunities({
+          city: market.city,
+          state: market.state,
+          limit: 50
+        });
+        
+        // Calculate verification statistics
+        const stats = {
+          market: `${market.city}, ${market.state}`,
+          marketType: market.type,
+          totalCommunities: communities.length,
+          verifiedCount: communities.filter(c => c.isVerified).length,
+          averageConfidence: communities.reduce((acc, c) => acc + (c.confidenceScore || 0), 0) / communities.length,
+          lowConfidenceCount: communities.filter(c => (c.confidenceScore || 0) < 60).length,
+          withPhoneCount: communities.filter(c => c.phone).length,
+          withLicenseCount: communities.filter(c => c.licenseNumber).length,
+          lowConfidenceFlag: communities.filter(c => (c.confidenceScore || 0) < 60).length / communities.length > 0.25,
+          communities: communities.map(c => ({
+            name: c.name,
+            confidenceScore: c.confidenceScore || 0,
+            sourcesMatched: c.verificationSources?.length || 0,
+            phoneValid: c.phone ? 1 : 0,
+            lowConfidenceFlag: (c.confidenceScore || 0) < 60
+          }))
+        };
+        
+        results.push(stats);
+      }
+      
+      // Overall assessment
+      const overallStats = {
+        totalMarketsTested: results.length,
+        marketsWithLowConfidence: results.filter(r => r.lowConfidenceFlag).length,
+        averageConfidenceAcrossMarkets: results.reduce((acc, r) => acc + r.averageConfidence, 0) / results.length,
+        recommendSlackAlert: results.some(r => r.lowConfidenceFlag)
+      };
+      
+      res.json({
+        success: true,
+        message: "Three-market verification test completed",
+        testResults: results,
+        overallAssessment: overallStats,
+        recommendations: overallStats.recommendSlackAlert ? 
+          ["Alert: One or more markets have >25% low-confidence listings", "Review verification pipeline"] :
+          ["Verification pipeline performing well", "Safe to proceed with wider deployment"]
+      });
+      
+    } catch (error) {
+      console.error("Three-market test error:", error);
+      res.status(500).json({ 
+        error: "Three-market test failed", 
+        message: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   });

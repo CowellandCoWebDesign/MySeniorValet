@@ -126,6 +126,14 @@ export const communities = pgTable("communities", {
   lastAvailabilityUpdate: timestamp("last_availability_update"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+  
+  // Yelp integration fields
+  yelpId: varchar("yelp_id"),
+  yelpRating: real("yelp_rating"),
+  yelpReviewCount: integer("yelp_review_count"),
+  yelpPhotos: json("yelp_photos").$type<string[]>().default([]),
+  yelpUrl: varchar("yelp_url"),
+  yelpCategories: json("yelp_categories").$type<string[]>().default([]),
 });
 
 export const inspections = pgTable("inspections", {
