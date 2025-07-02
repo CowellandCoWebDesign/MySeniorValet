@@ -1652,15 +1652,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { runBatchEnrichment } = await import('./enrichment/runEnrichment.js');
       const { getDailySpendingSummary } = await import('./enrichment/spendGuards.js');
       
-      const city = req.query.city || 'San Francisco';
-      const limit = Math.min(parseInt(req.query.limit) || 25, 50); // Max 50 communities
+      const city = req.query.city as string || 'San Francisco';
+      const limit = Math.min(parseInt(req.query.limit as string) || 25, 50); // Max 50 communities
       
       // Get random communities from the specified city
-      const communitiesInCity = await db
-        .select({ id: communities.id, name: communities.name })
-        .from(communities)
-        .where(eq(communities.city, city))
-        .limit(limit);
+      const communitiesInCity = await storage.getAllCommunities()
+        .then(allCommunities => 
+          allCommunities
+            .filter(c => c.city === city)
+            .slice(0, limit)
+            .map(c => ({ id: c.id, name: c.name }))
+        );
         
       if (communitiesInCity.length === 0) {
         return res.status(404).json({ message: `No communities found in ${city}` });
