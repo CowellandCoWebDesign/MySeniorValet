@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal, json } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, decimal, json, date } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -70,15 +70,78 @@ export const inspections = pgTable("inspections", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const reviews = pgTable("reviews", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  rating: integer("rating").notNull(), // 1-5 stars
+  title: text("title").notNull(),
+  reviewText: text("review_text").notNull(),
+  pros: text("pros").array().default([]),
+  cons: text("cons").array().default([]),
+  relationshipType: text("relationship_type", { 
+    enum: ["Current Resident", "Former Resident", "Family Member", "Visitor"] 
+  }).notNull(),
+  stayDuration: text("stay_duration"), // "6 months", "2 years", etc.
+  careLevel: text("care_level"), // Which care type they experienced
+  wouldRecommend: boolean("would_recommend"),
+  verified: boolean("verified").default(false),
+  helpful: integer("helpful").default(0), // helpful votes
+  notHelpful: integer("not_helpful").default(0),
+  moderationStatus: text("moderation_status", {
+    enum: ["Pending", "Approved", "Rejected", "Flagged"]
+  }).default("Pending"),
+  moderationNotes: text("moderation_notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const reviewHelpfulness = pgTable("review_helpfulness", {
+  id: serial("id").primaryKey(),
+  reviewId: integer("review_id").references(() => reviews.id).notNull(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  isHelpful: boolean("is_helpful").notNull(), // true = helpful, false = not helpful
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Relations
 export const communitiesRelations = relations(communities, ({ many }) => ({
   inspections: many(inspections),
+  reviews: many(reviews),
 }));
 
 export const inspectionsRelations = relations(inspections, ({ one }) => ({
   community: one(communities, {
     fields: [inspections.communityId],
     references: [communities.id],
+  }),
+}));
+
+export const usersRelations = relations(users, ({ many }) => ({
+  reviews: many(reviews),
+  reviewHelpfulness: many(reviewHelpfulness),
+}));
+
+export const reviewsRelations = relations(reviews, ({ one, many }) => ({
+  community: one(communities, {
+    fields: [reviews.communityId],
+    references: [communities.id],
+  }),
+  user: one(users, {
+    fields: [reviews.userId],
+    references: [users.id],
+  }),
+  helpfulness: many(reviewHelpfulness),
+}));
+
+export const reviewHelpfulnessRelations = relations(reviewHelpfulness, ({ one }) => ({
+  review: one(reviews, {
+    fields: [reviewHelpfulness.reviewId],
+    references: [reviews.id],
+  }),
+  user: one(users, {
+    fields: [reviewHelpfulness.userId],
+    references: [users.id],
   }),
 }));
 
@@ -94,6 +157,28 @@ export const insertCommunitySchema = createInsertSchema(communities).omit({
 });
 
 export const insertInspectionSchema = createInsertSchema(inspections).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertReviewSchema = createInsertSchema(reviews).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  helpful: true,
+  notHelpful: true,
+  moderationStatus: true,
+  moderationNotes: true,
+  verified: true,
+}).extend({
+  rating: z.number().min(1).max(5),
+  title: z.string().min(5).max(100),
+  reviewText: z.string().min(20).max(2000),
+  pros: z.array(z.string()).optional(),
+  cons: z.array(z.string()).optional(),
+});
+
+export const insertReviewHelpfulnessSchema = createInsertSchema(reviewHelpfulness).omit({
   id: true,
   createdAt: true,
 });

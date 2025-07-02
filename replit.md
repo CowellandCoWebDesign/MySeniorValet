@@ -2,7 +2,7 @@
 
 ## Overview
 
-TrueView is a full-stack web application that provides transparent, real-time data about senior living communities. The platform helps families make informed decisions by offering access to licensing information, inspection reports, and verified community data. The application features community search capabilities, detailed community profiles, and a claim system for community owners.
+TrueView is a full-stack senior living community search platform that prioritizes pricing transparency, real-time availability, and trusted reviews. The platform helps families make informed decisions by providing comprehensive community information including amenities, services, medical restrictions, and verified review sources. Key features include interactive map visualization, detailed community profiles with availability tracking, and a claim system for community owners.
 
 ## System Architecture
 
@@ -36,10 +36,13 @@ The application follows a modern full-stack architecture with clear separation o
 - **Inspections**: Inspection records with violation tracking and compliance data
 
 ### Key Features
-- **Community Search**: Location-based search with filtering by care type, amenities, and pricing
-- **Community Profiles**: Detailed pages with licensing status, inspection history, and amenities
+- **Interactive Map**: Real-time map visualization with availability indicators and custom markers
+- **Community Search**: Location-based search with filtering by care type, amenities, pricing, and availability
+- **Pricing Transparency**: Full price ranges with recent update tracking and availability status
+- **Trusted Reviews**: Integration of Google, Yelp, Care.com, and other verified review sources
+- **Service Differentiation**: Clear display of key services and medical restrictions for informed decisions
+- **Community Profiles**: Detailed pages with availability tracking, service offerings, and trusted reviews
 - **Claim System**: Allows community owners to claim and manage their profiles
-- **Transparency Scoring**: Rating system based on licensing compliance and inspection data
 
 ## Data Flow
 
@@ -61,6 +64,8 @@ The application follows a modern full-stack architecture with clear separation o
 - **tailwindcss**: Utility-first CSS framework
 - **class-variance-authority**: Type-safe component variants
 - **lucide-react**: Icon library
+- **react-leaflet**: Interactive map components for community visualization
+- **leaflet**: Map library for location-based features
 
 ## Deployment Strategy
 
@@ -77,7 +82,15 @@ The application is configured for multiple deployment environments:
 - July 02, 2025: Initial setup with complete full-stack architecture
 - July 02, 2025: Enhanced homepage hero section with senior community background image and improved visual design
 - July 02, 2025: Migrated from in-memory storage to PostgreSQL database with Drizzle ORM, including automatic data seeding
+- July 02, 2025: **Major Enhancement**: Added interactive map functionality, pricing transparency features, availability tracking, trusted review integration, service differentiation, and medical restrictions display
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+
+### Project Priorities (Updated July 2025)
+- **Primary Focus**: Pricing transparency, availability tracking, and trusted reviews (Google, Yelp, Care.com)
+- **Secondary Focus**: Licensing and inspection data (good supplementary information but not main focus)
+- **Core Features**: Interactive map showing filtered communities, service differentiation, medical restrictions
+- **User Experience**: Clear availability indicators, real-time pricing updates, comprehensive review integration
+- **Launch Requirements**: All transparency features implemented and tested, map functionality working
