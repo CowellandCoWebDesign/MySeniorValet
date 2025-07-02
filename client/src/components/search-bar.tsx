@@ -24,6 +24,42 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
     careType: "All Types",
     budget: "Any Budget",
   });
+  const [locationQuery, setLocationQuery] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+
+  // Fetch location suggestions
+  const { data: locationSuggestions = [] } = useQuery({
+    queryKey: ['/api/locations/search', locationQuery],
+    enabled: locationQuery.length >= 2,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  // Handle clicks outside to close suggestions
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node) &&
+          inputRef.current && !inputRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleLocationInputChange = (value: string) => {
+    setLocationQuery(value);
+    setSearchParams(prev => ({ ...prev, location: value }));
+    setShowSuggestions(value.length >= 2);
+  };
+
+  const handleLocationSelect = (location: string) => {
+    setSearchParams(prev => ({ ...prev, location }));
+    setLocationQuery(location);
+    setShowSuggestions(false);
+  };
 
   const handleSearch = () => {
     if (onSearch) {
@@ -46,14 +82,39 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
           <div className="md:col-span-2">
             <Label className="block text-sm font-medium text-gray-700 mb-2">Location</Label>
             <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
               <Input
+                ref={inputRef}
                 type="text"
                 placeholder="City, State or ZIP Code"
                 className="pl-10"
                 value={searchParams.location}
-                onChange={(e) => setSearchParams(prev => ({ ...prev, location: e.target.value }))}
+                onChange={(e) => handleLocationInputChange(e.target.value)}
+                onFocus={() => setShowSuggestions(locationQuery.length >= 2)}
+                autoComplete="off"
               />
+              
+              {/* Location Suggestions Dropdown */}
+              {showSuggestions && locationSuggestions.length > 0 && (
+                <div 
+                  ref={suggestionsRef}
+                  className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg z-20 max-h-48 overflow-y-auto mt-1"
+                >
+                  {locationSuggestions.map((suggestion: any, index: number) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => handleLocationSelect(suggestion.value)}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none first:rounded-t-md last:rounded-b-md"
+                    >
+                      <div className="flex items-center">
+                        <MapPin className="h-4 w-4 text-gray-400 mr-2" />
+                        <span className="text-sm text-gray-900">{suggestion.label}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
           

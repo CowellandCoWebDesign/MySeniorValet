@@ -1,6 +1,6 @@
 import { users, communities, inspections, reviews, reviewHelpfulness, type User, type InsertUser, type Community, type InsertCommunity, type Inspection, type InsertInspection, type Review, type InsertReview, type InsertReviewHelpfulness, type SearchCommunity } from "@shared/schema";
 import { db } from "./db";
-import { eq, like, gte, and } from "drizzle-orm";
+import { eq, like, ilike, gte, and, or } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -277,11 +277,28 @@ export class DatabaseStorage implements IStorage {
     }
 
     if (params.location) {
-      const searchTerm = `%${params.location.toLowerCase()}%`;
-      conditions.push(
-        like(communities.city, searchTerm)
-        // Could add more location-based conditions here
-      );
+      const locationLower = params.location.toLowerCase();
+      
+      // Parse "City, State" format
+      if (locationLower.includes(',')) {
+        const [cityPart, statePart] = locationLower.split(',').map(s => s.trim());
+        conditions.push(
+          and(
+            ilike(communities.city, `%${cityPart}%`),
+            ilike(communities.state, `%${statePart}%`)
+          )
+        );
+      } else {
+        // Single term - search in city, state, or zip code
+        const searchTerm = `%${locationLower}%`;
+        conditions.push(
+          or(
+            ilike(communities.city, searchTerm),
+            ilike(communities.state, searchTerm),
+            ilike(communities.zipCode, searchTerm)
+          )
+        );
+      }
     }
 
     if (params.minRating) {
