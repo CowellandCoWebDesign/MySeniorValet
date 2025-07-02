@@ -50,12 +50,12 @@ export function Footer() {
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">Company</h3>
+            <h3 className="text-lg font-semibold mb-4">Legal & Compliance</h3>
             <ul className="space-y-2 text-gray-400">
-              <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Data Sources</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
+              <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
+              <li><Link href="/disclaimer" className="hover:text-white transition-colors">Disclaimer</Link></li>
+              <li><Link href="/accessibility" className="hover:text-white transition-colors">Accessibility</Link></li>
             </ul>
           </div>
         </div>
@@ -65,9 +65,10 @@ export function Footer() {
             © 2024 TrueView. All rights reserved. Data sourced from public state licensing agencies.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
-            <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">Privacy</a>
-            <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">Terms</a>
-            <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">Contact</a>
+            <Link href="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors">Privacy</Link>
+            <Link href="/terms" className="text-gray-400 hover:text-white text-sm transition-colors">Terms</Link>
+            <Link href="/disclaimer" className="text-gray-400 hover:text-white text-sm transition-colors">Disclaimer</Link>
+            <Link href="/accessibility" className="text-gray-400 hover:text-white text-sm transition-colors">Accessibility</Link>
           </div>
         </div>
       </div>

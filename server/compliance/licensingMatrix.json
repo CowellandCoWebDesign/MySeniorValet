@@ -1,0 +1,82 @@
+{
+  "CA": {
+    "requiresLicense": true,
+    "statute": "SB648",
+    "fullName": "California Senate Bill 648",
+    "description": "Requires licensing for senior referral agencies",
+    "lastUpdated": "2024-01-01",
+    "exemptions": ["Information-only platforms", "Non-referral services"]
+  },
+  "TX": {
+    "requiresLicense": true,
+    "statute": "HB900",
+    "fullName": "Texas House Bill 900",
+    "description": "Regulates senior placement agencies",
+    "lastUpdated": "2024-01-01",
+    "exemptions": ["Educational platforms", "Public information services"]
+  },
+  "FL": {
+    "requiresLicense": true,
+    "statute": "FS 429.024",
+    "fullName": "Florida Statutes 429.024",
+    "description": "Licensing requirements for assisted living referral agencies",
+    "lastUpdated": "2024-01-01",
+    "exemptions": ["Information aggregators", "Non-compensation platforms"]
+  },
+  "WA": {
+    "requiresLicense": true,
+    "statute": "RCW 18.330",
+    "fullName": "Washington Revised Code 18.330",
+    "description": "Regulation of long-term care referral services",
+    "lastUpdated": "2024-01-01",
+    "exemptions": ["Public information platforms", "Non-referral services"]
+  },
+  "OR": {
+    "requiresLicense": true,
+    "statute": "ORS 443.733",
+    "fullName": "Oregon Revised Statutes 443.733",
+    "description": "Senior referral agency licensing requirements",
+    "lastUpdated": "2024-01-01",
+    "exemptions": ["Information-only services", "Educational platforms"]
+  },
+  "NY": {
+    "requiresLicense": true,
+    "statute": "NYCRR 487",
+    "fullName": "New York Codes, Rules and Regulations 487",
+    "description": "Licensing for senior placement services",
+    "lastUpdated": "2024-01-01",
+    "exemptions": ["Public information platforms", "Non-compensation services"]
+  },
+  "PA": {
+    "requiresLicense": true,
+    "statute": "PA Title 4",
+    "fullName": "Pennsylvania Title 4 Professional Licensing",
+    "description": "Regulation of senior care referral agencies",
+    "lastUpdated": "2024-01-01",
+    "exemptions": ["Information aggregation services", "Educational platforms"]
+  },
+  "AZ": {
+    "requiresLicense": false,
+    "statute": "N/A",
+    "fullName": "No specific licensing requirement",
+    "description": "Arizona does not require licensing for information-only platforms",
+    "lastUpdated": "2024-01-01",
+    "exemptions": []
+  },
+  "NV": {
+    "requiresLicense": false,
+    "statute": "N/A", 
+    "fullName": "No specific licensing requirement",
+    "description": "Nevada does not require licensing for non-referral information services",
+    "lastUpdated": "2024-01-01",
+    "exemptions": []
+  },
+  "CO": {
+    "requiresLicense": true,
+    "statute": "CRS 12-38.5",
+    "fullName": "Colorado Revised Statutes 12-38.5",
+    "description": "Regulation of senior placement agencies",
+    "lastUpdated": "2024-01-01",
+    "exemptions": ["Information-only platforms", "Public service providers"]
+  }
+}

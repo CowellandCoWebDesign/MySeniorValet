@@ -11,6 +11,7 @@
     "db:push": "drizzle-kit push"
   },
   "dependencies": {
+    "@axe-core/cli": "^4.10.2",
     "@hookform/resolvers": "^3.10.0",
     "@jridgewell/trace-mapping": "^0.3.25",
     "@neondatabase/serverless": "^0.10.4",
@@ -44,6 +45,7 @@
     "@tanstack/react-query": "^5.60.5",
     "@types/leaflet": "^1.9.19",
     "@types/memoizee": "^0.4.12",
+    "axe-core": "^4.10.3",
     "axios": "^1.10.0",
     "cheerio": "^1.1.0",
     "class-variance-authority": "^0.7.1",

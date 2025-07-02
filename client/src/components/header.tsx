@@ -18,8 +18,8 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-8">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+            <Link href="/" className="flex items-center space-x-2" aria-label="TrueView Home - A Resource for Seniors">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center" aria-hidden="true">
                 <Home className="text-white text-sm" />
               </div>
               <div className="flex flex-col">
@@ -49,11 +49,11 @@ export function Header() {
                 Claim Your Community
               </Button>
             </Link>
-            <Button>Sign In</Button>
+            <Button aria-label="Sign in to TrueView">Sign In</Button>
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden">
-                  <Menu className="h-5 w-5" />
+                <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open navigation menu">
+                  <Menu className="h-5 w-5" aria-hidden="true" />
                 </Button>
               </SheetTrigger>
               <SheetContent>
