@@ -469,6 +469,11 @@ export class RealDataScraper {
 
   // Helper method to check if result is relevant to senior living
   private isRelevantSeniorLiving(name: string, description: string): boolean {
+    // First check if it's valid English text (not Chinese/foreign characters)
+    if (!this.isValidEnglishText(name)) {
+      return false;
+    }
+    
     const text = (name + ' ' + description).toLowerCase();
     
     const keywords = [
@@ -479,16 +484,45 @@ export class RealDataScraper {
     
     const excludeKeywords = [
       'hospital', 'medical center', 'clinic', 'pharmacy', 'doctor',
-      'dentist', 'urgent care', 'emergency', 'surgery', 'laboratory'
+      'dentist', 'urgent care', 'emergency', 'surgery', 'laboratory',
+      'best', 'facilities', 'yelp', 'listings', 'seniorly', 'advice',
+      'directory', 'search', 'find', 'guide', 'reviews', 'top 10',
+      'compare', 'choose', 'tips', 'questions', 'answers', 'zhihu'
     ];
     
     // Must contain at least one senior living keyword
     const hasRelevantKeyword = keywords.some(keyword => text.includes(keyword));
     
-    // Must not contain exclusion keywords
+    // Must not contain exclusion keywords (directory sites, etc.)
     const hasExcludeKeyword = excludeKeywords.some(keyword => text.includes(keyword));
     
-    return hasRelevantKeyword && !hasExcludeKeyword;
+    // Must look like an actual business name (not a question or directory)
+    const isBusinessName = !text.includes('?') && !text.includes('what') && 
+                          !text.includes('how') && !text.includes('why') &&
+                          !text.includes('best') && !text.includes('top');
+    
+    return hasRelevantKeyword && !hasExcludeKeyword && isBusinessName;
+  }
+
+  // Check if text is valid English (no Chinese characters)
+  private isValidEnglishText(text: string): boolean {
+    // Check for Chinese characters (Unicode ranges for Chinese)
+    const chineseRegex = /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]/;
+    
+    // Check for other non-English characters that might indicate foreign text
+    const nonEnglishRegex = /[^\x00-\x7F\u00C0-\u017F]/;
+    
+    if (chineseRegex.test(text) || nonEnglishRegex.test(text)) {
+      return false;
+    }
+    
+    // Must be primarily English words
+    const englishWords = text.match(/[a-zA-Z]+/g);
+    if (!englishWords || englishWords.length < 2) {
+      return false;
+    }
+    
+    return true;
   }
 
   // Helper to extract zip code from text
@@ -501,6 +535,126 @@ export class RealDataScraper {
   private extractPhoneFromText(text: string): string | undefined {
     const phoneMatch = text.match(/\(?(\d{3})\)?[-.\s]?(\d{3})[-.\s]?(\d{4})/);
     return phoneMatch ? `(${phoneMatch[1]}) ${phoneMatch[2]}-${phoneMatch[3]}` : undefined;
+  }
+
+  // Validate and clean community data before adding to database
+  private validateCommunityData(community: RealCommunityData): RealCommunityData | null {
+    // Skip if invalid English text
+    if (!this.isValidEnglishText(community.name)) {
+      console.log(`Skipping invalid name: ${community.name}`);
+      return null;
+    }
+
+    // Must have a proper business name (not directory listings)
+    if (this.isDirectoryListing(community.name)) {
+      console.log(`Skipping directory listing: ${community.name}`);
+      return null;
+    }
+
+    // Clean and validate address
+    const cleanedAddress = this.cleanAddress(community.address);
+    if (!this.isValidAddress(cleanedAddress, community.city, community.state)) {
+      console.log(`Invalid address for ${community.name}: ${cleanedAddress}`);
+      return null;
+    }
+
+    // Clean phone number
+    const cleanedPhone = community.phone ? this.cleanPhoneNumber(community.phone) : undefined;
+
+    return {
+      ...community,
+      name: this.cleanBusinessName(community.name),
+      address: cleanedAddress,
+      phone: cleanedPhone,
+      description: community.description?.substring(0, 200) || `Senior living community in ${community.city}, ${community.state}`
+    };
+  }
+
+  // Check if name looks like a directory listing rather than a business
+  private isDirectoryListing(name: string): boolean {
+    const directoryPatterns = [
+      /best.*facilities/i,
+      /top \d+/i,
+      /\d+ assisted living/i,
+      /directory/i,
+      /listings/i,
+      /guide/i,
+      /reviews/i,
+      /find/i,
+      /search/i,
+      /advice/i,
+      /compare/i,
+      /yelp/i,
+      /seniorly/i
+    ];
+
+    return directoryPatterns.some(pattern => pattern.test(name));
+  }
+
+  // Clean business name
+  private cleanBusinessName(name: string): string {
+    return name
+      .replace(/\s+/g, ' ')
+      .replace(/[|·•]/g, '-')
+      .trim();
+  }
+
+  // Clean and validate address
+  private cleanAddress(address: string): string {
+    return address
+      .replace(/\s+/g, ' ')
+      .replace(/,\s*,/g, ',')
+      .trim();
+  }
+
+  // Validate address format
+  private isValidAddress(address: string, city: string, state: string): boolean {
+    // Must contain street number or be in city, state format
+    const hasStreetNumber = /^\d+/.test(address);
+    const isCityState = address.toLowerCase().includes(city.toLowerCase()) && address.toLowerCase().includes(state.toLowerCase());
+    
+    // Must not be too generic
+    const tooGeneric = address.length < 10 || address === `${city}, ${state}`;
+    
+    return (hasStreetNumber || isCityState) && !tooGeneric;
+  }
+
+  // Clean phone number to standard format
+  private cleanPhoneNumber(phone: string): string | undefined {
+    // Extract digits only
+    const digits = phone.replace(/\D/g, '');
+    
+    // Must be 10 digits for US phone
+    if (digits.length === 10) {
+      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+    } else if (digits.length === 11 && digits.startsWith('1')) {
+      return `(${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7)}`;
+    }
+    
+    return undefined;
+  }
+
+  // Create known corrections for specific communities
+  private applyCommunityCorrections(community: RealCommunityData): RealCommunityData {
+    const corrections: Record<string, Partial<RealCommunityData>> = {
+      'Hilltop Estates Senior Living': {
+        address: '451 Hilltop Dr, Redding, CA',
+        phone: '(530) 241-4444'
+      },
+      'Hilltop Estates': {
+        name: 'Hilltop Estates Senior Living',
+        address: '451 Hilltop Dr, Redding, CA',
+        phone: '(530) 241-4444'
+      }
+    };
+
+    const correction = corrections[community.name];
+    if (correction) {
+      console.log(`Applying correction for ${community.name}`);
+      return { ...community, ...correction };
+    }
+
+    return community;
   }
 
   // Search A Place for Mom directory
@@ -610,11 +764,11 @@ export class RealDataScraper {
       },
       {
         name: "Hilltop Estates Senior Living",
-        address: "2045 Hilltop Dr",
+        address: "451 Hilltop Dr",
         city: "Redding",
         state: "CA",
         zipCode: "96002",
-        phone: "(530) 221-0110",
+        phone: "(530) 241-4444",
         website: null,
         description: "Senior living community with comprehensive care services",
         careTypes: ["Independent Living", "Assisted Living"]
@@ -716,9 +870,24 @@ export class RealDataScraper {
       // Remove duplicates based on name and address
       const uniqueCommunities = this.deduplicateCommunities(allCommunities);
       
-      console.log(`Found ${uniqueCommunities.length} unique real communities`);
+      console.log(`Found ${uniqueCommunities.length} unique communities from scraping`);
       
+      // Validate and clean all community data
+      const validatedCommunities: RealCommunityData[] = [];
       for (const community of uniqueCommunities) {
+        // Apply known corrections first
+        const correctedCommunity = this.applyCommunityCorrections(community);
+        
+        // Then validate
+        const validatedCommunity = this.validateCommunityData(correctedCommunity);
+        if (validatedCommunity) {
+          validatedCommunities.push(validatedCommunity);
+        }
+      }
+
+      console.log(`${validatedCommunities.length} communities passed validation`);
+      
+      for (const community of validatedCommunities) {
         try {
           const insertData: InsertCommunity = {
             name: community.name,
