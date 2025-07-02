@@ -1,4 +1,4 @@
-import { users, communities, inspections, type User, type InsertUser, type Community, type InsertCommunity, type Inspection, type InsertInspection, type SearchCommunity } from "@shared/schema";
+import { users, communities, inspections, reviews, reviewHelpfulness, type User, type InsertUser, type Community, type InsertCommunity, type Inspection, type InsertInspection, type Review, type InsertReview, type InsertReviewHelpfulness, type SearchCommunity } from "@shared/schema";
 import { db } from "./db";
 import { eq, like, gte, and } from "drizzle-orm";
 
@@ -19,6 +19,16 @@ export interface IStorage {
   // Inspection methods
   getInspectionsByCommunity(communityId: number): Promise<Inspection[]>;
   createInspection(inspection: InsertInspection): Promise<Inspection>;
+
+  // Review methods
+  getReviewsByCommunity(communityId: number): Promise<Review[]>;
+  getReviewsByUser(userId: number): Promise<Review[]>;
+  createReview(review: InsertReview): Promise<Review>;
+  updateReview(id: number, updates: Partial<InsertReview>): Promise<Review | undefined>;
+  deleteReview(id: number): Promise<boolean>;
+  markReviewHelpful(reviewId: number, userId: number, isHelpful: boolean): Promise<void>;
+  getReviewHelpfulness(reviewId: number, userId: number): Promise<boolean | null>;
+  moderateReview(id: number, status: string, notes?: string): Promise<Review | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -322,6 +332,152 @@ export class DatabaseStorage implements IStorage {
       .values(insertInspection)
       .returning();
     return inspection;
+  }
+
+  // Review methods
+  async getReviewsByCommunity(communityId: number): Promise<Review[]> {
+    return await db
+      .select({
+        id: reviews.id,
+        communityId: reviews.communityId,
+        userId: reviews.userId,
+        rating: reviews.rating,
+        title: reviews.title,
+        reviewText: reviews.reviewText,
+        pros: reviews.pros,
+        cons: reviews.cons,
+        relationshipType: reviews.relationshipType,
+        stayDuration: reviews.stayDuration,
+        careLevel: reviews.careLevel,
+        wouldRecommend: reviews.wouldRecommend,
+        verified: reviews.verified,
+        helpful: reviews.helpful,
+        notHelpful: reviews.notHelpful,
+        moderationStatus: reviews.moderationStatus,
+        moderationNotes: reviews.moderationNotes,
+        createdAt: reviews.createdAt,
+        updatedAt: reviews.updatedAt,
+        user: {
+          id: users.id,
+          username: users.username,
+        }
+      })
+      .from(reviews)
+      .leftJoin(users, eq(reviews.userId, users.id))
+      .where(and(
+        eq(reviews.communityId, communityId),
+        eq(reviews.moderationStatus, "Approved")
+      ))
+      .orderBy(reviews.createdAt);
+  }
+
+  async getReviewsByUser(userId: number): Promise<Review[]> {
+    return await db
+      .select()
+      .from(reviews)
+      .where(eq(reviews.userId, userId))
+      .orderBy(reviews.createdAt);
+  }
+
+  async createReview(insertReview: InsertReview): Promise<Review> {
+    const [review] = await db
+      .insert(reviews)
+      .values(insertReview)
+      .returning();
+    return review;
+  }
+
+  async updateReview(id: number, updates: Partial<InsertReview>): Promise<Review | undefined> {
+    const [review] = await db
+      .update(reviews)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(reviews.id, id))
+      .returning();
+    return review;
+  }
+
+  async deleteReview(id: number): Promise<boolean> {
+    const result = await db
+      .delete(reviews)
+      .where(eq(reviews.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  async markReviewHelpful(reviewId: number, userId: number, isHelpful: boolean): Promise<void> {
+    // First check if user already rated this review
+    const existing = await db
+      .select()
+      .from(reviewHelpfulness)
+      .where(and(
+        eq(reviewHelpfulness.reviewId, reviewId),
+        eq(reviewHelpfulness.userId, userId)
+      ));
+
+    if (existing.length > 0) {
+      // Update existing rating
+      await db
+        .update(reviewHelpfulness)
+        .set({ isHelpful })
+        .where(and(
+          eq(reviewHelpfulness.reviewId, reviewId),
+          eq(reviewHelpfulness.userId, userId)
+        ));
+    } else {
+      // Create new rating
+      await db
+        .insert(reviewHelpfulness)
+        .values({ reviewId, userId, isHelpful });
+    }
+
+    // Update the review's helpful/notHelpful counters
+    const helpfulCount = await db
+      .select()
+      .from(reviewHelpfulness)
+      .where(and(
+        eq(reviewHelpfulness.reviewId, reviewId),
+        eq(reviewHelpfulness.isHelpful, true)
+      ));
+
+    const notHelpfulCount = await db
+      .select()
+      .from(reviewHelpfulness)
+      .where(and(
+        eq(reviewHelpfulness.reviewId, reviewId),
+        eq(reviewHelpfulness.isHelpful, false)
+      ));
+
+    await db
+      .update(reviews)
+      .set({
+        helpful: helpfulCount.length,
+        notHelpful: notHelpfulCount.length
+      })
+      .where(eq(reviews.id, reviewId));
+  }
+
+  async getReviewHelpfulness(reviewId: number, userId: number): Promise<boolean | null> {
+    const [helpfulness] = await db
+      .select()
+      .from(reviewHelpfulness)
+      .where(and(
+        eq(reviewHelpfulness.reviewId, reviewId),
+        eq(reviewHelpfulness.userId, userId)
+      ));
+    
+    return helpfulness ? helpfulness.isHelpful : null;
+  }
+
+  async moderateReview(id: number, status: string, notes?: string): Promise<Review | undefined> {
+    const [review] = await db
+      .update(reviews)
+      .set({ 
+        moderationStatus: status as any,
+        moderationNotes: notes,
+        updatedAt: new Date()
+      })
+      .where(eq(reviews.id, id))
+      .returning();
+    return review;
   }
 }
 
