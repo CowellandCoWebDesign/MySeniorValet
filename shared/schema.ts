@@ -25,18 +25,51 @@ export const communities = pgTable("communities", {
   services: text("services").array().default([]), // ['24/7 Nursing', 'Physical Therapy', 'Transportation', 'Meal Service']
   medicalRestrictions: text("medical_restrictions").array().default([]), // ['No Insulin Patients', 'No Dialysis', 'No Ventilators']
   priceRange: json("price_range").$type<{ min: number; max: number }>(),
-  availabilityStatus: text("availability_status", { enum: ["Available", "Waitlist", "Full", "Contact"] }).default("Contact"),
+  pricingDetails: json("pricing_details").$type<{
+    basePrice?: number;
+    specialOffers?: Array<{
+      title: string;
+      description: string;
+      savings: number;
+      expiresAt?: Date;
+    }>;
+    priceBreakdown?: {
+      rent: number;
+      careServices?: number;
+      meals?: number;
+      utilities?: number;
+    };
+    moveinSpecials?: string[];
+  }>().default({}),
+  availabilityStatus: text("availability_status", { enum: ["Available Now", "Waitlist", "Full", "Contact for Availability"] }).default("Contact for Availability"),
   availableUnits: integer("available_units"),
   totalUnits: integer("total_units"),
+  unitTypes: json("unit_types").$type<Array<{
+    type: string; // 'Studio', '1BR', '2BR'
+    available: number;
+    priceRange: { min: number; max: number };
+  }>>().default([]),
   rating: decimal("rating", { precision: 3, scale: 2 }),
   reviewCount: integer("review_count").default(0),
   googleRating: decimal("google_rating", { precision: 3, scale: 2 }),
   googleReviewCount: integer("google_review_count").default(0),
+  googleReviewSnippets: json("google_review_snippets").$type<Array<{
+    text: string;
+    rating: number;
+    author: string;
+    date: string;
+    isPositive: boolean;
+  }>>().default([]),
   trustedReviews: json("trusted_reviews").$type<Array<{
     source: string;
     rating: number;
     reviewCount: number;
     url?: string;
+    snippets?: Array<{
+      text: string;
+      rating: number;
+      author: string;
+    }>;
   }>>().default([]),
   imageUrl: text("image_url"),
   imageGallery: text("image_gallery").array().default([]),
