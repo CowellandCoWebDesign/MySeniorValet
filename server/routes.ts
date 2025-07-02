@@ -3,6 +3,8 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { searchCommunitySchema, insertCommunitySchema, insertReviewSchema } from "@shared/schema";
 import { z } from "zod";
+import { aiRecommendationEngine, RecommendationRequest } from "./ai-recommendations";
+import { ComprehensiveScraper } from "./scraper";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Get all communities
@@ -297,6 +299,265 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to moderate review" });
     }
   });
+
+  // AI-Powered Recommendation Engine
+  app.post("/api/recommendations", async (req, res) => {
+    try {
+      const requestSchema = z.object({
+        careNeeds: z.array(z.string()),
+        budget: z.object({
+          min: z.number(),
+          max: z.number()
+        }),
+        location: z.object({
+          city: z.string().optional(),
+          state: z.string().optional(),
+          radius: z.number().optional()
+        }),
+        preferences: z.object({
+          communitySize: z.enum(["small", "medium", "large"]).optional(),
+          amenityPriorities: z.array(z.string()).optional(),
+          careLevel: z.enum(["Independent Living", "Assisted Living", "Memory Care", "Skilled Nursing"]).optional(),
+          medicalRestrictions: z.array(z.string()).optional()
+        }),
+        familyPriorities: z.array(z.string()).optional()
+      });
+
+      const request: RecommendationRequest = requestSchema.parse(req.body);
+      
+      // Get communities that match basic criteria
+      let communities = await storage.getAllCommunities();
+      
+      // Filter by location if specified
+      if (request.location.city || request.location.state) {
+        communities = communities.filter(c => {
+          if (request.location.city && !c.city.toLowerCase().includes(request.location.city.toLowerCase())) {
+            return false;
+          }
+          if (request.location.state && !c.state.toLowerCase().includes(request.location.state.toLowerCase())) {
+            return false;
+          }
+          return true;
+        });
+      }
+
+      // Get AI-powered recommendations
+      const recommendations = await aiRecommendationEngine.getPersonalizedRecommendations(request, communities);
+      
+      res.json({
+        recommendations,
+        totalCommunities: communities.length,
+        requestId: Math.random().toString(36).substr(2, 9),
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid recommendation request", errors: error.errors });
+      } else {
+        console.error("Error generating recommendations:", error);
+        res.status(500).json({ message: "Failed to generate recommendations" });
+      }
+    }
+  });
+
+  // Community Comparison Tool
+  app.post("/api/communities/compare", async (req, res) => {
+    try {
+      const { communityIds } = req.body;
+      
+      if (!Array.isArray(communityIds) || communityIds.length < 2 || communityIds.length > 5) {
+        return res.status(400).json({ message: "Please provide 2-5 community IDs for comparison" });
+      }
+
+      // Fetch communities
+      const communities = await Promise.all(
+        communityIds.map((id: number) => storage.getCommunity(id))
+      );
+
+      // Filter out any null results
+      const validCommunities = communities.filter(c => c !== undefined);
+      
+      if (validCommunities.length < 2) {
+        return res.status(404).json({ message: "Some communities not found" });
+      }
+
+      // Generate AI comparison insights
+      const comparisonInsights = await aiRecommendationEngine.generateComparisonInsights(validCommunities);
+
+      // Organize comparison data
+      const comparison = {
+        communities: validCommunities.map(community => ({
+          id: community.id,
+          name: community.name,
+          location: `${community.city}, ${community.state}`,
+          careTypes: community.careTypes,
+          pricing: {
+            basePrice: community.baseMonthlyRate || null,
+            priceRange: community.priceRange || null,
+            lastPriceUpdate: community.lastPriceUpdate
+          },
+          availability: {
+            status: community.availabilityStatus,
+            lastUpdated: community.lastAvailabilityUpdate
+          },
+          licensing: {
+            licenseNumber: community.licenseNumber,
+            status: community.licenseStatus,
+            lastInspection: community.lastInspectionDate
+          },
+          amenities: community.amenities?.slice(0, 10) || [],
+          services: community.services?.slice(0, 10) || [],
+          medicalRestrictions: community.medicalRestrictions || [],
+          ratings: {
+            average: community.averageRating,
+            reviewCount: community.reviewCount,
+            trustedSources: community.trustedReviews
+          }
+        })),
+        insights: comparisonInsights,
+        comparisonDate: new Date().toISOString()
+      };
+
+      res.json(comparison);
+    } catch (error) {
+      console.error("Error comparing communities:", error);
+      res.status(500).json({ message: "Failed to compare communities" });
+    }
+  });
+
+  // Comprehensive Data Scraping Endpoints
+  app.post("/api/admin/scrape", async (req, res) => {
+    try {
+      const { state, careType, sources } = req.body;
+      
+      const scraper = new ComprehensiveScraper();
+      
+      // Start scraping in background
+      scraper.scrapeMultipleDataSources(state, careType).catch(error => {
+        console.error("Background scraping error:", error);
+      });
+
+      res.json({ 
+        message: "Data scraping initiated",
+        sources: sources || "all",
+        state: state || "all states",
+        careType: careType || "all care types"
+      });
+    } catch (error) {
+      console.error("Error initiating scrape:", error);
+      res.status(500).json({ message: "Failed to initiate data scraping" });
+    }
+  });
+
+  // Licensing and Inspection Data
+  app.get("/api/communities/:id/licensing", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid community ID" });
+      }
+
+      const community = await storage.getCommunity(id);
+      if (!community) {
+        return res.status(404).json({ message: "Community not found" });
+      }
+
+      const inspections = await storage.getInspectionsByCommunity(id);
+
+      const licensingInfo = {
+        community: {
+          id: community.id,
+          name: community.name,
+          careTypes: community.careTypes
+        },
+        licensing: {
+          licenseNumber: community.licenseNumber,
+          status: community.licenseStatus,
+          issueDate: community.licenseIssueDate,
+          expirationDate: community.licenseExpirationDate,
+          lastInspectionDate: community.lastInspectionDate,
+          isLicenseRequired: this.isLicenseRequired(community.careTypes)
+        },
+        inspections: inspections.map(inspection => ({
+          id: inspection.id,
+          date: inspection.inspectionDate,
+          type: inspection.inspectionType,
+          violations: inspection.violations || [],
+          overallScore: inspection.overallScore,
+          reportUrl: inspection.reportUrl
+        })),
+        transparency: {
+          hasPublicRecords: !!community.licenseNumber,
+          lastUpdated: community.lastInspectionDate,
+          violationCount: inspections.reduce((count, insp) => count + (insp.violations?.length || 0), 0)
+        }
+      };
+
+      res.json(licensingInfo);
+    } catch (error) {
+      console.error("Error fetching licensing info:", error);
+      res.status(500).json({ message: "Failed to fetch licensing information" });
+    }
+  });
+
+  // Helper function to determine if license is required
+  function isLicenseRequired(careTypes: string[]): boolean {
+    const licensedCareTypes = ['Assisted Living', 'Memory Care', 'Skilled Nursing'];
+    return careTypes.some(type => licensedCareTypes.includes(type));
+  }
+
+  // Pricing Transparency Endpoint
+  app.get("/api/communities/:id/pricing", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid community ID" });
+      }
+
+      const community = await storage.getCommunity(id);
+      if (!community) {
+        return res.status(404).json({ message: "Community not found" });
+      }
+
+      const pricingInfo = {
+        community: {
+          id: community.id,
+          name: community.name,
+          careTypes: community.careTypes
+        },
+        pricing: {
+          hasPublicPricing: !!community.basePrice,
+          basePrice: community.basePrice,
+          priceRange: community.priceRange,
+          lastPriceUpdate: community.lastPriceUpdate,
+          pricePerCareType: community.pricePerCareType || {},
+          additionalFees: community.additionalFees || [],
+          transparencyScore: this.calculateTransparencyScore(community)
+        },
+        availability: {
+          status: community.availabilityStatus,
+          waitlistLength: community.waitlistLength,
+          lastUpdated: community.lastAvailabilityUpdate
+        }
+      };
+
+      res.json(pricingInfo);
+    } catch (error) {
+      console.error("Error fetching pricing info:", error);
+      res.status(500).json({ message: "Failed to fetch pricing information" });
+    }
+  });
+
+  // Helper function to calculate pricing transparency score
+  function calculateTransparencyScore(community: any): number {
+    let score = 0;
+    if (community.basePrice) score += 30;
+    if (community.priceRange) score += 20;
+    if (community.lastPriceUpdate && new Date(community.lastPriceUpdate) > new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)) score += 25;
+    if (community.pricePerCareType && Object.keys(community.pricePerCareType).length > 0) score += 15;
+    if (community.additionalFees) score += 10;
+    return Math.min(score, 100);
+  }
 
   const httpServer = createServer(app);
   return httpServer;
