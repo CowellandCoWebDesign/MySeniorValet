@@ -6,13 +6,48 @@ import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, MapPin, Phone, Globe, CheckCircle, Users, Calendar, DollarSign, Camera, Video, Home, UserCheck, Stethoscope, Activity, Wifi, Car, Utensils, ChevronLeft, ChevronRight, ExternalLink, Heart, Share, Clock, AlertTriangle, Heart as HeartIcon, Brain, Dumbbell, UtensilsCrossed, Bus, HandHeart, Waves, Scissors } from "lucide-react";
+import { Star, MapPin, Phone, Globe, CheckCircle, Users, Calendar, DollarSign, Camera, Video, Home, UserCheck, Stethoscope, Activity, Wifi, Car, Utensils, ChevronLeft, ChevronRight, ExternalLink, Heart, Share, Clock, AlertTriangle, Heart as HeartIcon, Brain, Dumbbell, UtensilsCrossed, Bus, HandHeart, Waves, Scissors, AlertCircle, ShieldCheck } from "lucide-react";
 import { Link } from "wouter";
 import type { Community } from "@shared/schema";
 
 export default function CommunityPage() {
   const [, params] = useRoute("/community/:id");
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
+
+  // Get all photos from various sources
+  const getAllPhotos = (community: Community) => {
+    const photos = [];
+    if (community.photos && community.photos.length > 0) {
+      photos.push(...community.photos);
+    }
+    if (community.yelpPhotos && community.yelpPhotos.length > 0) {
+      photos.push(...community.yelpPhotos);
+    }
+    if (community.imageGallery && community.imageGallery.length > 0) {
+      photos.push(...community.imageGallery);
+    }
+    return [...new Set(photos)]; // Remove duplicates
+  };
+
+  const allPhotos = community ? getAllPhotos(community) : [];
+
+  // Render Yelp rating stars
+  const renderYelpStars = (rating: number) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(<Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />);
+    }
+    if (hasHalfStar) {
+      stars.push(<Star key="half" className="w-4 h-4 fill-yellow-400 text-yellow-400 opacity-50" />);
+    }
+    for (let i = stars.length; i < 5; i++) {
+      stars.push(<Star key={i} className="w-4 h-4 text-gray-300" />);
+    }
+    return stars;
+  };
   
   const { data: community, isLoading } = useQuery<Community>({
     queryKey: ["/api/communities", params?.id],

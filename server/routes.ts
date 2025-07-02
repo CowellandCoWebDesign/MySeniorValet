@@ -1646,5 +1646,108 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   const httpServer = createServer(app);
+  // Enrichment API endpoints
+  app.get('/api/enrichTest', async (req, res) => {
+    try {
+      const { runBatchEnrichment } = await import('./enrichment/runEnrichment.js');
+      const { getDailySpendingSummary } = await import('./enrichment/spendGuards.js');
+      
+      const city = req.query.city || 'San Francisco';
+      const limit = Math.min(parseInt(req.query.limit) || 25, 50); // Max 50 communities
+      
+      // Get random communities from the specified city
+      const communitiesInCity = await db
+        .select({ id: communities.id, name: communities.name })
+        .from(communities)
+        .where(eq(communities.city, city))
+        .limit(limit);
+        
+      if (communitiesInCity.length === 0) {
+        return res.status(404).json({ message: `No communities found in ${city}` });
+      }
+      
+      console.log(`Starting enrichment test for ${communitiesInCity.length} communities in ${city}`);
+      
+      // Run batch enrichment
+      const enrichmentResults = await runBatchEnrichment(
+        communitiesInCity.map(c => c.id),
+        3 // Max 3 concurrent
+      );
+      
+      // Calculate metrics
+      const successful = enrichmentResults.filter(r => r.success);
+      const avgPhotos = successful.length > 0 
+        ? successful.reduce((sum, r) => sum + (r.totalPhotos || 0), 0) / successful.length 
+        : 0;
+      const invalidPhones = enrichmentResults.filter(r => r.phoneValid === false).length;
+      
+      // Get spending summary
+      const spendingSummary = await getDailySpendingSummary();
+      
+      res.json({
+        success: true,
+        city,
+        processed: communitiesInCity.length,
+        enriched: successful.length,
+        failed: enrichmentResults.filter(r => !r.success).length,
+        avgPhotos: Math.round(avgPhotos * 10) / 10,
+        invalidPhones,
+        spendingSummary,
+        results: enrichmentResults
+      });
+      
+    } catch (error) {
+      console.error('Enrichment test error:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Enrichment test failed',
+        error: error.message 
+      });
+    }
+  });
+
+  // Manual enrichment endpoint for single community
+  app.post('/api/communities/:id/enrich', async (req, res) => {
+    try {
+      const { runEnrichment } = await import('./enrichment/runEnrichment.js');
+      const communityId = parseInt(req.params.id);
+      
+      if (isNaN(communityId)) {
+        return res.status(400).json({ message: 'Invalid community ID' });
+      }
+      
+      const result = await runEnrichment(communityId);
+      
+      if (result.success) {
+        res.json(result);
+      } else {
+        res.status(500).json(result);
+      }
+      
+    } catch (error) {
+      console.error('Community enrichment error:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Enrichment failed',
+        error: error.message 
+      });
+    }
+  });
+
+  // Spending summary endpoint
+  app.get('/api/enrichment/spending', async (req, res) => {
+    try {
+      const { getDailySpendingSummary } = await import('./enrichment/spendGuards.js');
+      const summary = await getDailySpendingSummary();
+      res.json(summary);
+    } catch (error) {
+      console.error('Spending summary error:', error);
+      res.status(500).json({ 
+        message: 'Failed to get spending summary',
+        error: error.message 
+      });
+    }
+  });
+
   return httpServer;
 }

@@ -1,0 +1,65 @@
+👋 Ghostwriter, final data-quality sprint before launch.
+
+Goal ▸ enrich listings with photos + phone validation at near-zero cost,
+using a **free → low-cost → paid** API cascade and spend guardrails.
+
+Create one PR titled:
+   feat: enrichment call-hierarchy, Twilio phone check, spend guards
+
+────────────────────────────────────────
+1.  FREE → CHEAP → PAID CALL-HIERARCHY
+────────────────────────────────────────
+Implement in /server/enrichment/runEnrichment.js :
+
+   1)  state licensing record   (free; already in DB)
+   2)  foursquareLookup()       (950 calls/day free)
+   3)  mapillaryPhoto()         (unlimited free)
+   4)  mapboxStaticPhoto()      (50 k images/mo free)
+   5)  yelpLookup()             (5 k calls/day free, then $0.008/call)
+   6)  googlePlaceDetail()      ($0.017/call; only if photos < 3)
+
+Each step appends to photos[] and updates confidence flags;
+skip a step gracefully if its env key is missing.
+
+────────────────────────────────────────
+2.  TWILIO PHONE VALIDATION  ( $0.005 / lookup )
+────────────────────────────────────────
+• /server/enrichment/phoneValidate.js  → validate(phone)
+• Migration 004_phone_valid.sql adds  phone_valid  column
+• runEnrichment sets phone_valid flag
+
+────────────────────────────────────────
+3.  SECRETS PLACEHOLDERS
+────────────────────────────────────────
+Ensure code checks (but does not hard-code) these keys:
+   YELP_API_KEY, FOURSQUARE_API_KEY, MAPILLARY_TOKEN,
+   MAPBOX_TOKEN, TWILIO_LOOKUP_KEY, TWILIO_AUTH_TOKEN
+
+────────────────────────────────────────
+4.  ONE-METRO TEST ROUTE
+────────────────────────────────────────
+GET /api/enrichTest?city=<city>  (default “San Francisco”)
+   – processes 25 random communities
+   – returns { enriched, avgPhotos, invalidPhones }
+
+────────────────────────────────────────
+5.  SPEND GUARDS
+────────────────────────────────────────
+• Log daily call counts per API in /server/logs/enrichment.log
+• If Yelp OR Google > 1 000 calls in 24 h ⇒ WARN console (future Slack)
+
+────────────────────────────────────────
+6.  FRONT-END HOOK
+────────────────────────────────────────
+Community.jsx:
+   – list photos[] in carousel
+   – show Yelp rating stars if present
+   – ⚠️  badge when phone_valid === false
+
+────────────────────────────────────────
+7.  TEST
+────────────────────────────────────────
+Jest: mock Twilio + Foursquare, run runEnrichment on fixture,
+expect  photos.length ≥ 1  AND  phone_valid === true.
+
+Commit everything in one atomic PR; no regressions.
