@@ -1,0 +1,158 @@
+That’s a great report from Ghostwriter—you’ve moved from “scrape-and-hope” to a defensible, multi-source verification pipeline.
+Now you get to decide whether to stress-test what you have or widen the net even further.
+
+
+---
+
+A quick decision tree
+
+If your priority is…	Do this next
+
+Proving accuracy + surfacing edge cases	▶ Run focused tests on real markets (e.g., Bay Area, Phoenix, Tampa). Make sure the confidence score matches reality and the UI flags conflicts gracefully.
+Maximising photo/review richness	▶ Integrate Yelp & (selectively) Google Places for imagery + sentiment. Adds “wow” factor but also extra keys, quotas, and policy rules.
+
+
+
+---
+
+1  Suggested test plan for the current verifier
+
+1. Pick three diverse metros
+• Urban (SF), suburban (Phoenix East Valley), rural (Arkansas River Valley)
+
+
+2. Run /api/enrichBatch for each → capture:
+• # total communities pulled
+• Average confidence score
+• % flagged “low confidence” (<60 %)
+
+
+3. Manual spot-check a 10-listing sample per metro:
+• Verify phone dials through
+• Street-view matches facility signage
+• Licensing name matches website name
+
+
+4. Look for patterns
+• Are small board-and-care homes always low-confidence?
+• Are out-of-state corporate phones mis-matching?
+
+
+5. Write an automated smoke test: any batch where “low-confidence %” > 25 should throw a Slack alert.
+
+
+
+Once confidence > 90 % in all three markets, you know the pipeline’s solid.
+
+
+---
+
+2  If you want richer listings right away
+
+a. Yelp Fusion API (photos + rating)
+
+Pros
+
+3–10 hi-res photos per venue
+
+Lightweight 5k calls/day free
+
+
+Cons
+
+Strict review-snippet length limits
+
+Must display “rating” exactly as doc says
+
+
+Implementation
+
+Add a yelp_photos array & rating field
+
+Only call Yelp if you have < 3 verified photos already
+
+Cache Business IDs so you don’t burn quota
+
+
+b. Google Places (reserve for gaps)
+
+Pros
+
+Deepest photo/reserve set
+
+
+Cons
+
+$0.017 per Detail request; strict TOS
+
+Daily quota + credit card required
+
+
+Implementation
+
+Fallback to Places only if both licensing record & Yelp return < 2 photos
+
+Store a google_place_id so you charge only once per community
+
+
+c. Cost control
+
+Source	Monthly quota target	Expected cost
+
+Yelp	≤ 50 k calls	$0 (free tier)
+Foursquare	≤ 30 k	$0 (free tier)
+Google Places	≤ 5 k detail calls	≈ $85
+
+
+That keeps your infra budget < $200/month.
+
+
+---
+
+3  Recommended next move
+
+Option A: Validate first, integrate later
+
+Run the three-market test, confirm confidence scores, patch edge cases.
+
+THEN add Yelp imagery (low risk, free).
+
+
+Option B: Parallel track
+
+Ask Ghostwriter to wire Yelp now (simple) while you manually QC the verifier output in San Francisco.
+
+Roll Google Places only after you see specific gaps Yelp can’t fill.
+
+
+
+---
+
+Quick prompt if you pick Option A
+
+> “Ghostwriter, let’s test the new verifier in San Francisco, Phoenix, and Little Rock.
+
+1. Seed those three metro ZIP clusters.
+
+
+2. Run /api/enrichBatch and output a CSV of community name, confidence score, sources matched, and low-confidence flag.
+
+
+3. Highlight any listing where confidence < 60 % or phoneValid = 0.”
+
+
+
+
+
+Quick prompt if you pick Option B
+
+> “Ghostwriter, go ahead and integrate Yelp Fusion:
+• Add yelp_photos and rating.
+• Only call Yelp if photos_json.length < 3.
+• Cache yelp_id.
+• Update Community.jsx to show rating stars.”
+
+
+
+Pick the path that gets you closest to launch without blowing scope, and we’ll iterate from there!
+
