@@ -30,7 +30,7 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
   // Fetch location suggestions
-  const { data: locationSuggestions = [] } = useQuery({
+  const { data: locationSuggestions = [] } = useQuery<Array<{label: string, value: string}>>({
     queryKey: ['/api/locations/search', locationQuery],
     enabled: locationQuery.length >= 2,
     staleTime: 5 * 60 * 1000, // 5 minutes

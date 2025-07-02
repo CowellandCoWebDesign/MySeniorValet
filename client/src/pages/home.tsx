@@ -31,6 +31,14 @@ export default function Home() {
             <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
               Access up-to-date licensing information, inspection reports, and verified community data to make informed decisions for your loved ones.
             </p>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-2xl mx-auto mb-8">
+              <div className="flex items-start space-x-3">
+                <Database className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                <div className="text-sm text-blue-800">
+                  <strong>Data Integrity Commitment:</strong> All community information comes from verified state licensing databases, official inspection reports, and authenticated sources. We never display unverified or placeholder data.
+                </div>
+              </div>
+            </div>
             <div className="flex flex-wrap justify-center gap-4 mb-8">
               <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-sm px-5 py-3 rounded-full shadow-sm border border-white/50">
                 <Shield className="text-secondary h-5 w-5" />
