@@ -558,6 +558,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return Math.min(score, 100);
   }
 
+  // Location autocomplete endpoint
+  app.get('/api/locations/search', async (req, res) => {
+    try {
+      const { q } = req.query;
+      if (!q || typeof q !== 'string' || q.length < 2) {
+        return res.json([]);
+      }
+
+      // Get unique cities and states from our database
+      const communities = await storage.getAllCommunities();
+      const locations = new Set<string>();
+      
+      communities.forEach(community => {
+        const cityState = `${community.city}, ${community.state}`;
+        const city = community.city;
+        
+        if (cityState.toLowerCase().includes(q.toLowerCase())) {
+          locations.add(cityState);
+        } else if (city.toLowerCase().includes(q.toLowerCase())) {
+          locations.add(cityState);
+        }
+      });
+
+      // Convert to array and limit results
+      const results = Array.from(locations).slice(0, 10).map(location => ({
+        label: location,
+        value: location
+      }));
+      
+      res.json(results);
+    } catch (error) {
+      console.error('Error in location search:', error);
+      res.status(500).json({ error: 'Failed to search locations' });
+    }
+  });
+
   // Redding Independent Living scraping endpoint
   app.post('/api/scrape/redding', async (req, res) => {
     try {
