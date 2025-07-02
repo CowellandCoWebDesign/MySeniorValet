@@ -16,34 +16,40 @@ interface RealCommunityData {
 }
 
 export class RealDataScraper {
-  // Search Google for actual senior living communities
+  // Search multiple engines for actual senior living communities
   async searchGoogleForRealCommunities(city: string, state: string): Promise<RealCommunityData[]> {
     const communities: RealCommunityData[] = [];
     
-    const searchTerms = [
-      `independent living ${city} ${state}`,
-      `assisted living ${city} ${state}`,
-      `senior living communities ${city} ${state}`,
-      `memory care ${city} ${state}`
+    console.log(`Searching multiple sources for real senior living communities in ${city}, ${state}...`);
+
+    // Try multiple search engines and data sources
+    const searchSources = [
+      { name: 'Bing', method: () => this.searchBing(city, state) },
+      { name: 'DuckDuckGo', method: () => this.searchDuckDuckGo(city, state) },
+      { name: 'Yahoo', method: () => this.searchYahoo(city, state) },
+      { name: 'YellowPages', method: () => this.searchYellowPages(city, state) },
+      { name: 'Yelp', method: () => this.searchYelp(city, state) }
     ];
 
-    console.log(`Searching Google for real senior living communities in ${city}, ${state}...`);
-
-    for (const searchTerm of searchTerms) {
+    for (const source of searchSources) {
       try {
-        const googleResults = await this.searchGoogleDirect(searchTerm, city, state);
-        communities.push(...googleResults);
+        console.log(`Trying ${source.name}...`);
+        const results = await source.method();
+        if (results.length > 0) {
+          console.log(`✓ Found ${results.length} communities from ${source.name}`);
+          communities.push(...results);
+        }
         
         // Add delay between searches to be respectful
-        await this.delay(2000);
+        await this.delay(3000);
       } catch (error) {
-        console.error(`Error searching Google for "${searchTerm}":`, error);
+        console.error(`Error searching ${source.name}:`, error.message);
       }
     }
 
     // Remove duplicates
     const uniqueCommunities = this.deduplicateCommunities(communities);
-    console.log(`Found ${uniqueCommunities.length} unique communities from Google search`);
+    console.log(`Found ${uniqueCommunities.length} total unique communities from all sources`);
 
     return uniqueCommunities;
   }
@@ -198,6 +204,303 @@ export class RealDataScraper {
   // Add delay helper
   private delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  // Bing search - often more permissive than Google
+  private async searchBing(city: string, state: string): Promise<RealCommunityData[]> {
+    const communities: RealCommunityData[] = [];
+    
+    try {
+      const query = `senior living communities ${city} ${state}`;
+      const url = `https://www.bing.com/search?q=${encodeURIComponent(query)}`;
+      
+      const response = await axios.get(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.5',
+          'Accept-Encoding': 'gzip, deflate',
+          'Connection': 'keep-alive',
+        },
+        timeout: 10000
+      });
+
+      const $ = cheerio.load(response.data);
+      
+      // Bing search result selectors
+      $('.b_algo').each((i, element) => {
+        if (i >= 15) return false; // Limit results
+        
+        const $el = $(element);
+        const titleEl = $el.find('h2 a');
+        const name = titleEl.text().trim();
+        const url = titleEl.attr('href');
+        const snippet = $el.find('.b_caption p').text().trim();
+        
+        if (this.isRelevantSeniorLiving(name, snippet)) {
+          // Try to extract address from snippet
+          const addressMatch = snippet.match(/(\d+[^,]+,\s*[^,]+,\s*(?:CA|California))/i);
+          const address = addressMatch ? addressMatch[1] : `${city}, ${state}`;
+          
+          communities.push({
+            name: name,
+            address: address,
+            city,
+            state,
+            zipCode: this.extractZipFromText(snippet),
+            phone: this.extractPhoneFromText(snippet),
+            website: url,
+            description: snippet.substring(0, 200),
+            careTypes: this.determineCareTypes(name, snippet)
+          });
+        }
+      });
+      
+    } catch (error) {
+      console.error('Bing search failed:', error.message);
+    }
+    
+    return communities;
+  }
+
+  // DuckDuckGo search - privacy-focused, less likely to block
+  private async searchDuckDuckGo(city: string, state: string): Promise<RealCommunityData[]> {
+    const communities: RealCommunityData[] = [];
+    
+    try {
+      const query = `assisted living ${city} ${state}`;
+      const url = `https://duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
+      
+      const response = await axios.get(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        },
+        timeout: 10000
+      });
+
+      const $ = cheerio.load(response.data);
+      
+      // DuckDuckGo result selectors
+      $('.result').each((i, element) => {
+        if (i >= 15) return false;
+        
+        const $el = $(element);
+        const titleEl = $el.find('.result__title a');
+        const name = titleEl.text().trim();
+        const url = titleEl.attr('href');
+        const snippet = $el.find('.result__snippet').text().trim();
+        
+        if (this.isRelevantSeniorLiving(name, snippet)) {
+          const addressMatch = snippet.match(/(\d+[^,]+,\s*[^,]+,\s*(?:CA|California))/i);
+          const address = addressMatch ? addressMatch[1] : `${city}, ${state}`;
+          
+          communities.push({
+            name: name,
+            address: address,
+            city,
+            state,
+            zipCode: this.extractZipFromText(snippet),
+            phone: this.extractPhoneFromText(snippet),
+            website: url,
+            description: snippet.substring(0, 200),
+            careTypes: this.determineCareTypes(name, snippet)
+          });
+        }
+      });
+      
+    } catch (error) {
+      console.error('DuckDuckGo search failed:', error.message);
+    }
+    
+    return communities;
+  }
+
+  // Yahoo search - alternative search engine
+  private async searchYahoo(city: string, state: string): Promise<RealCommunityData[]> {
+    const communities: RealCommunityData[] = [];
+    
+    try {
+      const query = `memory care ${city} ${state}`;
+      const url = `https://search.yahoo.com/search?p=${encodeURIComponent(query)}`;
+      
+      const response = await axios.get(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        },
+        timeout: 10000
+      });
+
+      const $ = cheerio.load(response.data);
+      
+      // Yahoo search result selectors
+      $('.Sr').each((i, element) => {
+        if (i >= 15) return false;
+        
+        const $el = $(element);
+        const titleEl = $el.find('h3 a');
+        const name = titleEl.text().trim();
+        const url = titleEl.attr('href');
+        const snippet = $el.find('.compText').text().trim();
+        
+        if (this.isRelevantSeniorLiving(name, snippet)) {
+          const addressMatch = snippet.match(/(\d+[^,]+,\s*[^,]+,\s*(?:CA|California))/i);
+          const address = addressMatch ? addressMatch[1] : `${city}, ${state}`;
+          
+          communities.push({
+            name: name,
+            address: address,
+            city,
+            state,
+            zipCode: this.extractZipFromText(snippet),
+            phone: this.extractPhoneFromText(snippet),
+            website: url,
+            description: snippet.substring(0, 200),
+            careTypes: this.determineCareTypes(name, snippet)
+          });
+        }
+      });
+      
+    } catch (error) {
+      console.error('Yahoo search failed:', error.message);
+    }
+    
+    return communities;
+  }
+
+  // YellowPages business directory - good for local businesses
+  private async searchYellowPages(city: string, state: string): Promise<RealCommunityData[]> {
+    const communities: RealCommunityData[] = [];
+    
+    try {
+      const url = `https://www.yellowpages.com/search?search_terms=assisted+living&geo_location_terms=${encodeURIComponent(city + ', ' + state)}`;
+      
+      const response = await axios.get(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        },
+        timeout: 10000
+      });
+
+      const $ = cheerio.load(response.data);
+      
+      // YellowPages business listing selectors
+      $('.result').each((i, element) => {
+        if (i >= 20) return false;
+        
+        const $el = $(element);
+        const name = $el.find('.business-name span').text().trim();
+        const address = $el.find('.street-address').text().trim();
+        const phone = $el.find('.phones').text().trim();
+        const website = $el.find('.track-visit-website').attr('href');
+        
+        if (name && this.isRelevantSeniorLiving(name, '')) {
+          communities.push({
+            name: name,
+            address: address || `${city}, ${state}`,
+            city,
+            state,
+            zipCode: this.extractZipFromText(address),
+            phone: phone || undefined,
+            website: website,
+            description: `Senior living community found in business directory`,
+            careTypes: this.determineCareTypes(name, address)
+          });
+        }
+      });
+      
+    } catch (error) {
+      console.error('YellowPages search failed:', error.message);
+    }
+    
+    return communities;
+  }
+
+  // Yelp business directory
+  private async searchYelp(city: string, state: string): Promise<RealCommunityData[]> {
+    const communities: RealCommunityData[] = [];
+    
+    try {
+      const url = `https://www.yelp.com/search?find_desc=senior+living&find_loc=${encodeURIComponent(city + ', ' + state)}`;
+      
+      const response = await axios.get(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        },
+        timeout: 10000
+      });
+
+      const $ = cheerio.load(response.data);
+      
+      // Yelp business listing selectors
+      $('[data-testid="serp-ia-card"]').each((i, element) => {
+        if (i >= 15) return false;
+        
+        const $el = $(element);
+        const nameEl = $el.find('h3 a, h4 a').first();
+        const name = nameEl.text().trim();
+        const address = $el.find('[data-testid="address"]').text().trim();
+        const phone = $el.find('[data-testid="phone"]').text().trim();
+        
+        if (name && this.isRelevantSeniorLiving(name, address)) {
+          communities.push({
+            name: name,
+            address: address || `${city}, ${state}`,
+            city,
+            state,
+            zipCode: this.extractZipFromText(address),
+            phone: phone || undefined,
+            website: undefined,
+            description: `Senior living community found on business review site`,
+            careTypes: this.determineCareTypes(name, address)
+          });
+        }
+      });
+      
+    } catch (error) {
+      console.error('Yelp search failed:', error.message);
+    }
+    
+    return communities;
+  }
+
+  // Helper method to check if result is relevant to senior living
+  private isRelevantSeniorLiving(name: string, description: string): boolean {
+    const text = (name + ' ' + description).toLowerCase();
+    
+    const keywords = [
+      'senior', 'assisted', 'living', 'care', 'memory', 'alzheimer', 
+      'retirement', 'estate', 'manor', 'village', 'residence', 'gardens',
+      'nursing', 'rehabilitation', 'independent', 'community'
+    ];
+    
+    const excludeKeywords = [
+      'hospital', 'medical center', 'clinic', 'pharmacy', 'doctor',
+      'dentist', 'urgent care', 'emergency', 'surgery', 'laboratory'
+    ];
+    
+    // Must contain at least one senior living keyword
+    const hasRelevantKeyword = keywords.some(keyword => text.includes(keyword));
+    
+    // Must not contain exclusion keywords
+    const hasExcludeKeyword = excludeKeywords.some(keyword => text.includes(keyword));
+    
+    return hasRelevantKeyword && !hasExcludeKeyword;
+  }
+
+  // Helper to extract zip code from text
+  private extractZipFromText(text: string): string | undefined {
+    const zipMatch = text.match(/\b\d{5}(-\d{4})?\b/);
+    return zipMatch ? zipMatch[0] : undefined;
+  }
+
+  // Helper to extract phone number from text
+  private extractPhoneFromText(text: string): string | undefined {
+    const phoneMatch = text.match(/\(?(\d{3})\)?[-.\s]?(\d{3})[-.\s]?(\d{4})/);
+    return phoneMatch ? `(${phoneMatch[1]}) ${phoneMatch[2]}-${phoneMatch[3]}` : undefined;
   }
 
   // Search A Place for Mom directory
