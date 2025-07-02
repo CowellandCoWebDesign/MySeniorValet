@@ -15,7 +15,9 @@ export function Filters({ onFiltersChange }: FiltersProps) {
     distance: "Within 10 miles",
     careServices: [] as string[],
     amenities: [] as string[],
-    transparencyScore: "",
+    priceRange: { min: "", max: "" },
+    minRating: "",
+    availability: "all",
     verificationStatus: "all",
   });
 
@@ -28,10 +30,30 @@ export function Filters({ onFiltersChange }: FiltersProps) {
   ];
 
   const amenityOptions = [
-    "Pet Friendly",
-    "Transportation",
-    "Fitness Center",
-    "Dining Options"
+    "WiFi",
+    "Parking", 
+    "Dining",
+    "Fitness",
+    "Restaurant",
+    "Activities",
+    "Library",
+    "Pool",
+    "Gardens",
+    "Spa",
+    "Beauty Salon"
+  ];
+
+  const ratingOptions = [
+    { value: "4.5", label: "4.5+ Stars" },
+    { value: "4.0", label: "4.0+ Stars" },
+    { value: "3.5", label: "3.5+ Stars" },
+    { value: "3.0", label: "3.0+ Stars" }
+  ];
+
+  const availabilityOptions = [
+    { value: "all", label: "All Availability" },
+    { value: "Available Now", label: "Available Now" },
+    { value: "Waitlist", label: "Waitlist Only" }
   ];
 
   const handleCareServiceChange = (service: string, checked: boolean) => {

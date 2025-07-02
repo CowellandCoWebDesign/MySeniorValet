@@ -3,7 +3,7 @@ import { Footer } from "@/components/footer";
 import { SearchBar } from "@/components/search-bar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Shield, FolderSync, MapPin, Database, Tag, Map, Check } from "lucide-react";
+import { Shield, FolderSync, MapPin, Database, Tag, Map, Check, Star, DollarSign, Clock, Users, Wifi, Car, Activity } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Home() {
@@ -25,24 +25,29 @@ export default function Home() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-gray-900 mb-6">
-              Find Senior Living Communities with{" "}
-              <span className="text-primary">Real-Time Transparency</span>
+              Find Senior Living with{" "}
+              <span className="text-primary">Transparent Pricing</span> &{" "}
+              <span className="text-green-600">Live Availability</span>
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-              Access up-to-date licensing information, inspection reports, and verified community data to make informed decisions for your loved ones.
+              Get real pricing, read authentic reviews, check live availability, and explore amenities to make confident decisions for your family.
             </p>
             <div className="flex flex-wrap justify-center gap-4 mb-8">
-              <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-sm px-5 py-3 rounded-full shadow-sm border border-white/50">
-                <Shield className="text-secondary h-5 w-5" />
-                <span className="text-sm font-semibold text-gray-800">Licensed & Verified</span>
+              <div className="flex items-center space-x-2 bg-green-50 backdrop-blur-sm px-5 py-3 rounded-full shadow-sm border border-green-200">
+                <DollarSign className="text-green-600 h-5 w-5" />
+                <span className="text-sm font-bold text-green-800">Real Pricing</span>
               </div>
-              <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-sm px-5 py-3 rounded-full shadow-sm border border-white/50">
-                <FolderSync className="text-primary h-5 w-5" />
-                <span className="text-sm font-semibold text-gray-800">Real-Time Data</span>
+              <div className="flex items-center space-x-2 bg-yellow-50 backdrop-blur-sm px-5 py-3 rounded-full shadow-sm border border-yellow-200">
+                <Star className="text-yellow-500 h-5 w-5" />
+                <span className="text-sm font-bold text-yellow-800">Trusted Reviews</span>
               </div>
-              <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-sm px-5 py-3 rounded-full shadow-sm border border-white/50">
-                <MapPin className="text-orange-500 h-5 w-5" />
-                <span className="text-sm font-semibold text-gray-800">Location-Based</span>
+              <div className="flex items-center space-x-2 bg-blue-50 backdrop-blur-sm px-5 py-3 rounded-full shadow-sm border border-blue-200">
+                <Clock className="text-blue-600 h-5 w-5" />
+                <span className="text-sm font-bold text-blue-800">Live Availability</span>
+              </div>
+              <div className="flex items-center space-x-2 bg-purple-50 backdrop-blur-sm px-5 py-3 rounded-full shadow-sm border border-purple-200">
+                <Activity className="text-purple-600 h-5 w-5" />
+                <span className="text-sm font-bold text-purple-800">Rich Amenities</span>
               </div>
             </div>
           </div>
@@ -75,32 +80,45 @@ export default function Home() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Database className="text-primary h-8 w-8" />
+          {/* KEY FEATURES - What Families Really Need */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <DollarSign className="text-green-600 h-8 w-8" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Real-Time Data</h3>
-              <p className="text-gray-600">
-                Our automated scrapers check state licensing databases daily, ensuring you always have the most current information.
+              <h3 className="text-xl font-bold text-green-900 mb-2">Transparent Pricing</h3>
+              <p className="text-green-700 text-sm">
+                See real monthly costs, special offers, and pricing updates. No surprises or hidden fees.
               </p>
             </div>
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Tag className="text-secondary h-8 w-8" />
+            
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+              <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Star className="text-yellow-600 h-8 w-8" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Licensing Transparency</h3>
-              <p className="text-gray-600">
-                View inspection reports, violations, compliance status, and licensing history for every community in our database.
+              <h3 className="text-xl font-bold text-yellow-900 mb-2">Authentic Reviews</h3>
+              <p className="text-yellow-700 text-sm">
+                Read real Google reviews and family experiences to understand what life is really like.
               </p>
             </div>
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Map className="text-orange-600 h-8 w-8" />
+            
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Clock className="text-blue-600 h-8 w-8" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Location Intelligence</h3>
-              <p className="text-gray-600">
-                Search by proximity to family, healthcare facilities, and important amenities to find the perfect location.
+              <h3 className="text-xl font-bold text-blue-900 mb-2">Live Availability</h3>
+              <p className="text-blue-700 text-sm">
+                Check real-time availability and unit counts. Know exactly what's open right now.
+              </p>
+            </div>
+            
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-6 text-center">
+              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Activity className="text-purple-600 h-8 w-8" />
+              </div>
+              <h3 className="text-xl font-bold text-purple-900 mb-2">Rich Amenities</h3>
+              <p className="text-purple-700 text-sm">
+                Explore pools, fitness centers, dining options, and activities that make a difference.
               </p>
             </div>
           </div>

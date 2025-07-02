@@ -33,21 +33,125 @@ export async function seedDatabase() {
 
     const sampleCommunities: InsertCommunity[] = [
       {
-        name: "Sunrise Manor",
-        address: "123 Oak Street",
-        city: "Denver",
-        state: "CO",
-        zipCode: "80202",
-        phone: "(303) 555-0101",
-        email: "info@sunrisemanor.com",
-        website: "www.sunrisemanor.com",
-        description: "Premier senior living community with comprehensive care services and beautiful amenities.",
-        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
-        amenities: ["Pet Friendly", "Transportation", "Fitness Center", "Dining Options"],
-        services: ["24/7 Nursing", "Physical Therapy", "Memory Care", "Medication Management"],
+        name: "Cascades of the North State",
+        address: "2345 Babbling Brook Drive",
+        city: "Redding",
+        state: "CA",
+        zipCode: "96002",
+        phone: "(530) 224-6000",
+        email: "info@cascadesnorthstate.com",
+        website: "www.cascadesnorthstate.com",
+        description: "Premium senior living community featuring independent living apartments with resort-style amenities and exceptional dining.",
+        careTypes: ["Independent Living"],
+        amenities: ["WiFi", "Parking", "Dining", "Fitness", "Restaurant", "Activities", "Library", "Pool", "Gardens", "Spa"],
+        services: ["Concierge", "Housekeeping", "Maintenance", "Transportation", "Wellness Programs"],
+        medicalRestrictions: [],
+        priceRange: { min: 3200, max: 5800 },
+        availabilityStatus: "Available Now",
+        availableUnits: 7,
+        googleRating: "4.2",
+        googleReviewCount: 28,
+        googleReviewSnippets: [
+          {
+            rating: 5,
+            author: "Sarah M.",
+            text: "My mother has been living here for 8 months and loves it. The staff is incredibly caring and the dining room food is restaurant quality. The activities keep her engaged and she's made wonderful friends."
+          },
+          {
+            rating: 4,
+            author: "David K.",
+            text: "Beautiful facility with great amenities. The staff goes above and beyond to make residents feel at home. Only minor complaint is parking can be limited during events."
+          }
+        ],
+        pricingDetails: {
+          specialOffers: [
+            {
+              title: "Move-in Special",
+              savings: 1500,
+              description: "First month free with 12-month lease"
+            }
+          ]
+        },
+        totalUnits: 120,
+        isClaimed: true
+      },
+      {
+        name: "Prestige Senior Living Redding",
+        address: "1570 Hartnell Avenue",
+        city: "Redding",
+        state: "CA",
+        zipCode: "96002",
+        phone: "(530) 221-1000",
+        email: "redding@prestigecare.com",
+        website: "www.prestigecare.com/redding",
+        description: "Full-service senior living with assisted living and memory care in a warm, family-oriented environment.",
+        careTypes: ["Assisted Living", "Memory Care"],
+        amenities: ["WiFi", "Parking", "Dining", "Activities", "Garden", "Beauty Salon"],
+        services: ["24/7 Care", "Medication Management", "Physical Therapy", "Memory Support", "Medical Services"],
         medicalRestrictions: ["No Ventilators"],
-        priceRange: { min: 4200, max: 8500 },
-        availabilityStatus: "Available",
+        priceRange: { min: 4800, max: 7200 },
+        availabilityStatus: "Waitlist",
+        availableUnits: 0,
+        googleRating: "4.6",
+        googleReviewCount: 42,
+        googleReviewSnippets: [
+          {
+            rating: 5,
+            author: "Jennifer L.",
+            text: "The care my father receives here is exceptional. The staff knows every resident by name and truly cares about their wellbeing. The memory care program has been a blessing for our family."
+          },
+          {
+            rating: 5,
+            author: "Mark R.",
+            text: "Clean, well-maintained facility with caring staff. The activities coordinator does an amazing job keeping residents engaged. Highly recommend this place."
+          }
+        ],
+        pricingDetails: {
+          specialOffers: []
+        },
+        totalUnits: 85,
+        isClaimed: true
+      },
+      {
+        name: "Brookdale Redding",
+        address: "2280 Benton Drive",
+        city: "Redding",
+        state: "CA",
+        zipCode: "96003",
+        phone: "(530) 244-3564",
+        email: "redding@brookdale.com",
+        website: "www.brookdale.com/redding",
+        description: "Assisted living and memory care community offering personalized care plans and engaging lifestyle programs.",
+        careTypes: ["Assisted Living", "Memory Care"],
+        amenities: ["WiFi", "Parking", "Dining", "Fitness", "Activities", "Library", "Beauty Salon"],
+        services: ["Personal Care", "Medication Management", "24/7 Support", "Memory Care Programs", "Wellness Services"],
+        medicalRestrictions: ["No Skilled Nursing"],
+        priceRange: { min: 5200, max: 8400 },
+        availabilityStatus: "Available Now",
+        availableUnits: 3,
+        googleRating: "3.8",
+        googleReviewCount: 67,
+        googleReviewSnippets: [
+          {
+            rating: 4,
+            author: "Linda S.",
+            text: "Good facility with professional staff. My mom has been happy here for over a year. The dining options are varied and the activities keep her busy."
+          },
+          {
+            rating: 3,
+            author: "Tom H.",
+            text: "Decent care but expensive. Staff turnover can be an issue. The facility is clean and well-maintained though."
+          }
+        ],
+        pricingDetails: {
+          specialOffers: [
+            {
+              title: "Winter Special",
+              savings: 2000,
+              description: "Two months free with annual commitment"
+            }
+          ]
+        },
         availableUnits: 8,
         totalUnits: 120,
         rating: "4.8",
