@@ -91,8 +91,8 @@ export class AIRecommendationEngine {
     Amenities: ${c.amenities?.join(", ") || "Standard amenities"}
     Services: ${c.services?.join(", ") || "Standard services"}
     Medical Restrictions: ${c.medicalRestrictions?.join(", ") || "None listed"}
-    Average Rating: ${c.averageRating || "Not rated"}
-    Review Sources: ${c.trustedReviewSources?.map(r => `${r.source} (${r.rating}/5)`).join(", ") || "No reviews"}
+    Average Rating: ${c.rating || "Not rated"}
+    Review Sources: ${c.trustedReviews?.map((r: any) => `${r.source} (${r.rating}/5)`).join(", ") || "No reviews"}
     Description: ${c.description || "No description available"}
     `).join("\n---\n")}
 
@@ -132,9 +132,9 @@ export class AIRecommendationEngine {
             strengths: rec.strengths || [],
             considerations: rec.considerations || [],
             priceTransparency: {
-              hasPublicPricing: !!community.basePrice,
-              priceRange: community.basePrice ? `$${community.basePrice}/month` : undefined,
-              lastUpdated: community.lastPriceUpdate
+              hasPublicPricing: !!community.priceRange,
+              priceRange: typeof community.priceRange === 'string' ? community.priceRange : undefined,
+              lastUpdated: community.lastPriceUpdate || undefined
             }
           });
         }
@@ -153,10 +153,9 @@ export class AIRecommendationEngine {
       .map(community => {
         let score = 50; // Base score
 
-        // Budget match
-        if (community.basePrice && community.basePrice <= request.budget.max) {
-          score += 20;
-        }
+        // Budget match - skip for now since we don't have reliable pricing
+        // TODO: Implement when pricing structure is standardized
+        score += 10; // Small base boost for any community
 
         // Care type match
         if (request.preferences.careLevel && 
@@ -176,9 +175,9 @@ export class AIRecommendationEngine {
           strengths: ["Meets basic criteria"],
           considerations: ["Review detailed information"],
           priceTransparency: {
-            hasPublicPricing: !!community.basePrice,
-            priceRange: community.basePrice ? `$${community.basePrice}/month` : undefined,
-            lastUpdated: community.lastPriceUpdate
+            hasPublicPricing: !!community.priceRange,
+            priceRange: typeof community.priceRange === 'string' ? community.priceRange : undefined,
+            lastUpdated: community.lastPriceUpdate || undefined
           }
         };
       })
@@ -202,10 +201,10 @@ export class AIRecommendationEngine {
             ${communities.map(c => `
             ${c.name} (${c.city}, ${c.state}):
             - Care Types: ${c.careTypes.join(", ")}
-            - Pricing: ${c.basePrice ? `$${c.basePrice}/month` : "Contact for pricing"}
+            - Pricing: ${c.priceRange || "Contact for pricing"}
             - Availability: ${c.availabilityStatus}
             - Amenities: ${c.amenities?.slice(0, 5).join(", ") || "Standard"}
-            - Rating: ${c.averageRating || "Not rated"}
+            - Rating: ${c.rating || "Not rated"}
             - License Status: ${c.licenseStatus || "Unknown"}
             `).join("\n")}`
           }
