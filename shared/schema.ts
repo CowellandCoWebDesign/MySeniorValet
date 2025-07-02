@@ -1,4 +1,5 @@
 import { pgTable, text, serial, integer, boolean, timestamp, decimal, json } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -51,6 +52,18 @@ export const inspections = pgTable("inspections", {
   reportUrl: text("report_url"),
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+// Relations
+export const communitiesRelations = relations(communities, ({ many }) => ({
+  inspections: many(inspections),
+}));
+
+export const inspectionsRelations = relations(inspections, ({ one }) => ({
+  community: one(communities, {
+    fields: [inspections.communityId],
+    references: [communities.id],
+  }),
+}));
 
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
