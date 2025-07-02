@@ -130,6 +130,7 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
                 <SelectItem value="Assisted Living">Assisted Living</SelectItem>
                 <SelectItem value="Memory Care">Memory Care</SelectItem>
                 <SelectItem value="Skilled Nursing">Skilled Nursing</SelectItem>
+                <SelectItem value="55+ Housing">55+ Housing</SelectItem>
               </SelectContent>
             </Select>
           </div>
