@@ -13,23 +13,29 @@ import type { Community } from "@shared/schema";
 export default function CommunityPage() {
   const [, params] = useRoute("/community/:id");
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
+  
+  const { data: community, isLoading } = useQuery<Community>({
+    queryKey: ["/api/communities", params?.id],
+  });
 
   // Get all photos from various sources
   const getAllPhotos = (community: Community) => {
-    const photos = [];
-    if (community.photos && community.photos.length > 0) {
+    const photos: string[] = [];
+    if (community.photos && Array.isArray(community.photos) && community.photos.length > 0) {
       photos.push(...community.photos);
     }
-    if (community.yelpPhotos && community.yelpPhotos.length > 0) {
+    if (community.yelpPhotos && Array.isArray(community.yelpPhotos) && community.yelpPhotos.length > 0) {
       photos.push(...community.yelpPhotos);
     }
-    if (community.imageGallery && community.imageGallery.length > 0) {
+    if (community.imageGallery && Array.isArray(community.imageGallery) && community.imageGallery.length > 0) {
       photos.push(...community.imageGallery);
     }
-    return [...new Set(photos)]; // Remove duplicates
+    return Array.from(new Set(photos)); // Remove duplicates
   };
 
   const allPhotos = community ? getAllPhotos(community) : [];
+  const communityPhotos = community?.photos || [];
+  const hasPhotos = allPhotos.length > 0;
 
   // Render Yelp rating stars
   const renderYelpStars = (rating: number) => {
@@ -48,10 +54,6 @@ export default function CommunityPage() {
     }
     return stars;
   };
-  
-  const { data: community, isLoading } = useQuery<Community>({
-    queryKey: ["/api/communities", params?.id],
-  });
 
   const { data: similarCommunities } = useQuery<Community[]>({
     queryKey: ["/api/communities/similar", params?.id],
@@ -165,24 +167,24 @@ export default function CommunityPage() {
         </div>
 
         {/* PHOTO GALLERY & VIRTUAL TOUR */}
-        {community.photos && community.photos.length > 0 && (
+        {hasPhotos && (
           <div className="mb-8">
             <Card className="overflow-hidden">
               <div className="relative h-96">
                 <img 
-                  src={community.photos[selectedPhotoIndex]} 
+                  src={allPhotos[selectedPhotoIndex]} 
                   alt={`${community.name} - Photo ${selectedPhotoIndex + 1}`}
                   className="w-full h-96 object-cover"
                 />
                 
                 {/* Photo Navigation */}
-                {community.photos.length > 1 && (
+                {allPhotos.length > 1 && (
                   <>
                     <Button
                       variant="secondary"
                       size="sm"
                       className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/60 text-white hover:bg-black/80"
-                      onClick={() => setSelectedPhotoIndex(prev => prev === 0 ? community.photos!.length - 1 : prev - 1)}
+                      onClick={() => setSelectedPhotoIndex(prev => prev === 0 ? allPhotos.length - 1 : prev - 1)}
                     >
                       <ChevronLeft className="h-4 w-4" />
                     </Button>
@@ -190,7 +192,7 @@ export default function CommunityPage() {
                       variant="secondary"
                       size="sm"
                       className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/60 text-white hover:bg-black/80"
-                      onClick={() => setSelectedPhotoIndex(prev => prev === community.photos!.length - 1 ? 0 : prev + 1)}
+                      onClick={() => setSelectedPhotoIndex(prev => prev === allPhotos.length - 1 ? 0 : prev + 1)}
                     >
                       <ChevronRight className="h-4 w-4" />
                     </Button>
@@ -201,7 +203,7 @@ export default function CommunityPage() {
                 <div className="absolute bottom-4 right-4 flex space-x-2">
                   <Badge className="bg-black/60 text-white">
                     <Camera className="h-3 w-3 mr-1" />
-                    {selectedPhotoIndex + 1} of {community.photos.length}
+                    {selectedPhotoIndex + 1} of {allPhotos.length}
                   </Badge>
                   {community.virtualTourUrl && (
                     <Badge className="bg-blue-600 text-white cursor-pointer hover:bg-blue-700">
@@ -232,10 +234,10 @@ export default function CommunityPage() {
               </div>
 
               {/* Photo Thumbnails */}
-              {community.photos.length > 1 && (
+              {allPhotos.length > 1 && (
                 <div className="p-4 bg-gray-50">
                   <div className="flex space-x-2 overflow-x-auto">
-                    {community.photos.map((photo, index) => (
+                    {allPhotos.map((photo, index) => (
                       <button
                         key={index}
                         onClick={() => setSelectedPhotoIndex(index)}
@@ -317,7 +319,7 @@ export default function CommunityPage() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {community.careTypes.map((type) => (
+                  {(community.careTypes || []).map((type) => (
                     <div key={type} className="bg-purple-50 border border-purple-200 rounded-lg p-4">
                       <div className="flex items-center space-x-3 mb-3">
                         <span className="text-purple-600">{getCareIcon(type)}</span>
