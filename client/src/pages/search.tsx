@@ -25,6 +25,7 @@ export default function Search() {
     if (urlParams.get('location')) initialParams.location = urlParams.get('location')!;
     if (urlParams.get('careType')) initialParams.careType = urlParams.get('careType')!;
     if (urlParams.get('budget')) initialParams.budget = urlParams.get('budget')!;
+    if (urlParams.get('availability')) initialParams.availability = urlParams.get('availability')!;
     
     setSearchParams(initialParams);
   }, []);
