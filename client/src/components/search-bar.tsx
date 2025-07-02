@@ -98,18 +98,21 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
               {showSuggestions && locationSuggestions.length > 0 && (
                 <div 
                   ref={suggestionsRef}
-                  className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg z-20 max-h-48 overflow-y-auto mt-1"
+                  className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-xl z-30 max-h-56 overflow-y-auto mt-2"
+                  style={{ boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)' }}
                 >
                   {locationSuggestions.map((suggestion: any, index: number) => (
                     <button
                       key={index}
                       type="button"
                       onClick={() => handleLocationSelect(suggestion.value)}
-                      className="w-full px-4 py-2 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none first:rounded-t-md last:rounded-b-md"
+                      className="w-full px-4 py-3 text-left hover:bg-blue-50 focus:bg-blue-50 focus:outline-none transition-colors duration-150 first:rounded-t-lg last:rounded-b-lg border-b border-gray-100 last:border-b-0"
                     >
                       <div className="flex items-center">
-                        <MapPin className="h-4 w-4 text-gray-400 mr-2" />
-                        <span className="text-sm text-gray-900">{suggestion.label}</span>
+                        <div className="flex-shrink-0 w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                          <MapPin className="h-3 w-3 text-blue-600" />
+                        </div>
+                        <span className="text-sm text-gray-900 font-medium">{suggestion.label}</span>
                       </div>
                     </button>
                   ))}
