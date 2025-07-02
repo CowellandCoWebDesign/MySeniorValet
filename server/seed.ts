@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { communities, type InsertCommunity } from "@shared/schema";
+import { communities, users, reviews, type InsertCommunity, type InsertUser, type InsertReview } from "@shared/schema";
 
 export async function seedDatabase() {
   try {
@@ -10,7 +10,26 @@ export async function seedDatabase() {
       return;
     }
 
-    console.log("Seeding database with sample communities...");
+    console.log("Seeding database with sample data...");
+
+    // First seed users
+    const sampleUsers: InsertUser[] = [
+      {
+        username: "john_doe",
+        password: "password123"
+      },
+      {
+        username: "mary_smith",
+        password: "password123"
+      },
+      {
+        username: "robert_johnson",
+        password: "password123"
+      }
+    ];
+
+    const insertedUsers = await db.insert(users).values(sampleUsers).returning();
+    console.log("Seeded", insertedUsers.length, "users");
 
     const sampleCommunities: InsertCommunity[] = [
       {
@@ -147,9 +166,62 @@ export async function seedDatabase() {
     ];
 
     // Insert the communities
-    await db.insert(communities).values(sampleCommunities);
+    const insertedCommunities = await db.insert(communities).values(sampleCommunities).returning();
+    console.log("Seeded", insertedCommunities.length, "communities");
 
-    console.log("Successfully seeded database with", sampleCommunities.length, "communities");
+    // Now seed some sample reviews
+    const sampleReviews: InsertReview[] = [
+      {
+        communityId: insertedCommunities[0].id, // Sunrise Manor
+        userId: insertedUsers[0].id,
+        rating: 5,
+        title: "Excellent care for my mother",
+        reviewText: "My mother has been at Sunrise Manor for 8 months now and we couldn't be happier. The staff is attentive, the facilities are clean and modern, and there are plenty of activities to keep residents engaged. The memory care unit is particularly well-run.",
+        pros: ["Excellent staff", "Clean facilities", "Great activities", "Good memory care"],
+        cons: ["Parking can be limited"],
+        relationshipType: "Adult Child",
+        stayDuration: "6-12 months",
+        careLevel: "Memory Care",
+        wouldRecommend: true,
+        verified: true,
+        moderationStatus: "Approved"
+      },
+      {
+        communityId: insertedCommunities[0].id, // Sunrise Manor
+        userId: insertedUsers[1].id,
+        rating: 4,
+        title: "Good community with minor issues",
+        reviewText: "Overall, we're satisfied with the care my father receives here. The dining options are varied and the physical therapy team is excellent. However, communication could be better and some maintenance issues take a while to resolve.",
+        pros: ["Good dining", "Excellent PT", "Nice location"],
+        cons: ["Communication issues", "Slow maintenance response"],
+        relationshipType: "Adult Child",
+        stayDuration: "1-2 years",
+        careLevel: "Assisted Living",
+        wouldRecommend: true,
+        verified: true,
+        moderationStatus: "Approved"
+      },
+      {
+        communityId: insertedCommunities[1].id, // Golden Years
+        userId: insertedUsers[2].id,
+        rating: 5,
+        title: "Feels like home",
+        reviewText: "I moved here 6 months ago and it truly feels like home. The staff knows everyone by name, the food is restaurant quality, and I've made wonderful friends. The fitness center and pool are well-maintained and there's always something fun happening.",
+        pros: ["Personal attention", "Great food", "Active community", "Good amenities"],
+        cons: [],
+        relationshipType: "Resident",
+        stayDuration: "3-6 months",
+        careLevel: "Independent Living",
+        wouldRecommend: true,
+        verified: true,
+        moderationStatus: "Approved"
+      }
+    ];
+
+    await db.insert(reviews).values(sampleReviews);
+    console.log("Seeded", sampleReviews.length, "reviews");
+
+    console.log("Successfully seeded database with sample data");
   } catch (error) {
     console.error("Error seeding database:", error);
   }
