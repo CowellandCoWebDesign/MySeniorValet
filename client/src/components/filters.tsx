@@ -16,13 +16,15 @@ export function Filters({ onFiltersChange }: FiltersProps) {
     careServices: [] as string[],
     amenities: [] as string[],
     transparencyScore: "",
+    verificationStatus: "all",
   });
 
   const careServiceOptions = [
     "Independent Living",
     "Assisted Living", 
     "Memory Care",
-    "Skilled Nursing"
+    "Skilled Nursing",
+    "55+ Housing"
   ];
 
   const amenityOptions = [
@@ -60,6 +62,12 @@ export function Filters({ onFiltersChange }: FiltersProps) {
 
   const handleTransparencyScoreChange = (score: string) => {
     const newFilters = { ...filters, transparencyScore: score };
+    setFilters(newFilters);
+    onFiltersChange?.(newFilters);
+  };
+
+  const handleVerificationStatusChange = (status: string) => {
+    const newFilters = { ...filters, verificationStatus: status };
     setFilters(newFilters);
     onFiltersChange?.(newFilters);
   };
@@ -150,6 +158,20 @@ export function Filters({ onFiltersChange }: FiltersProps) {
               </Label>
             </div>
           </RadioGroup>
+        </div>
+
+        <div>
+          <Label className="text-sm font-medium mb-2 block">Verification Status</Label>
+          <Select value={filters.verificationStatus} onValueChange={handleVerificationStatusChange}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Communities</SelectItem>
+              <SelectItem value="verified">Verified Only</SelectItem>
+              <SelectItem value="unverified">Unverified Only</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <Button onClick={applyFilters} className="w-full">
