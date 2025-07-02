@@ -140,16 +140,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Search communities
+  // Search communities - REDDING, CA FOCUSED ALGORITHM
   app.get("/api/communities/search", async (req, res) => {
     try {
+      // Parse and validate search parameters
       const searchParams = searchCommunitySchema.parse(req.query);
-      const communities = await storage.searchCommunities(searchParams);
-      res.json(communities);
+      
+      // REDDING, CA MARKET FOCUS: Prioritize Redding area searches
+      let communities: Community[];
+      
+      if (!searchParams.location || searchParams.location.toLowerCase().includes('redding')) {
+        // Default to Redding, CA or specifically searching for Redding
+        communities = await storage.searchCommunities({
+          ...searchParams,
+          location: "Redding, CA"
+        });
+        
+        // If no results in Redding and user searched elsewhere, expand to broader CA
+        if (communities.length === 0 && searchParams.location && !searchParams.location.toLowerCase().includes('redding')) {
+          communities = await storage.searchCommunities(searchParams);
+        }
+      } else {
+        // User searching outside Redding - use their search but prioritize CA
+        communities = await storage.searchCommunities({
+          ...searchParams,
+          location: searchParams.location.includes('CA') ? searchParams.location : `${searchParams.location}, CA`
+        });
+      }
+      
+      // REDDING ALGORITHM: Sort by relevance to Redding market
+      const sortedCommunities = communities.sort((a, b) => {
+        // Prioritize Redding communities first
+        const aIsRedding = a.city.toLowerCase() === 'redding';
+        const bIsRedding = b.city.toLowerCase() === 'redding';
+        
+        if (aIsRedding && !bIsRedding) return -1;
+        if (!aIsRedding && bIsRedding) return 1;
+        
+        // Then prioritize by availability
+        if (a.availabilityStatus === 'Available' && b.availabilityStatus !== 'Available') return -1;
+        if (a.availabilityStatus !== 'Available' && b.availabilityStatus === 'Available') return 1;
+        
+        // Then by transparency score (claimed communities with websites)
+        const aTransparency = (a.isClaimed ? 1 : 0) + (a.website ? 1 : 0);
+        const bTransparency = (b.isClaimed ? 1 : 0) + (b.website ? 1 : 0);
+        
+        return bTransparency - aTransparency;
+      });
+      
+      res.json(sortedCommunities);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ message: "Invalid search parameters", errors: error.errors });
+        console.error("Search validation error:", error.errors);
+        res.status(400).json({ 
+          message: "Invalid search parameters", 
+          errors: error.errors 
+        });
       } else {
+        console.error("Search error:", error);
         res.status(500).json({ message: "Failed to search communities" });
       }
     }
