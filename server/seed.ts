@@ -179,12 +179,11 @@ export async function seedDatabase() {
         reviewText: "My mother has been at Sunrise Manor for 8 months now and we couldn't be happier. The staff is attentive, the facilities are clean and modern, and there are plenty of activities to keep residents engaged. The memory care unit is particularly well-run.",
         pros: ["Excellent staff", "Clean facilities", "Great activities", "Good memory care"],
         cons: ["Parking can be limited"],
-        relationshipType: "Adult Child",
+        relationshipType: "Family Member",
         stayDuration: "6-12 months",
         careLevel: "Memory Care",
         wouldRecommend: true,
-        verified: true,
-        moderationStatus: "Approved"
+        verified: true
       },
       {
         communityId: insertedCommunities[0].id, // Sunrise Manor
@@ -194,12 +193,11 @@ export async function seedDatabase() {
         reviewText: "Overall, we're satisfied with the care my father receives here. The dining options are varied and the physical therapy team is excellent. However, communication could be better and some maintenance issues take a while to resolve.",
         pros: ["Good dining", "Excellent PT", "Nice location"],
         cons: ["Communication issues", "Slow maintenance response"],
-        relationshipType: "Adult Child",
+        relationshipType: "Family Member",
         stayDuration: "1-2 years",
         careLevel: "Assisted Living",
         wouldRecommend: true,
-        verified: true,
-        moderationStatus: "Approved"
+        verified: true
       },
       {
         communityId: insertedCommunities[1].id, // Golden Years
@@ -209,7 +207,7 @@ export async function seedDatabase() {
         reviewText: "I moved here 6 months ago and it truly feels like home. The staff knows everyone by name, the food is restaurant quality, and I've made wonderful friends. The fitness center and pool are well-maintained and there's always something fun happening.",
         pros: ["Personal attention", "Great food", "Active community", "Good amenities"],
         cons: [],
-        relationshipType: "Resident",
+        relationshipType: "Current Resident",
         stayDuration: "3-6 months",
         careLevel: "Independent Living",
         wouldRecommend: true,
