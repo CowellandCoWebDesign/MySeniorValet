@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { searchCommunitySchema, insertCommunitySchema, insertReviewSchema } from "@shared/schema";
+import { searchCommunitySchema, insertCommunitySchema, insertReviewSchema, type Community } from "@shared/schema";
 import { z } from "zod";
 import { aiRecommendationEngine, RecommendationRequest } from "./ai-recommendations";
 import { ComprehensiveScraper } from "./scraper";

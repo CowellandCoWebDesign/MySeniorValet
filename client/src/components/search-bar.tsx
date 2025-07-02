@@ -21,7 +21,7 @@ interface SearchBarProps {
 export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilters }: SearchBarProps) {
   const [, setLocation] = useLocation();
   const [searchParams, setSearchParams] = useState({
-    location: "Redding, CA", // DEFAULT TO REDDING, CA MARKET
+    location: "", // Clean interface - Redding focus handled in backend
     careType: "All Types",
     budget: "Any Budget",
     availability: "All Status",
