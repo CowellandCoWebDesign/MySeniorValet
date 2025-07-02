@@ -20,38 +20,184 @@ export class RealDataScraper {
   async searchGoogleForRealCommunities(city: string, state: string): Promise<RealCommunityData[]> {
     const communities: RealCommunityData[] = [];
     
-    // For now, let's search specific business directories that are publicly accessible
     const searchTerms = [
-      `"${city}, ${state}" "senior living"`,
-      `"${city}, ${state}" "assisted living"`,
-      `"${city}, ${state}" "memory care"`,
-      `"${city}, ${state}" "independent living"`
+      `independent living ${city} ${state}`,
+      `assisted living ${city} ${state}`,
+      `senior living communities ${city} ${state}`,
+      `memory care ${city} ${state}`
     ];
 
-    console.log(`Searching for real senior living communities in ${city}, ${state}...`);
+    console.log(`Searching Google for real senior living communities in ${city}, ${state}...`);
 
-    // Try to search A Place for Mom, which is a public directory
+    for (const searchTerm of searchTerms) {
+      try {
+        const googleResults = await this.searchGoogleDirect(searchTerm, city, state);
+        communities.push(...googleResults);
+        
+        // Add delay between searches to be respectful
+        await this.delay(2000);
+      } catch (error) {
+        console.error(`Error searching Google for "${searchTerm}":`, error);
+      }
+    }
+
+    // Remove duplicates
+    const uniqueCommunities = this.deduplicateCommunities(communities);
+    console.log(`Found ${uniqueCommunities.length} unique communities from Google search`);
+
+    return uniqueCommunities;
+  }
+
+  // Direct Google search implementation
+  private async searchGoogleDirect(searchTerm: string, city: string, state: string): Promise<RealCommunityData[]> {
+    const communities: RealCommunityData[] = [];
+    
     try {
-      const aplaceformomResults = await this.searchAPlaceForMom(city, state);
-      communities.push(...aplaceformomResults);
+      const encodedQuery = encodeURIComponent(searchTerm);
+      const googleUrl = `https://www.google.com/search?q=${encodedQuery}&gl=us&hl=en`;
+      
+      console.log(`Searching: ${googleUrl}`);
+      
+      const response = await axios.get(googleUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.5',
+          'Accept-Encoding': 'gzip, deflate',
+          'Connection': 'keep-alive',
+          'Upgrade-Insecure-Requests': '1'
+        },
+        timeout: 15000
+      });
+
+      const $ = cheerio.load(response.data);
+      
+      // Look for Google business listings and search results
+      $('div[data-ved], .g, .rc').each((i, element) => {
+        if (i >= 20) return false; // Limit to first 20 results
+        
+        const $el = $(element);
+        
+        // Extract business name
+        const nameSelectors = [
+          'h3', 
+          '[role="heading"]', 
+          '.LC20lb',
+          '.DKV0Md',
+          'span[jsname]'
+        ];
+        
+        let name = '';
+        for (const selector of nameSelectors) {
+          name = $el.find(selector).first().text().trim();
+          if (name) break;
+        }
+        
+        // Extract address and contact info
+        const addressSelectors = [
+          '[data-local-attribute="d3adr"]',
+          '.rllt__details',
+          '.VuuXrf',
+          'span:contains("·")',
+          '.address'
+        ];
+        
+        let addressText = '';
+        for (const selector of addressSelectors) {
+          addressText = $el.find(selector).first().text().trim();
+          if (addressText) break;
+        }
+        
+        // Look for phone numbers
+        const phoneSelectors = [
+          '[data-ved] span:contains("(")',
+          'span:contains("530")',
+          'a[href^="tel:"]'
+        ];
+        
+        let phone = '';
+        for (const selector of phoneSelectors) {
+          phone = $el.find(selector).first().text().trim();
+          if (phone && phone.match(/\(\d{3}\)\s?\d{3}-?\d{4}/)) break;
+        }
+        
+        // Check if this looks like a senior living community
+        const isRelevant = name && (
+          name.toLowerCase().includes('senior') ||
+          name.toLowerCase().includes('assisted') ||
+          name.toLowerCase().includes('living') ||
+          name.toLowerCase().includes('care') ||
+          name.toLowerCase().includes('estates') ||
+          name.toLowerCase().includes('manor') ||
+          name.toLowerCase().includes('village') ||
+          name.toLowerCase().includes('gardens') ||
+          name.toLowerCase().includes('residence')
+        );
+        
+        if (isRelevant && name.length > 3) {
+          // Try to extract address components
+          let address = '';
+          let zipCode = '';
+          
+          if (addressText) {
+            const addressMatch = addressText.match(/([^,]+),?\s*(?:CA|California)?[\s,]*(\d{5})?/i);
+            if (addressMatch) {
+              address = addressMatch[1].trim();
+              zipCode = addressMatch[2] || '';
+            } else {
+              address = addressText.split(',')[0].trim();
+            }
+          }
+          
+          communities.push({
+            name: name,
+            address: address || `${city}, ${state}`,
+            city,
+            state,
+            zipCode,
+            phone: phone || undefined,
+            website: undefined,
+            description: `Senior living community found via Google search`,
+            careTypes: this.determineCareTypes(name, addressText)
+          });
+        }
+      });
+      
     } catch (error) {
-      console.error('Error searching A Place for Mom:', error);
+      console.error('Google search failed:', error);
     }
-
-    // Try to search Caring.com directory
-    try {
-      const caringResults = await this.searchCaringDirectory(city, state);
-      communities.push(...caringResults);
-    } catch (error) {
-      console.error('Error searching Caring.com:', error);
-    }
-
-    // If no results from web scraping, fall back to known communities
-    if (communities.length === 0 && city.toLowerCase() === 'redding' && state.toUpperCase() === 'CA') {
-      return await this.getReddingRealCommunities();
-    }
-
+    
     return communities;
+  }
+
+  // Helper to determine care types based on name/description
+  private determineCareTypes(name: string, description: string): string[] {
+    const text = (name + ' ' + description).toLowerCase();
+    const careTypes: string[] = [];
+    
+    if (text.includes('independent')) careTypes.push('Independent Living');
+    if (text.includes('assisted')) careTypes.push('Assisted Living');
+    if (text.includes('memory') || text.includes('alzheimer') || text.includes('dementia')) {
+      careTypes.push('Memory Care');
+    }
+    if (text.includes('skilled nursing') || text.includes('nursing home')) {
+      careTypes.push('Skilled Nursing');
+    }
+    if (text.includes('55+') || text.includes('senior housing')) {
+      careTypes.push('55+ Housing');
+    }
+    
+    // Default if no specific type found
+    if (careTypes.length === 0) {
+      careTypes.push('Independent Living', 'Assisted Living');
+    }
+    
+    return careTypes;
+  }
+
+  // Add delay helper
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   // Search A Place for Mom directory
