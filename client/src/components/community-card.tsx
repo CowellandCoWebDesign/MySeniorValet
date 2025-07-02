@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, Shield, AlertTriangle, DollarSign, MapPin, Heart, Share, Users, Calendar, CheckCircle, ExternalLink, Clock, Home, Wifi, Car, Utensils, Activity, Phone } from "lucide-react";
+import { Star, Shield, AlertTriangle, DollarSign, MapPin, Heart, Share, Users, Calendar, CheckCircle, ExternalLink, Clock, Home, Wifi, Car, Utensils, Activity, Phone, Camera, Video, UserCheck, Stethoscope, Bed, ShowerHead } from "lucide-react";
 import { Link } from "wouter";
 import type { Community } from "@shared/schema";
 
@@ -93,28 +93,66 @@ export function CommunityCard({ community }: CommunityCardProps) {
   const specialOffers = getSpecialOffers();
   const reviewSnippets = getReviewSnippets();
   const topAmenities = getTopAmenities();
-  const priceTransparency = getPriceTransparency();
+  // Remove the problematic priceTransparency call for now
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-all duration-200 border-l-4 border-l-blue-500">
-      {/* LIVE AVAILABILITY STATUS - Top Priority */}
-      <div className={`${availability.color} px-4 py-3 flex items-center justify-between`}>
-        <div className="flex items-center space-x-3">
-          {availability.icon}
-          <div>
-            <span className="font-bold text-lg">{community.availabilityStatus}</span>
-            {community.availableUnits && (
-              <span className="text-sm opacity-90 ml-2">• {community.availableUnits} units available</span>
+      {/* PHOTO CAROUSEL */}
+      {community.photos && community.photos.length > 0 && (
+        <div className="relative h-48 bg-gray-200">
+          <img 
+            src={community.photos[0]} 
+            alt={`${community.name} exterior view`}
+            className="w-full h-48 object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+          <div className="absolute top-3 right-3 flex space-x-2">
+            {community.photos.length > 1 && (
+              <Badge className="bg-black/60 text-white border-0">
+                <Camera className="h-3 w-3 mr-1" />
+                {community.photos.length} Photos
+              </Badge>
+            )}
+            {community.virtualTourUrl && (
+              <Badge className="bg-blue-600 text-white border-0 cursor-pointer hover:bg-blue-700">
+                <Video className="h-3 w-3 mr-1" />
+                Virtual Tour
+              </Badge>
             )}
           </div>
+          {/* AVAILABILITY OVERLAY */}
+          <div className={`absolute bottom-0 left-0 right-0 ${availability.color} px-4 py-2 flex items-center justify-between`}>
+            <div className="flex items-center space-x-2">
+              {availability.icon}
+              <span className="font-bold">{community.availabilityStatus}</span>
+              {community.availableUnits && (
+                <span className="text-sm opacity-90">• {community.availableUnits} units</span>
+              )}
+            </div>
+          </div>
         </div>
-        {availability.urgency === "high" && (
-          <Badge variant="secondary" className="bg-white text-green-800 font-semibold">
-            <Clock className="h-3 w-3 mr-1" />
-            Act Fast
-          </Badge>
-        )}
-      </div>
+      )}
+      
+      {/* Fallback availability status if no photos */}
+      {(!community.photos || community.photos.length === 0) && (
+        <div className={`${availability.color} px-4 py-3 flex items-center justify-between`}>
+          <div className="flex items-center space-x-3">
+            {availability.icon}
+            <div>
+              <span className="font-bold text-lg">{community.availabilityStatus}</span>
+              {community.availableUnits && (
+                <span className="text-sm opacity-90 ml-2">• {community.availableUnits} units available</span>
+              )}
+            </div>
+          </div>
+          {availability.urgency === "high" && (
+            <Badge variant="secondary" className="bg-white text-green-800 font-semibold">
+              <Clock className="h-3 w-3 mr-1" />
+              Act Fast
+            </Badge>
+          )}
+        </div>
+      )}
 
       <CardContent className="p-6">
         {/* Header: Name, Rating & Location */}
@@ -222,22 +260,52 @@ export function CommunityCard({ community }: CommunityCardProps) {
               )}
             </div>
 
-            {/* CARE TYPES */}
-            <div className="space-y-2">
-              <div className="text-sm font-semibold text-gray-700">Care Services</div>
-              <div className="flex flex-wrap gap-2">
-                {community.careTypes.slice(0, 4).map((type) => (
-                  <Badge key={type} variant="outline" className="text-xs border-gray-300">
-                    <Home className="h-3 w-3 mr-1" />
-                    {type}
-                  </Badge>
-                ))}
-                {community.careTypes.length > 4 && (
-                  <Badge variant="outline" className="text-xs border-gray-300">
-                    +{community.careTypes.length - 4} more
-                  </Badge>
-                )}
+            {/* CARE LEVELS & SERVICES */}
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+              <div className="flex items-center space-x-2 mb-3">
+                <UserCheck className="h-5 w-5 text-purple-600" />
+                <span className="font-semibold text-purple-900">Care Levels</span>
               </div>
+              
+              {/* Primary Care Types */}
+              <div className="space-y-2 mb-3">
+                {community.careTypes.map((type) => {
+                  const getCareIcon = (careType: string) => {
+                    switch(careType) {
+                      case "Independent Living": return <Home className="h-4 w-4" />;
+                      case "Assisted Living": return <UserCheck className="h-4 w-4" />;
+                      case "Memory Care": return <Stethoscope className="h-4 w-4" />;
+                      case "Skilled Nursing": return <Activity className="h-4 w-4" />;
+                      default: return <Home className="h-4 w-4" />;
+                    }
+                  };
+                  
+                  return (
+                    <div key={type} className="flex items-center space-x-2 bg-purple-100 rounded px-3 py-2">
+                      <span className="text-purple-600">{getCareIcon(type)}</span>
+                      <span className="text-sm font-medium text-purple-900">{type}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Care Services Details */}
+              {community.careServices && community.careServices.length > 0 && (
+                <div className="border-t border-purple-200 pt-3">
+                  <div className="text-xs font-medium text-purple-800 mb-2">Services Include:</div>
+                  <div className="space-y-1">
+                    {community.careServices.slice(0, 3).map((service, index) => (
+                      <div key={index} className="text-xs text-purple-700 flex items-center space-x-1">
+                        <span className="w-1 h-1 bg-purple-400 rounded-full"></span>
+                        <span>{service}</span>
+                      </div>
+                    ))}
+                    {community.careServices.length > 3 && (
+                      <div className="text-xs text-purple-600">+{community.careServices.length - 3} more services</div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -75,6 +75,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get individual community by ID
+  app.get("/api/communities/:id", async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) {
+        return res.status(400).json({ message: "Invalid community ID" });
+      }
+      
+      const community = await storage.getCommunity(communityId);
+      if (!community) {
+        return res.status(404).json({ message: "Community not found" });
+      }
+      
+      res.json(community);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch community" });
+    }
+  });
+
+  // Get similar communities
+  app.get("/api/communities/similar/:id", async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) {
+        return res.status(400).json({ message: "Invalid community ID" });
+      }
+
+      const targetCommunity = await storage.getCommunity(communityId);
+      if (!targetCommunity) {
+        return res.status(404).json({ message: "Community not found" });
+      }
+
+      const allCommunities = await storage.getAllCommunities();
+      
+      // Find similar communities based on care types, location, and price range
+      const similarCommunities = allCommunities
+        .filter(community => community.id !== communityId)
+        .filter(community => {
+          // Same state
+          if (community.state !== targetCommunity.state) return false;
+          
+          // Overlapping care types
+          const hasOverlappingCareTypes = community.careTypes.some(type => 
+            targetCommunity.careTypes.includes(type)
+          );
+          if (!hasOverlappingCareTypes) return false;
+          
+          // Similar price range (within 50% difference)
+          if (community.priceRange && targetCommunity.priceRange) {
+            const targetMidPrice = (targetCommunity.priceRange.min + targetCommunity.priceRange.max) / 2;
+            const communityMidPrice = (community.priceRange.min + community.priceRange.max) / 2;
+            const priceDiff = Math.abs(targetMidPrice - communityMidPrice) / targetMidPrice;
+            if (priceDiff > 0.5) return false;
+          }
+          
+          return true;
+        })
+        .slice(0, 6); // Return up to 6 similar communities
+      
+      res.json(similarCommunities);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch similar communities" });
+    }
+  });
+
   // Search communities
   app.get("/api/communities/search", async (req, res) => {
     try {
