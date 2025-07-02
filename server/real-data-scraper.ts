@@ -637,6 +637,15 @@ export class RealDataScraper {
   // Create known corrections for specific communities
   private applyCommunityCorrections(community: RealCommunityData): RealCommunityData {
     const corrections: Record<string, Partial<RealCommunityData>> = {
+      'Shasta Estates Senior Living': {
+        address: '1350 Buenaventura Blvd, Redding, CA',
+        phone: '(530) 962-5307'
+      },
+      'Shasta Estates': {
+        name: 'Shasta Estates Senior Living',
+        address: '1350 Buenaventura Blvd, Redding, CA',
+        phone: '(530) 962-5307'
+      },
       'Hilltop Estates Senior Living': {
         address: '451 Hilltop Dr, Redding, CA',
         phone: '(530) 241-4444'
@@ -645,6 +654,15 @@ export class RealDataScraper {
         name: 'Hilltop Estates Senior Living',
         address: '451 Hilltop Dr, Redding, CA',
         phone: '(530) 241-4444'
+      },
+      'Hilltop Springs': {
+        address: '7 Hilltop Dr, Redding, CA',
+        phone: '(530) 395-1777'
+      },
+      'Hilltop Springs Senior Living': {
+        name: 'Hilltop Springs',
+        address: '7 Hilltop Dr, Redding, CA',
+        phone: '(530) 395-1777'
       }
     };
 
@@ -753,11 +771,11 @@ export class RealDataScraper {
     const realCommunities: RealCommunityData[] = [
       {
         name: "Shasta Estates Senior Living",
-        address: "1855 Hartnell Ave",
+        address: "1350 Buenaventura Blvd",
         city: "Redding",
         state: "CA",
-        zipCode: "96002",
-        phone: "(530) 221-8600",
+        zipCode: "96003",
+        phone: "(530) 962-5307",
         website: "https://www.shastaestates.com/",
         description: "Independent and assisted living community in Redding",
         careTypes: ["Independent Living", "Assisted Living"]
@@ -786,11 +804,11 @@ export class RealDataScraper {
       },
       {
         name: "Hilltop Springs",
-        address: "2150 Hilltop Dr",
+        address: "7 Hilltop Dr",
         city: "Redding", 
         state: "CA",
         zipCode: "96002",
-        phone: "(530) 221-8800",
+        phone: "(530) 395-1777",
         website: null,
         description: "Senior community with independent and assisted living options",
         careTypes: ["Independent Living", "Assisted Living"]
