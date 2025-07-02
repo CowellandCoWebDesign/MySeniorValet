@@ -7,6 +7,7 @@ import { DisclaimerBanner } from "@/components/disclaimer-banner";
 import Home from "@/pages/home";
 import Search from "@/pages/search";
 import Community from "@/pages/community";
+import CommunityPage from "@/pages/community";
 import Claim from "@/pages/claim";
 import Admin from "@/pages/admin";
 import Privacy from "@/pages/privacy";
@@ -20,7 +21,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/search" component={Search} />
-      <Route path="/community/:id" component={Community} />
+      <Route path="/community/:id" component={CommunityPage} />
       <Route path="/claim" component={Claim} />
       <Route path="/admin" component={Admin} />
       <Route path="/privacy" component={Privacy} />

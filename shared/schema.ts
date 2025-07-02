@@ -23,7 +23,10 @@ export const communities = pgTable("communities", {
   careTypes: text("care_types").array().notNull(), // ['Independent Living', 'Assisted Living', 'Memory Care', 'Skilled Nursing']
   amenities: text("amenities").array().default([]),
   services: text("services").array().default([]), // ['24/7 Nursing', 'Physical Therapy', 'Transportation', 'Meal Service']
+  careServices: text("care_services").array().default([]), // ['Independent Living', 'Assisted Living', 'Memory Care', 'Skilled Nursing']
   medicalRestrictions: text("medical_restrictions").array().default([]), // ['No Insulin Patients', 'No Dialysis', 'No Ventilators']
+  photos: text("photos").array().default([]), // Array of photo URLs
+  virtualTourUrl: text("virtual_tour_url"),
   priceRange: json("price_range").$type<{ min: number; max: number }>(),
   pricingDetails: json("pricing_details").$type<{
     basePrice?: number;

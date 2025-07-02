@@ -45,6 +45,13 @@ export async function seedDatabase() {
         careTypes: ["Independent Living"],
         amenities: ["WiFi", "Parking", "Dining", "Fitness", "Restaurant", "Activities", "Library", "Pool", "Gardens", "Spa"],
         services: ["Concierge", "Housekeeping", "Maintenance", "Transportation", "Wellness Programs"],
+        careServices: ["Independent Living Apartments", "24/7 Emergency Response", "Medication Reminders", "Wellness Checks"],
+        photos: [
+          "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+          "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+          "https://images.unsplash.com/photo-1540555700478-4be289fbecef?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"
+        ],
+        virtualTourUrl: "https://virtualtour.example.com/cascades-north-state",
         medicalRestrictions: [],
         priceRange: { min: 3200, max: 5800 },
         availabilityStatus: "Available Now",
@@ -55,12 +62,16 @@ export async function seedDatabase() {
           {
             rating: 5,
             author: "Sarah M.",
-            text: "My mother has been living here for 8 months and loves it. The staff is incredibly caring and the dining room food is restaurant quality. The activities keep her engaged and she's made wonderful friends."
+            text: "My mother has been living here for 8 months and loves it. The staff is incredibly caring and the dining room food is restaurant quality. The activities keep her engaged and she's made wonderful friends.",
+            date: "2024-11-15",
+            isPositive: true
           },
           {
             rating: 4,
             author: "David K.",
-            text: "Beautiful facility with great amenities. The staff goes above and beyond to make residents feel at home. Only minor complaint is parking can be limited during events."
+            text: "Beautiful facility with great amenities. The staff goes above and beyond to make residents feel at home. Only minor complaint is parking can be limited during events.",
+            date: "2024-10-22",
+            isPositive: true
           }
         ],
         pricingDetails: {
@@ -237,7 +248,7 @@ export async function seedDatabase() {
         services: ["Concierge Service", "Housekeeping", "Transportation", "Wellness Programs"],
         medicalRestrictions: [],
         priceRange: { min: 5200, max: 12000 },
-        availabilityStatus: "Available",
+        availabilityStatus: "Available Now",
         availableUnits: 15,
         totalUnits: 200,
         rating: "4.9",
