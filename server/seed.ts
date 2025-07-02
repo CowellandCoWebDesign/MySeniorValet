@@ -52,6 +52,14 @@ export async function seedDatabase() {
           "https://images.unsplash.com/photo-1540555700478-4be289fbecef?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"
         ],
         virtualTourUrl: "https://virtualtour.example.com/cascades-north-state",
+        
+        // Detailed Service Categories
+        spaServices: ["Full-Service Spa", "Massage Therapy", "Manicure & Pedicure", "Hair Salon"],
+        healthcareServices: ["Physical Therapy", "Occupational Therapy", "Hospice Care Coordination", "Medication Management", "Health Monitoring"],
+        fitnessServices: ["Fitness Center", "Personal Training", "Water Aerobics", "Chair Yoga", "Walking Trails"],
+        diningServices: ["Chef-Prepared Meals", "Special Dietary Accommodations", "Private Dining Room", "Bistro & Cafe"],
+        transportationServices: ["Medical Appointments", "Shopping Excursions", "Local Errands", "Airport Transportation"],
+        socialServices: ["Activity Director", "Life Enrichment Programs", "Spiritual Care", "Pet Therapy"],
         medicalRestrictions: [],
         priceRange: { min: 3200, max: 5800 },
         availabilityStatus: "Available Now",
@@ -71,6 +79,51 @@ export async function seedDatabase() {
             author: "David K.",
             text: "Beautiful facility with great amenities. The staff goes above and beyond to make residents feel at home. Only minor complaint is parking can be limited during events.",
             date: "2024-10-22",
+            isPositive: true
+          }
+        ],
+        
+        // Multiple Review Sources
+        yelpReviews: [
+          {
+            rating: 4,
+            author: "Jennifer R.",
+            text: "Excellent spa services and the physical therapy team is outstanding. My father recovered so well from his knee surgery with their help.",
+            date: "2024-12-01",
+            isPositive: true
+          },
+          {
+            rating: 5,
+            author: "Mark T.",
+            text: "The dining is truly exceptional - like a fine restaurant. The chef accommodates all dietary needs and the staff is incredibly professional.",
+            date: "2024-11-28",
+            isPositive: true
+          }
+        ],
+        careComReviews: [
+          {
+            rating: 4,
+            author: "Lisa K.",
+            text: "Great care team and wonderful activities. The memory care program is excellent and the staff is well-trained in dealing with dementia patients.",
+            date: "2024-11-20",
+            isPositive: true
+          }
+        ],
+        seniorAdvisorReviews: [
+          {
+            rating: 5,
+            author: "Robert P.",
+            text: "Top-notch facility with excellent healthcare coordination. They work seamlessly with our family's hospice provider when needed.",
+            date: "2024-10-15",
+            isPositive: true
+          }
+        ],
+        aplaceformomReviews: [
+          {
+            rating: 4,
+            author: "Carol D.",
+            text: "Beautiful gardens and the spa services are a real treat. The transportation service is reliable for medical appointments.",
+            date: "2024-11-05",
             isPositive: true
           }
         ],
@@ -99,7 +152,21 @@ export async function seedDatabase() {
         careTypes: ["Assisted Living", "Memory Care"],
         amenities: ["WiFi", "Parking", "Dining", "Activities", "Garden", "Beauty Salon"],
         services: ["24/7 Care", "Medication Management", "Physical Therapy", "Memory Support", "Medical Services"],
+        careServices: ["Assisted Living", "Memory Care", "24/7 Emergency Response", "Medication Management", "Personal Care Assistance"],
         medicalRestrictions: ["No Ventilators"],
+        photos: [
+          "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+          "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"
+        ],
+        virtualTourUrl: "https://virtualtour.example.com/prestige-redding",
+        
+        // Detailed Service Categories
+        spaServices: ["Hair Salon", "Manicure Services", "Relaxation Therapy"],
+        healthcareServices: ["Physical Therapy", "Occupational Therapy", "Memory Care Specialists", "Hospice Care Partnership", "Medication Management"],
+        fitnessServices: ["Chair Exercises", "Balance Training", "Memory-Safe Walking Paths", "Gentle Stretching"],
+        diningServices: ["Memory-Friendly Dining", "Nutritionist Consultation", "Special Dietary Plans", "Family Dining Room"],
+        transportationServices: ["Medical Appointments", "Family Visits", "Local Outings"],
+        socialServices: ["Memory Care Activities", "Family Support Groups", "Spiritual Care", "Pet Visits"],
         priceRange: { min: 4800, max: 7200 },
         availabilityStatus: "Waitlist",
         availableUnits: 0,
@@ -109,12 +176,54 @@ export async function seedDatabase() {
           {
             rating: 5,
             author: "Jennifer L.",
-            text: "The care my father receives here is exceptional. The staff knows every resident by name and truly cares about their wellbeing. The memory care program has been a blessing for our family."
+            text: "The care my father receives here is exceptional. The staff knows every resident by name and truly cares about their wellbeing. The memory care program has been a blessing for our family.",
+            date: "2024-11-10",
+            isPositive: true
           },
           {
             rating: 5,
             author: "Mark R.",
-            text: "Clean, well-maintained facility with caring staff. The activities coordinator does an amazing job keeping residents engaged. Highly recommend this place."
+            text: "Clean, well-maintained facility with caring staff. The activities coordinator does an amazing job keeping residents engaged. Highly recommend this place.",
+            date: "2024-10-18",
+            isPositive: true
+          }
+        ],
+        
+        // Multiple Review Sources for Prestige Senior Living
+        yelpReviews: [
+          {
+            rating: 5,
+            author: "Sarah K.",
+            text: "Outstanding memory care program. The staff is highly trained and compassionate. My grandmother feels safe and loved here.",
+            date: "2024-11-25",
+            isPositive: true
+          }
+        ],
+        careComReviews: [
+          {
+            rating: 4,
+            author: "Tom H.",
+            text: "Great assisted living services and the physical therapy team has helped my wife regain her mobility. Professional staff all around.",
+            date: "2024-11-12",
+            isPositive: true
+          }
+        ],
+        seniorAdvisorReviews: [
+          {
+            rating: 5,
+            author: "Maria S.",
+            text: "Family-oriented environment with excellent memory care. They work well with hospice providers when needed.",
+            date: "2024-10-28",
+            isPositive: true
+          }
+        ],
+        aplaceformomReviews: [
+          {
+            rating: 4,
+            author: "David W.",
+            text: "Well-maintained facility with caring staff. The hair salon services are a nice touch for the residents.",
+            date: "2024-11-03",
+            isPositive: true
           }
         ],
         pricingDetails: {

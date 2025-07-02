@@ -6,7 +6,7 @@ import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, MapPin, Phone, Globe, CheckCircle, Users, Calendar, DollarSign, Camera, Video, Home, UserCheck, Stethoscope, Activity, Wifi, Car, Utensils, ChevronLeft, ChevronRight, ExternalLink, Heart, Share, Clock, AlertTriangle } from "lucide-react";
+import { Star, MapPin, Phone, Globe, CheckCircle, Users, Calendar, DollarSign, Camera, Video, Home, UserCheck, Stethoscope, Activity, Wifi, Car, Utensils, ChevronLeft, ChevronRight, ExternalLink, Heart, Share, Clock, AlertTriangle, Heart as HeartIcon, Brain, Dumbbell, UtensilsCrossed, Bus, HandHeart, Waves, Scissors } from "lucide-react";
 import { Link } from "wouter";
 import type { Community } from "@shared/schema";
 
@@ -263,8 +263,8 @@ export default function CommunityPage() {
                     <div className="flex items-center space-x-2">
                       <Globe className="h-4 w-4 text-blue-600" />
                       <a href={`https://${community.website}`} target="_blank" rel="noopener noreferrer" 
-                         className="text-sm text-blue-600 hover:underline">
-                        Visit Website
+                         className="text-sm text-blue-600 hover:underline font-semibold">
+                        Visit Official Website
                       </a>
                     </div>
                   )}
@@ -304,6 +304,141 @@ export default function CommunityPage() {
               </CardContent>
             </Card>
 
+            {/* COMPREHENSIVE SERVICES SECTION */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Healthcare Services */}
+              {community.healthcareServices && community.healthcareServices.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Stethoscope className="h-6 w-6 text-red-600" />
+                      <span>Healthcare & Medical Services</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {community.healthcareServices.map((service, index) => (
+                        <div key={index} className="flex items-center space-x-3 p-3 bg-red-50 rounded-lg">
+                          <Stethoscope className="h-4 w-4 text-red-600" />
+                          <span className="text-red-900 font-medium">{service}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Spa & Wellness Services */}
+              {community.spaServices && community.spaServices.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Waves className="h-6 w-6 text-blue-600" />
+                      <span>Spa & Wellness Services</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {community.spaServices.map((service, index) => (
+                        <div key={index} className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
+                          <Scissors className="h-4 w-4 text-blue-600" />
+                          <span className="text-blue-900 font-medium">{service}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Fitness Services */}
+              {community.fitnessServices && community.fitnessServices.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Dumbbell className="h-6 w-6 text-green-600" />
+                      <span>Fitness & Recreation</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {community.fitnessServices.map((service, index) => (
+                        <div key={index} className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
+                          <Activity className="h-4 w-4 text-green-600" />
+                          <span className="text-green-900 font-medium">{service}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Dining Services */}
+              {community.diningServices && community.diningServices.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <UtensilsCrossed className="h-6 w-6 text-orange-600" />
+                      <span>Dining & Culinary Services</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {community.diningServices.map((service, index) => (
+                        <div key={index} className="flex items-center space-x-3 p-3 bg-orange-50 rounded-lg">
+                          <Utensils className="h-4 w-4 text-orange-600" />
+                          <span className="text-orange-900 font-medium">{service}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Transportation Services */}
+              {community.transportationServices && community.transportationServices.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Bus className="h-6 w-6 text-purple-600" />
+                      <span>Transportation Services</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {community.transportationServices.map((service, index) => (
+                        <div key={index} className="flex items-center space-x-3 p-3 bg-purple-50 rounded-lg">
+                          <Car className="h-4 w-4 text-purple-600" />
+                          <span className="text-purple-900 font-medium">{service}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Social Services */}
+              {community.socialServices && community.socialServices.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <HandHeart className="h-6 w-6 text-pink-600" />
+                      <span>Social & Support Services</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {community.socialServices.map((service, index) => (
+                        <div key={index} className="flex items-center space-x-3 p-3 bg-pink-50 rounded-lg">
+                          <Users className="h-4 w-4 text-pink-600" />
+                          <span className="text-pink-900 font-medium">{service}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
             {/* Amenities */}
             <Card>
               <CardHeader>
@@ -324,42 +459,200 @@ export default function CommunityPage() {
               </CardContent>
             </Card>
 
-            {/* Reviews */}
-            {community.googleReviewSnippets && community.googleReviewSnippets.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Star className="h-6 w-6 text-yellow-500" />
-                    <span>What Families Say</span>
-                    {community.googleRating && (
-                      <Badge className="bg-yellow-100 text-yellow-800">
-                        {parseFloat(community.googleRating).toFixed(1)} ★ ({community.googleReviewCount} reviews)
-                      </Badge>
-                    )}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {community.googleReviewSnippets.map((review, index) => (
-                      <div key={index} className="border-l-4 border-yellow-400 pl-4 py-2">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <div className="flex">
-                            {[...Array(5)].map((_, i) => (
-                              <Star 
-                                key={i} 
-                                className={`h-4 w-4 ${i < review.rating ? 'text-yellow-500 fill-current' : 'text-gray-300'}`} 
-                              />
-                            ))}
-                          </div>
-                          <span className="text-sm font-medium text-gray-900">{review.author}</span>
+            {/* COMPREHENSIVE MULTI-SOURCE REVIEWS */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Star className="h-6 w-6 text-yellow-500" />
+                  <span>Reviews from Multiple Sources</span>
+                </CardTitle>
+                <div className="text-sm text-gray-600">
+                  Complete transparency with reviews from Google, Yelp, Care.com, SeniorAdvisor, and A Place For Mom
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {/* Google Reviews */}
+                  {community.googleReviewSnippets && community.googleReviewSnippets.length > 0 && (
+                    <div>
+                      <div className="flex items-center space-x-2 mb-4">
+                        <div className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">G</span>
                         </div>
-                        <p className="text-gray-700 text-sm leading-relaxed">{review.text}</p>
+                        <span className="font-semibold text-gray-900">Google Reviews</span>
+                        <div className="flex items-center space-x-1">
+                          <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                          <span className="text-sm">{community.googleRating}/5 • {community.googleReviewCount} reviews</span>
+                        </div>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+                      <div className="space-y-3">
+                        {community.googleReviewSnippets.slice(0, 2).map((review: any, index: number) => (
+                          <div key={index} className="border-l-4 border-blue-200 pl-4 py-3 bg-blue-50 rounded-r-lg">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <div className="flex">
+                                {[...Array(5)].map((_, starIndex) => (
+                                  <Star
+                                    key={starIndex}
+                                    className={`h-4 w-4 ${
+                                      starIndex < review.rating
+                                        ? "text-yellow-500 fill-current"
+                                        : "text-gray-300"
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                              <span className="font-medium text-gray-900">{review.author}</span>
+                              <span className="text-sm text-gray-500">{review.date}</span>
+                            </div>
+                            <p className="text-gray-700 leading-relaxed">{review.text}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Yelp Reviews */}
+                  {community.yelpReviews && community.yelpReviews.length > 0 && (
+                    <div>
+                      <div className="flex items-center space-x-2 mb-4">
+                        <div className="w-6 h-6 bg-red-500 rounded flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">Y</span>
+                        </div>
+                        <span className="font-semibold text-gray-900">Yelp Reviews</span>
+                      </div>
+                      <div className="space-y-3">
+                        {community.yelpReviews.map((review: any, index: number) => (
+                          <div key={index} className="border-l-4 border-red-200 pl-4 py-3 bg-red-50 rounded-r-lg">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <div className="flex">
+                                {[...Array(5)].map((_, starIndex) => (
+                                  <Star
+                                    key={starIndex}
+                                    className={`h-4 w-4 ${
+                                      starIndex < review.rating
+                                        ? "text-yellow-500 fill-current"
+                                        : "text-gray-300"
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                              <span className="font-medium text-gray-900">{review.author}</span>
+                              <span className="text-sm text-gray-500">{review.date}</span>
+                            </div>
+                            <p className="text-gray-700 leading-relaxed">{review.text}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Care.com Reviews */}
+                  {community.careComReviews && community.careComReviews.length > 0 && (
+                    <div>
+                      <div className="flex items-center space-x-2 mb-4">
+                        <div className="w-6 h-6 bg-green-500 rounded flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">C</span>
+                        </div>
+                        <span className="font-semibold text-gray-900">Care.com Reviews</span>
+                      </div>
+                      <div className="space-y-3">
+                        {community.careComReviews.map((review: any, index: number) => (
+                          <div key={index} className="border-l-4 border-green-200 pl-4 py-3 bg-green-50 rounded-r-lg">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <div className="flex">
+                                {[...Array(5)].map((_, starIndex) => (
+                                  <Star
+                                    key={starIndex}
+                                    className={`h-4 w-4 ${
+                                      starIndex < review.rating
+                                        ? "text-yellow-500 fill-current"
+                                        : "text-gray-300"
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                              <span className="font-medium text-gray-900">{review.author}</span>
+                              <span className="text-sm text-gray-500">{review.date}</span>
+                            </div>
+                            <p className="text-gray-700 leading-relaxed">{review.text}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* SeniorAdvisor Reviews */}
+                  {community.seniorAdvisorReviews && community.seniorAdvisorReviews.length > 0 && (
+                    <div>
+                      <div className="flex items-center space-x-2 mb-4">
+                        <div className="w-6 h-6 bg-purple-500 rounded flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">S</span>
+                        </div>
+                        <span className="font-semibold text-gray-900">SeniorAdvisor Reviews</span>
+                      </div>
+                      <div className="space-y-3">
+                        {community.seniorAdvisorReviews.map((review: any, index: number) => (
+                          <div key={index} className="border-l-4 border-purple-200 pl-4 py-3 bg-purple-50 rounded-r-lg">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <div className="flex">
+                                {[...Array(5)].map((_, starIndex) => (
+                                  <Star
+                                    key={starIndex}
+                                    className={`h-4 w-4 ${
+                                      starIndex < review.rating
+                                        ? "text-yellow-500 fill-current"
+                                        : "text-gray-300"
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                              <span className="font-medium text-gray-900">{review.author}</span>
+                              <span className="text-sm text-gray-500">{review.date}</span>
+                            </div>
+                            <p className="text-gray-700 leading-relaxed">{review.text}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* A Place For Mom Reviews */}
+                  {community.aplaceformomReviews && community.aplaceformomReviews.length > 0 && (
+                    <div>
+                      <div className="flex items-center space-x-2 mb-4">
+                        <div className="w-6 h-6 bg-orange-500 rounded flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">A</span>
+                        </div>
+                        <span className="font-semibold text-gray-900">A Place For Mom Reviews</span>
+                      </div>
+                      <div className="space-y-3">
+                        {community.aplaceformomReviews.map((review: any, index: number) => (
+                          <div key={index} className="border-l-4 border-orange-200 pl-4 py-3 bg-orange-50 rounded-r-lg">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <div className="flex">
+                                {[...Array(5)].map((_, starIndex) => (
+                                  <Star
+                                    key={starIndex}
+                                    className={`h-4 w-4 ${
+                                      starIndex < review.rating
+                                        ? "text-yellow-500 fill-current"
+                                        : "text-gray-300"
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                              <span className="font-medium text-gray-900">{review.author}</span>
+                              <span className="text-sm text-gray-500">{review.date}</span>
+                            </div>
+                            <p className="text-gray-700 leading-relaxed">{review.text}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* RIGHT COLUMN - Pricing & Quick Actions */}

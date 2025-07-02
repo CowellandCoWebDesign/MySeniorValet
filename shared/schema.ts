@@ -27,6 +27,44 @@ export const communities = pgTable("communities", {
   medicalRestrictions: text("medical_restrictions").array().default([]), // ['No Insulin Patients', 'No Dialysis', 'No Ventilators']
   photos: text("photos").array().default([]), // Array of photo URLs
   virtualTourUrl: text("virtual_tour_url"),
+  
+  // Detailed Services & Amenities
+  spaServices: text("spa_services").array().default([]), // ['Massage Therapy', 'Aromatherapy', 'Facials', 'Manicure/Pedicure']
+  healthcareServices: text("healthcare_services").array().default([]), // ['Physical Therapy', 'Occupational Therapy', 'Speech Therapy', 'Hospice Care Available']
+  fitnessServices: text("fitness_services").array().default([]), // ['Personal Training', 'Water Aerobics', 'Yoga Classes', 'Strength Training']
+  diningServices: text("dining_services").array().default([]), // ['Chef-Prepared Meals', 'Special Diets', '24/7 Room Service', 'Private Dining']
+  transportationServices: text("transportation_services").array().default([]), // ['Medical Appointments', 'Shopping Trips', 'Airport Shuttle', 'Local Errands']
+  socialServices: text("social_services").array().default([]), // ['Activity Director', 'Support Groups', 'Family Counseling', 'Spiritual Care']
+  
+  // Multiple Review Sources
+  yelpReviews: json("yelp_reviews").$type<Array<{
+    rating: number;
+    text: string;
+    author: string;
+    date: string;
+    isPositive: boolean;
+  }>>().default([]),
+  careComReviews: json("care_com_reviews").$type<Array<{
+    rating: number;
+    text: string;
+    author: string;
+    date: string;
+    isPositive: boolean;
+  }>>().default([]),
+  seniorAdvisorReviews: json("senior_advisor_reviews").$type<Array<{
+    rating: number;
+    text: string;
+    author: string;
+    date: string;
+    isPositive: boolean;
+  }>>().default([]),
+  aplaceformomReviews: json("aplaceformom_reviews").$type<Array<{
+    rating: number;
+    text: string;
+    author: string;
+    date: string;
+    isPositive: boolean;
+  }>>().default([]),
   priceRange: json("price_range").$type<{ min: number; max: number }>(),
   pricingDetails: json("pricing_details").$type<{
     basePrice?: number;
