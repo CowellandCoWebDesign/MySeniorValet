@@ -65,6 +65,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/communities/search', validateSearchFilters);
   app.use('/api/recommend', validateSearchFilters);
 
+  // Search communities - REDDING, CA FOCUSED ALGORITHM (MUST BE FIRST)
+  app.get("/api/communities/search", async (req, res) => {
+    try {
+      // Parse and validate search parameters
+      const searchParams = searchCommunitySchema.parse(req.query);
+      
+      // REDDING, CA MARKET FOCUS: Prioritize Redding area searches
+      let communities;
+      
+      if (!searchParams.location || searchParams.location.toLowerCase().includes('redding')) {
+        // Default to Redding, CA or specifically searching for Redding
+        communities = await storage.searchCommunities({
+          ...searchParams,
+          location: "Redding, CA"
+        });
+        
+        // If no results in Redding and user searched elsewhere, expand to broader CA
+        if (communities.length === 0 && searchParams.location && !searchParams.location.toLowerCase().includes('redding')) {
+          communities = await storage.searchCommunities(searchParams);
+        }
+      } else {
+        // User searching outside Redding - use their search but prioritize CA
+        communities = await storage.searchCommunities({
+          ...searchParams,
+          location: searchParams.location.includes('CA') ? searchParams.location : `${searchParams.location}, CA`
+        });
+      }
+      
+      // REDDING ALGORITHM: Sort by relevance to Redding market
+      const sortedCommunities = communities.sort((a, b) => {
+        // Prioritize Redding communities first
+        const aIsRedding = a.city.toLowerCase() === 'redding';
+        const bIsRedding = b.city.toLowerCase() === 'redding';
+        
+        if (aIsRedding && !bIsRedding) return -1;
+        if (!aIsRedding && bIsRedding) return 1;
+        
+        // Then prioritize by availability
+        if (a.availabilityStatus === 'Available Now' && b.availabilityStatus !== 'Available Now') return -1;
+        if (a.availabilityStatus !== 'Available Now' && b.availabilityStatus === 'Available Now') return 1;
+        
+        // Then by transparency score (claimed communities with websites)
+        const aTransparency = (a.isClaimed ? 1 : 0) + (a.website ? 1 : 0);
+        const bTransparency = (b.isClaimed ? 1 : 0) + (b.website ? 1 : 0);
+        
+        return bTransparency - aTransparency;
+      });
+      
+      res.json(sortedCommunities);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        console.error("Search validation error:", error.errors);
+        res.status(400).json({ 
+          message: "Invalid search parameters", 
+          errors: error.errors 
+        });
+      } else {
+        console.error("Search error:", error);
+        res.status(500).json({ message: "Failed to search communities" });
+      }
+    }
+  });
+
   // Get all communities
   app.get("/api/communities", async (req, res) => {
     try {
@@ -75,26 +138,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get individual community by ID
-  app.get("/api/communities/:id", async (req, res) => {
-    try {
-      const communityId = parseInt(req.params.id);
-      if (isNaN(communityId)) {
-        return res.status(400).json({ message: "Invalid community ID" });
-      }
-      
-      const community = await storage.getCommunity(communityId);
-      if (!community) {
-        return res.status(404).json({ message: "Community not found" });
-      }
-      
-      res.json(community);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch community" });
-    }
-  });
-
-  // Get similar communities
+  // Get similar communities (specific route before :id)
   app.get("/api/communities/similar/:id", async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
@@ -140,66 +184,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Search communities - REDDING, CA FOCUSED ALGORITHM
-  app.get("/api/communities/search", async (req, res) => {
+  // Get individual community by ID (must be last among community routes)
+  app.get("/api/communities/:id", async (req, res) => {
     try {
-      // Parse and validate search parameters
-      const searchParams = searchCommunitySchema.parse(req.query);
-      
-      // REDDING, CA MARKET FOCUS: Prioritize Redding area searches
-      let communities: Community[];
-      
-      if (!searchParams.location || searchParams.location.toLowerCase().includes('redding')) {
-        // Default to Redding, CA or specifically searching for Redding
-        communities = await storage.searchCommunities({
-          ...searchParams,
-          location: "Redding, CA"
-        });
-        
-        // If no results in Redding and user searched elsewhere, expand to broader CA
-        if (communities.length === 0 && searchParams.location && !searchParams.location.toLowerCase().includes('redding')) {
-          communities = await storage.searchCommunities(searchParams);
-        }
-      } else {
-        // User searching outside Redding - use their search but prioritize CA
-        communities = await storage.searchCommunities({
-          ...searchParams,
-          location: searchParams.location.includes('CA') ? searchParams.location : `${searchParams.location}, CA`
-        });
+      const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) {
+        return res.status(400).json({ message: "Invalid community ID" });
       }
       
-      // REDDING ALGORITHM: Sort by relevance to Redding market
-      const sortedCommunities = communities.sort((a, b) => {
-        // Prioritize Redding communities first
-        const aIsRedding = a.city.toLowerCase() === 'redding';
-        const bIsRedding = b.city.toLowerCase() === 'redding';
-        
-        if (aIsRedding && !bIsRedding) return -1;
-        if (!aIsRedding && bIsRedding) return 1;
-        
-        // Then prioritize by availability
-        if (a.availabilityStatus === 'Available' && b.availabilityStatus !== 'Available') return -1;
-        if (a.availabilityStatus !== 'Available' && b.availabilityStatus === 'Available') return 1;
-        
-        // Then by transparency score (claimed communities with websites)
-        const aTransparency = (a.isClaimed ? 1 : 0) + (a.website ? 1 : 0);
-        const bTransparency = (b.isClaimed ? 1 : 0) + (b.website ? 1 : 0);
-        
-        return bTransparency - aTransparency;
-      });
+      const community = await storage.getCommunity(communityId);
+      if (!community) {
+        return res.status(404).json({ message: "Community not found" });
+      }
       
-      res.json(sortedCommunities);
+      res.json(community);
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        console.error("Search validation error:", error.errors);
-        res.status(400).json({ 
-          message: "Invalid search parameters", 
-          errors: error.errors 
-        });
-      } else {
-        console.error("Search error:", error);
-        res.status(500).json({ message: "Failed to search communities" });
-      }
+      res.status(500).json({ message: "Failed to fetch community" });
     }
   });
 
