@@ -12,6 +12,7 @@ interface SearchBarProps {
     location: string;
     careType: string;
     budget: string;
+    availability: string;
   }) => void;
   showAdvancedFilters?: boolean;
   onToggleAdvancedFilters?: () => void;
@@ -23,6 +24,7 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
     location: "",
     careType: "All Types",
     budget: "Any Budget",
+    availability: "All Status",
   });
   const [locationQuery, setLocationQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -151,6 +153,40 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
                 <SelectItem value="Memory Care">Memory Care</SelectItem>
                 <SelectItem value="Skilled Nursing">Skilled Nursing</SelectItem>
                 <SelectItem value="55+ Housing">55+ Housing</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Prominent Availability Filter */}
+          <div>
+            <Label className="block text-sm font-medium text-gray-700 mb-2">
+              Availability Status
+              <span className="text-xs text-blue-600 ml-2">(Live Updates)</span>
+            </Label>
+            <Select value={searchParams.availability} onValueChange={(value) => setSearchParams(prev => ({ ...prev, availability: value }))}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All Status">All Status</SelectItem>
+                <SelectItem value="Available Now">
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                    Available Now
+                  </div>
+                </SelectItem>
+                <SelectItem value="Waitlist">
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
+                    Waitlist
+                  </div>
+                </SelectItem>
+                <SelectItem value="Contact for Availability">
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 bg-gray-500 rounded-full mr-2"></div>
+                    Contact for Availability
+                  </div>
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
