@@ -12,8 +12,16 @@ export default function Home() {
       <Header />
       
       {/* Hero Section */}
-      <section className="relative gradient-hero py-16 lg:py-24">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10"></div>
+      <section className="relative py-16 lg:py-24 overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&h=1200"
+            alt="Happy seniors enjoying activities at a senior living community"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/75 to-white/60"></div>
+        </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-gray-900 mb-6">
@@ -23,18 +31,18 @@ export default function Home() {
             <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
               Access up-to-date licensing information, inspection reports, and verified community data to make informed decisions for your loved ones.
             </p>
-            <div className="flex justify-center space-x-4 mb-8">
-              <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full">
-                <Shield className="text-secondary h-4 w-4" />
-                <span className="text-sm font-medium text-gray-700">Licensed & Verified</span>
+            <div className="flex flex-wrap justify-center gap-4 mb-8">
+              <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-sm px-5 py-3 rounded-full shadow-sm border border-white/50">
+                <Shield className="text-secondary h-5 w-5" />
+                <span className="text-sm font-semibold text-gray-800">Licensed & Verified</span>
               </div>
-              <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full">
-                <FolderSync className="text-primary h-4 w-4" />
-                <span className="text-sm font-medium text-gray-700">Real-Time Data</span>
+              <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-sm px-5 py-3 rounded-full shadow-sm border border-white/50">
+                <FolderSync className="text-primary h-5 w-5" />
+                <span className="text-sm font-semibold text-gray-800">Real-Time Data</span>
               </div>
-              <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full">
-                <MapPin className="text-orange-500 h-4 w-4" />
-                <span className="text-sm font-medium text-gray-700">Location-Based</span>
+              <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-sm px-5 py-3 rounded-full shadow-sm border border-white/50">
+                <MapPin className="text-orange-500 h-5 w-5" />
+                <span className="text-sm font-semibold text-gray-800">Location-Based</span>
               </div>
             </div>
           </div>
