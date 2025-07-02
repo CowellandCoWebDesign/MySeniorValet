@@ -1,4 +1,6 @@
 import { users, communities, inspections, type User, type InsertUser, type Community, type InsertCommunity, type Inspection, type InsertInspection, type SearchCommunity } from "@shared/schema";
+import { db } from "./db";
+import { eq, like, gte, and } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -227,4 +229,100 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export class DatabaseStorage implements IStorage {
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async getCommunity(id: number): Promise<Community | undefined> {
+    const [community] = await db.select().from(communities).where(eq(communities.id, id));
+    return community || undefined;
+  }
+
+  async getAllCommunities(): Promise<Community[]> {
+    return await db.select().from(communities);
+  }
+
+  async searchCommunities(params: SearchCommunity): Promise<Community[]> {
+    let query = db.select().from(communities);
+    const conditions = [];
+
+    if (params.careType && params.careType !== "All Types") {
+      // For array contains search in PostgreSQL
+      conditions.push(like(communities.careTypes, `%${params.careType}%`));
+    }
+
+    if (params.location) {
+      const searchTerm = `%${params.location.toLowerCase()}%`;
+      conditions.push(
+        like(communities.city, searchTerm)
+        // Could add more location-based conditions here
+      );
+    }
+
+    if (params.minRating) {
+      conditions.push(gte(communities.rating, params.minRating.toString()));
+    }
+
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+
+    return await query;
+  }
+
+  async createCommunity(insertCommunity: InsertCommunity): Promise<Community> {
+    const [community] = await db
+      .insert(communities)
+      .values(insertCommunity)
+      .returning();
+    return community;
+  }
+
+  async updateCommunity(id: number, updates: Partial<InsertCommunity>): Promise<Community | undefined> {
+    const [community] = await db
+      .update(communities)
+      .set(updates)
+      .where(eq(communities.id, id))
+      .returning();
+    return community || undefined;
+  }
+
+  async deleteCommunity(id: number): Promise<boolean> {
+    const result = await db
+      .delete(communities)
+      .where(eq(communities.id, id));
+    return result.rowCount > 0;
+  }
+
+  async getInspectionsByCommunity(communityId: number): Promise<Inspection[]> {
+    return await db
+      .select()
+      .from(inspections)
+      .where(eq(inspections.communityId, communityId));
+  }
+
+  async createInspection(insertInspection: InsertInspection): Promise<Inspection> {
+    const [inspection] = await db
+      .insert(inspections)
+      .values(insertInspection)
+      .returning();
+    return inspection;
+  }
+}
+
+export const storage = new DatabaseStorage();
