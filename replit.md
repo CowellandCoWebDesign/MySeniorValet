@@ -84,6 +84,7 @@ The application is configured for multiple deployment environments:
 - July 02, 2025: Migrated from in-memory storage to PostgreSQL database with Drizzle ORM, including automatic data seeding
 - July 02, 2025: **Major Enhancement**: Added interactive map functionality, pricing transparency features, availability tracking, trusted review integration, service differentiation, and medical restrictions display
 - July 02, 2025: **Data Integrity Implementation**: Removed all fictional/placeholder community data, implemented location autocomplete with verified data sources, enhanced search filtering with "City, State" parsing, and added clear data verification messaging
+- July 02, 2025: **UI/UX Improvements**: Removed verification restrictions to allow all communities to be displayed, added "55+ Housing" category for senior-only housing, moved data integrity commitment message from landing page to post-search area, and added verification status filter option
 
 ## User Preferences
 
