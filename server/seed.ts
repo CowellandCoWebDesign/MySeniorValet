@@ -182,8 +182,7 @@ export async function seedDatabase() {
         relationshipType: "Family Member",
         stayDuration: "6-12 months",
         careLevel: "Memory Care",
-        wouldRecommend: true,
-        verified: true
+        wouldRecommend: true
       },
       {
         communityId: insertedCommunities[0].id, // Sunrise Manor
@@ -196,8 +195,7 @@ export async function seedDatabase() {
         relationshipType: "Family Member",
         stayDuration: "1-2 years",
         careLevel: "Assisted Living",
-        wouldRecommend: true,
-        verified: true
+        wouldRecommend: true
       },
       {
         communityId: insertedCommunities[1].id, // Golden Years
@@ -210,9 +208,7 @@ export async function seedDatabase() {
         relationshipType: "Current Resident",
         stayDuration: "3-6 months",
         careLevel: "Independent Living",
-        wouldRecommend: true,
-        verified: true,
-        moderationStatus: "Approved"
+        wouldRecommend: true
       }
     ];
 
