@@ -192,19 +192,13 @@ export default function Search() {
                   ) : (
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
                       <div className="max-w-md mx-auto">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-3">No verified communities found in this area</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-3">No communities found</h3>
                         <p className="text-gray-600 mb-4">
-                          We only display communities with verified licensing and inspection data from official state sources. 
-                          Currently building our database with authentic community information.
+                          Try adjusting your search criteria or expanding your search area.
                         </p>
-                        <div className="space-y-3">
-                          <Button onClick={() => setSearchParams({})} variant="outline">
-                            Clear Filters
-                          </Button>
-                          <p className="text-sm text-gray-500">
-                            We're continuously adding verified communities from state licensing databases.
-                          </p>
-                        </div>
+                        <Button onClick={() => setSearchParams({})} variant="outline">
+                          Clear Filters
+                        </Button>
                       </div>
                     </div>
                   )}
