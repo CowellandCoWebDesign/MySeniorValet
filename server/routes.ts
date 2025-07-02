@@ -654,27 +654,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // State Licensing Database Integration Endpoints
   
-  // Scrape all state licensing databases
+  // Scrape all state licensing databases AND general senior living
   app.post('/api/admin/scrape-licensing', async (req, res) => {
     try {
-      console.log('Starting comprehensive state licensing database scraping...');
+      console.log('Starting comprehensive senior living data collection (licensed + unlicensed)...');
       
-      // Start licensing scraping in background
+      // Start comprehensive scraping in background
       licensingScraper.scrapeAllStateLicensing().catch(error => {
-        console.error("Background licensing scrape error:", error);
+        console.error("Background comprehensive scrape error:", error);
       });
 
       res.json({ 
         success: true,
-        message: "State licensing database scraping initiated",
-        sources: ["California CCLD", "Texas HHS", "Florida AHCA", "New York DOH", "Pennsylvania DHS"],
+        message: "Comprehensive senior living data collection initiated - includes both licensed facilities from state databases and unlicensed communities from general searches",
+        licensedSources: ["California CCLD", "Texas HHS", "Florida AHCA", "New York DOH", "Pennsylvania DHS"],
+        unlicensedSources: ["Bing Search", "DuckDuckGo Search", "Business Directories"],
+        searchTypes: ["Independent Living", "55+ Communities", "Retirement Communities", "Senior Housing", "Active Adult Communities"],
+        note: "This hybrid approach captures all senior living options - licensed facilities from official databases and unlicensed communities that market themselves for easy discovery",
         timestamp: new Date().toISOString()
       });
     } catch (error) {
-      console.error('Error initiating licensing scrape:', error);
+      console.error('Error initiating comprehensive scrape:', error);
       res.status(500).json({
         success: false,
-        error: 'Failed to initiate licensing database scraping',
+        error: 'Failed to initiate comprehensive senior living data collection',
         details: error instanceof Error ? error.message : 'Unknown error'
       });
     }

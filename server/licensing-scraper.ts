@@ -312,14 +312,290 @@ export class LicensingDatabaseScraper {
     return phone;
   }
 
-  // Main method to scrape all state databases
+  // Helper method to extract phone numbers from text
+  private extractPhoneFromText(text: string): string | undefined {
+    if (!text) return undefined;
+    
+    // Look for phone number patterns
+    const phoneRegex = /(?:\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}/;
+    const match = text.match(phoneRegex);
+    
+    if (match) {
+      return this.cleanPhoneNumber(match[0]);
+    }
+    
+    return undefined;
+  }
+
+  // Comprehensive Senior Living Search (includes unlicensed communities)
+  async searchGeneralSeniorLiving(city: string, state: string): Promise<LicensingData[]> {
+    const facilities: LicensingData[] = [];
+    
+    try {
+      console.log(`Searching for all senior living communities in ${city}, ${state}...`);
+      
+      // Search terms that capture ALL senior living options, not just licensed
+      const searchTerms = [
+        `"senior living" "${city}" "${state}"`,
+        `"independent living" "${city}" "${state}"`,
+        `"55+ community" "${city}" "${state}"`,
+        `"retirement community" "${city}" "${state}"`,
+        `"senior housing" "${city}" "${state}"`,
+        `"active adult community" "${city}" "${state}"`,
+        `"senior apartments" "${city}" "${state}"`
+      ];
+
+      // Use multiple search engines for comprehensive coverage
+      for (const searchTerm of searchTerms) {
+        // Search Bing for senior living
+        const bingResults = await this.searchBingForSeniorLiving(searchTerm, city, state);
+        facilities.push(...bingResults);
+        
+        // Search DuckDuckGo 
+        const duckResults = await this.searchDuckDuckGoForSeniorLiving(searchTerm, city, state);
+        facilities.push(...duckResults);
+        
+        await this.delay(2000); // Be respectful between searches
+      }
+
+      // Search business directories specifically for senior living
+      const directoryResults = await this.searchBusinessDirectoriesForSeniors(city, state);
+      facilities.push(...directoryResults);
+
+      // Remove duplicates
+      const uniqueFacilities = this.deduplicateFacilities(facilities);
+      console.log(`Found ${uniqueFacilities.length} senior living communities (licensed and unlicensed)`);
+      
+      return uniqueFacilities;
+      
+    } catch (error) {
+      console.error('Error in general senior living search:', error);
+      return [];
+    }
+  }
+
+  // Search Bing specifically for senior living communities
+  private async searchBingForSeniorLiving(searchTerm: string, city: string, state: string): Promise<LicensingData[]> {
+    const facilities: LicensingData[] = [];
+    
+    try {
+      const url = `https://www.bing.com/search?q=${encodeURIComponent(searchTerm)}`;
+      
+      const response = await axios.get(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        },
+        timeout: 10000
+      });
+
+      const $ = cheerio.load(response.data);
+      
+      $('.b_algo').each((i, element) => {
+        if (i >= 15) return false;
+        
+        const $el = $(element);
+        const titleEl = $el.find('h2 a');
+        const name = titleEl.text().trim();
+        const website = titleEl.attr('href');
+        const snippet = $el.find('.b_caption p').text().trim();
+        
+        if (this.isSeniorLivingCommunity(name, snippet)) {
+          const addressMatch = snippet.match(/(\d+[^,]+(?:st|street|ave|avenue|dr|drive|blvd|boulevard|rd|road|ln|lane|way|ct|court)[^,]*),?\s*([^,]+),?\s*(?:CA|California)/i);
+          
+          facilities.push({
+            facilityName: name,
+            licenseNumber: '', // These may not be licensed
+            address: addressMatch ? addressMatch[0] : `${city}, ${state}`,
+            city,
+            state,
+            licenseStatus: 'Not Required', // Many independent/55+ don't need licenses
+            licenseType: this.determineLicenseTypeFromName(name, snippet),
+            phone: this.extractPhoneFromText(snippet),
+            capacity: this.extractCapacityFromText(snippet)
+          });
+        }
+      });
+      
+    } catch (error) {
+      console.error('Bing senior living search failed:', error);
+    }
+    
+    return facilities;
+  }
+
+  // Search DuckDuckGo for senior living
+  private async searchDuckDuckGoForSeniorLiving(searchTerm: string, city: string, state: string): Promise<LicensingData[]> {
+    const facilities: LicensingData[] = [];
+    
+    try {
+      const url = `https://duckduckgo.com/html/?q=${encodeURIComponent(searchTerm)}`;
+      
+      const response = await axios.get(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        },
+        timeout: 10000
+      });
+
+      const $ = cheerio.load(response.data);
+      
+      $('.result').each((i, element) => {
+        if (i >= 15) return false;
+        
+        const $el = $(element);
+        const titleEl = $el.find('.result__title a');
+        const name = titleEl.text().trim();
+        const website = titleEl.attr('href');
+        const snippet = $el.find('.result__snippet').text().trim();
+        
+        if (this.isSeniorLivingCommunity(name, snippet)) {
+          facilities.push({
+            facilityName: name,
+            licenseNumber: '',
+            address: this.extractAddressFromText(snippet, city, state),
+            city,
+            state,
+            licenseStatus: 'Not Required',
+            licenseType: this.determineLicenseTypeFromName(name, snippet),
+            phone: this.extractPhoneFromText(snippet)
+          });
+        }
+      });
+      
+    } catch (error) {
+      console.error('DuckDuckGo senior living search failed:', error);
+    }
+    
+    return facilities;
+  }
+
+  // Search business directories for senior living
+  private async searchBusinessDirectoriesForSeniors(city: string, state: string): Promise<LicensingData[]> {
+    const facilities: LicensingData[] = [];
+    
+    try {
+      // Yellow Pages search for senior living
+      const ypUrl = `https://www.yellowpages.com/search?search_terms=senior+living&geo_location_terms=${encodeURIComponent(city + ', ' + state)}`;
+      
+      const response = await axios.get(ypUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        },
+        timeout: 10000
+      });
+
+      const $ = cheerio.load(response.data);
+      
+      $('.result').each((i, element) => {
+        if (i >= 20) return false;
+        
+        const $el = $(element);
+        const name = $el.find('.business-name span').text().trim();
+        const address = $el.find('.street-address').text().trim();
+        const phone = $el.find('.phones').text().trim();
+        
+        if (name && this.isSeniorLivingCommunity(name, address)) {
+          facilities.push({
+            facilityName: name,
+            licenseNumber: '',
+            address: address || `${city}, ${state}`,
+            city,
+            state,
+            phone: this.cleanPhoneNumber(phone),
+            licenseStatus: 'Not Required',
+            licenseType: this.determineLicenseTypeFromName(name, address)
+          });
+        }
+      });
+      
+    } catch (error) {
+      console.error('Business directory search failed:', error);
+    }
+    
+    return facilities;
+  }
+
+  // Enhanced community detection for unlicensed senior living
+  private isSeniorLivingCommunity(name: string, description: string): boolean {
+    const text = (name + ' ' + description).toLowerCase();
+    
+    const seniorKeywords = [
+      'senior living', 'independent living', 'assisted living', 'memory care',
+      '55+', '55 plus', 'retirement', 'senior community', 'senior housing',
+      'active adult', 'senior apartments', 'senior village', 'senior manor',
+      'senior estates', 'senior gardens', 'continuing care', 'life care',
+      'senior residence', 'senior center', 'senior home', 'elder care',
+      'adult community', 'senior citizens', 'retirement home'
+    ];
+    
+    const excludeKeywords = [
+      'hospital', 'medical center', 'clinic', 'pharmacy', 'doctor',
+      'urgent care', 'emergency', 'surgery', 'dialysis', 'laboratory',
+      'dental', 'vision', 'hearing', 'physical therapy', 'rehabilitation center'
+    ];
+    
+    const hasSeniorKeyword = seniorKeywords.some(keyword => text.includes(keyword));
+    const hasExcludeKeyword = excludeKeywords.some(keyword => text.includes(keyword));
+    
+    return hasSeniorKeyword && !hasExcludeKeyword;
+  }
+
+  // Determine license type based on name/description for unlicensed communities
+  private determineLicenseTypeFromName(name: string, description: string): string {
+    const text = (name + ' ' + description).toLowerCase();
+    
+    if (text.includes('independent living') || text.includes('55+') || text.includes('active adult')) {
+      return 'Independent Living'; // Usually unlicensed
+    } else if (text.includes('assisted living')) {
+      return 'ALF'; // Usually licensed
+    } else if (text.includes('memory care') || text.includes('alzheimer') || text.includes('dementia')) {
+      return 'Memory Care'; // Usually licensed
+    } else if (text.includes('skilled nursing') || text.includes('nursing home')) {
+      return 'SNF'; // Always licensed
+    } else {
+      return 'Senior Community'; // Generic
+    }
+  }
+
+  // Helper methods for text extraction
+  private extractAddressFromText(text: string, city: string, state: string): string {
+    const addressMatch = text.match(/(\d+[^,]+(?:st|street|ave|avenue|dr|drive|blvd|boulevard|rd|road|ln|lane|way|ct|court)[^,]*)/i);
+    return addressMatch ? `${addressMatch[1]}, ${city}, ${state}` : `${city}, ${state}`;
+  }
+
+  private extractCapacityFromText(text: string): number | undefined {
+    const capacityMatch = text.match(/(\d+)\s*(?:units?|beds?|residents?|apartments?)/i);
+    return capacityMatch ? parseInt(capacityMatch[1]) : undefined;
+  }
+
+  private deduplicateFacilities(facilities: LicensingData[]): LicensingData[] {
+    const seen = new Set<string>();
+    const unique: LicensingData[] = [];
+    
+    for (const facility of facilities) {
+      const key = `${facility.facilityName.toLowerCase()}-${facility.city.toLowerCase()}-${facility.state.toUpperCase()}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        unique.push(facility);
+      }
+    }
+    
+    return unique;
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  // Main method to scrape both licensed AND unlicensed communities
   async scrapeAllStateLicensing(): Promise<void> {
-    console.log('Starting comprehensive state licensing database scraping...');
+    console.log('Starting comprehensive senior living data collection (licensed + unlicensed)...');
     
     const allFacilities: LicensingData[] = [];
     
-    // Scrape each state database
     try {
+      // Step 1: Get licensed facilities from state databases
+      console.log('Phase 1: Collecting licensed facilities from state databases...');
       const [caFacilities, txFacilities, flFacilities, nyFacilities, paFacilities] = await Promise.all([
         this.scrapeCalifornaLicensing(),
         this.scrapeTexasLicensing(),
@@ -329,12 +605,46 @@ export class LicensingDatabaseScraper {
       ]);
 
       allFacilities.push(...caFacilities, ...txFacilities, ...flFacilities, ...nyFacilities, ...paFacilities);
-      
       console.log(`Found ${allFacilities.length} licensed facilities from state databases`);
+
+      // Step 2: Get ALL senior living communities (including unlicensed)
+      console.log('Phase 2: Collecting all senior living communities (including unlicensed)...');
+      const majorCities = [
+        { city: 'Los Angeles', state: 'CA' },
+        { city: 'San Francisco', state: 'CA' },
+        { city: 'San Diego', state: 'CA' },
+        { city: 'Redding', state: 'CA' },
+        { city: 'Sacramento', state: 'CA' },
+        { city: 'Houston', state: 'TX' },
+        { city: 'Dallas', state: 'TX' },
+        { city: 'Austin', state: 'TX' },
+        { city: 'Miami', state: 'FL' },
+        { city: 'Tampa', state: 'FL' },
+        { city: 'Orlando', state: 'FL' },
+        { city: 'New York', state: 'NY' },
+        { city: 'Buffalo', state: 'NY' },
+        { city: 'Philadelphia', state: 'PA' },
+        { city: 'Pittsburgh', state: 'PA' }
+      ];
+
+      for (const location of majorCities) {
+        try {
+          console.log(`Searching all senior living in ${location.city}, ${location.state}...`);
+          const generalResults = await this.searchGeneralSeniorLiving(location.city, location.state);
+          allFacilities.push(...generalResults);
+          await this.delay(3000); // Be respectful between city searches
+        } catch (error) {
+          console.error(`Error searching ${location.city}:`, error);
+        }
+      }
+      
+      // Remove duplicates across all sources
+      const uniqueFacilities = this.deduplicateFacilities(allFacilities);
+      console.log(`Total unique facilities found: ${uniqueFacilities.length} (licensed + unlicensed)`);
       
       // Add to database
       let addedCount = 0;
-      for (const facility of allFacilities) {
+      for (const facility of uniqueFacilities) {
         try {
           // Check if facility already exists
           const existing = await storage.searchCommunities({
@@ -352,7 +662,9 @@ export class LicensingDatabaseScraper {
               phone: facility.phone || null,
               website: null,
               email: null,
-              description: `Licensed ${this.getLicenseTypeDescription(facility.licenseType)} facility`,
+              description: facility.licenseNumber ? 
+                `Licensed ${this.getLicenseTypeDescription(facility.licenseType)} facility` :
+                `Senior living community (${facility.licenseType})`,
               careTypes: this.determineCareTypes(facility.licenseType),
               amenities: [],
               priceRange: null,
@@ -360,19 +672,20 @@ export class LicensingDatabaseScraper {
               latitude: null,
               longitude: null,
               isVerified: true,
-              licenseNumber: facility.licenseNumber,
+              licenseNumber: facility.licenseNumber || null,
               licenseStatus: facility.licenseStatus,
               lastInspection: facility.lastInspectionDate || null,
               availabilityStatus: 'Contact',
               lastAvailabilityUpdate: null,
-              reviewSources: null,
               transparencyScore: this.calculateLicensingTransparencyScore(facility),
-              dataSource: `${facility.state} State Licensing Database`,
+              dataSource: facility.licenseNumber ? 
+                `${facility.state} State Licensing Database` :
+                `General Senior Living Search`,
               lastDataUpdate: new Date()
             };
 
             await storage.createCommunity(insertData);
-            console.log(`✓ Added licensed facility: ${facility.facilityName} (${facility.state})`);
+            console.log(`✓ Added facility: ${facility.facilityName} (${facility.state}) - ${facility.licenseStatus}`);
             addedCount++;
           }
         } catch (error) {
@@ -380,10 +693,10 @@ export class LicensingDatabaseScraper {
         }
       }
 
-      console.log(`Successfully added ${addedCount} licensed facilities from state databases`);
+      console.log(`Successfully added ${addedCount} total senior living communities (licensed + unlicensed)`);
       
     } catch (error) {
-      console.error('Error in state licensing scraping:', error);
+      console.error('Error in comprehensive senior living scraping:', error);
     }
   }
 
