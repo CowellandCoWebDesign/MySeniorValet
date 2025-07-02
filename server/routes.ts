@@ -5,6 +5,7 @@ import { searchCommunitySchema, insertCommunitySchema, insertReviewSchema } from
 import { z } from "zod";
 import { aiRecommendationEngine, RecommendationRequest } from "./ai-recommendations";
 import { ComprehensiveScraper } from "./scraper";
+import { licensingScraper } from "./licensing-scraper";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Get all communities
@@ -646,6 +647,145 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({
         success: false,
         error: 'Failed to collect real community data',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // State Licensing Database Integration Endpoints
+  
+  // Scrape all state licensing databases
+  app.post('/api/admin/scrape-licensing', async (req, res) => {
+    try {
+      console.log('Starting comprehensive state licensing database scraping...');
+      
+      // Start licensing scraping in background
+      licensingScraper.scrapeAllStateLicensing().catch(error => {
+        console.error("Background licensing scrape error:", error);
+      });
+
+      res.json({ 
+        success: true,
+        message: "State licensing database scraping initiated",
+        sources: ["California CCLD", "Texas HHS", "Florida AHCA", "New York DOH", "Pennsylvania DHS"],
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error initiating licensing scrape:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to initiate licensing database scraping',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Scrape specific state licensing database
+  app.post('/api/admin/scrape-licensing/:state', async (req, res) => {
+    try {
+      const { state } = req.params;
+      const stateUpper = state.toUpperCase();
+      
+      console.log(`Starting ${stateUpper} licensing database scraping...`);
+      
+      let scrapingPromise;
+      let sourceName;
+      
+      switch (stateUpper) {
+        case 'CA':
+        case 'CALIFORNIA':
+          scrapingPromise = licensingScraper.scrapeCalifornaLicensing();
+          sourceName = 'California Community Care Licensing';
+          break;
+        case 'TX':
+        case 'TEXAS':
+          scrapingPromise = licensingScraper.scrapeTexasLicensing();
+          sourceName = 'Texas Health and Human Services';
+          break;
+        case 'FL':
+        case 'FLORIDA':
+          scrapingPromise = licensingScraper.scrapeFloridaLicensing();
+          sourceName = 'Florida Agency for Health Care Administration';
+          break;
+        case 'NY':
+        case 'NEW_YORK':
+          scrapingPromise = licensingScraper.scrapeNewYorkLicensing();
+          sourceName = 'New York Department of Health';
+          break;
+        case 'PA':
+        case 'PENNSYLVANIA':
+          scrapingPromise = licensingScraper.scrapePennsylvaniaLicensing();
+          sourceName = 'Pennsylvania Department of Human Services';
+          break;
+        default:
+          return res.status(400).json({
+            success: false,
+            error: `State ${state} not supported. Available states: CA, TX, FL, NY, PA`
+          });
+      }
+
+      // Execute scraping in background
+      scrapingPromise.catch(error => {
+        console.error(`Error scraping ${sourceName}:`, error);
+      });
+
+      res.json({ 
+        success: true,
+        message: `${sourceName} database scraping initiated`,
+        state: stateUpper,
+        source: sourceName,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error(`Error initiating ${req.params.state} licensing scrape:`, error);
+      res.status(500).json({
+        success: false,
+        error: `Failed to initiate ${req.params.state} licensing database scraping`,
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Get licensing database statistics
+  app.get('/api/admin/licensing-stats', async (req, res) => {
+    try {
+      const communities = await storage.getAllCommunities();
+      
+      const licensingStats = {
+        total: communities.length,
+        licensed: communities.filter(c => c.licenseNumber).length,
+        byState: {} as Record<string, { total: number; licensed: number; }>,
+        byLicenseStatus: {} as Record<string, number>,
+        byDataSource: {} as Record<string, number>,
+        lastUpdated: new Date().toISOString()
+      };
+
+      // Calculate statistics by state
+      communities.forEach(community => {
+        const state = community.state;
+        if (!licensingStats.byState[state]) {
+          licensingStats.byState[state] = { total: 0, licensed: 0 };
+        }
+        licensingStats.byState[state].total++;
+        if (community.licenseNumber) {
+          licensingStats.byState[state].licensed++;
+        }
+
+        // License status stats
+        const status = community.licenseStatus || 'Unknown';
+        licensingStats.byLicenseStatus[status] = (licensingStats.byLicenseStatus[status] || 0) + 1;
+
+        // Data source stats
+        const source = community.dataSource || 'Unknown';
+        licensingStats.byDataSource[source] = (licensingStats.byDataSource[source] || 0) + 1;
+      });
+
+      res.json(licensingStats);
+    } catch (error) {
+      console.error('Error fetching licensing stats:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to fetch licensing statistics',
         details: error instanceof Error ? error.message : 'Unknown error'
       });
     }
