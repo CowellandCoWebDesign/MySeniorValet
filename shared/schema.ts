@@ -22,9 +22,24 @@ export const communities = pgTable("communities", {
   description: text("description"),
   careTypes: text("care_types").array().notNull(), // ['Independent Living', 'Assisted Living', 'Memory Care', 'Skilled Nursing']
   amenities: text("amenities").array().default([]),
+  services: text("services").array().default([]), // ['24/7 Nursing', 'Physical Therapy', 'Transportation', 'Meal Service']
+  medicalRestrictions: text("medical_restrictions").array().default([]), // ['No Insulin Patients', 'No Dialysis', 'No Ventilators']
   priceRange: json("price_range").$type<{ min: number; max: number }>(),
+  availabilityStatus: text("availability_status", { enum: ["Available", "Waitlist", "Full", "Contact"] }).default("Contact"),
+  availableUnits: integer("available_units"),
+  totalUnits: integer("total_units"),
   rating: decimal("rating", { precision: 3, scale: 2 }),
+  reviewCount: integer("review_count").default(0),
+  googleRating: decimal("google_rating", { precision: 3, scale: 2 }),
+  googleReviewCount: integer("google_review_count").default(0),
+  trustedReviews: json("trusted_reviews").$type<Array<{
+    source: string;
+    rating: number;
+    reviewCount: number;
+    url?: string;
+  }>>().default([]),
   imageUrl: text("image_url"),
+  imageGallery: text("image_gallery").array().default([]),
   latitude: decimal("latitude", { precision: 10, scale: 8 }),
   longitude: decimal("longitude", { precision: 11, scale: 8 }),
   licenseNumber: text("license_number"),
@@ -33,6 +48,8 @@ export const communities = pgTable("communities", {
   violations: integer("violations").default(0),
   isVerified: boolean("is_verified").default(false),
   isClaimed: boolean("is_claimed").default(false),
+  lastPriceUpdate: timestamp("last_price_update"),
+  lastAvailabilityUpdate: timestamp("last_availability_update"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
