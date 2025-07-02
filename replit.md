@@ -76,6 +76,7 @@ The application is configured for multiple deployment environments:
 
 - July 02, 2025: Initial setup with complete full-stack architecture
 - July 02, 2025: Enhanced homepage hero section with senior community background image and improved visual design
+- July 02, 2025: Migrated from in-memory storage to PostgreSQL database with Drizzle ORM, including automatic data seeding
 
 ## User Preferences
 
