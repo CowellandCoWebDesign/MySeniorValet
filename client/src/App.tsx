@@ -7,6 +7,7 @@ import Home from "@/pages/home";
 import Search from "@/pages/search";
 import Community from "@/pages/community";
 import Claim from "@/pages/claim";
+import Admin from "@/pages/admin";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/search" component={Search} />
       <Route path="/community/:id" component={Community} />
       <Route path="/claim" component={Claim} />
+      <Route path="/admin" component={Admin} />
       <Route component={NotFound} />
     </Switch>
   );
