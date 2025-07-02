@@ -558,6 +558,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return Math.min(score, 100);
   }
 
+  // Redding Independent Living scraping endpoint
+  app.post('/api/scrape/redding', async (req, res) => {
+    try {
+      console.log('Starting Redding Independent Living community scraping...');
+      const { scraper } = await import('./scraper');
+      
+      const addedCount = await scraper.addReddingCommunitiesToDatabase();
+      
+      res.json({
+        success: true,
+        message: `Successfully scraped and added ${addedCount} Independent Living communities from Redding, CA`,
+        addedCount,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error in Redding scraping endpoint:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to scrape Redding communities',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
