@@ -29,15 +29,42 @@ interface MapViewProps {
   zoom?: number;
 }
 
-// Component to fit map bounds to markers
+// Component to fit map bounds to markers or set default location
 function FitBounds({ communities }: { communities: Community[] }) {
   const map = useMap();
   
   useEffect(() => {
-    if (communities.length === 0) return;
+    if (communities.length === 0) {
+      // Default to United States center if no communities
+      map.setView([39.8283, -98.5795], 4);
+      return;
+    }
     
     const validCommunities = communities.filter(c => c.latitude && c.longitude);
-    if (validCommunities.length === 0) return;
+    
+    if (validCommunities.length === 0) {
+      // If no coordinates, check if we have Redding communities and center on Redding
+      const reddingCommunities = communities.filter(c => 
+        c.city?.toLowerCase() === 'redding' && c.state?.toUpperCase() === 'CA'
+      );
+      
+      if (reddingCommunities.length > 0) {
+        // Center on Redding, CA coordinates
+        map.setView([40.5865, -122.3917], 12);
+        return;
+      }
+      
+      // Default to California if we have CA communities
+      const caCommunities = communities.filter(c => c.state?.toUpperCase() === 'CA');
+      if (caCommunities.length > 0) {
+        map.setView([36.7783, -119.4179], 6);
+        return;
+      }
+      
+      // Final fallback
+      map.setView([39.8283, -98.5795], 4);
+      return;
+    }
     
     if (validCommunities.length === 1) {
       const community = validCommunities[0];
@@ -56,8 +83,8 @@ function FitBounds({ communities }: { communities: Community[] }) {
 export function MapView({ communities, selectedCommunity, onCommunitySelect, center, zoom = 10 }: MapViewProps) {
   const mapRef = useRef<L.Map | null>(null);
   
-  // Default center to Denver, CO if no center provided
-  const defaultCenter: [number, number] = center || [39.7392, -104.9903];
+  // Default center to Redding, CA if no center provided
+  const defaultCenter: [number, number] = center || [40.5865, -122.3917];
   
   const validCommunities = communities.filter(c => c.latitude && c.longitude);
   
