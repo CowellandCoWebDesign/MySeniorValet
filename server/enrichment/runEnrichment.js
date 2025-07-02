@@ -1,6 +1,7 @@
 import { db } from '../db.js';
 import { communities } from '../../shared/schema.js';
 import { eq } from 'drizzle-orm';
+import { storage } from '../storage.js';
 import { foursquareLookup } from './foursquareLookup.js';
 import { mapillaryPhoto } from './mapillaryPhoto.js';
 import { mapboxStaticPhoto } from './mapboxStaticPhoto.js';
