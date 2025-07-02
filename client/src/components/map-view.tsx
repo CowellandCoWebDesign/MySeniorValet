@@ -104,11 +104,11 @@ export function MapView({ communities, selectedCommunity, onCommunitySelect, cen
 
   const createCustomIcon = (community: Community) => {
     const isSelected = selectedCommunity?.id === community.id;
-    const color = isSelected ? "bg-red-600" : community.availabilityStatus === "Available" ? "bg-green-600" : "bg-blue-600";
+    const color = isSelected ? "bg-red-600" : community.availabilityStatus === "Available Now" ? "bg-green-600" : "bg-blue-600";
     
     return L.divIcon({
       html: `<div class="${color} w-8 h-8 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white text-xs font-bold transform ${isSelected ? 'scale-125' : 'hover:scale-110'} transition-transform">
-        ${community.availabilityStatus === "Available" ? "✓" : "📍"}
+        ${community.availabilityStatus === "Available Now" ? "✓" : "📍"}
       </div>`,
       className: 'custom-marker',
       iconSize: [32, 32],
