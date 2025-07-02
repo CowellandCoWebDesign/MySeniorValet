@@ -211,24 +211,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get single community
-  app.get("/api/communities/:id", async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid community ID" });
-      }
 
-      const community = await storage.getCommunity(id);
-      if (!community) {
-        return res.status(404).json({ message: "Community not found" });
-      }
-
-      res.json(community);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch community" });
-    }
-  });
 
   // Create community
   app.post("/api/communities", async (req, res) => {
