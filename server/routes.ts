@@ -626,25 +626,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Redding Independent Living scraping endpoint
-  app.post('/api/scrape/redding', async (req, res) => {
+  // Real data collection endpoint
+  app.post('/api/collect-real-data/:city/:state', async (req, res) => {
     try {
-      console.log('Starting Redding Independent Living community scraping...');
-      const { scraper } = await import('./scraper');
+      const { city, state } = req.params;
+      console.log(`Starting real data collection for ${city}, ${state}...`);
       
-      const addedCount = await scraper.addReddingCommunitiesToDatabase();
+      const { realDataScraper } = await import('./real-data-scraper');
+      const addedCount = await realDataScraper.addRealCommunitiesToDatabase(city, state);
       
       res.json({
         success: true,
-        message: `Successfully scraped and added ${addedCount} Independent Living communities from Redding, CA`,
+        message: `Successfully collected and added ${addedCount} real communities from ${city}, ${state}`,
         addedCount,
         timestamp: new Date().toISOString()
       });
     } catch (error) {
-      console.error('Error in Redding scraping endpoint:', error);
+      console.error('Error in real data collection:', error);
       res.status(500).json({
         success: false,
-        error: 'Failed to scrape Redding communities',
+        error: 'Failed to collect real community data',
         details: error instanceof Error ? error.message : 'Unknown error'
       });
     }
