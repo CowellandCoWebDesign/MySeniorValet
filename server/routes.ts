@@ -9,10 +9,13 @@ import {
   signupSchema,
   communities,
   userFavorites,
-  userSavedSearches
+  userSavedSearches,
+  communityClaims,
+  claimedCommunities,
+  users
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 
 // Scalable infrastructure imports
@@ -31,6 +34,14 @@ import { licensingScraper } from "./licensing-scraper";
 import { googleReviewsAI } from "./google-reviews-ai";
 import { googlePlacesIntegration } from "./google-places-integration";
 import { authService, requireAuth } from "./auth";
+
+// Authentication middleware function
+const isAuthenticated = (req: any, res: any, next: any) => {
+  if (req.isAuthenticated && req.isAuthenticated()) {
+    return next();
+  }
+  return res.status(401).json({ message: 'Authentication required' });
+};
 import axios from 'axios';
 import cookieParser from "cookie-parser";
 import fs from 'fs';
@@ -3889,6 +3900,389 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         success: false, 
         message: 'Failed to get load test results' 
+      });
+    }
+  });
+
+  // ============================================================================
+  // COMMUNITY CLAIM SYSTEM API ROUTES
+  // ============================================================================
+
+  // Submit a community claim
+  app.post('/api/claims/submit', async (req, res) => {
+    try {
+      const claimData = req.body;
+      
+      // Validate the claim data
+      const { communityClaimFormSchema } = await import('@shared/schema');
+      const validatedData = communityClaimFormSchema.parse(claimData);
+      
+      // Check if community exists
+      const community = await storage.getCommunity(validatedData.communityId);
+      if (!community) {
+        return res.status(404).json({ message: 'Community not found' });
+      }
+      
+      // Check if community is already claimed or has pending claims
+      const existingClaims = await db.select()
+        .from(communityClaims)
+        .where(eq(communityClaims.communityId, validatedData.communityId))
+        .where(inArray(communityClaims.status, ['Pending', 'Under Review', 'Approved']));
+      
+      if (existingClaims.length > 0) {
+        const approvedClaim = existingClaims.find(c => c.status === 'Approved');
+        if (approvedClaim) {
+          return res.status(400).json({ 
+            message: 'This community has already been claimed',
+            claimId: approvedClaim.id
+          });
+        }
+        
+        const pendingClaim = existingClaims.find(c => c.status === 'Pending' || c.status === 'Under Review');
+        if (pendingClaim) {
+          return res.status(400).json({ 
+            message: 'This community has a pending claim under review',
+            claimId: pendingClaim.id
+          });
+        }
+      }
+      
+      // Get claimer user ID if logged in
+      let claimerUserId = null;
+      if (req.isAuthenticated && req.isAuthenticated()) {
+        claimerUserId = req.user?.id;
+      }
+      
+      // Create the claim
+      const [newClaim] = await db.insert(communityClaims).values({
+        communityId: validatedData.communityId,
+        claimerUserId,
+        claimerName: validatedData.claimerName,
+        claimerEmail: validatedData.claimerEmail,
+        claimerPhone: validatedData.claimerPhone,
+        position: validatedData.position,
+        companyName: validatedData.companyName,
+        businessLicenseNumber: validatedData.businessLicenseNumber,
+        businessAddress: validatedData.businessAddress,
+        reasonForClaim: validatedData.reasonForClaim,
+        additionalNotes: validatedData.additionalNotes,
+        status: 'Pending'
+      }).returning();
+      
+      // Log the activity
+      if (claimerUserId) {
+        await storage.logUserActivity(claimerUserId, 'Claim Community', {
+          communityId: validatedData.communityId,
+          claimId: newClaim.id,
+          communityName: community.name
+        });
+      }
+      
+      res.json({
+        success: true,
+        message: 'Your claim has been submitted successfully. We will review it within 1-2 business days.',
+        claimId: newClaim.id,
+        community: {
+          id: community.id,
+          name: community.name,
+          city: community.city,
+          state: community.state
+        }
+      });
+      
+    } catch (error) {
+      console.error('Community claim submission error:', error);
+      res.status(500).json({ 
+        message: 'Failed to submit claim',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Get claim status
+  app.get('/api/claims/:claimId', async (req, res) => {
+    try {
+      const claimId = parseInt(req.params.claimId);
+      
+      const [claim] = await db.select({
+        claim: communityClaims,
+        community: {
+          id: communities.id,
+          name: communities.name,
+          city: communities.city,
+          state: communities.state,
+          address: communities.address
+        }
+      })
+      .from(communityClaims)
+      .leftJoin(communities, eq(communityClaims.communityId, communities.id))
+      .where(eq(communityClaims.id, claimId));
+      
+      if (!claim) {
+        return res.status(404).json({ message: 'Claim not found' });
+      }
+      
+      // Hide sensitive admin fields from response
+      const publicClaim = {
+        id: claim.claim.id,
+        status: claim.claim.status,
+        claimerName: claim.claim.claimerName,
+        claimerEmail: claim.claim.claimerEmail,
+        position: claim.claim.position,
+        companyName: claim.claim.companyName,
+        reasonForClaim: claim.claim.reasonForClaim,
+        createdAt: claim.claim.createdAt,
+        updatedAt: claim.claim.updatedAt,
+        community: claim.community
+      };
+      
+      res.json(publicClaim);
+      
+    } catch (error) {
+      console.error('Get claim error:', error);
+      res.status(500).json({ 
+        message: 'Failed to retrieve claim' 
+      });
+    }
+  });
+
+  // Get user's claims (requires authentication)
+  app.get('/api/claims/my-claims', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.id;
+      
+      const userClaims = await db.select({
+        claim: communityClaims,
+        community: {
+          id: communities.id,
+          name: communities.name,
+          city: communities.city,
+          state: communities.state,
+          address: communities.address,
+          photos: communities.photos
+        }
+      })
+      .from(communityClaims)
+      .leftJoin(communities, eq(communityClaims.communityId, communities.id))
+      .where(eq(communityClaims.claimerUserId, userId))
+      .orderBy(desc(communityClaims.createdAt));
+      
+      const claimsWithStatus = userClaims.map(({ claim, community }) => ({
+        id: claim.id,
+        status: claim.status,
+        claimerName: claim.claimerName,
+        position: claim.position,
+        companyName: claim.companyName,
+        reasonForClaim: claim.reasonForClaim,
+        createdAt: claim.createdAt,
+        updatedAt: claim.updatedAt,
+        community
+      }));
+      
+      res.json({
+        claims: claimsWithStatus,
+        total: claimsWithStatus.length
+      });
+      
+    } catch (error) {
+      console.error('Get user claims error:', error);
+      res.status(500).json({ 
+        message: 'Failed to retrieve claims' 
+      });
+    }
+  });
+
+  // Check if community can be claimed
+  app.get('/api/claims/check/:communityId', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.communityId);
+      
+      // Check if community exists
+      const community = await storage.getCommunity(communityId);
+      if (!community) {
+        return res.status(404).json({ message: 'Community not found' });
+      }
+      
+      // Check for existing claims
+      const existingClaims = await db.select()
+        .from(communityClaims)
+        .where(eq(communityClaims.communityId, communityId))
+        .where(inArray(communityClaims.status, ['Pending', 'Under Review', 'Approved']));
+      
+      const isClaimed = existingClaims.some(c => c.status === 'Approved');
+      const hasPendingClaim = existingClaims.some(c => c.status === 'Pending' || c.status === 'Under Review');
+      
+      // Check if current user already has a claim
+      let userHasClaim = false;
+      if (req.isAuthenticated && req.isAuthenticated()) {
+        const userId = req.user?.id;
+        userHasClaim = existingClaims.some(c => c.claimerUserId === userId);
+      }
+      
+      res.json({
+        canClaim: !isClaimed && !hasPendingClaim && !userHasClaim,
+        isClaimed,
+        hasPendingClaim,
+        userHasClaim,
+        community: {
+          id: community.id,
+          name: community.name,
+          city: community.city,
+          state: community.state,
+          address: community.address
+        }
+      });
+      
+    } catch (error) {
+      console.error('Check claim eligibility error:', error);
+      res.status(500).json({ 
+        message: 'Failed to check claim eligibility' 
+      });
+    }
+  });
+
+  // Admin: Get all claims (requires admin authentication)
+  app.get('/api/admin/claims', isAuthenticated, async (req, res) => {
+    try {
+      // Check if user is admin (simplified check - in production you'd have proper role checking)
+      const isAdmin = req.user?.email?.includes('admin') || req.user?.email?.includes('trueview.com');
+      if (!isAdmin) {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+      
+      const { status, page = 1, limit = 25 } = req.query;
+      const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
+      
+      let query = db.select({
+        claim: communityClaims,
+        community: {
+          id: communities.id,
+          name: communities.name,
+          city: communities.city,
+          state: communities.state,
+          address: communities.address
+        },
+        claimer: {
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email
+        }
+      })
+      .from(communityClaims)
+      .leftJoin(communities, eq(communityClaims.communityId, communities.id))
+      .leftJoin(users, eq(communityClaims.claimerUserId, users.id));
+      
+      if (status && status !== 'all') {
+        query = query.where(eq(communityClaims.status, status as string));
+      }
+      
+      const claims = await query
+        .orderBy(desc(communityClaims.createdAt))
+        .limit(parseInt(limit as string))
+        .offset(offset);
+      
+      // Get total count for pagination
+      const totalResult = await db.select({ count: sql`count(*)` })
+        .from(communityClaims)
+        .where(status && status !== 'all' ? eq(communityClaims.status, status as string) : undefined);
+      
+      const total = parseInt(totalResult[0].count as string);
+      
+      res.json({
+        claims,
+        pagination: {
+          page: parseInt(page as string),
+          limit: parseInt(limit as string),
+          total,
+          totalPages: Math.ceil(total / parseInt(limit as string))
+        }
+      });
+      
+    } catch (error) {
+      console.error('Get admin claims error:', error);
+      res.status(500).json({ 
+        message: 'Failed to retrieve claims' 
+      });
+    }
+  });
+
+  // Admin: Update claim status
+  app.patch('/api/admin/claims/:claimId', isAuthenticated, async (req, res) => {
+    try {
+      // Check if user is admin
+      const isAdmin = req.user?.email?.includes('admin') || req.user?.email?.includes('trueview.com');
+      if (!isAdmin) {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+      
+      const claimId = parseInt(req.params.claimId);
+      const { status, reviewNotes, rejectionReason } = req.body;
+      
+      const validStatuses = ['Pending', 'Under Review', 'Approved', 'Rejected', 'Cancelled'];
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({ message: 'Invalid status' });
+      }
+      
+      // Get the current claim
+      const [currentClaim] = await db.select()
+        .from(communityClaims)
+        .where(eq(communityClaims.id, claimId));
+      
+      if (!currentClaim) {
+        return res.status(404).json({ message: 'Claim not found' });
+      }
+      
+      // Update the claim
+      const [updatedClaim] = await db.update(communityClaims)
+        .set({
+          status,
+          reviewNotes,
+          rejectionReason,
+          reviewedBy: req.user?.id,
+          reviewedAt: new Date(),
+          updatedAt: new Date()
+        })
+        .where(eq(communityClaims.id, claimId))
+        .returning();
+      
+      // If approved, create claimed community record
+      if (status === 'Approved' && currentClaim.status !== 'Approved') {
+        // Check if user exists for the claimer
+        let ownerId = currentClaim.claimerUserId;
+        if (!ownerId) {
+          // Create a user account for the claimer if they don't have one
+          const [newUser] = await db.insert(users).values({
+            email: currentClaim.claimerEmail,
+            firstName: currentClaim.claimerName.split(' ')[0] || currentClaim.claimerName,
+            lastName: currentClaim.claimerName.split(' ').slice(1).join(' ') || '',
+            password: 'temp_password_needs_reset', // They'll need to reset this
+            phone: currentClaim.claimerPhone
+          }).returning();
+          ownerId = newUser.id;
+        }
+        
+        await db.insert(claimedCommunities).values({
+          communityId: currentClaim.communityId,
+          ownerId,
+          claimId: currentClaim.id,
+          businessName: currentClaim.companyName || currentClaim.claimerName,
+          operatorType: 'Independent', // Default - they can update this later
+          subscriptionPlan: 'Free',
+          subscriptionStatus: 'Trial'
+        });
+      }
+      
+      res.json({
+        success: true,
+        message: `Claim ${status.toLowerCase()} successfully`,
+        claim: updatedClaim
+      });
+      
+    } catch (error) {
+      console.error('Update claim status error:', error);
+      res.status(500).json({ 
+        message: 'Failed to update claim status' 
       });
     }
   });

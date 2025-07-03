@@ -491,11 +491,149 @@ export const userActivity = pgTable("user_activity", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Community Claims - Operator verification system
+export const communityClaims = pgTable("community_claims", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  claimerUserId: integer("claimer_user_id").references(() => users.id),
+  
+  // Claim Status
+  status: text("status", {
+    enum: ["Pending", "Under Review", "Approved", "Rejected", "Cancelled"]
+  }).default("Pending"),
+  
+  // Claimer Information
+  claimerName: text("claimer_name").notNull(),
+  claimerEmail: text("claimer_email").notNull(),
+  claimerPhone: text("claimer_phone"),
+  position: text("position").notNull(), // "Executive Director", "Marketing Director", "Owner", etc.
+  companyName: text("company_name"), // Parent company if different
+  
+  // Verification Information
+  businessLicenseNumber: text("business_license_number"),
+  businessAddress: text("business_address"),
+  verificationDocuments: json("verification_documents").$type<Array<{
+    type: string; // "Business License", "ID", "Employment Verification", "Power of Attorney"
+    filename: string;
+    uploadedAt: string;
+    verified: boolean;
+  }>>().default([]),
+  
+  // Additional Details
+  reasonForClaim: text("reason_for_claim").notNull(),
+  additionalNotes: text("additional_notes"),
+  
+  // Admin Review
+  reviewedBy: integer("reviewed_by").references(() => users.id),
+  reviewedAt: timestamp("reviewed_at"),
+  reviewNotes: text("review_notes"),
+  rejectionReason: text("rejection_reason"),
+  
+  // Follow-up
+  followUpDate: timestamp("follow_up_date"),
+  priority: text("priority", {
+    enum: ["Low", "Medium", "High", "Urgent"]
+  }).default("Medium"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("community_claims_community_idx").on(table.communityId),
+  index("community_claims_claimer_idx").on(table.claimerUserId),
+  index("community_claims_status_idx").on(table.status),
+]);
+
+// Claimed Communities - Verified operator accounts
+export const claimedCommunities = pgTable("claimed_communities", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull().unique(),
+  ownerId: integer("owner_id").references(() => users.id).notNull(),
+  claimId: integer("claim_id").references(() => communityClaims.id).notNull(),
+  
+  // Operator Profile
+  businessName: text("business_name").notNull(),
+  operatorType: text("operator_type", {
+    enum: ["Independent", "Regional Chain", "National Chain", "Non-Profit", "Government", "Other"]
+  }).notNull(),
+  licenseNumbers: text("license_numbers").array().default([]),
+  
+  // Verification Status
+  isVerified: boolean("is_verified").default(false),
+  verificationLevel: text("verification_level", {
+    enum: ["Basic", "Enhanced", "Premium"]
+  }).default("Basic"),
+  
+  // Subscription & Billing
+  subscriptionPlan: text("subscription_plan", {
+    enum: ["Free", "Basic", "Professional", "Enterprise"]
+  }).default("Free"),
+  subscriptionStatus: text("subscription_status", {
+    enum: ["Active", "Cancelled", "Suspended", "Trial", "Past Due"]
+  }).default("Trial"),
+  subscriptionStarted: timestamp("subscription_started"),
+  subscriptionExpires: timestamp("subscription_expires"),
+  
+  // Profile Management Permissions
+  canUpdatePhotos: boolean("can_update_photos").default(true),
+  canUpdatePricing: boolean("can_update_pricing").default(true),
+  canUpdateAmenities: boolean("can_update_amenities").default(true),
+  canRespondToReviews: boolean("can_respond_to_reviews").default(true),
+  canReceiveLeads: boolean("can_receive_leads").default(true),
+  
+  claimedAt: timestamp("claimed_at").defaultNow(),
+  lastActiveAt: timestamp("last_active_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("claimed_communities_owner_idx").on(table.ownerId),
+  index("claimed_communities_subscription_idx").on(table.subscriptionStatus),
+]);
+
+// Operator Team Members
+export const operatorTeamMembers = pgTable("operator_team_members", {
+  id: serial("id").primaryKey(),
+  claimedCommunityId: integer("claimed_community_id").references(() => claimedCommunities.id).notNull(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  
+  role: text("role", {
+    enum: ["Owner", "Administrator", "Marketing Manager", "Tour Coordinator", "Customer Service", "Read Only"]
+  }).notNull(),
+  
+  permissions: json("permissions").$type<{
+    canUpdateProfile: boolean;
+    canUpdatePhotos: boolean;
+    canUpdatePricing: boolean;
+    canRespondToReviews: boolean;
+    canViewAnalytics: boolean;
+    canManageTeam: boolean;
+    canReceiveLeads: boolean;
+  }>().default({
+    canUpdateProfile: false,
+    canUpdatePhotos: false,
+    canUpdatePricing: false,
+    canRespondToReviews: false,
+    canViewAnalytics: false,
+    canManageTeam: false,
+    canReceiveLeads: false,
+  }),
+  
+  isActive: boolean("is_active").default(true),
+  invitedBy: integer("invited_by").references(() => users.id),
+  invitedAt: timestamp("invited_at").defaultNow(),
+  joinedAt: timestamp("joined_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("operator_team_members_community_idx").on(table.claimedCommunityId),
+  index("operator_team_members_user_idx").on(table.userId),
+]);
+
 // CRM Integration - Lead tracking
 export const leads = pgTable("leads", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
   communityId: integer("community_id").references(() => communities.id),
+  claimedCommunityId: integer("claimed_community_id").references(() => claimedCommunities.id),
   source: text("source", {
     enum: ["Website", "Direct", "Referral", "Advertisement", "Google", "Social Media", "Other"]
   }).default("Website"),
@@ -773,6 +911,54 @@ export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
   }),
 }));
 
+// Community Claims Relations
+export const communityClaimsRelations = relations(communityClaims, ({ one }) => ({
+  community: one(communities, {
+    fields: [communityClaims.communityId],
+    references: [communities.id],
+  }),
+  claimer: one(users, {
+    fields: [communityClaims.claimerUserId],
+    references: [users.id],
+  }),
+  reviewer: one(users, {
+    fields: [communityClaims.reviewedBy],
+    references: [users.id],
+  }),
+}));
+
+export const claimedCommunitiesRelations = relations(claimedCommunities, ({ one, many }) => ({
+  community: one(communities, {
+    fields: [claimedCommunities.communityId],
+    references: [communities.id],
+  }),
+  owner: one(users, {
+    fields: [claimedCommunities.ownerId],
+    references: [users.id],
+  }),
+  claim: one(communityClaims, {
+    fields: [claimedCommunities.claimId],
+    references: [communityClaims.id],
+  }),
+  teamMembers: many(operatorTeamMembers),
+  leads: many(leads),
+}));
+
+export const operatorTeamMembersRelations = relations(operatorTeamMembers, ({ one }) => ({
+  claimedCommunity: one(claimedCommunities, {
+    fields: [operatorTeamMembers.claimedCommunityId],
+    references: [claimedCommunities.id],
+  }),
+  user: one(users, {
+    fields: [operatorTeamMembers.userId],
+    references: [users.id],
+  }),
+  inviter: one(users, {
+    fields: [operatorTeamMembers.invitedBy],
+    references: [users.id],
+  }),
+}));
+
 export const insertUserSchema = createInsertSchema(users).pick({
   email: true,
   username: true,
@@ -930,6 +1116,15 @@ export type LoginForm = z.infer<typeof loginSchema>;
 export type SignupForm = z.infer<typeof signupSchema>;
 export type SearchCommunity = z.infer<typeof searchCommunitySchema>;
 
+// Claim System Types
+export type InsertCommunityClaim = z.infer<typeof insertCommunityClaimSchema>;
+export type CommunityClaim = typeof communityClaims.$inferSelect;
+export type InsertClaimedCommunity = z.infer<typeof insertClaimedCommunitySchema>;
+export type ClaimedCommunity = typeof claimedCommunities.$inferSelect;
+export type InsertOperatorTeamMember = z.infer<typeof insertOperatorTeamMemberSchema>;
+export type OperatorTeamMember = typeof operatorTeamMembers.$inferSelect;
+export type CommunityClaimForm = z.infer<typeof communityClaimFormSchema>;
+
 // New schema types
 export const insertListingFlagSchema = createInsertSchema(listingFlags).omit({
   id: true,
@@ -961,6 +1156,53 @@ export const insertLeadSchema = createInsertSchema(leads).omit({
 export const insertLeadActivitySchema = createInsertSchema(leadActivities).omit({
   id: true,
   createdAt: true,
+});
+
+// Community Claims Schemas
+export const insertCommunityClaimSchema = createInsertSchema(communityClaims).omit({
+  id: true,
+  status: true,
+  reviewedBy: true,
+  reviewedAt: true,
+  reviewNotes: true,
+  rejectionReason: true,
+  followUpDate: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertClaimedCommunitySchema = createInsertSchema(claimedCommunities).omit({
+  id: true,
+  isVerified: true,
+  subscriptionStarted: true,
+  subscriptionExpires: true,
+  claimedAt: true,
+  lastActiveAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertOperatorTeamMemberSchema = createInsertSchema(operatorTeamMembers).omit({
+  id: true,
+  isActive: true,
+  invitedAt: true,
+  joinedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Community Claim Form Schema (for frontend)
+export const communityClaimFormSchema = z.object({
+  communityId: z.number(),
+  claimerName: z.string().min(2, "Name must be at least 2 characters"),
+  claimerEmail: z.string().email("Please enter a valid email address"),
+  claimerPhone: z.string().optional(),
+  position: z.string().min(2, "Position is required"),
+  companyName: z.string().optional(),
+  businessLicenseNumber: z.string().optional(),
+  businessAddress: z.string().optional(),
+  reasonForClaim: z.string().min(10, "Please provide a detailed reason for claiming this community"),
+  additionalNotes: z.string().optional(),
 });
 
 export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({
