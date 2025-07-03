@@ -1011,6 +1011,17 @@ export default function CommunityPage() {
                       Take Virtual Tour
                     </Button>
                   )}
+                  
+                  {/* Claim This Community Button */}
+                  <Link to={`/claim/${community.id}`}>
+                    <Button 
+                      variant="outline" 
+                      className="w-full border-blue-200 text-blue-700 hover:bg-blue-50"
+                    >
+                      <UserCheck className="h-4 w-4 mr-2" />
+                      Claim This Community
+                    </Button>
+                  </Link>
                 </div>
               </CardContent>
             </Card>
