@@ -2,6 +2,9 @@ import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import type { User, InsertUser, LoginForm, SignupForm } from '@shared/schema';
 import { storage } from './storage';
+import { db } from './db';
+import { userSessions } from '@shared/schema';
+import { eq, lt } from 'drizzle-orm';
 
 const SALT_ROUNDS = 10;
 const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
@@ -10,10 +13,9 @@ export interface AuthSession {
   id: string;
   userId: number;
   expiresAt: Date;
+  ipAddress?: string;
+  userAgent?: string;
 }
-
-// In-memory session store (replace with database later)
-const sessions = new Map<string, AuthSession>();
 
 export class AuthService {
   async hashPassword(password: string): Promise<string> {
@@ -28,43 +30,51 @@ export class AuthService {
     return crypto.randomBytes(32).toString('hex');
   }
 
-  async createSession(userId: number): Promise<string> {
+  async createSession(userId: number, ipAddress?: string, userAgent?: string): Promise<string> {
     const sessionId = this.generateSessionId();
     const expiresAt = new Date(Date.now() + SESSION_DURATION);
     
-    sessions.set(sessionId, {
+    await db.insert(userSessions).values({
       id: sessionId,
       userId,
       expiresAt,
+      ipAddress,
+      userAgent,
     });
 
     return sessionId;
   }
 
   async getSessionUser(sessionId: string): Promise<User | null> {
-    const session = sessions.get(sessionId);
+    const [session] = await db
+      .select()
+      .from(userSessions)
+      .where(eq(userSessions.id, sessionId));
+
     if (!session || session.expiresAt < new Date()) {
       if (session) {
-        sessions.delete(sessionId);
+        await db.delete(userSessions).where(eq(userSessions.id, sessionId));
       }
       return null;
     }
+
+    // Update last accessed time
+    await db
+      .update(userSessions)
+      .set({ lastAccessedAt: new Date() })
+      .where(eq(userSessions.id, sessionId));
 
     const user = await storage.getUser(session.userId);
     return user || null;
   }
 
   async destroySession(sessionId: string): Promise<void> {
-    sessions.delete(sessionId);
+    await db.delete(userSessions).where(eq(userSessions.id, sessionId));
   }
 
   async cleanupExpiredSessions(): Promise<void> {
     const now = new Date();
-    for (const [id, session] of sessions.entries()) {
-      if (session.expiresAt < now) {
-        sessions.delete(id);
-      }
-    }
+    await db.delete(userSessions).where(lt(userSessions.expiresAt, now));
   }
 
   async signup(data: SignupForm): Promise<{ user: User; sessionId: string }> {
