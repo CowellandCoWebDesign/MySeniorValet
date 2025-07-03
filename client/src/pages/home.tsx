@@ -60,7 +60,7 @@ export default function Home() {
               <div className="flex items-start space-x-3">
                 <Database className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
                 <div className="text-sm text-blue-800">
-                  <strong>Data Integrity Commitment:</strong> All community information comes from verified state licensing databases, official inspection reports, and authenticated sources. Verification status is clearly marked for each community.
+                  <strong>Trusted Data Sources:</strong> Information from Google Places, Yelp reviews, state licensing records, business registrations, and verified community websites. Real photos, authentic reviews, and up-to-date availability.
                 </div>
               </div>
             </div>
@@ -76,7 +76,7 @@ export default function Home() {
               Why TrueView is Different
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              We provide unprecedented transparency by automatically collecting and updating data from state licensing agencies in real-time.
+              We aggregate data from multiple trusted sources including Google, Yelp, state agencies, and community websites to give you the complete picture.
             </p>
           </div>
           

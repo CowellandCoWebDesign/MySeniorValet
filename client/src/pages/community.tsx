@@ -6,7 +6,7 @@ import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, MapPin, Phone, Globe, CheckCircle, Users, Calendar, DollarSign, Camera, Video, Home, UserCheck, Stethoscope, Activity, Wifi, Car, Utensils, ChevronLeft, ChevronRight, ExternalLink, Heart, Share, Clock, AlertTriangle, Heart as HeartIcon, Brain, Dumbbell, UtensilsCrossed, Bus, HandHeart, Waves, Scissors, AlertCircle, ShieldCheck } from "lucide-react";
+import { Star, MapPin, Phone, Globe, CheckCircle, Users, Calendar, DollarSign, Camera, Video, Home, UserCheck, Stethoscope, Activity, Wifi, Car, Utensils, ChevronLeft, ChevronRight, ExternalLink, Heart, Share, Clock, AlertTriangle, Heart as HeartIcon, Brain, Dumbbell, UtensilsCrossed, Bus, HandHeart, Waves, Scissors, AlertCircle, ShieldCheck, Mail as MailIcon } from "lucide-react";
 import { Link } from "wouter";
 import type { Community } from "@shared/schema";
 
@@ -989,20 +989,52 @@ export default function CommunityPage() {
 
                 {/* Quick Actions */}
                 <div className="space-y-3">
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3">
+                  <Button 
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3"
+                    onClick={() => {
+                      // Open Calendly widget or scheduling modal
+                      const schedulingUrl = `https://calendly.com/trueview-tours/community-tour?prefill_community=${encodeURIComponent(community.name)}&prefill_location=${encodeURIComponent(community.city + ', ' + community.state)}`;
+                      window.open(schedulingUrl, '_blank', 'width=800,height=700');
+                    }}
+                  >
+                    <Calendar className="h-4 w-4 mr-2" />
                     Schedule Tour
                   </Button>
-                  <Button variant="outline" className="w-full">
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => {
+                      const subject = `Information Request - ${community.name}`;
+                      const body = `Hello,\n\nI'm interested in learning more about ${community.name} located at ${community.address}, ${community.city}, ${community.state}.\n\nCould you please provide:\n- Current availability and pricing\n- Care services offered\n- Amenities and activities\n- Move-in timeline\n\nThank you!`;
+                      const mailtoUrl = `mailto:${community.email || 'info@' + community.name.toLowerCase().replace(/\s+/g, '') + '.com'}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                      window.location.href = mailtoUrl;
+                    }}
+                  >
+                    <MailIcon className="h-4 w-4 mr-2" />
                     Request Information
                   </Button>
                   {community.phone && (
-                    <Button variant="outline" className="w-full">
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => {
+                        window.location.href = `tel:${community.phone}`;
+                      }}
+                    >
                       <Phone className="h-4 w-4 mr-2" />
-                      Call Now
+                      Call {community.phone}
                     </Button>
                   )}
                   {community.virtualTourUrl && (
-                    <Button variant="outline" className="w-full">
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => {
+                        if (community.virtualTourUrl && typeof community.virtualTourUrl === 'string') {
+                          window.open(community.virtualTourUrl, '_blank');
+                        }
+                      }}
+                    >
                       <Video className="h-4 w-4 mr-2" />
                       Take Virtual Tour
                     </Button>
