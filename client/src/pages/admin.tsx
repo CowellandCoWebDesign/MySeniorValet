@@ -65,7 +65,19 @@ import {
   Search,
   Filter,
   Download,
-  Upload
+  Upload,
+  Server,
+  Database,
+  Zap,
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  TrendingDown,
+  Gauge,
+  Cpu,
+  HardDrive,
+  Wifi,
+  AlertCircle
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -217,8 +229,9 @@ export default function AdminDashboard() {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="health">Health</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="communities">Communities</TabsTrigger>
             <TabsTrigger value="flags">
@@ -328,6 +341,10 @@ export default function AdminDashboard() {
 
           <TabsContent value="communities" className="space-y-6">
             <CommunityManagement />
+          </TabsContent>
+
+          <TabsContent value="health" className="space-y-6">
+            <SystemHealthMonitoring />
           </TabsContent>
 
           <TabsContent value="users" className="space-y-6">
@@ -1338,6 +1355,450 @@ function UserManagement() {
                 </div>
               </CardContent>
             </Card>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function SystemHealthMonitoring() {
+  const [refreshInterval, setRefreshInterval] = useState<number>(30); // seconds
+  const [alertThreshold, setAlertThreshold] = useState<number>(80); // percentage
+
+  // Mock system health data (in production, this would come from real monitoring APIs)
+  const systemHealth = {
+    services: [
+      {
+        name: "Database",
+        status: "operational",
+        uptime: "99.98%",
+        responseTime: "12ms",
+        lastCheck: new Date().toISOString(),
+        icon: Database
+      },
+      {
+        name: "API Server",
+        status: "operational", 
+        uptime: "99.95%",
+        responseTime: "45ms",
+        lastCheck: new Date().toISOString(),
+        icon: Server
+      },
+      {
+        name: "Google Places API",
+        status: "warning",
+        uptime: "99.99%",
+        responseTime: "120ms",
+        lastCheck: new Date().toISOString(),
+        icon: Wifi,
+        alert: "Approaching quota limit"
+      },
+      {
+        name: "Authentication",
+        status: "operational",
+        uptime: "100%",
+        responseTime: "8ms",
+        lastCheck: new Date().toISOString(),
+        icon: Shield
+      }
+    ],
+    apiQuotas: {
+      googlePlaces: {
+        service: "Google Places API",
+        dailyLimit: 1000,
+        used: 847,
+        remaining: 153,
+        resetTime: "24:00:00",
+        costPerCall: "$0.017",
+        estimatedMonthlyCost: "$425.50"
+      },
+      googleMaps: {
+        service: "Google Maps Static",
+        dailyLimit: 25000,
+        used: 3240,
+        remaining: 21760,
+        resetTime: "24:00:00", 
+        costPerCall: "$0.002",
+        estimatedMonthlyCost: "$194.40"
+      }
+    },
+    performance: {
+      cpuUsage: 23,
+      memoryUsage: 67,
+      diskUsage: 45,
+      networkLatency: 28
+    },
+    errors: {
+      last24Hours: 3,
+      last7Days: 12,
+      criticalErrors: 0,
+      warningCount: 8
+    },
+    alerts: [
+      {
+        id: 1,
+        type: "warning",
+        message: "Google Places API usage at 85% of daily limit",
+        timestamp: new Date(Date.now() - 1800000).toISOString(), // 30 min ago
+        service: "Google Places API"
+      },
+      {
+        id: 2,
+        type: "info",
+        message: "Database query performance slightly degraded",
+        timestamp: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
+        service: "Database"
+      }
+    ]
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "operational":
+        return "text-green-600";
+      case "warning":
+        return "text-yellow-600";
+      case "error":
+        return "text-red-600";
+      case "maintenance":
+        return "text-blue-600";
+      default:
+        return "text-gray-600";
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "operational":
+        return CheckCircle;
+      case "warning":
+        return AlertTriangle;
+      case "error":
+        return XCircle;
+      case "maintenance":
+        return Gauge;
+      default:
+        return AlertCircle;
+    }
+  };
+
+  const getQuotaColor = (percentage: number) => {
+    if (percentage >= 90) return "bg-red-500";
+    if (percentage >= 75) return "bg-yellow-500";
+    return "bg-green-500";
+  };
+
+  const formatUptime = (uptime: string) => uptime;
+  const formatResponseTime = (time: string) => time;
+
+  return (
+    <div className="space-y-6">
+      {/* Alert Banner */}
+      {systemHealth.alerts.length > 0 && (
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <AlertTriangle className="h-5 w-5 text-yellow-600" />
+            <span className="font-medium text-yellow-800 dark:text-yellow-200">
+              Active Alerts ({systemHealth.alerts.length})
+            </span>
+          </div>
+          <div className="space-y-2">
+            {systemHealth.alerts.map((alert) => (
+              <div key={alert.id} className="text-sm text-yellow-700 dark:text-yellow-300">
+                <span className="font-medium">{alert.service}:</span> {alert.message}
+                <span className="text-xs ml-2">
+                  ({new Date(alert.timestamp).toLocaleTimeString()})
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Service Status Overview */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Server className="h-5 w-5" />
+            Service Status
+          </CardTitle>
+          <CardDescription>
+            Real-time monitoring of all platform services
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {systemHealth.services.map((service) => {
+              const StatusIcon = getStatusIcon(service.status);
+              const ServiceIcon = service.icon;
+              
+              return (
+                <Card key={service.name} className="relative">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <ServiceIcon className="h-6 w-6 text-blue-600" />
+                      <div>
+                        <h4 className="font-medium">{service.name}</h4>
+                        <div className="flex items-center gap-1">
+                          <StatusIcon className={`h-4 w-4 ${getStatusColor(service.status)}`} />
+                          <span className={`text-sm capitalize ${getStatusColor(service.status)}`}>
+                            {service.status}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span>Uptime:</span>
+                        <span className="font-medium">{formatUptime(service.uptime)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Response:</span>
+                        <span className="font-medium">{formatResponseTime(service.responseTime)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Last Check:</span>
+                        <span className="text-xs text-gray-500">
+                          {new Date(service.lastCheck).toLocaleTimeString()}
+                        </span>
+                      </div>
+                    </div>
+
+                    {service.alert && (
+                      <div className="mt-3 p-2 bg-yellow-100 dark:bg-yellow-900/20 rounded text-xs text-yellow-800 dark:text-yellow-200">
+                        {service.alert}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* API Quota Monitoring */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Zap className="h-5 w-5" />
+            API Quota Monitoring
+          </CardTitle>
+          <CardDescription>
+            Track API usage and costs to prevent overages
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {Object.entries(systemHealth.apiQuotas).map(([key, quota]) => {
+              const usagePercentage = (quota.used / quota.dailyLimit) * 100;
+              
+              return (
+                <Card key={key} className="relative">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-medium">{quota.service}</h4>
+                      <Badge className={usagePercentage >= 85 ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"}>
+                        {Math.round(usagePercentage)}% Used
+                      </Badge>
+                    </div>
+
+                    {/* Usage Bar */}
+                    <div className="mb-4">
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>{quota.used.toLocaleString()} calls</span>
+                        <span>{quota.remaining.toLocaleString()} remaining</span>
+                      </div>
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div 
+                          className={`h-2 rounded-full ${getQuotaColor(usagePercentage)}`}
+                          style={{ width: `${Math.min(usagePercentage, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span>Daily Limit:</span>
+                        <span className="font-medium">{quota.dailyLimit.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Reset Time:</span>
+                        <span className="font-medium">{quota.resetTime}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Cost per Call:</span>
+                        <span className="font-medium">{quota.costPerCall}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Est. Monthly:</span>
+                        <span className="font-medium text-blue-600">{quota.estimatedMonthlyCost}</span>
+                      </div>
+                    </div>
+
+                    {usagePercentage >= 85 && (
+                      <div className="mt-3 p-2 bg-red-100 dark:bg-red-900/20 rounded text-xs text-red-800 dark:text-red-200">
+                        <AlertTriangle className="h-3 w-3 inline mr-1" />
+                        High usage warning - consider limiting API calls
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Performance Metrics */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Cpu className="h-5 w-5" />
+              System Performance
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[
+                { label: "CPU Usage", value: systemHealth.performance.cpuUsage, icon: Cpu, unit: "%" },
+                { label: "Memory Usage", value: systemHealth.performance.memoryUsage, icon: HardDrive, unit: "%" },
+                { label: "Disk Usage", value: systemHealth.performance.diskUsage, icon: Database, unit: "%" },
+                { label: "Network Latency", value: systemHealth.performance.networkLatency, icon: Wifi, unit: "ms" }
+              ].map((metric) => {
+                const MetricIcon = metric.icon;
+                const isHigh = metric.value > 75;
+                
+                return (
+                  <div key={metric.label} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <MetricIcon className="h-4 w-4 text-gray-600" />
+                      <span className="text-sm">{metric.label}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-24 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div 
+                          className={`h-2 rounded-full ${isHigh ? 'bg-red-500' : 'bg-green-500'}`}
+                          style={{ width: `${metric.unit === 'ms' ? Math.min(metric.value, 100) : metric.value}%` }}
+                        />
+                      </div>
+                      <span className={`text-sm font-medium ${isHigh ? 'text-red-600' : 'text-green-600'}`}>
+                        {metric.value}{metric.unit}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5" />
+              Error Monitoring
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600">
+                  {systemHealth.errors.last24Hours}
+                </div>
+                <div className="text-sm text-gray-600">Last 24 Hours</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-yellow-600">
+                  {systemHealth.errors.last7Days}
+                </div>
+                <div className="text-sm text-gray-600">Last 7 Days</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-red-600">
+                  {systemHealth.errors.criticalErrors}
+                </div>
+                <div className="text-sm text-gray-600">Critical Errors</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-orange-600">
+                  {systemHealth.errors.warningCount}
+                </div>
+                <div className="text-sm text-gray-600">Warnings</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Settings and Controls */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Gauge className="h-5 w-5" />
+            Monitoring Settings
+          </CardTitle>
+          <CardDescription>
+            Configure alerts and monitoring parameters
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label className="block text-sm font-medium mb-2">Refresh Interval</label>
+              <Select value={refreshInterval.toString()} onValueChange={(value) => setRefreshInterval(Number(value))}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10 seconds</SelectItem>
+                  <SelectItem value="30">30 seconds</SelectItem>
+                  <SelectItem value="60">1 minute</SelectItem>
+                  <SelectItem value="300">5 minutes</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Alert Threshold (%)</label>
+              <Select value={alertThreshold.toString()} onValueChange={(value) => setAlertThreshold(Number(value))}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="70">70%</SelectItem>
+                  <SelectItem value="80">80%</SelectItem>
+                  <SelectItem value="85">85%</SelectItem>
+                  <SelectItem value="90">90%</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-end gap-2">
+              <Button variant="outline" className="flex-1">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh Now
+              </Button>
+              <Button variant="outline">
+                <Download className="h-4 w-4 mr-2" />
+                Export Report
+              </Button>
+            </div>
+          </div>
+
+          <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <div className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
+              Employee Guide - Health Monitoring:
+            </div>
+            <div className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+              <div>• <strong>Green Status</strong>: All systems operating normally</div>
+              <div>• <strong>Yellow Warning</strong>: Attention needed, monitor closely</div>
+              <div>• <strong>Red Alert</strong>: Immediate action required</div>
+              <div>• <strong>API Quotas</strong>: Monitor usage to prevent service interruption and cost overruns</div>
+            </div>
           </div>
         </CardContent>
       </Card>
