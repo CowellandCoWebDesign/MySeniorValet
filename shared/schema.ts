@@ -5,8 +5,48 @@ import { z } from "zod";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
+  email: text("email").notNull().unique(),
+  username: text("username").unique(),
   password: text("password").notNull(),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  profileImage: text("profile_image"),
+  phone: text("phone"),
+  dateOfBirth: date("date_of_birth"),
+  relationshipToCare: text("relationship_to_care", {
+    enum: ["Seeking for Self", "Seeking for Parent", "Seeking for Spouse", "Seeking for Other Family", "Healthcare Professional"]
+  }),
+  careNeeds: text("care_needs").array().default([]), // ['Independent Living', 'Assisted Living', 'Memory Care']
+  searchPreferences: json("search_preferences").$type<{
+    preferredLocation?: string;
+    budgetRange?: { min: number; max: number };
+    preferredAmenities?: string[];
+    mustHaveFeatures?: string[];
+    dealBreakers?: string[];
+  }>().default({}),
+  notifications: json("notifications").$type<{
+    emailNotifications: boolean;
+    smsNotifications: boolean;
+    newListings: boolean;
+    priceAlerts: boolean;
+    messageAlerts: boolean;
+    reviewReminders: boolean;
+  }>().default({
+    emailNotifications: true,
+    smsNotifications: false,
+    newListings: false,
+    priceAlerts: false,
+    messageAlerts: true,
+    reviewReminders: false,
+  }),
+  emailVerified: boolean("email_verified").default(false),
+  emailVerificationToken: text("email_verification_token"),
+  passwordResetToken: text("password_reset_token"),
+  passwordResetExpires: timestamp("password_reset_expires"),
+  lastLoginAt: timestamp("last_login_at"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const communities = pgTable("communities", {
@@ -236,6 +276,110 @@ export const reviewHelpfulness = pgTable("review_helpfulness", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// User Favorites Table
+export const favorites = pgTable("favorites", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  notes: text("notes"), // User's personal notes about this community
+  tags: text("tags").array().default([]), // User's custom tags
+  priority: text("priority", { enum: ["High", "Medium", "Low"] }).default("Medium"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// User Searches/History Table  
+export const searchHistory = pgTable("search_history", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  searchQuery: json("search_query").$type<SearchCommunity>().notNull(),
+  resultCount: integer("result_count").notNull(),
+  searchName: text("search_name"), // User can save and name searches
+  isBookmarked: boolean("is_bookmarked").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Messages Table - For communication between users and communities
+export const messages = pgTable("messages", {
+  id: serial("id").primaryKey(),
+  fromUserId: integer("from_user_id").references(() => users.id),
+  toUserId: integer("to_user_id").references(() => users.id),
+  communityId: integer("community_id").references(() => communities.id),
+  conversationId: text("conversation_id").notNull(), // Groups messages in a conversation
+  messageType: text("message_type", { 
+    enum: ["inquiry", "tour_request", "pricing_question", "availability_check", "general", "follow_up"] 
+  }).default("general"),
+  subject: text("subject"),
+  content: text("content").notNull(),
+  attachments: json("attachments").$type<Array<{
+    fileName: string;
+    fileUrl: string;
+    fileType: string;
+    fileSize: number;
+  }>>().default([]),
+  isRead: boolean("is_read").default(false),
+  readAt: timestamp("read_at"),
+  isStarred: boolean("is_starred").default(false),
+  isArchived: boolean("is_archived").default(false),
+  priority: text("priority", { enum: ["Low", "Normal", "High", "Urgent"] }).default("Normal"),
+  metadata: json("metadata").$type<{
+    userAgent?: string;
+    ipAddress?: string;
+    source?: string; // 'web', 'mobile', 'email'
+    tourDate?: string;
+    preferredContactTime?: string;
+    phoneNumber?: string;
+  }>().default({}),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Message Templates for Communities
+export const messageTemplates = pgTable("message_templates", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  templateName: text("template_name").notNull(),
+  templateType: text("template_type", {
+    enum: ["welcome", "tour_confirmation", "pricing_info", "availability_update", "follow_up", "custom"]
+  }).notNull(),
+  subject: text("subject").notNull(),
+  content: text("content").notNull(),
+  isActive: boolean("is_active").default(true),
+  useCount: integer("use_count").default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Tours/Visits Scheduling
+export const tours = pgTable("tours", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  tourDate: timestamp("tour_date").notNull(),
+  tourType: text("tour_type", { 
+    enum: ["in_person", "virtual", "group", "private"] 
+  }).default("in_person"),
+  status: text("status", {
+    enum: ["scheduled", "confirmed", "completed", "cancelled", "rescheduled", "no_show"]
+  }).default("scheduled"),
+  attendeeCount: integer("attendee_count").default(1),
+  specialRequests: text("special_requests"),
+  contactPreference: text("contact_preference", { enum: ["email", "phone", "text"] }).default("email"),
+  reminderSent: boolean("reminder_sent").default(false),
+  feedbackSubmitted: boolean("feedback_submitted").default(false),
+  notes: text("notes"), // Internal notes for community staff
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// User Sessions for tracking login state
+export const userSessions = pgTable("user_sessions", {
+  id: text("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Relations
 export const communitiesRelations = relations(communities, ({ many }) => ({
   inspections: many(inspections),
@@ -252,6 +396,12 @@ export const inspectionsRelations = relations(inspections, ({ one }) => ({
 export const usersRelations = relations(users, ({ many }) => ({
   reviews: many(reviews),
   reviewHelpfulness: many(reviewHelpfulness),
+  favorites: many(favorites),
+  searchHistory: many(searchHistory),
+  sentMessages: many(messages, { relationName: "sentMessages" }),
+  receivedMessages: many(messages, { relationName: "receivedMessages" }),
+  tours: many(tours),
+  sessions: many(userSessions),
 }));
 
 export const reviewsRelations = relations(reviews, ({ one, many }) => ({
@@ -277,9 +427,79 @@ export const reviewHelpfulnessRelations = relations(reviewHelpfulness, ({ one })
   }),
 }));
 
+// New relations for new tables
+export const favoritesRelations = relations(favorites, ({ one }) => ({
+  user: one(users, {
+    fields: [favorites.userId],
+    references: [users.id],
+  }),
+  community: one(communities, {
+    fields: [favorites.communityId],
+    references: [communities.id],
+  }),
+}));
+
+export const searchHistoryRelations = relations(searchHistory, ({ one }) => ({
+  user: one(users, {
+    fields: [searchHistory.userId],
+    references: [users.id],
+  }),
+}));
+
+export const messagesRelations = relations(messages, ({ one }) => ({
+  fromUser: one(users, {
+    fields: [messages.fromUserId],
+    references: [users.id],
+    relationName: "sentMessages"
+  }),
+  toUser: one(users, {
+    fields: [messages.toUserId],
+    references: [users.id],
+    relationName: "receivedMessages"
+  }),
+  community: one(communities, {
+    fields: [messages.communityId],
+    references: [communities.id],
+  }),
+}));
+
+export const messageTemplatesRelations = relations(messageTemplates, ({ one }) => ({
+  community: one(communities, {
+    fields: [messageTemplates.communityId],
+    references: [communities.id],
+  }),
+}));
+
+export const toursRelations = relations(tours, ({ one }) => ({
+  user: one(users, {
+    fields: [tours.userId],
+    references: [users.id],
+  }),
+  community: one(communities, {
+    fields: [tours.communityId],
+    references: [communities.id],
+  }),
+}));
+
+export const userSessionsRelations = relations(userSessions, ({ one }) => ({
+  user: one(users, {
+    fields: [userSessions.userId],
+    references: [users.id],
+  }),
+}));
+
 export const insertUserSchema = createInsertSchema(users).pick({
+  email: true,
   username: true,
   password: true,
+  firstName: true,
+  lastName: true,
+  phone: true,
+  dateOfBirth: true,
+  relationshipToCare: true,
+  careNeeds: true,
+  searchPreferences: true,
+  notifications: true,
 });
 
 export const insertCommunitySchema = createInsertSchema(communities).omit({
@@ -315,6 +535,64 @@ export const insertReviewHelpfulnessSchema = createInsertSchema(reviewHelpfulnes
   createdAt: true,
 });
 
+export const insertFavoriteSchema = createInsertSchema(favorites).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertSearchHistorySchema = createInsertSchema(searchHistory).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertMessageSchema = createInsertSchema(messages).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  isRead: true,
+  readAt: true,
+});
+
+export const insertMessageTemplateSchema = createInsertSchema(messageTemplates).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  useCount: true,
+});
+
+export const insertTourSchema = createInsertSchema(tours).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  reminderSent: true,
+  feedbackSubmitted: true,
+});
+
+export const loginSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(1, "Password is required"),
+});
+
+export const signupSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string(),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  phone: z.string().optional(),
+  relationshipToCare: z.enum([
+    "Seeking for Self",
+    "Seeking for Parent", 
+    "Seeking for Spouse",
+    "Seeking for Other Family",
+    "Healthcare Professional"
+  ]).optional(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
 export const searchCommunitySchema = z.object({
   location: z.string().optional(),
   careType: z.string().optional(),
@@ -335,4 +613,17 @@ export type InsertReview = z.infer<typeof insertReviewSchema>;
 export type Review = typeof reviews.$inferSelect;
 export type InsertReviewHelpfulness = z.infer<typeof insertReviewHelpfulnessSchema>;
 export type ReviewHelpfulness = typeof reviewHelpfulness.$inferSelect;
+export type InsertFavorite = z.infer<typeof insertFavoriteSchema>;
+export type Favorite = typeof favorites.$inferSelect;
+export type InsertSearchHistory = z.infer<typeof insertSearchHistorySchema>;
+export type SearchHistoryEntry = typeof searchHistory.$inferSelect;
+export type InsertMessage = z.infer<typeof insertMessageSchema>;
+export type Message = typeof messages.$inferSelect;
+export type InsertMessageTemplate = z.infer<typeof insertMessageTemplateSchema>;
+export type MessageTemplate = typeof messageTemplates.$inferSelect;
+export type InsertTour = z.infer<typeof insertTourSchema>;
+export type Tour = typeof tours.$inferSelect;
+export type UserSession = typeof userSessions.$inferSelect;
+export type LoginForm = z.infer<typeof loginSchema>;
+export type SignupForm = z.infer<typeof signupSchema>;
 export type SearchCommunity = z.infer<typeof searchCommunitySchema>;

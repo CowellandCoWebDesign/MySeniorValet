@@ -1,12 +1,14 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { searchCommunitySchema, insertCommunitySchema, insertReviewSchema } from "@shared/schema";
+import { searchCommunitySchema, insertCommunitySchema, insertReviewSchema, loginSchema, signupSchema } from "@shared/schema";
 import { z } from "zod";
 import { aiRecommendationEngine, RecommendationRequest } from "./ai-recommendations";
 import { ComprehensiveScraper } from "./scraper";
 import { licensingScraper } from "./licensing-scraper";
 import { googleReviewsAI } from "./google-reviews-ai";
+import { authService, requireAuth } from "./auth";
+import cookieParser from "cookie-parser";
 import fs from 'fs';
 import path from 'path';
 
@@ -65,6 +67,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Apply filter validation to search endpoints
   app.use('/api/communities/search', validateSearchFilters);
   app.use('/api/recommend', validateSearchFilters);
+
+  // Cookie parser middleware for authentication
+  app.use(cookieParser());
+
+  // ===============================
+  // AUTHENTICATION ROUTES
+  // ===============================
+
+  // Register/Signup
+  app.post("/api/auth/signup", async (req, res) => {
+    try {
+      const data = signupSchema.parse(req.body);
+      const { user, sessionId } = await authService.signup(data);
+      
+      // Set secure HTTP-only cookie
+      res.cookie('sessionId', sessionId, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+
+      // Return user data (without password)
+      const { password, ...userWithoutPassword } = user;
+      res.json({ user: userWithoutPassword });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Login
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const data = loginSchema.parse(req.body);
+      const { user, sessionId } = await authService.login(data);
+      
+      // Set secure HTTP-only cookie
+      res.cookie('sessionId', sessionId, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+
+      // Return user data (without password)
+      const { password, ...userWithoutPassword } = user;
+      res.json({ user: userWithoutPassword });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Get current user
+  app.get("/api/auth/user", requireAuth, async (req: any, res) => {
+    try {
+      const { password, ...userWithoutPassword } = req.user;
+      res.json(userWithoutPassword);
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to fetch user data" });
+    }
+  });
+
+  // Logout
+  app.post("/api/auth/logout", requireAuth, async (req: any, res) => {
+    try {
+      await authService.logout(req.sessionId);
+      res.clearCookie('sessionId');
+      res.json({ message: "Logged out successfully" });
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to logout" });
+    }
+  });
 
   // Search communities - NORTHERN CALIFORNIA FOCUSED ALGORITHM (MUST BE FIRST)
   app.get("/api/communities/search", async (req, res) => {

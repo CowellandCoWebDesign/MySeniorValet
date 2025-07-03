@@ -14,6 +14,8 @@ import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
 import Disclaimer from "@/pages/disclaimer";
 import Accessibility from "@/pages/accessibility";
+import Login from "@/pages/login";
+import Signup from "@/pages/signup";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -24,6 +26,8 @@ function Router() {
       <Route path="/community/:id" component={CommunityPage} />
       <Route path="/claim" component={Claim} />
       <Route path="/admin" component={Admin} />
+      <Route path="/login" component={Login} />
+      <Route path="/signup" component={Signup} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/terms" component={Terms} />
       <Route path="/disclaimer" component={Disclaimer} />
