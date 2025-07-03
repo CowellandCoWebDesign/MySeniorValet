@@ -2815,6 +2815,228 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Audit Log endpoints for compliance and security tracking
+  app.get("/api/admin/audit-logs", async (req, res) => {
+    try {
+      const { 
+        page = 1, 
+        limit = 50, 
+        action,
+        resourceType,
+        severity,
+        userId,
+        adminId,
+        startDate,
+        endDate 
+      } = req.query;
+
+      // For now, return mock data since we need proper database integration
+      const mockLogs = [
+        {
+          id: 1,
+          userId: 1,
+          adminId: null,
+          action: "user_login",
+          resourceType: "user",
+          resourceId: "1",
+          details: { 
+            previousValues: null, 
+            newValues: { lastLogin: new Date() },
+            reason: "User authentication",
+            additionalInfo: { loginMethod: "email" }
+          },
+          ipAddress: "192.168.1.100",
+          userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+          sessionId: "sess_12345",
+          severity: "Low",
+          outcome: "Success",
+          createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+          indexedAt: new Date(Date.now() - 2 * 60 * 60 * 1000)
+        },
+        {
+          id: 2,
+          userId: null,
+          adminId: 1,
+          action: "community_updated",
+          resourceType: "community",
+          resourceId: "5",
+          details: { 
+            previousValues: { rating: 4.2 }, 
+            newValues: { rating: 4.5 },
+            reason: "Google Places enrichment",
+            additionalInfo: { source: "google_places_api" }
+          },
+          ipAddress: "10.0.0.1",
+          userAgent: "Admin-Dashboard/1.0",
+          sessionId: "admin_sess_67890",
+          severity: "Medium",
+          outcome: "Success",
+          createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
+          indexedAt: new Date(Date.now() - 4 * 60 * 60 * 1000)
+        },
+        {
+          id: 3,
+          userId: 2,
+          adminId: null,
+          action: "flag_submitted",
+          resourceType: "flag",
+          resourceId: "12",
+          details: { 
+            previousValues: null, 
+            newValues: { flagType: "Incorrect Information", status: "Pending" },
+            reason: "User reported incorrect pricing",
+            additionalInfo: { communityId: 8 }
+          },
+          ipAddress: "203.0.113.45",
+          userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X)",
+          sessionId: "mobile_sess_11111",
+          severity: "High",
+          outcome: "Success",
+          createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
+          indexedAt: new Date(Date.now() - 6 * 60 * 60 * 1000)
+        },
+        {
+          id: 4,
+          userId: null,
+          adminId: 1,
+          action: "flag_resolved",
+          resourceType: "flag",
+          resourceId: "10",
+          details: { 
+            previousValues: { status: "Under Review" }, 
+            newValues: { status: "Resolved" },
+            reason: "Verified and corrected pricing information",
+            additionalInfo: { resolution: "pricing_updated", adminNotes: "Contact verified current rates" }
+          },
+          ipAddress: "10.0.0.1",
+          userAgent: "Admin-Dashboard/1.0",
+          sessionId: "admin_sess_67890",
+          severity: "Medium",
+          outcome: "Success",
+          createdAt: new Date(Date.now() - 8 * 60 * 60 * 1000), // 8 hours ago
+          indexedAt: new Date(Date.now() - 8 * 60 * 60 * 1000)
+        },
+        {
+          id: 5,
+          userId: 3,
+          adminId: null,
+          action: "user_signup",
+          resourceType: "user",
+          resourceId: "3",
+          details: { 
+            previousValues: null, 
+            newValues: { email: "user@example.com", firstName: "John" },
+            reason: "New user registration",
+            additionalInfo: { referralSource: "google_search" }
+          },
+          ipAddress: "198.51.100.75",
+          userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+          sessionId: null,
+          severity: "Low",
+          outcome: "Success",
+          createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000), // 12 hours ago
+          indexedAt: new Date(Date.now() - 12 * 60 * 60 * 1000)
+        }
+      ];
+
+      // Apply basic filtering
+      let filteredLogs = mockLogs;
+      
+      if (action) {
+        filteredLogs = filteredLogs.filter(log => log.action === action);
+      }
+      if (resourceType) {
+        filteredLogs = filteredLogs.filter(log => log.resourceType === resourceType);
+      }
+      if (severity) {
+        filteredLogs = filteredLogs.filter(log => log.severity === severity);
+      }
+
+      // Apply pagination
+      const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
+      const paginatedLogs = filteredLogs.slice(offset, offset + parseInt(limit as string));
+
+      res.json({
+        logs: paginatedLogs,
+        pagination: {
+          page: parseInt(page as string),
+          limit: parseInt(limit as string),
+          total: filteredLogs.length,
+          totalPages: Math.ceil(filteredLogs.length / parseInt(limit as string))
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching audit logs:", error);
+      res.status(500).json({ error: "Failed to fetch audit logs" });
+    }
+  });
+
+  app.post("/api/admin/audit-logs", async (req, res) => {
+    try {
+      const logData = req.body;
+      
+      // Extract IP and User Agent from request
+      const ipAddress = req.ip || req.connection.remoteAddress || 
+                       req.headers['x-forwarded-for'] as string || 
+                       req.headers['x-real-ip'] as string;
+      const userAgent = req.headers['user-agent'];
+
+      // For now, return mock response since we need proper database integration
+      const auditLog = {
+        id: Math.floor(Math.random() * 1000),
+        ...logData,
+        ipAddress: Array.isArray(ipAddress) ? ipAddress[0] : ipAddress,
+        userAgent,
+        createdAt: new Date(),
+        indexedAt: new Date()
+      };
+
+      res.json(auditLog);
+    } catch (error) {
+      console.error("Error creating audit log:", error);
+      res.status(500).json({ error: "Failed to create audit log" });
+    }
+  });
+
+  app.get("/api/admin/audit-logs/summary", async (req, res) => {
+    try {
+      const { timeframe = '24h' } = req.query;
+      
+      // Mock summary data
+      const summary = {
+        timeframe,
+        summary: {
+          totalLogs: 45,
+          bySeverity: [
+            { severity: "Low", count: 25 },
+            { severity: "Medium", count: 15 },
+            { severity: "High", count: 4 },
+            { severity: "Critical", count: 1 }
+          ],
+          byAction: [
+            { action: "user_login", count: 18 },
+            { action: "community_updated", count: 8 },
+            { action: "flag_submitted", count: 7 },
+            { action: "user_signup", count: 5 },
+            { action: "flag_resolved", count: 4 },
+            { action: "admin_login", count: 3 }
+          ],
+          byResourceType: [
+            { resourceType: "user", count: 28 },
+            { resourceType: "community", count: 10 },
+            { resourceType: "flag", count: 6 },
+            { resourceType: "system", count: 1 }
+          ]
+        }
+      };
+
+      res.json(summary);
+    } catch (error) {
+      console.error("Error fetching audit log summary:", error);
+      res.status(500).json({ error: "Failed to fetch audit log summary" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

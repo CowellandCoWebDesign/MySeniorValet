@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal, json, date, varchar, real } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, decimal, json, jsonb, date, varchar, real, index } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -507,6 +507,40 @@ export const leadActivities = pgTable("lead_activities", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Audit Log table for compliance and security tracking
+export const auditLogs = pgTable("audit_logs", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id), // Can be null for system actions
+  adminId: integer("admin_id").references(() => adminUsers.id), // For admin actions
+  action: varchar("action", { length: 255 }).notNull(), // e.g., "user_created", "community_updated", "flag_resolved"
+  resourceType: varchar("resource_type", { length: 100 }).notNull(), // e.g., "user", "community", "flag", "system"
+  resourceId: varchar("resource_id", { length: 255 }), // ID of the affected resource
+  details: jsonb("details").$type<{
+    previousValues?: any;
+    newValues?: any;
+    reason?: string;
+    additionalInfo?: any;
+  }>(), // Additional action details
+  ipAddress: varchar("ip_address", { length: 45 }), // IPv4 or IPv6
+  userAgent: text("user_agent"),
+  sessionId: varchar("session_id", { length: 255 }),
+  severity: varchar("severity", {
+    enum: ["Low", "Medium", "High", "Critical"]
+  }).notNull().default("Low"),
+  outcome: varchar("outcome", {
+    enum: ["Success", "Failure", "Partial"]
+  }).notNull().default("Success"),
+  createdAt: timestamp("created_at").defaultNow(),
+  indexedAt: timestamp("indexed_at").defaultNow() // For search optimization
+}, (table) => ({
+  userIdIdx: index("audit_logs_user_id_idx").on(table.userId),
+  adminIdIdx: index("audit_logs_admin_id_idx").on(table.adminId),
+  actionIdx: index("audit_logs_action_idx").on(table.action),
+  resourceTypeIdx: index("audit_logs_resource_type_idx").on(table.resourceType),
+  createdAtIdx: index("audit_logs_created_at_idx").on(table.createdAt),
+  severityIdx: index("audit_logs_severity_idx").on(table.severity)
+}));
+
 // Relations
 export const communitiesRelations = relations(communities, ({ many }) => ({
   inspections: many(inspections),
@@ -670,6 +704,17 @@ export const leadActivitiesRelations = relations(leadActivities, ({ one }) => ({
   user: one(users, {
     fields: [leadActivities.userId],
     references: [users.id],
+  }),
+}));
+
+export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
+  user: one(users, {
+    fields: [auditLogs.userId],
+    references: [users.id],
+  }),
+  admin: one(adminUsers, {
+    fields: [auditLogs.adminId],
+    references: [adminUsers.id],
   }),
 }));
 
@@ -846,6 +891,12 @@ export const insertLeadActivitySchema = createInsertSchema(leadActivities).omit(
   createdAt: true,
 });
 
+export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({
+  id: true,
+  createdAt: true,
+  indexedAt: true,
+});
+
 export type InsertListingFlag = z.infer<typeof insertListingFlagSchema>;
 export type ListingFlag = typeof listingFlags.$inferSelect;
 export type InsertAdminUser = z.infer<typeof insertAdminUserSchema>;
@@ -856,3 +907,5 @@ export type InsertLead = z.infer<typeof insertLeadSchema>;
 export type Lead = typeof leads.$inferSelect;
 export type InsertLeadActivity = z.infer<typeof insertLeadActivitySchema>;
 export type LeadActivity = typeof leadActivities.$inferSelect;
+export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
+export type AuditLog = typeof auditLogs.$inferSelect;
