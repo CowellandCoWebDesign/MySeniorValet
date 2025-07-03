@@ -1,7 +1,18 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { searchCommunitySchema, insertCommunitySchema, insertReviewSchema, loginSchema, signupSchema } from "@shared/schema";
+import { 
+  searchCommunitySchema, 
+  insertCommunitySchema, 
+  insertReviewSchema, 
+  loginSchema, 
+  signupSchema,
+  communities,
+  userFavorites,
+  userSavedSearches
+} from "@shared/schema";
+import { db } from "./db";
+import { eq, and, desc } from "drizzle-orm";
 import { z } from "zod";
 
 // Scalable infrastructure imports
@@ -149,6 +160,192 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(userWithoutPassword);
     } catch (error: any) {
       res.status(500).json({ message: "Failed to fetch user data" });
+    }
+  });
+
+  // Logout
+  app.post("/api/auth/logout", requireAuth, async (req: any, res) => {
+    try {
+      const sessionId = req.sessionId;
+      await authService.logout(sessionId);
+      res.clearCookie('sessionId');
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ message: "Logout failed" });
+    }
+  });
+
+  // User favorites routes
+  app.get('/api/user/favorites', requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const favorites = await db
+        .select({
+          id: userFavorites.id,
+          communityId: userFavorites.communityId,
+          notes: userFavorites.notes,
+          priority: userFavorites.priority,
+          tags: userFavorites.tags,
+          addedAt: userFavorites.addedAt,
+          community: {
+            id: communities.id,
+            name: communities.name,
+            address: communities.address,
+            city: communities.city,
+            state: communities.state,
+            careTypes: communities.careTypes,
+            photos: communities.photos,
+            overallRating: communities.overallRating,
+            pricing: communities.pricing,
+          }
+        })
+        .from(userFavorites)
+        .leftJoin(communities, eq(userFavorites.communityId, communities.id))
+        .where(eq(userFavorites.userId, userId))
+        .orderBy(desc(userFavorites.addedAt));
+
+      res.json(favorites);
+    } catch (error: any) {
+      res.status(500).json({ message: 'Failed to fetch favorites' });
+    }
+  });
+
+  app.post('/api/user/favorites', requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { communityId, notes, priority, tags } = req.body;
+
+      // Check if already favorited
+      const existing = await db
+        .select()
+        .from(userFavorites)
+        .where(and(
+          eq(userFavorites.userId, userId),
+          eq(userFavorites.communityId, communityId)
+        ))
+        .limit(1);
+
+      if (existing.length > 0) {
+        return res.status(400).json({ message: 'Community already in favorites' });
+      }
+
+      const [favorite] = await db
+        .insert(userFavorites)
+        .values({
+          userId,
+          communityId,
+          notes: notes || null,
+          priority: priority || 0,
+          tags: tags || [],
+        })
+        .returning();
+
+      res.json(favorite);
+    } catch (error: any) {
+      res.status(500).json({ message: 'Failed to add favorite' });
+    }
+  });
+
+  app.delete('/api/user/favorites/:communityId', requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const communityId = parseInt(req.params.communityId);
+
+      await db
+        .delete(userFavorites)
+        .where(and(
+          eq(userFavorites.userId, userId),
+          eq(userFavorites.communityId, communityId)
+        ));
+
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ message: 'Failed to remove favorite' });
+    }
+  });
+
+  app.patch('/api/user/favorites/:id', requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const favoriteId = parseInt(req.params.id);
+      const { notes, priority, tags } = req.body;
+
+      const [updated] = await db
+        .update(userFavorites)
+        .set({
+          notes: notes !== undefined ? notes : undefined,
+          priority: priority !== undefined ? priority : undefined,
+          tags: tags !== undefined ? tags : undefined,
+          updatedAt: new Date(),
+        })
+        .where(and(
+          eq(userFavorites.id, favoriteId),
+          eq(userFavorites.userId, userId)
+        ))
+        .returning();
+
+      if (!updated) {
+        return res.status(404).json({ message: 'Favorite not found' });
+      }
+
+      res.json(updated);
+    } catch (error: any) {
+      res.status(500).json({ message: 'Failed to update favorite' });
+    }
+  });
+
+  // User saved searches routes
+  app.get('/api/user/saved-searches', requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const savedSearches = await db
+        .select()
+        .from(userSavedSearches)
+        .where(eq(userSavedSearches.userId, userId))
+        .orderBy(desc(userSavedSearches.createdAt));
+
+      res.json(savedSearches);
+    } catch (error: any) {
+      res.status(500).json({ message: 'Failed to fetch saved searches' });
+    }
+  });
+
+  app.post('/api/user/saved-searches', requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { searchName, searchParams, alertsEnabled } = req.body;
+
+      const [savedSearch] = await db
+        .insert(userSavedSearches)
+        .values({
+          userId,
+          searchName,
+          searchParams,
+          alertsEnabled: alertsEnabled || false,
+        })
+        .returning();
+
+      res.json(savedSearch);
+    } catch (error: any) {
+      res.status(500).json({ message: 'Failed to save search' });
+    }
+  });
+
+  app.delete('/api/user/saved-searches/:id', requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const searchId = parseInt(req.params.id);
+
+      await db
+        .delete(userSavedSearches)
+        .where(and(
+          eq(userSavedSearches.id, searchId),
+          eq(userSavedSearches.userId, userId)
+        ));
+
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ message: 'Failed to delete saved search' });
     }
   });
 
