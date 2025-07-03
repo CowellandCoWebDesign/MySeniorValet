@@ -9,6 +9,7 @@ import { licensingScraper } from "./licensing-scraper";
 import { googleReviewsAI } from "./google-reviews-ai";
 import { googlePlacesIntegration } from "./google-places-integration";
 import { authService, requireAuth } from "./auth";
+import axios from 'axios';
 import cookieParser from "cookie-parser";
 import fs from 'fs';
 import path from 'path';
@@ -2009,36 +2010,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Expanded community discovery for Redding area
-  app.post('/api/discover-redding-area', async (req, res) => {
+  // Targeted community discovery for specific facilities
+  app.post('/api/discover-specific-facilities', async (req, res) => {
     try {
-      console.log('Starting expanded community discovery for Redding area...');
+      console.log('Starting targeted community discovery for known facilities...');
       
-      const searchTerms = [
-        'senior living Redding CA',
-        'assisted living Redding CA', 
-        'memory care Redding CA',
-        'independent living Redding CA',
-        'senior community Redding CA',
-        'retirement community Redding CA',
-        'senior living Anderson CA',
-        'senior living Shasta Lake CA',
-        'senior living Cottonwood CA',
-        'senior living Red Bluff CA',
-        'senior living Chico CA',
-        'assisted living Anderson CA',
-        'assisted living Shasta Lake CA',
-        'memory care Chico CA',
-        'senior housing Northern California'
+      // Known senior living facilities in Shasta County area
+      const knownFacilities = [
+        'Brookdale Redding',
+        'Prestige Senior Living Redding',  
+        'Cascades of the North State',
+        'The Lodge at Shasta Lake',
+        'Heritage Senior Living',
+        'Windsor Gardens Assisted Living',
+        'Shasta Senior Housing',
+        'Valley View Manor',
+        'Redding Senior Center',
+        'Northern California Veterans Home',
+        'Mercy Medical Center Senior Services',
+        'Shasta Regional Medical Center Senior Care',
+        'Anderson Senior Living',
+        'Red Bluff Senior Community',
+        'Cottonwood Senior Housing'
       ];
       
-      const discoveredCommunities = await googlePlacesIntegration.discoverCommunitiesInArea(
-        searchTerms,
-        'Redding, CA',
-        50000 // 50km radius to cover surrounding areas
-      );
+      const discoveredCommunities = [];
+      
+      for (const facilityName of knownFacilities) {
+        try {
+          console.log(`Searching for: ${facilityName}`);
+          
+          const response = await axios.get('https://maps.googleapis.com/maps/api/place/textsearch/json', {
+            params: {
+              key: process.env.GOOGLE_PLACES_API_KEY,
+              query: `${facilityName} Redding CA`,
+              type: 'establishment'
+            },
+            timeout: 15000
+          });
 
-      // Convert to database format and save
+          if (response.data?.results?.length > 0) {
+            const place = response.data.results[0];
+            
+            // Parse address components
+            const addressParts = place.formatted_address?.split(', ') || [];
+            let city = '';
+            let state = '';
+            let zipCode = '';
+            
+            if (addressParts.length >= 2) {
+              const lastPart = addressParts[addressParts.length - 1];
+              const secondLastPart = addressParts[addressParts.length - 2];
+              
+              city = secondLastPart || '';
+              const stateZipMatch = lastPart.match(/([A-Z]{2})\s*(\d{5}(-\d{4})?)?/);
+              if (stateZipMatch) {
+                state = stateZipMatch[1];
+                zipCode = stateZipMatch[2] || '';
+              }
+            }
+
+            discoveredCommunities.push({
+              place_id: place.place_id,
+              name: place.name,
+              address: place.formatted_address || '',
+              city: city,
+              state: state,
+              zipCode: zipCode,
+              phone: place.formatted_phone_number,
+              website: place.website,
+              rating: place.rating,
+              reviewCount: place.user_ratings_total || 0,
+              lat: place.geometry?.location?.lat,
+              lng: place.geometry?.location?.lng,
+              types: place.types || []
+            });
+            
+            console.log(`✓ Found: ${place.name}`);
+          }
+          
+          await new Promise(resolve => setTimeout(resolve, 200));
+        } catch (error) {
+          console.error(`Search failed for ${facilityName}:`, error instanceof Error ? error.message : 'Unknown error');
+        }
+      }
+
+      console.log(`Discovery complete. Found ${discoveredCommunities.length} facilities.`);
+
+      // Save discovered communities to database
       const savedCommunities = [];
       let replacedCount = 0;
 
@@ -2053,35 +2112,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
             phone: community.phone || null,
             email: null,
             website: community.website || null,
-            description: `Senior living community in ${community.city}, CA. Google Places rating: ${community.rating || 'N/A'}/5 with ${community.reviewCount || 0} reviews.`,
-            careTypes: ['Independent Living'], // Will be updated during enrichment
+            description: `Senior living facility in ${community.city}, CA. Google Places rating: ${community.rating || 'N/A'}/5 with ${community.reviewCount || 0} reviews.`,
+            careTypes: ['Assisted Living'], // Default, will be refined later
             amenities: [],
             pricing: null,
-            availability: 'Contact for Availability',
+            availability: 'Contact for Availability' as const,
             photos: [],
             reviews: [],
-            googlePlacesId: community.place_id,
-            rating: community.rating || null,
-            reviewCount: community.reviewCount || 0,
             isVerified: true,
             verificationDate: new Date(),
-            dataSource: 'Google Places API',
-            lastUpdated: new Date(),
-            latitude: community.lat || null,
-            longitude: community.lng || null
+            lastUpdated: new Date()
           };
 
           const existingCommunity = await storage.getCommunityByName(communityData.name);
           
           if (existingCommunity) {
-            // Update existing with Google Places data
+            // Update existing community with new data
             const updatedCommunity = await storage.updateCommunity(existingCommunity.id, {
-              googlePlacesId: communityData.googlePlacesId,
-              rating: communityData.rating,
-              reviewCount: communityData.reviewCount,
               phone: communityData.phone || existingCommunity.phone,
               website: communityData.website || existingCommunity.website,
-              dataSource: 'Google Places API',
               lastUpdated: new Date()
             });
             if (updatedCommunity) {
@@ -2100,175 +2149,226 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      const apiStats = googlePlacesIntegration.getUsageStats();
-
       res.json({
         success: true,
-        message: `Redding area discovery complete! Found ${discoveredCommunities.length} communities, saved ${savedCommunities.length}`,
+        message: `Facility discovery complete! Found ${discoveredCommunities.length} facilities, saved ${savedCommunities.length}`,
         discovered: discoveredCommunities.length,
         saved: savedCommunities.length,
         replaced: replacedCount,
-        apiCalls: apiStats.callCount,
-        totalCost: apiStats.totalCost,
         communities: savedCommunities.map(c => ({
           id: c.id,
           name: c.name,
           city: c.city,
           state: c.state,
-          googlePlacesId: c.googlePlacesId,
-          rating: c.rating,
-          reviewCount: c.reviewCount
+          phone: c.phone,
+          website: c.website
         }))
       });
 
     } catch (error) {
-      console.error('Redding area discovery error:', error);
+      console.error('Facility discovery error:', error);
       res.status(500).json({ 
-        message: 'Failed to discover communities in Redding area',
+        message: 'Failed to discover facilities',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Simple test to verify Google Places API functionality
+  app.get('/api/test-google-places', async (req, res) => {
+    try {
+      const response = await axios.get('https://maps.googleapis.com/maps/api/place/textsearch/json', {
+        params: {
+          key: process.env.GOOGLE_PLACES_API_KEY,
+          query: 'senior living Redding CA',
+          type: 'establishment'
+        },
+        timeout: 10000
+      });
+
+      const results = response.data?.results || [];
+      const communities = results.slice(0, 5).map((place: any) => ({
+        name: place.name,
+        address: place.formatted_address,
+        rating: place.rating,
+        place_id: place.place_id
+      }));
+
+      res.json({
+        success: true,
+        message: `Found ${communities.length} senior living facilities`,
+        communities
+      });
+
+    } catch (error) {
+      console.error('Google Places test error:', error);
+      res.status(500).json({ 
+        message: 'Failed to test Google Places API',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Quick discovery using the same working approach as test endpoint
+  app.post('/api/discover-shasta-county', async (req, res) => {
+    try {
+      console.log('Starting quick Shasta County discovery using working approach...');
+      
+      // Use the exact same search logic as the working test endpoint
+      const searchQueries = [
+        'senior living near Redding CA',
+        'assisted living near Redding CA', 
+        'senior community near Redding CA',
+        'retirement community near Redding CA'
+      ];
+      
+      const allDiscovered = [];
+      
+      for (const query of searchQueries) {
+        try {
+          console.log(`Searching: ${query}`);
+          
+          const response = await axios.get('https://maps.googleapis.com/maps/api/place/textsearch/json', {
+            params: {
+              key: process.env.GOOGLE_PLACES_API_KEY,
+              query: query,
+              location: '40.5865,-122.3917', // Redding, CA coordinates
+              radius: 50000, // 50km radius
+              type: 'establishment'
+            },
+            timeout: 15000
+          });
+
+          const results = response.data?.results || [];
+          console.log(`  - Found ${results.length} results`);
+          
+          for (const place of results) {
+            if (place.formatted_address?.includes('CA')) {
+              allDiscovered.push({
+                name: place.name,
+                address: place.formatted_address,
+                rating: place.rating || 0,
+                place_id: place.place_id,
+                phone: place.formatted_phone_number,
+                website: place.website
+              });
+              console.log(`  ✓ Found: ${place.name} (${place.rating || 'No rating'}⭐)`);
+            }
+          }
+          
+          // Rate limit
+          await new Promise(resolve => setTimeout(resolve, 300));
+          
+        } catch (error) {
+          console.error(`Search failed for "${query}":`, error instanceof Error ? error.message : 'Unknown error');
+        }
+      }
+
+      // Remove duplicates by place_id
+      const uniqueFacilities = new Map();
+      allDiscovered.forEach(facility => {
+        if (!uniqueFacilities.has(facility.place_id)) {
+          uniqueFacilities.set(facility.place_id, facility);
+        }
+      });
+
+      const facilitiesToSave = Array.from(uniqueFacilities.values());
+      console.log(`Found ${facilitiesToSave.length} unique facilities to save`);
+
+      // Save to database
+      const savedFacilities = [];
+      let replacedCount = 0;
+
+      for (const facility of facilitiesToSave) {
+        try {
+          const addressParts = facility.address?.split(', ') || [];
+          let city = '';
+          let state = '';
+          let zipCode = '';
+          
+          if (addressParts.length >= 2) {
+            const lastPart = addressParts[addressParts.length - 1];
+            const secondLastPart = addressParts[addressParts.length - 2];
+            
+            city = secondLastPart || '';
+            const stateZipMatch = lastPart.match(/([A-Z]{2})\s*(\d{5}(-\d{4})?)?/);
+            if (stateZipMatch) {
+              state = stateZipMatch[1];
+              zipCode = stateZipMatch[2]?.replace('-', '') || '';
+            }
+          }
+
+          const facilityData = {
+            name: facility.name,
+            address: facility.address || '',
+            city: city,
+            state: state,
+            zipCode: zipCode || '',
+            phone: facility.phone || null,
+            email: null,
+            website: facility.website || null,
+            description: `Senior living facility in ${city}, CA. Google Places rating: ${facility.rating || 'N/A'}/5.`,
+            careTypes: ['Assisted Living'], // Default
+            amenities: [],
+            pricing: null,
+            availability: 'Contact for Availability' as const,
+            photos: [],
+            reviews: [],
+            isVerified: true,
+            verificationDate: new Date(),
+            lastUpdated: new Date()
+          };
+
+          const existingFacility = await storage.getCommunityByName(facilityData.name);
+          
+          if (existingFacility) {
+            // Update existing
+            const updatedFacility = await storage.updateCommunity(existingFacility.id, {
+              phone: facilityData.phone || existingFacility.phone,
+              website: facilityData.website || existingFacility.website
+            });
+            if (updatedFacility) {
+              savedFacilities.push(updatedFacility);
+              replacedCount++;
+            }
+          } else {
+            // Create new
+            const newFacility = await storage.createCommunity(facilityData);
+            savedFacilities.push(newFacility);
+          }
+          
+          console.log(`✓ Saved: ${facilityData.name} in ${facilityData.city}`);
+        } catch (error) {
+          console.error(`Failed to save facility ${facility.name}:`, error);
+        }
+      }
+
+      res.json({
+        success: true,
+        message: `Discovery complete! Found ${facilitiesToSave.length} facilities, saved ${savedFacilities.length}`,
+        discovered: facilitiesToSave.length,
+        saved: savedFacilities.length,
+        updated: replacedCount,
+        facilities: savedFacilities.map(f => ({
+          id: f.id,
+          name: f.name,
+          city: f.city,
+          state: f.state,
+          phone: f.phone,
+          website: f.website,
+          rating: f.description?.match(/rating: ([\d.]+)\/5/)?.[1] || 'N/A'
+        }))
+      });
+
+    } catch (error) {
+      console.error('Discovery error:', error);
+      res.status(500).json({ 
+        message: 'Failed to discover facilities',
         error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   });
 
   const httpServer = createServer(app);
-  // Enrichment API endpoints
-  app.get('/api/enrichTest', async (req, res) => {
-    try {
-      const { runBatchEnrichment } = await import('./enrichment/runEnrichment.js');
-      const { getDailySpendingSummary } = await import('./enrichment/spendGuards.js');
-      
-      const city = req.query.city as string || 'San Francisco';
-      const limit = Math.min(parseInt(req.query.limit as string) || 25, 50); // Max 50 communities
-      
-      // Get random communities from the specified city
-      const communitiesInCity = await storage.getAllCommunities()
-        .then(allCommunities => 
-          allCommunities
-            .filter(c => c.city === city)
-            .slice(0, limit)
-            .map(c => ({ id: c.id, name: c.name }))
-        );
-        
-      if (communitiesInCity.length === 0) {
-        return res.status(404).json({ message: `No communities found in ${city}` });
-      }
-      
-      console.log(`Starting enrichment test for ${communitiesInCity.length} communities in ${city}`);
-      
-      // Run batch enrichment
-      const enrichmentResults = await runBatchEnrichment(
-        communitiesInCity.map(c => c.id),
-        3 // Max 3 concurrent
-      );
-      
-      // Calculate metrics
-      const successful = enrichmentResults.filter(r => r.success);
-      const avgPhotos = successful.length > 0 
-        ? successful.reduce((sum, r) => sum + (r.totalPhotos || 0), 0) / successful.length 
-        : 0;
-      const invalidPhones = enrichmentResults.filter(r => r.phoneValid === false).length;
-      
-      // Get spending summary
-      const spendingSummary = await getDailySpendingSummary();
-      
-      res.json({
-        success: true,
-        city,
-        processed: communitiesInCity.length,
-        enriched: successful.length,
-        failed: enrichmentResults.filter(r => !r.success).length,
-        avgPhotos: Math.round(avgPhotos * 10) / 10,
-        invalidPhones,
-        spendingSummary,
-        results: enrichmentResults
-      });
-      
-    } catch (error) {
-      console.error('Enrichment test error:', error);
-      res.status(500).json({ 
-        success: false, 
-        message: 'Enrichment test failed',
-        error: error.message 
-      });
-    }
-  });
-
-  // Manual enrichment endpoint for single community
-  app.post('/api/communities/:id/enrich', async (req, res) => {
-    try {
-      const { runEnrichment } = await import('./enrichment/runEnrichment.js');
-      const communityId = parseInt(req.params.id);
-      
-      if (isNaN(communityId)) {
-        return res.status(400).json({ message: 'Invalid community ID' });
-      }
-      
-      const result = await runEnrichment(communityId);
-      
-      if (result.success) {
-        res.json(result);
-      } else {
-        res.status(500).json(result);
-      }
-      
-    } catch (error) {
-      console.error('Community enrichment error:', error);
-      res.status(500).json({ 
-        success: false, 
-        message: 'Enrichment failed',
-        error: error.message 
-      });
-    }
-  });
-
-  // Spending summary endpoint
-  app.get('/api/enrichment/spending', async (req, res) => {
-    try {
-      const { getDailySpendingSummary } = await import('./enrichment/spendGuards.js');
-      const summary = await getDailySpendingSummary();
-      res.json(summary);
-    } catch (error) {
-      console.error('Spending summary error:', error);
-      res.status(500).json({ 
-        message: 'Failed to get spending summary',
-        error: error.message 
-      });
-    }
-  });
-
-  // Get Google Reviews for a community
-  app.get('/api/communities/:id/reviews', async (req, res) => {
-    try {
-      const communityId = parseInt(req.params.id);
-      if (isNaN(communityId)) {
-        return res.status(400).json({ message: 'Invalid community ID' });
-      }
-
-      const community = await storage.getCommunity(communityId);
-      if (!community) {
-        return res.status(404).json({ message: 'Community not found' });
-      }
-
-      // Return existing Google review snippets from database
-      const reviews = community.googleReviewSnippets || [];
-      
-      res.json({
-        success: true,
-        reviews: reviews,
-        totalCount: reviews.length,
-        googleRating: community.googleRating,
-        googleReviewCount: community.googleReviewCount
-      });
-      
-    } catch (error) {
-      console.error('Error fetching reviews:', error);
-      res.status(500).json({ 
-        success: false,
-        message: 'Failed to fetch reviews',
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
-
   return httpServer;
 }
