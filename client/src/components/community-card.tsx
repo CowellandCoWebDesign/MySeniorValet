@@ -1,7 +1,8 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, Shield, AlertTriangle, DollarSign, MapPin, Heart, Share, Users, Calendar, CheckCircle, ExternalLink, Clock, Home, Wifi, Car, Utensils, Activity, Phone, Camera, Video, UserCheck, Stethoscope, Bed, ShowerHead } from "lucide-react";
+import { Star, Shield, AlertTriangle, DollarSign, MapPin, Heart, Share, Users, Calendar, CheckCircle, ExternalLink, Clock, Home, Wifi, Car, Utensils, Activity, Phone, Camera, Video, UserCheck, Stethoscope, Bed, ShowerHead, ChevronDown, ChevronUp } from "lucide-react";
 import { Link } from "wouter";
 import type { Community } from "@shared/schema";
 
@@ -10,6 +11,18 @@ interface CommunityCardProps {
 }
 
 export function CommunityCard({ community }: CommunityCardProps) {
+  const [expandedSections, setExpandedSections] = useState({
+    amenities: false,
+    services: false,
+    careTypes: false,
+  });
+
+  const toggleSection = (section: 'amenities' | 'services' | 'careTypes') => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
   const getAvailabilityConfig = (status: string) => {
     switch (status) {
       case "Available Now": 
@@ -243,23 +256,34 @@ export function CommunityCard({ community }: CommunityCardProps) {
           <div className="space-y-4">
             {/* TOP AMENITIES */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div className="flex items-center space-x-2 mb-3">
-                <Activity className="h-5 w-5 text-blue-600" />
-                <span className="font-semibold text-blue-900">Top Amenities</span>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-2">
+                  <Activity className="h-5 w-5 text-blue-600" />
+                  <span className="font-semibold text-blue-900">Top Amenities</span>
+                </div>
+                {community.amenities && community.amenities.length > 4 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleSection('amenities')}
+                    className="text-xs text-blue-600 hover:text-blue-800 p-1 h-auto"
+                  >
+                    {expandedSections.amenities ? (
+                      <>Show less <ChevronUp className="h-3 w-3 ml-1" /></>
+                    ) : (
+                      <>+{community.amenities.length - 4} more <ChevronDown className="h-3 w-3 ml-1" /></>
+                    )}
+                  </Button>
+                )}
               </div>
               <div className="grid grid-cols-2 gap-2">
-                {topAmenities.map((amenity, index) => (
+                {(expandedSections.amenities ? topAmenities : topAmenities.slice(0, 4)).map((amenity, index) => (
                   <div key={index} className="flex items-center space-x-2 text-sm text-blue-800">
                     <span className="text-blue-600">{amenity.icon}</span>
                     <span>{amenity.name}</span>
                   </div>
                 ))}
               </div>
-              {community.amenities && community.amenities.length > 4 && (
-                <div className="text-xs text-blue-600 mt-2">
-                  +{community.amenities.length - 4} more amenities
-                </div>
-              )}
             </div>
 
             {/* CARE LEVELS & SERVICES */}
