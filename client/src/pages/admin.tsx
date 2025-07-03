@@ -668,19 +668,24 @@ function CommunityManagement() {
                 Manage community data, refresh information, and enrich listings
               </CardDescription>
             </div>
-            <div className="flex gap-2">
-              <Button 
-                onClick={() => bulkRefreshMutation.mutate()}
-                disabled={bulkRefreshMutation.isPending}
-                variant="outline"
-              >
-                {bulkRefreshMutation.isPending ? (
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                )}
-                Refresh All
-              </Button>
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2 items-center">
+                <Button 
+                  onClick={() => bulkRefreshMutation.mutate()}
+                  disabled={bulkRefreshMutation.isPending}
+                  variant="outline"
+                >
+                  {bulkRefreshMutation.isPending ? (
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                  )}
+                  Refresh All
+                </Button>
+              </div>
+              <div className="text-xs text-amber-600 dark:text-amber-400 max-w-xs">
+                ⚠️ Bulk refresh uses Google Places API calls. Limited to first 10 communities to prevent quota overuse.
+              </div>
             </div>
           </div>
         </CardHeader>
@@ -692,8 +697,19 @@ function CommunityManagement() {
               ))}
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
+            <div className="space-y-4">
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
+                  Employee Guide - Community Action Buttons:
+                </div>
+                <div className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+                  <div>• <strong>Refresh</strong>: Updates existing data from Google Places (costs API credits)</div>
+                  <div>• <strong>Enrich</strong>: Adds Google Places data if missing (costs API credits)</div>
+                  <div>• <strong>View</strong>: Shows complete community details (no API cost)</div>
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Community</TableHead>
@@ -798,6 +814,7 @@ function CommunityManagement() {
                   ))}
                 </TableBody>
               </Table>
+              </div>
             </div>
           )}
         </CardContent>
