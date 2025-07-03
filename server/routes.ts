@@ -3213,6 +3213,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get detailed support analytics
+  app.get('/api/admin/support/analytics', async (req, res) => {
+    try {
+      // In a real implementation, this would query the database for actual analytics data
+      const analytics = {
+        responseTimes: {
+          last24Hours: 2.1,
+          last7Days: 2.3,
+          last30Days: 2.8
+        },
+        channelPerformance: {
+          email: { avgResponseTime: 3.2, unit: 'hours' },
+          phone: { avgResponseTime: 0.3, unit: 'hours' },
+          liveChat: { avgResponseTime: 0.1, unit: 'hours' }
+        },
+        resolutionMetrics: {
+          firstContactResolution: 67,
+          sameDayResolution: 89,
+          escalationRate: 8
+        },
+        customerSatisfaction: {
+          verysatisfied: 68,
+          satisfied: 22,
+          neutral: 7,
+          dissatisfied: 3
+        },
+        lastUpdated: new Date().toISOString()
+      };
+
+      res.json(analytics);
+    } catch (error) {
+      console.error('Error fetching support analytics:', error);
+      res.status(500).json({ error: 'Failed to fetch analytics' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
