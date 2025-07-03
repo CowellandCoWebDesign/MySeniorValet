@@ -372,6 +372,41 @@ export const tours = pgTable("tours", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// User favorites for communities
+export const userFavorites = pgTable("user_favorites", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  notes: text("notes"), // Personal notes about the community
+  priority: integer("priority").default(0), // 1 = High, 2 = Medium, 3 = Low
+  tags: text("tags").array().default([]), // Custom tags like 'tour-scheduled', 'contacted'
+  addedAt: timestamp("added_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("user_favorites_user_idx").on(table.userId),
+  index("user_favorites_community_idx").on(table.communityId),
+]);
+
+// User saved searches
+export const userSavedSearches = pgTable("user_saved_searches", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  searchName: text("search_name").notNull(),
+  searchParams: json("search_params").$type<{
+    location?: string;
+    careType?: string;
+    budget?: { min: number; max: number };
+    amenities?: string[];
+    radius?: number;
+  }>().notNull(),
+  alertsEnabled: boolean("alerts_enabled").default(false),
+  lastRunAt: timestamp("last_run_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("user_saved_searches_user_idx").on(table.userId),
+]);
+
 // User Sessions for tracking login state
 export const userSessions = pgTable("user_sessions", {
   id: text("id").primaryKey(),
@@ -559,12 +594,14 @@ export const inspectionsRelations = relations(inspections, ({ one }) => ({
 export const usersRelations = relations(users, ({ many }) => ({
   reviews: many(reviews),
   reviewHelpfulness: many(reviewHelpfulness),
-  favorites: many(favorites),
+  oldFavorites: many(favorites),
   searchHistory: many(searchHistory),
   sentMessages: many(messages, { relationName: "sentMessages" }),
   receivedMessages: many(messages, { relationName: "receivedMessages" }),
   tours: many(tours),
   sessions: many(userSessions),
+  userFavorites: many(userFavorites),
+  savedSearches: many(userSavedSearches),
 }));
 
 export const reviewsRelations = relations(reviews, ({ one, many }) => ({
@@ -647,6 +684,24 @@ export const toursRelations = relations(tours, ({ one }) => ({
 export const userSessionsRelations = relations(userSessions, ({ one }) => ({
   user: one(users, {
     fields: [userSessions.userId],
+    references: [users.id],
+  }),
+}));
+
+export const userFavoritesRelations = relations(userFavorites, ({ one }) => ({
+  user: one(users, {
+    fields: [userFavorites.userId],
+    references: [users.id],
+  }),
+  community: one(communities, {
+    fields: [userFavorites.communityId],
+    references: [communities.id],
+  }),
+}));
+
+export const userSavedSearchesRelations = relations(userSavedSearches, ({ one }) => ({
+  user: one(users, {
+    fields: [userSavedSearches.userId],
     references: [users.id],
   }),
 }));
@@ -799,6 +854,19 @@ export const insertTourSchema = createInsertSchema(tours).omit({
   feedbackSubmitted: true,
 });
 
+export const insertUserFavoriteSchema = createInsertSchema(userFavorites).omit({
+  id: true,
+  addedAt: true,
+  updatedAt: true,
+});
+
+export const insertUserSavedSearchSchema = createInsertSchema(userSavedSearches).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  lastRunAt: true,
+});
+
 export const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(1, "Password is required"),
@@ -853,6 +921,10 @@ export type InsertMessageTemplate = z.infer<typeof insertMessageTemplateSchema>;
 export type MessageTemplate = typeof messageTemplates.$inferSelect;
 export type InsertTour = z.infer<typeof insertTourSchema>;
 export type Tour = typeof tours.$inferSelect;
+export type InsertUserFavorite = z.infer<typeof insertUserFavoriteSchema>;
+export type UserFavorite = typeof userFavorites.$inferSelect;
+export type InsertUserSavedSearch = z.infer<typeof insertUserSavedSearchSchema>;
+export type UserSavedSearch = typeof userSavedSearches.$inferSelect;
 export type UserSession = typeof userSessions.$inferSelect;
 export type LoginForm = z.infer<typeof loginSchema>;
 export type SignupForm = z.infer<typeof signupSchema>;

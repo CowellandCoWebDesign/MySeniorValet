@@ -16,6 +16,7 @@ import Disclaimer from "@/pages/disclaimer";
 import Accessibility from "@/pages/accessibility";
 import Login from "@/pages/login";
 import Signup from "@/pages/signup";
+import Dashboard from "@/pages/dashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -26,6 +27,7 @@ function Router() {
       <Route path="/community/:id" component={CommunityPage} />
       <Route path="/claim" component={Claim} />
       <Route path="/admin" component={Admin} />
+      <Route path="/dashboard" component={Dashboard} />
       <Route path="/login" component={Login} />
       <Route path="/signup" component={Signup} />
       <Route path="/privacy" component={Privacy} />
