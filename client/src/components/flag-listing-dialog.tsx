@@ -75,7 +75,7 @@ export function FlagListingDialog({ communityId, communityName, userId }: FlagLi
 
   const flagMutation = useMutation({
     mutationFn: async (data: FlagFormData) => {
-      return await apiRequest(`/api/communities/${communityId}/flag`, "POST", {
+      return await apiRequest("POST", `/api/communities/${communityId}/flag`, {
         ...data,
         userId,
         reporterEmail: data.reporterEmail || null,
