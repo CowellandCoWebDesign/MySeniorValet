@@ -113,7 +113,7 @@ export function FlagListingDialog({ communityId, communityName, userId }: FlagLi
           Report Issue
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[525px]">
+      <DialogContent className="sm:max-w-[525px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-amber-500" />
@@ -159,7 +159,7 @@ export function FlagListingDialog({ communityId, communityName, userId }: FlagLi
                   <FormControl>
                     <Textarea
                       placeholder="Please describe the issue in detail..."
-                      className="min-h-[100px]"
+                      className="min-h-[80px]"
                       {...field}
                     />
                   </FormControl>
@@ -177,7 +177,7 @@ export function FlagListingDialog({ communityId, communityName, userId }: FlagLi
                   <FormControl>
                     <Textarea
                       placeholder="Any additional context or supporting information..."
-                      className="min-h-[80px]"
+                      className="min-h-[60px]"
                       {...field}
                     />
                   </FormControl>
