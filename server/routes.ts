@@ -1563,20 +1563,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test Google Places photo enrichment for specific community
+  app.post('/api/test/google-photos/:id', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const community = await storage.getCommunity(communityId);
+      
+      if (!community) {
+        return res.status(404).json({ error: 'Community not found' });
+      }
+
+      const { googlePlacesIntegration } = await import("./google-places-integration");
+      const enrichmentResult = await googlePlacesIntegration.enrichCommunityWithGooglePlaces(community);
+      
+      if (!enrichmentResult || !enrichmentResult.success) {
+        return res.json({
+          success: false,
+          error: enrichmentResult?.error || 'Failed to enrich community',
+          community: community.name
+        });
+      }
+
+      // Update the community with photos
+      const existingPhotos = community.photos || [];
+      const newPhotos = [...existingPhotos, ...enrichmentResult.photos].slice(0, 15);
+      
+      const updatedCommunity = await storage.updateCommunity(communityId, {
+        googleRating: enrichmentResult.rating.toString(),
+        googleReviewCount: enrichmentResult.reviewCount,
+        photos: newPhotos
+      });
+
+      return res.json({
+        success: true,
+        community: community.name,
+        photosAdded: enrichmentResult.photos.length,
+        totalPhotos: newPhotos.length,
+        photos: enrichmentResult.photos,
+        rating: enrichmentResult.rating,
+        reviewCount: enrichmentResult.reviewCount,
+        costIncurred: enrichmentResult.costIncurred
+      });
+
+    } catch (error) {
+      console.error('Google Places test error:', error);
+      return res.status(500).json({ 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
+    }
+  });
+
   // Google Places enrichment endpoint
   app.post('/api/enrich/google-places', async (req, res) => {
     try {
-      const { city, state, limit = 3 } = req.body;
+      const { city, state, limit = 3, communityIds } = req.body;
       
-      const communities = await storage.searchCommunities({
-        location: `${city}, ${state}`,
-        limit: limit
-      });
+      let communities: any[] = [];
+      
+      if (communityIds) {
+        // Enrich specific communities by IDs
+        for (const id of communityIds) {
+          const community = await storage.getCommunity(id);
+          if (community) {
+            communities.push(community);
+          }
+        }
+      } else {
+        // Enrich by location
+        communities = await storage.searchCommunities({
+          location: `${city}, ${state}`,
+          limit: limit
+        });
+      }
       
       if (communities.length === 0) {
         return res.json({
           success: true,
-          message: `No communities found in ${city}, ${state}`,
+          message: communityIds ? `No communities found with provided IDs` : `No communities found in ${city}, ${state}`,
           processed: 0
         });
       }
@@ -1592,11 +1656,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const existingPhotos = community?.photos || [];
           
           await storage.updateCommunity(communityId, {
-            googlePlacesId: enrichment.placeId,
-            googleRating: enrichment.rating,
-            googleReviews: enrichment.reviews,
-            googlePhotos: enrichment.photos,
-            rating: Math.max(community?.rating || 0, enrichment.rating),
+            googleRating: enrichment.rating.toString(),
+            googleReviewCount: enrichment.reviewCount,
             photos: [...existingPhotos, ...enrichment.photos].slice(0, 15)
           });
           updatedCount++;
