@@ -38,7 +38,27 @@ import {
   Activity, 
   Shield, 
   Clock, 
-  Download 
+  Download,
+  Users,
+  Building2,
+  Flag,
+  FileText,
+  Search,
+  Filter,
+  Eye,
+  Calendar,
+  CheckCircle,
+  BarChart3,
+  TrendingUp,
+  MessageSquare,
+  Ban,
+  Trash2,
+  Edit3,
+  UserX,
+  Settings,
+  Phone,
+  Mail,
+  HelpCircle
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -112,11 +132,13 @@ export default function AdminDashboard() {
       </div>
 
       <Tabs defaultValue="audit" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="audit">Audit Logs</TabsTrigger>
           <TabsTrigger value="health">System Health</TabsTrigger>
           <TabsTrigger value="flags">Flags</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="moderation">Content Moderation</TabsTrigger>
+          <TabsTrigger value="support">Customer Support</TabsTrigger>
         </TabsList>
 
         <TabsContent value="audit" className="space-y-6">
@@ -342,6 +364,392 @@ export default function AdminDashboard() {
             <CardContent>
               <div className="text-center py-8 text-gray-500">
                 <p>User management interface coming soon.</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="moderation" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-2">
+                  <MessageSquare className="h-5 w-5 text-blue-500" />
+                  <div>
+                    <p className="text-2xl font-bold">47</p>
+                    <p className="text-sm text-gray-600">Reviews Pending Review</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-2">
+                  <Ban className="h-5 w-5 text-red-500" />
+                  <div>
+                    <p className="text-2xl font-bold">3</p>
+                    <p className="text-sm text-gray-600">Content Violations</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-2">
+                  <UserX className="h-5 w-5 text-orange-500" />
+                  <div>
+                    <p className="text-2xl font-bold">12</p>
+                    <p className="text-sm text-gray-600">Users Suspended</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5" />
+                  Content Review Queue
+                </CardTitle>
+                <CardDescription>
+                  Review flagged content and user-generated reviews
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex-1">
+                      <div className="font-medium">Review for Sundial Assisted Living</div>
+                      <div className="text-sm text-gray-600">"The staff here are terrible and..."</div>
+                      <div className="text-xs text-gray-500 mt-1">Flagged for inappropriate language</div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button size="sm" variant="outline">
+                        <Edit3 className="h-4 w-4" />
+                      </Button>
+                      <Button size="sm" variant="destructive">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex-1">
+                      <div className="font-medium">Comment on Oakmont of Redding</div>
+                      <div className="text-sm text-gray-600">"This place is overpriced and..."</div>
+                      <div className="text-xs text-gray-500 mt-1">Auto-flagged for negative sentiment</div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button size="sm" variant="outline">
+                        <CheckCircle className="h-4 w-4" />
+                      </Button>
+                      <Button size="sm" variant="destructive">
+                        <Ban className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4 pt-4 border-t">
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm">
+                      <Filter className="h-4 w-4 mr-2" />
+                      Filter by Type
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Calendar className="h-4 w-4 mr-2" />
+                      Date Range
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="h-5 w-5" />
+                  Moderation Settings
+                </CardTitle>
+                <CardDescription>
+                  Configure automated content filtering and policies
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-medium">Auto-flagging</div>
+                      <div className="text-sm text-gray-600">Automatically flag potentially problematic content</div>
+                    </div>
+                    <div className="bg-green-100 dark:bg-green-900 px-2 py-1 rounded text-sm text-green-700 dark:text-green-300">Enabled</div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-medium">Profanity Filter</div>
+                      <div className="text-sm text-gray-600">Block inappropriate language in reviews</div>
+                    </div>
+                    <div className="bg-green-100 dark:bg-green-900 px-2 py-1 rounded text-sm text-green-700 dark:text-green-300">Enabled</div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-medium">Spam Detection</div>
+                      <div className="text-sm text-gray-600">Detect and block spam reviews</div>
+                    </div>
+                    <div className="bg-green-100 dark:bg-green-900 px-2 py-1 rounded text-sm text-green-700 dark:text-green-300">Enabled</div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-medium">Review Verification</div>
+                      <div className="text-sm text-gray-600">Require email verification for reviews</div>
+                    </div>
+                    <div className="bg-yellow-100 dark:bg-yellow-900 px-2 py-1 rounded text-sm text-yellow-700 dark:text-yellow-300">Partial</div>
+                  </div>
+                </div>
+                <div className="mt-4 pt-4 border-t">
+                  <Button variant="outline" size="sm" className="w-full">
+                    <Settings className="h-4 w-4 mr-2" />
+                    Configure Settings
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="support" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-2">
+                  <HelpCircle className="h-5 w-5 text-blue-500" />
+                  <div>
+                    <p className="text-2xl font-bold">23</p>
+                    <p className="text-sm text-gray-600">Open Tickets</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-2">
+                  <Clock className="h-5 w-5 text-orange-500" />
+                  <div>
+                    <p className="text-2xl font-bold">2.3h</p>
+                    <p className="text-sm text-gray-600">Avg Response Time</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="h-5 w-5 text-green-500" />
+                  <div>
+                    <p className="text-2xl font-bold">94%</p>
+                    <p className="text-sm text-gray-600">Resolution Rate</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-2">
+                  <TrendingUp className="h-5 w-5 text-purple-500" />
+                  <div>
+                    <p className="text-2xl font-bold">4.8</p>
+                    <p className="text-sm text-gray-600">Customer Satisfaction</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Mail className="h-5 w-5" />
+                  Support Tickets
+                </CardTitle>
+                <CardDescription>
+                  Manage customer support requests and inquiries
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex-1">
+                      <div className="font-medium">Login Issues - User #1247</div>
+                      <div className="text-sm text-gray-600">Unable to access account after password reset</div>
+                      <div className="flex gap-2 mt-2">
+                        <Badge variant="destructive">High Priority</Badge>
+                        <Badge variant="outline">Account</Badge>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline">
+                        <Phone className="h-4 w-4" />
+                      </Button>
+                      <Button size="sm" variant="outline">
+                        <Mail className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex-1">
+                      <div className="font-medium">Pricing Question - Community Owner</div>
+                      <div className="text-sm text-gray-600">Inquiry about listing pricing transparency</div>
+                      <div className="flex gap-2 mt-2">
+                        <Badge variant="default">Medium Priority</Badge>
+                        <Badge variant="outline">Billing</Badge>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button size="sm" variant="outline">
+                        <Mail className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex-1">
+                      <div className="font-medium">Feature Request - User #987</div>
+                      <div className="text-sm text-gray-600">Request for advanced search filters</div>
+                      <div className="flex gap-2 mt-2">
+                        <Badge variant="secondary">Low Priority</Badge>
+                        <Badge variant="outline">Feature</Badge>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button size="sm" variant="outline">
+                        <CheckCircle className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4 pt-4 border-t">
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm">
+                      <Filter className="h-4 w-4 mr-2" />
+                      Filter by Priority
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Search className="h-4 w-4 mr-2" />
+                      Search Tickets
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5" />
+                  Support Analytics
+                </CardTitle>
+                <CardDescription>
+                  Track support performance and customer satisfaction
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                    <div className="text-sm font-medium text-blue-700 dark:text-blue-300">Today's Activity</div>
+                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">7 tickets resolved</div>
+                    <div className="text-sm text-blue-600 dark:text-blue-400">3 new tickets opened</div>
+                  </div>
+                  <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                    <div className="text-sm font-medium text-green-700 dark:text-green-300">This Week</div>
+                    <div className="text-2xl font-bold text-green-600 dark:text-green-400">89% resolution rate</div>
+                    <div className="text-sm text-green-600 dark:text-green-400">15% improvement from last week</div>
+                  </div>
+                  <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+                    <div className="text-sm font-medium text-purple-700 dark:text-purple-300">Common Issues</div>
+                    <div className="text-sm text-purple-600 dark:text-purple-400 space-y-1">
+                      <div>1. Account login problems (35%)</div>
+                      <div>2. Pricing transparency (28%)</div>
+                      <div>3. Community information (22%)</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4 pt-4 border-t">
+                  <Button variant="outline" size="sm" className="w-full">
+                    <BarChart3 className="h-4 w-4 mr-2" />
+                    View Full Analytics
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                Support Configuration
+              </CardTitle>
+              <CardDescription>
+                Configure support channels and automated responses
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h4 className="font-medium">Support Channels</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Mail className="h-4 w-4" />
+                        <span className="text-sm">Email Support</span>
+                      </div>
+                      <div className="bg-green-100 dark:bg-green-900 px-2 py-1 rounded text-xs text-green-700 dark:text-green-300">Active</div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-4 w-4" />
+                        <span className="text-sm">Phone Support</span>
+                      </div>
+                      <div className="bg-green-100 dark:bg-green-900 px-2 py-1 rounded text-xs text-green-700 dark:text-green-300">Active</div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <MessageSquare className="h-4 w-4" />
+                        <span className="text-sm">Live Chat</span>
+                      </div>
+                      <div className="bg-yellow-100 dark:bg-yellow-900 px-2 py-1 rounded text-xs text-yellow-700 dark:text-yellow-300">Limited Hours</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <h4 className="font-medium">Auto-Response Settings</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Immediate acknowledgment</span>
+                      <div className="bg-green-100 dark:bg-green-900 px-2 py-1 rounded text-xs text-green-700 dark:text-green-300">Enabled</div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Priority escalation</span>
+                      <div className="bg-green-100 dark:bg-green-900 px-2 py-1 rounded text-xs text-green-700 dark:text-green-300">Enabled</div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">After-hours responses</span>
+                      <div className="bg-red-100 dark:bg-red-900 px-2 py-1 rounded text-xs text-red-700 dark:text-red-300">Disabled</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>

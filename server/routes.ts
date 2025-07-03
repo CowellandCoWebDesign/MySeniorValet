@@ -2815,6 +2815,182 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Content Moderation API endpoints
+  app.get('/api/admin/content-moderation/stats', async (req, res) => {
+    try {
+      // Mock content moderation statistics
+      res.json({
+        reviewsPending: 47,
+        contentViolations: 3,
+        usersSuspended: 12,
+        autoFlaggingEnabled: true,
+        profanityFilterEnabled: true,
+        spamDetectionEnabled: true,
+        reviewVerificationStatus: 'partial'
+      });
+    } catch (error) {
+      console.error('Error fetching moderation stats:', error);
+      res.status(500).json({ message: 'Failed to fetch moderation statistics' });
+    }
+  });
+
+  app.get('/api/admin/content-moderation/queue', async (req, res) => {
+    try {
+      // Mock content review queue
+      res.json({
+        items: [
+          {
+            id: 1,
+            type: 'review',
+            communityName: 'Sundial Assisted Living',
+            content: 'The staff here are terrible and...',
+            flagReason: 'Inappropriate language',
+            status: 'pending',
+            reportedAt: new Date().toISOString(),
+            reportedBy: 'system'
+          },
+          {
+            id: 2,
+            type: 'comment',
+            communityName: 'Oakmont of Redding',
+            content: 'This place is overpriced and...',
+            flagReason: 'Auto-flagged for negative sentiment',
+            status: 'pending',
+            reportedAt: new Date().toISOString(),
+            reportedBy: 'auto-moderator'
+          }
+        ]
+      });
+    } catch (error) {
+      console.error('Error fetching moderation queue:', error);
+      res.status(500).json({ message: 'Failed to fetch moderation queue' });
+    }
+  });
+
+  app.post('/api/admin/content-moderation/action', async (req, res) => {
+    try {
+      const { itemId, action, reason } = req.body;
+      
+      // Mock content moderation action
+      console.log(`Moderation action: ${action} on item ${itemId}, reason: ${reason}`);
+      
+      res.json({
+        success: true,
+        message: `Content moderation action "${action}" applied successfully`
+      });
+    } catch (error) {
+      console.error('Error applying moderation action:', error);
+      res.status(500).json({ message: 'Failed to apply moderation action' });
+    }
+  });
+
+  // Customer Support API endpoints  
+  app.get('/api/admin/support/stats', async (req, res) => {
+    try {
+      // Mock support statistics
+      res.json({
+        openTickets: 23,
+        avgResponseTime: '2.3h',
+        resolutionRate: '94%',
+        customerSatisfaction: 4.8,
+        todayResolved: 7,
+        todayOpened: 3,
+        weeklyResolutionRate: 89,
+        weeklyImprovement: 15
+      });
+    } catch (error) {
+      console.error('Error fetching support stats:', error);
+      res.status(500).json({ message: 'Failed to fetch support statistics' });
+    }
+  });
+
+  app.get('/api/admin/support/tickets', async (req, res) => {
+    try {
+      // Mock support tickets
+      res.json({
+        tickets: [
+          {
+            id: 1247,
+            title: 'Login Issues - User #1247',
+            description: 'Unable to access account after password reset',
+            priority: 'high',
+            category: 'account',
+            status: 'open',
+            createdAt: new Date().toISOString(),
+            assignedTo: 'support-team'
+          },
+          {
+            id: 1248,
+            title: 'Pricing Question - Community Owner',
+            description: 'Inquiry about listing pricing transparency',
+            priority: 'medium',
+            category: 'billing',
+            status: 'in-progress',
+            createdAt: new Date(Date.now() - 86400000).toISOString(),
+            assignedTo: 'billing-team'
+          },
+          {
+            id: 987,
+            title: 'Feature Request - User #987',
+            description: 'Request for advanced search filters',
+            priority: 'low',
+            category: 'feature',
+            status: 'open',
+            createdAt: new Date(Date.now() - 172800000).toISOString(),
+            assignedTo: 'product-team'
+          }
+        ]
+      });
+    } catch (error) {
+      console.error('Error fetching support tickets:', error);
+      res.status(500).json({ message: 'Failed to fetch support tickets' });
+    }
+  });
+
+  app.post('/api/admin/support/ticket', async (req, res) => {
+    try {
+      const { action, ticketId, assignee, priority, status } = req.body;
+      
+      // Mock support ticket action
+      console.log(`Support action: ${action} on ticket ${ticketId}`);
+      
+      res.json({
+        success: true,
+        message: `Support ticket action "${action}" applied successfully`
+      });
+    } catch (error) {
+      console.error('Error applying support action:', error);
+      res.status(500).json({ message: 'Failed to apply support action' });
+    }
+  });
+
+  app.get('/api/admin/support/analytics', async (req, res) => {
+    try {
+      // Mock support analytics
+      res.json({
+        commonIssues: [
+          { category: 'Account login problems', percentage: 35 },
+          { category: 'Pricing transparency', percentage: 28 },
+          { category: 'Community information', percentage: 22 },
+          { category: 'Technical issues', percentage: 15 }
+        ],
+        channels: {
+          email: { status: 'active', availability: '24/7' },
+          phone: { status: 'active', availability: 'Business hours' },
+          chat: { status: 'limited', availability: 'Limited hours' }
+        },
+        autoResponse: {
+          acknowledgment: true,
+          escalation: true,
+          afterHours: false
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching support analytics:', error);
+      res.status(500).json({ message: 'Failed to fetch support analytics' });
+    }
+  });
+
   // Audit Log endpoints for compliance and security tracking
   app.get("/api/admin/audit-logs", async (req, res) => {
     try {
