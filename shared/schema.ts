@@ -81,6 +81,42 @@ export const communities = pgTable("communities", {
       utilities?: number;
     };
     moveinSpecials?: string[];
+    moveInCosts?: {
+      securityDeposit?: number;
+      communityFee?: number;
+      applicationFee?: number;
+      petFee?: number;
+      parkingFee?: number;
+      administrativeFee?: number;
+      totalEstimatedMoveIn?: number;
+    };
+    monthlyFees?: {
+      baseRent: number;
+      careLevel?: number;
+      meals?: number;
+      housekeeping?: number;
+      laundry?: number;
+      utilities?: number;
+      activities?: number;
+      transportation?: number;
+      personalCare?: number;
+      medication?: number;
+    };
+    feeWaivers?: Array<{
+      feeType: string;
+      discountType: 'percentage' | 'fixed' | 'waived';
+      discountValue?: number;
+      description: string;
+      conditions?: string;
+    }>;
+    specialPromotions?: Array<{
+      title: string;
+      description: string;
+      monthsWaived?: number;
+      percentageOff?: number;
+      conditions?: string;
+      validUntil?: string;
+    }>;
   }>().default({}),
   availabilityStatus: text("availability_status", { enum: ["Available Now", "Waitlist", "Full", "Contact for Availability"] }).default("Contact for Availability"),
   availableUnits: integer("available_units"),
