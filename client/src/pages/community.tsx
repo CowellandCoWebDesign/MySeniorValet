@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRoute } from "wouter";
 import { Header } from "@/components/header";
@@ -17,6 +17,13 @@ export default function CommunityPage() {
   const { data: community, isLoading } = useQuery<Community>({
     queryKey: [`/api/communities/${params?.id}`],
   });
+
+  // Scroll to top when community data loads
+  useEffect(() => {
+    if (community) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [community]);
 
   // Get all photos from various sources
   const getAllPhotos = (community: Community) => {
