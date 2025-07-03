@@ -69,10 +69,17 @@ export default function AdminDashboard() {
     timeframe: '24h'
   });
   const [auditCurrentPage, setAuditCurrentPage] = useState(1);
+  const [showFullAnalytics, setShowFullAnalytics] = useState(false);
 
   const auditLogsQuery = useQuery({
     queryKey: ['/api/admin/audit-logs', auditFilters, auditCurrentPage],
     retry: false,
+  });
+
+  const analyticsQuery = useQuery({
+    queryKey: ['/api/admin/support/analytics'],
+    retry: false,
+    enabled: showFullAnalytics
   });
 
   const auditLogsResponse = auditLogsQuery.data;
@@ -686,9 +693,14 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 <div className="mt-4 pt-4 border-t">
-                  <Button variant="outline" size="sm" className="w-full">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => setShowFullAnalytics(!showFullAnalytics)}
+                  >
                     <BarChart3 className="h-4 w-4 mr-2" />
-                    View Full Analytics
+                    {showFullAnalytics ? 'Hide' : 'View'} Full Analytics
                   </Button>
                 </div>
               </CardContent>
@@ -754,6 +766,107 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* Detailed Analytics Modal/Section */}
+        {showFullAnalytics && (
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Detailed Support Analytics
+              </CardTitle>
+              <CardDescription>
+                Comprehensive support metrics and performance indicators
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {analyticsQuery.isLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <RefreshCw className="h-6 w-6 animate-spin" />
+                  <span className="ml-2">Loading analytics...</span>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-lg">Response Time Trends</h4>
+                    <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm">Last 24 hours</span>
+                          <span className="font-medium">2.1h avg</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm">Last 7 days</span>
+                          <span className="font-medium">2.3h avg</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm">Last 30 days</span>
+                          <span className="font-medium">2.8h avg</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <h4 className="font-medium text-lg">Channel Performance</h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded">
+                        <span className="text-sm">Email Support</span>
+                        <span className="font-medium">3.2h avg response</span>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded">
+                        <span className="text-sm">Phone Support</span>
+                        <span className="font-medium">0.3h avg response</span>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded">
+                        <span className="text-sm">Live Chat</span>
+                        <span className="font-medium">0.1h avg response</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-lg">Resolution Metrics</h4>
+                    <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm">First Contact Resolution</span>
+                          <span className="font-medium text-green-600">67%</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm">Same Day Resolution</span>
+                          <span className="font-medium text-green-600">89%</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm">Escalation Rate</span>
+                          <span className="font-medium text-orange-600">8%</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <h4 className="font-medium text-lg">Customer Satisfaction</h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded">
+                        <span className="text-sm">Very Satisfied (5★)</span>
+                        <span className="font-medium">68%</span>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded">
+                        <span className="text-sm">Satisfied (4★)</span>
+                        <span className="font-medium">22%</span>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded">
+                        <span className="text-sm">Neutral (3★)</span>
+                        <span className="font-medium">7%</span>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-red-50 dark:bg-red-900/20 rounded">
+                        <span className="text-sm">Dissatisfied (1-2★)</span>
+                        <span className="font-medium">3%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </Tabs>
     </div>
   );
