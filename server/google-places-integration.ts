@@ -117,11 +117,13 @@ export class GooglePlacesIntegration {
         };
       }
 
-      // Get photos (only if we need them)
+      // Get photos (only if we need them and avoid duplicates)
       const photos: string[] = [];
-      if (existingPhotos.length < 2 && detailsResult.photos) {
+      if (existingPhotos.length < 5 && detailsResult.photos) {
         const photoUrls = await this.getPlacePhotos(detailsResult.photos.slice(0, 3));
-        photos.push(...photoUrls);
+        // Filter out any photos that might already exist
+        const newUniquePhotos = photoUrls.filter(url => !existingPhotos.includes(url));
+        photos.push(...newUniquePhotos);
       }
 
       // Process reviews

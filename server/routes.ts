@@ -1585,9 +1585,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Update the community with photos
+      // Update the community with photos (ensure no duplicates)
       const existingPhotos = community.photos || [];
-      const newPhotos = [...existingPhotos, ...enrichmentResult.photos].slice(0, 15);
+      const newUniquePhotos = enrichmentResult.photos.filter(photo => 
+        !existingPhotos.some(existing => existing.includes(photo.split('photo_reference=')[1]?.split('&')[0] || ''))
+      );
+      const newPhotos = [...existingPhotos, ...newUniquePhotos].slice(0, 15);
       
       const updatedCommunity = await storage.updateCommunity(communityId, {
         googleRating: enrichmentResult.rating.toString(),
@@ -1656,10 +1659,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const community = communities.find(c => c.id === communityId);
           const existingPhotos = community?.photos || [];
           
+          // Filter out duplicate photos by checking photo reference IDs
+          const newUniquePhotos = enrichment.photos.filter(photo => 
+            !existingPhotos.some(existing => existing.includes(photo.split('photo_reference=')[1]?.split('&')[0] || ''))
+          );
+          
           await storage.updateCommunity(communityId, {
             googleRating: enrichment.rating.toString(),
             googleReviewCount: enrichment.reviewCount,
-            photos: [...existingPhotos, ...enrichment.photos].slice(0, 15)
+            photos: [...existingPhotos, ...newUniquePhotos].slice(0, 15)
           });
           updatedCount++;
         }
