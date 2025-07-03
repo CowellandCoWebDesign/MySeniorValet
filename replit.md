@@ -1,5 +1,7 @@
 # TrueView - Senior Living Community Transparency Platform
 
+© 2025 Scott Cowell. All rights reserved.
+
 ## Overview
 
 TrueView is a full-stack senior living community search platform that prioritizes pricing transparency, real-time availability, and trusted reviews. The platform helps families make informed decisions by providing comprehensive community information including amenities, services, medical restrictions, and verified review sources. Key features include interactive map visualization, detailed community profiles with availability tracking, and a claim system for community owners.
