@@ -56,7 +56,16 @@ import {
   Camera,
   Clock,
   MessageSquare,
-  Activity
+  Activity,
+  UserCheck,
+  UserX,
+  Shield,
+  Mail,
+  Calendar,
+  Search,
+  Filter,
+  Download,
+  Upload
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -208,8 +217,9 @@ export default function AdminDashboard() {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="communities">Communities</TabsTrigger>
             <TabsTrigger value="flags">
               Flags
@@ -318,6 +328,10 @@ export default function AdminDashboard() {
 
           <TabsContent value="communities" className="space-y-6">
             <CommunityManagement />
+          </TabsContent>
+
+          <TabsContent value="users" className="space-y-6">
+            <UserManagement />
           </TabsContent>
 
           <TabsContent value="flags" className="space-y-6">
@@ -924,6 +938,409 @@ function CommunityManagement() {
           </DialogContent>
         </Dialog>
       )}
+    </div>
+  );
+}
+
+function UserManagement() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+
+  // Mock user data for demonstration (in real app, this would come from API)
+  const mockUsers = [
+    {
+      id: 1,
+      email: "john.doe@example.com",
+      firstName: "John",
+      lastName: "Doe",
+      phone: "(555) 123-4567",
+      relationshipToCare: "Seeking for Parent",
+      isActive: true,
+      createdAt: "2025-01-15T10:30:00Z",
+      lastLogin: "2025-01-20T15:45:00Z",
+      favoritesCount: 5,
+      searchHistory: 12,
+      flagsReported: 0,
+      accountStatus: "Active"
+    },
+    {
+      id: 2,
+      email: "mary.smith@example.com",
+      firstName: "Mary",
+      lastName: "Smith",
+      phone: "(555) 987-6543",
+      relationshipToCare: "Seeking for Self",
+      isActive: true,
+      createdAt: "2025-01-10T09:15:00Z",
+      lastLogin: "2025-01-19T11:20:00Z",
+      favoritesCount: 3,
+      searchHistory: 8,
+      flagsReported: 1,
+      accountStatus: "Active"
+    },
+    {
+      id: 3,
+      email: "bob.johnson@example.com",
+      firstName: "Bob",
+      lastName: "Johnson",
+      phone: "(555) 456-7890",
+      relationshipToCare: "Seeking for Spouse",
+      isActive: false,
+      createdAt: "2025-01-05T14:22:00Z",
+      lastLogin: "2025-01-12T16:30:00Z",
+      favoritesCount: 1,
+      searchHistory: 3,
+      flagsReported: 0,
+      accountStatus: "Suspended"
+    }
+  ];
+
+  const filteredUsers = mockUsers.filter(user => {
+    const matchesSearch = !searchTerm || 
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      `${user.firstName} ${user.lastName}`.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === "all" || 
+      (statusFilter === "active" && user.isActive) ||
+      (statusFilter === "inactive" && !user.isActive);
+    
+    return matchesSearch && matchesStatus;
+  });
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Active":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+      case "Suspended":
+        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+      case "Pending":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                User Management
+              </CardTitle>
+              <CardDescription>
+                Manage user accounts, permissions, and activity
+              </CardDescription>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                Export Users
+              </Button>
+              <Button variant="outline" size="sm">
+                <Upload className="h-4 w-4 mr-2" />
+                Import Users
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {/* Search and Filter Controls */}
+          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search users by name or email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[150px]">
+                  <Filter className="h-4 w-4 mr-2" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Users</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Users Table */}
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>User</TableHead>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>Relationship</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Activity</TableHead>
+                  <TableHead>Joined</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredUsers.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                          {user.firstName[0]}{user.lastName[0]}
+                        </div>
+                        <div>
+                          <div className="font-medium">{user.firstName} {user.lastName}</div>
+                          <div className="text-sm text-gray-500">{user.email}</div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        <div className="flex items-center gap-1">
+                          <Mail className="h-3 w-3" />
+                          {user.email}
+                        </div>
+                        <div className="flex items-center gap-1 mt-1">
+                          <Phone className="h-3 w-3" />
+                          {user.phone}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{user.relationshipToCare}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={getStatusColor(user.accountStatus)}>
+                        {user.accountStatus}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        <div>{user.favoritesCount} favorites</div>
+                        <div className="text-gray-500">{user.searchHistory} searches</div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        <div>{formatDate(user.createdAt)}</div>
+                        <div className="text-gray-500">Last: {formatDate(user.lastLogin)}</div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => setSelectedUser(user)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          className={user.isActive ? "text-orange-600" : "text-green-600"}
+                        >
+                          {user.isActive ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
+                        </Button>
+                        <Button variant="ghost" size="sm">
+                          <Shield className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* User Details Modal */}
+          {selectedUser && (
+            <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>User Details: {selectedUser.firstName} {selectedUser.lastName}</DialogTitle>
+                </DialogHeader>
+                
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="font-medium mb-2">Contact Information</h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex items-center gap-2">
+                          <Mail className="h-4 w-4" />
+                          <span>{selectedUser.email}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Phone className="h-4 w-4" />
+                          <span>{selectedUser.phone}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Users className="h-4 w-4" />
+                          <span>{selectedUser.relationshipToCare}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="font-medium mb-2">Account Status</h4>
+                      <div className="space-y-2">
+                        <Badge className={getStatusColor(selectedUser.accountStatus)}>
+                          {selectedUser.accountStatus}
+                        </Badge>
+                        <div className="text-sm text-gray-600">
+                          {selectedUser.isActive ? "Account is active" : "Account is suspended"}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="font-medium mb-2">Activity Summary</h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span>Favorites:</span>
+                          <span>{selectedUser.favoritesCount}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Searches:</span>
+                          <span>{selectedUser.searchHistory}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Flags Reported:</span>
+                          <span>{selectedUser.flagsReported}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="font-medium mb-2">Timestamps</h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span>Joined:</span>
+                          <span>{formatDate(selectedUser.createdAt)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Last Login:</span>
+                          <span>{formatDate(selectedUser.lastLogin)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 pt-4 border-t">
+                    <Button 
+                      variant={selectedUser.isActive ? "destructive" : "default"}
+                      size="sm"
+                    >
+                      {selectedUser.isActive ? (
+                        <>
+                          <UserX className="h-4 w-4 mr-2" />
+                          Suspend Account
+                        </>
+                      ) : (
+                        <>
+                          <UserCheck className="h-4 w-4 mr-2" />
+                          Activate Account
+                        </>
+                      )}
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Mail className="h-4 w-4 mr-2" />
+                      Send Message
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Activity className="h-4 w-4 mr-2" />
+                      View Activity Log
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
+
+          {/* Statistics Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2">
+                  <UserCheck className="h-5 w-5 text-green-600" />
+                  <div>
+                    <div className="text-2xl font-bold">
+                      {mockUsers.filter(u => u.isActive).length}
+                    </div>
+                    <div className="text-sm text-gray-600">Active Users</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2">
+                  <UserX className="h-5 w-5 text-red-600" />
+                  <div>
+                    <div className="text-2xl font-bold">
+                      {mockUsers.filter(u => !u.isActive).length}
+                    </div>
+                    <div className="text-sm text-gray-600">Suspended Users</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5 text-blue-600" />
+                  <div>
+                    <div className="text-2xl font-bold">
+                      {mockUsers.filter(u => {
+                        const joined = new Date(u.createdAt);
+                        const weekAgo = new Date();
+                        weekAgo.setDate(weekAgo.getDate() - 7);
+                        return joined > weekAgo;
+                      }).length}
+                    </div>
+                    <div className="text-sm text-gray-600">New This Week</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2">
+                  <Flag className="h-5 w-5 text-orange-600" />
+                  <div>
+                    <div className="text-2xl font-bold">
+                      {mockUsers.reduce((sum, u) => sum + u.flagsReported, 0)}
+                    </div>
+                    <div className="text-sm text-gray-600">Total Flags</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
