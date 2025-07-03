@@ -65,15 +65,10 @@ export class GooglePlacesIntegration {
   }
 
   async enrichCommunityWithGooglePlaces(community: Community): Promise<GooglePlacesEnrichmentResult | null> {
-    // Only use Google Places as fallback when other sources fail
+    // Continue enrichment to gather additional photos and information
     const existingPhotos = community.photos || [];
-    const hasYelpData = community.yelpId && community.yelpPhotos && community.yelpPhotos.length > 0;
     
-    // Skip if we already have sufficient data from other sources
-    if (existingPhotos.length >= 2 && hasYelpData) {
-      console.log(`Community ${community.name} already has sufficient data, skipping Google Places`);
-      return null;
-    }
+    // Note: Always attempt enrichment to potentially find new photos, reviews, or updated information
 
     // Rate limiting and cost control
     if (this.callCount >= this.dailyLimit) {
@@ -117,10 +112,11 @@ export class GooglePlacesIntegration {
         };
       }
 
-      // Get photos (only if we need them and avoid duplicates)
+      // Get all available photos (avoid duplicates)
       const photos: string[] = [];
-      if (existingPhotos.length < 5 && detailsResult.photos) {
-        const photoUrls = await this.getPlacePhotos(detailsResult.photos.slice(0, 3));
+      if (detailsResult.photos) {
+        // Get up to 6 photos instead of limiting to 3
+        const photoUrls = await this.getPlacePhotos(detailsResult.photos.slice(0, 6));
         // Filter out any photos that might already exist
         const newUniquePhotos = photoUrls.filter(url => !existingPhotos.includes(url));
         photos.push(...newUniquePhotos);
