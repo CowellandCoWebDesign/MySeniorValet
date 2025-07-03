@@ -25,7 +25,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/search" component={Search} />
       <Route path="/community/:id" component={CommunityPage} />
-      <Route path="/claim" component={Claim} />
+      <Route path="/claim/:communityId" component={Claim} />
       <Route path="/admin" component={Admin} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/login" component={Login} />
