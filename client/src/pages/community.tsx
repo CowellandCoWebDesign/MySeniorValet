@@ -15,7 +15,7 @@ export default function CommunityPage() {
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   
   const { data: community, isLoading } = useQuery<Community>({
-    queryKey: ["/api/communities", params?.id],
+    queryKey: [`/api/communities/${params?.id}`],
   });
 
   // Get all photos from various sources
