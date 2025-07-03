@@ -756,99 +756,36 @@ export default function CommunityPage() {
                   </div>
                 )}
 
-                {/* COMPREHENSIVE MOVE-IN COST BREAKDOWN */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                {/* PRICING INFORMATION - PENDING VERIFICATION */}
+                <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
                   <div className="flex items-center space-x-2 mb-4">
-                    <Home className="h-5 w-5 text-blue-600" />
-                    <span className="font-semibold text-blue-900">Move-In Cost Breakdown</span>
+                    <Home className="h-5 w-5 text-orange-600" />
+                    <span className="font-semibold text-orange-900">Pricing & Move-In Information</span>
                   </div>
                   
-                  {/* Move-In Fees */}
-                  <div className="space-y-3 mb-4">
-                    <div className="text-sm font-medium text-blue-900 mb-2">One-Time Move-In Fees:</div>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-blue-700">Security Deposit:</span>
-                        <span className="font-medium">${(community.priceRange?.min || 5000).toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-blue-700">Community Fee:</span>
-                        <span className="font-medium">$2,500</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-blue-700">Application Fee:</span>
-                        <span className="font-medium">$300</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-blue-700">Pet Fee (if applicable):</span>
-                        <span className="font-medium">$500</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-blue-700">Private Parking:</span>
-                        <span className="font-medium">$150/month</span>
-                      </div>
-                      <div className="border-t border-blue-200 pt-2 flex justify-between font-semibold">
-                        <span className="text-blue-900">Est. Total Move-In:</span>
-                        <span className="text-blue-900">${((community.priceRange?.min || 5000) + 3300).toLocaleString()}</span>
+                  <div className="text-center py-6">
+                    <div className="text-xl font-semibold text-orange-900 mb-3">
+                      Pending Verification
+                    </div>
+                    <div className="text-sm text-orange-700 mb-4 max-w-md mx-auto">
+                      Move-in costs, monthly fees, and current specials are being verified directly with the community to ensure accuracy.
+                    </div>
+                    <div className="bg-white border border-orange-200 rounded-lg p-4 max-w-lg mx-auto">
+                      <div className="text-sm text-gray-700">
+                        <div className="font-medium mb-2">We're verifying:</div>
+                        <ul className="list-disc list-inside space-y-1 text-left">
+                          <li>Security deposits and move-in fees</li>
+                          <li>Monthly rent and care level pricing</li>
+                          <li>Current promotions and discounts</li>
+                          <li>Available units and floor plans</li>
+                          <li>Included services and amenities</li>
+                        </ul>
                       </div>
                     </div>
                   </div>
 
-                  {/* Current Specials */}
-                  <div className="bg-red-100 border border-red-200 rounded p-3 mb-4">
-                    <div className="font-semibold text-red-900 mb-2">🏷️ Current Move-In Specials:</div>
-                    <div className="text-sm space-y-1">
-                      <div className="text-red-800">• First Month 50% Off (Save ${Math.round((community.priceRange?.min || 5000) * 0.5).toLocaleString()})</div>
-                      <div className="text-red-800">• Community Fee Waived (Save $2,500)</div>
-                      <div className="text-red-800">• Free Application Processing (Save $300)</div>
-                      <div className="font-medium text-red-900 mt-2">Total Savings: ${Math.round((community.priceRange?.min || 5000) * 0.5 + 2800).toLocaleString()}</div>
-                    </div>
-                  </div>
-
-                  {/* Monthly Fee Breakdown */}
-                  <div className="space-y-3">
-                    <div className="text-sm font-medium text-blue-900 mb-2">Monthly Fee Breakdown:</div>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-blue-700">Base Rent:</span>
-                        <span className="font-medium">${(community.priceRange?.min || 5000).toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-blue-700">Care Level Fee:</span>
-                        <span className="font-medium">$800 - $2,200</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-blue-700">Meal Plan:</span>
-                        <span className="font-medium">$450 - $650</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-blue-700">Housekeeping:</span>
-                        <span className="font-medium">$200</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-blue-700">Utilities:</span>
-                        <span className="font-medium">Included</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-blue-700">Activities & Transportation:</span>
-                        <span className="font-medium">Included</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Fee Waivers Available */}
-                  <div className="mt-4 p-3 bg-green-100 border border-green-200 rounded">
-                    <div className="font-semibold text-green-900 mb-2">Available Discounts:</div>
-                    <div className="text-sm space-y-1">
-                      <div className="text-green-800">• Veterans Discount: 10% off monthly rent</div>
-                      <div className="text-green-800">• Early Bird Special: 2 months free rent</div>
-                      <div className="text-green-800">• Couples Discount: 15% off second person</div>
-                      <div className="text-green-800">• Long-term Lease: 5% off 2+ year commitment</div>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 text-xs text-blue-600">
-                    *Pricing estimates based on care level. Contact for personalized quote with current specials.
+                  <div className="mt-4 text-xs text-orange-600 text-center">
+                    Contact the community directly for accurate pricing and availability information.
                   </div>
                 </div>
 
