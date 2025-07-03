@@ -789,16 +789,16 @@ export default function CommunityPage() {
                   {/* Move-In Costs */}
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div className="bg-white border border-blue-200 rounded p-3">
-                      <div className="text-sm font-medium text-blue-900">Security Deposit</div>
+                      <div className="text-sm font-medium text-blue-900">Community Fee</div>
                       <div className="text-lg font-semibold text-blue-800">
-                        ${community.priceRange?.min?.toLocaleString() || "Varies"}
+                        $1,500 (one-time)
                       </div>
-                      <div className="text-xs text-blue-600">Typically 1 month rent</div>
+                      <div className="text-xs text-blue-600">One-time move-in fee</div>
                     </div>
                     <div className="bg-white border border-blue-200 rounded p-3">
-                      <div className="text-sm font-medium text-blue-900">Community Fee</div>
-                      <div className="text-lg font-semibold text-blue-800">$1,500</div>
-                      <div className="text-xs text-blue-600">One-time fee</div>
+                      <div className="text-sm font-medium text-blue-900">Application Fee</div>
+                      <div className="text-lg font-semibold text-blue-800">$150</div>
+                      <div className="text-xs text-blue-600">Non-refundable</div>
                     </div>
                   </div>
 

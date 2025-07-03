@@ -207,7 +207,6 @@ export default function Search() {
                     <CommunityCard 
                       key={community.id} 
                       community={community}
-                      showBadges={true}
                     />
                   ))
                 ) : (

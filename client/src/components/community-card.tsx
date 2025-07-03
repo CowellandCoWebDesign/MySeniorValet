@@ -224,7 +224,6 @@ export function CommunityCard({ community }: CommunityCardProps) {
                   <div className="bg-white border border-blue-200 rounded p-2">
                     <div className="text-xs text-blue-600">
                       <div className="font-medium mb-1">Also includes:</div>
-                      <div>• Security Deposit: ~1 month rent</div>
                       <div>• Community Fee: $1,500 (one-time)</div>
                     </div>
                   </div>
@@ -237,7 +236,6 @@ export function CommunityCard({ community }: CommunityCardProps) {
                   <div className="text-xl font-semibold text-blue-900 mb-2">Contact for Current Pricing</div>
                   <div className="bg-white border border-blue-200 rounded p-2">
                     <div className="text-xs text-blue-600">
-                      <div>• Security Deposit: $1,500 (typical)</div>
                       <div>• Community Fee: $1,500 (one-time)</div>
                     </div>
                   </div>
