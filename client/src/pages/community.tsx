@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Star, MapPin, Phone, Globe, CheckCircle, Users, Calendar, DollarSign, Camera, Video, Home, UserCheck, Stethoscope, Activity, Wifi, Car, Utensils, ChevronLeft, ChevronRight, ExternalLink, Heart, Share, Clock, AlertTriangle, Heart as HeartIcon, Dumbbell, UtensilsCrossed, Bus, HandHeart, Waves, Scissors, AlertCircle, ShieldCheck, Mail as MailIcon } from "lucide-react";
 import { Link } from "wouter";
 import type { Community } from "@shared/schema";
+import { FlagListingDialog } from "@/components/flag-listing-dialog";
 
 export default function CommunityPage() {
   const [, params] = useRoute("/community/:id");
@@ -325,6 +326,10 @@ export default function CommunityPage() {
                     <Button variant="outline" size="sm">
                       <Share className="h-4 w-4" />
                     </Button>
+                    <FlagListingDialog 
+                      communityId={community.id} 
+                      communityName={community.name} 
+                    />
                   </div>
                 </div>
 

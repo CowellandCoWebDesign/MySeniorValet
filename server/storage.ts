@@ -1,11 +1,13 @@
 import { 
   users, communities, inspections, reviews, reviewHelpfulness, favorites, searchHistory, 
-  messages, tours, userSessions,
+  messages, tours, userSessions, listingFlags, adminUsers, userActivity, leads, leadActivities,
   type User, type InsertUser, type Community, type InsertCommunity, 
   type Inspection, type InsertInspection, type Review, type InsertReview, 
   type InsertReviewHelpfulness, type SearchCommunity, type Favorite, type InsertFavorite,
   type SearchHistoryEntry, type InsertSearchHistory, type Message, type InsertMessage,
-  type Tour, type InsertTour, type UserSession
+  type Tour, type InsertTour, type UserSession, type ListingFlag, type InsertListingFlag,
+  type AdminUser, type InsertAdminUser, type UserActivity, type InsertUserActivity,
+  type Lead, type InsertLead, type LeadActivity, type InsertLeadActivity
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, like, ilike, gte, and, or, sql } from "drizzle-orm";
@@ -70,6 +72,34 @@ export interface IStorage {
   createTour(tour: InsertTour): Promise<Tour>;
   updateTour(id: number, updates: Partial<InsertTour>): Promise<Tour | undefined>;
   cancelTour(id: number): Promise<boolean>;
+
+  // Listing flag methods
+  createListingFlag(flag: InsertListingFlag): Promise<ListingFlag>;
+  getListingFlags(params: { status?: string; page?: number; limit?: number }): Promise<ListingFlag[]>;
+  updateListingFlag(id: number, updates: Partial<InsertListingFlag>): Promise<ListingFlag | undefined>;
+
+  // Enhanced favorites methods
+  addToFavorites(favorite: InsertFavorite): Promise<Favorite>;
+  getUserFavorites(userId: number): Promise<Favorite[]>;
+  removeFromFavorites(userId: number, communityId: number): Promise<boolean>;
+
+  // Message methods
+  createMessage(message: InsertMessage): Promise<Message>;
+  getUserMessages(userId: number): Promise<Message[]>;
+
+  // User activity methods
+  trackUserActivity(activity: InsertUserActivity): Promise<UserActivity>;
+  getUserActivity(userId: number, limit: number): Promise<UserActivity[]>;
+
+  // Admin methods
+  getAdminAnalytics(): Promise<any>;
+  getRecentActivity(limit: number): Promise<UserActivity[]>;
+
+  // CRM methods
+  createLead(lead: InsertLead): Promise<Lead>;
+  getLeads(params: { status?: string; priority?: string; page?: number; limit?: number }): Promise<Lead[]>;
+  updateLead(id: number, updates: Partial<InsertLead>): Promise<Lead | undefined>;
+  addLeadActivity(activity: InsertLeadActivity): Promise<LeadActivity>;
 }
 
 export class MemStorage implements IStorage {
@@ -628,6 +658,179 @@ export class DatabaseStorage implements IStorage {
       .where(eq(reviews.id, id))
       .returning();
     return review;
+  }
+
+  // Listing flag methods
+  async createListingFlag(flag: InsertListingFlag): Promise<ListingFlag> {
+    const [newFlag] = await db
+      .insert(listingFlags)
+      .values(flag)
+      .returning();
+    return newFlag;
+  }
+
+  async getListingFlags(params: { status?: string; page?: number; limit?: number }): Promise<ListingFlag[]> {
+    const { status = 'Pending', page = 1, limit = 20 } = params;
+    const offset = (page - 1) * limit;
+
+    let query = db.select().from(listingFlags);
+    
+    if (status) {
+      query = query.where(eq(listingFlags.status, status as any));
+    }
+
+    return await query.limit(limit).offset(offset);
+  }
+
+  async updateListingFlag(id: number, updates: Partial<InsertListingFlag>): Promise<ListingFlag | undefined> {
+    const [flag] = await db
+      .update(listingFlags)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(listingFlags.id, id))
+      .returning();
+    return flag;
+  }
+
+  // Enhanced favorites methods
+  async addToFavorites(favorite: InsertFavorite): Promise<Favorite> {
+    const [newFavorite] = await db
+      .insert(favorites)
+      .values(favorite)
+      .returning();
+    return newFavorite;
+  }
+
+  async getUserFavorites(userId: number): Promise<Favorite[]> {
+    return await db
+      .select()
+      .from(favorites)
+      .where(eq(favorites.userId, userId));
+  }
+
+  async removeFromFavorites(userId: number, communityId: number): Promise<boolean> {
+    const result = await db
+      .delete(favorites)
+      .where(and(
+        eq(favorites.userId, userId),
+        eq(favorites.communityId, communityId)
+      ));
+    return (result.rowCount || 0) > 0;
+  }
+
+  // Message methods
+  async createMessage(message: InsertMessage): Promise<Message> {
+    const [newMessage] = await db
+      .insert(messages)
+      .values(message)
+      .returning();
+    return newMessage;
+  }
+
+  async getUserMessages(userId: number): Promise<Message[]> {
+    return await db
+      .select()
+      .from(messages)
+      .where(eq(messages.fromUserId, userId));
+  }
+
+  // User activity methods
+  async trackUserActivity(activity: InsertUserActivity): Promise<UserActivity> {
+    const [newActivity] = await db
+      .insert(userActivity)
+      .values(activity)
+      .returning();
+    return newActivity;
+  }
+
+  async getUserActivity(userId: number, limit: number): Promise<UserActivity[]> {
+    return await db
+      .select()
+      .from(userActivity)
+      .where(eq(userActivity.userId, userId))
+      .limit(limit)
+      .orderBy(sql`${userActivity.createdAt} DESC`);
+  }
+
+  // Admin methods
+  async getAdminAnalytics(): Promise<any> {
+    const totalUsers = await db
+      .select({ count: sql`count(*)` })
+      .from(users);
+    
+    const totalCommunities = await db
+      .select({ count: sql`count(*)` })
+      .from(communities);
+    
+    const totalFlags = await db
+      .select({ count: sql`count(*)` })
+      .from(listingFlags);
+
+    const pendingFlags = await db
+      .select({ count: sql`count(*)` })
+      .from(listingFlags)
+      .where(eq(listingFlags.status, 'Pending'));
+
+    return {
+      totalUsers: totalUsers[0]?.count || 0,
+      totalCommunities: totalCommunities[0]?.count || 0,
+      totalFlags: totalFlags[0]?.count || 0,
+      pendingFlags: pendingFlags[0]?.count || 0
+    };
+  }
+
+  async getRecentActivity(limit: number): Promise<UserActivity[]> {
+    return await db
+      .select()
+      .from(userActivity)
+      .limit(limit)
+      .orderBy(sql`${userActivity.createdAt} DESC`);
+  }
+
+  // CRM methods
+  async createLead(lead: InsertLead): Promise<Lead> {
+    const [newLead] = await db
+      .insert(leads)
+      .values(lead)
+      .returning();
+    return newLead;
+  }
+
+  async getLeads(params: { status?: string; priority?: string; page?: number; limit?: number }): Promise<Lead[]> {
+    const { status, priority, page = 1, limit = 20 } = params;
+    const offset = (page - 1) * limit;
+
+    let query = db.select().from(leads);
+    
+    const conditions = [];
+    if (status) {
+      conditions.push(eq(leads.status, status as any));
+    }
+    if (priority) {
+      conditions.push(eq(leads.priority, priority as any));
+    }
+
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+
+    return await query.limit(limit).offset(offset);
+  }
+
+  async updateLead(id: number, updates: Partial<InsertLead>): Promise<Lead | undefined> {
+    const [lead] = await db
+      .update(leads)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(leads.id, id))
+      .returning();
+    return lead;
+  }
+
+  async addLeadActivity(activity: InsertLeadActivity): Promise<LeadActivity> {
+    const [newActivity] = await db
+      .insert(leadActivities)
+      .values(activity)
+      .returning();
+    return newActivity;
   }
 }
 
