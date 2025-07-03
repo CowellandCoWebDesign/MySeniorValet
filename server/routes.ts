@@ -2032,35 +2032,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Google Reviews AI Analysis
-  app.post('/api/communities/:id/analyze-reviews', async (req, res) => {
+  // Get Google Reviews for a community
+  app.get('/api/communities/:id/reviews', async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
       if (isNaN(communityId)) {
         return res.status(400).json({ message: 'Invalid community ID' });
       }
 
-      const result = await googleReviewsAI.enrichCommunityWithReviews(communityId);
-      
-      if (result.success) {
-        res.json({
-          success: true,
-          reviews: result.reviews,
-          analysis: result.analysis,
-          message: `Analyzed ${result.reviews.length} reviews and updated community with discovered amenities and services`
-        });
-      } else {
-        res.status(400).json({
-          success: false,
-          message: result.error || 'Failed to analyze reviews'
-        });
+      const community = await storage.getCommunity(communityId);
+      if (!community) {
+        return res.status(404).json({ message: 'Community not found' });
       }
+
+      // Return existing Google review snippets from database
+      const reviews = community.googleReviewSnippets || [];
+      
+      res.json({
+        success: true,
+        reviews: reviews,
+        totalCount: reviews.length,
+        googleRating: community.googleRating,
+        googleReviewCount: community.googleReviewCount
+      });
       
     } catch (error) {
-      console.error('Google reviews analysis error:', error);
+      console.error('Error fetching reviews:', error);
       res.status(500).json({ 
         success: false,
-        message: 'Failed to analyze Google reviews',
+        message: 'Failed to fetch reviews',
         error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
