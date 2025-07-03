@@ -542,41 +542,17 @@ export default function CommunityPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  {/* Google Reviews with AI Analysis */}
+                  {/* Google Reviews */}
                   <div>
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center">
-                          <span className="text-white text-xs font-bold">G</span>
-                        </div>
-                        <span className="font-semibold text-gray-900">Google Reviews</span>
-                        <div className="flex items-center space-x-1">
-                          <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                          <span className="text-sm">{community.googleRating}/5 • {community.googleReviewCount} reviews</span>
-                        </div>
+                    <div className="flex items-center space-x-2 mb-4">
+                      <div className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">G</span>
                       </div>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={async () => {
-                          try {
-                            const response = await fetch(`/api/communities/${community.id}/analyze-reviews`, {
-                              method: 'POST'
-                            });
-                            const result = await response.json();
-                            if (result.success) {
-                              // Reload the page to show updated review analysis
-                              window.location.reload();
-                            }
-                          } catch (error) {
-                            console.error('Failed to analyze reviews:', error);
-                          }
-                        }}
-                        className="text-xs"
-                      >
-                        <Brain className="h-3 w-3 mr-1" />
-                        Analyze Reviews
-                      </Button>
+                      <span className="font-semibold text-gray-900">Google Reviews</span>
+                      <div className="flex items-center space-x-1">
+                        <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                        <span className="text-sm">{community.googleRating}/5 • {community.googleReviewCount} reviews</span>
+                      </div>
                     </div>
                     
                     {community.googleReviewSnippets && community.googleReviewSnippets.length > 0 ? (
@@ -600,21 +576,13 @@ export default function CommunityPage() {
                               <span className="text-sm text-gray-500">{review.date}</span>
                             </div>
                             <p className="text-gray-700 leading-relaxed">{review.text}</p>
-                            {review.isPositive && (
-                              <div className="mt-2 text-xs text-blue-600 italic">
-                                ✨ AI-identified community highlight
-                              </div>
-                            )}
                           </div>
                         ))}
-                        <div className="text-xs text-gray-500 text-center mt-3">
-                          These highlights are AI-analyzed from Google reviews to showcase what families appreciate most.
-                        </div>
                       </div>
                     ) : (
                       <div className="text-center py-4 text-gray-500">
-                        <Brain className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                        <p className="text-sm">Click "Analyze Reviews" to discover community highlights from Google reviews</p>
+                        <div className="text-sm">No Google review snippets available yet</div>
+                        <div className="text-xs text-gray-400 mt-1">Review highlights will be automatically processed and displayed here</div>
                       </div>
                     )}
                   </div>
