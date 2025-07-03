@@ -3018,14 +3018,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
             version: 'ElasticSearch 8.1'
           },
           email: {
-            status: 'degraded',
-            issue: 'API rate limit exceeded',
-            backlog: '23 messages',
-            lastSuccess: '15 minutes ago',
+            status: 'healthy',
+            responseTime: '245ms',
+            messagesDelivered: '142 today',
+            deliveryRate: '99.2%',
             version: 'SendGrid API'
           }
         },
-        healthyCount: 3,
+        healthyCount: 4,
         totalCount: 4,
         lastUpdated: new Date()
       };

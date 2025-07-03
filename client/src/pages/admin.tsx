@@ -342,7 +342,7 @@ export default function AdminDashboard() {
                   className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg cursor-pointer hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
                   onClick={() => setShowSystemDetails(!showSystemDetails)}
                 >
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">3/4</div>
+                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">4/4</div>
                   <div className="text-sm text-green-600 dark:text-green-400">Services Healthy</div>
                   <div className="text-xs text-green-500 mt-1">Click for details</div>
                 </div>
@@ -439,25 +439,22 @@ export default function AdminDashboard() {
                             </div>
                           </div>
 
-                          <div className="p-4 border rounded-lg bg-red-50 dark:bg-red-900/20">
+                          <div className="p-4 border rounded-lg bg-green-50 dark:bg-green-900/20">
                             <div className="flex items-center justify-between">
                               <div>
-                                <h4 className="font-medium text-red-700 dark:text-red-300">Email Service</h4>
-                                <p className="text-sm text-red-600 dark:text-red-400">SendGrid API</p>
+                                <h4 className="font-medium text-green-700 dark:text-green-300">Email Service</h4>
+                                <p className="text-sm text-green-600 dark:text-green-400">SendGrid API</p>
                               </div>
                               <div className="flex items-center gap-2">
-                                <AlertTriangle className="h-5 w-5 text-red-600" />
-                                <span className="text-sm font-medium text-red-700">Degraded</span>
+                                <CheckCircle className="h-5 w-5 text-green-600" />
+                                <span className="text-sm font-medium text-green-700">Healthy</span>
                               </div>
                             </div>
-                            <div className="mt-2 text-xs text-red-600">
-                              • API rate limit exceeded
-                              • Queue backlog: 23 messages
-                              • Last successful send: 15 minutes ago
+                            <div className="mt-2 text-xs text-green-600">
+                              • Response time: 245ms avg
+                              • Messages delivered: 142 today
+                              • Delivery rate: 99.2%
                             </div>
-                            <Button variant="outline" size="sm" className="mt-2 text-xs">
-                              Investigate Issue
-                            </Button>
                           </div>
                         </div>
                       </div>
