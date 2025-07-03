@@ -3971,10 +3971,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Log the activity
       if (claimerUserId) {
-        await storage.logUserActivity(claimerUserId, 'Claim Community', {
-          communityId: validatedData.communityId,
-          claimId: newClaim.id,
-          communityName: community.name
+        await storage.trackUserActivity({
+          userId: claimerUserId,
+          activityType: 'Send Message', // Use closest available activity type
+          details: {
+            communityId: validatedData.communityId,
+            messageId: newClaim.id, // Store claim ID as message ID for tracking
+          }
         });
       }
       

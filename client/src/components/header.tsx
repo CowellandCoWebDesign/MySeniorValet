@@ -44,12 +44,14 @@ export function Header() {
             </nav>
           </div>
           <div className="flex items-center space-x-4">
-            <Link href="/claim" className="hidden md:block">
+            <Link to="/claim" className="hidden md:block">
               <Button variant="ghost" className="text-gray-700 hover:text-primary">
                 Claim Your Community
               </Button>
             </Link>
-            <Button aria-label="Sign in to TrueView">Sign In</Button>
+            <Link to="/login">
+              <Button aria-label="Sign in to TrueView">Sign In</Button>
+            </Link>
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open navigation menu">
@@ -67,9 +69,14 @@ export function Header() {
                       {item.name}
                     </Link>
                   ))}
-                  <Link href="/claim">
+                  <Link to="/claim">
                     <Button variant="outline" className="w-full">
                       Claim Your Community
+                    </Button>
+                  </Link>
+                  <Link to="/login">
+                    <Button className="w-full">
+                      Sign In
                     </Button>
                   </Link>
                 </div>
