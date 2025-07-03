@@ -49,6 +49,20 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// User sessions table for secure session management
+export const userSessions = pgTable("user_sessions", {
+  id: text("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at").notNull(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow(),
+  lastAccessedAt: timestamp("last_accessed_at").defaultNow(),
+}, (table) => [
+  index("user_sessions_user_id_idx").on(table.userId),
+  index("user_sessions_expires_at_idx").on(table.expiresAt),
+]);
+
 export const communities = pgTable("communities", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -407,13 +421,7 @@ export const userSavedSearches = pgTable("user_saved_searches", {
   index("user_saved_searches_user_idx").on(table.userId),
 ]);
 
-// User Sessions for tracking login state
-export const userSessions = pgTable("user_sessions", {
-  id: text("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id).notNull(),
-  expiresAt: timestamp("expires_at").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+
 
 // Listing flags for user reports
 export const listingFlags = pgTable("listing_flags", {
