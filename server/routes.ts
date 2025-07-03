@@ -2688,6 +2688,133 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ===== ADMIN COMMUNITY MANAGEMENT ENDPOINTS =====
+  
+  // Get all communities for admin management
+  app.get('/api/communities/all', async (req, res) => {
+    try {
+      const communities = await storage.getAllCommunities();
+      res.json(communities);
+    } catch (error) {
+      console.error('Get all communities error:', error);
+      res.status(500).json({ message: 'Failed to get communities' });
+    }
+  });
+
+  // Refresh single community data
+  app.post('/api/admin/communities/:id/refresh', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      
+      // Get the community details first
+      const community = await storage.getCommunity(communityId);
+      if (!community) {
+        return res.status(404).json({ message: 'Community not found' });
+      }
+
+      // Refresh with Google Places if we have a places ID
+      if (community.googlePlacesId) {
+        const { googlePlacesIntegration } = await import('./google-places-integration');
+        const enrichmentResult = await googlePlacesIntegration.enrichCommunityWithGooglePlaces(community);
+        
+        if (enrichmentResult && enrichmentResult.success) {
+          // Update community with fresh data
+          await storage.updateCommunity(communityId, {
+            rating: enrichmentResult.rating,
+            photos: [...(community.photos || []), ...enrichmentResult.photos],
+            website: enrichmentResult.website || community.website,
+            phone: enrichmentResult.phone || community.phone,
+            updatedAt: new Date()
+          });
+        }
+      }
+
+      const updatedCommunity = await storage.getCommunity(communityId);
+      res.json({ message: 'Community refreshed successfully', community: updatedCommunity });
+    } catch (error) {
+      console.error('Refresh community error:', error);
+      res.status(500).json({ message: 'Failed to refresh community' });
+    }
+  });
+
+  // Enrich single community with additional data sources
+  app.post('/api/admin/communities/:id/enrich', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      
+      const community = await storage.getCommunity(communityId);
+      if (!community) {
+        return res.status(404).json({ message: 'Community not found' });
+      }
+
+      // Run Google Places enrichment if not already done
+      if (!community.googlePlacesId) {
+        const { googlePlacesIntegration } = await import('./google-places-integration');
+        const enrichmentResult = await googlePlacesIntegration.enrichCommunityWithGooglePlaces(community);
+        
+        if (enrichmentResult && enrichmentResult.success) {
+          await storage.updateCommunity(communityId, {
+            googlePlacesId: enrichmentResult.placeId,
+            rating: enrichmentResult.rating,
+            photos: [...(community.photos || []), ...enrichmentResult.photos],
+            reviews: [...(community.reviews || []), ...enrichmentResult.reviews],
+            website: enrichmentResult.website || community.website,
+            phone: enrichmentResult.phone || community.phone,
+            updatedAt: new Date()
+          });
+        }
+      }
+
+      const updatedCommunity = await storage.getCommunity(communityId);
+      res.json({ message: 'Community enriched successfully', community: updatedCommunity });
+    } catch (error) {
+      console.error('Enrich community error:', error);
+      res.status(500).json({ message: 'Failed to enrich community' });
+    }
+  });
+
+  // Bulk refresh all communities
+  app.post('/api/admin/communities/bulk-refresh', async (req, res) => {
+    try {
+      const communities = await storage.getAllCommunities();
+      let refreshedCount = 0;
+      let errors = [];
+
+      const { googlePlacesIntegration } = await import('./google-places-integration');
+
+      for (const community of communities.slice(0, 10)) { // Limit to first 10 to avoid API quota issues
+        try {
+          if (community.googlePlacesId) {
+            const enrichmentResult = await googlePlacesIntegration.enrichCommunityWithGooglePlaces(community);
+            
+            if (enrichmentResult && enrichmentResult.success) {
+              await storage.updateCommunity(community.id, {
+                rating: enrichmentResult.rating,
+                photos: [...(community.photos || []), ...enrichmentResult.photos],
+                website: enrichmentResult.website || community.website,
+                phone: enrichmentResult.phone || community.phone,
+                updatedAt: new Date()
+              });
+              refreshedCount++;
+            }
+          }
+        } catch (error) {
+          console.error(`Error refreshing community ${community.id}:`, error);
+          errors.push(`Community ${community.id}: ${error.message}`);
+        }
+      }
+
+      res.json({ 
+        message: `Bulk refresh completed. ${refreshedCount} communities refreshed.`,
+        refreshedCount,
+        errors: errors.length > 0 ? errors : undefined
+      });
+    } catch (error) {
+      console.error('Bulk refresh error:', error);
+      res.status(500).json({ message: 'Failed to perform bulk refresh' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

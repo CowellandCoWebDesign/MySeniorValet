@@ -48,6 +48,12 @@ import {
   Eye,
   Check,
   X,
+  RefreshCw,
+  MapPin,
+  Phone,
+  Globe,
+  Star,
+  Camera,
   Clock,
   MessageSquare,
   Activity
@@ -202,8 +208,9 @@ export default function AdminDashboard() {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="communities">Communities</TabsTrigger>
             <TabsTrigger value="flags">
               Flags
               {analytics?.pendingFlags ? (
@@ -307,6 +314,10 @@ export default function AdminDashboard() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="communities" className="space-y-6">
+            <CommunityManagement />
           </TabsContent>
 
           <TabsContent value="flags" className="space-y-6">
@@ -593,6 +604,309 @@ export default function AdminDashboard() {
           </TabsContent>
         </Tabs>
       </div>
+    </div>
+  );
+}
+
+function CommunityManagement() {
+  const queryClient = useQueryClient();
+  const [selectedCommunity, setSelectedCommunity] = useState<any>(null);
+
+  // Fetch all communities for management
+  const { data: communities, isLoading: communitiesLoading } = useQuery({
+    queryKey: ['/api/communities/all'],
+  });
+
+  // Refresh community data mutation
+  const refreshCommunityMutation = useMutation({
+    mutationFn: async (communityId: number) => {
+      return await apiRequest("POST", `/api/admin/communities/${communityId}/refresh`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/communities/all'] });
+    },
+  });
+
+  // Enrich community data mutation  
+  const enrichCommunityMutation = useMutation({
+    mutationFn: async (communityId: number) => {
+      return await apiRequest("POST", `/api/admin/communities/${communityId}/enrich`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/communities/all'] });
+    },
+  });
+
+  // Bulk refresh all communities
+  const bulkRefreshMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest("POST", "/api/admin/communities/bulk-refresh");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/communities/all'] });
+    },
+  });
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle>Community Management</CardTitle>
+              <CardDescription>
+                Manage community data, refresh information, and enrich listings
+              </CardDescription>
+            </div>
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => bulkRefreshMutation.mutate()}
+                disabled={bulkRefreshMutation.isPending}
+                variant="outline"
+              >
+                {bulkRefreshMutation.isPending ? (
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                )}
+                Refresh All
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {communitiesLoading ? (
+            <div className="space-y-2">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Community</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead>Contact</TableHead>
+                    <TableHead>Rating</TableHead>
+                    <TableHead>Photos</TableHead>
+                    <TableHead>Last Updated</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {communities?.map((community: any) => (
+                    <TableRow key={community.id}>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{community.name}</div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                            ID: {community.id}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <MapPin className="h-3 w-3 text-gray-400" />
+                          <span className="text-sm">
+                            {community.city}, {community.state}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          {community.phone && (
+                            <div className="flex items-center gap-1">
+                              <Phone className="h-3 w-3 text-gray-400" />
+                              <span className="text-sm">{community.phone}</span>
+                            </div>
+                          )}
+                          {community.website && (
+                            <div className="flex items-center gap-1">
+                              <Globe className="h-3 w-3 text-gray-400" />
+                              <span className="text-sm">Website</span>
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {community.rating ? (
+                          <div className="flex items-center gap-1">
+                            <Star className="h-3 w-3 text-yellow-400 fill-current" />
+                            <span className="text-sm">{community.rating}</span>
+                          </div>
+                        ) : (
+                          <span className="text-sm text-gray-400">No rating</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <Camera className="h-3 w-3 text-gray-400" />
+                          <span className="text-sm">
+                            {community.photos?.length || 0} photos
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {formatDate(community.updatedAt)}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => refreshCommunityMutation.mutate(community.id)}
+                            disabled={refreshCommunityMutation.isPending}
+                          >
+                            {refreshCommunityMutation.isPending ? (
+                              <RefreshCw className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <RefreshCw className="h-3 w-3" />
+                            )}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => enrichCommunityMutation.mutate(community.id)}
+                            disabled={enrichCommunityMutation.isPending}
+                          >
+                            <TrendingUp className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setSelectedCommunity(community)}
+                          >
+                            <Eye className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Community Details Dialog */}
+      {selectedCommunity && (
+        <Dialog open={!!selectedCommunity} onOpenChange={() => setSelectedCommunity(null)}>
+          <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{selectedCommunity.name}</DialogTitle>
+            </DialogHeader>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-medium mb-2">Basic Information</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>ID:</span>
+                      <span>{selectedCommunity.id}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Address:</span>
+                      <span>{selectedCommunity.address}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Phone:</span>
+                      <span>{selectedCommunity.phone || 'Not provided'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Website:</span>
+                      <span>{selectedCommunity.website || 'Not provided'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-medium mb-2">Care Types</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {selectedCommunity.careTypes?.map((type: string, index: number) => (
+                      <Badge key={index} variant="secondary">{type}</Badge>
+                    )) || <span className="text-sm text-gray-400">None specified</span>}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-medium mb-2">Amenities</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {selectedCommunity.amenities?.slice(0, 10).map((amenity: string, index: number) => (
+                      <Badge key={index} variant="outline">{amenity}</Badge>
+                    )) || <span className="text-sm text-gray-400">None specified</span>}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-medium mb-2">Data Quality</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Rating:</span>
+                      <span>{selectedCommunity.rating ? `${selectedCommunity.rating}⭐` : 'No rating'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Photos:</span>
+                      <span>{selectedCommunity.photos?.length || 0} photos</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Reviews:</span>
+                      <span>{selectedCommunity.reviews?.length || 0} reviews</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Google Places ID:</span>
+                      <span>{selectedCommunity.googlePlacesId ? 'Yes' : 'No'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-medium mb-2">Last Updated</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {formatDate(selectedCommunity.updatedAt)}
+                  </p>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => refreshCommunityMutation.mutate(selectedCommunity.id)}
+                    disabled={refreshCommunityMutation.isPending}
+                    className="flex-1"
+                  >
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Refresh Data
+                  </Button>
+                  <Button
+                    onClick={() => enrichCommunityMutation.mutate(selectedCommunity.id)}
+                    disabled={enrichCommunityMutation.isPending}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    <TrendingUp className="h-4 w-4 mr-2" />
+                    Enrich Data
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
