@@ -6,6 +6,7 @@ import { z } from "zod";
 import { aiRecommendationEngine, RecommendationRequest } from "./ai-recommendations";
 import { ComprehensiveScraper } from "./scraper";
 import { licensingScraper } from "./licensing-scraper";
+import { googleReviewsAI } from "./google-reviews-ai";
 import fs from 'fs';
 import path from 'path';
 
@@ -2027,6 +2028,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         message: 'Failed to get spending summary',
         error: error.message 
+      });
+    }
+  });
+
+  // Google Reviews AI Analysis
+  app.post('/api/communities/:id/analyze-reviews', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) {
+        return res.status(400).json({ message: 'Invalid community ID' });
+      }
+
+      const result = await googleReviewsAI.enrichCommunityWithReviews(communityId);
+      
+      if (result.success) {
+        res.json({
+          success: true,
+          reviews: result.reviews,
+          analysis: result.analysis,
+          message: `Analyzed ${result.reviews.length} reviews and updated community with discovered amenities and services`
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          message: result.error || 'Failed to analyze reviews'
+        });
+      }
+      
+    } catch (error) {
+      console.error('Google reviews analysis error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to analyze Google reviews',
+        error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   });

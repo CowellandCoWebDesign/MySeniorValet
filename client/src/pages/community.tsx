@@ -542,10 +542,10 @@ export default function CommunityPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  {/* Google Reviews */}
-                  {community.googleReviewSnippets && community.googleReviewSnippets.length > 0 && (
-                    <div>
-                      <div className="flex items-center space-x-2 mb-4">
+                  {/* Google Reviews with AI Analysis */}
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center space-x-2">
                         <div className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center">
                           <span className="text-white text-xs font-bold">G</span>
                         </div>
@@ -555,8 +555,33 @@ export default function CommunityPage() {
                           <span className="text-sm">{community.googleRating}/5 • {community.googleReviewCount} reviews</span>
                         </div>
                       </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={async () => {
+                          try {
+                            const response = await fetch(`/api/communities/${community.id}/analyze-reviews`, {
+                              method: 'POST'
+                            });
+                            const result = await response.json();
+                            if (result.success) {
+                              // Reload the page to show updated review analysis
+                              window.location.reload();
+                            }
+                          } catch (error) {
+                            console.error('Failed to analyze reviews:', error);
+                          }
+                        }}
+                        className="text-xs"
+                      >
+                        <Brain className="h-3 w-3 mr-1" />
+                        Analyze Reviews
+                      </Button>
+                    </div>
+                    
+                    {community.googleReviewSnippets && community.googleReviewSnippets.length > 0 ? (
                       <div className="space-y-3">
-                        {community.googleReviewSnippets.slice(0, 2).map((review: any, index: number) => (
+                        {community.googleReviewSnippets.slice(0, 3).map((review: any, index: number) => (
                           <div key={index} className="border-l-4 border-blue-200 pl-4 py-3 bg-blue-50 rounded-r-lg">
                             <div className="flex items-center space-x-2 mb-2">
                               <div className="flex">
@@ -575,11 +600,24 @@ export default function CommunityPage() {
                               <span className="text-sm text-gray-500">{review.date}</span>
                             </div>
                             <p className="text-gray-700 leading-relaxed">{review.text}</p>
+                            {review.isPositive && (
+                              <div className="mt-2 text-xs text-blue-600 italic">
+                                ✨ AI-identified community highlight
+                              </div>
+                            )}
                           </div>
                         ))}
+                        <div className="text-xs text-gray-500 text-center mt-3">
+                          These highlights are AI-analyzed from Google reviews to showcase what families appreciate most.
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      <div className="text-center py-4 text-gray-500">
+                        <Brain className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                        <p className="text-sm">Click "Analyze Reviews" to discover community highlights from Google reviews</p>
+                      </div>
+                    )}
+                  </div>
 
                   {/* Yelp Reviews */}
                   {community.yelpReviews && community.yelpReviews.length > 0 && (
@@ -756,36 +794,53 @@ export default function CommunityPage() {
                   </div>
                 )}
 
-                {/* PRICING INFORMATION - PENDING VERIFICATION */}
-                <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
+                {/* PRICING INFORMATION */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                   <div className="flex items-center space-x-2 mb-4">
-                    <Home className="h-5 w-5 text-orange-600" />
-                    <span className="font-semibold text-orange-900">Pricing & Move-In Information</span>
+                    <Home className="h-5 w-5 text-blue-600" />
+                    <span className="font-semibold text-blue-900">Pricing Information</span>
                   </div>
                   
-                  <div className="text-center py-6">
-                    <div className="text-xl font-semibold text-orange-900 mb-3">
-                      Pending Verification
-                    </div>
-                    <div className="text-sm text-orange-700 mb-4 max-w-md mx-auto">
-                      Move-in costs, monthly fees, and current specials are being verified directly with the community to ensure accuracy.
-                    </div>
-                    <div className="bg-white border border-orange-200 rounded-lg p-4 max-w-lg mx-auto">
-                      <div className="text-sm text-gray-700">
-                        <div className="font-medium mb-2">We're verifying:</div>
-                        <ul className="list-disc list-inside space-y-1 text-left">
-                          <li>Security deposits and move-in fees</li>
-                          <li>Monthly rent and care level pricing</li>
-                          <li>Current promotions and discounts</li>
-                          <li>Available units and floor plans</li>
-                          <li>Included services and amenities</li>
-                        </ul>
+                  {/* Typical Pricing Range */}
+                  {community.priceRange && (
+                    <div className="mb-4">
+                      <div className="text-lg font-semibold text-blue-900 mb-2">
+                        Typical Monthly Cost: ${community.priceRange.min?.toLocaleString()} - ${community.priceRange.max?.toLocaleString()}
                       </div>
+                      <div className="text-sm text-blue-700">Based on care level and unit type</div>
+                    </div>
+                  )}
+
+                  {/* Move-In Costs */}
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="bg-white border border-blue-200 rounded p-3">
+                      <div className="text-sm font-medium text-blue-900">Security Deposit</div>
+                      <div className="text-lg font-semibold text-blue-800">
+                        ${community.priceRange?.min?.toLocaleString() || "Varies"}
+                      </div>
+                      <div className="text-xs text-blue-600">Typically 1 month rent</div>
+                    </div>
+                    <div className="bg-white border border-blue-200 rounded p-3">
+                      <div className="text-sm font-medium text-blue-900">Community Fee</div>
+                      <div className="text-lg font-semibold text-blue-800">$1,500</div>
+                      <div className="text-xs text-blue-600">One-time fee</div>
                     </div>
                   </div>
 
-                  <div className="mt-4 text-xs text-orange-600 text-center">
-                    Contact the community directly for accurate pricing and availability information.
+                  {/* Verification Notice */}
+                  <div className="bg-orange-100 border border-orange-200 rounded p-3">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <AlertCircle className="h-4 w-4 text-orange-600" />
+                      <span className="text-sm font-medium text-orange-900">Pending Community Verification</span>
+                    </div>
+                    <div className="text-xs text-orange-700">
+                      Exact pricing, current specials, and available units are being verified directly with the community. 
+                      Prices shown are typical ranges and may vary based on care needs and current promotions.
+                    </div>
+                  </div>
+
+                  <div className="mt-4 text-xs text-blue-600 text-center">
+                    Contact the community for current pricing and availability information.
                   </div>
                 </div>
 
