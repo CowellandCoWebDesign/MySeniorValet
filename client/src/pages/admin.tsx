@@ -43,9 +43,9 @@ import {
 
 export default function AdminDashboard() {
   const [auditFilters, setAuditFilters] = useState({
-    action: '',
-    resourceType: '',
-    severity: '',
+    action: 'all',
+    resourceType: 'all',
+    severity: 'all',
     timeframe: '24h'
   });
   const [auditCurrentPage, setAuditCurrentPage] = useState(1);
@@ -55,46 +55,33 @@ export default function AdminDashboard() {
     retry: false,
   });
 
-  const auditLogs = auditLogsQuery.data || {
-    logs: [
-      {
-        id: 1,
-        action: 'user_login',
-        resourceType: 'user',
-        resourceId: 123,
-        userId: 123,
-        severity: 'info',
-        details: { email: 'user@example.com', ip: '192.168.1.1' },
-        timestamp: new Date().toISOString(),
-        ipAddress: '192.168.1.1',
-        userAgent: 'Mozilla/5.0...'
-      },
-      {
-        id: 2,
-        action: 'community_update',
-        resourceType: 'community',
-        resourceId: 456,
-        userId: 789,
-        severity: 'medium',
-        details: { field: 'pricing', oldValue: 2500, newValue: 2800 },
-        timestamp: new Date().toISOString(),
-        ipAddress: '192.168.1.2',
-        userAgent: 'Mozilla/5.0...'
+  const auditLogsResponse = auditLogsQuery.data;
+  const logs = auditLogsResponse?.logs || [];
+  const pagination = auditLogsResponse?.pagination || { page: 1, limit: 50, total: 0, totalPages: 1 };
+
+  // Calculate summary statistics from actual logs
+  const summary = {
+    totalEvents: pagination.total,
+    highSeverityAlerts: logs.filter(log => log.severity === 'High' || log.severity === 'Critical').length,
+    topActions: logs.reduce((acc, log) => {
+      const existing = acc.find(item => item.action === log.action);
+      if (existing) {
+        existing.count++;
+      } else {
+        acc.push({ action: log.action, count: 1 });
       }
-    ],
-    summary: {
-      totalEvents: 1234,
-      highSeverityAlerts: 5,
-      topActions: [
-        { action: 'user_login', count: 456 },
-        { action: 'community_view', count: 234 }
-      ],
-      criticalEvents: 2
-    },
+      return acc;
+    }, []).sort((a, b) => b.count - a.count).slice(0, 3),
+    criticalEvents: logs.filter(log => log.severity === 'Critical').length
+  };
+
+  const auditLogs = {
+    logs,
+    summary,
     pagination: {
-      currentPage: 1,
-      totalPages: 10,
-      totalItems: 100
+      currentPage: pagination.page,
+      totalPages: pagination.totalPages,
+      totalItems: pagination.total
     }
   };
 
@@ -194,7 +181,7 @@ export default function AdminDashboard() {
                     <SelectValue placeholder="Filter by action" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Actions</SelectItem>
+                    <SelectItem value="all">All Actions</SelectItem>
                     <SelectItem value="user_login">User Login</SelectItem>
                     <SelectItem value="community_update">Community Update</SelectItem>
                     <SelectItem value="flag_submitted">Flag Submitted</SelectItem>
@@ -205,7 +192,7 @@ export default function AdminDashboard() {
                     <SelectValue placeholder="Filter by severity" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Severities</SelectItem>
+                    <SelectItem value="all">All Severities</SelectItem>
                     <SelectItem value="critical">Critical</SelectItem>
                     <SelectItem value="high">High</SelectItem>
                     <SelectItem value="medium">Medium</SelectItem>
@@ -241,7 +228,7 @@ export default function AdminDashboard() {
                     <TableRow key={log.id}>
                       <TableCell>
                         <div className="text-sm">
-                          {new Date(log.timestamp).toLocaleString()}
+                          {new Date(log.createdAt).toLocaleString()}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -251,7 +238,9 @@ export default function AdminDashboard() {
                         <span className="text-sm">{log.resourceType} #{log.resourceId}</span>
                       </TableCell>
                       <TableCell>
-                        <span className="text-sm">User #{log.userId}</span>
+                        <span className="text-sm">
+                          {log.userId ? `User #${log.userId}` : log.adminId ? `Admin #${log.adminId}` : 'System'}
+                        </span>
                       </TableCell>
                       <TableCell>
                         <Badge className={getSeverityColor(log.severity)}>
@@ -260,7 +249,7 @@ export default function AdminDashboard() {
                       </TableCell>
                       <TableCell>
                         <div className="text-sm text-gray-600 max-w-xs truncate">
-                          {JSON.stringify(log.details)}
+                          {log.details?.reason || 'No details available'}
                         </div>
                       </TableCell>
                     </TableRow>
