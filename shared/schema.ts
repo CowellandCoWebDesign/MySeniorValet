@@ -380,10 +380,139 @@ export const userSessions = pgTable("user_sessions", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Listing flags for user reports
+export const listingFlags = pgTable("listing_flags", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  userId: integer("user_id").references(() => users.id),
+  flagType: text("flag_type", {
+    enum: ["Incorrect Information", "Duplicate Listing", "Inappropriate Content", "Spam", "Closed/Out of Business", "Wrong Location", "Pricing Error", "Other"]
+  }).notNull(),
+  reason: text("reason").notNull(),
+  details: text("details"),
+  status: text("status", {
+    enum: ["Pending", "Under Review", "Resolved", "Dismissed"]
+  }).default("Pending"),
+  reporterEmail: text("reporter_email"), // For anonymous reports
+  reporterName: text("reporter_name"), // For anonymous reports
+  adminNotes: text("admin_notes"),
+  reviewedBy: integer("reviewed_by").references(() => users.id),
+  reviewedAt: timestamp("reviewed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Admin users and roles
+export const adminUsers = pgTable("admin_users", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  role: text("role", {
+    enum: ["Super Admin", "Admin", "Moderator", "Support"]
+  }).notNull(),
+  permissions: json("permissions").$type<{
+    canReviewFlags: boolean;
+    canManageUsers: boolean;
+    canManageCommunities: boolean;
+    canViewAnalytics: boolean;
+    canManageAdmins: boolean;
+    canAccessCRM: boolean;
+    canModerateReviews: boolean;
+    canManageContent: boolean;
+  }>().default({
+    canReviewFlags: true,
+    canManageUsers: false,
+    canManageCommunities: false,
+    canViewAnalytics: false,
+    canManageAdmins: false,
+    canAccessCRM: false,
+    canModerateReviews: false,
+    canManageContent: false,
+  }),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// User activity tracking for analytics
+export const userActivity = pgTable("user_activity", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  sessionId: text("session_id"),
+  activityType: text("activity_type", {
+    enum: ["Search", "View Community", "Add Favorite", "Remove Favorite", "Send Message", "Flag Listing", "Update Profile", "Schedule Tour", "Write Review", "Login", "Signup"]
+  }).notNull(),
+  details: json("details").$type<{
+    communityId?: number;
+    searchQuery?: string;
+    location?: string;
+    filters?: any;
+    flagType?: string;
+    messageId?: number;
+    tourId?: number;
+    reviewId?: number;
+    ipAddress?: string;
+    userAgent?: string;
+  }>().default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// CRM Integration - Lead tracking
+export const leads = pgTable("leads", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  communityId: integer("community_id").references(() => communities.id),
+  source: text("source", {
+    enum: ["Website", "Direct", "Referral", "Advertisement", "Google", "Social Media", "Other"]
+  }).default("Website"),
+  status: text("status", {
+    enum: ["New", "Contacted", "Qualified", "Tour Scheduled", "Tour Completed", "Application Submitted", "Converted", "Lost", "Archived"]
+  }).default("New"),
+  priority: text("priority", {
+    enum: ["Low", "Medium", "High", "Urgent"]
+  }).default("Medium"),
+  assignedTo: integer("assigned_to").references(() => users.id),
+  contactDetails: json("contact_details").$type<{
+    email?: string;
+    phone?: string;
+    preferredContactMethod?: string;
+    bestTimeToCall?: string;
+    urgency?: string;
+    timeline?: string;
+    budget?: string;
+    careNeeds?: string[];
+    notes?: string;
+  }>().default({}),
+  lastContactedAt: timestamp("last_contacted_at"),
+  nextFollowUpAt: timestamp("next_follow_up_at"),
+  conversionDate: timestamp("conversion_date"),
+  conversionValue: decimal("conversion_value", { precision: 10, scale: 2 }),
+  tags: text("tags").array().default([]),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Lead activities/notes
+export const leadActivities = pgTable("lead_activities", {
+  id: serial("id").primaryKey(),
+  leadId: integer("lead_id").references(() => leads.id).notNull(),
+  userId: integer("user_id").references(() => users.id),
+  activityType: text("activity_type", {
+    enum: ["Email", "Phone Call", "Text Message", "Meeting", "Tour", "Follow-up", "Note", "Status Change", "Assignment"]
+  }).notNull(),
+  subject: text("subject"),
+  description: text("description").notNull(),
+  outcome: text("outcome"),
+  scheduledFor: timestamp("scheduled_for"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Relations
 export const communitiesRelations = relations(communities, ({ many }) => ({
   inspections: many(inspections),
   reviews: many(reviews),
+  flags: many(listingFlags),
+  leads: many(leads),
 }));
 
 export const inspectionsRelations = relations(inspections, ({ one }) => ({
@@ -484,6 +613,62 @@ export const toursRelations = relations(tours, ({ one }) => ({
 export const userSessionsRelations = relations(userSessions, ({ one }) => ({
   user: one(users, {
     fields: [userSessions.userId],
+    references: [users.id],
+  }),
+}));
+
+export const listingFlagsRelations = relations(listingFlags, ({ one }) => ({
+  community: one(communities, {
+    fields: [listingFlags.communityId],
+    references: [communities.id],
+  }),
+  user: one(users, {
+    fields: [listingFlags.userId],
+    references: [users.id],
+  }),
+  reviewer: one(users, {
+    fields: [listingFlags.reviewedBy],
+    references: [users.id],
+  }),
+}));
+
+export const adminUsersRelations = relations(adminUsers, ({ one }) => ({
+  user: one(users, {
+    fields: [adminUsers.userId],
+    references: [users.id],
+  }),
+}));
+
+export const userActivityRelations = relations(userActivity, ({ one }) => ({
+  user: one(users, {
+    fields: [userActivity.userId],
+    references: [users.id],
+  }),
+}));
+
+export const leadsRelations = relations(leads, ({ one, many }) => ({
+  user: one(users, {
+    fields: [leads.userId],
+    references: [users.id],
+  }),
+  community: one(communities, {
+    fields: [leads.communityId],
+    references: [communities.id],
+  }),
+  assignedUser: one(users, {
+    fields: [leads.assignedTo],
+    references: [users.id],
+  }),
+  activities: many(leadActivities),
+}));
+
+export const leadActivitiesRelations = relations(leadActivities, ({ one }) => ({
+  lead: one(leads, {
+    fields: [leadActivities.leadId],
+    references: [leads.id],
+  }),
+  user: one(users, {
+    fields: [leadActivities.userId],
     references: [users.id],
   }),
 }));
@@ -627,3 +812,47 @@ export type UserSession = typeof userSessions.$inferSelect;
 export type LoginForm = z.infer<typeof loginSchema>;
 export type SignupForm = z.infer<typeof signupSchema>;
 export type SearchCommunity = z.infer<typeof searchCommunitySchema>;
+
+// New schema types
+export const insertListingFlagSchema = createInsertSchema(listingFlags).omit({
+  id: true,
+  status: true,
+  reviewedBy: true,
+  reviewedAt: true,
+  adminNotes: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertAdminUserSchema = createInsertSchema(adminUsers).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserActivitySchema = createInsertSchema(userActivity).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertLeadSchema = createInsertSchema(leads).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertLeadActivitySchema = createInsertSchema(leadActivities).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertListingFlag = z.infer<typeof insertListingFlagSchema>;
+export type ListingFlag = typeof listingFlags.$inferSelect;
+export type InsertAdminUser = z.infer<typeof insertAdminUserSchema>;
+export type AdminUser = typeof adminUsers.$inferSelect;
+export type InsertUserActivity = z.infer<typeof insertUserActivitySchema>;
+export type UserActivity = typeof userActivity.$inferSelect;
+export type InsertLead = z.infer<typeof insertLeadSchema>;
+export type Lead = typeof leads.$inferSelect;
+export type InsertLeadActivity = z.infer<typeof insertLeadActivitySchema>;
+export type LeadActivity = typeof leadActivities.$inferSelect;

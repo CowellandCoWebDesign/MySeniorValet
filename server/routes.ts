@@ -2369,6 +2369,325 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ===== FLAGGING SYSTEM ENDPOINTS =====
+  
+  // Submit a flag for a listing
+  app.post('/api/communities/:id/flag', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const { flagType, reason, details, reporterEmail, reporterName, userId } = req.body;
+
+      if (!flagType || !reason) {
+        return res.status(400).json({ message: 'Flag type and reason are required' });
+      }
+
+      const flagData = {
+        communityId,
+        userId: userId || null,
+        flagType,
+        reason,
+        details: details || null,
+        reporterEmail: reporterEmail || null,
+        reporterName: reporterName || null,
+      };
+
+      const flag = await storage.createListingFlag(flagData);
+
+      // Log the flag activity
+      if (userId) {
+        await storage.trackUserActivity({
+          userId,
+          activityType: 'Flag Listing',
+          details: { communityId, flagType, reason }
+        });
+      }
+
+      res.status(201).json({ 
+        message: 'Flag submitted successfully',
+        flagId: flag.id 
+      });
+    } catch (error) {
+      console.error('Flag submission error:', error);
+      res.status(500).json({ message: 'Failed to submit flag' });
+    }
+  });
+
+  // Get flags for admin review
+  app.get('/api/admin/flags', async (req, res) => {
+    try {
+      const { status = 'Pending', page = 1, limit = 20 } = req.query;
+      
+      const flags = await storage.getListingFlags({
+        status: status as string,
+        page: parseInt(page as string),
+        limit: parseInt(limit as string)
+      });
+
+      res.json(flags);
+    } catch (error) {
+      console.error('Get flags error:', error);
+      res.status(500).json({ message: 'Failed to retrieve flags' });
+    }
+  });
+
+  // Update flag status (admin only)
+  app.patch('/api/admin/flags/:id', async (req, res) => {
+    try {
+      const flagId = parseInt(req.params.id);
+      const { status, adminNotes, reviewedBy } = req.body;
+
+      const updatedFlag = await storage.updateListingFlag(flagId, {
+        status,
+        adminNotes,
+        reviewedBy,
+        reviewedAt: new Date()
+      });
+
+      res.json(updatedFlag);
+    } catch (error) {
+      console.error('Update flag error:', error);
+      res.status(500).json({ message: 'Failed to update flag' });
+    }
+  });
+
+  // ===== USER FAVORITES ENDPOINTS =====
+  
+  // Add community to favorites
+  app.post('/api/users/:userId/favorites', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const { communityId, notes, tags, priority } = req.body;
+
+      const favorite = await storage.addToFavorites({
+        userId,
+        communityId,
+        notes: notes || null,
+        tags: tags || [],
+        priority: priority || 'Medium'
+      });
+
+      // Track activity
+      await storage.trackUserActivity({
+        userId,
+        activityType: 'Add Favorite',
+        details: { communityId }
+      });
+
+      res.status(201).json(favorite);
+    } catch (error) {
+      console.error('Add favorite error:', error);
+      res.status(500).json({ message: 'Failed to add to favorites' });
+    }
+  });
+
+  // Get user's favorites
+  app.get('/api/users/:userId/favorites', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const favorites = await storage.getUserFavorites(userId);
+      res.json(favorites);
+    } catch (error) {
+      console.error('Get favorites error:', error);
+      res.status(500).json({ message: 'Failed to get favorites' });
+    }
+  });
+
+  // Remove from favorites
+  app.delete('/api/users/:userId/favorites/:communityId', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const communityId = parseInt(req.params.communityId);
+
+      await storage.removeFromFavorites(userId, communityId);
+
+      // Track activity
+      await storage.trackUserActivity({
+        userId,
+        activityType: 'Remove Favorite',
+        details: { communityId }
+      });
+
+      res.json({ message: 'Removed from favorites' });
+    } catch (error) {
+      console.error('Remove favorite error:', error);
+      res.status(500).json({ message: 'Failed to remove from favorites' });
+    }
+  });
+
+  // ===== MESSAGING SYSTEM ENDPOINTS =====
+  
+  // Send message to community
+  app.post('/api/communities/:id/messages', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const { userId, subject, content, messageType, metadata } = req.body;
+
+      const message = await storage.createMessage({
+        fromUserId: userId,
+        communityId,
+        conversationId: `${userId}_${communityId}_${Date.now()}`,
+        subject,
+        content,
+        messageType: messageType || 'general',
+        metadata: metadata || {}
+      });
+
+      // Track activity
+      await storage.trackUserActivity({
+        userId,
+        activityType: 'Send Message',
+        details: { communityId, messageId: message.id, messageType }
+      });
+
+      // Create lead if this is the first contact
+      await storage.createLead({
+        userId,
+        communityId,
+        source: 'Website',
+        contactDetails: {
+          email: req.body.email,
+          phone: req.body.phone,
+          preferredContactMethod: req.body.preferredContactMethod,
+          notes: content
+        }
+      });
+
+      res.status(201).json(message);
+    } catch (error) {
+      console.error('Send message error:', error);
+      res.status(500).json({ message: 'Failed to send message' });
+    }
+  });
+
+  // Get user's messages
+  app.get('/api/users/:userId/messages', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const messages = await storage.getUserMessages(userId);
+      res.json(messages);
+    } catch (error) {
+      console.error('Get messages error:', error);
+      res.status(500).json({ message: 'Failed to get messages' });
+    }
+  });
+
+  // ===== USER ACTIVITY TRACKING =====
+  
+  // Track user activity
+  app.post('/api/users/:userId/activity', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const { activityType, details } = req.body;
+
+      await storage.trackUserActivity({
+        userId,
+        activityType,
+        details
+      });
+
+      res.status(201).json({ message: 'Activity tracked' });
+    } catch (error) {
+      console.error('Track activity error:', error);
+      res.status(500).json({ message: 'Failed to track activity' });
+    }
+  });
+
+  // Get user activity history
+  app.get('/api/users/:userId/activity', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const { limit = 50 } = req.query;
+      
+      const activities = await storage.getUserActivity(userId, parseInt(limit as string));
+      res.json(activities);
+    } catch (error) {
+      console.error('Get activity error:', error);
+      res.status(500).json({ message: 'Failed to get activity' });
+    }
+  });
+
+  // ===== ADMIN DASHBOARD ENDPOINTS =====
+  
+  // Get dashboard analytics
+  app.get('/api/admin/analytics', async (req, res) => {
+    try {
+      const analytics = await storage.getAdminAnalytics();
+      res.json(analytics);
+    } catch (error) {
+      console.error('Analytics error:', error);
+      res.status(500).json({ message: 'Failed to get analytics' });
+    }
+  });
+
+  // Get recent user activities
+  app.get('/api/admin/recent-activity', async (req, res) => {
+    try {
+      const { limit = 100 } = req.query;
+      const activities = await storage.getRecentActivity(parseInt(limit as string));
+      res.json(activities);
+    } catch (error) {
+      console.error('Recent activity error:', error);
+      res.status(500).json({ message: 'Failed to get recent activity' });
+    }
+  });
+
+  // ===== CRM ENDPOINTS =====
+  
+  // Get all leads
+  app.get('/api/admin/leads', async (req, res) => {
+    try {
+      const { status, priority, page = 1, limit = 20 } = req.query;
+      
+      const leads = await storage.getLeads({
+        status: status as string,
+        priority: priority as string,
+        page: parseInt(page as string),
+        limit: parseInt(limit as string)
+      });
+
+      res.json(leads);
+    } catch (error) {
+      console.error('Get leads error:', error);
+      res.status(500).json({ message: 'Failed to get leads' });
+    }
+  });
+
+  // Update lead status
+  app.patch('/api/admin/leads/:id', async (req, res) => {
+    try {
+      const leadId = parseInt(req.params.id);
+      const updateData = req.body;
+
+      const updatedLead = await storage.updateLead(leadId, updateData);
+      res.json(updatedLead);
+    } catch (error) {
+      console.error('Update lead error:', error);
+      res.status(500).json({ message: 'Failed to update lead' });
+    }
+  });
+
+  // Add lead activity
+  app.post('/api/admin/leads/:id/activities', async (req, res) => {
+    try {
+      const leadId = parseInt(req.params.id);
+      const { userId, activityType, subject, description, outcome } = req.body;
+
+      const activity = await storage.addLeadActivity({
+        leadId,
+        userId,
+        activityType,
+        subject,
+        description,
+        outcome
+      });
+
+      res.status(201).json(activity);
+    } catch (error) {
+      console.error('Add lead activity error:', error);
+      res.status(500).json({ message: 'Failed to add lead activity' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
