@@ -1,4 +1,12 @@
-import { users, communities, inspections, reviews, reviewHelpfulness, type User, type InsertUser, type Community, type InsertCommunity, type Inspection, type InsertInspection, type Review, type InsertReview, type InsertReviewHelpfulness, type SearchCommunity } from "@shared/schema";
+import { 
+  users, communities, inspections, reviews, reviewHelpfulness, favorites, searchHistory, 
+  messages, tours, userSessions,
+  type User, type InsertUser, type Community, type InsertCommunity, 
+  type Inspection, type InsertInspection, type Review, type InsertReview, 
+  type InsertReviewHelpfulness, type SearchCommunity, type Favorite, type InsertFavorite,
+  type SearchHistoryEntry, type InsertSearchHistory, type Message, type InsertMessage,
+  type Tour, type InsertTour, type UserSession
+} from "@shared/schema";
 import { db } from "./db";
 import { eq, like, ilike, gte, and, or, sql } from "drizzle-orm";
 
@@ -6,7 +14,15 @@ export interface IStorage {
   // User methods
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUser(id: number, updates: Partial<InsertUser>): Promise<User | undefined>;
+
+  // Authentication methods
+  createSession(userId: number): Promise<UserSession>;
+  getSessionById(sessionId: string): Promise<UserSession | undefined>;
+  deleteSession(sessionId: string): Promise<boolean>;
+  cleanupExpiredSessions(): Promise<void>;
 
   // Community methods
   getCommunity(id: number): Promise<Community | undefined>;
@@ -29,6 +45,31 @@ export interface IStorage {
   markReviewHelpful(reviewId: number, userId: number, isHelpful: boolean): Promise<void>;
   getReviewHelpfulness(reviewId: number, userId: number): Promise<boolean | null>;
   moderateReview(id: number, status: string, notes?: string): Promise<Review | undefined>;
+
+  // Favorites methods
+  getFavoritesByUser(userId: number): Promise<Favorite[]>;
+  addFavorite(favorite: InsertFavorite): Promise<Favorite>;
+  removeFavorite(userId: number, communityId: number): Promise<boolean>;
+  isFavorited(userId: number, communityId: number): Promise<boolean>;
+
+  // Search history methods
+  getSearchHistory(userId: number): Promise<SearchHistoryEntry[]>;
+  saveSearch(searchHistory: InsertSearchHistory): Promise<SearchHistoryEntry>;
+  deleteSearchHistory(userId: number, searchId: number): Promise<boolean>;
+
+  // Messaging methods
+  getMessagesByUser(userId: number, type: 'sent' | 'received' | 'all'): Promise<Message[]>;
+  getConversation(conversationId: string): Promise<Message[]>;
+  sendMessage(message: InsertMessage): Promise<Message>;
+  markMessageRead(messageId: number, userId: number): Promise<void>;
+  markMessageStarred(messageId: number, userId: number, starred: boolean): Promise<void>;
+
+  // Tour methods
+  getToursByUser(userId: number): Promise<Tour[]>;
+  getToursByCommunity(communityId: number): Promise<Tour[]>;
+  createTour(tour: InsertTour): Promise<Tour>;
+  updateTour(id: number, updates: Partial<InsertTour>): Promise<Tour | undefined>;
+  cancelTour(id: number): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -143,12 +184,78 @@ export class MemStorage implements IStorage {
     );
   }
 
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(
+      (user) => user.email === email,
+    );
+  }
+
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
+    const user: User = { 
+      ...insertUser, 
+      id,
+      profileImage: null,
+      dateOfBirth: null,
+      emergencyContact: null,
+      preferences: null,
+      notifications: null,
+      emailVerified: false,
+      emailVerificationToken: null,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+      lastLogin: null,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
     this.users.set(id, user);
     return user;
   }
+
+  async updateUser(id: number, updates: Partial<InsertUser>): Promise<User | undefined> {
+    const user = this.users.get(id);
+    if (!user) return undefined;
+
+    const updatedUser: User = {
+      ...user,
+      ...updates,
+      updatedAt: new Date(),
+    };
+    this.users.set(id, updatedUser);
+    return updatedUser;
+  }
+
+  // Stub implementations for other methods
+  async createSession(): Promise<any> { throw new Error("Not implemented"); }
+  async getSessionById(): Promise<any> { throw new Error("Not implemented"); }
+  async deleteSession(): Promise<boolean> { throw new Error("Not implemented"); }
+  async cleanupExpiredSessions(): Promise<void> { throw new Error("Not implemented"); }
+  async getReviewsByCommunity(): Promise<any[]> { return []; }
+  async getReviewsByUser(): Promise<any[]> { return []; }
+  async createReview(): Promise<any> { throw new Error("Not implemented"); }
+  async updateReview(): Promise<any> { throw new Error("Not implemented"); }
+  async deleteReview(): Promise<boolean> { throw new Error("Not implemented"); }
+  async markReviewHelpful(): Promise<void> { throw new Error("Not implemented"); }
+  async getReviewHelpfulness(): Promise<boolean | null> { return null; }
+  async moderateReview(): Promise<any> { throw new Error("Not implemented"); }
+  async getFavoritesByUser(): Promise<any[]> { return []; }
+  async addFavorite(): Promise<any> { throw new Error("Not implemented"); }
+  async removeFavorite(): Promise<boolean> { throw new Error("Not implemented"); }
+  async isFavorited(): Promise<boolean> { return false; }
+  async getSearchHistory(): Promise<any[]> { return []; }
+  async saveSearch(): Promise<any> { throw new Error("Not implemented"); }
+  async deleteSearchHistory(): Promise<boolean> { throw new Error("Not implemented"); }
+  async getMessagesByUser(): Promise<any[]> { return []; }
+  async getConversation(): Promise<any[]> { return []; }
+  async sendMessage(): Promise<any> { throw new Error("Not implemented"); }
+  async markMessageRead(): Promise<void> { throw new Error("Not implemented"); }
+  async markMessageStarred(): Promise<void> { throw new Error("Not implemented"); }
+  async getToursByUser(): Promise<any[]> { return []; }
+  async getToursByCommunity(): Promise<any[]> { return []; }
+  async createTour(): Promise<any> { throw new Error("Not implemented"); }
+  async updateTour(): Promise<any> { throw new Error("Not implemented"); }
+  async cancelTour(): Promise<boolean> { throw new Error("Not implemented"); }
 
   async getCommunity(id: number): Promise<Community | undefined> {
     return this.communities.get(id);
