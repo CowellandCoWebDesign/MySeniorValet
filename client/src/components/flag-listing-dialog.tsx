@@ -34,12 +34,13 @@ import { useToast } from "@/hooks/use-toast";
 
 const flagSchema = z.object({
   flagType: z.enum([
+    "Incorrect Information",
+    "Duplicate Listing", 
     "Inappropriate Content",
-    "Incorrect Information", 
-    "Spam/Duplicate",
-    "Closed/No Longer Operating",
-    "Safety Concerns",
-    "Pricing Issues",
+    "Spam",
+    "Closed/Out of Business",
+    "Wrong Location",
+    "Pricing Error",
     "Other"
   ]),
   reason: z.string().min(10, "Please provide a detailed reason (minimum 10 characters)"),
@@ -74,14 +75,11 @@ export function FlagListingDialog({ communityId, communityName, userId }: FlagLi
 
   const flagMutation = useMutation({
     mutationFn: async (data: FlagFormData) => {
-      return await apiRequest(`/api/communities/${communityId}/flag`, {
-        method: "POST",
-        body: JSON.stringify({
-          ...data,
-          userId,
-          reporterEmail: data.reporterEmail || null,
-          reporterName: data.reporterName || null,
-        }),
+      return await apiRequest(`/api/communities/${communityId}/flag`, "POST", {
+        ...data,
+        userId,
+        reporterEmail: data.reporterEmail || null,
+        reporterName: data.reporterName || null,
       });
     },
     onSuccess: () => {
