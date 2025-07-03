@@ -3,6 +3,17 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { searchCommunitySchema, insertCommunitySchema, insertReviewSchema, loginSchema, signupSchema } from "@shared/schema";
 import { z } from "zod";
+
+// Scalable infrastructure imports
+import { searchCache, communityCache, apiCache } from "./infrastructure/cache";
+import { 
+  generalLimiter, 
+  searchLimiter, 
+  apiLimiter, 
+  createRateLimitMiddleware 
+} from "./infrastructure/rateLimiter";
+import { monitor } from "./infrastructure/monitoring";
+import { loadTester } from "./infrastructure/loadTest";
 import { aiRecommendationEngine, RecommendationRequest } from "./ai-recommendations";
 import { ComprehensiveScraper } from "./scraper";
 import { licensingScraper } from "./licensing-scraper";
@@ -15,6 +26,16 @@ import fs from 'fs';
 import path from 'path';
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  
+  // ===============================
+  // SCALABLE INFRASTRUCTURE MIDDLEWARE
+  // ===============================
+  
+  // Apply performance monitoring to all routes
+  app.use(monitor.middleware());
+  
+  // Apply general rate limiting to all routes
+  app.use(createRateLimitMiddleware(generalLimiter));
   
   // ===============================
   // COMPLIANCE MIDDLEWARE - APPLIED FIRST
@@ -143,10 +164,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Search communities - NORTHERN CALIFORNIA FOCUSED ALGORITHM (MUST BE FIRST)
-  app.get("/api/communities/search", async (req, res) => {
+  app.get("/api/communities/search", createRateLimitMiddleware(searchLimiter), async (req, res) => {
     try {
       // Parse and validate search parameters
       const searchParams = searchCommunitySchema.parse(req.query);
+      
+      // Generate cache key for search results
+      const cacheKey = `search:${JSON.stringify(searchParams)}`;
+      
+      // Check cache first for 10,000+ user scalability
+      const cachedResults = searchCache.get(cacheKey);
+      if (cachedResults) {
+        return res.json(cachedResults);
+      }
       
       // NORTHERN CALIFORNIA MARKET FOCUS: Prioritize Bay Area + Redding
       let communities;
@@ -197,6 +227,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         return bTransparency - aTransparency;
       });
+      
+      // Cache the results for 10 minutes to scale to 10,000+ users
+      searchCache.set(cacheKey, sortedCommunities, 600000);
       
       res.json(sortedCommunities);
     } catch (error) {
@@ -1695,7 +1728,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Google Places enrichment endpoint
-  app.post('/api/enrich/google-places', async (req, res) => {
+  app.post('/api/enrich/google-places', createRateLimitMiddleware(apiLimiter), async (req, res) => {
     try {
       const { city, state, limit = 3, communityIds } = req.body;
       
@@ -3557,6 +3590,109 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching lead data:', error);
       res.status(500).json({ message: 'Failed to fetch lead data' });
+    }
+  });
+
+  // System monitoring endpoint for admin dashboard
+  app.get('/api/system/health', async (req, res) => {
+    try {
+      const performanceStats = monitor.getStats();
+      const cacheStats = {
+        searchCache: searchCache.getStats(),
+        communityCache: communityCache.getStats(),
+        apiCache: apiCache.getStats()
+      };
+      
+      const rateLimitStats = {
+        general: generalLimiter.getStats(),
+        search: searchLimiter.getStats(),
+        api: apiLimiter.getStats()
+      };
+      
+      res.json({
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        performance: performanceStats,
+        cache: cacheStats,
+        rateLimiting: rateLimitStats,
+        uptime: process.uptime(),
+        memory: process.memoryUsage(),
+        nodejs: process.version,
+        scalabilityInfo: {
+          maxConcurrentUsers: 10000,
+          cacheHitRate: cacheStats.searchCache.hitRate,
+          avgResponseTime: performanceStats.avgResponseTime,
+          errorRate: performanceStats.errorRate
+        }
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        status: 'error', 
+        message: 'Failed to get system health' 
+      });
+    }
+  });
+
+  // Load testing endpoints for scalability verification
+  app.post('/api/admin/load-test', async (req, res) => {
+    try {
+      const { testType = 'light', customConfig } = req.body;
+      
+      let result;
+      if (customConfig) {
+        result = await loadTester.runScalabilityTest(customConfig);
+      } else {
+        switch (testType) {
+          case 'light':
+            result = await loadTester.runLightLoadTest();
+            break;
+          case 'moderate':
+            result = await loadTester.runModerateLoadTest();
+            break;
+          case 'heavy':
+            result = await loadTester.runHeavyLoadTest();
+            break;
+          case 'max':
+            result = await loadTester.runMaxLoadTest();
+            break;
+          default:
+            result = await loadTester.runLightLoadTest();
+        }
+      }
+      
+      res.json({
+        success: true,
+        testType,
+        result,
+        report: loadTester.generateReport(),
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false, 
+        message: 'Load test failed',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  app.get('/api/admin/load-test/results', async (req, res) => {
+    try {
+      const results = loadTester.getTestResults();
+      const report = loadTester.generateReport();
+      
+      res.json({
+        success: true,
+        results,
+        report,
+        totalTests: results.length,
+        lastTestDate: results.length > 0 ? results[results.length - 1] : null
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to get load test results' 
+      });
     }
   });
 
