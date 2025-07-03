@@ -16,7 +16,7 @@ export function Filters({ onFiltersChange }: FiltersProps) {
     careServices: [] as string[],
     amenities: [] as string[],
     priceRange: { min: "", max: "" },
-    minRating: "",
+    minRating: "any",
     availability: "all",
     verificationStatus: "all",
   });
@@ -30,7 +30,7 @@ export function Filters({ onFiltersChange }: FiltersProps) {
   const hasActiveFilters = () => {
     return filters.careServices.length > 0 || 
            filters.amenities.length > 0 || 
-           filters.minRating !== "" || 
+           filters.minRating !== "any" || 
            filters.availability !== "all" ||
            filters.verificationStatus !== "all" ||
            filters.priceRange.min !== "" ||
@@ -121,7 +121,7 @@ export function Filters({ onFiltersChange }: FiltersProps) {
       careServices: [],
       amenities: [],
       priceRange: { min: "", max: "" },
-      minRating: "",
+      minRating: "any",
       availability: "all",
       verificationStatus: "all",
     };
@@ -282,7 +282,7 @@ export function Filters({ onFiltersChange }: FiltersProps) {
               <SelectValue placeholder="Any rating" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Any rating</SelectItem>
+              <SelectItem value="any">Any rating</SelectItem>
               {ratingOptions.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
