@@ -852,12 +852,12 @@ export default function CommunityPage() {
                   </div>
                 </div>
 
-                {/* AVAILABLE UNITS & RESERVATIONS */}
+                {/* AVAILABLE UNITS & FLOOR PLANS */}
                 {community.unitTypes && community.unitTypes.length > 0 && (
                   <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
                     <div className="flex items-center space-x-2 mb-4">
                       <Home className="h-5 w-5 text-purple-600" />
-                      <span className="font-semibold text-purple-900">Available Units</span>
+                      <span className="font-semibold text-purple-900">Available Units & Floor Plans</span>
                     </div>
 
                     <div className="space-y-4">
@@ -932,16 +932,16 @@ export default function CommunityPage() {
                                   </div>
                                 )}
 
-                                {/* Reservation Buttons */}
+                                {/* Contact Actions */}
                                 <div className="flex space-x-2">
                                   <Button 
                                     size="sm" 
                                     className="flex-1 bg-purple-600 hover:bg-purple-700 text-xs"
                                     onClick={() => {
-                                      alert(`Reserve Unit ${unit.unitNumber} - ${unitType.name}\nPrice: $${unit.price.toLocaleString()}/month\nAvailable: ${unit.availableDate}\n\nReservation system would be integrated here.`);
+                                      alert(`Contact about Unit ${unit.unitNumber} - ${unitType.name}\nPrice: $${unit.price.toLocaleString()}/month\nAvailable: ${unit.availableDate}\n\nCall or visit to inquire about availability.`);
                                     }}
                                   >
-                                    Reserve Now
+                                    Contact for Unit
                                   </Button>
                                   <Button 
                                     variant="outline" 
@@ -976,12 +976,12 @@ export default function CommunityPage() {
                     </div>
 
                     <div className="mt-4 p-3 bg-blue-100 border border-blue-200 rounded">
-                      <div className="text-sm font-medium text-blue-900 mb-1">💡 Reservation Process:</div>
+                      <div className="text-sm font-medium text-blue-900 mb-1">💡 How to Inquire:</div>
                       <div className="text-xs text-blue-800 space-y-1">
-                        <div>1. Select your preferred unit and move-in date</div>
-                        <div>2. Complete application and pay holding deposit ($500)</div>
-                        <div>3. Schedule move-in consultation and care assessment</div>
-                        <div>4. Sign lease and pay remaining move-in costs</div>
+                        <div>1. Contact the community directly to discuss unit availability</div>
+                        <div>2. Schedule a tour to view available units in person</div>
+                        <div>3. Discuss pricing, care needs, and move-in timeline</div>
+                        <div>4. Complete application process if you decide to move forward</div>
                       </div>
                     </div>
                   </div>
