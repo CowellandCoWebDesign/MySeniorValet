@@ -1,6 +1,8 @@
 # TrueView Development Timeline - Investor Update
 *Last Updated: January 3, 2025*
 
+© 2025 Scott Cowell. All rights reserved.
+
 ## Executive Summary
 TrueView has evolved from concept to a production-ready, enterprise-grade senior living search platform with comprehensive data verification, AI-powered insights, and scalable infrastructure designed for 10,000+ concurrent users.
 

@@ -1,6 +1,8 @@
 # TrueView Development Log - Complete Timestamped History
 *Generated: January 3, 2025*
 
+© 2025 Scott Cowell. All rights reserved.
+
 ## **JULY 2, 2025 - FOUNDATION & CORE DEVELOPMENT**
 
 ### **9:00 AM - Project Initialization**
