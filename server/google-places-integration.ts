@@ -400,6 +400,154 @@ export class GooglePlacesIntegration {
     this.callCount = 0;
     this.totalCost = 0;
   }
+
+  /**
+   * Discover new senior living communities in a specific area using Google Places
+   */
+  async discoverCommunitiesInArea(
+    searchTerms: string[],
+    location: string,
+    radius: number = 25000
+  ): Promise<Array<{
+    place_id: string;
+    name: string;
+    address: string;
+    city: string;
+    state: string;
+    zipCode?: string;
+    phone?: string;
+    website?: string;
+    rating?: number;
+    reviewCount?: number;
+    lat?: number;
+    lng?: number;
+    types: string[];
+  }>> {
+    const discoveredCommunities: any[] = [];
+    const seenPlaceIds = new Set<string>();
+
+    if (this.callCount >= this.dailyLimit) {
+      throw new Error('Daily API limit reached');
+    }
+
+    console.log(`Discovering senior living communities near ${location}...`);
+
+    for (const searchTerm of searchTerms) {
+      try {
+        console.log(`Searching for: ${searchTerm}`);
+        
+        const response = await axios.get(`${this.baseUrl}/textsearch/json`, {
+          params: {
+            key: this.apiKey,
+            query: searchTerm,
+            location: `${location}`,
+            radius: radius,
+            type: 'lodging'
+          },
+          timeout: 15000
+        });
+
+        this.callCount++;
+        this.totalCost += this.costPerTextSearch;
+
+        if (response.data?.results?.length > 0) {
+          for (const place of response.data.results) {
+            // Skip if we've already found this place
+            if (seenPlaceIds.has(place.place_id)) {
+              continue;
+            }
+
+            // Filter to only include senior living related places
+            if (this.isSeniorLivingFacility(place.name, place.types)) {
+              seenPlaceIds.add(place.place_id);
+              
+              const community = await this.extractCommunityDataFromPlace(place);
+              if (community) {
+                discoveredCommunities.push(community);
+                console.log(`Found: ${community.name} in ${community.city}`);
+              }
+            }
+          }
+        }
+
+        // Rate limiting between searches
+        await this.delay(200);
+
+      } catch (error) {
+        console.error(`Search failed for "${searchTerm}":`, error instanceof Error ? error.message : 'Unknown error');
+        if (axios.isAxiosError(error) && error.response?.status === 429) {
+          console.warn('Google Places API rate limit exceeded');
+          break;
+        }
+      }
+    }
+
+    console.log(`Discovery complete. Found ${discoveredCommunities.length} unique communities.`);
+    return discoveredCommunities;
+  }
+
+  private isSeniorLivingFacility(name: string, types: string[]): boolean {
+    const seniorKeywords = [
+      'senior', 'assisted living', 'memory care', 'independent living', 
+      'retirement', 'elder care', 'adult care', 'senior community',
+      'continuing care', 'skilled nursing', 'nursing home', 'care facility'
+    ];
+    
+    const nameCheck = seniorKeywords.some(keyword => 
+      name.toLowerCase().includes(keyword)
+    );
+    
+    // Also check if it's a health-related lodging facility
+    const typeCheck = types.some(type => 
+      ['lodging', 'health', 'establishment'].includes(type)
+    );
+    
+    return nameCheck && typeCheck;
+  }
+
+  private async extractCommunityDataFromPlace(place: any): Promise<any | null> {
+    try {
+      // Parse address components
+      const addressParts = place.formatted_address?.split(', ') || [];
+      let city = '';
+      let state = '';
+      let zipCode = '';
+      
+      if (addressParts.length >= 2) {
+        const lastPart = addressParts[addressParts.length - 1]; // "CA 96002, USA"
+        const secondLastPart = addressParts[addressParts.length - 2]; // City name
+        
+        city = secondLastPart || '';
+        
+        // Extract state and zip from last part
+        const stateZipMatch = lastPart.match(/([A-Z]{2})\s*(\d{5}(-\d{4})?)?/);
+        if (stateZipMatch) {
+          state = stateZipMatch[1];
+          zipCode = stateZipMatch[2] || '';
+        }
+      }
+
+      return {
+        place_id: place.place_id,
+        name: place.name,
+        address: place.formatted_address || '',
+        city: city,
+        state: state,
+        zipCode: zipCode,
+        phone: place.formatted_phone_number,
+        website: place.website,
+        rating: place.rating,
+        reviewCount: place.user_ratings_total || 0,
+        lat: place.geometry?.location?.lat,
+        lng: place.geometry?.location?.lng,
+        types: place.types || []
+      };
+    } catch (error) {
+      console.error('Error extracting community data:', error);
+      return null;
+    }
+  }
+
 }
 
 export const googlePlacesIntegration = new GooglePlacesIntegration();

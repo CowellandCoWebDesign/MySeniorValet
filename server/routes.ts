@@ -7,6 +7,7 @@ import { aiRecommendationEngine, RecommendationRequest } from "./ai-recommendati
 import { ComprehensiveScraper } from "./scraper";
 import { licensingScraper } from "./licensing-scraper";
 import { googleReviewsAI } from "./google-reviews-ai";
+import { googlePlacesIntegration } from "./google-places-integration";
 import { authService, requireAuth } from "./auth";
 import cookieParser from "cookie-parser";
 import fs from 'fs';
@@ -2003,6 +2004,127 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Save communities error:', error);
       res.status(500).json({ 
         message: 'Failed to save communities',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Expanded community discovery for Redding area
+  app.post('/api/discover-redding-area', async (req, res) => {
+    try {
+      console.log('Starting expanded community discovery for Redding area...');
+      
+      const searchTerms = [
+        'senior living Redding CA',
+        'assisted living Redding CA', 
+        'memory care Redding CA',
+        'independent living Redding CA',
+        'senior community Redding CA',
+        'retirement community Redding CA',
+        'senior living Anderson CA',
+        'senior living Shasta Lake CA',
+        'senior living Cottonwood CA',
+        'senior living Red Bluff CA',
+        'senior living Chico CA',
+        'assisted living Anderson CA',
+        'assisted living Shasta Lake CA',
+        'memory care Chico CA',
+        'senior housing Northern California'
+      ];
+      
+      const discoveredCommunities = await googlePlacesIntegration.discoverCommunitiesInArea(
+        searchTerms,
+        'Redding, CA',
+        50000 // 50km radius to cover surrounding areas
+      );
+
+      // Convert to database format and save
+      const savedCommunities = [];
+      let replacedCount = 0;
+
+      for (const community of discoveredCommunities) {
+        try {
+          const communityData = {
+            name: community.name,
+            address: community.address,
+            city: community.city,
+            state: community.state,
+            zipCode: community.zipCode || '',
+            phone: community.phone || null,
+            email: null,
+            website: community.website || null,
+            description: `Senior living community in ${community.city}, CA. Google Places rating: ${community.rating || 'N/A'}/5 with ${community.reviewCount || 0} reviews.`,
+            careTypes: ['Independent Living'], // Will be updated during enrichment
+            amenities: [],
+            pricing: null,
+            availability: 'Contact for Availability',
+            photos: [],
+            reviews: [],
+            googlePlacesId: community.place_id,
+            rating: community.rating || null,
+            reviewCount: community.reviewCount || 0,
+            isVerified: true,
+            verificationDate: new Date(),
+            dataSource: 'Google Places API',
+            lastUpdated: new Date(),
+            latitude: community.lat || null,
+            longitude: community.lng || null
+          };
+
+          const existingCommunity = await storage.getCommunityByName(communityData.name);
+          
+          if (existingCommunity) {
+            // Update existing with Google Places data
+            const updatedCommunity = await storage.updateCommunity(existingCommunity.id, {
+              googlePlacesId: communityData.googlePlacesId,
+              rating: communityData.rating,
+              reviewCount: communityData.reviewCount,
+              phone: communityData.phone || existingCommunity.phone,
+              website: communityData.website || existingCommunity.website,
+              dataSource: 'Google Places API',
+              lastUpdated: new Date()
+            });
+            if (updatedCommunity) {
+              savedCommunities.push(updatedCommunity);
+              replacedCount++;
+            }
+          } else {
+            // Create new community
+            const newCommunity = await storage.createCommunity(communityData);
+            savedCommunities.push(newCommunity);
+          }
+          
+          console.log(`✓ Saved: ${communityData.name} in ${communityData.city}`);
+        } catch (error) {
+          console.error(`Failed to save community ${community.name}:`, error);
+        }
+      }
+
+      const apiStats = googlePlacesIntegration.getUsageStats();
+
+      res.json({
+        success: true,
+        message: `Redding area discovery complete! Found ${discoveredCommunities.length} communities, saved ${savedCommunities.length}`,
+        discovered: discoveredCommunities.length,
+        saved: savedCommunities.length,
+        replaced: replacedCount,
+        apiCalls: apiStats.callCount,
+        totalCost: apiStats.totalCost,
+        communities: savedCommunities.map(c => ({
+          id: c.id,
+          name: c.name,
+          city: c.city,
+          state: c.state,
+          googlePlacesId: c.googlePlacesId,
+          rating: c.rating,
+          reviewCount: c.reviewCount
+        }))
+      });
+
+    } catch (error) {
+      console.error('Redding area discovery error:', error);
+      res.status(500).json({ 
+        message: 'Failed to discover communities in Redding area',
         error: error instanceof Error ? error.message : 'Unknown error'
       });
     }

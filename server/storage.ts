@@ -261,6 +261,12 @@ export class MemStorage implements IStorage {
     return this.communities.get(id);
   }
 
+  async getCommunityByName(name: string): Promise<Community | undefined> {
+    return Array.from(this.communities.values()).find(
+      (community) => community.name.toLowerCase() === name.toLowerCase()
+    );
+  }
+
   async getAllCommunities(): Promise<Community[]> {
     return Array.from(this.communities.values());
   }
@@ -356,6 +362,11 @@ export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user || undefined;
+  }
+
+  async getCommunityByName(name: string): Promise<Community | undefined> {
+    const [community] = await db.select().from(communities).where(eq(communities.name, name));
+    return community || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
