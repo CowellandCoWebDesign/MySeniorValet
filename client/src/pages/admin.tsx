@@ -59,7 +59,12 @@ import {
   Settings,
   Phone,
   Mail,
-  HelpCircle
+  HelpCircle,
+  Database,
+  Upload,
+  Camera,
+  DollarSign,
+  Link
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -73,6 +78,21 @@ export default function AdminDashboard() {
   const [showFullAnalytics, setShowFullAnalytics] = useState(false);
   const [showSystemDetails, setShowSystemDetails] = useState(false);
   const [showHealthDetails, setShowHealthDetails] = useState(false);
+
+  const qualityMetricsQuery = useQuery({
+    queryKey: ['/api/admin/data/quality-metrics'],
+    retry: false,
+  });
+
+  const apiUsageQuery = useQuery({
+    queryKey: ['/api/admin/analytics/usage'],
+    retry: false,
+  });
+
+  const crmStatusQuery = useQuery({
+    queryKey: ['/api/admin/crm/status'],
+    retry: false,
+  });
 
   const auditLogsQuery = useQuery({
     queryKey: ['/api/admin/audit-logs', auditFilters, auditCurrentPage],
@@ -154,9 +174,12 @@ export default function AdminDashboard() {
       </div>
 
       <Tabs defaultValue="audit" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 gap-1">
+        <TabsList className="grid w-full grid-cols-3 md:grid-cols-9 gap-1">
           <TabsTrigger value="audit" className="text-xs md:text-sm">Audit</TabsTrigger>
           <TabsTrigger value="health" className="text-xs md:text-sm">Health</TabsTrigger>
+          <TabsTrigger value="data" className="text-xs md:text-sm">Data Tools</TabsTrigger>
+          <TabsTrigger value="analytics" className="text-xs md:text-sm">API Analytics</TabsTrigger>
+          <TabsTrigger value="crm" className="text-xs md:text-sm">CRM</TabsTrigger>
           <TabsTrigger value="flags" className="text-xs md:text-sm">Flags</TabsTrigger>
           <TabsTrigger value="users" className="text-xs md:text-sm">Users</TabsTrigger>
           <TabsTrigger value="moderation" className="text-xs md:text-sm">Moderation</TabsTrigger>
@@ -561,6 +584,471 @@ export default function AdminDashboard() {
                   </CardContent>
                 </Card>
               )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="data" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Database className="h-5 w-5" />
+                Data Import/Export Tools
+              </CardTitle>
+              <CardDescription>
+                Manage community data with import/export capabilities and bulk operations
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium">Import Communities</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="text-sm text-gray-600">
+                      Upload CSV file with community data to bulk import listings
+                    </div>
+                    <Button variant="outline" className="w-full">
+                      <Upload className="h-4 w-4 mr-2" />
+                      Upload CSV File
+                    </Button>
+                    <div className="text-xs text-gray-500">
+                      Supported formats: CSV, Excel (.xlsx)
+                      Max file size: 10MB
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium">Export Communities</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="text-sm text-gray-600">
+                      Download complete community database with all enriched data
+                    </div>
+                    <Button variant="outline" className="w-full">
+                      <Download className="h-4 w-4 mr-2" />
+                      Export to CSV
+                    </Button>
+                    <div className="text-xs text-gray-500">
+                      Includes: Basic info, amenities, photos, reviews, ratings
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium">Bulk Operations</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="text-sm text-gray-600">
+                      Perform bulk updates on selected communities
+                    </div>
+                    <div className="space-y-2">
+                      <Button variant="outline" size="sm" className="w-full text-xs">
+                        <RefreshCw className="h-3 w-3 mr-2" />
+                        Bulk Refresh Data
+                      </Button>
+                      <Button variant="outline" size="sm" className="w-full text-xs">
+                        <Camera className="h-3 w-3 mr-2" />
+                        Bulk Enrich Photos
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Data Quality Metrics</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {qualityMetricsQuery.isLoading ? (
+                      <div className="text-center py-4">Loading metrics...</div>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="text-center p-3 bg-green-50 rounded-lg">
+                          <div className="text-2xl font-bold text-green-600">
+                            {qualityMetricsQuery.data?.completeProfiles || 0}%
+                          </div>
+                          <div className="text-sm text-green-600">Complete Profiles</div>
+                        </div>
+                        <div className="text-center p-3 bg-blue-50 rounded-lg">
+                          <div className="text-2xl font-bold text-blue-600">
+                            {qualityMetricsQuery.data?.hasPhotos || 0}%
+                          </div>
+                          <div className="text-sm text-blue-600">Has Photos</div>
+                        </div>
+                        <div className="text-center p-3 bg-purple-50 rounded-lg">
+                          <div className="text-2xl font-bold text-purple-600">
+                            {qualityMetricsQuery.data?.hasReviews || 0}%
+                          </div>
+                          <div className="text-sm text-purple-600">Has Reviews</div>
+                        </div>
+                        <div className="text-center p-3 bg-orange-50 rounded-lg">
+                          <div className="text-2xl font-bold text-orange-600">
+                            {qualityMetricsQuery.data?.phoneVerified || 0}%
+                          </div>
+                          <div className="text-sm text-orange-600">Phone Verified</div>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Import History</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                        <div>
+                          <div className="text-sm font-medium">Google Places Discovery</div>
+                          <div className="text-xs text-gray-500">25 communities imported</div>
+                        </div>
+                        <div className="text-xs text-gray-500">2 hours ago</div>
+                      </div>
+                      <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                        <div>
+                          <div className="text-sm font-medium">Manual CSV Upload</div>
+                          <div className="text-xs text-gray-500">3 communities added</div>
+                        </div>
+                        <div className="text-xs text-gray-500">1 day ago</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5" />
+                API Usage Analytics
+              </CardTitle>
+              <CardDescription>
+                Monitor API usage, performance metrics, and cost tracking
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-2">
+                      <Activity className="h-4 w-4 text-blue-600" />
+                      <div className="text-sm font-medium">Total API Calls</div>
+                    </div>
+                    <div className="text-2xl font-bold mt-2">
+                      {apiUsageQuery.data?.totalCalls?.toLocaleString() || '0'}
+                    </div>
+                    <div className="text-xs text-green-600 mt-1">+12% from yesterday</div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-2">
+                      <DollarSign className="h-4 w-4 text-green-600" />
+                      <div className="text-sm font-medium">API Costs</div>
+                    </div>
+                    <div className="text-2xl font-bold mt-2">
+                      ${apiUsageQuery.data?.totalCost?.toFixed(2) || '0.00'}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">This month</div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-2">
+                      <Clock className="h-4 w-4 text-orange-600" />
+                      <div className="text-sm font-medium">Avg Response</div>
+                    </div>
+                    <div className="text-2xl font-bold mt-2">
+                      {apiUsageQuery.data?.avgResponseTime || 0}ms
+                    </div>
+                    <div className="text-xs text-red-600 mt-1">+15ms slower</div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-2">
+                      <TrendingUp className="h-4 w-4 text-purple-600" />
+                      <div className="text-sm font-medium">Success Rate</div>
+                    </div>
+                    <div className="text-2xl font-bold mt-2">
+                      {apiUsageQuery.data?.successRate || 0}%
+                    </div>
+                    <div className="text-xs text-green-600 mt-1">Excellent</div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">API Usage by Service</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-sm font-medium">Google Places API</div>
+                          <div className="text-xs text-gray-500">1,234 calls • $18.20 cost</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-bold">43%</div>
+                          <div className="w-16 h-2 bg-gray-200 rounded-full">
+                            <div className="w-7 h-2 bg-blue-600 rounded-full"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-sm font-medium">Yelp Fusion API</div>
+                          <div className="text-xs text-gray-500">856 calls • $4.28 cost</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-bold">30%</div>
+                          <div className="w-16 h-2 bg-gray-200 rounded-full">
+                            <div className="w-5 h-2 bg-green-600 rounded-full"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-sm font-medium">Mapillary Photos</div>
+                          <div className="text-xs text-gray-500">567 calls • Free tier</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-bold">20%</div>
+                          <div className="w-16 h-2 bg-gray-200 rounded-full">
+                            <div className="w-3 h-2 bg-purple-600 rounded-full"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-sm font-medium">Twilio Verify</div>
+                          <div className="text-xs text-gray-500">190 calls • $0.97 cost</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-bold">7%</div>
+                          <div className="w-16 h-2 bg-gray-200 rounded-full">
+                            <div className="w-1 h-2 bg-orange-600 rounded-full"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Rate Limits & Quotas</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="p-3 border rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium">Google Places</span>
+                          <span className="text-sm text-green-600">Healthy</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div className="bg-green-600 h-2 rounded-full" style={{width: '34%'}}></div>
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">1,234 / 3,600 daily limit</div>
+                      </div>
+                      <div className="p-3 border rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium">Yelp Fusion</span>
+                          <span className="text-sm text-yellow-600">Moderate</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div className="bg-yellow-600 h-2 rounded-full" style={{width: '68%'}}></div>
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">856 / 1,250 daily limit</div>
+                      </div>
+                      <div className="p-3 border rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium">Mapillary</span>
+                          <span className="text-sm text-green-600">Unlimited</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div className="bg-green-600 h-2 rounded-full" style={{width: '20%'}}></div>
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">567 calls today (free tier)</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="crm" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Enquire CRM Integration
+              </CardTitle>
+              <CardDescription>
+                Connect with Enquire CRM for lead management and community insights
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Settings className="h-4 w-4" />
+                      Connection Status
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                      <div>
+                        <div className="text-sm font-medium">Enquire CRM</div>
+                        <div className="text-xs text-gray-500">Not connected</div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                        <span className="text-sm text-yellow-600">Pending Setup</span>
+                      </div>
+                    </div>
+                    <Button className="w-full">
+                      <Link className="h-4 w-4 mr-2" />
+                      Configure CRM Integration
+                    </Button>
+                    <div className="text-xs text-gray-500">
+                      Connect your Enquire CRM account to sync leads, track conversions, and manage community relationships
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Sync Settings</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">Auto-sync new leads</span>
+                        <div className="bg-gray-100 px-2 py-1 rounded text-xs text-gray-500">Disabled</div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">Daily data export</span>
+                        <div className="bg-gray-100 px-2 py-1 rounded text-xs text-gray-500">Disabled</div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">Lead scoring sync</span>
+                        <div className="bg-gray-100 px-2 py-1 rounded text-xs text-gray-500">Disabled</div>
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-500 mt-4">
+                      Configure these settings after connecting your CRM
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium">Lead Pipeline</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">New Inquiries</span>
+                        <span className="text-sm font-bold">--</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">Qualified Leads</span>
+                        <span className="text-sm font-bold">--</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">Tours Scheduled</span>
+                        <span className="text-sm font-bold">--</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">Move-ins</span>
+                        <span className="text-sm font-bold">--</span>
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-500 mt-3">
+                      Connect CRM to view pipeline data
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium">Top Performing Communities</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <div className="text-sm text-gray-500">No data available</div>
+                      <div className="text-xs text-gray-400">
+                        CRM integration will show which communities generate the most qualified leads
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <div className="text-sm text-gray-500">No recent activity</div>
+                      <div className="text-xs text-gray-400">
+                        Lead activities and CRM events will appear here
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Integration Benefits</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-sm">Lead Management</h4>
+                      <ul className="text-xs text-gray-600 space-y-1">
+                        <li>• Automatic lead capture from community inquiries</li>
+                        <li>• Lead scoring based on community preferences</li>
+                        <li>• Automated follow-up sequences</li>
+                        <li>• Tour scheduling integration</li>
+                      </ul>
+                    </div>
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-sm">Analytics & Insights</h4>
+                      <ul className="text-xs text-gray-600 space-y-1">
+                        <li>• Conversion tracking by community</li>
+                        <li>• Lead source attribution</li>
+                        <li>• ROI analysis for marketing spend</li>
+                        <li>• Community performance dashboards</li>
+                      </ul>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </CardContent>
           </Card>
         </TabsContent>

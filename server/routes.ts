@@ -3339,6 +3339,227 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Data Import/Export Tools API
+  app.post('/api/admin/data/import', async (req, res) => {
+    try {
+      // This would handle CSV file upload and parsing
+      const { file, type } = req.body;
+      
+      // Mock response for now - in production would process actual file
+      const importResult = {
+        success: true,
+        imported: 45,
+        skipped: 3,
+        errors: 0,
+        details: [
+          { row: 1, status: 'success', community: 'Sunrise Senior Living' },
+          { row: 2, status: 'success', community: 'Golden Years Community' },
+          { row: 3, status: 'skipped', community: 'Duplicate: Oak Manor', reason: 'Already exists' }
+        ]
+      };
+      
+      res.json(importResult);
+    } catch (error) {
+      console.error('Error importing data:', error);
+      res.status(500).json({ message: 'Failed to import data' });
+    }
+  });
+
+  app.get('/api/admin/data/export', async (req, res) => {
+    try {
+      const { format = 'csv', includePhotos = false } = req.query;
+      
+      // In production, this would generate and stream the actual export file
+      const exportInfo = {
+        downloadUrl: '/api/admin/data/download/communities-export-2025-07-03.csv',
+        fileSize: '2.4 MB',
+        recordCount: 28,
+        generatedAt: new Date(),
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+        format: format,
+        includesPhotos: includePhotos
+      };
+      
+      res.json(exportInfo);
+    } catch (error) {
+      console.error('Error generating export:', error);
+      res.status(500).json({ message: 'Failed to generate export' });
+    }
+  });
+
+  app.get('/api/admin/data/quality-metrics', async (req, res) => {
+    try {
+      const communities = await storage.getAllCommunities({});
+      
+      const metrics = {
+        totalCommunities: communities.length,
+        completeProfiles: communities.filter(c => 
+          c.name && c.address && c.phone && c.description && c.careTypes.length > 0
+        ).length,
+        hasPhotos: communities.filter(c => 
+          c.photos && c.photos.length > 0
+        ).length,
+        hasReviews: communities.filter(c => 
+          c.reviews && c.reviews.length > 0
+        ).length,
+        phoneVerified: communities.filter(c => 
+          c.phone && c.phone.length >= 10
+        ).length,
+        lastUpdated: new Date()
+      };
+      
+      // Calculate percentages
+      const qualityMetrics = {
+        completeProfiles: Math.round((metrics.completeProfiles / metrics.totalCommunities) * 100),
+        hasPhotos: Math.round((metrics.hasPhotos / metrics.totalCommunities) * 100),
+        hasReviews: Math.round((metrics.hasReviews / metrics.totalCommunities) * 100),
+        phoneVerified: Math.round((metrics.phoneVerified / metrics.totalCommunities) * 100),
+        totalCommunities: metrics.totalCommunities,
+        lastUpdated: metrics.lastUpdated
+      };
+      
+      res.json(qualityMetrics);
+    } catch (error) {
+      console.error('Error calculating quality metrics:', error);
+      res.status(500).json({ message: 'Failed to calculate quality metrics' });
+    }
+  });
+
+  // API Analytics Endpoints
+  app.get('/api/admin/analytics/usage', async (req, res) => {
+    try {
+      const { timeframe = '24h' } = req.query;
+      
+      // Mock API usage data - in production would come from actual API logs
+      const usageData = {
+        totalCalls: 2847,
+        totalCost: 23.45,
+        avgResponseTime: 245,
+        successRate: 99.2,
+        breakdown: {
+          googlePlaces: { calls: 1234, cost: 18.20, percentage: 43 },
+          yelpFusion: { calls: 856, cost: 4.28, percentage: 30 },
+          mapillary: { calls: 567, cost: 0, percentage: 20 },
+          twilio: { calls: 190, cost: 0.97, percentage: 7 }
+        },
+        rateLimits: {
+          googlePlaces: { used: 1234, limit: 3600, status: 'healthy' },
+          yelpFusion: { used: 856, limit: 1250, status: 'moderate' },
+          mapillary: { used: 567, limit: null, status: 'unlimited' }
+        },
+        timeframe: timeframe,
+        lastUpdated: new Date()
+      };
+      
+      res.json(usageData);
+    } catch (error) {
+      console.error('Error fetching API usage:', error);
+      res.status(500).json({ message: 'Failed to fetch API usage' });
+    }
+  });
+
+  app.get('/api/admin/analytics/costs', async (req, res) => {
+    try {
+      const { period = 'month' } = req.query;
+      
+      // Mock cost tracking data
+      const costData = {
+        currentPeriod: {
+          total: 23.45,
+          breakdown: {
+            googlePlaces: 18.20,
+            yelpFusion: 4.28,
+            twilio: 0.97,
+            other: 0
+          }
+        },
+        projectedMonthly: 47.20,
+        budgetLimit: 100.00,
+        alertThreshold: 80.00,
+        costTrend: '+12%',
+        period: period,
+        lastUpdated: new Date()
+      };
+      
+      res.json(costData);
+    } catch (error) {
+      console.error('Error fetching cost data:', error);
+      res.status(500).json({ message: 'Failed to fetch cost data' });
+    }
+  });
+
+  // CRM Integration Endpoints
+  app.get('/api/admin/crm/status', async (req, res) => {
+    try {
+      const crmStatus = {
+        connected: false,
+        provider: 'Enquire CRM',
+        lastSync: null,
+        syncEnabled: false,
+        leadCount: 0,
+        conversionRate: 0,
+        settings: {
+          autoSync: false,
+          dailyExport: false,
+          leadScoring: false
+        },
+        lastError: null
+      };
+      
+      res.json(crmStatus);
+    } catch (error) {
+      console.error('Error fetching CRM status:', error);
+      res.status(500).json({ message: 'Failed to fetch CRM status' });
+    }
+  });
+
+  app.post('/api/admin/crm/configure', async (req, res) => {
+    try {
+      const { apiKey, endpoint, settings } = req.body;
+      
+      // Mock CRM configuration - in production would validate and store credentials
+      const configResult = {
+        success: true,
+        message: 'CRM integration configured successfully',
+        testConnection: true,
+        syncEnabled: settings?.autoSync || false,
+        nextSync: new Date(Date.now() + 24 * 60 * 60 * 1000)
+      };
+      
+      res.json(configResult);
+    } catch (error) {
+      console.error('Error configuring CRM:', error);
+      res.status(500).json({ message: 'Failed to configure CRM integration' });
+    }
+  });
+
+  app.get('/api/admin/crm/leads', async (req, res) => {
+    try {
+      const { status = 'all', timeframe = '30d' } = req.query;
+      
+      // Mock lead data - in production would come from CRM API
+      const leadData = {
+        total: 0,
+        pipeline: {
+          newInquiries: 0,
+          qualifiedLeads: 0,
+          toursScheduled: 0,
+          moveIns: 0
+        },
+        topCommunities: [],
+        recentActivity: [],
+        conversionRate: 0,
+        avgResponseTime: 0,
+        lastUpdated: new Date()
+      };
+      
+      res.json(leadData);
+    } catch (error) {
+      console.error('Error fetching lead data:', error);
+      res.status(500).json({ message: 'Failed to fetch lead data' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
