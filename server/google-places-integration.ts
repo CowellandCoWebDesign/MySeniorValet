@@ -58,9 +58,9 @@ export class GooglePlacesIntegration {
   private readonly costPerPhotoRequest = 0.007; // $0.007 per request
 
   constructor() {
-    this.apiKey = process.env.GOOGLE_PLACES_API_KEY || '';
+    this.apiKey = process.env.GOOGLE_API_KEY || process.env.GOOGLE_PLACES_API_KEY || '';
     if (!this.apiKey) {
-      console.warn('GOOGLE_PLACES_API_KEY not found in environment variables');
+      console.warn('GOOGLE_API_KEY or GOOGLE_PLACES_API_KEY not found in environment variables');
     }
   }
 
