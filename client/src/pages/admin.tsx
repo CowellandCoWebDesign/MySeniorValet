@@ -132,13 +132,13 @@ export default function AdminDashboard() {
       </div>
 
       <Tabs defaultValue="audit" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="audit">Audit Logs</TabsTrigger>
-          <TabsTrigger value="health">System Health</TabsTrigger>
-          <TabsTrigger value="flags">Flags</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="moderation">Content Moderation</TabsTrigger>
-          <TabsTrigger value="support">Customer Support</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 gap-1">
+          <TabsTrigger value="audit" className="text-xs md:text-sm">Audit</TabsTrigger>
+          <TabsTrigger value="health" className="text-xs md:text-sm">Health</TabsTrigger>
+          <TabsTrigger value="flags" className="text-xs md:text-sm">Flags</TabsTrigger>
+          <TabsTrigger value="users" className="text-xs md:text-sm">Users</TabsTrigger>
+          <TabsTrigger value="moderation" className="text-xs md:text-sm">Moderation</TabsTrigger>
+          <TabsTrigger value="support" className="text-xs md:text-sm">Support</TabsTrigger>
         </TabsList>
 
         <TabsContent value="audit" className="space-y-6">
