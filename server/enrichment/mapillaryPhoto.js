@@ -46,7 +46,7 @@ export async function mapillaryPhoto(community) {
     // Filter and process images
     const photos = [];
     
-    for (const image of images.slice(0, 3)) { // Max 3 photos
+    for (const image of images.slice(0, 6)) { // Get up to 6 photos
       if (image.thumb_2048_url) {
         photos.push(image.thumb_2048_url);
       } else if (image.thumb_1024_url) {

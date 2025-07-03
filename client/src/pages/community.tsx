@@ -564,7 +564,7 @@ export default function CommunityPage() {
                     
                     {community.googleReviewSnippets && community.googleReviewSnippets.length > 0 ? (
                       <div className="space-y-3">
-                        {community.googleReviewSnippets.slice(0, 3).map((review: any, index: number) => (
+                        {community.googleReviewSnippets.map((review: any, index: number) => (
                           <div key={index} className="border-l-4 border-blue-200 pl-4 py-3 bg-blue-50 rounded-r-lg">
                             <div className="flex items-center space-x-2 mb-2">
                               <div className="flex">
@@ -846,7 +846,7 @@ export default function CommunityPage() {
                           {/* Unit Photos */}
                           {unitType.photos && unitType.photos.length > 0 && (
                             <div className="grid grid-cols-2 gap-2 mb-3">
-                              {unitType.photos.slice(0, 2).map((photo, index) => (
+                              {unitType.photos.map((photo, index) => (
                                 <img
                                   key={index}
                                   src={photo}
@@ -861,7 +861,7 @@ export default function CommunityPage() {
                           <div className="mb-3">
                             <div className="text-xs font-medium text-gray-700 mb-1">Features:</div>
                             <div className="flex flex-wrap gap-1">
-                              {unitType.features?.slice(0, 3).map((feature, index) => (
+                              {unitType.features?.map((feature, index) => (
                                 <span key={index} className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">
                                   {feature}
                                 </span>

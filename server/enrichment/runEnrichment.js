@@ -117,9 +117,8 @@ export async function runEnrichment(communityId) {
       }
     }
 
-    // Step 6: Google Places ($0.017/call, only if < 3 photos)
+    // Step 6: Google Places ($0.017/call, gather additional photos)
     if (process.env.GOOGLE_PLACES_API_KEY && 
-        enrichmentData.photos.length < 3 && 
         !spendCheck.alertTriggered) {
       try {
         const googleData = await googlePlaceDetail(community);

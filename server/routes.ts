@@ -1590,7 +1590,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const newUniquePhotos = enrichmentResult.photos.filter(photo => 
         !existingPhotos.some(existing => existing.includes(photo.split('photo_reference=')[1]?.split('&')[0] || ''))
       );
-      const newPhotos = [...existingPhotos, ...newUniquePhotos].slice(0, 15);
+      const newPhotos = [...existingPhotos, ...newUniquePhotos]; // No artificial limit on photos
       
       const updatedCommunity = await storage.updateCommunity(communityId, {
         googleRating: enrichmentResult.rating.toString(),
@@ -1667,7 +1667,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           await storage.updateCommunity(communityId, {
             googleRating: enrichment.rating.toString(),
             googleReviewCount: enrichment.reviewCount,
-            photos: [...existingPhotos, ...newUniquePhotos].slice(0, 15)
+            photos: [...existingPhotos, ...newUniquePhotos] // No artificial limit on photos
           });
           updatedCount++;
         }
