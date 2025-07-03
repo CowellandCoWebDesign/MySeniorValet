@@ -122,9 +122,23 @@ export const communities = pgTable("communities", {
   availableUnits: integer("available_units"),
   totalUnits: integer("total_units"),
   unitTypes: json("unit_types").$type<Array<{
+    id: string;
     type: string; // 'Studio', '1BR', '2BR'
+    name: string; // 'Deluxe Studio', 'Garden View 1BR'
     available: number;
     priceRange: { min: number; max: number };
+    photos: string[];
+    floorPlan?: string;
+    squareFootage: number;
+    features: string[];
+    amenities: string[];
+    availability: Array<{
+      unitNumber: string;
+      availableDate: string;
+      moveInReady: boolean;
+      price: number;
+      specialOffers?: string[];
+    }>;
   }>>().default([]),
   rating: decimal("rating", { precision: 3, scale: 2 }),
   reviewCount: integer("review_count").default(0),

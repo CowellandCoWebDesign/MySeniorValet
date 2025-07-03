@@ -852,6 +852,141 @@ export default function CommunityPage() {
                   </div>
                 </div>
 
+                {/* AVAILABLE UNITS & RESERVATIONS */}
+                {community.unitTypes && community.unitTypes.length > 0 && (
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
+                    <div className="flex items-center space-x-2 mb-4">
+                      <Home className="h-5 w-5 text-purple-600" />
+                      <span className="font-semibold text-purple-900">Available Units</span>
+                    </div>
+
+                    <div className="space-y-4">
+                      {community.unitTypes.map((unitType) => (
+                        <div key={unitType.id} className="bg-white border border-purple-200 rounded-lg p-4">
+                          {/* Unit Type Header */}
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <h4 className="font-semibold text-gray-900">{unitType.name}</h4>
+                              <p className="text-sm text-gray-600">{unitType.squareFootage} sq ft • {unitType.available} available</p>
+                            </div>
+                            <div className="text-right">
+                              <div className="font-bold text-purple-900">
+                                ${unitType.priceRange.min.toLocaleString()}/month
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Unit Photos */}
+                          {unitType.photos && unitType.photos.length > 0 && (
+                            <div className="grid grid-cols-2 gap-2 mb-3">
+                              {unitType.photos.slice(0, 2).map((photo, index) => (
+                                <img
+                                  key={index}
+                                  src={photo}
+                                  alt={`${unitType.name} - Photo ${index + 1}`}
+                                  className="w-full h-24 object-cover rounded"
+                                />
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Features */}
+                          <div className="mb-3">
+                            <div className="text-xs font-medium text-gray-700 mb-1">Features:</div>
+                            <div className="flex flex-wrap gap-1">
+                              {unitType.features?.slice(0, 3).map((feature, index) => (
+                                <span key={index} className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">
+                                  {feature}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Available Units for Reservation */}
+                          <div className="space-y-2">
+                            <div className="text-xs font-medium text-gray-700">Reserve a specific unit:</div>
+                            {unitType.availability?.map((unit, index) => (
+                              <div key={index} className="bg-gray-50 border rounded p-3">
+                                <div className="flex justify-between items-center mb-2">
+                                  <div>
+                                    <span className="font-medium text-gray-900">Unit {unit.unitNumber}</span>
+                                    <span className={`ml-2 text-xs px-2 py-1 rounded ${
+                                      unit.moveInReady ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                                    }`}>
+                                      {unit.moveInReady ? 'Move-in Ready' : 'Available ' + new Date(unit.availableDate).toLocaleDateString()}
+                                    </span>
+                                  </div>
+                                  <div className="text-right">
+                                    <div className="font-semibold text-gray-900">${unit.price.toLocaleString()}/month</div>
+                                  </div>
+                                </div>
+
+                                {/* Special Offers */}
+                                {unit.specialOffers && unit.specialOffers.length > 0 && (
+                                  <div className="mb-2">
+                                    {unit.specialOffers.map((offer, offerIndex) => (
+                                      <span key={offerIndex} className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded mr-1">
+                                        🏷️ {offer}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+
+                                {/* Reservation Buttons */}
+                                <div className="flex space-x-2">
+                                  <Button 
+                                    size="sm" 
+                                    className="flex-1 bg-purple-600 hover:bg-purple-700 text-xs"
+                                    onClick={() => {
+                                      alert(`Reserve Unit ${unit.unitNumber} - ${unitType.name}\nPrice: $${unit.price.toLocaleString()}/month\nAvailable: ${unit.availableDate}\n\nReservation system would be integrated here.`);
+                                    }}
+                                  >
+                                    Reserve Now
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    className="text-xs"
+                                    onClick={() => {
+                                      alert(`Schedule tour for Unit ${unit.unitNumber}\nAvailable for viewing: ${unit.moveInReady ? 'Immediately' : unit.availableDate}`);
+                                    }}
+                                  >
+                                    Tour Unit
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Floor Plan Link */}
+                          {unitType.floorPlan && (
+                            <div className="mt-3 pt-3 border-t border-purple-200">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="w-full text-xs"
+                                onClick={() => window.open(unitType.floorPlan, '_blank')}
+                              >
+                                View Floor Plan
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-4 p-3 bg-blue-100 border border-blue-200 rounded">
+                      <div className="text-sm font-medium text-blue-900 mb-1">💡 Reservation Process:</div>
+                      <div className="text-xs text-blue-800 space-y-1">
+                        <div>1. Select your preferred unit and move-in date</div>
+                        <div>2. Complete application and pay holding deposit ($500)</div>
+                        <div>3. Schedule move-in consultation and care assessment</div>
+                        <div>4. Sign lease and pay remaining move-in costs</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Quick Actions */}
                 <div className="space-y-3">
                   <Button className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3">
