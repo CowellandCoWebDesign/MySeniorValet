@@ -4618,6 +4618,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Google Reviews restoration endpoint
+  app.post('/api/admin/restore-authentic-reviews', async (req, res) => {
+    try {
+      console.log("🔄 Starting authentic Google reviews restoration for ALL communities");
+      
+      // Get all communities that need review restoration
+      const allCommunities = await storage.getAllCommunities();
+      
+      const { googlePlacesReviews } = await import("./google-places-reviews");
+      const communityIds = allCommunities.map(c => c.id);
+      
+      // Process in batches of 10 to avoid API overload
+      const batchSize = 10;
+      let totalProcessed = 0;
+      let totalSuccessful = 0;
+      let totalReviewsAdded = 0;
+      
+      for (let i = 0; i < communityIds.length; i += batchSize) {
+        const batch = communityIds.slice(i, i + batchSize);
+        console.log(`📦 Processing batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(communityIds.length/batchSize)} (${batch.length} communities)`);
+        
+        const result = await googlePlacesReviews.enrichCommunitiesWithGoogleReviews(batch);
+        totalProcessed += result.processed;
+        totalSuccessful += result.successful;
+        totalReviewsAdded += result.details.reduce((sum, detail) => sum + detail.reviewsAdded, 0);
+        
+        // Wait between batches to respect API limits
+        if (i + batchSize < communityIds.length) {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+      }
+      
+      res.json({
+        success: true,
+        message: "Authentic Google reviews restoration completed",
+        statistics: {
+          totalProcessed,
+          totalSuccessful,
+          totalReviewsAdded,
+          successRate: `${Math.round((totalSuccessful / totalProcessed) * 100)}%`
+        }
+      });
+    } catch (error) {
+      console.error("❌ Reviews restoration error:", error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Systematic photo enrichment routes (individual community review)
   app.post('/api/admin/photo-enrichment/systematic', async (req, res) => {
     try {

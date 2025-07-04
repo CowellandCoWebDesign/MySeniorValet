@@ -5,7 +5,7 @@
 
 import { db } from './db';
 import { communities } from '../shared/schema';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 
 const GOOGLE_API_KEY = process.env.GOOGLE_PLACES_API_KEY;
 
@@ -111,15 +111,15 @@ export class GooglePlacesReviews {
       // Format reviews for database
       const formattedReviews = this.formatReviewsForDatabase(placeDetails.result.reviews || []);
 
-      // Update community with reviews
-      await db
-        .update(communities)
-        .set({
-          google_review_snippets: formattedReviews,
-          google_rating: placeDetails.result.rating?.toString(),
-          google_review_count: placeDetails.result.user_ratings_total?.toString()
-        })
-        .where(eq(communities.id, communityId));
+      // Update community with reviews using direct SQL to avoid schema mismatch
+      await db.execute(sql`
+        UPDATE communities 
+        SET 
+          google_review_snippets = ${JSON.stringify(formattedReviews)},
+          google_rating = ${placeDetails.result.rating?.toString() || null},
+          google_review_count = ${placeDetails.result.user_ratings_total || 0}
+        WHERE id = ${communityId}
+      `);
 
       console.log(`✅ Updated ${community.name} with ${formattedReviews.length} authentic Google reviews (${placeDetails.result.rating}★)`);
 
