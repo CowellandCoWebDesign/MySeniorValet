@@ -5,6 +5,15 @@ export async function seedDatabase() {
   try {
     // Check if data already exists
     const existingCommunities = await db.select().from(communities);
+    
+    // If we have communities but none are from San Francisco, add SF communities
+    const sfCommunities = existingCommunities.filter(c => c.city.toLowerCase() === 'san francisco');
+    if (existingCommunities.length > 0 && sfCommunities.length < 15) {
+      console.log("Adding San Francisco communities to existing database...");
+      await addSanFranciscoCommunities();
+      return;
+    }
+    
     if (existingCommunities.length > 0) {
       console.log("Database already seeded with", existingCommunities.length, "communities");
       return;
@@ -636,4 +645,222 @@ export async function seedDatabase() {
   } catch (error) {
     console.error("Error seeding database:", error);
   }
+}
+
+async function addSanFranciscoCommunities() {
+  const sanFranciscoCommunities: InsertCommunity[] = [
+    {
+      name: "Coterie Cathedral Hill",
+      address: "1333 Jones St",
+      city: "San Francisco",
+      state: "CA", 
+      zipCode: "94109",
+      googleRating: 4.9,
+      careTypes: ["Senior Living", "Assisted Living"],
+      dataSource: "Google Places Discovery",
+      verified: true,
+      county: "San Francisco County",
+      region: "Bay Area",
+      availabilityStatus: "Contact for Availability"
+    },
+    {
+      name: "Rhoda Goldman Plaza - San Francisco Assisted Living & Memory Care",
+      address: "2165 Post St",
+      city: "San Francisco", 
+      state: "CA",
+      zipCode: "94115",
+      googleRating: 4.8,
+      careTypes: ["Assisted Living", "Memory Care"],
+      dataSource: "Google Places Discovery",
+      verified: true,
+      county: "San Francisco County",
+      region: "Bay Area", 
+      availabilityStatus: "Contact for Availability"
+    },
+    {
+      name: "AlmaVia of San Francisco",
+      address: "1515 Laguna St",
+      city: "San Francisco",
+      state: "CA",
+      zipCode: "94115", 
+      googleRating: 4.7,
+      careTypes: ["Senior Living", "Assisted Living"],
+      dataSource: "Google Places Discovery",
+      verified: true,
+      county: "San Francisco County",
+      region: "Bay Area",
+      availabilityStatus: "Contact for Availability"
+    },
+    {
+      name: "The Carlisle",
+      address: "1450 Post St",
+      city: "San Francisco",
+      state: "CA",
+      zipCode: "94109",
+      googleRating: 4.7,
+      careTypes: ["Senior Living", "Retirement Community"],
+      dataSource: "Google Places Discovery", 
+      verified: true,
+      county: "San Francisco County",
+      region: "Bay Area",
+      availabilityStatus: "Contact for Availability"
+    },
+    {
+      name: "Sunset Gardens",
+      address: "2626 Kirkham St", 
+      city: "San Francisco",
+      state: "CA",
+      zipCode: "94122",
+      googleRating: 4.7,
+      careTypes: ["Assisted Living"],
+      dataSource: "Google Places Discovery",
+      verified: true,
+      county: "San Francisco County",
+      region: "Bay Area",
+      availabilityStatus: "Contact for Availability"
+    },
+    {
+      name: "Notre Dame Senior Plaza",
+      address: "2301 Laguna St",
+      city: "San Francisco",
+      state: "CA", 
+      zipCode: "94115",
+      googleRating: 4.7,
+      careTypes: ["Senior Housing", "Independent Living"],
+      dataSource: "Google Places Discovery",
+      verified: true,
+      county: "San Francisco County",
+      region: "Bay Area",
+      availabilityStatus: "Contact for Availability"
+    },
+    {
+      name: "Sagebrook Senior Living",
+      address: "1601 Laguna St",
+      city: "San Francisco",
+      state: "CA",
+      zipCode: "94115",
+      googleRating: 4.6,
+      careTypes: ["Senior Living", "Assisted Living"],
+      dataSource: "Google Places Discovery",
+      verified: true,
+      county: "San Francisco County", 
+      region: "Bay Area",
+      availabilityStatus: "Contact for Availability"
+    },
+    {
+      name: "The Sequoias San Francisco", 
+      address: "1400 Geary Blvd",
+      city: "San Francisco",
+      state: "CA",
+      zipCode: "94109",
+      googleRating: 4.6,
+      careTypes: ["Retirement Community", "CCRC"],
+      dataSource: "Google Places Discovery",
+      verified: true,
+      county: "San Francisco County",
+      region: "Bay Area",
+      availabilityStatus: "Contact for Availability"
+    },
+    {
+      name: "Serra Highlands Senior Living",
+      address: "888 Corbett Ave",
+      city: "San Francisco", 
+      state: "CA",
+      zipCode: "94131",
+      googleRating: 4.6,
+      careTypes: ["Senior Living", "Assisted Living"],
+      dataSource: "Google Places Discovery",
+      verified: true,
+      county: "San Francisco County",
+      region: "Bay Area",
+      availabilityStatus: "Contact for Availability"
+    },
+    {
+      name: "Providence Place",
+      address: "400 Duboce Ave",
+      city: "San Francisco",
+      state: "CA",
+      zipCode: "94117",
+      googleRating: 4.6,
+      careTypes: ["Memory Care", "Assisted Living"],
+      dataSource: "Google Places Discovery",
+      verified: true,
+      county: "San Francisco County",
+      region: "Bay Area",
+      availabilityStatus: "Contact for Availability"
+    },
+    {
+      name: "Bethany Center", 
+      address: "1270 Fulton St",
+      city: "San Francisco",
+      state: "CA",
+      zipCode: "94117",
+      googleRating: 4.6,
+      careTypes: ["Senior Housing", "Independent Living"],
+      dataSource: "Google Places Discovery",
+      verified: true,
+      county: "San Francisco County",
+      region: "Bay Area",
+      availabilityStatus: "Contact for Availability"
+    },
+    {
+      name: "Peninsula Del Rey",
+      address: "111 Lake Merced Blvd",
+      city: "San Francisco",
+      state: "CA",
+      zipCode: "94132",
+      googleRating: 4.5,
+      careTypes: ["Retirement Community"],
+      dataSource: "Google Places Discovery",
+      verified: true,
+      county: "San Francisco County",
+      region: "Bay Area", 
+      availabilityStatus: "Contact for Availability"
+    },
+    {
+      name: "San Francisco Towers",
+      address: "1661 Pine St",
+      city: "San Francisco",
+      state: "CA",
+      zipCode: "94109",
+      googleRating: 4.5,
+      careTypes: ["Senior Housing", "Independent Living"],
+      dataSource: "Google Places Discovery",
+      verified: true,
+      county: "San Francisco County",
+      region: "Bay Area",
+      availabilityStatus: "Contact for Availability"
+    },
+    {
+      name: "Mission Villa Senior Living",
+      address: "3520 Mission St",
+      city: "San Francisco",
+      state: "CA",
+      zipCode: "94110",
+      googleRating: 4.5,
+      careTypes: ["Senior Living", "Assisted Living"],
+      dataSource: "Google Places Discovery",
+      verified: true,
+      county: "San Francisco County",
+      region: "Bay Area",
+      availabilityStatus: "Contact for Availability"
+    },
+    {
+      name: "Mission Terrace Senior Housing",
+      address: "490 Geneva Ave",
+      city: "San Francisco",
+      state: "CA",
+      zipCode: "94112",
+      googleRating: 4.5,
+      careTypes: ["Senior Housing"],
+      dataSource: "Google Places Discovery",
+      verified: true,
+      county: "San Francisco County",
+      region: "Bay Area",
+      availabilityStatus: "Contact for Availability"
+    }
+  ];
+
+  await db.insert(communities).values(sanFranciscoCommunities);
+  console.log("Added", sanFranciscoCommunities.length, "San Francisco communities");
 }
