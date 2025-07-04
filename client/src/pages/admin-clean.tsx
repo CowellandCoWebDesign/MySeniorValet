@@ -53,15 +53,28 @@ export default function AdminDashboard() {
     retry: false,
   });
 
-  // Calculate real metrics from actual data
+  // Safe data handling
   const communities = communitiesQuery.data || [];
-  const totalCommunities = communities.length;
-  const verifiedCommunities = communities.filter((c: any) => c.phone && c.website).length;
-  const withPhotos = communities.filter((c: any) => c.photos && c.photos.length > 0).length;
-  const withReviews = communities.filter((c: any) => c.reviews && c.reviews.length > 0).length;
+  const totalCommunities = Array.isArray(communities) ? communities.length : 0;
+  const verifiedCommunities = Array.isArray(communities) ? communities.filter((c: any) => c?.phone && c?.website).length : 0;
+  const withPhotos = Array.isArray(communities) ? communities.filter((c: any) => c?.photos && Array.isArray(c.photos) && c.photos.length > 0).length : 0;
+  const withReviews = Array.isArray(communities) ? communities.filter((c: any) => c?.reviews && Array.isArray(c.reviews) && c.reviews.length > 0).length : 0;
 
-  const auditLogs = auditLogsQuery.data?.logs || [];
+  const auditData = auditLogsQuery.data || {};
+  const auditLogs = Array.isArray(auditData.logs) ? auditData.logs : [];
   const usage = usageQuery.data || { totalCalls: 0, totalCost: 0 };
+
+  // Show loading state
+  if (communitiesQuery.isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Loading admin dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
@@ -118,9 +131,9 @@ export default function AdminDashboard() {
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{usage.totalCalls}</div>
+                  <div className="text-2xl font-bold">{usage?.totalCalls || 0}</div>
                   <p className="text-xs text-muted-foreground">
-                    ${usage.totalCost?.toFixed(2)} cost
+                    ${(usage?.totalCost || 0).toFixed(2)} cost
                   </p>
                 </CardContent>
               </Card>
@@ -193,22 +206,22 @@ export default function AdminDashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {communities.slice(0, 10).map((community: any) => (
-                      <TableRow key={community.id}>
-                        <TableCell className="font-medium">{community.name}</TableCell>
-                        <TableCell>{community.city}, {community.state}</TableCell>
+                    {Array.isArray(communities) && communities.slice(0, 10).map((community: any) => (
+                      <TableRow key={community?.id || Math.random()}>
+                        <TableCell className="font-medium">{community?.name || 'Unknown'}</TableCell>
+                        <TableCell>{community?.city || 'Unknown'}, {community?.state || 'Unknown'}</TableCell>
                         <TableCell>
-                          <Badge variant={community.phone && community.website ? 'default' : 'secondary'}>
-                            {community.phone && community.website ? 'Verified' : 'Pending'}
+                          <Badge variant={community?.phone && community?.website ? 'default' : 'secondary'}>
+                            {community?.phone && community?.website ? 'Verified' : 'Pending'}
                           </Badge>
                         </TableCell>
-                        <TableCell>{community.photos?.length || 0}</TableCell>
-                        <TableCell>{community.reviews?.length || 0}</TableCell>
+                        <TableCell>{Array.isArray(community?.photos) ? community.photos.length : 0}</TableCell>
+                        <TableCell>{Array.isArray(community?.reviews) ? community.reviews.length : 0}</TableCell>
                         <TableCell>
                           <Button 
                             variant="outline" 
                             size="sm"
-                            onClick={() => setSelectedCommunity(community.id)}
+                            onClick={() => setSelectedCommunity(community?.id)}
                           >
                             <Eye className="h-4 w-4 mr-1" />
                             View
@@ -216,6 +229,13 @@ export default function AdminDashboard() {
                         </TableCell>
                       </TableRow>
                     ))}
+                    {(!Array.isArray(communities) || communities.length === 0) && (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center text-muted-foreground">
+                          No communities found
+                        </TableCell>
+                      </TableRow>
+                    )}
                   </TableBody>
                 </Table>
               </CardContent>
