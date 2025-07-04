@@ -19,6 +19,7 @@ import { eq, and, desc, inArray, sql } from "drizzle-orm";
 import { careTypeClassifier } from './care-type-classifier';
 import { dataQualityEnhancement } from './data-quality-enhancement';
 import { googlePlacesReviews } from './google-places-reviews';
+import { unsplashService } from './unsplash-integration';
 import { z } from "zod";
 
 // Scalable infrastructure imports
@@ -4865,6 +4866,167 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // ============================================================================
+  // UNSPLASH PREMIUM IMAGERY API ROUTES
+  // ============================================================================
+
+  // Get hero images for homepage
+  app.get('/api/images/hero', async (req, res) => {
+    try {
+      const cachedImages = await apiCache.get('hero-images');
+      if (cachedImages) {
+        return res.json(cachedImages);
+      }
+
+      const heroImages = await unsplashService.getHeroImages();
+      
+      // Cache for 24 hours
+      await apiCache.set('hero-images', heroImages, 24 * 60 * 60);
+      
+      res.json(heroImages);
+    } catch (error) {
+      console.error('Failed to fetch hero images:', error);
+      res.status(500).json({ 
+        message: 'Failed to load premium images',
+        fallback: '/hero-senior-community.svg'
+      });
+    }
+  });
+
+  // Get random premium image for specific use case
+  app.get('/api/images/random', async (req, res) => {
+    try {
+      const { query = 'senior living', orientation = 'landscape' } = req.query;
+      
+      const cacheKey = `random-image-${query}-${orientation}`;
+      const cachedImage = await apiCache.get(cacheKey);
+      if (cachedImage) {
+        return res.json(cachedImage);
+      }
+
+      const randomImage = await unsplashService.getRandomImage(
+        query as string,
+        orientation as 'landscape' | 'portrait' | 'squarish'
+      );
+      
+      // Cache for 1 hour
+      await apiCache.set(cacheKey, randomImage, 60 * 60);
+      
+      res.json(randomImage);
+    } catch (error) {
+      console.error('Failed to fetch random image:', error);
+      res.status(500).json({ 
+        message: 'Failed to load premium image',
+        fallback: '/hero-senior-community.svg'
+      });
+    }
+  });
+
+  // Get community-specific images
+  app.get('/api/images/community/:communityId', async (req, res) => {
+    try {
+      const { communityId } = req.params;
+      
+      // Get community details
+      const community = await storage.getCommunity(parseInt(communityId));
+      if (!community) {
+        return res.status(404).json({ message: 'Community not found' });
+      }
+
+      const cacheKey = `community-images-${communityId}`;
+      const cachedImages = await apiCache.get(cacheKey);
+      if (cachedImages) {
+        return res.json(cachedImages);
+      }
+
+      const primaryCareType = community.careTypes?.[0] || 'assisted living';
+      const communityImages = await unsplashService.getCommunityImages(
+        community.name,
+        primaryCareType
+      );
+      
+      // Cache for 6 hours
+      await apiCache.set(cacheKey, communityImages, 6 * 60 * 60);
+      
+      res.json(communityImages);
+    } catch (error) {
+      console.error('Failed to fetch community images:', error);
+      res.status(500).json({ 
+        message: 'Failed to load community images',
+        fallback: []
+      });
+    }
+  });
+
+  // Get optimized image by ID
+  app.get('/api/images/optimized/:imageId', async (req, res) => {
+    try {
+      const { imageId } = req.params;
+      const { width = '1200', height = '600' } = req.query;
+      
+      const cacheKey = `optimized-${imageId}-${width}x${height}`;
+      const cachedUrl = await apiCache.get(cacheKey);
+      if (cachedUrl) {
+        return res.json({ url: cachedUrl });
+      }
+
+      const optimizedUrl = await unsplashService.getOptimizedImage(
+        imageId,
+        parseInt(width as string),
+        parseInt(height as string)
+      );
+      
+      // Trigger download attribution
+      await unsplashService.triggerDownload(imageId);
+      
+      // Cache for 24 hours
+      await apiCache.set(cacheKey, optimizedUrl, 24 * 60 * 60);
+      
+      res.json({ url: optimizedUrl });
+    } catch (error) {
+      console.error('Failed to get optimized image:', error);
+      res.status(500).json({ 
+        message: 'Failed to optimize image',
+        fallback: '/hero-senior-community.svg'
+      });
+    }
+  });
+
+  // Search for specific images
+  app.get('/api/images/search', async (req, res) => {
+    try {
+      const { 
+        q: query = 'senior living community', 
+        page = '1', 
+        per_page = '20' 
+      } = req.query;
+      
+      const cacheKey = `search-images-${query}-${page}-${per_page}`;
+      const cachedResults = await apiCache.get(cacheKey);
+      if (cachedResults) {
+        return res.json(cachedResults);
+      }
+
+      const searchResults = await unsplashService.searchSeniorLivingImages(
+        query as string,
+        parseInt(page as string),
+        parseInt(per_page as string)
+      );
+      
+      // Cache for 2 hours
+      await apiCache.set(cacheKey, searchResults, 2 * 60 * 60);
+      
+      res.json(searchResults);
+    } catch (error) {
+      console.error('Failed to search images:', error);
+      res.status(500).json({ 
+        message: 'Failed to search premium images',
+        results: [],
+        total: 0
       });
     }
   });

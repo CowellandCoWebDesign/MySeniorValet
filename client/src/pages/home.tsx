@@ -1,6 +1,7 @@
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { SearchBar } from "@/components/search-bar";
+import { PremiumImage } from "@/components/premium-image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Shield, FolderSync, MapPin, Database, Tag, Map, Check, Star, DollarSign, Clock, Users, Wifi, Car, Activity } from "lucide-react";
@@ -13,12 +14,17 @@ export default function Home() {
       
       {/* Hero Section - Optimized Sizing */}
       <section className="relative py-12 lg:py-20 overflow-hidden min-h-[80vh] flex items-center">
-        {/* Background Image */}
+        {/* Premium Background Image */}
         <div className="absolute inset-0">
-          <img
-            src="/hero-senior-community.svg"
-            alt="Welcoming senior living community with diverse residents, families, and caregivers in a beautiful setting"
+          <PremiumImage 
+            type="hero"
+            query="senior living community elderly care garden outdoor activities"
+            orientation="landscape"
             className="w-full h-full object-cover"
+            width={1920}
+            height={1080}
+            alt="Welcoming senior living community with diverse residents, families, and caregivers in a beautiful setting"
+            fallback="/hero-senior-community.svg"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/85 to-white/70"></div>
         </div>
