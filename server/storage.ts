@@ -586,9 +586,27 @@ export class DatabaseStorage implements IStorage {
   }
 
   private buildZipCodeSearch(location: string, distance?: number) {
+    console.log(`ZIP code search for: ${location}`);
+    
     if (location.length === 5) {
-      // Full ZIP code search
-      return eq(communities.zipCode, location);
+      // Full ZIP code search - for geographical equivalence, include nearby ZIP codes
+      console.log(`Full ZIP code search for: ${location}`);
+      
+      // For Redding ZIP codes, expand to include all Redding ZIP codes for city equivalence
+      if (location.startsWith('96002') || location.startsWith('96003')) {
+        console.log(`Redding ZIP - expanding to include all Redding ZIP codes`);
+        return or(
+          eq(communities.zipCode, '96002'),
+          eq(communities.zipCode, '96003')
+        );
+      }
+      
+      // For other full ZIP codes, include the ZIP and nearby ones in the same city/area
+      const zipPrefix = location.substring(0, 4); // First 4 digits for geographic area
+      return or(
+        eq(communities.zipCode, location),
+        ilike(communities.zipCode, `${zipPrefix}%`)
+      );
     }
     
     // Partial ZIP code search (2-3 digits)
