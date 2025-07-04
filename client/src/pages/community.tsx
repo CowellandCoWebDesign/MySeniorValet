@@ -10,6 +10,7 @@ import { Star, MapPin, Phone, Globe, CheckCircle, Users, Calendar, DollarSign, C
 import { Link } from "wouter";
 import type { Community } from "@shared/schema";
 import { FlagListingDialog } from "@/components/flag-listing-dialog";
+import { PhotoCarousel } from "@/components/photo-carousel";
 
 export default function CommunityPage() {
   const [, params] = useRoute("/community/:id");
@@ -207,52 +208,26 @@ export default function CommunityPage() {
           </Link>
         </div>
 
-        {/* PHOTO GALLERY & VIRTUAL TOUR */}
-        {hasPhotos && (
-          <div className="mb-8">
-            <Card className="overflow-hidden">
-              <div className="relative h-96">
-                <img 
-                  src={allPhotos[selectedPhotoIndex]} 
-                  alt={`${community.name} - Photo ${selectedPhotoIndex + 1}`}
-                  className="w-full h-96 object-cover"
+        {/* ENHANCED PHOTO GALLERY */}
+        <div className="mb-8">
+          <Card className="overflow-hidden">
+            {hasPhotos ? (
+              <div className="relative">
+                <PhotoCarousel 
+                  photos={allPhotos} 
+                  communityName={community.name}
+                  className="h-96"
                 />
                 
-                {/* Photo Navigation */}
-                {allPhotos.length > 1 && (
-                  <>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/60 text-white hover:bg-black/80"
-                      onClick={() => setSelectedPhotoIndex(prev => prev === 0 ? allPhotos.length - 1 : prev - 1)}
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/60 text-white hover:bg-black/80"
-                      onClick={() => setSelectedPhotoIndex(prev => prev === allPhotos.length - 1 ? 0 : prev + 1)}
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </>
-                )}
-
-                {/* Photo Counter & Virtual Tour */}
-                <div className="absolute bottom-4 right-4 flex space-x-2">
-                  <Badge className="bg-black/60 text-white">
-                    <Camera className="h-3 w-3 mr-1" />
-                    {selectedPhotoIndex + 1} of {allPhotos.length}
-                  </Badge>
-                  {community.virtualTourUrl && (
+                {/* Virtual Tour Badge */}
+                {community.virtualTourUrl && (
+                  <div className="absolute top-4 left-4">
                     <Badge className="bg-blue-600 text-white cursor-pointer hover:bg-blue-700">
                       <Video className="h-3 w-3 mr-1" />
-                      Virtual Tour
+                      Virtual Tour Available
                     </Badge>
-                  )}
-                </div>
+                  </div>
+                )}
 
                 {/* Availability Overlay */}
                 <div className={`absolute bottom-0 left-0 right-0 ${availability.color} px-6 py-4`}>
@@ -273,32 +248,30 @@ export default function CommunityPage() {
                   </div>
                 </div>
               </div>
-
-              {/* Photo Thumbnails */}
-              {allPhotos.length > 1 && (
-                <div className="p-4 bg-gray-50">
-                  <div className="flex space-x-2 overflow-x-auto">
-                    {allPhotos.map((photo, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setSelectedPhotoIndex(index)}
-                        className={`flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 ${
-                          selectedPhotoIndex === index ? 'border-blue-500' : 'border-gray-200'
-                        }`}
-                      >
-                        <img 
-                          src={photo} 
-                          alt={`Thumbnail ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                      </button>
-                    ))}
+            ) : (
+              <div className="h-96 bg-gray-100 flex items-center justify-center">
+                <div className="text-center text-gray-500">
+                  <Camera className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                  <p className="text-lg font-medium mb-2">Photos Coming Soon</p>
+                  <p className="text-sm">We're working to add photos for this community</p>
+                  
+                  {/* Availability Overlay for No Photos */}
+                  <div className={`absolute bottom-0 left-0 right-0 ${availability.color} px-6 py-4`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        {availability.icon}
+                        <span className="font-bold text-lg">{community.availabilityStatus}</span>
+                        {community.availableUnits && (
+                          <span className="opacity-90">• {community.availableUnits} units available</span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              )}
-            </Card>
-          </div>
-        )}
+              </div>
+            )}
+          </Card>
+        </div>
 
         {/* MAIN CONTENT GRID */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

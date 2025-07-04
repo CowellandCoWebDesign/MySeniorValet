@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, Shield, AlertTriangle, DollarSign, MapPin, Heart, Share, Users, Calendar, CheckCircle, ExternalLink, Clock, Home, Wifi, Car, Utensils, Activity, Phone, Camera, Video, UserCheck, Stethoscope, Bed, ShowerHead, ChevronDown, ChevronUp } from "lucide-react";
+import { Star, Shield, AlertTriangle, DollarSign, MapPin, Heart, Share, Users, Calendar, CheckCircle, ExternalLink, Clock, Home, Wifi, Car, Utensils, Activity, Phone, Camera, Video, UserCheck, Stethoscope, Bed, ShowerHead, ChevronDown, ChevronUp, ImageIcon } from "lucide-react";
 import { Link } from "wouter";
 import type { Community } from "@shared/schema";
+import { PhotoCarousel } from "@/components/photo-carousel";
 
 interface CommunityCardProps {
   community: Community;
@@ -110,22 +111,45 @@ export function CommunityCard({ community }: CommunityCardProps) {
   const topAmenities = getTopAmenities();
   // Remove the problematic priceTransparency call for now
 
+  // Get all photos from various sources
+  const getAllPhotos = () => {
+    const allPhotos: string[] = [];
+    
+    // Add photos from different sources
+    if (community.photos && Array.isArray(community.photos) && community.photos.length > 0) {
+      allPhotos.push(...community.photos);
+    }
+    if (community.yelpPhotos && Array.isArray(community.yelpPhotos) && community.yelpPhotos.length > 0) {
+      allPhotos.push(...community.yelpPhotos);
+    }
+    if (community.imageGallery && Array.isArray(community.imageGallery) && community.imageGallery.length > 0) {
+      allPhotos.push(...community.imageGallery);
+    }
+    
+    // Remove duplicates and return
+    return Array.from(new Set(allPhotos));
+  };
+
+  const allPhotos = getAllPhotos();
+  const hasPhotos = allPhotos.length > 0;
+
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-all duration-200 border-l-4 border-l-blue-500">
-      {/* PHOTO CAROUSEL */}
-      {community.photos && community.photos.length > 0 && (
-        <div className="relative h-48 bg-gray-200">
-          <img 
-            src={community.photos[0]} 
-            alt={`${community.name} exterior view`}
-            className="w-full h-48 object-cover"
+      {/* ENHANCED PHOTO CAROUSEL */}
+      {hasPhotos ? (
+        <div className="relative">
+          <PhotoCarousel 
+            photos={allPhotos} 
+            communityName={community.name}
+            className="h-48"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+          
+          {/* OVERLAY BADGES */}
           <div className="absolute top-3 right-3 flex space-x-2">
-            {community.photos.length > 1 && (
-              <Badge className="bg-black/60 text-white border-0">
+            {allPhotos.length > 1 && (
+              <Badge className="bg-black/60 text-white border-0 backdrop-blur-sm">
                 <Camera className="h-3 w-3 mr-1" />
-                {community.photos.length} Photos
+                {allPhotos.length} Photos
               </Badge>
             )}
             {community.virtualTourUrl && (
@@ -135,7 +159,26 @@ export function CommunityCard({ community }: CommunityCardProps) {
               </Badge>
             )}
           </div>
+          
           {/* AVAILABILITY OVERLAY */}
+          <div className={`absolute bottom-0 left-0 right-0 ${availability.color} px-4 py-2 flex items-center justify-between`}>
+            <div className="flex items-center space-x-2">
+              {availability.icon}
+              <span className="font-bold">{community.availabilityStatus}</span>
+              {community.availableUnits && (
+                <span className="text-sm opacity-90">• {community.availableUnits} units</span>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="relative h-48 bg-gray-100 flex items-center justify-center">
+          <div className="text-center text-gray-500">
+            <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
+            <p className="text-sm">Photos coming soon</p>
+          </div>
+          
+          {/* AVAILABILITY OVERLAY FOR NO PHOTOS */}
           <div className={`absolute bottom-0 left-0 right-0 ${availability.color} px-4 py-2 flex items-center justify-between`}>
             <div className="flex items-center space-x-2">
               {availability.icon}
