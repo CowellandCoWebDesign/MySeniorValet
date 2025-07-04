@@ -25,20 +25,23 @@ export async function seedDatabase() {
     const sampleUsers: InsertUser[] = [
       {
         username: "john_doe",
+        email: "john@example.com",
         password: "password123"
       },
       {
         username: "mary_smith",
+        email: "mary@example.com",
         password: "password123"
       },
       {
         username: "robert_johnson",
+        email: "robert@example.com",
         password: "password123"
       }
     ];
 
-    const insertedUsers = await db.insert(users).values(sampleUsers).returning();
-    console.log("Seeded", insertedUsers.length, "users");
+    // const insertedUsers = await db.insert(users).values(sampleUsers).returning();
+    // console.log("Seeded", insertedUsers.length, "users");
 
     const sampleCommunities: InsertCommunity[] = [
       {
@@ -73,8 +76,6 @@ export async function seedDatabase() {
         priceRange: { min: 3200, max: 5800 },
         availabilityStatus: "Available Now",
         availableUnits: 7,
-        googleRating: "4.2",
-        googleReviewCount: 28,
         googleReviewSnippets: [
           {
             rating: 5,
@@ -179,8 +180,6 @@ export async function seedDatabase() {
         priceRange: { min: 4800, max: 7200 },
         availabilityStatus: "Waitlist",
         availableUnits: 0,
-        googleRating: "4.6",
-        googleReviewCount: 42,
         googleReviewSnippets: [
           {
             rating: 5,
@@ -258,8 +257,6 @@ export async function seedDatabase() {
         priceRange: { min: 5200, max: 8400 },
         availabilityStatus: "Available Now",
         availableUnits: 3,
-        googleRating: "3.8",
-        googleReviewCount: 67,
         googleReviewSnippets: [
           {
             rating: 4,
@@ -285,8 +282,6 @@ export async function seedDatabase() {
         totalUnits: 120,
         rating: "4.8",
         reviewCount: 156,
-        googleRating: "4.7",
-        googleReviewCount: 89,
         trustedReviews: [
           { source: "Google", rating: 4.7, reviewCount: 89, url: "https://google.com/reviews" },
           { source: "Yelp", rating: 4.5, reviewCount: 23, url: "https://yelp.com/reviews" },
@@ -329,8 +324,6 @@ export async function seedDatabase() {
         totalUnits: 85,
         rating: "4.6",
         reviewCount: 98,
-        googleRating: "4.4",
-        googleReviewCount: 67,
         trustedReviews: [
           { source: "Google", rating: 4.4, reviewCount: 67, url: "https://google.com/reviews" },
           { source: "A Place for Mom", rating: 4.8, reviewCount: 31 }
@@ -371,8 +364,6 @@ export async function seedDatabase() {
         totalUnits: 200,
         rating: "4.9",
         reviewCount: 234,
-        googleRating: "4.8",
-        googleReviewCount: 156,
         trustedReviews: [
           { source: "Google", rating: 4.8, reviewCount: 156, url: "https://google.com/reviews" },
           { source: "Yelp", rating: 4.7, reviewCount: 43, url: "https://yelp.com/reviews" },
@@ -462,8 +453,6 @@ export async function seedDatabase() {
         totalUnits: 180,
         rating: "4.3",
         reviewCount: 67,
-        googleRating: "4.3",
-        googleReviewCount: 67,
         googleReviewSnippets: [
           {
             rating: 5,
@@ -551,8 +540,6 @@ export async function seedDatabase() {
         totalUnits: 95,
         rating: "4.7",
         reviewCount: 124,
-        googleRating: "4.7",
-        googleReviewCount: 124,
         googleReviewSnippets: [
           {
             rating: 5,
@@ -596,10 +583,10 @@ export async function seedDatabase() {
     console.log("Seeded", insertedCommunities.length, "communities");
 
     // Now seed some sample reviews
-    const sampleReviews: InsertReview[] = [
+    /* const sampleReviews: InsertReview[] = [
       {
         communityId: insertedCommunities[0].id, // Sunrise Manor
-        userId: insertedUsers[0].id,
+        userId: 1, // insertedUsers[0].id,
         rating: 5,
         title: "Excellent care for my mother",
         reviewText: "My mother has been at Sunrise Manor for 8 months now and we couldn't be happier. The staff is attentive, the facilities are clean and modern, and there are plenty of activities to keep residents engaged. The memory care unit is particularly well-run.",
@@ -640,6 +627,7 @@ export async function seedDatabase() {
 
     await db.insert(reviews).values(sampleReviews);
     console.log("Seeded", sampleReviews.length, "reviews");
+    */
 
     console.log("Successfully seeded database with sample data");
   } catch (error) {
@@ -655,7 +643,6 @@ async function addSanFranciscoCommunities() {
       city: "San Francisco",
       state: "CA", 
       zipCode: "94109",
-      googleRating: 4.9,
       careTypes: ["Senior Living", "Assisted Living"],
       dataSource: "Google Places Discovery",
       verified: true,
@@ -669,7 +656,6 @@ async function addSanFranciscoCommunities() {
       city: "San Francisco", 
       state: "CA",
       zipCode: "94115",
-      googleRating: 4.8,
       careTypes: ["Assisted Living", "Memory Care"],
       dataSource: "Google Places Discovery",
       verified: true,
@@ -683,7 +669,6 @@ async function addSanFranciscoCommunities() {
       city: "San Francisco",
       state: "CA",
       zipCode: "94115", 
-      googleRating: 4.7,
       careTypes: ["Senior Living", "Assisted Living"],
       dataSource: "Google Places Discovery",
       verified: true,
@@ -697,7 +682,6 @@ async function addSanFranciscoCommunities() {
       city: "San Francisco",
       state: "CA",
       zipCode: "94109",
-      googleRating: 4.7,
       careTypes: ["Senior Living", "Retirement Community"],
       dataSource: "Google Places Discovery", 
       verified: true,
@@ -711,7 +695,6 @@ async function addSanFranciscoCommunities() {
       city: "San Francisco",
       state: "CA",
       zipCode: "94122",
-      googleRating: 4.7,
       careTypes: ["Assisted Living"],
       dataSource: "Google Places Discovery",
       verified: true,
@@ -725,7 +708,6 @@ async function addSanFranciscoCommunities() {
       city: "San Francisco",
       state: "CA", 
       zipCode: "94115",
-      googleRating: 4.7,
       careTypes: ["Senior Housing", "Independent Living"],
       dataSource: "Google Places Discovery",
       verified: true,
@@ -739,7 +721,6 @@ async function addSanFranciscoCommunities() {
       city: "San Francisco",
       state: "CA",
       zipCode: "94115",
-      googleRating: 4.6,
       careTypes: ["Senior Living", "Assisted Living"],
       dataSource: "Google Places Discovery",
       verified: true,
@@ -753,7 +734,6 @@ async function addSanFranciscoCommunities() {
       city: "San Francisco",
       state: "CA",
       zipCode: "94109",
-      googleRating: 4.6,
       careTypes: ["Retirement Community", "CCRC"],
       dataSource: "Google Places Discovery",
       verified: true,
@@ -767,7 +747,6 @@ async function addSanFranciscoCommunities() {
       city: "San Francisco", 
       state: "CA",
       zipCode: "94131",
-      googleRating: 4.6,
       careTypes: ["Senior Living", "Assisted Living"],
       dataSource: "Google Places Discovery",
       verified: true,
@@ -781,7 +760,6 @@ async function addSanFranciscoCommunities() {
       city: "San Francisco",
       state: "CA",
       zipCode: "94117",
-      googleRating: 4.6,
       careTypes: ["Memory Care", "Assisted Living"],
       dataSource: "Google Places Discovery",
       verified: true,
@@ -795,7 +773,6 @@ async function addSanFranciscoCommunities() {
       city: "San Francisco",
       state: "CA",
       zipCode: "94117",
-      googleRating: 4.6,
       careTypes: ["Senior Housing", "Independent Living"],
       dataSource: "Google Places Discovery",
       verified: true,
@@ -809,7 +786,6 @@ async function addSanFranciscoCommunities() {
       city: "San Francisco",
       state: "CA",
       zipCode: "94132",
-      googleRating: 4.5,
       careTypes: ["Retirement Community"],
       dataSource: "Google Places Discovery",
       verified: true,
@@ -823,7 +799,6 @@ async function addSanFranciscoCommunities() {
       city: "San Francisco",
       state: "CA",
       zipCode: "94109",
-      googleRating: 4.5,
       careTypes: ["Senior Housing", "Independent Living"],
       dataSource: "Google Places Discovery",
       verified: true,
@@ -837,7 +812,6 @@ async function addSanFranciscoCommunities() {
       city: "San Francisco",
       state: "CA",
       zipCode: "94110",
-      googleRating: 4.5,
       careTypes: ["Senior Living", "Assisted Living"],
       dataSource: "Google Places Discovery",
       verified: true,
@@ -851,7 +825,6 @@ async function addSanFranciscoCommunities() {
       city: "San Francisco",
       state: "CA",
       zipCode: "94112",
-      googleRating: 4.5,
       careTypes: ["Senior Housing"],
       dataSource: "Google Places Discovery",
       verified: true,
