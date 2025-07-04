@@ -18,6 +18,8 @@ import { db } from "./db";
 import { eq, and, desc, inArray, sql } from "drizzle-orm";
 import { careTypeClassifier } from './care-type-classifier';
 import { dataQualityEnhancement } from './data-quality-enhancement';
+import { enhancedSearchService } from "./enhanced-search-service";
+import { zipCodeService } from "./zip-code-mapping";
 import { googlePlacesReviews } from './google-places-reviews';
 import { unsplashService } from './unsplash-integration';
 import { dataProtectionService } from './data-protection';
@@ -517,6 +519,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Logged out successfully" });
     } catch (error: any) {
       res.status(500).json({ message: "Failed to logout" });
+    }
+  });
+
+  // Enhanced search with ZIP code intelligence  
+  app.get('/api/communities/search/enhanced', async (req, res) => {
+    try {
+      console.log('Enhanced search request received:', req.query);
+      
+      const searchParams = {
+        location: req.query.location as string,
+        careType: req.query.careType as string,
+        budget: req.query.budget as string,
+        amenities: req.query.amenities ? (req.query.amenities as string).split(',') : undefined,
+        availability: req.query.availability as string,
+        distance: req.query.distance ? parseInt(req.query.distance as string) : undefined,
+        minRating: req.query.minRating ? parseFloat(req.query.minRating as string) : undefined,
+      };
+
+      const result = await enhancedSearchService.searchCommunities(searchParams);
+      
+      console.log(`Enhanced search returned ${result.communities.length} communities with metadata:`, result.searchMetadata);
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Enhanced search error:', error);
+      res.status(500).json({ 
+        communities: [],
+        searchMetadata: {
+          originalQuery: req.query.location as string || 'Unknown',
+          searchType: 'error',
+          totalResults: 0,
+          suggestions: ['Please try a different search term']
+        },
+        error: 'Failed to perform enhanced search' 
+      });
+    }
+  });
+
+  // ZIP code intelligence endpoint
+  app.get('/api/zip-codes/:zipCode/info', async (req, res) => {
+    try {
+      const { zipCode } = req.params;
+      const zipInfo = zipCodeService.getZipInfo(zipCode);
+      
+      if (!zipInfo) {
+        return res.status(404).json({ 
+          error: 'ZIP code not found in our database',
+          suggestions: zipCodeService.getNearestZips(zipCode, 25).slice(0, 5)
+        });
+      }
+
+      const relatedZips = zipCodeService.getRelatedZips(zipCode);
+      const countyZips = zipCodeService.getZipsByCounty(zipInfo.county);
+      
+      res.json({
+        zipInfo,
+        relatedZips,
+        countyZips: countyZips.slice(0, 10), // Limit for response size
+        searchCapabilities: {
+          canExpandSearch: relatedZips.length > 1,
+          countyWideSearch: countyZips.length > 1,
+          nearbyZipCount: zipCodeService.getNearestZips(zipCode).length
+        }
+      });
+    } catch (error) {
+      console.error('ZIP code info error:', error);
+      res.status(500).json({ error: 'Failed to get ZIP code information' });
+    }
+  });
+
+  // Search statistics endpoint
+  app.get('/api/search/statistics', async (req, res) => {
+    try {
+      const stats = await enhancedSearchService.getSearchStatistics();
+      res.json(stats);
+    } catch (error) {
+      console.error('Search statistics error:', error);
+      res.status(500).json({ error: 'Failed to get search statistics' });
     }
   });
 
