@@ -5,6 +5,8 @@ import { storage } from './storage';
 import { db } from './db';
 import { userSessions } from '@shared/schema';
 import { eq, lt } from 'drizzle-orm';
+import { auditService } from './audit';
+import type { Request } from 'express';
 
 const SALT_ROUNDS = 10;
 const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days

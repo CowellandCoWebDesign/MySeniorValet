@@ -63,6 +63,31 @@ export const userSessions = pgTable("user_sessions", {
   index("user_sessions_expires_at_idx").on(table.expiresAt),
 ]);
 
+// Security audit logs for monitoring and compliance
+export const securityAuditLogs = pgTable("security_audit_logs", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  action: text("action").notNull(), // login, logout, failed_login, password_change, etc.
+  resource: text("resource").notNull(), // endpoint or resource accessed
+  ipAddress: text("ip_address").notNull(),
+  userAgent: text("user_agent"),
+  details: jsonb("details").$type<{
+    sessionId?: string;
+    errorMessage?: string;
+    requestId?: string;
+    riskScore?: number;
+    metadata?: Record<string, any>;
+  }>(),
+  riskLevel: text("risk_level", { enum: ["low", "medium", "high", "critical"] }).default("low"),
+  success: boolean("success").default(true),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+}, (table) => [
+  index("security_audit_logs_user_id_idx").on(table.userId),
+  index("security_audit_logs_timestamp_idx").on(table.timestamp),
+  index("security_audit_logs_risk_level_idx").on(table.riskLevel),
+  index("security_audit_logs_action_idx").on(table.action),
+]);
+
 export const communities = pgTable("communities", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
