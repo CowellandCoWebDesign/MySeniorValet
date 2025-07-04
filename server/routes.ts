@@ -519,75 +519,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Search communities - NORTHERN CALIFORNIA FOCUSED ALGORITHM (MUST BE FIRST)
-  app.get("/api/communities/search", createRateLimitMiddleware(searchLimiter), async (req, res) => {
+  // Search communities - SIMPLIFIED FOR DEBUGGING
+  app.get("/api/communities/search", async (req, res) => {
     try {
-      // Parse and validate search parameters
-      const searchParams = searchCommunitySchema.parse(req.query);
+      console.log('Search request received:', req.query);
       
-      // Generate cache key for search results
-      const cacheKey = `search:${JSON.stringify(searchParams)}`;
+      // Parse query parameters manually to handle string conversion
+      const searchParams: any = {};
       
-      // Check cache first for 10,000+ user scalability
-      const cachedResults = searchCache.get(cacheKey);
-      if (cachedResults) {
-        return res.json(cachedResults);
+      if (req.query.location) searchParams.location = req.query.location as string;
+      if (req.query.careType) searchParams.careType = req.query.careType as string;
+      if (req.query.budget) searchParams.budget = req.query.budget as string;
+      if (req.query.availability) searchParams.availability = req.query.availability as string;
+      if (req.query.distance) searchParams.distance = parseInt(req.query.distance as string);
+      if (req.query.minRating) searchParams.minRating = parseFloat(req.query.minRating as string);
+      if (req.query.amenities) {
+        if (Array.isArray(req.query.amenities)) {
+          searchParams.amenities = req.query.amenities;
+        } else {
+          searchParams.amenities = [req.query.amenities];
+        }
       }
       
-      // NORTHERN CALIFORNIA MARKET FOCUS: Prioritize Bay Area + Redding
-      let communities;
+      console.log('Parsed search parameters:', searchParams);
       
-      const norcalCities = ['redding', 'san francisco', 'oakland', 'san jose', 'fremont', 'sacramento', 'santa clara', 'sunnyvale', 'berkeley', 'concord', 'antioch', 'richmond', 'hayward', 'santa rosa', 'vallejo', 'fairfield', 'walnut creek', 'livermore', 'san mateo', 'daly city'];
+      // Call storage search
+      const communities = await storage.searchCommunities(searchParams);
+      console.log(`Found ${communities.length} communities`);
       
-      if (!searchParams.location) {
-        // Default search - get all Northern California communities
-        communities = await storage.searchCommunities({
-          ...searchParams,
-          location: "CA"
-        });
-      } else if (norcalCities.some(city => searchParams.location!.toLowerCase().includes(city))) {
-        // Searching for a Northern California city
-        communities = await storage.searchCommunities(searchParams);
-      } else {
-        // User searching outside NorCal - use their search but prioritize CA
-        communities = await storage.searchCommunities({
-          ...searchParams,
-          location: searchParams.location.includes('CA') ? searchParams.location : `${searchParams.location}, CA`
-        });
-      }
-      
-      // NORTHERN CALIFORNIA ALGORITHM: Sort by market relevance
-      const sortedCommunities = communities.sort((a, b) => {
-        // Priority 1: Bay Area cities (tech hub, highest demand)
-        const bayAreaCities = ['san francisco', 'oakland', 'san jose', 'fremont', 'santa clara', 'sunnyvale', 'berkeley', 'san mateo', 'daly city'];
-        const aIsBayArea = bayAreaCities.some(city => a.city.toLowerCase().includes(city));
-        const bIsBayArea = bayAreaCities.some(city => b.city.toLowerCase().includes(city));
-        
-        if (aIsBayArea && !bIsBayArea) return -1;
-        if (!aIsBayArea && bIsBayArea) return 1;
-        
-        // Priority 2: Redding (our original market)
-        const aIsRedding = a.city.toLowerCase() === 'redding';
-        const bIsRedding = b.city.toLowerCase() === 'redding';
-        
-        if (aIsRedding && !bIsRedding) return -1;
-        if (!aIsRedding && bIsRedding) return 1;
-        
-        // Then prioritize by availability
-        if (a.availabilityStatus === 'Available Now' && b.availabilityStatus !== 'Available Now') return -1;
-        if (a.availabilityStatus !== 'Available Now' && b.availabilityStatus === 'Available Now') return 1;
-        
-        // Then by transparency score (claimed communities with websites)
-        const aTransparency = (a.isClaimed ? 1 : 0) + (a.website ? 1 : 0);
-        const bTransparency = (b.isClaimed ? 1 : 0) + (b.website ? 1 : 0);
-        
-        return bTransparency - aTransparency;
-      });
-      
-      // Cache the results for 10 minutes to scale to 10,000+ users
-      searchCache.set(cacheKey, sortedCommunities, 600000);
-      
-      res.json(sortedCommunities);
+      res.json(communities);
     } catch (error) {
       if (error instanceof z.ZodError) {
         console.error("Search validation error:", error.errors);

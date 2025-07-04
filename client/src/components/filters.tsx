@@ -31,7 +31,47 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
   // Update filters when initial filters change
   useEffect(() => {
     if (initialFilters) {
-      setFilters(prev => ({ ...prev, ...initialFilters }));
+      const convertedFilters = { ...filters };
+      
+      // Convert careType to careServices
+      if (initialFilters.careType) {
+        convertedFilters.careServices = initialFilters.careType.split(',');
+      }
+      
+      // Convert budget to priceRange
+      if (initialFilters.budget) {
+        const budgetStr = initialFilters.budget;
+        if (budgetStr.includes(' - ')) {
+          const [min, max] = budgetStr.replace(/\$/g, '').split(' - ');
+          convertedFilters.priceRange = { min, max };
+        } else if (budgetStr.includes('+')) {
+          convertedFilters.priceRange = { min: budgetStr.replace(/\$|\+/g, ''), max: "" };
+        } else if (budgetStr.includes('Under')) {
+          convertedFilters.priceRange = { min: "", max: budgetStr.replace(/Under \$/g, '') };
+        }
+      }
+      
+      // Convert distance
+      if (initialFilters.distance) {
+        convertedFilters.distance = `Within ${initialFilters.distance} miles`;
+      }
+      
+      // Convert minRating
+      if (initialFilters.minRating) {
+        convertedFilters.minRating = initialFilters.minRating.toString();
+      }
+      
+      // Convert availability
+      if (initialFilters.availability) {
+        convertedFilters.availability = initialFilters.availability;
+      }
+      
+      // Convert amenities
+      if (initialFilters.amenities) {
+        convertedFilters.amenities = initialFilters.amenities;
+      }
+      
+      setFilters(convertedFilters);
     }
   }, [initialFilters]);
 
