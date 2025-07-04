@@ -263,6 +263,13 @@ export const communities = pgTable("communities", {
   yelpPhotos: json("yelp_photos").$type<string[]>().default([]),
   yelpUrl: varchar("yelp_url"),
   yelpCategories: json("yelp_categories").$type<string[]>().default([]),
+  
+  // Regional expansion fields
+  region: text("region"), // 'Bay Area', 'Central Valley', 'Sacramento Region', 'North Coast'
+  county: text("county"), // 'Alameda', 'Contra Costa', 'Santa Clara', 'San Mateo', 'Marin', 'Sacramento', 'Sonoma'
+  discoverySource: text("discovery_source"), // 'Google Places', 'Yelp', 'State Licensing', 'Directory Scraping'
+  discoveryDate: timestamp("discovery_date").defaultNow(),
+  lastEnrichmentDate: timestamp("last_enrichment_date"),
 });
 
 export const inspections = pgTable("inspections", {
