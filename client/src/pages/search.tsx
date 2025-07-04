@@ -35,6 +35,23 @@ export default function Search() {
 
   const { data: communities, isLoading, error } = useQuery<Community[]>({
     queryKey: ['/api/communities/search', searchParams],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      Object.entries(searchParams).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          if (Array.isArray(value)) {
+            value.forEach(v => params.append(key, v));
+          } else {
+            params.set(key, value.toString());
+          }
+        }
+      });
+      
+      console.log('Making search request with params:', params.toString());
+      const response = await fetch(`/api/communities/search?${params.toString()}`);
+      if (!response.ok) throw new Error('Search failed');
+      return response.json();
+    },
     enabled: true,
   });
 
@@ -43,6 +60,7 @@ export default function Search() {
   };
 
   const handleFiltersChange = (filters: any) => {
+    console.log('Filters changed:', filters);
     const newParams: SearchCommunity = { ...searchParams };
     
     // Handle care services (convert to careType for API)
@@ -72,11 +90,13 @@ export default function Search() {
       delete newParams.budget;
     }
     
-    // Handle distance (extract number from string)
-    if (filters.distance && filters.distance !== "Within 10 miles") {
+    // Handle distance (extract number from string)  
+    if (filters.distance) {
+      console.log('Processing distance:', filters.distance);
       const distanceMatch = filters.distance.match(/(\d+)/);
       if (distanceMatch) {
         newParams.distance = parseInt(distanceMatch[1]);
+        console.log('Set distance to:', newParams.distance);
       }
     } else {
       delete newParams.distance;
@@ -96,6 +116,7 @@ export default function Search() {
       delete newParams.availability;
     }
 
+    console.log('New search params:', newParams);
     setSearchParams(newParams);
   };
 
