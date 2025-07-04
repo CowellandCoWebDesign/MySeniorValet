@@ -16,8 +16,8 @@ export default function Home() {
         {/* Background Image */}
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&h=1200"
-            alt="Happy seniors enjoying activities at a senior living community"
+            src="/hero-senior-community.svg"
+            alt="Welcoming senior living community with diverse residents, families, and caregivers in a beautiful setting"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/85 to-white/70"></div>
