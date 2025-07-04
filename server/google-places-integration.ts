@@ -163,12 +163,12 @@ export class GooglePlacesIntegration {
       throw new Error('Google Places API key not configured');
     }
 
-    // Create focused search queries for senior living
+    // Create focused search queries for senior living (simplified approach)
     const searchQueries = [
-      `${community.name} ${community.city} ${community.state} senior living`,
-      `${community.name} ${community.address} ${community.city}`,
-      `${community.name} assisted living ${community.city} ${community.state}`,
-      `${community.name} nursing home ${community.city} ${community.state}`
+      `${community.name} ${community.city} CA`,
+      `${community.name} ${community.address}`,
+      `${community.name} senior living ${community.city}`,
+      `${community.name} assisted living`
     ];
 
     for (const query of searchQueries) {
@@ -177,7 +177,7 @@ export class GooglePlacesIntegration {
           params: {
             query,
             key: this.apiKey,
-            type: 'health|lodging',
+            // Removed type restriction - senior living facilities don't classify as health or lodging
             location: `${community.city}, ${community.state}`,
             radius: 5000 // 5km radius
           },
