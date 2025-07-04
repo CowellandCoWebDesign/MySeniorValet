@@ -10,7 +10,7 @@ import Community from "@/pages/community";
 import CommunityPage from "@/pages/community";
 import Claim from "@/pages/claim";
 import Admin from "@/pages/admin";
-import AdminSimple from "@/pages/admin-simple";
+import AdminCleanFull from "@/pages/admin-clean-full";
 import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
 import Disclaimer from "@/pages/disclaimer";
@@ -27,7 +27,7 @@ function Router() {
       <Route path="/search" component={Search} />
       <Route path="/community/:id" component={CommunityPage} />
       <Route path="/claim/:communityId" component={Claim} />
-      <Route path="/admin" component={AdminSimple} />
+      <Route path="/admin" component={AdminCleanFull} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/login" component={Login} />
       <Route path="/signup" component={Signup} />
