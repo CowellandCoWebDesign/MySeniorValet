@@ -18,6 +18,7 @@ import { db } from "./db";
 import { eq, and, desc, inArray, sql } from "drizzle-orm";
 import { careTypeClassifier } from './care-type-classifier';
 import { dataQualityEnhancement } from './data-quality-enhancement';
+import { googlePlacesReviews } from './google-places-reviews';
 import { z } from "zod";
 
 // Scalable infrastructure imports

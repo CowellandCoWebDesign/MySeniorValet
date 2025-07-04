@@ -1,0 +1,181 @@
+<svg viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradients for natural lighting -->
+    <linearGradient id="skyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E0F6FF;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="buildingGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#F5F5DC;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E6E6D3;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="grassGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#90EE90;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#228B22;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sky background -->
+  <rect width="1200" height="600" fill="url(#skyGradient)"/>
+  
+  <!-- Main building - warm, welcoming senior community -->
+  <rect x="150" y="150" width="900" height="300" fill="url(#buildingGradient)" stroke="#D4AF37" stroke-width="3" rx="15"/>
+  
+  <!-- Building details -->
+  <!-- Entrance with columns -->
+  <rect x="520" y="250" width="160" height="200" fill="#F8F8FF" stroke="#D4AF37" stroke-width="2" rx="8"/>
+  <rect x="530" y="260" width="12" height="150" fill="#D4AF37"/>
+  <rect x="550" y="260" width="12" height="150" fill="#D4AF37"/>
+  <rect x="630" y="260" width="12" height="150" fill="#D4AF37"/>
+  <rect x="650" y="260" width="12" height="150" fill="#D4AF37"/>
+  
+  <!-- Windows with warm lighting -->
+  <rect x="180" y="180" width="60" height="80" fill="#FFE4B5" stroke="#8B4513" stroke-width="2" rx="5"/>
+  <rect x="260" y="180" width="60" height="80" fill="#FFE4B5" stroke="#8B4513" stroke-width="2" rx="5"/>
+  <rect x="340" y="180" width="60" height="80" fill="#FFE4B5" stroke="#8B4513" stroke-width="2" rx="5"/>
+  <rect x="420" y="180" width="60" height="80" fill="#FFE4B5" stroke="#8B4513" stroke-width="2" rx="5"/>
+  
+  <rect x="720" y="180" width="60" height="80" fill="#FFE4B5" stroke="#8B4513" stroke-width="2" rx="5"/>
+  <rect x="800" y="180" width="60" height="80" fill="#FFE4B5" stroke="#8B4513" stroke-width="2" rx="5"/>
+  <rect x="880" y="180" width="60" height="80" fill="#FFE4B5" stroke="#8B4513" stroke-width="2" rx="5"/>
+  <rect x="960" y="180" width="60" height="80" fill="#FFE4B5" stroke="#8B4513" stroke-width="2" rx="5"/>
+  
+  <!-- Window crosses for authenticity -->
+  <line x1="210" y1="180" x2="210" y2="260" stroke="#8B4513" stroke-width="1"/>
+  <line x1="180" y1="220" x2="240" y2="220" stroke="#8B4513" stroke-width="1"/>
+  <line x1="290" y1="180" x2="290" y2="260" stroke="#8B4513" stroke-width="1"/>
+  <line x1="260" y1="220" x2="320" y2="220" stroke="#8B4513" stroke-width="1"/>
+  <line x1="370" y1="180" x2="370" y2="260" stroke="#8B4513" stroke-width="1"/>
+  <line x1="340" y1="220" x2="400" y2="220" stroke="#8B4513" stroke-width="1"/>
+  
+  <!-- Landscaping -->
+  <ellipse cx="120" cy="480" rx="80" ry="40" fill="url(#grassGradient)"/>
+  <ellipse cx="320" cy="490" rx="60" ry="30" fill="url(#grassGradient)"/>
+  <ellipse cx="580" cy="480" rx="70" ry="35" fill="url(#grassGradient)"/>
+  <ellipse cx="880" cy="490" rx="90" ry="45" fill="url(#grassGradient)"/>
+  <ellipse cx="1080" cy="485" rx="75" ry="38" fill="url(#grassGradient)"/>
+  
+  <!-- Trees for warmth -->
+  <circle cx="100" cy="400" r="45" fill="#228B22"/>
+  <rect x="95" y="400" width="10" height="60" fill="#8B4513"/>
+  
+  <circle cx="1100" cy="380" r="55" fill="#228B22"/>
+  <rect x="1095" y="380" width="10" height="80" fill="#8B4513"/>
+  
+  <!-- Benches -->
+  <rect x="280" y="420" width="80" height="12" fill="#8B4513" rx="3"/>
+  <rect x="285" y="410" width="8" height="22" fill="#8B4513"/>
+  <rect x="347" y="410" width="8" height="22" fill="#8B4513"/>
+  
+  <rect x="750" y="430" width="80" height="12" fill="#8B4513" rx="3"/>
+  <rect x="755" y="420" width="8" height="22" fill="#8B4513"/>
+  <rect x="817" y="420" width="8" height="22" fill="#8B4513"/>
+  
+  <!-- People - diverse, welcoming community -->
+  
+  <!-- Senior couple walking together -->
+  <g transform="translate(200,380)">
+    <!-- Man -->
+    <circle cx="0" cy="0" r="12" fill="#FDBCB4"/>
+    <rect x="-8" y="12" width="16" height="25" fill="#4169E1" rx="3"/>
+    <rect x="-6" y="37" width="12" height="20" fill="#2F4F4F" rx="2"/>
+    <circle cx="-15" cy="20" r="3" fill="#FDBCB4"/>
+    <circle cx="15" cy="20" r="3" fill="#FDBCB4"/>
+    <!-- Woman -->
+    <circle cx="25" cy="0" r="12" fill="#FDBCB4"/>
+    <rect x="17" y="12" width="16" height="25" fill="#FF69B4" rx="3"/>
+    <rect x="19" y="37" width="12" height="20" fill="#2F4F4F" rx="2"/>
+    <circle cx="10" cy="20" r="3" fill="#FDBCB4"/>
+    <circle cx="40" cy="20" r="3" fill="#FDBCB4"/>
+  </g>
+  
+  <!-- Adult daughter with senior mother -->
+  <g transform="translate(450,370)">
+    <!-- Senior mother in wheelchair -->
+    <circle cx="0" cy="-10" r="12" fill="#FDBCB4"/>
+    <rect x="-8" y="2" width="16" height="20" fill="#9370DB" rx="3"/>
+    <!-- Wheelchair -->
+    <circle cx="-12" cy="25" r="8" fill="#708090" stroke="#2F4F4F" stroke-width="2"/>
+    <circle cx="12" cy="25" r="8" fill="#708090" stroke="#2F4F4F" stroke-width="2"/>
+    <rect x="-15" y="15" width="30" height="8" fill="#2F4F4F" rx="2"/>
+    <!-- Adult daughter -->
+    <circle cx="30" cy="0" r="12" fill="#FDBCB4"/>
+    <rect x="22" y="12" width="16" height="30" fill="#32CD32" rx="3"/>
+    <rect x="24" y="42" width="12" height="25" fill="#2F4F4F" rx="2"/>
+    <circle cx="15" cy="20" r="3" fill="#FDBCB4"/>
+    <circle cx="45" cy="20" r="3" fill="#FDBCB4"/>
+  </g>
+  
+  <!-- Group of seniors on bench -->
+  <g transform="translate(750,390)">
+    <!-- Senior 1 -->
+    <circle cx="0" cy="0" r="12" fill="#FDBCB4"/>
+    <rect x="-8" y="12" width="16" height="25" fill="#FF6347" rx="3"/>
+    <rect x="-6" y="37" width="12" height="15" fill="#2F4F4F" rx="2"/>
+    <!-- Senior 2 -->
+    <circle cx="25" cy="0" r="12" fill="#FDBCB4"/>
+    <rect x="17" y="12" width="16" height="25" fill="#4682B4" rx="3"/>
+    <rect x="19" y="37" width="12" height="15" fill="#2F4F4F" rx="2"/>
+    <!-- Senior 3 -->
+    <circle cx="50" cy="0" r="12" fill="#FDBCB4"/>
+    <rect x="42" y="12" width="16" height="25" fill="#8A2BE2" rx="3"/>
+    <rect x="44" y="37" width="12" height="15" fill="#2F4F4F" rx="2"/>
+  </g>
+  
+  <!-- Caregiver with senior -->
+  <g transform="translate(950,380)">
+    <!-- Caregiver in scrubs -->
+    <circle cx="0" cy="0" r="12" fill="#FDBCB4"/>
+    <rect x="-8" y="12" width="16" height="25" fill="#00CED1" rx="3"/>
+    <rect x="-6" y="37" width="12" height="20" fill="#FFFFFF" rx="2"/>
+    <circle cx="-15" cy="20" r="3" fill="#FDBCB4"/>
+    <circle cx="15" cy="20" r="3" fill="#FDBCB4"/>
+    <!-- Senior with walking aid -->
+    <circle cx="25" cy="0" r="12" fill="#FDBCB4"/>
+    <rect x="17" y="12" width="16" height="25" fill="#DDA0DD" rx="3"/>
+    <rect x="19" y="37" width="12" height="20" fill="#2F4F4F" rx="2"/>
+    <line x1="35" y1="0" x2="45" y2="50" stroke="#8B4513" stroke-width="3"/>
+  </g>
+  
+  <!-- Visiting family -->
+  <g transform="translate(600,460)">
+    <!-- Grandchild -->
+    <circle cx="0" cy="-5" r="8" fill="#FDBCB4"/>
+    <rect x="-6" y="3" width="12" height="15" fill="#FF1493" rx="2"/>
+    <rect x="-4" y="18" width="8" height="12" fill="#2F4F4F" rx="1"/>
+    <!-- Parent -->
+    <circle cx="20" cy="0" r="12" fill="#FDBCB4"/>
+    <rect x="12" y="12" width="16" height="25" fill="#228B22" rx="3"/>
+    <rect x="14" y="37" width="12" height="20" fill="#2F4F4F" rx="2"/>
+    <!-- Grandparent -->
+    <circle cx="45" cy="0" r="12" fill="#FDBCB4"/>
+    <rect x="37" y="12" width="16" height="25" fill="#CD853F" rx="3"/>
+    <rect x="39" y="37" width="12" height="20" fill="#2F4F4F" rx="2"/>
+  </g>
+  
+  <!-- Decorative elements -->
+  <!-- Flowers -->
+  <circle cx="150" cy="470" r="4" fill="#FF69B4"/>
+  <circle cx="165" cy="465" r="4" fill="#FFD700"/>
+  <circle cx="140" cy="475" r="4" fill="#FF6347"/>
+  
+  <circle cx="850" cy="480" r="4" fill="#FF69B4"/>
+  <circle cx="870" cy="475" r="4" fill="#9370DB"/>
+  <circle cx="830" cy="485" r="4" fill="#32CD32"/>
+  
+  <!-- Welcome sign -->
+  <rect x="450" y="320" width="200" height="40" fill="#FFFFFF" stroke="#D4AF37" stroke-width="2" rx="5"/>
+  <text x="550" y="345" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#8B4513">Welcome Home</text>
+  
+  <!-- Subtle clouds -->
+  <ellipse cx="200" cy="80" rx="40" ry="20" fill="#FFFFFF" opacity="0.8"/>
+  <ellipse cx="220" cy="75" rx="30" ry="15" fill="#FFFFFF" opacity="0.8"/>
+  <ellipse cx="800" cy="60" rx="35" ry="18" fill="#FFFFFF" opacity="0.8"/>
+  <ellipse cx="820" cy="55" rx="25" ry="12" fill="#FFFFFF" opacity="0.8"/>
+  
+  <!-- Path/walkway -->
+  <path d="M 500 450 Q 600 470 700 450" stroke="#D2B48C" stroke-width="12" fill="none"/>
+  <path d="M 400 460 Q 500 470 600 460" stroke="#D2B48C" stroke-width="8" fill="none"/>
+</svg>

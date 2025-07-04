@@ -522,7 +522,7 @@ export default function CommunityPage() {
                   <span>Reviews from Multiple Sources</span>
                 </CardTitle>
                 <div className="text-sm text-gray-600">
-                  Complete transparency with reviews from Google, Yelp, Care.com, SeniorAdvisor, and A Place For Mom
+                  Complete transparency with reviews from Google and Yelp
                 </div>
               </CardHeader>
               <CardContent>
