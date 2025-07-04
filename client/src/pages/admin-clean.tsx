@@ -37,7 +37,7 @@ import {
 export default function AdminDashboard() {
   const [selectedCommunity, setSelectedCommunity] = useState<number | null>(null);
 
-  // Real data queries
+  // Real data queries with error handling
   const communitiesQuery = useQuery({
     queryKey: ['/api/communities'],
     retry: false,
@@ -53,24 +53,36 @@ export default function AdminDashboard() {
     retry: false,
   });
 
-  // Safe data handling
-  const communities = communitiesQuery.data || [];
-  const totalCommunities = Array.isArray(communities) ? communities.length : 0;
-  const verifiedCommunities = Array.isArray(communities) ? communities.filter((c: any) => c?.phone && c?.website).length : 0;
-  const withPhotos = Array.isArray(communities) ? communities.filter((c: any) => c?.photos && Array.isArray(c.photos) && c.photos.length > 0).length : 0;
-  const withReviews = Array.isArray(communities) ? communities.filter((c: any) => c?.reviews && Array.isArray(c.reviews) && c.reviews.length > 0).length : 0;
+  // Safe data handling with error fallbacks
+  const communities = Array.isArray(communitiesQuery.data) ? communitiesQuery.data : [];
+  const totalCommunities = communities.length;
+  const verifiedCommunities = communities.filter((c: any) => c?.phone && c?.website).length;
+  const withPhotos = communities.filter((c: any) => c?.photos && Array.isArray(c.photos) && c.photos.length > 0).length;
+  const withReviews = communities.filter((c: any) => c?.reviews && Array.isArray(c.reviews) && c.reviews.length > 0).length;
 
-  const auditData = auditLogsQuery.data || {};
+  const auditData: any = auditLogsQuery.data || {};
   const auditLogs = Array.isArray(auditData.logs) ? auditData.logs : [];
-  const usage = usageQuery.data || { totalCalls: 0, totalCost: 0 };
+  const usage: any = usageQuery.data || { totalCalls: 0, totalCost: 0 };
 
   // Show loading state
-  if (communitiesQuery.isLoading) {
+  if (communitiesQuery.isLoading || auditLogsQuery.isLoading || usageQuery.isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600 dark:text-gray-400">Loading admin dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if queries failed
+  if (communitiesQuery.error || auditLogsQuery.error || usageQuery.error) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Error loading admin dashboard</p>
+          <Button onClick={() => window.location.reload()}>Retry</Button>
         </div>
       </div>
     );
