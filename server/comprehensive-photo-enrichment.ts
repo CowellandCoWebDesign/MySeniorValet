@@ -2,6 +2,7 @@ import { db } from "./db";
 import { communities } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
 import { googlePlacesIntegration } from "./google-places-integration";
+import { dataProtectionService } from "./data-protection";
 
 export class ComprehensivePhotoEnrichment {
   private delay(ms: number): Promise<void> {
@@ -48,6 +49,22 @@ export class ComprehensivePhotoEnrichment {
           );
           
           const allPhotos = [...existingPhotos, ...newUniquePhotos];
+          
+          // Data Protection: Validate photo enrichment data before update
+          const updateData = {
+            photos: allPhotos,
+            googleRating: enrichmentResult.rating?.toString(),
+            googleReviewCount: enrichmentResult.reviewCount,
+            phone: enrichmentResult.phone,
+            website: enrichmentResult.website
+          };
+
+          const protectionResult = await dataProtectionService.enforceDataProtection([updateData], 'google_places_photos');
+          
+          if (protectionResult.blocked.length > 0) {
+            console.warn(`⚠️ Data protection blocked photo update for ${community.name}:`, protectionResult.summary);
+            continue; // Skip this community
+          }
           
           // Update database with enriched data
           await db.update(communities)

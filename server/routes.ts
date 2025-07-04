@@ -20,6 +20,7 @@ import { careTypeClassifier } from './care-type-classifier';
 import { dataQualityEnhancement } from './data-quality-enhancement';
 import { googlePlacesReviews } from './google-places-reviews';
 import { unsplashService } from './unsplash-integration';
+import { dataProtectionService } from './data-protection';
 import { z } from "zod";
 
 // Scalable infrastructure imports
@@ -5038,6 +5039,192 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: 'Failed to search premium images',
         results: [],
         total: 0
+      });
+    }
+  });
+
+  // ============================================================================
+  // DATA PROTECTION API ROUTES - Multi-layered safeguards against synthetic data
+  // ============================================================================
+
+  // Check data protection status and statistics
+  app.get('/api/data-protection/status', async (req, res) => {
+    try {
+      const stats = await dataProtectionService.getProtectionStats();
+      const frozen = await dataProtectionService.isDataFrozen();
+      
+      res.json({
+        success: true,
+        dataProtection: {
+          enabled: true,
+          dataFreezeActive: frozen,
+          protectionStats: stats,
+          lastChecked: new Date().toISOString()
+        }
+      });
+    } catch (error) {
+      console.error('❌ Data protection status error:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Validate data before updates (used by enrichment systems)
+  app.post('/api/data-protection/validate', async (req, res) => {
+    try {
+      const { updates, source } = req.body;
+
+      if (!Array.isArray(updates) || !source) {
+        return res.status(400).json({
+          success: false,
+          error: 'updates array and source are required'
+        });
+      }
+
+      // Check if data freeze is active
+      const frozen = await dataProtectionService.isDataFrozen();
+      if (frozen) {
+        return res.status(423).json({
+          success: false,
+          error: 'Data updates are frozen due to emergency protection',
+          blocked: updates,
+          allowed: []
+        });
+      }
+
+      const result = await dataProtectionService.enforceDataProtection(updates, source);
+      
+      res.json({
+        success: true,
+        protection: result,
+        message: result.summary
+      });
+    } catch (error) {
+      console.error('❌ Data validation error:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Emergency data freeze (admin only)
+  app.post('/api/data-protection/emergency-freeze', async (req, res) => {
+    try {
+      const { reason } = req.body;
+
+      if (!reason) {
+        return res.status(400).json({
+          success: false,
+          error: 'reason is required for emergency freeze'
+        });
+      }
+
+      await dataProtectionService.emergencyDataFreeze(reason);
+      
+      res.json({
+        success: true,
+        message: 'Emergency data freeze activated',
+        reason,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('❌ Emergency freeze error:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Lift emergency data freeze (admin only)
+  app.delete('/api/data-protection/emergency-freeze', async (req, res) => {
+    try {
+      // Remove freeze flag from database
+      await db.execute(sql`
+        DELETE FROM system_flags 
+        WHERE flag_name = 'data_freeze'
+      `);
+      
+      res.json({
+        success: true,
+        message: 'Emergency data freeze lifted',
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('❌ Freeze lift error:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Get protection audit log
+  app.get('/api/data-protection/audit-log', async (req, res) => {
+    try {
+      const { limit = '50', source } = req.query;
+      
+      let query = sql`
+        SELECT * FROM data_protection_logs
+      `;
+      
+      if (source) {
+        query = sql`
+          SELECT * FROM data_protection_logs
+          WHERE source = ${source}
+        `;
+      }
+      
+      query = sql`
+        ${query}
+        ORDER BY created_at DESC
+        LIMIT ${parseInt(limit as string)}
+      `;
+      
+      const logs = await db.execute(query);
+      
+      res.json({
+        success: true,
+        auditLog: logs,
+        totalEntries: logs.length
+      });
+    } catch (error) {
+      console.error('❌ Audit log error:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Test synthetic data detection
+  app.post('/api/data-protection/test-detection', async (req, res) => {
+    try {
+      const { testData } = req.body;
+
+      if (!testData) {
+        return res.status(400).json({
+          success: false,
+          error: 'testData is required'
+        });
+      }
+
+      const checks = await dataProtectionService.validateDataIntegrity([testData], 'test_source');
+      
+      res.json({
+        success: true,
+        detectionResults: checks[0],
+        isSynthetic: checks[0].riskLevel === 'critical' || checks[0].riskLevel === 'high',
+        issues: checks[0].issues
+      });
+    } catch (error) {
+      console.error('❌ Detection test error:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   });

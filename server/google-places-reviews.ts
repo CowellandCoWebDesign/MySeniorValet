@@ -6,6 +6,7 @@
 import { db } from './db';
 import { communities } from '../shared/schema';
 import { eq, sql } from 'drizzle-orm';
+import { dataProtectionService } from './data-protection';
 
 const GOOGLE_API_KEY = process.env.GOOGLE_PLACES_API_KEY;
 
@@ -110,6 +111,26 @@ export class GooglePlacesReviews {
 
       // Format reviews for database
       const formattedReviews = this.formatReviewsForDatabase(placeDetails.result.reviews || []);
+
+      // Data Protection: Validate authentic Google data before update
+      const updateData = {
+        google_review_snippets: formattedReviews,
+        google_rating: placeDetails.result.rating,
+        google_review_count: placeDetails.result.user_ratings_total || 0
+      };
+
+      const protectionResult = await dataProtectionService.enforceDataProtection([updateData], 'google_places_api');
+      
+      if (protectionResult.blocked.length > 0) {
+        console.warn('⚠️ Data protection blocked Google reviews update:', protectionResult.summary);
+        return {
+          reviewsAdded: 0,
+          rating: null,
+          reviewCount: 0,
+          success: false,
+          error: `Data protection: ${protectionResult.summary}`
+        };
+      }
 
       // Update community with reviews using direct SQL to avoid schema mismatch
       await db.execute(sql`
