@@ -35,6 +35,7 @@ import { googleReviewsAI } from "./google-reviews-ai";
 import { googlePlacesIntegration } from "./google-places-integration";
 import { authService, requireAuth } from "./auth";
 import { regionalExpansionEngine } from "./regional-expansion";
+import { comprehensivePhotoEnrichment } from "./comprehensive-photo-enrichment";
 
 // Authentication middleware function
 const isAuthenticated = (req: any, res: any, next: any) => {
@@ -4571,6 +4572,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({
         success: false,
         message: 'Failed to get communities by county',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Comprehensive photo enrichment routes
+  app.post('/api/admin/photo-enrichment/all', async (req, res) => {
+    try {
+      console.log("🚀 Starting comprehensive photo enrichment for ALL communities");
+      const result = await comprehensivePhotoEnrichment.enrichAllCommunities();
+      
+      res.json({
+        success: true,
+        message: "Comprehensive photo enrichment completed",
+        statistics: result
+      });
+    } catch (error) {
+      console.error("❌ Photo enrichment error:", error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  app.post('/api/admin/photo-enrichment/city', async (req, res) => {
+    try {
+      const { city, state } = req.body;
+      
+      if (!city || !state) {
+        return res.status(400).json({
+          success: false,
+          error: "City and state are required"
+        });
+      }
+      
+      console.log(`🚀 Starting photo enrichment for ${city}, ${state}`);
+      const result = await comprehensivePhotoEnrichment.enrichByCity(city, state);
+      
+      res.json({
+        success: true,
+        message: `Photo enrichment completed for ${city}, ${state}`,
+        statistics: result
+      });
+    } catch (error) {
+      console.error("❌ Photo enrichment error:", error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  app.get('/api/admin/photo-enrichment/stats', async (req, res) => {
+    try {
+      const stats = await comprehensivePhotoEnrichment.getEnrichmentStats();
+      res.json({
+        success: true,
+        statistics: stats
+      });
+    } catch (error) {
+      console.error("❌ Error getting enrichment stats:", error);
+      res.status(500).json({
+        success: false,
         error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
