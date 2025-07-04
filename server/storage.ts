@@ -433,25 +433,71 @@ export class DatabaseStorage implements IStorage {
     if (params.location) {
       const locationLower = params.location.toLowerCase();
       
-      // Parse "City, State" format
-      if (locationLower.includes(',')) {
-        const [cityPart, statePart] = locationLower.split(',').map(s => s.trim());
-        conditions.push(
-          and(
-            ilike(communities.city, `%${cityPart}%`),
-            ilike(communities.state, `%${statePart}%`)
-          )
-        );
+      // If distance is specified, do geographical search
+      if (params.distance) {
+        console.log('Distance search for:', params.location, 'with distance:', params.distance);
+        
+        // For distance search, expand to include much broader geographic area
+        if (locationLower.includes(',')) {
+          const [cityPart, statePart] = locationLower.split(',').map(s => s.trim());
+          
+          // For Redding area, include all of Northern California
+          if (cityPart.includes('redding')) {
+            console.log('Redding distance search - including all Northern California');
+            conditions.push(
+              and(
+                eq(communities.state, 'CA'),
+                or(
+                  // Include all Northern California regions
+                  ilike(communities.region, '%northern%'),
+                  ilike(communities.county, '%shasta%'),
+                  ilike(communities.county, '%butte%'),
+                  ilike(communities.county, '%tehama%'),
+                  ilike(communities.county, '%siskiyou%'),
+                  // Include specific cities
+                  ilike(communities.city, '%redding%'),
+                  ilike(communities.city, '%chico%'),
+                  ilike(communities.city, '%red bluff%'),
+                  ilike(communities.city, '%oroville%'),
+                  ilike(communities.city, '%anderson%'),
+                  ilike(communities.city, '%mount shasta%'),
+                  ilike(communities.city, '%yreka%'),
+                  // Include ZIP codes for the region (96xxx)
+                  ilike(communities.zipCode, '96%')
+                )
+              )
+            );
+          } else {
+            // For other areas, use regular state search  
+            conditions.push(
+              and(
+                ilike(communities.city, `%${cityPart}%`),
+                ilike(communities.state, `%${statePart}%`)
+              )
+            );
+          }
+        }
       } else {
-        // Single term - search in city, state, or zip code
-        const searchTerm = `%${locationLower}%`;
-        conditions.push(
-          or(
-            ilike(communities.city, searchTerm),
-            ilike(communities.state, searchTerm),
-            ilike(communities.zipCode, searchTerm)
-          )
-        );
+        // Regular location search without distance
+        if (locationLower.includes(',')) {
+          const [cityPart, statePart] = locationLower.split(',').map(s => s.trim());
+          conditions.push(
+            and(
+              ilike(communities.city, `%${cityPart}%`),
+              ilike(communities.state, `%${statePart}%`)
+            )
+          );
+        } else {
+          // Single term - search in city, state, or zip code
+          const searchTerm = `%${locationLower}%`;
+          conditions.push(
+            or(
+              ilike(communities.city, searchTerm),
+              ilike(communities.state, searchTerm),
+              ilike(communities.zipCode, searchTerm)
+            )
+          );
+        }
       }
     }
 
