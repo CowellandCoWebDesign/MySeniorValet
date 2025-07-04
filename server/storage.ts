@@ -10,7 +10,8 @@ import {
   type Lead, type InsertLead, type LeadActivity, type InsertLeadActivity
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, like, ilike, gte, and, or, sql } from "drizzle-orm";
+import { eq, like, ilike, gte, and, or, sql, inArray } from "drizzle-orm";
+import { zipCodeService } from "./zip-code-mapping";
 
 export interface IStorage {
   // User methods
@@ -589,26 +590,28 @@ export class DatabaseStorage implements IStorage {
     console.log(`ZIP code search for: ${location}`);
     
     if (location.length === 5) {
-      // Full ZIP code search - for geographical equivalence, include nearby ZIP codes
+      // Full ZIP code search with intelligent geographic expansion
       console.log(`Full ZIP code search for: ${location}`);
       
-      // For Redding ZIP codes, expand to include all Redding ZIP codes for city equivalence
-      if (location.startsWith('96001') || location.startsWith('96002') || location.startsWith('96003') || location.startsWith('96049')) {
-        console.log(`Redding ZIP - expanding to include all Redding ZIP codes`);
+      // Use the comprehensive ZIP code service for geographic expansion
+      const expandedZips = zipCodeService.expandZipSearch(location);
+      console.log(`ZIP expansion: ${location} -> ${expandedZips.join(', ')}`);
+      
+      if (expandedZips.length > 1) {
+        // Multiple ZIP codes found - search all related ZIPs for geographic equivalence
+        return inArray(communities.zipCode, expandedZips);
+      } else if (expandedZips.length === 1) {
+        // Single ZIP code - exact match
+        return eq(communities.zipCode, expandedZips[0]);
+      } else {
+        // No ZIP codes found in mapping - try broader geographic search
+        console.log(`No ZIP mapping found for ${location}, trying broader search`);
+        const zipPrefix = location.substring(0, 4); // First 4 digits for geographic area
         return or(
-          eq(communities.zipCode, '96001'),
-          eq(communities.zipCode, '96002'),
-          eq(communities.zipCode, '96003'),
-          eq(communities.zipCode, '96049')
+          eq(communities.zipCode, location),
+          ilike(communities.zipCode, `${zipPrefix}%`)
         );
       }
-      
-      // For other full ZIP codes, include the ZIP and nearby ones in the same city/area
-      const zipPrefix = location.substring(0, 4); // First 4 digits for geographic area
-      return or(
-        eq(communities.zipCode, location),
-        ilike(communities.zipCode, `${zipPrefix}%`)
-      );
     }
     
     // Partial ZIP code search (2-3 digits)
