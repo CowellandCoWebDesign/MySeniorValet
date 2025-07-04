@@ -36,6 +36,7 @@ import { googlePlacesIntegration } from "./google-places-integration";
 import { authService, requireAuth } from "./auth";
 import { regionalExpansionEngine } from "./regional-expansion";
 import { comprehensivePhotoEnrichment } from "./comprehensive-photo-enrichment";
+import { systematicPhotoEnrichment } from "./systematic-photo-enrichment";
 
 // Authentication middleware function
 const isAuthenticated = (req: any, res: any, next: any) => {
@@ -4627,13 +4628,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/admin/photo-enrichment/stats', async (req, res) => {
     try {
-      const stats = await comprehensivePhotoEnrichment.getEnrichmentStats();
+      const stats = await systematicPhotoEnrichment.getDetailedPhotoStats();
       res.json({
         success: true,
         statistics: stats
       });
     } catch (error) {
       console.error("❌ Error getting enrichment stats:", error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Systematic photo enrichment routes (individual community review)
+  app.post('/api/admin/photo-enrichment/systematic', async (req, res) => {
+    try {
+      const { startId, endId } = req.body;
+      
+      console.log(`🚀 Starting systematic photo enrichment${startId ? ` from ID ${startId}` : ''}${endId ? ` to ID ${endId}` : ''}`);
+      const result = await systematicPhotoEnrichment.enrichCommunitiesSystematically(startId, endId);
+      
+      res.json({
+        success: true,
+        message: "Systematic photo enrichment completed",
+        results: result
+      });
+    } catch (error) {
+      console.error("❌ Systematic photo enrichment error:", error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  app.post('/api/admin/photo-enrichment/individual/:communityId', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.communityId);
+      
+      if (isNaN(communityId)) {
+        return res.status(400).json({
+          success: false,
+          error: "Invalid community ID"
+        });
+      }
+      
+      console.log(`🔍 Enriching individual community: ${communityId}`);
+      const result = await systematicPhotoEnrichment.enrichCommunityByIdWithDetails(communityId);
+      
+      res.json({
+        success: true,
+        result
+      });
+    } catch (error) {
+      console.error("❌ Individual photo enrichment error:", error);
       res.status(500).json({
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error'
