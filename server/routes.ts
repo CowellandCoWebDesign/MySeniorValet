@@ -1163,7 +1163,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return Math.min(score, 100);
   }
 
-  // Location autocomplete endpoint
+  // Enhanced location autocomplete endpoint with comprehensive support
   app.get('/api/locations/search', async (req, res) => {
     try {
       const { q } = req.query;
@@ -1172,56 +1172,136 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const query = q.toLowerCase().trim();
-      const locations = new Set<string>();
+      const suggestions = new Map<string, {label: string, value: string, type: string, priority: number}>();
       
-      // Get unique cities and states from our database
+      // Get all communities from database for location data
       const communities = await storage.getAllCommunities();
+      
+      // Process database communities for different location types
       communities.forEach(community => {
-        const cityState = `${community.city}, ${community.state}`;
-        const city = community.city.toLowerCase();
-        const state = community.state.toLowerCase();
+        const city = community.city?.toLowerCase() || '';
+        const state = community.state?.toLowerCase() || '';
+        const zipCode = community.zipCode || '';
+        const county = community.county?.toLowerCase() || '';
         
-        // Prioritize exact matches and starts-with matches
-        if (city.startsWith(query) || cityState.toLowerCase().startsWith(query)) {
-          locations.add(cityState);
-        } else if (city.includes(query) || state.includes(query)) {
-          locations.add(cityState);
+        // City, State suggestions
+        if (city && state) {
+          const cityState = `${community.city}, ${community.state}`;
+          const key = `city_${cityState.toLowerCase()}`;
+          
+          if (city.startsWith(query) || cityState.toLowerCase().startsWith(query)) {
+            suggestions.set(key, {
+              label: cityState,
+              value: cityState,
+              type: 'city',
+              priority: 1
+            });
+          } else if (city.includes(query) || state.includes(query)) {
+            suggestions.set(key, {
+              label: cityState,
+              value: cityState,
+              type: 'city',
+              priority: 3
+            });
+          }
+        }
+        
+        // State-only suggestions
+        if (state && (state.startsWith(query) || community.state.toLowerCase().startsWith(query))) {
+          const stateKey = `state_${community.state.toLowerCase()}`;
+          suggestions.set(stateKey, {
+            label: community.state,
+            value: community.state,
+            type: 'state',
+            priority: 2
+          });
+        }
+        
+        // ZIP code suggestions
+        if (zipCode && zipCode.startsWith(query)) {
+          const zipKey = `zip_${zipCode}`;
+          suggestions.set(zipKey, {
+            label: `${zipCode} (${community.city}, ${community.state})`,
+            value: zipCode,
+            type: 'zip',
+            priority: 1
+          });
+        }
+        
+        // County suggestions
+        if (county && (county.startsWith(query) || county.includes(query))) {
+          const countyKey = `county_${county}`;
+          const countyLabel = `${community.county} County, ${community.state}`;
+          suggestions.set(countyKey, {
+            label: countyLabel,
+            value: countyLabel,
+            type: 'county',
+            priority: 2
+          });
         }
       });
 
-      // Add popular California cities for better autocomplete experience
-      const popularCities = [
-        'Los Angeles, CA', 'San Francisco, CA', 'San Diego, CA', 'Sacramento, CA',
-        'San Jose, CA', 'Fresno, CA', 'Long Beach, CA', 'Oakland, CA', 
-        'Bakersfield, CA', 'Anaheim, CA', 'Santa Ana, CA', 'Riverside, CA',
-        'Stockton, CA', 'Irvine, CA', 'Chula Vista, CA', 'Fremont, CA',
-        'Santa Clarita, CA', 'Salinas, CA', 'Hayward, CA', 'Sunnyvale, CA',
-        'Redding, CA', 'Modesto, CA', 'Visalia, CA', 'Concord, CA'
+      // Add popular California locations if they match
+      const popularLocations = [
+        // Major Cities
+        {label: 'Los Angeles, CA', value: 'Los Angeles, CA', type: 'city'},
+        {label: 'San Francisco, CA', value: 'San Francisco, CA', type: 'city'},
+        {label: 'San Diego, CA', value: 'San Diego, CA', type: 'city'},
+        {label: 'Sacramento, CA', value: 'Sacramento, CA', type: 'city'},
+        {label: 'San Jose, CA', value: 'San Jose, CA', type: 'city'},
+        {label: 'Redding, CA', value: 'Redding, CA', type: 'city'},
+        
+        // States
+        {label: 'California', value: 'CA', type: 'state'},
+        {label: 'CA', value: 'CA', type: 'state'},
+        
+        // Counties
+        {label: 'Shasta County, CA', value: 'Shasta County, CA', type: 'county'},
+        {label: 'Alameda County, CA', value: 'Alameda County, CA', type: 'county'},
+        {label: 'Santa Clara County, CA', value: 'Santa Clara County, CA', type: 'county'},
+        {label: 'Los Angeles County, CA', value: 'Los Angeles County, CA', type: 'county'},
+        
+        // Common ZIP patterns
+        {label: '94xxx (San Francisco Bay Area)', value: '94', type: 'zip_pattern'},
+        {label: '95xxx (Sacramento/Central Valley)', value: '95', type: 'zip_pattern'},
+        {label: '96xxx (Northern California)', value: '96', type: 'zip_pattern'},
+        {label: '90xxx (Los Angeles Area)', value: '90', type: 'zip_pattern'}
       ];
 
-      popularCities.forEach(cityState => {
-        const city = cityState.split(',')[0].toLowerCase();
-        if (city.startsWith(query) || cityState.toLowerCase().includes(query)) {
-          locations.add(cityState);
+      popularLocations.forEach(location => {
+        const locationLower = location.label.toLowerCase();
+        const valueLower = location.value.toLowerCase();
+        
+        if (locationLower.startsWith(query) || valueLower.startsWith(query) || 
+            locationLower.includes(query) || valueLower.includes(query)) {
+          const key = `popular_${location.type}_${location.value}`;
+          suggestions.set(key, {
+            ...location,
+            priority: locationLower.startsWith(query) ? 1 : 3
+          });
         }
       });
 
-      // Convert to array, sort by relevance, and limit results
-      const results = Array.from(locations)
+      // Convert to array, sort by priority and relevance, and limit results
+      const results = Array.from(suggestions.values())
         .sort((a, b) => {
-          const aLower = a.toLowerCase();
-          const bLower = b.toLowerCase();
-          // Prioritize starts-with matches
-          const aStarts = aLower.startsWith(query);
-          const bStarts = bLower.startsWith(query);
+          // Sort by priority first (1 = highest)
+          if (a.priority !== b.priority) return a.priority - b.priority;
+          
+          // Then by starts-with match
+          const aStarts = a.label.toLowerCase().startsWith(query);
+          const bStarts = b.label.toLowerCase().startsWith(query);
           if (aStarts && !bStarts) return -1;
           if (!aStarts && bStarts) return 1;
-          return a.localeCompare(b);
+          
+          // Finally alphabetically
+          return a.label.localeCompare(b.label);
         })
-        .slice(0, 8)
-        .map(location => ({
-          label: location,
-          value: location
+        .slice(0, 12) // Increased to show more variety
+        .map(item => ({
+          label: item.label,
+          value: item.value,
+          type: item.type
         }));
       
       res.json(results);
