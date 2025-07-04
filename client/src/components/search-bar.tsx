@@ -99,7 +99,7 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
               <Input
                 ref={inputRef}
                 type="text"
-                placeholder="City, State or ZIP Code"
+                placeholder="City, State, ZIP Code, or County"
                 className="pl-10"
                 value={searchParams.location}
                 onChange={(e) => handleLocationInputChange(e.target.value)}
@@ -117,21 +117,50 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
                   {isSuggestionsLoading ? (
                     <div className="px-4 py-3 text-sm text-gray-500">Loading...</div>
                   ) : locationSuggestions.length > 0 ? (
-                    locationSuggestions.map((suggestion: any, index: number) => (
-                      <button
-                        key={index}
-                        type="button"
-                        onClick={() => handleLocationSelect(suggestion.value)}
-                        className="w-full px-4 py-3 text-left hover:bg-blue-50 focus:bg-blue-50 focus:outline-none transition-colors duration-150 first:rounded-t-lg last:rounded-b-lg border-b border-gray-100 last:border-b-0"
-                      >
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                            <MapPin className="h-3 w-3 text-blue-600" />
+                    locationSuggestions.map((suggestion: any, index: number) => {
+                      // Determine icon and color based on location type
+                      const getLocationIcon = (type: string) => {
+                        switch (type) {
+                          case 'city': return { icon: MapPin, color: 'blue' };
+                          case 'state': return { icon: MapPin, color: 'purple' };
+                          case 'county': return { icon: MapPin, color: 'green' };
+                          case 'zip': return { icon: MapPin, color: 'orange' };
+                          case 'zip_pattern': return { icon: MapPin, color: 'orange' };
+                          default: return { icon: MapPin, color: 'blue' };
+                        }
+                      };
+                      
+                      const { icon: Icon, color } = getLocationIcon(suggestion.type);
+                      const colorClasses: Record<string, string> = {
+                        blue: 'bg-blue-100 text-blue-600',
+                        purple: 'bg-purple-100 text-purple-600', 
+                        green: 'bg-green-100 text-green-600',
+                        orange: 'bg-orange-100 text-orange-600'
+                      };
+
+                      return (
+                        <button
+                          key={index}
+                          type="button"
+                          onClick={() => handleLocationSelect(suggestion.value)}
+                          className="w-full px-4 py-3 text-left hover:bg-blue-50 focus:bg-blue-50 focus:outline-none transition-colors duration-150 first:rounded-t-lg last:rounded-b-lg border-b border-gray-100 last:border-b-0"
+                        >
+                          <div className="flex items-center">
+                            <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center mr-3 ${colorClasses[color]}`}>
+                              <Icon className="h-3 w-3" />
+                            </div>
+                            <div className="flex-1">
+                              <span className="text-sm text-gray-900 font-medium">{suggestion.label}</span>
+                              {suggestion.type && (
+                                <span className="text-xs text-gray-500 ml-2 capitalize">
+                                  {suggestion.type === 'zip_pattern' ? 'ZIP Area' : suggestion.type}
+                                </span>
+                              )}
+                            </div>
                           </div>
-                          <span className="text-sm text-gray-900 font-medium">{suggestion.label}</span>
-                        </div>
-                      </button>
-                    ))
+                        </button>
+                      );
+                    })
                   ) : (
                     <div className="px-4 py-3 text-sm text-gray-500">No locations found</div>
                   )}
