@@ -116,6 +116,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Cookie parser middleware for authentication
   app.use(cookieParser());
 
+  // Security rate limiting for different endpoint types
+  const { createRateLimit } = await import("./security");
+  
+  // Strict rate limiting for authentication endpoints
+  app.use('/api/auth', createRateLimit(5)); // 5 requests per 15 minutes
+  
+  // Moderate rate limiting for API endpoints
+  app.use('/api', createRateLimit(50)); // 50 requests per 15 minutes
+  
+  // Generous rate limiting for search (but still protected)
+  app.use('/api/communities/search', createRateLimit(100)); // 100 requests per 15 minutes
+
   // ===============================
   // AUTHENTICATION ROUTES
   // ===============================
