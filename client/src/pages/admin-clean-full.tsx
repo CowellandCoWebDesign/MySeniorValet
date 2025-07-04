@@ -151,44 +151,46 @@ export default function AdminCleanFull() {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid grid-cols-9 w-full max-w-7xl">
-            <TabsTrigger value="overview" className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Overview
+          <div className="w-full overflow-x-auto">
+            <TabsList className="flex min-w-max gap-1 p-1">
+              <TabsTrigger value="overview" className="flex items-center gap-1 text-xs px-2">
+              <TrendingUp className="h-3 w-3" />
+              <span className="hidden sm:inline">Overview</span>
             </TabsTrigger>
-            <TabsTrigger value="communities" className="flex items-center gap-2">
-              <Building2 className="h-4 w-4" />
-              Communities
+            <TabsTrigger value="communities" className="flex items-center gap-1 text-xs px-2">
+              <Building2 className="h-3 w-3" />
+              <span className="hidden sm:inline">Communities</span>
             </TabsTrigger>
-            <TabsTrigger value="expansion" className="flex items-center gap-2">
-              <MapPin className="h-4 w-4" />
-              Regional Expansion
+            <TabsTrigger value="expansion" className="flex items-center gap-1 text-xs px-2">
+              <MapPin className="h-3 w-3" />
+              <span className="hidden lg:inline">Expansion</span>
             </TabsTrigger>
-            <TabsTrigger value="security" className="flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              Security & Audit
+            <TabsTrigger value="security" className="flex items-center gap-1 text-xs px-2">
+              <Shield className="h-3 w-3" />
+              <span className="hidden lg:inline">Security</span>
             </TabsTrigger>
-            <TabsTrigger value="moderation" className="flex items-center gap-2">
-              <Flag className="h-4 w-4" />
-              Content Moderation
+            <TabsTrigger value="moderation" className="flex items-center gap-1 text-xs px-2">
+              <Flag className="h-3 w-3" />
+              <span className="hidden lg:inline">Moderation</span>
             </TabsTrigger>
-            <TabsTrigger value="support" className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4" />
-              Customer Support
+            <TabsTrigger value="support" className="flex items-center gap-1 text-xs px-2">
+              <MessageSquare className="h-3 w-3" />
+              <span className="hidden lg:inline">Support</span>
             </TabsTrigger>
-            <TabsTrigger value="data" className="flex items-center gap-2">
-              <Database className="h-4 w-4" />
-              Data Import/Export
+            <TabsTrigger value="data" className="flex items-center gap-1 text-xs px-2">
+              <Database className="h-3 w-3" />
+              <span className="hidden lg:inline">Data</span>
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
-              API Analytics
+            <TabsTrigger value="analytics" className="flex items-center gap-1 text-xs px-2">
+              <BarChart3 className="h-3 w-3" />
+              <span className="hidden lg:inline">Analytics</span>
             </TabsTrigger>
-            <TabsTrigger value="crm" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              CRM Integration
+            <TabsTrigger value="crm" className="flex items-center gap-1 text-xs px-2">
+              <Users className="h-3 w-3" />
+              <span className="hidden lg:inline">CRM</span>
             </TabsTrigger>
-          </TabsList>
+            </TabsList>
+          </div>
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
