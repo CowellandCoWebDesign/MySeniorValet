@@ -593,11 +593,13 @@ export class DatabaseStorage implements IStorage {
       console.log(`Full ZIP code search for: ${location}`);
       
       // For Redding ZIP codes, expand to include all Redding ZIP codes for city equivalence
-      if (location.startsWith('96002') || location.startsWith('96003')) {
+      if (location.startsWith('96001') || location.startsWith('96002') || location.startsWith('96003') || location.startsWith('96049')) {
         console.log(`Redding ZIP - expanding to include all Redding ZIP codes`);
         return or(
+          eq(communities.zipCode, '96001'),
           eq(communities.zipCode, '96002'),
-          eq(communities.zipCode, '96003')
+          eq(communities.zipCode, '96003'),
+          eq(communities.zipCode, '96049')
         );
       }
       
