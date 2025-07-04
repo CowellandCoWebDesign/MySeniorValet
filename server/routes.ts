@@ -122,8 +122,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   adminRouter.get('/communities/count', async (req, res) => {
     try {
-      const communities = await db.select().from(dbCommunities);
-      res.json({ count: communities.length });
+      const communitiesData = await db.select().from(communities);
+      res.json({ count: communitiesData.length });
     } catch (error) {
       res.json({ count: 25 }); // Fallback
     }
