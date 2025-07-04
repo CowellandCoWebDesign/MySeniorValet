@@ -4837,17 +4837,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get hero images for homepage
   app.get('/api/images/hero', async (req, res) => {
     try {
-      const cachedImages = await apiCache.get('hero-images');
-      if (cachedImages) {
-        return res.json(cachedImages);
-      }
-
-      const heroImages = await unsplashService.getHeroImages();
+      // Return a static set of fallback hero images for now to avoid rate limiting
+      const fallbackHeroImages = [
+        {
+          id: "fallback-1",
+          slug: "senior-living-community",
+          urls: {
+            regular: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=1200&h=600&fit=crop&crop=center&auto=format&q=80",
+            full: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=1200&h=600&fit=crop&crop=center&auto=format&q=80"
+          },
+          alt_description: "Beautiful senior living community exterior",
+          description: "Senior living community",
+          user: { name: "Unsplash" }
+        }
+      ];
       
-      // Cache for 24 hours
-      await apiCache.set('hero-images', heroImages, 24 * 60 * 60);
-      
-      res.json(heroImages);
+      res.json(fallbackHeroImages);
     } catch (error) {
       console.error('Failed to fetch hero images:', error);
       res.status(500).json({ 
