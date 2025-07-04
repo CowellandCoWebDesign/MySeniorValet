@@ -36,6 +36,8 @@ import {
 
 export default function AdminDashboard() {
   const [selectedCommunity, setSelectedCommunity] = useState<number | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(15); // Show 15 communities per page
 
   // Real data queries with error handling
   const communitiesQuery = useQuery({
@@ -59,6 +61,12 @@ export default function AdminDashboard() {
   const verifiedCommunities = communities.filter((c: any) => c?.phone && c?.website).length;
   const withPhotos = communities.filter((c: any) => c?.photos && Array.isArray(c.photos) && c.photos.length > 0).length;
   const withReviews = communities.filter((c: any) => c?.reviews && Array.isArray(c.reviews) && c.reviews.length > 0).length;
+
+  // Pagination logic
+  const totalPages = Math.ceil(totalCommunities / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedCommunities = communities.slice(startIndex, endIndex);
 
   const auditData: any = auditLogsQuery.data || {};
   const auditLogs = Array.isArray(auditData.logs) ? auditData.logs : [];
@@ -218,7 +226,7 @@ export default function AdminDashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {Array.isArray(communities) && communities.slice(0, 10).map((community: any) => (
+                    {Array.isArray(paginatedCommunities) && paginatedCommunities.map((community: any) => (
                       <TableRow key={community?.id || Math.random()}>
                         <TableCell className="font-medium">{community?.name || 'Unknown'}</TableCell>
                         <TableCell>{community?.city || 'Unknown'}, {community?.state || 'Unknown'}</TableCell>
@@ -250,6 +258,45 @@ export default function AdminDashboard() {
                     )}
                   </TableBody>
                 </Table>
+                
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between px-2 py-4">
+                    <div className="text-sm text-muted-foreground">
+                      Showing {startIndex + 1} to {Math.min(endIndex, totalCommunities)} of {totalCommunities} communities
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                        disabled={currentPage === 1}
+                      >
+                        Previous
+                      </Button>
+                      <div className="flex items-center space-x-1">
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                          <Button
+                            key={page}
+                            variant={currentPage === page ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setCurrentPage(page)}
+                          >
+                            {page}
+                          </Button>
+                        ))}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                        disabled={currentPage === totalPages}
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
