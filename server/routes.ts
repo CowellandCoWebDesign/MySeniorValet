@@ -17,6 +17,7 @@ import {
 import { db } from "./db";
 import { eq, and, desc, inArray, sql } from "drizzle-orm";
 import { careTypeClassifier } from './care-type-classifier';
+import { dataQualityEnhancement } from './data-quality-enhancement';
 import { z } from "zod";
 
 // Scalable infrastructure imports
@@ -4756,6 +4757,98 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
     } catch (error) {
       console.error('❌ Care type reclassification error:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // DATA QUALITY ENHANCEMENT ENDPOINTS
+  app.get('/api/admin/data-quality/overview', async (req, res) => {
+    try {
+      console.log('📊 Getting data quality overview...');
+      const overview = await dataQualityEnhancement.getDataQualityOverview();
+      
+      res.json({
+        success: true,
+        overview
+      });
+    } catch (error) {
+      console.error('❌ Data quality overview error:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  app.post('/api/admin/data-quality/enhance-community/:id', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      console.log(`🔧 Enhancing data quality for community ${communityId}...`);
+      
+      const report = await dataQualityEnhancement.enhanceCommunityDataQuality(communityId);
+      
+      res.json({
+        success: true,
+        report
+      });
+    } catch (error) {
+      console.error('❌ Community data quality enhancement error:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  app.post('/api/admin/data-quality/enhance-batch', async (req, res) => {
+    try {
+      const { communityIds } = req.body;
+      
+      if (!Array.isArray(communityIds) || communityIds.length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'communityIds array is required'
+        });
+      }
+
+      console.log(`🔧 Enhancing data quality for ${communityIds.length} communities...`);
+      
+      const reports = await dataQualityEnhancement.enhanceMultipleCommunities(communityIds);
+      
+      res.json({
+        success: true,
+        reports,
+        summary: {
+          totalProcessed: reports.length,
+          totalImprovements: reports.reduce((sum, r) => sum + r.improvements.length, 0),
+          totalIssuesFixed: reports.reduce((sum, r) => sum + r.issues.length, 0)
+        }
+      });
+    } catch (error) {
+      console.error('❌ Batch data quality enhancement error:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  app.post('/api/admin/data-quality/deduplicate-photos/:id', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      console.log(`🖼️ Deduplicating photos for community ${communityId}...`);
+      
+      const result = await dataQualityEnhancement.deduplicatePhotos(communityId);
+      
+      res.json({
+        success: true,
+        result
+      });
+    } catch (error) {
+      console.error('❌ Photo deduplication error:', error);
       res.status(500).json({
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error'
