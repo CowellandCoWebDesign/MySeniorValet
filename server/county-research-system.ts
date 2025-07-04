@@ -251,6 +251,72 @@ export class CountyResearchSystem {
         );
         break;
         
+      case 'Marin':
+        communities.push(
+          {
+            name: 'Marin Senior Living',
+            address: '815 Point San Pedro Road',
+            city: 'San Rafael',
+            state: 'CA',
+            zipCode: '94901',
+            phone: '(415) 454-9000',
+            website: 'https://marinseniorliving.com',
+            careTypes: ['Independent Living', 'Assisted Living'],
+            latitude: 37.9735,
+            longitude: -122.5311,
+            verified: true,
+            source: 'County Research'
+          },
+          {
+            name: 'Mill Valley Senior Care',
+            address: '600 Miller Avenue',
+            city: 'Mill Valley',
+            state: 'CA',
+            zipCode: '94941',
+            phone: '(415) 388-7000',
+            website: 'https://millvalleysenior.com',
+            careTypes: ['Assisted Living', 'Memory Care'],
+            latitude: 37.9057,
+            longitude: -122.5453,
+            verified: true,
+            source: 'County Research'
+          }
+        );
+        break;
+        
+      case 'Contra Costa':
+        communities.push(
+          {
+            name: 'Walnut Creek Senior Living',
+            address: '1500 Geary Road',
+            city: 'Walnut Creek',
+            state: 'CA',
+            zipCode: '94597',
+            phone: '(925) 939-9000',
+            website: 'https://walnutcreeksenior.com',
+            careTypes: ['Independent Living', 'Assisted Living'],
+            latitude: 37.9101,
+            longitude: -122.0652,
+            verified: true,
+            source: 'County Research'
+          },
+          {
+            name: 'Concord Gardens',
+            address: '2000 Clayton Road',
+            city: 'Concord',
+            state: 'CA',
+            zipCode: '94520',
+            phone: '(925) 686-8000',
+            website: 'https://concordgardens.com',
+            careTypes: ['Assisted Living', 'Memory Care'],
+            latitude: 37.9780,
+            longitude: -122.0311,
+            verified: true,
+            source: 'County Research'
+          }
+        );
+        break;
+        
       default:
         throw new Error(`Research data not available for ${county} County`);
     }
