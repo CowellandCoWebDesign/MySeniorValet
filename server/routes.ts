@@ -4420,106 +4420,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Immediate county expansion endpoint
-  app.post('/api/admin/expansion/add-county', async (req, res) => {
+  // Systematic county research endpoint
+  app.post('/api/admin/research/county/:county', async (req, res) => {
     try {
-      const { county } = req.body;
+      const { county } = req.params;
+      const { countyResearchSystem } = await import('./county-research-system');
       
-      console.log(`🎯 Adding communities from ${county} County...`);
+      console.log(`🔍 Starting systematic research for ${county} County...`);
       
-      // Add specific communities based on county
-      let addedCommunities = 0;
-      
-      if (county === 'Yolo') {
-        await db.insert(communities).values([
-          {
-            name: 'Davis Senior Living',
-            address: '1955 Fifth Street',
-            city: 'Davis',
-            state: 'CA',
-            zipCode: '95616',
-            phone: '(530) 758-8830',
-            website: 'https://davisseniorliving.com',
-            county: 'Yolo',
-            region: 'Central Valley North',
-            careTypes: ['Independent Living', 'Assisted Living'],
-            latitude: 38.5449,
-            longitude: -121.7405,
-            isVerified: true,
-            discoverySource: 'Admin Expansion',
-            discoveryDate: new Date()
-          },
-          {
-            name: 'Woodland Memory Care',
-            address: '1400 Gibson Road',
-            city: 'Woodland',
-            state: 'CA',
-            zipCode: '95695',
-            phone: '(530) 662-1950',
-            website: 'https://woodlandmc.com',
-            county: 'Yolo',
-            region: 'Central Valley North',
-            careTypes: ['Memory Care', 'Assisted Living'],
-            latitude: 38.6785,
-            longitude: -121.7733,
-            isVerified: true,
-            discoverySource: 'Admin Expansion',
-            discoveryDate: new Date()
-          }
-        ]);
-        addedCommunities = 2;
-      } else if (county === 'Solano') {
-        await db.insert(communities).values([
-          {
-            name: 'Vallejo Gardens Senior Living',
-            address: '850 Admiral Callaghan Lane',
-            city: 'Vallejo',
-            state: 'CA',
-            zipCode: '94591',
-            phone: '(707) 648-1950',
-            website: 'https://vallejogardens.com',
-            county: 'Solano',
-            region: 'Bay Area North',
-            careTypes: ['Independent Living', 'Assisted Living'],
-            latitude: 38.1041,
-            longitude: -122.2564,
-            isVerified: true,
-            discoverySource: 'Admin Expansion',
-            discoveryDate: new Date()
-          },
-          {
-            name: 'Fairfield Assisted Living',
-            address: '2100 Courage Drive',
-            city: 'Fairfield',
-            state: 'CA',
-            zipCode: '94533',
-            phone: '(707) 426-9000',
-            website: 'https://fairfieldal.com',
-            county: 'Solano',
-            region: 'Bay Area North',
-            careTypes: ['Assisted Living', 'Memory Care'],
-            latitude: 38.2494,
-            longitude: -122.0400,
-            isVerified: true,
-            discoverySource: 'Admin Expansion',
-            discoveryDate: new Date()
-          }
-        ]);
-        addedCommunities = 2;
-      }
+      const result = await countyResearchSystem.researchCountySystematically(county);
       
       res.json({
         success: true,
-        message: `Successfully added ${addedCommunities} communities from ${county} County`,
-        addedCommunities,
-        county
+        message: `Research complete for ${county} County`,
+        result: {
+          county: result.county,
+          discovered: result.discovered.length,
+          verified: result.verified.length,
+          added: result.added,
+          duplicates: result.duplicates,
+          errors: result.errors
+        }
       });
       
     } catch (error) {
-      console.error('Error adding county communities:', error);
+      console.error('Error in county research:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to add county communities',
+        message: 'Failed to research county',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Get next county to research
+  app.get('/api/admin/research/next-county', async (req, res) => {
+    try {
+      const { countyResearchSystem } = await import('./county-research-system');
+      const nextCounty = await countyResearchSystem.getNextCountyToResearch();
+      
+      res.json({
+        success: true,
+        nextCounty,
+        hasMore: nextCounty !== null
+      });
+      
+    } catch (error) {
+      console.error('Error getting next county:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to get next county',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Get research progress
+  app.get('/api/admin/research/progress', async (req, res) => {
+    try {
+      const { countyResearchSystem } = await import('./county-research-system');
+      const progress = await countyResearchSystem.getResearchProgress();
+      
+      res.json({
+        success: true,
+        progress
+      });
+      
+    } catch (error) {
+      console.error('Error getting research progress:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to get research progress',
         error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
