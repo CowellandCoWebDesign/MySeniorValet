@@ -8,7 +8,9 @@ import { CommunityCard } from "@/components/community-card";
 import { MapView } from "@/components/map-view";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { List, Map as MapIcon, Filter, X } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { List, Map as MapIcon, Filter, X, Target } from "lucide-react";
 import type { Community, SearchCommunity } from "@shared/schema";
 
 export default function Search() {

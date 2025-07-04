@@ -34,6 +34,7 @@ import { licensingScraper } from "./licensing-scraper";
 import { googleReviewsAI } from "./google-reviews-ai";
 import { googlePlacesIntegration } from "./google-places-integration";
 import { authService, requireAuth } from "./auth";
+import { regionalExpansionEngine } from "./regional-expansion";
 
 // Authentication middleware function
 const isAuthenticated = (req: any, res: any, next: any) => {
@@ -4298,6 +4299,174 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Update claim status error:', error);
       res.status(500).json({ 
         message: 'Failed to update claim status' 
+      });
+    }
+  });
+
+  // Regional Expansion API Endpoints
+  
+  // Execute regional expansion for all target counties
+  app.post('/api/regional-expansion/execute', async (req, res) => {
+    try {
+      console.log('🚀 Starting Regional Expansion for 7 Target Counties...');
+      
+      const results = await regionalExpansionEngine.executeRegionalExpansion();
+      
+      const summary = {
+        totalCounties: results.length,
+        totalCommunitiesFound: results.reduce((sum, r) => sum + r.totalFound, 0),
+        totalNewCommunities: results.reduce((sum, r) => sum + r.newCommunities, 0),
+        totalEnriched: results.reduce((sum, r) => sum + r.enrichedCommunities, 0),
+        countyResults: results.map(r => ({
+          county: r.county,
+          region: r.region,
+          newCommunities: r.newCommunities,
+          enrichedCommunities: r.enrichedCommunities,
+          verificationLevel: r.verificationLevel,
+          discoveryMethods: r.discoveryMethods.length
+        }))
+      };
+      
+      console.log('✅ Regional Expansion Complete:', summary);
+      res.json({
+        success: true,
+        message: `Regional expansion complete: ${summary.totalNewCommunities} new communities added across ${summary.totalCounties} counties`,
+        summary,
+        detailedResults: results
+      });
+      
+    } catch (error) {
+      console.error('❌ Regional expansion failed:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Regional expansion failed',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Get target counties information
+  app.get('/api/regional-expansion/counties', async (req, res) => {
+    try {
+      const counties = regionalExpansionEngine.getTargetCounties();
+      res.json({
+        success: true,
+        counties: counties.map(county => ({
+          county: county.county,
+          region: county.region,
+          primaryCities: county.primaryCities,
+          priority: county.priority,
+          marketSize: county.marketSize,
+          searchRadius: county.searchRadius
+        }))
+      });
+    } catch (error) {
+      console.error('Error getting counties:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to get counties',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Get statistics for a specific county
+  app.get('/api/regional-expansion/county/:county/stats', async (req, res) => {
+    try {
+      const county = req.params.county;
+      const stats = await regionalExpansionEngine.getCountyStatistics(county);
+      
+      res.json({
+        success: true,
+        county,
+        statistics: stats
+      });
+    } catch (error) {
+      console.error(`Error getting stats for ${req.params.county}:`, error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to get county statistics',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Get communities by region filter
+  app.get('/api/communities/by-region/:region', async (req, res) => {
+    try {
+      const region = req.params.region;
+      const { page = 1, limit = 20 } = req.query;
+      
+      const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
+      
+      const regionCommunities = await db.select()
+        .from(communities)
+        .where(eq(communities.region, region))
+        .limit(parseInt(limit as string))
+        .offset(offset)
+        .orderBy(desc(communities.discoveryDate));
+      
+      const totalCount = await db.select({ count: sql`count(*)` })
+        .from(communities)
+        .where(eq(communities.region, region));
+      
+      res.json({
+        success: true,
+        communities: regionCommunities,
+        pagination: {
+          page: parseInt(page as string),
+          limit: parseInt(limit as string),
+          total: parseInt(totalCount[0].count as string),
+          totalPages: Math.ceil(parseInt(totalCount[0].count as string) / parseInt(limit as string))
+        }
+      });
+      
+    } catch (error) {
+      console.error(`Error getting communities for region ${req.params.region}:`, error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to get communities by region',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Get communities by county filter
+  app.get('/api/communities/by-county/:county', async (req, res) => {
+    try {
+      const county = req.params.county;
+      const { page = 1, limit = 20 } = req.query;
+      
+      const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
+      
+      const countyCommunities = await db.select()
+        .from(communities)
+        .where(eq(communities.county, county))
+        .limit(parseInt(limit as string))
+        .offset(offset)
+        .orderBy(desc(communities.discoveryDate));
+      
+      const totalCount = await db.select({ count: sql`count(*)` })
+        .from(communities)
+        .where(eq(communities.county, county));
+      
+      res.json({
+        success: true,
+        communities: countyCommunities,
+        pagination: {
+          page: parseInt(page as string),
+          limit: parseInt(limit as string),
+          total: parseInt(totalCount[0].count as string),
+          totalPages: Math.ceil(parseInt(totalCount[0].count as string) / parseInt(limit as string))
+        }
+      });
+      
+    } catch (error) {
+      console.error(`Error getting communities for county ${req.params.county}:`, error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to get communities by county',
+        error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   });
