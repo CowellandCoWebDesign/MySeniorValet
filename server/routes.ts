@@ -16,6 +16,7 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, inArray, sql } from "drizzle-orm";
+import { careTypeClassifier } from './care-type-classifier';
 import { z } from "zod";
 
 // Scalable infrastructure imports
@@ -4684,6 +4685,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error("❌ Individual photo enrichment error:", error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // CARE TYPE RECLASSIFICATION ENDPOINT
+  app.post('/api/admin/reclassify-care-types', async (req, res) => {
+    try {
+      console.log('🔍 Starting care type reclassification for all communities...');
+      
+      // Get all communities
+      const allCommunities = await db.select().from(communities);
+      console.log(`📊 Found ${allCommunities.length} communities to reclassify`);
+      
+      let reclassified = 0;
+      let unchanged = 0;
+      const results = [];
+      
+      for (const community of allCommunities) {
+        // Use our new care type classifier
+        const analysis = careTypeClassifier.classifyCareTypes(
+          community.name,
+          community.description || undefined,
+          [] // We don't have Google Places types stored, but classifier will work without them
+        );
+        
+        // Check if care types changed
+        const currentCareTypes = community.careTypes.sort();
+        const newCareTypes = analysis.allCareTypes.sort();
+        const hasChanged = JSON.stringify(currentCareTypes) !== JSON.stringify(newCareTypes);
+        
+        if (hasChanged) {
+          // Update the community with new care types
+          await db
+            .update(communities)
+            .set({ 
+              careTypes: analysis.allCareTypes
+            })
+            .where(eq(communities.id, community.id));
+          
+          reclassified++;
+          results.push({
+            id: community.id,
+            name: community.name,
+            oldCareTypes: currentCareTypes,
+            newCareTypes: analysis.allCareTypes,
+            primaryCareType: analysis.primaryCareType,
+            confidence: analysis.confidence,
+            reasoning: analysis.reasoning
+          });
+          
+          console.log(`✅ Updated ${community.name}: ${currentCareTypes.join(', ')} → ${analysis.allCareTypes.join(', ')} (${analysis.confidence * 100}% confidence)`);
+        } else {
+          unchanged++;
+        }
+      }
+      
+      console.log(`🎯 Care type reclassification complete: ${reclassified} updated, ${unchanged} unchanged`);
+      
+      res.json({
+        success: true,
+        totalCommunities: allCommunities.length,
+        reclassified,
+        unchanged,
+        detailedResults: results
+      });
+      
+    } catch (error) {
+      console.error('❌ Care type reclassification error:', error);
       res.status(500).json({
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error'

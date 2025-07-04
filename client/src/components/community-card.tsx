@@ -266,8 +266,8 @@ export function CommunityCard({ community }: CommunityCardProps) {
                   <div className="text-sm text-blue-700 mb-2">per month (typical range)</div>
                   <div className="bg-white border border-blue-200 rounded p-2">
                     <div className="text-xs text-blue-600">
-                      <div className="font-medium mb-1">Also includes:</div>
-                      <div>• Community Fee: $1,500 (one-time)</div>
+                      <div className="font-medium mb-1">Typical move-in costs vary by facility</div>
+                      <div>• Contact for current pricing and fees</div>
                     </div>
                   </div>
                   <div className="text-xs text-orange-600 mt-2">
@@ -279,7 +279,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
                   <div className="text-xl font-semibold text-blue-900 mb-2">Contact for Current Pricing</div>
                   <div className="bg-white border border-blue-200 rounded p-2">
                     <div className="text-xs text-blue-600">
-                      <div>• Community Fee: $1,500 (one-time)</div>
+                      <div>• Move-in costs vary by facility</div>
                     </div>
                   </div>
                 </div>
