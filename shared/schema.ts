@@ -754,6 +754,33 @@ export const auditLogs = pgTable("audit_logs", {
   severityIdx: index("audit_logs_severity_idx").on(table.severity)
 }));
 
+// Data Protection Tables
+export const dataProtectionLogs = pgTable("data_protection_logs", {
+  id: serial("id").primaryKey(),
+  source: varchar("source", { length: 100 }).notNull(),
+  totalAttempted: integer("total_attempted").notNull(),
+  allowedCount: integer("allowed_count").notNull(),
+  blockedCount: integer("blocked_count").notNull(),
+  details: jsonb("details"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const systemFlags = pgTable("system_flags", {
+  flagName: varchar("flag_name", { length: 50 }).primaryKey(),
+  flagValue: varchar("flag_value", { length: 100 }).notNull(),
+  reason: text("reason"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const dataBackups = pgTable("data_backups", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id),
+  backupData: jsonb("backup_data").notNull(),
+  backupType: varchar("backup_type", { length: 50 }).notNull(), // 'daily', 'before_update', 'manual'
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Relations
 export const communitiesRelations = relations(communities, ({ many }) => ({
   inspections: many(inspections),
@@ -1092,6 +1119,14 @@ export const insertUserSavedSearchSchema = createInsertSchema(userSavedSearches)
   updatedAt: true,
   lastRunAt: true,
 });
+
+// Data Protection Types
+export type DataProtectionLog = typeof dataProtectionLogs.$inferSelect;
+export type InsertDataProtectionLog = typeof dataProtectionLogs.$inferInsert;
+export type SystemFlag = typeof systemFlags.$inferSelect;
+export type InsertSystemFlag = typeof systemFlags.$inferInsert;
+export type DataBackup = typeof dataBackups.$inferSelect;
+export type InsertDataBackup = typeof dataBackups.$inferInsert;
 
 export const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),

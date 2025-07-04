@@ -117,6 +117,50 @@ export default function AdminDashboard() {
     enabled: showHealthDetails
   });
 
+  // Data Protection queries
+  const dataProtectionStatusQuery = useQuery({
+    queryKey: ['/api/data-protection/status'],
+    retry: false,
+    refetchInterval: 30000,
+  });
+
+  const protectionLogsQuery = useQuery({
+    queryKey: ['/api/data-protection/logs'],
+    retry: false,
+    refetchInterval: 60000,
+  });
+
+  const protectionMetricsQuery = useQuery({
+    queryKey: ['/api/data-protection/metrics'],
+    retry: false,
+    refetchInterval: 30000,
+  });
+
+  // Data Protection mutations
+  const emergencyFreezeMutation = useMutation({
+    mutationFn: () => apiRequest('/api/data-protection/emergency-freeze', {
+      method: 'POST',
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/data-protection'] });
+      console.log('Emergency freeze activated');
+    },
+  });
+
+  const runProtectionCheckMutation = useMutation({
+    mutationFn: () => apiRequest('/api/data-protection/check'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/data-protection'] });
+    },
+  });
+
+  const testDetectionMutation = useMutation({
+    mutationFn: () => apiRequest('/api/data-protection/test-detection'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/data-protection'] });
+    },
+  });
+
   const auditLogsResponse = auditLogsQuery.data;
   const logs = auditLogsResponse?.logs || [];
   const pagination = auditLogsResponse?.pagination || { page: 1, limit: 50, total: 0, totalPages: 1 };
@@ -175,10 +219,11 @@ export default function AdminDashboard() {
 
       <Tabs defaultValue="overview" className="w-full">
         {/* Professional Tab Organization */}
-        <TabsList className="grid w-full grid-cols-4 gap-1">
+        <TabsList className="grid w-full grid-cols-5 gap-1">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="communities">Communities</TabsTrigger>
           <TabsTrigger value="expansion">Regional Expansion</TabsTrigger>
+          <TabsTrigger value="protection">Data Protection</TabsTrigger>
           <TabsTrigger value="audit">Audit & Security</TabsTrigger>
         </TabsList>
 
@@ -358,6 +403,295 @@ export default function AdminDashboard() {
                 <Building2 className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                 <p className="text-lg font-medium">Community management interface ready</p>
                 <p className="text-sm">Individual community management tools are available in the main community listings</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Data Protection Tab */}
+        <TabsContent value="protection" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Protection Status */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-2">
+                  <Shield className={`h-5 w-5 ${dataProtectionStatusQuery.data?.isActive ? 'text-green-500' : 'text-red-500'}`} />
+                  <div>
+                    <p className="text-sm font-medium">Protection Status</p>
+                    <p className={`text-2xl font-bold ${dataProtectionStatusQuery.data?.isActive ? 'text-green-600' : 'text-red-600'}`}>
+                      {dataProtectionStatusQuery.isLoading ? '...' : (dataProtectionStatusQuery.data?.isActive ? 'Active' : 'Inactive')}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Data Freeze Status */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-2">
+                  <AlertCircle className={`h-5 w-5 ${dataProtectionStatusQuery.data?.isFrozen ? 'text-red-500' : 'text-blue-500'}`} />
+                  <div>
+                    <p className="text-sm font-medium">Data Freeze</p>
+                    <p className={`text-2xl font-bold ${dataProtectionStatusQuery.data?.isFrozen ? 'text-red-600' : 'text-blue-600'}`}>
+                      {dataProtectionStatusQuery.isLoading ? '...' : (dataProtectionStatusQuery.data?.isFrozen ? 'FROZEN' : 'Normal')}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Updates Blocked Today */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-2">
+                  <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                  <div>
+                    <p className="text-sm font-medium">Blocked Today</p>
+                    <p className="text-2xl font-bold text-yellow-600">
+                      {protectionMetricsQuery.isLoading ? '...' : (protectionMetricsQuery.data?.blockedToday || 0)}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Synthetic Data Detected */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-2">
+                  <Flag className="h-5 w-5 text-red-500" />
+                  <div>
+                    <p className="text-sm font-medium">Threats Detected</p>
+                    <p className="text-2xl font-bold text-red-600">
+                      {protectionMetricsQuery.isLoading ? '...' : (protectionMetricsQuery.data?.threatsDetected || 0)}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Protection Dashboard */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5" />
+                  Data Protection Dashboard
+                </CardTitle>
+                <CardDescription>
+                  Multi-layered safeguards against synthetic data contamination
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded">
+                    <p className="text-sm font-medium text-green-800 dark:text-green-200">Authentic Sources</p>
+                    <p className="text-xs text-green-600 dark:text-green-400">Google Places, Yelp, State Licensing</p>
+                  </div>
+                  <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded">
+                    <p className="text-sm font-medium text-blue-800 dark:text-blue-200">Pattern Detection</p>
+                    <p className="text-xs text-blue-600 dark:text-blue-400">AI-powered anomaly detection</p>
+                  </div>
+                  <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded">
+                    <p className="text-sm font-medium text-purple-800 dark:text-purple-200">Source Validation</p>
+                    <p className="text-xs text-purple-600 dark:text-purple-400">API key authentication required</p>
+                  </div>
+                  <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded">
+                    <p className="text-sm font-medium text-orange-800 dark:text-orange-200">Audit Trail</p>
+                    <p className="text-xs text-orange-600 dark:text-orange-400">Complete protection logging</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => runProtectionCheckMutation.mutate()}
+                    disabled={runProtectionCheckMutation.isPending}
+                  >
+                    {runProtectionCheckMutation.isPending ? (
+                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Activity className="h-4 w-4 mr-2" />
+                    )}
+                    Check Protection Status
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => {
+                      queryClient.invalidateQueries({ queryKey: ['/api/data-protection/logs'] });
+                    }}
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    Refresh Protection Audit Log
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start text-yellow-700 border-yellow-300 hover:bg-yellow-50"
+                    onClick={() => {
+                      if (confirm("Are you sure you want to test synthetic data detection?")) {
+                        testDetectionMutation.mutate();
+                      }
+                    }}
+                    disabled={testDetectionMutation.isPending}
+                  >
+                    {testDetectionMutation.isPending ? (
+                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <AlertTriangle className="h-4 w-4 mr-2" />
+                    )}
+                    Test Synthetic Data Detection
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Emergency Controls */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-red-600">
+                  <AlertTriangle className="h-5 w-5" />
+                  Emergency Data Protection
+                </CardTitle>
+                <CardDescription>
+                  Critical controls for data contamination events
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded">
+                  <h4 className="font-medium text-red-800 dark:text-red-200 mb-2">Emergency Data Freeze</h4>
+                  <p className="text-sm text-red-600 dark:text-red-400 mb-3">
+                    Immediately stop all data updates across the entire platform. Use only if synthetic data contamination is detected.
+                  </p>
+                  <Button 
+                    variant="destructive" 
+                    className="w-full"
+                    onClick={() => {
+                      if (confirm("⚠️ EMERGENCY: This will freeze ALL data updates across the entire platform. Are you sure?")) {
+                        emergencyFreezeMutation.mutate();
+                      }
+                    }}
+                    disabled={emergencyFreezeMutation.isPending}
+                  >
+                    {emergencyFreezeMutation.isPending ? (
+                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Shield className="h-4 w-4 mr-2" />
+                    )}
+                    ACTIVATE EMERGENCY FREEZE
+                  </Button>
+                </div>
+
+                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded">
+                  <h4 className="font-medium text-amber-800 dark:text-amber-200 mb-2">Data Restoration</h4>
+                  <p className="text-sm text-amber-600 dark:text-amber-400 mb-3">
+                    Restore community data from authenticated backup if contamination is confirmed.
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    className="w-full text-amber-700 border-amber-300 hover:bg-amber-50"
+                    disabled
+                  >
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Restore from Backup (Contact Support)
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded">
+                    <p className="text-sm font-medium text-green-800 dark:text-green-200">Data Integrity</p>
+                    <p className="text-2xl font-bold text-green-600">
+                      {protectionMetricsQuery.isLoading ? '...' : `${protectionMetricsQuery.data?.dataIntegrity || 100}%`}
+                    </p>
+                  </div>
+                  <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded">
+                    <p className="text-sm font-medium text-blue-800 dark:text-blue-200">Protection Uptime</p>
+                    <p className="text-2xl font-bold text-blue-600">
+                      {protectionMetricsQuery.isLoading ? '...' : `${protectionMetricsQuery.data?.uptime || 99.9}%`}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Protection Audit Log */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Recent Protection Events
+              </CardTitle>
+              <CardDescription>
+                Latest data protection actions and validations
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {protectionLogsQuery.isLoading ? (
+                  <div className="text-center py-8">
+                    <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">Loading protection logs...</p>
+                  </div>
+                ) : protectionLogsQuery.data && protectionLogsQuery.data.length > 0 ? (
+                  protectionLogsQuery.data.slice(0, 3).map((log: any, index: number) => (
+                    <div key={index} className={`flex items-center space-x-4 p-3 rounded ${
+                      log.level === 'success' ? 'bg-green-50 dark:bg-green-900/20' :
+                      log.level === 'warning' ? 'bg-yellow-50 dark:bg-yellow-900/20' :
+                      log.level === 'error' ? 'bg-red-50 dark:bg-red-900/20' :
+                      'bg-blue-50 dark:bg-blue-900/20'
+                    }`}>
+                      <div className={`w-2 h-2 rounded-full ${
+                        log.level === 'success' ? 'bg-green-500' :
+                        log.level === 'warning' ? 'bg-yellow-500' :
+                        log.level === 'error' ? 'bg-red-500' :
+                        'bg-blue-500'
+                      }`}></div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{log.action}</p>
+                        <p className="text-xs text-gray-500">{log.details}</p>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        {new Date(log.createdAt).toLocaleTimeString()}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-4 p-3 bg-green-50 dark:bg-green-900/20 rounded">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">Data protection system initialized</p>
+                        <p className="text-xs text-gray-500">All protection mechanisms are active and monitoring</p>
+                      </div>
+                      <p className="text-xs text-gray-500">Active</p>
+                    </div>
+                    
+                    <div className="flex items-center space-x-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">Source validation enabled</p>
+                        <p className="text-xs text-gray-500">All API sources require authentication and validation</p>
+                      </div>
+                      <p className="text-xs text-gray-500">Active</p>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="text-center pt-4">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/data-protection/logs'] })}
+                  >
+                    Refresh Protection Logs
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
