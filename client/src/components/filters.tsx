@@ -1,16 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChevronDown, ChevronUp, Filter } from "lucide-react";
+import { ChevronDown, ChevronUp, Filter, MapPin, DollarSign, Star, Home, Users, X } from "lucide-react";
 
 interface FiltersProps {
   onFiltersChange?: (filters: any) => void;
+  initialFilters?: any;
 }
 
-export function Filters({ onFiltersChange }: FiltersProps) {
+export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
   const [filters, setFilters] = useState({
     distance: "Within 10 miles",
     careServices: [] as string[],
@@ -21,11 +23,17 @@ export function Filters({ onFiltersChange }: FiltersProps) {
     verificationStatus: "all",
   });
 
-  const [isExpanded, setIsExpanded] = useState(true);
   const [expandedSections, setExpandedSections] = useState({
-    careServices: false,
+    careServices: true,
     amenities: false,
   });
+
+  // Update filters when initial filters change
+  useEffect(() => {
+    if (initialFilters) {
+      setFilters(prev => ({ ...prev, ...initialFilters }));
+    }
+  }, [initialFilters]);
 
   const hasActiveFilters = () => {
     return filters.careServices.length > 0 || 
@@ -66,56 +74,45 @@ export function Filters({ onFiltersChange }: FiltersProps) {
     { value: "3.0", label: "3.0+ Stars" }
   ];
 
-  const handleDistanceChange = (value: string) => {
-    const newFilters = { ...filters, distance: value };
+  const updateFilters = (updates: Partial<typeof filters>) => {
+    const newFilters = { ...filters, ...updates };
     setFilters(newFilters);
     onFiltersChange?.(newFilters);
+  };
+
+  const handleDistanceChange = (value: string) => {
+    updateFilters({ distance: value });
   };
 
   const handleCareServiceChange = (service: string, checked: boolean) => {
     const newCareServices = checked
       ? [...filters.careServices, service]
       : filters.careServices.filter(s => s !== service);
-    
-    const newFilters = { ...filters, careServices: newCareServices };
-    setFilters(newFilters);
-    onFiltersChange?.(newFilters);
+    updateFilters({ careServices: newCareServices });
   };
 
   const handleAmenityChange = (amenity: string, checked: boolean) => {
     const newAmenities = checked
       ? [...filters.amenities, amenity]
       : filters.amenities.filter(a => a !== amenity);
-    
-    const newFilters = { ...filters, amenities: newAmenities };
-    setFilters(newFilters);
-    onFiltersChange?.(newFilters);
+    updateFilters({ amenities: newAmenities });
   };
 
   const handleRatingChange = (value: string) => {
-    const newFilters = { ...filters, minRating: value };
-    setFilters(newFilters);
-    onFiltersChange?.(newFilters);
+    updateFilters({ minRating: value });
   };
 
   const handleAvailabilityChange = (value: string) => {
-    const newFilters = { ...filters, availability: value };
-    setFilters(newFilters);
-    onFiltersChange?.(newFilters);
+    updateFilters({ availability: value });
   };
 
-  const handleVerificationStatusChange = (value: string) => {
-    const newFilters = { ...filters, verificationStatus: value };
-    setFilters(newFilters);
-    onFiltersChange?.(newFilters);
+  const handlePriceRangeChange = (field: 'min' | 'max', value: string) => {
+    updateFilters({ 
+      priceRange: { ...filters.priceRange, [field]: value }
+    });
   };
 
-  const applyFilters = () => {
-    setIsExpanded(false);
-    onFiltersChange?.(filters);
-  };
-
-  const clearFilters = () => {
+  const handleClearFilters = () => {
     const clearedFilters = {
       distance: "Within 10 miles",
       careServices: [],
@@ -136,77 +133,22 @@ export function Filters({ onFiltersChange }: FiltersProps) {
     }));
   };
 
-  // Collapsed view
-  if (!isExpanded && hasActiveFilters()) {
-    return (
-      <Card className="sticky top-24">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Filter className="h-4 w-4 text-blue-600" />
-              <span className="font-medium text-sm">
-                {filters.careServices.length + filters.amenities.length} filters applied
-              </span>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsExpanded(true)}
-              className="flex items-center space-x-1"
-            >
-              <span>Edit</span>
-              <ChevronDown className="h-3 w-3" />
-            </Button>
-          </div>
-          
-          {/* Active filter tags */}
-          <div className="flex flex-wrap gap-1 mt-3">
-            {filters.careServices.map(service => (
-              <span key={service} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
-                {service}
-              </span>
-            ))}
-            {filters.amenities.slice(0, 3).map(amenity => (
-              <span key={amenity} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800">
-                {amenity}
-              </span>
-            ))}
-            {filters.amenities.length > 3 && (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-600">
-                +{filters.amenities.length - 3} more
-              </span>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
-    <Card className="sticky top-24">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">Refine Your Search</CardTitle>
-          {hasActiveFilters() && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsExpanded(false)}
-              className="flex items-center space-x-1"
-            >
-              <ChevronUp className="h-3 w-3" />
-            </Button>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div>
-          <Label className="text-sm font-medium mb-2 block">Distance</Label>
+    <div className="space-y-6">
+      {/* Primary Filters - Always Visible */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Distance */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium flex items-center gap-2">
+            <MapPin className="h-4 w-4 text-gray-500" />
+            Distance
+          </Label>
           <Select value={filters.distance} onValueChange={handleDistanceChange}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="Within 5 miles">Within 5 miles</SelectItem>
               <SelectItem value="Within 10 miles">Within 10 miles</SelectItem>
               <SelectItem value="Within 25 miles">Within 25 miles</SelectItem>
               <SelectItem value="Within 50 miles">Within 50 miles</SelectItem>
@@ -215,75 +157,41 @@ export function Filters({ onFiltersChange }: FiltersProps) {
           </Select>
         </div>
 
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <Label className="text-sm font-medium">Care Services</Label>
-            {careServiceOptions.length > 3 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => toggleExpandSection('careServices')}
-                className="text-xs text-blue-600 hover:text-blue-800"
-              >
-                {expandedSections.careServices ? 'Show less' : `+${careServiceOptions.length - 3} more`}
-              </Button>
-            )}
-          </div>
-          <div className="space-y-2">
-            {(expandedSections.careServices ? careServiceOptions : careServiceOptions.slice(0, 3)).map((service) => (
-              <div key={service} className="flex items-center space-x-2">
-                <Checkbox
-                  id={service}
-                  checked={filters.careServices.includes(service)}
-                  onCheckedChange={(checked) => handleCareServiceChange(service, !!checked)}
-                />
-                <Label htmlFor={service} className="text-sm text-gray-700">
-                  {service}
-                </Label>
-              </div>
-            ))}
+        {/* Price Range */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium flex items-center gap-2">
+            <DollarSign className="h-4 w-4 text-gray-500" />
+            Monthly Price Range
+          </Label>
+          <div className="flex gap-2">
+            <Input
+              placeholder="Min"
+              value={filters.priceRange.min}
+              onChange={(e) => handlePriceRangeChange('min', e.target.value)}
+              className="w-full"
+            />
+            <Input
+              placeholder="Max"
+              value={filters.priceRange.max}
+              onChange={(e) => handlePriceRangeChange('max', e.target.value)}
+              className="w-full"
+            />
           </div>
         </div>
 
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <Label className="text-sm font-medium">Amenities</Label>
-            {amenityOptions.length > 3 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => toggleExpandSection('amenities')}
-                className="text-xs text-blue-600 hover:text-blue-800"
-              >
-                {expandedSections.amenities ? 'Show less' : `+${amenityOptions.length - 3} more`}
-              </Button>
-            )}
-          </div>
-          <div className="space-y-2">
-            {(expandedSections.amenities ? amenityOptions : amenityOptions.slice(0, 3)).map((amenity) => (
-              <div key={amenity} className="flex items-center space-x-2">
-                <Checkbox
-                  id={amenity}
-                  checked={filters.amenities.includes(amenity)}
-                  onCheckedChange={(checked) => handleAmenityChange(amenity, !!checked)}
-                />
-                <Label htmlFor={amenity} className="text-sm text-gray-700">
-                  {amenity}
-                </Label>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <Label className="text-sm font-medium mb-2 block">Minimum Rating</Label>
+        {/* Rating */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium flex items-center gap-2">
+            <Star className="h-4 w-4 text-gray-500" />
+            Minimum Rating
+          </Label>
           <Select value={filters.minRating} onValueChange={handleRatingChange}>
             <SelectTrigger>
               <SelectValue placeholder="Any rating" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="any">Any rating</SelectItem>
-              {ratingOptions.map((option) => (
+              {ratingOptions.map(option => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
@@ -292,45 +200,131 @@ export function Filters({ onFiltersChange }: FiltersProps) {
           </Select>
         </div>
 
-        <div>
-          <Label className="text-sm font-medium mb-2 block">Availability</Label>
+        {/* Availability */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium flex items-center gap-2">
+            <Users className="h-4 w-4 text-gray-500" />
+            Availability
+          </Label>
           <Select value={filters.availability} onValueChange={handleAvailabilityChange}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Communities</SelectItem>
-              <SelectItem value="Available Now">Available Now</SelectItem>
-              <SelectItem value="Waitlist">Waitlist Available</SelectItem>
+              <SelectItem value="all">All communities</SelectItem>
+              <SelectItem value="Available">Available now</SelectItem>
+              <SelectItem value="Waitlist">Accepting waitlist</SelectItem>
+              <SelectItem value="Unavailable">Currently full</SelectItem>
             </SelectContent>
           </Select>
         </div>
+      </div>
 
-        <div>
-          <Label className="text-sm font-medium mb-2 block">Verification Status</Label>
-          <Select value={filters.verificationStatus} onValueChange={handleVerificationStatusChange}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Communities</SelectItem>
-              <SelectItem value="verified">Verified Only</SelectItem>
-              <SelectItem value="partial">Partially Verified</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex space-x-2 pt-4">
-          <Button onClick={applyFilters} className="flex-1">
-            Apply Filters
-          </Button>
-          {hasActiveFilters() && (
-            <Button variant="outline" onClick={clearFilters}>
-              Clear
+      {/* Care Services */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base font-medium flex items-center gap-2">
+              <Home className="h-4 w-4 text-blue-600" />
+              Care Services ({filters.careServices.length} selected)
+            </CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => toggleExpandSection('careServices')}
+            >
+              {expandedSections.careServices ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
             </Button>
-          )}
+          </div>
+        </CardHeader>
+        {expandedSections.careServices && (
+          <CardContent className="pt-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {careServiceOptions.map((service) => (
+                <div key={service} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`care-${service}`}
+                    checked={filters.careServices.includes(service)}
+                    onCheckedChange={(checked) => 
+                      handleCareServiceChange(service, checked as boolean)
+                    }
+                  />
+                  <Label 
+                    htmlFor={`care-${service}`}
+                    className="text-sm cursor-pointer"
+                  >
+                    {service}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        )}
+      </Card>
+
+      {/* Amenities */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base font-medium flex items-center gap-2">
+              <Star className="h-4 w-4 text-purple-600" />
+              Amenities ({filters.amenities.length} selected)
+            </CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => toggleExpandSection('amenities')}
+            >
+              {expandedSections.amenities ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+        </CardHeader>
+        {expandedSections.amenities && (
+          <CardContent className="pt-0">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {amenityOptions.map((amenity) => (
+                <div key={amenity} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`amenity-${amenity}`}
+                    checked={filters.amenities.includes(amenity)}
+                    onCheckedChange={(checked) => 
+                      handleAmenityChange(amenity, checked as boolean)
+                    }
+                  />
+                  <Label 
+                    htmlFor={`amenity-${amenity}`}
+                    className="text-sm cursor-pointer"
+                  >
+                    {amenity}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        )}
+      </Card>
+
+      {/* Clear Filters Button */}
+      {hasActiveFilters() && (
+        <div className="flex justify-center pt-4">
+          <Button 
+            variant="outline" 
+            onClick={handleClearFilters}
+            className="flex items-center gap-2"
+          >
+            <X className="h-4 w-4" />
+            Clear All Filters
+          </Button>
         </div>
-      </CardContent>
-    </Card>
+      )}
+    </div>
   );
 }
