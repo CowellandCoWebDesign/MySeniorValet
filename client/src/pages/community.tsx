@@ -573,14 +573,14 @@ export default function CommunityPage() {
                   </div>
 
                   {/* Yelp Reviews */}
-                  {community.yelpReviews && community.yelpReviews.length > 0 && (
-                    <div>
-                      <div className="flex items-center space-x-2 mb-4">
-                        <div className="w-6 h-6 bg-red-500 rounded flex items-center justify-center">
-                          <span className="text-white text-xs font-bold">Y</span>
-                        </div>
-                        <span className="font-semibold text-gray-900">Yelp Reviews</span>
+                  <div>
+                    <div className="flex items-center space-x-2 mb-4">
+                      <div className="w-6 h-6 bg-red-500 rounded flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">Y</span>
                       </div>
+                      <span className="font-semibold text-gray-900">Yelp Reviews</span>
+                    </div>
+                    {community.yelpReviews && community.yelpReviews.length > 0 ? (
                       <div className="space-y-3">
                         {community.yelpReviews.map((review: any, index: number) => (
                           <div key={index} className="border-l-4 border-red-200 pl-4 py-3 bg-red-50 rounded-r-lg">
@@ -604,8 +604,12 @@ export default function CommunityPage() {
                           </div>
                         ))}
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      <div className="text-gray-500 text-sm bg-gray-50 p-4 rounded-lg">
+                        No Yelp reviews available yet. Reviews will be displayed when Yelp API integration is completed.
+                      </div>
+                    )}
+                  </div>
 
                   {/* Care.com Reviews */}
                   {community.careComReviews && community.careComReviews.length > 0 && (
