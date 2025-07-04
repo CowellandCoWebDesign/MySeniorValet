@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { List, Map as MapIcon, Filter, X, Target } from "lucide-react";
+import { List, Map as MapIcon, Filter, X, Target, DollarSign, MapPin, Star } from "lucide-react";
 import type { Community, SearchCommunity } from "@shared/schema";
 
 export default function Search() {
@@ -101,44 +101,143 @@ export default function Search() {
       {/* Results Section */}
       <section className="py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8">
-            <div>
-              <h2 className="text-3xl font-display font-bold text-gray-900 mb-2">
-                {isLoading ? "Searching..." : `${communities?.length || 0} Communities Found`}
-              </h2>
-              <p className="text-gray-600">
-                {searchParams.location && `Near ${searchParams.location}`}
-              </p>
+          {/* Enhanced Results Header */}
+          {!isLoading && communities && communities.length > 0 && (
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                {/* Results Count and Summary */}
+                <div className="flex items-center space-x-4">
+                  <div>
+                    <h2 className="text-2xl font-semibold text-gray-900">
+                      {communities.length} Senior Living {communities.length === 1 ? 'Community' : 'Communities'} Found
+                    </h2>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {searchParams.location && `in ${searchParams.location}`}
+                      {searchParams.careType && ` • ${searchParams.careType}`}
+                      {searchParams.budget && ` • ${searchParams.budget} budget`}
+                    </p>
+                  </div>
+                </div>
+
+                {/* View Controls */}
+                <div className="flex items-center space-x-3">
+                  {/* View Mode Toggle */}
+                  <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
+                    <Button
+                      variant={viewMode === 'list' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setViewMode('list')}
+                      className="h-8"
+                    >
+                      <List className="h-4 w-4 mr-1" />
+                      List
+                    </Button>
+                    <Button
+                      variant={viewMode === 'map' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setViewMode('map')}
+                      className="h-8"
+                    >
+                      <MapIcon className="h-4 w-4 mr-1" />
+                      Map
+                    </Button>
+                  </div>
+                  
+                  {/* Filter Button */}
+                  <Button
+                    variant={showFilters ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setShowFilters(!showFilters)}
+                  >
+                    <Filter className="h-4 w-4 mr-2" />
+                    Filters
+                    {showFilters && (
+                      <X className="h-3 w-3 ml-2" />
+                    )}
+                  </Button>
+                  
+                  {/* Sort Options */}
+                  <Select>
+                    <SelectTrigger className="w-40">
+                      <Target className="h-4 w-4 mr-2" />
+                      <SelectValue placeholder="Sort by" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="relevance">Best Match</SelectItem>
+                      <SelectItem value="distance">Distance</SelectItem>
+                      <SelectItem value="price-low">Price: Low to High</SelectItem>
+                      <SelectItem value="price-high">Price: High to Low</SelectItem>
+                      <SelectItem value="rating">Highest Rated</SelectItem>
+                      <SelectItem value="availability">Availability</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Active Filters */}
+              {(searchParams.location || searchParams.careType || searchParams.budget) && (
+                <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-200">
+                  <span className="text-sm text-gray-600">Active filters:</span>
+                  {searchParams.location && (
+                    <Badge variant="secondary" className="flex items-center space-x-1">
+                      <MapPin className="h-3 w-3" />
+                      <span>{searchParams.location}</span>
+                      <button 
+                        onClick={() => setSearchParams(prev => ({ ...prev, location: undefined }))}
+                        className="ml-1 hover:bg-gray-300 rounded-full p-0.5"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  )}
+                  {searchParams.careType && (
+                    <Badge variant="secondary" className="flex items-center space-x-1">
+                      <span>{searchParams.careType}</span>
+                      <button 
+                        onClick={() => setSearchParams(prev => ({ ...prev, careType: undefined }))}
+                        className="ml-1 hover:bg-gray-300 rounded-full p-0.5"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  )}
+                  {searchParams.budget && (
+                    <Badge variant="secondary" className="flex items-center space-x-1">
+                      <DollarSign className="h-3 w-3" />
+                      <span>{searchParams.budget}</span>
+                      <button 
+                        onClick={() => setSearchParams(prev => ({ ...prev, budget: undefined }))}
+                        className="ml-1 hover:bg-gray-300 rounded-full p-0.5"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  )}
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setSearchParams({})}
+                    className="text-xs h-6 px-2"
+                  >
+                    Clear all
+                  </Button>
+                </div>
+              )}
             </div>
-            <div className="flex flex-wrap items-center gap-4 mt-4 lg:mt-0">
-              <Button
-                variant="outline"
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center space-x-2"
-              >
-                {showFilters ? <X className="h-4 w-4" /> : <Filter className="h-4 w-4" />}
-                <span>{showFilters ? 'Hide Filters' : 'Show Filters'}</span>
-              </Button>
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant={viewMode === 'list' ? 'default' : 'outline'}
-                  onClick={() => setViewMode('list')}
-                  className="flex items-center space-x-2"
-                >
-                  <List className="h-4 w-4" />
-                  <span>List View</span>
-                </Button>
-                <Button
-                  variant={viewMode === 'map' ? 'default' : 'outline'}
-                  onClick={() => setViewMode('map')}
-                  className="flex items-center space-x-2"
-                >
-                  <MapIcon className="h-4 w-4" />
-                  <span>Map View</span>
-                </Button>
+          )}
+
+          {/* Loading State Header */}
+          {isLoading && (
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+              <div className="flex items-center space-x-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <div>
+                  <h2 className="text-2xl font-semibold text-gray-900">Searching Communities...</h2>
+                  <p className="text-sm text-gray-600">Finding the best matches for your needs</p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Collapsible Filters */}
           {showFilters && (
