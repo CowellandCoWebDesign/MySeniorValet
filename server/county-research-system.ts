@@ -119,8 +119,8 @@ export class CountyResearchSystem {
           
           // Use Google Places to find all facilities
           const results = await googlePlacesIntegration.discoverCommunitiesInArea(
-            searchQuery,
-            { latitude: 0, longitude: 0 }, // Google will geocode the location
+            [searchTerm], // Single search term as array
+            `${city}, ${county} County, California`, // Location string
             25000 // 25km radius per city for thorough coverage
           );
           
@@ -128,15 +128,15 @@ export class CountyResearchSystem {
             if (this.isValidSeniorLivingFacility(place.name, place.types || [])) {
               allCommunities.push({
                 name: place.name,
-                address: place.formatted_address || place.vicinity || '',
-                city: this.extractCityFromAddress(place.formatted_address || '', city),
-                state: 'CA',
-                zipCode: this.extractZipFromAddress(place.formatted_address || ''),
-                phone: place.formatted_phone_number || place.international_phone_number,
+                address: place.address || '',
+                city: place.city || this.extractCityFromAddress(place.address || '', city),
+                state: place.state || 'CA',
+                zipCode: place.zipCode || this.extractZipFromAddress(place.address || ''),
+                phone: place.phone,
                 website: place.website,
                 careTypes: this.inferCareTypesFromName(place.name),
-                latitude: place.geometry?.location?.lat || null,
-                longitude: place.geometry?.location?.lng || null,
+                latitude: place.lat || null,
+                longitude: place.lng || null,
                 verified: true,
                 source: 'Google Places Discovery'
               });
