@@ -21,23 +21,7 @@ import Dashboard from "@/pages/dashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
-  return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/search" component={Search} />
-      <Route path="/community/:id" component={CommunityPage} />
-      <Route path="/claim/:communityId" component={Claim} />
-      <Route path="/admin" component={AdminCleanFull} />
-      <Route path="/dashboard" component={Dashboard} />
-      <Route path="/login" component={Login} />
-      <Route path="/signup" component={Signup} />
-      <Route path="/privacy" component={Privacy} />
-      <Route path="/terms" component={Terms} />
-      <Route path="/disclaimer" component={Disclaimer} />
-      <Route path="/accessibility" component={Accessibility} />
-      <Route component={NotFound} />
-    </Switch>
-  );
+  return <Home />;
 }
 
 function App() {
