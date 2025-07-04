@@ -44,6 +44,7 @@ import { authService, requireAuth } from "./auth";
 import { regionalExpansionEngine } from "./regional-expansion";
 import { comprehensivePhotoEnrichment } from "./comprehensive-photo-enrichment";
 import { systematicPhotoEnrichment } from "./systematic-photo-enrichment";
+import { emergencyEnrichment } from "./emergency-enrichment";
 
 // Authentication middleware function
 const isAuthenticated = (req: any, res: any, next: any) => {
@@ -5459,5 +5460,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   const httpServer = createServer(app);
+  // Emergency enrichment endpoint - Direct Google Places integration
+  app.post('/api/emergency-enrichment/start', async (req, res) => {
+    try {
+      console.log('🚀 STARTING EMERGENCY ENRICHMENT - Direct Google Places integration');
+      
+      // Launch emergency enrichment asynchronously
+      emergencyEnrichment.enrichAllCommunities().then(result => {
+        console.log(`🏁 EMERGENCY ENRICHMENT COMPLETED: ${result.enriched}/${result.total} communities enriched`);
+      }).catch(error => {
+        console.error('❌ EMERGENCY ENRICHMENT FAILED:', error);
+      });
+      
+      res.json({
+        success: true,
+        message: 'Emergency enrichment started - processing all 146 communities with direct Google Places integration'
+      });
+    } catch (error) {
+      console.error('Failed to start emergency enrichment:', error);
+      res.status(500).json({ 
+        message: 'Failed to start emergency enrichment',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Emergency enrichment status
+  app.get('/api/emergency-enrichment/status', async (req, res) => {
+    try {
+      const result = await db.select().from(communities).where(eq(communities.state, 'CA'));
+      
+      const stats = {
+        total: result.length,
+        withPhotos: result.filter(c => c.photos && c.photos.length > 0).length,
+        withReviews: result.filter(c => c.googleReviewSnippets && c.googleReviewSnippets !== 'null' && c.googleReviewSnippets !== '[]').length,
+        withGooglePlaceId: result.filter(c => c.googlePlaceId && c.googlePlaceId !== '').length,
+        totalPhotos: result.reduce((sum, c) => sum + (c.photos?.length || 0), 0),
+        lastEnriched: result.filter(c => c.lastEnrichmentDate).length
+      };
+      
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get enrichment status' });
+    }
+  });
+
   return httpServer;
 }
