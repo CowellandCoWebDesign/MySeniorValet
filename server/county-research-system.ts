@@ -73,9 +73,195 @@ export class CountyResearchSystem {
   }
 
   private async discoverCommunitiesInCounty(county: string): Promise<CountyResearchData[]> {
+    console.log(`🔍 Using Google Places API to discover ALL senior living communities in ${county} County...`);
+    
+    try {
+      // Use Google Places API to find ALL communities
+      const googleResults = await this.searchAllSeniorLivingInCounty(county);
+      console.log(`📍 Found ${googleResults.length} communities via Google Places in ${county} County`);
+      return googleResults;
+    } catch (error) {
+      console.log(`❌ Google Places failed for ${county}, using fallback data:`, error);
+      // Only fall back to predefined data if Google Places completely fails
+      return this.getFallbackDataForCounty(county);
+    }
+  }
+
+  private async searchAllSeniorLivingInCounty(county: string): Promise<CountyResearchData[]> {
+    const { googlePlacesIntegration } = await import('./google-places-integration');
+    const allCommunities: CountyResearchData[] = [];
+    
+    // Get all major cities in the county for comprehensive coverage
+    const cities = this.getAllCitiesInCounty(county);
+    
+    // Search terms to capture ALL types of senior living
+    const searchTerms = [
+      'senior living',
+      'assisted living', 
+      'retirement community',
+      'memory care',
+      'senior apartments',
+      'senior housing',
+      'independent living',
+      'continuing care retirement',
+      'nursing home',
+      'senior care facility',
+      'elder care',
+      'senior residence'
+    ];
+    
+    for (const city of cities) {
+      console.log(`🏙️ Searching all senior living types in ${city}...`);
+      
+      for (const searchTerm of searchTerms) {
+        try {
+          const searchQuery = `${searchTerm} near ${city}, ${county} County, California`;
+          
+          // Use Google Places to find all facilities
+          const results = await googlePlacesIntegration.discoverCommunitiesInArea(
+            searchQuery,
+            { latitude: 0, longitude: 0 }, // Google will geocode the location
+            25000 // 25km radius per city for thorough coverage
+          );
+          
+          for (const place of results) {
+            if (this.isValidSeniorLivingFacility(place.name, place.types || [])) {
+              allCommunities.push({
+                name: place.name,
+                address: place.formatted_address || place.vicinity || '',
+                city: this.extractCityFromAddress(place.formatted_address || '', city),
+                state: 'CA',
+                zipCode: this.extractZipFromAddress(place.formatted_address || ''),
+                phone: place.formatted_phone_number || place.international_phone_number,
+                website: place.website,
+                careTypes: this.inferCareTypesFromName(place.name),
+                latitude: place.geometry?.location?.lat || null,
+                longitude: place.geometry?.location?.lng || null,
+                verified: true,
+                source: 'Google Places Discovery'
+              });
+            }
+          }
+          
+          // Rate limiting to respect Google's quotas
+          await new Promise(resolve => setTimeout(resolve, 200));
+          
+        } catch (searchError) {
+          console.log(`Search failed for "${searchTerm}" in ${city}:`, searchError);
+        }
+      }
+    }
+    
+    // Deduplicate based on name and location similarity
+    const deduplicated = this.comprehensiveDeduplication(allCommunities);
+    console.log(`🧹 After deduplication: ${deduplicated.length} unique communities found`);
+    
+    return deduplicated;
+  }
+
+  private getAllCitiesInCounty(county: string): string[] {
+    // Comprehensive city lists for thorough coverage
+    const countyToCities: Record<string, string[]> = {
+      'Alameda': ['Oakland', 'Berkeley', 'Fremont', 'Hayward', 'Alameda', 'San Leandro', 'Union City', 'Pleasanton', 'Livermore', 'Castro Valley', 'Dublin', 'Emeryville'],
+      'Contra Costa': ['Concord', 'Walnut Creek', 'Richmond', 'Antioch', 'Pittsburg', 'Brentwood', 'Martinez', 'Pleasant Hill', 'Danville', 'San Ramon', 'Hercules'],
+      'Marin': ['San Rafael', 'Novato', 'Mill Valley', 'Petaluma', 'Sausalito', 'Tiburon', 'Larkspur', 'Corte Madera', 'Fairfax', 'Ross'],
+      'Napa': ['Napa', 'St. Helena', 'Calistoga', 'Yountville', 'American Canyon'],
+      'Sacramento': ['Sacramento', 'Elk Grove', 'Folsom', 'Citrus Heights', 'Rancho Cordova', 'Carmichael', 'Fair Oaks', 'Orangevale'],
+      'San Francisco': ['San Francisco'],
+      'San Mateo': ['San Mateo', 'Redwood City', 'Daly City', 'San Bruno', 'Burlingame', 'Foster City', 'Pacifica', 'Millbrae', 'Belmont', 'San Carlos'],
+      'Santa Clara': ['San Jose', 'Palo Alto', 'Sunnyvale', 'Mountain View', 'Santa Clara', 'Cupertino', 'Campbell', 'Los Gatos', 'Milpitas', 'Fremont'],
+      'Solano': ['Vallejo', 'Fairfield', 'Vacaville', 'Benicia', 'Suisun City', 'Dixon'],
+      'Sonoma': ['Santa Rosa', 'Petaluma', 'Rohnert Park', 'Sebastopol', 'Healdsburg', 'Sonoma', 'Windsor', 'Cotati'],
+      'Yolo': ['Davis', 'Woodland', 'West Sacramento', 'Winters'],
+      'Placer': ['Roseville', 'Rocklin', 'Auburn', 'Lincoln', 'Granite Bay', 'Loomis']
+    };
+    
+    return countyToCities[county] || [county];
+  }
+
+  private isValidSeniorLivingFacility(name: string, types: string[]): boolean {
+    const nameLower = name.toLowerCase();
+    
+    // Must contain senior living keywords
+    const seniorKeywords = [
+      'senior', 'retirement', 'assisted living', 'memory care', 'elder',
+      'nursing home', 'continuing care', 'ccrc', 'independent living',
+      'senior apartments', 'senior housing', 'senior community', 'assisted care'
+    ];
+    
+    // Exclude non-senior living facilities
+    const excludeKeywords = [
+      'hospital', 'clinic', 'medical center', 'urgent care', 'pharmacy',
+      'school', 'daycare', 'bank', 'restaurant', 'store', 'shop', 'hotel',
+      'gas station', 'church', 'temple', 'mosque', 'synagogue'
+    ];
+    
+    const hasSeniorKeyword = seniorKeywords.some(keyword => nameLower.includes(keyword));
+    const hasExcludeKeyword = excludeKeywords.some(keyword => nameLower.includes(keyword));
+    
+    return hasSeniorKeyword && !hasExcludeKeyword;
+  }
+
+  private comprehensiveDeduplication(communities: CountyResearchData[]): CountyResearchData[] {
+    const uniqueCommunities: CountyResearchData[] = [];
+    const seenKeys = new Set<string>();
+    
+    for (const community of communities) {
+      // Multiple deduplication strategies
+      const nameKey = community.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const addressKey = community.address.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const combinedKey = `${nameKey}-${addressKey}`;
+      
+      if (!seenKeys.has(combinedKey)) {
+        seenKeys.add(combinedKey);
+        uniqueCommunities.push(community);
+      }
+    }
+    
+    return uniqueCommunities;
+  }
+
+  private inferCareTypesFromName(name: string): string[] {
+    const careTypes: string[] = [];
+    const nameLower = name.toLowerCase();
+    
+    if (nameLower.includes('independent living') || nameLower.includes('senior apartments')) {
+      careTypes.push('Independent Living');
+    }
+    if (nameLower.includes('assisted living') || nameLower.includes('assisted care')) {
+      careTypes.push('Assisted Living');
+    }
+    if (nameLower.includes('memory care') || nameLower.includes('alzheimer') || nameLower.includes('dementia')) {
+      careTypes.push('Memory Care');
+    }
+    if (nameLower.includes('skilled nursing') || nameLower.includes('nursing home')) {
+      careTypes.push('Skilled Nursing');
+    }
+    if (nameLower.includes('continuing care') || nameLower.includes('ccrc')) {
+      careTypes.push('Continuing Care');
+    }
+    
+    return careTypes.length > 0 ? careTypes : ['Senior Living'];
+  }
+
+  private extractCityFromAddress(address: string, fallback: string): string {
+    // Try to extract city from formatted address
+    const parts = address.split(',');
+    if (parts.length >= 2) {
+      return parts[1].trim();
+    }
+    return fallback;
+  }
+
+  private extractZipFromAddress(address: string): string | undefined {
+    const zipMatch = address.match(/\b\d{5}(-\d{4})?\b/);
+    return zipMatch ? zipMatch[0] : undefined;
+  }
+
+  private getFallbackDataForCounty(county: string): CountyResearchData[] {
     const communities: CountyResearchData[] = [];
     
-    // Research based on county-specific knowledge
+    // Only minimal fallback data - prefer real Google Places results
     switch (county) {
       case 'Yolo':
         communities.push(
