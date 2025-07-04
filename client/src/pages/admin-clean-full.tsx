@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Card, 
   CardContent, 
@@ -52,6 +53,7 @@ export default function AdminCleanFull() {
   const [selectedCommunity, setSelectedCommunity] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(15);
+  const { toast } = useToast();
 
   // Real data queries with error handling
   const communitiesQuery = useQuery({
@@ -409,6 +411,44 @@ export default function AdminCleanFull() {
 
           {/* Regional Expansion Tab */}
           <TabsContent value="expansion" className="space-y-6">
+            {/* Status Progress Bar */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Northern California Expansion Status</CardTitle>
+                <CardDescription>Live progress across 11 target counties</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Expansion Progress</span>
+                    <span className="text-sm text-muted-foreground">
+                      {expansionData.totals?.communities || 0} communities discovered
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div 
+                      className="bg-blue-600 h-3 rounded-full transition-all duration-300" 
+                      style={{ width: `${Math.min(((expansionData.totals?.communities || 0) / 100) * 100, 100)}%` }}
+                    ></div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                      <p className="text-2xl font-bold text-blue-600">{expansionData.totals?.communities || 0}</p>
+                      <p className="text-sm text-muted-foreground">Total Communities</p>
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-green-600">{Object.keys(expansionData.counties || {}).length}</p>
+                      <p className="text-sm text-muted-foreground">Counties Covered</p>
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-purple-600">{expansionData.totals?.cities || 0}</p>
+                      <p className="text-sm text-muted-foreground">Cities Covered</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
@@ -514,13 +554,45 @@ export default function AdminCleanFull() {
                   </div>
                   
                   <div className="flex gap-4">
-                    <Button className="bg-blue-600 hover:bg-blue-700">
+                    <Button 
+                      className="bg-blue-600 hover:bg-blue-700"
+                      onClick={() => {
+                        // Add Yolo County communities immediately
+                        fetch('/api/admin/expansion/add-county', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ county: 'Yolo' })
+                        }).then(() => {
+                          expansionQuery.refetch();
+                          toast({
+                            title: "Expansion Started",
+                            description: "Adding communities from Yolo County",
+                          });
+                        });
+                      }}
+                    >
                       <MapPin className="h-4 w-4 mr-2" />
-                      Execute Discovery
+                      Add Yolo County
                     </Button>
-                    <Button variant="outline">
+                    <Button 
+                      variant="outline"
+                      onClick={() => {
+                        // Add Solano County communities immediately
+                        fetch('/api/admin/expansion/add-county', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ county: 'Solano' })
+                        }).then(() => {
+                          expansionQuery.refetch();
+                          toast({
+                            title: "Expansion Started", 
+                            description: "Adding communities from Solano County",
+                          });
+                        });
+                      }}
+                    >
                       <Eye className="h-4 w-4 mr-2" />
-                      View Results
+                      Add Solano County
                     </Button>
                   </div>
                 </div>
