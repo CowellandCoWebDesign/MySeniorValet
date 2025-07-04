@@ -45,23 +45,68 @@ export class EnhancedSearchService {
       };
     }
 
-    // First, try the original search
+    // Check if this is a ZIP code that should be expanded
+    if (this.isZipCode(location)) {
+      const expandedZips = zipCodeService.expandZipSearch(location);
+      
+      if (expandedZips.length > 1) {
+        // Perform expanded ZIP search
+        console.log(`ZIP expansion: ${location} -> ${expandedZips.join(', ')}`);
+        
+        let allResults: Community[] = [];
+        const seenIds = new Set<number>();
+        
+        // Search each expanded ZIP code
+        for (const zip of expandedZips) {
+          const zipParams = { ...params, location: zip };
+          const zipResults = await storage.searchCommunities(zipParams);
+          
+          // Deduplicate by community ID
+          for (const community of zipResults) {
+            if (!seenIds.has(community.id)) {
+              seenIds.add(community.id);
+              allResults.push(community);
+            }
+          }
+        }
+        
+        console.log(`Search returned ${allResults.length} communities`);
+        
+        if (allResults.length > 0) {
+          const zipInfo = zipCodeService.getZipInfo(location);
+          const expansionReason = zipInfo ? 
+            `Expanded to include all ZIP codes in ${zipInfo.city}, ${zipInfo.county}` :
+            `Expanded to include nearby ZIP codes in the same region`;
+            
+          return {
+            communities: allResults,
+            searchMetadata: {
+              originalQuery: location,
+              searchType: 'expanded',
+              zipExpansion: {
+                originalZip: location,
+                expandedZips,
+                expansionReason
+              },
+              totalResults: allResults.length
+            }
+          };
+        }
+      }
+    }
+
+    // First, try the original search (for non-ZIP or single ZIP searches)
     const originalResults = await storage.searchCommunities(params);
     
     if (originalResults.length > 0) {
       // Original search succeeded
-      const zipInfo = this.analyzeLocationForZipExpansion(location);
+      console.log(`Search returned ${originalResults.length} communities`);
       
       return {
         communities: originalResults,
         searchMetadata: {
           originalQuery: location,
-          searchType: zipInfo.expanded ? 'expanded' : 'exact',
-          zipExpansion: zipInfo.expanded ? {
-            originalZip: location,
-            expandedZips: zipInfo.expandedZips || [],
-            expansionReason: zipInfo.expansionReason || ''
-          } : undefined,
+          searchType: 'exact',
           totalResults: originalResults.length
         }
       };
