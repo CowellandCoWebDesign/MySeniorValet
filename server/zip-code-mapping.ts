@@ -85,16 +85,22 @@ export const ZIP_CODE_MAPPINGS: Record<string, ZipCodeMapping> = {
   '95816': { zip: '95816', city: 'Sacramento', county: 'Sacramento County', state: 'CA', relatedZips: ['95814', '95815', '95817'] },
   '95817': { zip: '95817', city: 'Sacramento', county: 'Sacramento County', state: 'CA', relatedZips: ['95814', '95815', '95816'] },
 
-  // San Francisco County
-  '94102': { zip: '94102', city: 'San Francisco', county: 'San Francisco County', state: 'CA', relatedZips: ['94103', '94104', '94105'] },
-  '94103': { zip: '94103', city: 'San Francisco', county: 'San Francisco County', state: 'CA', relatedZips: ['94102', '94104', '94105'] },
-  '94104': { zip: '94104', city: 'San Francisco', county: 'San Francisco County', state: 'CA', relatedZips: ['94102', '94103', '94105'] },
-  '94105': { zip: '94105', city: 'San Francisco', county: 'San Francisco County', state: 'CA', relatedZips: ['94102', '94103', '94104'] },
-  '94110': { zip: '94110', city: 'San Francisco', county: 'San Francisco County', state: 'CA', relatedZips: ['94114', '94117', '94118', '94158'] },
-  '94114': { zip: '94114', city: 'San Francisco', county: 'San Francisco County', state: 'CA', relatedZips: ['94110', '94117', '94118', '94158'] },
-  '94117': { zip: '94117', city: 'San Francisco', county: 'San Francisco County', state: 'CA', relatedZips: ['94110', '94114', '94118', '94158'] },
-  '94118': { zip: '94118', city: 'San Francisco', county: 'San Francisco County', state: 'CA', relatedZips: ['94110', '94114', '94117', '94158'] },
-  '94158': { zip: '94158', city: 'San Francisco', county: 'San Francisco County', state: 'CA', relatedZips: ['94110', '94114', '94117', '94118'] },
+  // San Francisco County - All ZIP codes where we have communities
+  '94102': { zip: '94102', city: 'San Francisco', county: 'San Francisco County', state: 'CA', relatedZips: ['94103', '94104', '94105', '94109', '94110', '94112', '94115', '94117', '94118', '94122', '94131', '94132', '94158'] },
+  '94103': { zip: '94103', city: 'San Francisco', county: 'San Francisco County', state: 'CA', relatedZips: ['94102', '94104', '94105', '94109', '94110', '94112', '94115', '94117', '94118', '94122', '94131', '94132', '94158'] },
+  '94104': { zip: '94104', city: 'San Francisco', county: 'San Francisco County', state: 'CA', relatedZips: ['94102', '94103', '94105', '94109', '94110', '94112', '94115', '94117', '94118', '94122', '94131', '94132', '94158'] },
+  '94105': { zip: '94105', city: 'San Francisco', county: 'San Francisco County', state: 'CA', relatedZips: ['94102', '94103', '94104', '94109', '94110', '94112', '94115', '94117', '94118', '94122', '94131', '94132', '94158'] },
+  '94109': { zip: '94109', city: 'San Francisco', county: 'San Francisco County', state: 'CA', relatedZips: ['94102', '94103', '94104', '94105', '94110', '94112', '94115', '94117', '94118', '94122', '94131', '94132', '94158'] },
+  '94110': { zip: '94110', city: 'San Francisco', county: 'San Francisco County', state: 'CA', relatedZips: ['94102', '94103', '94104', '94105', '94109', '94112', '94115', '94117', '94118', '94122', '94131', '94132', '94158'] },
+  '94112': { zip: '94112', city: 'San Francisco', county: 'San Francisco County', state: 'CA', relatedZips: ['94102', '94103', '94104', '94105', '94109', '94110', '94115', '94117', '94118', '94122', '94131', '94132', '94158'] },
+  '94114': { zip: '94114', city: 'San Francisco', county: 'San Francisco County', state: 'CA', relatedZips: ['94102', '94103', '94104', '94105', '94109', '94110', '94112', '94115', '94117', '94118', '94122', '94131', '94132', '94158'] },
+  '94115': { zip: '94115', city: 'San Francisco', county: 'San Francisco County', state: 'CA', relatedZips: ['94102', '94103', '94104', '94105', '94109', '94110', '94112', '94117', '94118', '94122', '94131', '94132', '94158'] },
+  '94117': { zip: '94117', city: 'San Francisco', county: 'San Francisco County', state: 'CA', relatedZips: ['94102', '94103', '94104', '94105', '94109', '94110', '94112', '94115', '94118', '94122', '94131', '94132', '94158'] },
+  '94118': { zip: '94118', city: 'San Francisco', county: 'San Francisco County', state: 'CA', relatedZips: ['94102', '94103', '94104', '94105', '94109', '94110', '94112', '94115', '94117', '94122', '94131', '94132', '94158'] },
+  '94122': { zip: '94122', city: 'San Francisco', county: 'San Francisco County', state: 'CA', relatedZips: ['94102', '94103', '94104', '94105', '94109', '94110', '94112', '94115', '94117', '94118', '94131', '94132', '94158'] },
+  '94131': { zip: '94131', city: 'San Francisco', county: 'San Francisco County', state: 'CA', relatedZips: ['94102', '94103', '94104', '94105', '94109', '94110', '94112', '94115', '94117', '94118', '94122', '94132', '94158'] },
+  '94132': { zip: '94132', city: 'San Francisco', county: 'San Francisco County', state: 'CA', relatedZips: ['94102', '94103', '94104', '94105', '94109', '94110', '94112', '94115', '94117', '94118', '94122', '94131', '94158'] },
+  '94158': { zip: '94158', city: 'San Francisco', county: 'San Francisco County', state: 'CA', relatedZips: ['94102', '94103', '94104', '94105', '94109', '94110', '94112', '94115', '94117', '94118', '94122', '94131', '94132'] },
 
   // Solano County
   '94533': { zip: '94533', city: 'Fairfield', county: 'Solano County', state: 'CA', relatedZips: ['94534', '94585', '94591'] },
