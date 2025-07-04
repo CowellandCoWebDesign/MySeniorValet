@@ -175,14 +175,11 @@ export default function AdminDashboard() {
 
       <Tabs defaultValue="overview" className="w-full">
         {/* Professional Tab Organization */}
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-1">
-          <TabsTrigger value="overview">Dashboard</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4 gap-1">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="communities">Communities</TabsTrigger>
-          <TabsTrigger value="health">Health</TabsTrigger>
-          <TabsTrigger value="data">Data Tools</TabsTrigger>
           <TabsTrigger value="expansion">Regional Expansion</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="audit">Audit</TabsTrigger>
+          <TabsTrigger value="audit">Audit & Security</TabsTrigger>
         </TabsList>
 
         {/* Overview Dashboard Tab */}
