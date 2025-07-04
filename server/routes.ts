@@ -129,6 +129,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  adminRouter.get('/expansion/results', async (req, res) => {
+    try {
+      const communitiesData = await db.select().from(communities);
+      
+      // Calculate real expansion metrics
+      const countiesCovered = [...new Set(communitiesData.map(c => c.county).filter(Boolean))].length;
+      const citiesCovered = [...new Set(communitiesData.map(c => c.city).filter(Boolean))].length;
+      const verifiedCommunities = communitiesData.filter(c => c.phone && c.website).length;
+      const withPhotos = communitiesData.filter(c => c.photos && Array.isArray(c.photos) && c.photos.length > 0).length;
+      const googePlacesEnriched = communitiesData.filter(c => c.googlePlacesId).length;
+      
+      // Group by county for detailed breakdown
+      const countiesData = communitiesData.reduce((acc: any, community) => {
+        const county = community.county || 'Unknown';
+        if (!acc[county]) {
+          acc[county] = {
+            name: county,
+            communities: 0,
+            verified: 0,
+            withPhotos: 0
+          };
+        }
+        acc[county].communities++;
+        if (community.phone && community.website) acc[county].verified++;
+        if (community.photos && Array.isArray(community.photos) && community.photos.length > 0) acc[county].withPhotos++;
+        return acc;
+      }, {});
+
+      res.json({
+        totals: {
+          communities: communitiesData.length,
+          counties: countiesCovered,
+          cities: citiesCovered,
+          verified: verifiedCommunities,
+          withPhotos: withPhotos,
+          googlePlacesEnriched: googePlacesEnriched,
+          verificationRate: communitiesData.length > 0 ? Math.round((verifiedCommunities / communitiesData.length) * 100) : 0,
+          photosCoverage: communitiesData.length > 0 ? Math.round((withPhotos / communitiesData.length) * 100) : 0
+        },
+        counties: Object.values(countiesData),
+        lastUpdated: new Date()
+      });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch expansion results' });
+    }
+  });
+
   // Mount admin router
   app.use('/api/admin', adminRouter);
   

@@ -55,6 +55,11 @@ export default function AdminDashboard() {
     retry: false,
   });
 
+  const expansionQuery = useQuery({
+    queryKey: ['/api/admin/expansion/results'],
+    retry: false,
+  });
+
   // Safe data handling with error fallbacks
   const communities = Array.isArray(communitiesQuery.data) ? communitiesQuery.data : [];
   const totalCommunities = communities.length;
@@ -71,6 +76,7 @@ export default function AdminDashboard() {
   const auditData: any = auditLogsQuery.data || {};
   const auditLogs = Array.isArray(auditData.logs) ? auditData.logs : [];
   const usage: any = usageQuery.data || { totalCalls: 0, totalCost: 0 };
+  const expansionData: any = expansionQuery.data || { totals: {}, counties: [] };
 
   // Show loading state
   if (communitiesQuery.isLoading || auditLogsQuery.isLoading || usageQuery.isLoading) {
@@ -333,25 +339,83 @@ export default function AdminDashboard() {
                   <CardDescription>Real-time expansion statistics</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <span>Total Discovered:</span>
-                      <span className="font-bold">{totalCommunities}</span>
+                  {expansionQuery.isLoading ? (
+                    <div className="space-y-4">
+                      <div className="flex justify-between">
+                        <span>Loading...</span>
+                        <div className="h-4 w-12 bg-gray-200 animate-pulse rounded"></div>
+                      </div>
                     </div>
-                    <div className="flex justify-between">
-                      <span>Counties Covered:</span>
-                      <span className="font-bold">1</span>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="flex justify-between">
+                        <span>Total Discovered:</span>
+                        <span className="font-bold">{expansionData.totals.communities || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Counties Covered:</span>
+                        <span className="font-bold">{expansionData.totals.counties || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Cities Covered:</span>
+                        <span className="font-bold">{expansionData.totals.cities || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Verification Rate:</span>
+                        <span className="font-bold">{expansionData.totals.verificationRate || 0}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>With Photos:</span>
+                        <span className="font-bold">{expansionData.totals.photosCoverage || 0}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Google Places Enriched:</span>
+                        <span className="font-bold">{expansionData.totals.googlePlacesEnriched || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>API Calls Made:</span>
+                        <span className="font-bold">{usage.totalCalls || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Total Cost:</span>
+                        <span className="font-bold">${usage.totalCost?.toFixed(2) || '0.00'}</span>
+                      </div>
                     </div>
-                    <div className="flex justify-between">
-                      <span>Verification Rate:</span>
-                      <span className="font-bold">
-                        {totalCommunities > 0 ? Math.round((verifiedCommunities / totalCommunities) * 100) : 0}%
-                      </span>
-                    </div>
-                  </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
+
+            {/* County Breakdown */}
+            <Card>
+              <CardHeader>
+                <CardTitle>County Breakdown</CardTitle>
+                <CardDescription>Real discovery results by county</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {Array.isArray(expansionData.counties) && expansionData.counties.length > 0 ? (
+                    expansionData.counties.map((county: any, index: number) => (
+                      <div key={index} className="flex justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded">
+                        <div>
+                          <span className="font-medium">{county.name}</span>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {county.communities} communities • {county.verified} verified • {county.withPhotos} with photos
+                          </div>
+                        </div>
+                        <Badge variant={county.verified > 0 ? "default" : "secondary"}>
+                          {Math.round((county.verified / county.communities) * 100)}% verified
+                        </Badge>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center text-muted-foreground py-4">
+                      No county data available
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
 
             <Card>
               <CardHeader>
