@@ -180,6 +180,7 @@ export default function AdminDashboard() {
           <TabsTrigger value="communities">Communities</TabsTrigger>
           <TabsTrigger value="health">Health</TabsTrigger>
           <TabsTrigger value="data">Data Tools</TabsTrigger>
+          <TabsTrigger value="expansion">Regional Expansion</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="audit">Audit</TabsTrigger>
         </TabsList>
@@ -1647,6 +1648,153 @@ export default function AdminDashboard() {
                     <div className="flex items-center justify-between">
                       <span className="text-sm">After-hours responses</span>
                       <div className="bg-red-100 dark:bg-red-900 px-2 py-1 rounded text-xs text-red-700 dark:text-red-300">Disabled</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Regional Expansion Tab */}
+        <TabsContent value="expansion" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Target Counties</CardTitle>
+                <CardDescription>
+                  Strategic expansion regions for Northern California
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded">
+                      <h4 className="font-medium text-sm">Bay Area</h4>
+                      <p className="text-xs text-muted-foreground">Alameda, Contra Costa, Santa Clara, San Mateo</p>
+                    </div>
+                    <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded">
+                      <h4 className="font-medium text-sm">Sacramento Region</h4>
+                      <p className="text-xs text-muted-foreground">Sacramento County</p>
+                    </div>
+                    <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded">
+                      <h4 className="font-medium text-sm">North Coast</h4>
+                      <p className="text-xs text-muted-foreground">Marin, Sonoma</p>
+                    </div>
+                    <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded">
+                      <h4 className="font-medium text-sm">Total Coverage</h4>
+                      <p className="text-xs text-muted-foreground">7 Counties</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Discovery Strategy</CardTitle>
+                <CardDescription>
+                  6-query approach per region using Google Places API
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                    <span className="text-sm">Senior Living</span>
+                    <Badge variant="outline">Primary</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                    <span className="text-sm">Assisted Living</span>
+                    <Badge variant="outline">Primary</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                    <span className="text-sm">Retirement Community</span>
+                    <Badge variant="outline">Secondary</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                    <span className="text-sm">Senior Apartments</span>
+                    <Badge variant="outline">Secondary</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                    <span className="text-sm">Senior Park</span>
+                    <Badge variant="outline">Tertiary</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                    <span className="text-sm">Retirement Home</span>
+                    <Badge variant="outline">Tertiary</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Expansion Execution</CardTitle>
+              <CardDescription>
+                Execute discovery campaigns with real-time monitoring
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="flex items-center gap-4">
+                  <Button 
+                    onClick={() => {
+                      // Execute discovery for all counties
+                      console.log('Executing regional discovery...');
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    <Building2 className="h-4 w-4 mr-2" />
+                    Execute Full Discovery
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => {
+                      // View detailed results
+                      console.log('Viewing detailed results...');
+                    }}
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    View Results
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-blue-600">28</div>
+                        <div className="text-sm text-muted-foreground">Total Communities</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-green-600">7</div>
+                        <div className="text-sm text-muted-foreground">Counties Covered</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-orange-600">96%</div>
+                        <div className="text-sm text-muted-foreground">Verification Rate</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-sm">API Usage Warning</h4>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Full discovery uses Google Places API. Monitor costs carefully and ensure API keys are properly configured.
+                      </p>
                     </div>
                   </div>
                 </div>

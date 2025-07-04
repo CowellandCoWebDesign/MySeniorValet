@@ -17,7 +17,6 @@ import Accessibility from "@/pages/accessibility";
 import Login from "@/pages/login";
 import Signup from "@/pages/signup";
 import Dashboard from "@/pages/dashboard";
-import RegionalExpansion from "@/pages/regional-expansion";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -29,7 +28,6 @@ function Router() {
       <Route path="/claim/:communityId" component={Claim} />
       <Route path="/admin" component={Admin} />
       <Route path="/dashboard" component={Dashboard} />
-      <Route path="/regional-expansion" component={RegionalExpansion} />
       <Route path="/login" component={Login} />
       <Route path="/signup" component={Signup} />
       <Route path="/privacy" component={Privacy} />
