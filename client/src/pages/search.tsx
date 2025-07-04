@@ -45,28 +45,55 @@ export default function Search() {
   const handleFiltersChange = (filters: any) => {
     const newParams: SearchCommunity = { ...searchParams };
     
+    // Handle care services (convert to careType for API)
     if (filters.careServices?.length > 0) {
-      newParams.careType = filters.careServices[0]; // Use first selected care service
+      newParams.careType = filters.careServices.join(',');
+    } else {
+      delete newParams.careType;
     }
     
+    // Handle amenities
     if (filters.amenities?.length > 0) {
       newParams.amenities = filters.amenities;
+    } else {
+      delete newParams.amenities;
     }
     
-    if (filters.budget) {
-      newParams.budget = filters.budget;
+    // Handle budget/price range
+    if (filters.priceRange?.min || filters.priceRange?.max) {
+      if (filters.priceRange.min && filters.priceRange.max) {
+        newParams.budget = `$${filters.priceRange.min} - $${filters.priceRange.max}`;
+      } else if (filters.priceRange.min) {
+        newParams.budget = `$${filters.priceRange.min}+`;
+      } else if (filters.priceRange.max) {
+        newParams.budget = `Under $${filters.priceRange.max}`;
+      }
+    } else {
+      delete newParams.budget;
     }
     
-    if (filters.distance) {
-      newParams.distance = filters.distance;
+    // Handle distance (extract number from string)
+    if (filters.distance && filters.distance !== "Within 10 miles") {
+      const distanceMatch = filters.distance.match(/(\d+)/);
+      if (distanceMatch) {
+        newParams.distance = parseInt(distanceMatch[1]);
+      }
+    } else {
+      delete newParams.distance;
     }
     
-    if (filters.minRating) {
-      newParams.minRating = filters.minRating;
+    // Handle minimum rating
+    if (filters.minRating && filters.minRating !== "any") {
+      newParams.minRating = parseFloat(filters.minRating);
+    } else {
+      delete newParams.minRating;
     }
 
-    if (filters.availability && filters.availability !== "All Status") {
+    // Handle availability
+    if (filters.availability && filters.availability !== "all" && filters.availability !== "All Status") {
       newParams.availability = filters.availability;
+    } else {
+      delete newParams.availability;
     }
 
     setSearchParams(newParams);
@@ -243,7 +270,10 @@ export default function Search() {
           {showFilters && (
             <div className="mb-8">
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <Filters onFiltersChange={handleFiltersChange} />
+                <Filters 
+                  onFiltersChange={handleFiltersChange} 
+                  initialFilters={searchParams}
+                />
               </div>
             </div>
           )}
