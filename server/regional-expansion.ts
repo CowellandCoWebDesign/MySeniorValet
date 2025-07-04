@@ -32,6 +32,27 @@ export interface ExpansionResults {
 
 export class RegionalExpansionEngine {
   private readonly targetCounties: RegionalExpansionTarget[] = [
+    // Adjacent to Shasta County - Next logical expansion
+    {
+      county: "Tehama",
+      region: "Northern California",
+      primaryCities: ["Red Bluff", "Corning", "Tehama", "Los Molinos"],
+      state: "CA", 
+      searchRadius: 25,
+      centerCoordinates: { lat: 40.1785, lng: -122.2357 },
+      priority: 10,
+      marketSize: "Rural"
+    },
+    {
+      county: "Butte",
+      region: "Northern California", 
+      primaryCities: ["Chico", "Oroville", "Paradise", "Gridley"],
+      state: "CA",
+      searchRadius: 30,
+      centerCoordinates: { lat: 39.6285, lng: -121.6077 },
+      priority: 9,
+      marketSize: "Suburban"
+    },
     {
       county: "Alameda",
       region: "Bay Area",
@@ -39,7 +60,7 @@ export class RegionalExpansionEngine {
       state: "CA",
       searchRadius: 30,
       centerCoordinates: { lat: 37.8044, lng: -122.2711 },
-      priority: 9,
+      priority: 8,
       marketSize: "Urban"
     },
     {
@@ -100,6 +121,37 @@ export class RegionalExpansionEngine {
       searchRadius: 30,
       centerCoordinates: { lat: 38.4404, lng: -122.7144 },
       priority: 6,
+      marketSize: "Suburban"
+    },
+    // Additional Northern California Counties for comprehensive coverage
+    {
+      county: "Yolo",
+      region: "Central Valley North",
+      primaryCities: ["Davis", "Woodland", "West Sacramento", "Winters"],
+      state: "CA",
+      searchRadius: 25,
+      centerCoordinates: { lat: 38.6785, lng: -121.7733 },
+      priority: 7,
+      marketSize: "Suburban"
+    },
+    {
+      county: "Solano",
+      region: "Bay Area North",
+      primaryCities: ["Vallejo", "Fairfield", "Vacaville", "Suisun City"],
+      state: "CA",
+      searchRadius: 25,
+      centerCoordinates: { lat: 38.3555, lng: -121.9018 },
+      priority: 7,
+      marketSize: "Suburban"
+    },
+    {
+      county: "Placer",
+      region: "Sacramento Region",
+      primaryCities: ["Roseville", "Rocklin", "Auburn", "Lincoln"],
+      state: "CA",
+      searchRadius: 30,
+      centerCoordinates: { lat: 39.0916, lng: -120.8039 },
+      priority: 8,
       marketSize: "Suburban"
     }
   ];
