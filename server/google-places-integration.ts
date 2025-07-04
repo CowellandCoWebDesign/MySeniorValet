@@ -439,10 +439,9 @@ export class GooglePlacesIntegration {
         const response = await axios.get(`${this.baseUrl}/textsearch/json`, {
           params: {
             key: this.apiKey,
-            query: searchTerm,
-            location: `${location}`,
-            radius: radius,
-            type: 'lodging'
+            query: `${searchTerm} near ${location}`,
+            radius: radius
+            // Removed type restriction - senior living facilities have various types
           },
           timeout: 15000
         });
@@ -458,14 +457,17 @@ export class GooglePlacesIntegration {
             }
 
             // Filter to only include senior living related places
+            console.log(`Checking place: ${place.name} | Types: ${place.types?.join(', ') || 'none'}`);
             if (this.isSeniorLivingFacility(place.name, place.types)) {
               seenPlaceIds.add(place.place_id);
               
               const community = await this.extractCommunityDataFromPlace(place);
               if (community) {
                 discoveredCommunities.push(community);
-                console.log(`Found: ${community.name} in ${community.city}`);
+                console.log(`✅ Added: ${community.name} in ${community.city}`);
               }
+            } else {
+              console.log(`❌ Filtered out: ${place.name} (not recognized as senior living)`);
             }
           }
         }
