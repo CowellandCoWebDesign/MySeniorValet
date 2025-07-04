@@ -470,9 +470,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all communities
   app.get("/api/communities", async (req, res) => {
     try {
+      console.log("Fetching communities from database...");
       const communities = await storage.getAllCommunities();
+      console.log(`Found ${communities.length} communities`);
       res.json(communities);
     } catch (error) {
+      console.error("Error fetching communities:", error);
       res.status(500).json({ message: "Failed to fetch communities" });
     }
   });
