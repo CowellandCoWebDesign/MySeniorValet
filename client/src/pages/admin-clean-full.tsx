@@ -556,43 +556,68 @@ export default function AdminCleanFull() {
                   <div className="flex gap-4">
                     <Button 
                       className="bg-blue-600 hover:bg-blue-700"
-                      onClick={() => {
-                        // Add Yolo County communities immediately
-                        fetch('/api/admin/expansion/add-county', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ county: 'Yolo' })
-                        }).then(() => {
-                          expansionQuery.refetch();
+                      onClick={async () => {
+                        try {
+                          // Get next county to research
+                          const nextResponse = await fetch('/api/admin/research/next-county');
+                          const nextData = await nextResponse.json();
+                          
+                          if (nextData.nextCounty) {
+                            // Research the county systematically
+                            const response = await fetch(`/api/admin/research/county/${nextData.nextCounty}`, {
+                              method: 'POST'
+                            });
+                            const data = await response.json();
+                            
+                            if (data.success) {
+                              expansionQuery.refetch();
+                              toast({
+                                title: "County Research Complete",
+                                description: `${nextData.nextCounty} County: ${data.result.added} communities added`,
+                              });
+                            }
+                          } else {
+                            toast({
+                              title: "Research Complete",
+                              description: "All counties have been researched",
+                            });
+                          }
+                        } catch (error) {
                           toast({
-                            title: "Expansion Started",
-                            description: "Adding communities from Yolo County",
+                            title: "Research Failed",
+                            description: "Error during county research",
+                            variant: "destructive"
                           });
-                        });
+                        }
                       }}
                     >
                       <MapPin className="h-4 w-4 mr-2" />
-                      Add Yolo County
+                      Research Next County
                     </Button>
                     <Button 
                       variant="outline"
-                      onClick={() => {
-                        // Add Solano County communities immediately
-                        fetch('/api/admin/expansion/add-county', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ county: 'Solano' })
-                        }).then(() => {
-                          expansionQuery.refetch();
+                      onClick={async () => {
+                        try {
+                          const response = await fetch('/api/admin/research/progress');
+                          const data = await response.json();
+                          
+                          if (data.success) {
+                            toast({
+                              title: "Research Progress",
+                              description: `${data.progress.researchedCounties}/${data.progress.totalCounties} counties researched. ${data.progress.totalCommunities} total communities.`,
+                            });
+                          }
+                        } catch (error) {
                           toast({
-                            title: "Expansion Started", 
-                            description: "Adding communities from Solano County",
+                            title: "Error",
+                            description: "Failed to get research progress",
+                            variant: "destructive"
                           });
-                        });
+                        }
                       }}
                     >
                       <Eye className="h-4 w-4 mr-2" />
-                      Add Solano County
+                      View Progress
                     </Button>
                   </div>
                 </div>
