@@ -52,7 +52,7 @@ export class GooglePlacesIntegration {
   private readonly baseUrl = 'https://maps.googleapis.com/maps/api/place';
   private callCount = 0;
   private totalCost = 0;
-  private readonly dailyLimit = 1000; // Conservative limit
+  private readonly dailyLimit = 0; // EMERGENCY SHUTDOWN: $300 spent yesterday // EMERGENCY: Reduced from 1000 // Conservative limit
   private readonly costPerTextSearch = 0.032; // $0.032 per request
   private readonly costPerDetailsRequest = 0.017; // $0.017 per request
   private readonly costPerPhotoRequest = 0.007; // $0.007 per request
@@ -76,7 +76,7 @@ export class GooglePlacesIntegration {
       return null;
     }
 
-    if (this.totalCost >= 85) { // $85 monthly budget as recommended by OpenAI
+    if (this.totalCost >= 0) // EMERGENCY SHUTDOWN: No more spending allowed { // EMERGENCY: Reduced from $85
       console.warn('Google Places API monthly budget reached');
       return null;
     }
@@ -116,7 +116,7 @@ export class GooglePlacesIntegration {
       const photos: string[] = [];
       if (detailsResult.photos) {
         // Get up to 6 photos instead of limiting to 3
-        const photoUrls = await this.getPlacePhotos(detailsResult.photos.slice(0, 6));
+        const photoUrls = await this.getPlacePhotos(detailsResult.photos.slice(0, 3)); // EMERGENCY: Reduced from 6
         // Filter out any photos that might already exist
         const newUniquePhotos = photoUrls.filter(url => !existingPhotos.includes(url));
         photos.push(...newUniquePhotos);
