@@ -244,51 +244,9 @@ export function CommunityCard({ community }: CommunityCardProps) {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-          {/* LEFT COLUMN: AMENITIES & FEATURES */}
+          {/* LEFT COLUMN: AVAILABILITY & UNIT TYPES */}
           <div className="space-y-4">
-            {/* TOP AMENITIES */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center space-x-2">
-                  <Activity className="h-5 w-5 text-blue-600" />
-                  <span className="font-semibold text-blue-900">Top Amenities</span>
-                </div>
-                {community.amenities && community.amenities.length > 4 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => toggleSection('amenities')}
-                    className="text-blue-600 hover:text-blue-700"
-                  >
-                    {expandedSections.amenities ? (
-                      <>
-                        <ChevronUp className="h-4 w-4 mr-1" />
-                        Show Less
-                      </>
-                    ) : (
-                      <>
-                        <ChevronDown className="h-4 w-4 mr-1" />
-                        Show All ({community.amenities.length})
-                      </>
-                    )}
-                  </Button>
-                )}
-              </div>
-              
-              <div className="grid grid-cols-2 gap-2">
-                {topAmenities.slice(0, expandedSections.amenities ? undefined : 4).map((amenity, index) => (
-                  <div key={index} className="flex items-center space-x-2 bg-white rounded px-2 py-1">
-                    {amenity.icon}
-                    <span className="text-sm text-blue-900">{amenity.name}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* RIGHT COLUMN: AVAILABILITY & SPECIAL OFFERS */}
-          <div className="space-y-4">
-            {/* AVAILABILITY STATUS - Priority Display */}
+            {/* AVAILABILITY STATUS - Top Priority */}
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
               <div className="flex items-center space-x-2 mb-2">
                 <CheckCircle className="h-5 w-5 text-green-600" />
@@ -316,6 +274,49 @@ export function CommunityCard({ community }: CommunityCardProps) {
                 ))}
               </div>
             )}
+          </div>
+
+          {/* RIGHT COLUMN: PRICING - Second Priority */}
+          <div className="space-y-4">
+            {/* PRICING WITH VERIFICATION NOTICE */}
+            <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+              <div className="flex items-start justify-between mb-2">
+                <div className="flex items-center space-x-2">
+                  <DollarSign className="h-6 w-6 text-blue-600" />
+                  <span className="font-bold text-blue-900 text-lg">Typical Monthly Cost</span>
+                </div>
+                <Badge className="bg-orange-500 text-white text-xs">
+                  Pending Verification
+                </Badge>
+              </div>
+              
+              {pricing ? (
+                <div>
+                  <div className="text-3xl font-bold text-blue-900 mb-1">
+                    {pricing.range}
+                  </div>
+                  <div className="text-sm text-blue-700 mb-2">per month (typical range)</div>
+                  <div className="bg-white border border-blue-200 rounded p-2">
+                    <div className="text-xs text-blue-600">
+                      <div className="font-medium mb-1">Typical move-in costs vary by facility</div>
+                      <div>• Contact for current pricing and fees</div>
+                    </div>
+                  </div>
+                  <div className="text-xs text-orange-600 mt-2">
+                    Exact pricing and current specials pending community verification
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <div className="text-xl font-semibold text-blue-900 mb-2">Contact for Current Pricing</div>
+                  <div className="bg-white border border-blue-200 rounded p-2">
+                    <div className="text-xs text-blue-600">
+                      <div>• Move-in costs vary by facility</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -434,44 +435,43 @@ export function CommunityCard({ community }: CommunityCardProps) {
           )}
         </div>
 
-        {/* PRICING SECTION - After Amenities and Availability */}
-        <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-4">
-          <div className="flex items-start justify-between mb-2">
+        {/* AMENITIES & FEATURES - After Availability and Pricing */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center space-x-2">
-              <DollarSign className="h-6 w-6 text-blue-600" />
-              <span className="font-bold text-blue-900 text-lg">Typical Monthly Cost</span>
+              <Activity className="h-5 w-5 text-blue-600" />
+              <span className="font-semibold text-blue-900">Top Amenities & Features</span>
             </div>
-            <Badge className="bg-orange-500 text-white text-xs">
-              Pending Verification
-            </Badge>
+            {community.amenities && community.amenities.length > 8 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => toggleSection('amenities')}
+                className="text-blue-600 hover:text-blue-700"
+              >
+                {expandedSections.amenities ? (
+                  <>
+                    <ChevronUp className="h-4 w-4 mr-1" />
+                    Show Less
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="h-4 w-4 mr-1" />
+                    Show All ({community.amenities.length})
+                  </>
+                )}
+              </Button>
+            )}
           </div>
           
-          {pricing ? (
-            <div>
-              <div className="text-3xl font-bold text-blue-900 mb-1">
-                {pricing.range}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            {topAmenities.slice(0, expandedSections.amenities ? undefined : 8).map((amenity, index) => (
+              <div key={index} className="flex items-center space-x-2 bg-white rounded px-2 py-1">
+                {amenity.icon}
+                <span className="text-sm text-blue-900">{amenity.name}</span>
               </div>
-              <div className="text-sm text-blue-700 mb-2">per month (typical range)</div>
-              <div className="bg-white border border-blue-200 rounded p-2">
-                <div className="text-xs text-blue-600">
-                  <div className="font-medium mb-1">Typical move-in costs vary by facility</div>
-                  <div>• Contact for current pricing and fees</div>
-                </div>
-              </div>
-              <div className="text-xs text-orange-600 mt-2">
-                Exact pricing and current specials pending community verification
-              </div>
-            </div>
-          ) : (
-            <div>
-              <div className="text-xl font-semibold text-blue-900 mb-2">Contact for Current Pricing</div>
-              <div className="bg-white border border-blue-200 rounded p-2">
-                <div className="text-xs text-blue-600">
-                  <div>• Move-in costs vary by facility</div>
-                </div>
-              </div>
-            </div>
-          )}
+            ))}
+          </div>
         </div>
 
         {/* REVIEW SNIPPETS - Prominent Section */}
