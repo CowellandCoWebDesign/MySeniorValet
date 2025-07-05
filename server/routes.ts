@@ -5365,6 +5365,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/admin/expansion/investigation', async (req, res) => {
+    try {
+      const { expansionApiCostInvestigator } = await import('./expansion-api-cost-investigator');
+      
+      const analysis = expansionApiCostInvestigator.analyzeExpansionApiCosts();
+      const loopCosts = expansionApiCostInvestigator.calculatePotentialLoopCosts();
+      const matchingScenarios = expansionApiCostInvestigator.findMatchingScenarios(300);
+      const emergencyPrevention = expansionApiCostInvestigator.generateEmergencyPrevention();
+      
+      res.json({
+        analysis,
+        loopCosts,
+        matchingScenarios,
+        emergencyPrevention,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Failed to investigate expansion costs:', error);
+      res.status(500).json({ message: 'Failed to investigate expansion costs' });
+    }
+  });
+
   // ============================================================================
   // DATA PROTECTION API ROUTES - Multi-layered safeguards against synthetic data
   // ============================================================================
