@@ -4,7 +4,7 @@ import { SearchBar } from "@/components/search-bar";
 import { PremiumImage } from "@/components/premium-image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Shield, FolderSync, MapPin, Database, Tag, Map, Check, Star, DollarSign, Clock, Users, Wifi, Car, Activity } from "lucide-react";
+import { Shield, FolderSync, MapPin, Database, Tag, Map, Check, Star, DollarSign, Clock, Users, Wifi, Car, Activity, MapIcon } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Home() {
@@ -71,6 +71,20 @@ export default function Home() {
           {/* Optimized Search Bar */}
           <div className="max-w-4xl mx-auto mb-6">
             <SearchBar />
+          </div>
+
+          {/* Explore Communities Button */}
+          <div className="max-w-2xl mx-auto mb-6">
+            <Link href="/explore">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="w-full border-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-all duration-300"
+              >
+                <MapIcon className="mr-2 h-5 w-5" />
+                Explore All Communities on Map
+              </Button>
+            </Link>
           </div>
           
           {/* Compact Data Integrity Notice */}
