@@ -7,15 +7,27 @@ import { Link } from "wouter";
 
 export default function About() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/5 w-80 h-80 bg-gradient-to-r from-purple-400/10 to-pink-400/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/3 right-1/5 w-72 h-72 bg-gradient-to-r from-cyan-400/10 to-blue-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-2/3 left-2/3 w-64 h-64 bg-gradient-to-r from-emerald-400/10 to-teal-400/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+      </div>
+      
+      <div className="relative z-10">
+        <Header />
       
       {/* Hero Section */}
-      <section className="py-16 lg:py-24 bg-gradient-to-br from-blue-50 via-white to-purple-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl lg:text-5xl font-display font-bold text-gray-900 mb-6">
-            About <span className="text-primary">TrueView</span>
-          </h1>
+      <section className="py-16 lg:py-24 bg-gradient-to-br from-blue-50/50 via-white/80 to-purple-50/50 backdrop-blur-sm relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-purple-600/5"></div>
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="relative inline-block group">
+            <h1 className="text-4xl lg:text-5xl font-display font-bold text-gray-900 mb-6 group-hover:scale-105 transition-transform duration-300">
+              About <span className="text-primary bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">TrueView</span>
+            </h1>
+            <div className="absolute -top-2 -right-2 w-4 h-4 bg-yellow-400 rounded-full opacity-0 group-hover:opacity-100 animate-ping transition-opacity duration-300"></div>
+          </div>
           <p className="text-xl text-gray-700 mb-8 leading-relaxed">
             We're transforming how families find senior living communities through transparent pricing, 
             authentic reviews, and comprehensive data from trusted sources.
@@ -230,6 +242,7 @@ export default function About() {
       </section>
 
       <Footer />
+      </div>
     </div>
   );
 }
