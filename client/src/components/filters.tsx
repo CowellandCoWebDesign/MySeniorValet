@@ -31,7 +31,15 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
   // Update filters when initial filters change
   useEffect(() => {
     if (initialFilters) {
-      const convertedFilters = { ...filters };
+      const convertedFilters = {
+        distance: "Within 10 miles",
+        careServices: [] as string[],
+        amenities: [] as string[],
+        priceRange: { min: "", max: "" },
+        minRating: "any",
+        availability: "all",
+        verificationStatus: "all",
+      };
       
       // Convert careType to careServices
       if (initialFilters.careType) {
@@ -73,7 +81,7 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
       
       setFilters(convertedFilters);
     }
-  }, [initialFilters]);
+  }, [JSON.stringify(initialFilters)]);
 
   const hasActiveFilters = () => {
     return filters.careServices.length > 0 || 
