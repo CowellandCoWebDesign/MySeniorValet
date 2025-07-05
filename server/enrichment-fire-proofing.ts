@@ -52,7 +52,7 @@ export class EnrichmentFireProofing {
 
   constructor() {
     this.config = {
-      maxPhotosPerCommunity: 5, // Reduced from unlimited to 5 like expansion system
+      maxPhotosPerCommunity: 10, // Increased to 10 photos per community
       maxReviewsPerCommunity: 5, // Limit reviews to 5 per community
       maxCostPerOperation: 25, // Max $25 per enrichment operation
       maxCallsPerOperation: 500, // Max 500 API calls per operation
