@@ -8,7 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
+import { CommunityCard } from '@/components/community-card';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -154,43 +156,7 @@ export default function Explore() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Modern Header */}
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-50 backdrop-blur-sm bg-white/95">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-6">
-              <Link href="/">
-                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
-                  ← Home
-                </Button>
-              </Link>
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                  <MapIcon className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-semibold text-gray-900">Community Explorer</h1>
-                  <p className="text-xs text-gray-500 -mt-0.5">
-                    {communities?.length || 0} verified communities
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Button variant="outline" size="sm" onClick={clearFilters} className="hidden sm:flex">
-                <Filter className="h-4 w-4 mr-2" />
-                Reset Filters
-              </Button>
-              <Link href="/search">
-                <Button size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
-                  <Search className="mr-2 h-4 w-4" />
-                  Advanced Search
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Enhanced Filters */}
       <section className="bg-gray-50/50 border-b border-gray-200 py-6">
@@ -369,116 +335,13 @@ export default function Explore() {
                   </h2>
                 </div>
                 {communities.map(community => (
-                  <Card 
-                    key={community.id} 
-                    className={`group hover:shadow-lg hover:shadow-blue-100/50 transition-all duration-200 cursor-pointer border border-gray-200 hover:border-blue-300 ${
-                      selectedCommunity?.id === community.id ? 'ring-2 ring-blue-500 shadow-lg shadow-blue-100/50' : ''
-                    }`}
+                  <div 
+                    key={community.id}
+                    className={`${selectedCommunity?.id === community.id ? 'ring-2 ring-blue-500 rounded-lg' : ''}`}
                     onClick={() => setSelectedCommunity(community)}
                   >
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <CardTitle className="text-lg font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">
-                            {community.name}
-                          </CardTitle>
-                          <CardDescription className="flex items-center mt-2 text-gray-600">
-                            <MapPin className="h-4 w-4 mr-1.5 text-gray-500" />
-                            {community.city}, {community.state}
-                          </CardDescription>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          {community.verified && (
-                            <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 font-medium">
-                              ✓ Verified
-                            </Badge>
-                          )}
-                          {community.photosCount && community.photosCount > 0 && (
-                            <Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50">
-                              {community.photosCount} photos
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      <div className="space-y-4">
-                        {/* Care Types */}
-                        <div className="flex flex-wrap gap-2">
-                          {community.careTypes.slice(0, 3).map(type => (
-                            <Badge key={type} variant="secondary" className="text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200">
-                              {type}
-                            </Badge>
-                          ))}
-                          {community.careTypes.length > 3 && (
-                            <Badge variant="outline" className="text-xs text-gray-500">
-                              +{community.careTypes.length - 3} more
-                            </Badge>
-                          )}
-                        </div>
-
-                        {/* Ratings Row */}
-                        {(community.googleRating || community.yelpRating) && (
-                          <div className="flex items-center space-x-6 text-sm">
-                            {community.googleRating && (
-                              <div className="flex items-center bg-yellow-50 px-2 py-1 rounded-lg">
-                                <Star className="h-4 w-4 text-yellow-500 mr-1.5 fill-current" />
-                                <span className="font-medium text-gray-900">{community.googleRating}</span>
-                                <span className="text-gray-600 ml-1">({community.googleReviewCount})</span>
-                              </div>
-                            )}
-                            {community.yelpRating && (
-                              <div className="flex items-center bg-red-50 px-2 py-1 rounded-lg">
-                                <Star className="h-4 w-4 text-red-500 mr-1.5 fill-current" />
-                                <span className="font-medium text-gray-900">{community.yelpRating}</span>
-                                <span className="text-gray-600 ml-1">({community.yelpReviewCount})</span>
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Price and Availability */}
-                        <div className="border-t border-gray-100 pt-4 mt-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                              {community.priceRange && (
-                                <div className="flex items-center bg-green-50 text-green-700 px-3 py-1.5 rounded-lg text-sm font-medium">
-                                  <DollarSign className="h-4 w-4 mr-1.5" />
-                                  {typeof community.priceRange === 'string' 
-                                    ? community.priceRange 
-                                    : typeof community.priceRange === 'object' && community.priceRange.min && community.priceRange.max
-                                      ? `$${community.priceRange.min} - $${community.priceRange.max}`
-                                      : 'Contact for pricing'
-                                  }
-                                </div>
-                              )}
-                              {community.availabilityStatus && (
-                                <div className="flex items-center bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-sm font-medium">
-                                  <Clock className="h-4 w-4 mr-1.5" />
-                                  {community.availabilityStatus}
-                                </div>
-                              )}
-                            </div>
-                            <div className="flex items-center space-x-3">
-                              {community.phone && (
-                                <Button size="sm" variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50" asChild>
-                                  <a href={`tel:${community.phone}`}>
-                                    <Phone className="h-4 w-4 mr-1.5" />
-                                    Call
-                                  </a>
-                                </Button>
-                              )}
-                              <Link href={`/community/${community.id}`}>
-                                <Button size="sm" className="bg-blue-600 hover:bg-blue-700 shadow-sm">
-                                  View Details
-                                </Button>
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                    <CommunityCard community={community} />
+                  </div>
                 ))}
               </>
             ) : (
