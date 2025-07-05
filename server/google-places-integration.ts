@@ -1,5 +1,6 @@
 import axios from 'axios';
 import type { Community } from '@shared/schema';
+import { apiCostProtection } from './api-cost-protection';
 
 export interface GooglePlacesBusinessData {
   place_id: string;
@@ -70,13 +71,22 @@ export class GooglePlacesIntegration {
     
     // Note: Always attempt enrichment to potentially find new photos, reviews, or updated information
 
+    // 🚨 CRITICAL COST PROTECTION: Check before ANY API calls
+    const estimatedCost = this.costPerTextSearch + this.costPerDetailsRequest + (5 * this.costPerPhotoRequest);
+    const protection = await apiCostProtection.checkBeforeOperation(6, estimatedCost);
+    
+    if (!protection.allowed) {
+      console.error(`🚨 ENRICHMENT BLOCKED for ${community.name}: ${protection.reason}`);
+      return null;
+    }
+
     // Rate limiting and cost control
     if (this.callCount >= this.dailyLimit) {
       console.warn('Google Places API daily limit reached');
       return null;
     }
 
-    if (this.totalCost >= 85) { // $85 monthly budget as recommended by OpenAI
+    if (this.totalCost >= 50) { // Reduced from $85 to $50 for extra safety
       console.warn('Google Places API monthly budget reached');
       return null;
     }
@@ -296,23 +306,41 @@ export class GooglePlacesIntegration {
       return [];
     }
 
-    const photoUrls: string[] = [];
+    // 🚨 CRITICAL COST PROTECTION: Limit to maximum 5 photos per community
+    const maxPhotos = 5;
+    const limitedPhotos = photos.slice(0, maxPhotos);
 
-    for (const photo of photos) {
+    // Check with cost protection system before proceeding
+    const estimatedCost = limitedPhotos.length * this.costPerPhotoRequest;
+    const protection = await apiCostProtection.checkBeforeOperation(limitedPhotos.length, estimatedCost);
+    
+    if (!protection.allowed) {
+      console.error(`🚨 PHOTO ENRICHMENT BLOCKED: ${protection.reason}`);
+      return [];
+    }
+
+    const photoUrls: string[] = [];
+    let actualCost = 0;
+
+    for (const photo of limitedPhotos) {
       try {
         // Generate photo URL (note: this doesn't count as an API call, but we track it for cost estimation)
         const photoUrl = `${this.baseUrl}/photo?maxwidth=800&photo_reference=${photo.photo_reference}&key=${this.apiKey}`;
         photoUrls.push(photoUrl);
         
+        actualCost += this.costPerPhotoRequest;
         this.totalCost += this.costPerPhotoRequest;
 
         // Rate limiting
-        await this.delay(50);
+        await this.delay(100); // Increased delay for safety
 
       } catch (error) {
         console.log(`Failed to get photo: ${photo.photo_reference}`);
       }
     }
+
+    // Record actual usage
+    await apiCostProtection.recordUsage(limitedPhotos.length, actualCost, 'google_places_photos');
 
     return photoUrls;
   }

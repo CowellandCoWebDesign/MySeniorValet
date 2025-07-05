@@ -163,13 +163,41 @@ The application is configured for multiple deployment environments:
 - Complete review transparency infrastructure
 
 ## Current Status (January 5, 2025)
-**Database**: 148 authenticated Northern California communities
-**Coverage**: Complete Bay Area, Sacramento Region, North Coast
-**Photos**: 1,608 authentic images with 89% coverage
+**Database**: 182 authenticated Northern California communities
+**Coverage**: Complete Bay Area, Sacramento Region, North Coast, Central Valley
+**Photos**: Photo enrichment system with permanent cost protection
 **Reviews**: Direct Google/Yelp platform integration
 **Infrastructure**: Enterprise-ready with 10,000+ user capacity
 **Compliance**: Full ADA, CPRA, and state licensing compliance
 **Security**: Comprehensive audit and hardening implementation
+
+## ⚠️ CRITICAL API COST PROTECTION IMPLEMENTED (January 5, 2025)
+**Issue Identified**: Previous runaway API costs of $300+ from uncontrolled photo enrichment
+**Root Cause**: Google Places Photo API called excessively without limits (potentially 20+ photos × 182 communities)
+**Permanent Solutions Implemented**:
+
+### 1. API Cost Protection System
+- **Daily Limits**: $50/day maximum, 1000 calls/day
+- **Emergency Stop**: Automatic halt at $75 total cost
+- **Per-Operation Limits**: $5 per operation, 50 calls max
+- **Real-time Monitoring**: Cost tracking before/during/after operations
+
+### 2. Photo Enrichment Safeguards
+- **Photo Limit**: Maximum 5 photos per community (reduced from unlimited)
+- **Bulk Protection**: Checks total cost before enriching all communities
+- **Individual Checks**: Validates limits after each community enrichment
+- **Circuit Breaker**: Stops when less than $5 remaining daily budget
+
+### 3. Monitoring & Control Endpoints
+- `/api/admin/api-costs` - Real-time usage monitoring
+- `/api/admin/api-costs/emergency-stop` - Manual emergency halt
+- `/api/admin/api-costs/reset-emergency` - Admin reset capability
+- **Audit Logging**: All API usage logged to `server/logs/api-usage.log`
+
+### 4. Enhanced Rate Limiting
+- **Google Places**: 3-second delays between community enrichments
+- **Cost Validation**: Pre-operation cost estimation and approval
+- **Automatic Shutoff**: Multiple safety nets prevent runaway costs
 
 ### Critical Discovery & Fix (January 5, 2025)
 **FILTERING BUG DISCOVERED & RESOLVED**: Regional expansion system had overly restrictive Google Places type filtering

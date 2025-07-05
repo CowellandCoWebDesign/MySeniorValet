@@ -3,6 +3,7 @@ import { communities } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
 import { googlePlacesIntegration } from "./google-places-integration";
 import { dataProtectionService } from "./data-protection";
+import { apiCostProtection } from "./api-cost-protection";
 
 export class ComprehensivePhotoEnrichment {
   private delay(ms: number): Promise<void> {
@@ -17,8 +18,22 @@ export class ComprehensivePhotoEnrichment {
   }> {
     console.log("🚀 Starting comprehensive photo enrichment for ALL communities");
     
-    // Get all communities that need photo enrichment
+    // 🚨 CRITICAL COST PROTECTION: Check total operation cost before starting
     const allCommunities = await db.select().from(communities);
+    const totalEstimatedCost = allCommunities.length * 0.50; // $0.50 per community (conservative estimate)
+    const totalEstimatedCalls = allCommunities.length * 10; // 10 calls per community
+    
+    const protection = await apiCostProtection.checkBeforeOperation(totalEstimatedCalls, totalEstimatedCost);
+    
+    if (!protection.allowed) {
+      console.error(`🚨 BULK ENRICHMENT BLOCKED: ${protection.reason}`);
+      return {
+        totalCommunities: allCommunities.length,
+        enriched: 0,
+        photosAdded: 0,
+        errors: [`Operation blocked: ${protection.reason}`]
+      };
+    }
     
     console.log(`📊 Found ${allCommunities.length} communities to enrich`);
     
@@ -89,8 +104,15 @@ export class ComprehensivePhotoEnrichment {
           console.log(`⚠️  ${community.name}: No enrichment data found`);
         }
         
+        // 🚨 CRITICAL: Check if we're approaching limits after each community
+        const currentUsage = apiCostProtection.getUsageStatus();
+        if (currentUsage.remaining.dailyCost < 5) {
+          console.warn('🚨 STOPPING ENRICHMENT: Less than $5 remaining for today');
+          break;
+        }
+        
         // Rate limiting to avoid API quota issues
-        await this.delay(1000); // 1 second between requests
+        await this.delay(3000); // Increased to 3 second delay between communities
         
       } catch (error) {
         const errorMsg = `Error enriching ${community.name}: ${error instanceof Error ? error.message : 'Unknown error'}`;
