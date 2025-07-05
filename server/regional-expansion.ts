@@ -31,6 +31,36 @@ export interface ExpansionResults {
 }
 
 export class RegionalExpansionEngine {
+  private expansionProgress: {
+    isActive: boolean;
+    currentCounty: string;
+    currentRegion: string;
+    currentQuery: string;
+    currentCity: string;
+    countiesProcessed: number;
+    totalCounties: number;
+    communitiesFound: number;
+    totalQueries: number;
+    completedQueries: number;
+    startTime: Date | null;
+    estimatedCompletion: Date | null;
+  } = {
+    isActive: false,
+    currentCounty: '',
+    currentRegion: '',
+    currentQuery: '',
+    currentCity: '',
+    countiesProcessed: 0,
+    totalCounties: 0,
+    communitiesFound: 0,
+    totalQueries: 0,
+    completedQueries: 0,
+    startTime: null,
+    estimatedCompletion: null
+  };
+
+  private expansionResults: (ExpansionResults & { processingTime?: number })[] = [];
+
   private readonly targetCounties: RegionalExpansionTarget[] = [
     // COMPLETED COUNTIES (148 communities total)
     // Bay Area: Alameda, Contra Costa, Santa Clara, San Mateo, Marin, San Francisco
@@ -326,34 +356,70 @@ export class RegionalExpansionEngine {
     
     console.log("🌍 Starting Regional Expansion for 7 Target Counties...");
     
+    // Initialize progress tracking
+    this.expansionProgress = {
+      isActive: true,
+      currentCounty: '',
+      currentRegion: '',
+      currentQuery: '',
+      currentCity: '',
+      countiesProcessed: 0,
+      totalCounties: this.targetCounties.length,
+      communitiesFound: 0,
+      totalQueries: this.targetCounties.length * this.discoveryQueries.length * 5, // Estimate
+      completedQueries: 0,
+      startTime: new Date(),
+      estimatedCompletion: null
+    };
+    
     // Process counties in priority order
     const sortedCounties = this.targetCounties.sort((a, b) => b.priority - a.priority);
     
     for (const county of sortedCounties) {
       console.log(`🔍 Processing ${county.county} County (${county.region})...`);
       
+      this.expansionProgress.currentCounty = county.county;
+      this.expansionProgress.currentRegion = county.region;
+      
+      const startTime = Date.now();
+      
       try {
         const result = await this.expandToCounty(county);
-        results.push(result);
+        const processingTime = Date.now() - startTime;
+        
+        const resultWithTiming = { ...result, processingTime };
+        results.push(resultWithTiming);
+        this.expansionResults.push(resultWithTiming);
+        
+        this.expansionProgress.countiesProcessed++;
+        this.expansionProgress.communitiesFound += result.newCommunities;
         
         // Rate limiting between counties
         await this.delay(2000);
         
-      } catch (error) {
+      } catch (error: any) {
         console.error(`❌ Error processing ${county.county}:`, error);
-        results.push({
+        const errorResult = {
           county: county.county,
           region: county.region,
           totalFound: 0,
           newCommunities: 0,
           duplicatesFiltered: 0,
           enrichedCommunities: 0,
-          verificationLevel: "Low",
+          verificationLevel: "Low" as const,
           discoveryMethods: [],
-          errors: [error.message]
-        });
+          errors: [error?.message || 'Unknown error'],
+          processingTime: Date.now() - startTime
+        };
+        results.push(errorResult);
+        this.expansionResults.push(errorResult);
+        
+        this.expansionProgress.countiesProcessed++;
       }
     }
+    
+    // Mark expansion as complete
+    this.expansionProgress.isActive = false;
     
     console.log(`✅ Regional Expansion Complete: ${results.length} counties processed`);
     return results;
@@ -628,6 +694,20 @@ export class RegionalExpansionEngine {
    */
   getTargetCounties(): RegionalExpansionTarget[] {
     return this.targetCounties;
+  }
+
+  /**
+   * Get real-time expansion progress
+   */
+  async getExpansionProgress(): Promise<typeof this.expansionProgress> {
+    return this.expansionProgress;
+  }
+
+  /**
+   * Get expansion results
+   */
+  async getExpansionResults(): Promise<(ExpansionResults & { processingTime?: number })[]> {
+    return this.expansionResults;
   }
 
   private delay(ms: number): Promise<void> {
