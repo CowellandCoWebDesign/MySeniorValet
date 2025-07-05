@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal, json, jsonb, date, varchar, real, index } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, decimal, json, jsonb, date, varchar, real, numeric, index } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -581,6 +581,60 @@ export const communityClaims = pgTable("community_claims", {
   index("community_claims_community_idx").on(table.communityId),
   index("community_claims_claimer_idx").on(table.claimerUserId),
   index("community_claims_status_idx").on(table.status),
+]);
+
+// Pending Communities - Approval queue for communities that can't be auto-added
+export const pendingCommunities = pgTable("pending_communities", {
+  id: serial("id").primaryKey(),
+  
+  // Community Data
+  name: text("name").notNull(),
+  address: text("address").notNull(),
+  city: text("city").notNull(),
+  state: text("state").notNull(),
+  zipCode: text("zip_code"),
+  phone: text("phone"),
+  website: text("website"),
+  
+  // Google Places Data
+  googlePlacesId: text("google_places_id"),
+  googleRating: numeric("google_rating", { precision: 3, scale: 2 }),
+  googleReviewCount: integer("google_review_count"),
+  
+  // Care Types
+  careTypes: text("care_types").array().default([]),
+  
+  // Coordinates
+  latitude: numeric("latitude", { precision: 10, scale: 8 }),
+  longitude: numeric("longitude", { precision: 11, scale: 8 }),
+  
+  // Approval Status
+  status: text("status", {
+    enum: ["Pending", "Under Review", "Approved", "Rejected", "Duplicate"]
+  }).default("Pending"),
+  
+  // Reason for manual review
+  reviewReason: text("review_reason").notNull(), // "Security Filter", "Duplicate Check", "Data Quality", "Missing Info"
+  reviewNotes: text("review_notes"),
+  
+  // Source Information
+  discoverySource: text("discovery_source").notNull(), // "Google Places", "Regional Expansion", "Manual Entry"
+  discoveryQuery: text("discovery_query"),
+  discoveryLocation: text("discovery_location"),
+  
+  // Admin Review
+  reviewedBy: integer("reviewed_by").references(() => users.id),
+  reviewedAt: timestamp("reviewed_at"),
+  approvalNotes: text("approval_notes"),
+  rejectionReason: text("rejection_reason"),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("pending_communities_status_idx").on(table.status),
+  index("pending_communities_created_idx").on(table.createdAt),
+  index("pending_communities_city_idx").on(table.city),
 ]);
 
 // Claimed Communities - Verified operator accounts
@@ -1298,3 +1352,5 @@ export type InsertLeadActivity = z.infer<typeof insertLeadActivitySchema>;
 export type LeadActivity = typeof leadActivities.$inferSelect;
 export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
 export type AuditLog = typeof auditLogs.$inferSelect;
+export type PendingCommunity = typeof pendingCommunities.$inferSelect;
+export type InsertPendingCommunity = typeof pendingCommunities.$inferInsert;

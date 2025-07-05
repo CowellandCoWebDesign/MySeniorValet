@@ -12,7 +12,8 @@ import {
   userSavedSearches,
   communityClaims,
   claimedCommunities,
-  users
+  users,
+  pendingCommunities
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, inArray, sql } from "drizzle-orm";
@@ -5652,6 +5653,178 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(stats);
     } catch (error) {
       res.status(500).json({ message: 'Failed to get enrichment status' });
+    }
+  });
+
+  // ========================================
+  // PENDING COMMUNITIES APPROVAL QUEUE
+  // ========================================
+
+  // Get pending communities for admin review
+  app.get('/api/admin/pending-communities', requireAuth, async (req: any, res) => {
+    try {
+      const { status = 'Pending', limit = 50 } = req.query;
+      
+      const pending = await db
+        .select()
+        .from(pendingCommunities)
+        .where(eq(pendingCommunities.status, status))
+        .orderBy(desc(pendingCommunities.createdAt))
+        .limit(parseInt(limit as string));
+
+      res.json(pending);
+    } catch (error) {
+      console.error('Failed to get pending communities:', error);
+      res.status(500).json({ message: 'Failed to get pending communities' });
+    }
+  });
+
+  // Add community to approval queue
+  app.post('/api/admin/pending-communities', async (req, res) => {
+    try {
+      const communityData = req.body;
+      
+      const [pending] = await db
+        .insert(pendingCommunities)
+        .values({
+          name: communityData.name,
+          address: communityData.address,
+          city: communityData.city,
+          state: communityData.state,
+          zipCode: communityData.zipCode,
+          phone: communityData.phone,
+          website: communityData.website,
+          googlePlacesId: communityData.googlePlacesId,
+          googleRating: communityData.googleRating ? communityData.googleRating.toString() : null,
+          googleReviewCount: communityData.googleReviewCount,
+          careTypes: communityData.careTypes || [],
+          latitude: communityData.latitude ? communityData.latitude.toString() : null,
+          longitude: communityData.longitude ? communityData.longitude.toString() : null,
+          reviewReason: communityData.reviewReason || 'Security Filter',
+          reviewNotes: communityData.reviewNotes,
+          discoverySource: communityData.discoverySource || 'Regional Expansion',
+          discoveryQuery: communityData.discoveryQuery,
+          discoveryLocation: communityData.discoveryLocation,
+        })
+        .returning();
+
+      res.status(201).json({ 
+        message: 'Community added to approval queue',
+        pendingId: pending.id 
+      });
+    } catch (error) {
+      console.error('Failed to add to approval queue:', error);
+      res.status(500).json({ message: 'Failed to add to approval queue' });
+    }
+  });
+
+  // Approve pending community (move to main communities table)
+  app.post('/api/admin/pending-communities/:id/approve', requireAuth, async (req: any, res) => {
+    try {
+      const pendingId = parseInt(req.params.id);
+      const { approvalNotes } = req.body;
+      
+      // Get the pending community
+      const [pending] = await db
+        .select()
+        .from(pendingCommunities)
+        .where(eq(pendingCommunities.id, pendingId));
+
+      if (!pending) {
+        return res.status(404).json({ message: 'Pending community not found' });
+      }
+
+      // Add to main communities table
+      const [community] = await db
+        .insert(communities)
+        .values({
+          name: pending.name,
+          address: pending.address,
+          city: pending.city,
+          state: pending.state,
+          zipCode: pending.zipCode,
+          phone: pending.phone,
+          website: pending.website,
+          googlePlacesId: pending.googlePlacesId,
+          googleRating: pending.googleRating ? parseFloat(pending.googleRating) : null,
+          googleReviewCount: pending.googleReviewCount,
+          careTypes: pending.careTypes,
+          latitude: pending.latitude ? parseFloat(pending.latitude) : null,
+          longitude: pending.longitude ? parseFloat(pending.longitude) : null,
+          isVerified: true,
+          verificationSources: ['admin_approval'],
+        })
+        .returning();
+
+      // Update pending community status
+      await db
+        .update(pendingCommunities)
+        .set({
+          status: 'Approved',
+          reviewedBy: req.user?.id,
+          reviewedAt: new Date(),
+          approvalNotes,
+          updatedAt: new Date(),
+        })
+        .where(eq(pendingCommunities.id, pendingId));
+
+      res.json({ 
+        message: 'Community approved and added',
+        communityId: community.id 
+      });
+    } catch (error) {
+      console.error('Failed to approve community:', error);
+      res.status(500).json({ message: 'Failed to approve community' });
+    }
+  });
+
+  // Reject pending community
+  app.post('/api/admin/pending-communities/:id/reject', requireAuth, async (req: any, res) => {
+    try {
+      const pendingId = parseInt(req.params.id);
+      const { rejectionReason } = req.body;
+      
+      await db
+        .update(pendingCommunities)
+        .set({
+          status: 'Rejected',
+          reviewedBy: req.user?.id,
+          reviewedAt: new Date(),
+          rejectionReason,
+          updatedAt: new Date(),
+        })
+        .where(eq(pendingCommunities.id, pendingId));
+
+      res.json({ message: 'Community rejected' });
+    } catch (error) {
+      console.error('Failed to reject community:', error);
+      res.status(500).json({ message: 'Failed to reject community' });
+    }
+  });
+
+  // Get approval queue statistics
+  app.get('/api/admin/pending-communities/stats', requireAuth, async (req, res) => {
+    try {
+      const stats = await db
+        .select({
+          status: pendingCommunities.status,
+          count: sql<number>`count(*)::int`,
+        })
+        .from(pendingCommunities)
+        .groupBy(pendingCommunities.status);
+
+      const formatted = stats.reduce((acc, stat) => {
+        acc[stat.status] = stat.count;
+        return acc;
+      }, {} as Record<string, number>);
+
+      res.json({
+        total: stats.reduce((sum, stat) => sum + stat.count, 0),
+        byStatus: formatted,
+      });
+    } catch (error) {
+      console.error('Failed to get approval queue stats:', error);
+      res.status(500).json({ message: 'Failed to get stats' });
     }
   });
 

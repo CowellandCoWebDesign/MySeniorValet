@@ -147,7 +147,8 @@ export function validateInput(schema: z.ZodSchema) {
 // SQL injection protection
 export function sqlInjectionProtection(req: Request, res: Response, next: NextFunction) {
   const suspiciousPatterns = [
-    /('|\\')|(;)|(--)|(\s(OR|AND)\s.*(=|LIKE))/i,
+    // Modified: Allow legitimate apostrophes in names like "Frye's Care Home"
+    /(';)|(\';)|(;)|(--)|(\s(OR|AND)\s.*(=|LIKE))/i,
     /(UNION|SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER)\s/i,
     /(\bEXEC\b|\bEXECUTE\b)/i,
     /(\bSP_\w+)/i
