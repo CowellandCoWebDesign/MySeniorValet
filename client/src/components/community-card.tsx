@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, Shield, AlertTriangle, DollarSign, MapPin, Heart, Share, Users, Calendar, CheckCircle, ExternalLink, Clock, Home, Wifi, Car, Utensils, Activity, Phone, Camera, Video, UserCheck, Stethoscope, Bed, ShowerHead, ChevronDown, ChevronUp, ImageIcon } from "lucide-react";
+import { Star, Shield, AlertTriangle, DollarSign, MapPin, Heart, Share, Users, Calendar, CheckCircle, ExternalLink, Clock, Home, Wifi, Car, Utensils, Activity, Phone, Camera, Video, UserCheck, Stethoscope, Bed, ShowerHead, ChevronDown, ChevronUp, ImageIcon, ShieldCheck } from "lucide-react";
 import { Link } from "wouter";
 import type { Community } from "@shared/schema";
 import { PhotoCarousel } from "@/components/photo-carousel";
@@ -386,6 +386,74 @@ export function CommunityCard({ community }: CommunityCardProps) {
               )}
             </div>
           </div>
+        </div>
+
+        {/* UNIT TYPES & AVAILABILITY SECTION */}
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
+          <div className="flex items-center space-x-2 mb-3">
+            <Home className="h-5 w-5 text-blue-600" />
+            <span className="font-bold text-gray-900 text-lg">Unit Types & Availability</span>
+          </div>
+          
+          {community.unitTypes && community.unitTypes.length > 0 ? (
+            <div className="space-y-3">
+              {community.unitTypes.slice(0, 3).map((unitType, index) => (
+                <div key={index} className="bg-white border border-blue-200 rounded-lg p-3">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <h4 className="font-semibold text-blue-900">{unitType.name}</h4>
+                      <p className="text-sm text-blue-700">{unitType.type} • {unitType.squareFootage} sq ft</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-blue-900">
+                        ${unitType.priceRange.min.toLocaleString()}/mo
+                      </div>
+                      <div className="text-xs text-blue-600">{unitType.available} available</div>
+                    </div>
+                  </div>
+                  
+                  {unitType.features && unitType.features.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {unitType.features.slice(0, 3).map((feature, idx) => (
+                        <Badge key={idx} variant="secondary" className="bg-blue-100 text-blue-800 text-xs">
+                          {feature}
+                        </Badge>
+                      ))}
+                      {unitType.features.length > 3 && (
+                        <Badge variant="secondary" className="bg-gray-100 text-gray-600 text-xs">
+                          +{unitType.features.length - 3} more
+                        </Badge>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+              
+              {community.unitTypes.length > 3 && (
+                <div className="text-center">
+                  <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                    +{community.unitTypes.length - 3} more unit types available
+                  </Badge>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="bg-white border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+              <Home className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+              <h4 className="font-semibold text-gray-900 mb-1">Unit Types Information</h4>
+              <p className="text-sm text-gray-600 mb-3">
+                We're gathering verified unit type details for this community.
+              </p>
+              <div className="bg-yellow-50 border border-yellow-200 rounded p-2">
+                <div className="flex items-center justify-center space-x-1">
+                  <ShieldCheck className="h-4 w-4 text-yellow-600" />
+                  <span className="text-xs text-yellow-800 font-medium">
+                    Only verified unit data will be displayed
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* REVIEW SNIPPETS - Prominent Section */}
