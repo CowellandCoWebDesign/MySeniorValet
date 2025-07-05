@@ -489,22 +489,30 @@ export class GooglePlacesIntegration {
   }
 
   private isSeniorLivingFacility(name: string, types: string[]): boolean {
+    const nameLower = name.toLowerCase();
+    
+    // Expanded list of senior living keywords
     const seniorKeywords = [
       'senior', 'assisted living', 'memory care', 'independent living', 
       'retirement', 'elder care', 'adult care', 'senior community',
-      'continuing care', 'skilled nursing', 'nursing home', 'care facility'
+      'continuing care', 'skilled nursing', 'nursing home', 'care facility',
+      'assisted', 'residence', 'manor', 'lodge', 'springs', 'gardens',
+      'terrace', 'village', 'estate', 'place', 'home', 'center',
+      'silvercrest', 'timber ridge', 'alder bay', 'humboldt house'
     ];
     
-    const nameCheck = seniorKeywords.some(keyword => 
-      name.toLowerCase().includes(keyword)
-    );
+    // Exclude obvious non-senior facilities
+    const excludeKeywords = [
+      'hospital', 'urgent care', 'clinic', 'medical center', 'pharmacy',
+      'school', 'daycare', 'bank', 'restaurant', 'store', 'shop', 'hotel',
+      'gas station', 'church', 'temple', 'mosque', 'auto', 'repair'
+    ];
     
-    // Also check if it's a health-related lodging facility
-    const typeCheck = types.some(type => 
-      ['lodging', 'health', 'establishment'].includes(type)
-    );
+    const hasSeniorKeyword = seniorKeywords.some(keyword => nameLower.includes(keyword));
+    const hasExcludeKeyword = excludeKeywords.some(keyword => nameLower.includes(keyword));
     
-    return nameCheck && typeCheck;
+    // Remove the restrictive type requirement - just check name patterns
+    return hasSeniorKeyword && !hasExcludeKeyword;
   }
 
   private async extractCommunityDataFromPlace(place: any): Promise<any | null> {

@@ -171,6 +171,13 @@ The application is configured for multiple deployment environments:
 **Compliance**: Full ADA, CPRA, and state licensing compliance
 **Security**: Comprehensive audit and hardening implementation
 
+### Critical Discovery & Fix (January 5, 2025)
+**FILTERING BUG DISCOVERED**: Regional expansion system had overly restrictive Google Places type filtering
+- **Missing Communities Found**: Eureka testing revealed "Especially You Assisted Living", "Alder Bay Assisted Living", "Silvercrest Residence", "Humboldt House Lodge Assisted Living" were filtered out
+- **Root Cause**: `isSeniorLivingFacility` method required both senior keywords AND specific Google Places types ('lodging', 'health')
+- **Fix Applied**: Permanently removed restrictive type requirements, now filters only by name patterns with exclusion list
+- **Impact**: 16 Northern California counties need re-expansion with corrected filtering
+
 ## Changelog
 
 ## Compliance Framework
