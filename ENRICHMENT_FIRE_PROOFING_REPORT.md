@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-I've analyzed both photo and review enrichment systems and discovered similar runaway cost vulnerabilities to the regional expansion system. I've implemented comprehensive fire-proofing measures to prevent any enrichment operations from causing $300+ API burns.
+**CONFIRMED ROOT CAUSE**: Google Photos API made **41,384 requests** in one day, causing the $300+ burn. This is 227x more calls than expected (182 communities should = 182 calls). I've implemented comprehensive fire-proofing measures to prevent any enrichment operations from causing similar runaway loops.
 
 ## Critical Vulnerabilities Discovered in Enrichment Systems
 
@@ -19,14 +19,30 @@ I've analyzed both photo and review enrichment systems and discovered similar ru
 - **No deduplication** - same communities enriched multiple times
 - **API calls per run**: 364 calls (2 calls × 182 communities)
 
-### 3. Dangerous Scenarios That Could Cause $300 Burns
+### 3. Root Cause Analysis: 41,384 Google Photos API Requests
+
+**Google Analytics Discovery**: The $300+ burn was caused by exactly **41,384 Google Photos API requests** in one day.
+
+**Analysis**:
+- **Expected calls**: 182 communities × 1 call each = 182 calls
+- **Actual calls**: 41,384 calls
+- **Multiplication factor**: 227x more than expected
+- **Cost at $0.007 per call**: 41,384 × $0.007 = $289.68
+
+**Likely Loop Scenarios**:
+- Photo pagination errors causing repeated calls
+- Error handling loops without proper circuit breakers  
+- Retry logic without exponential backoff
+- Multiple concurrent enrichment sessions
+
+### 4. Dangerous Scenarios That Could Cause $300 Burns
 
 | Scenario | Total Cost | Risk Level | Description |
 |----------|------------|------------|-------------|
+| **CONFIRMED: Photo API loop (41,384 calls)** | **$289.68** | **CRITICAL** | Actual cause of $300 burn |
 | Photo enrichment runs 9 times in loop | $298.44 | **CRITICAL** | Similar to expansion loop issue |
 | Combined photo + review enrichment × 4 runs | $336.32 | **CRITICAL** | Both systems looping |
 | Regional expansion + photo enrichment loop | $303.78 | **CRITICAL** | Multiple systems running |
-| City-by-city enrichment with overlap | $49+ | HIGH | Multiple overlapping operations |
 
 ## Complete Fire-Proofing Solution Implemented
 
