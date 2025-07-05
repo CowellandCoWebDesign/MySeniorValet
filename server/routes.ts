@@ -5001,6 +5001,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Geocoding service endpoints
+  app.get('/api/admin/geocoding/stats', async (req, res) => {
+    try {
+      const { geocodingService } = await import('./geocoding-service');
+      const stats = await geocodingService.getGeocodingStats();
+      res.json({
+        success: true,
+        statistics: stats
+      });
+    } catch (error) {
+      console.error('Error getting geocoding stats:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to get geocoding stats'
+      });
+    }
+  });
+
+  app.post('/api/admin/geocoding/geocode-all', async (req, res) => {
+    try {
+      const { geocodingService } = await import('./geocoding-service');
+      const stats = await geocodingService.geocodeAllMissingCoordinates();
+      res.json({
+        success: true,
+        message: `Geocoding completed: ${stats.successful}/${stats.total} successful`,
+        statistics: stats
+      });
+    } catch (error) {
+      console.error('Error during geocoding:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to geocode communities'
+      });
+    }
+  });
+
+  app.post('/api/admin/geocoding/geocode-city', async (req, res) => {
+    try {
+      const { city, state = 'CA' } = req.body;
+      if (!city) {
+        return res.status(400).json({
+          success: false,
+          error: 'City is required'
+        });
+      }
+
+      const { geocodingService } = await import('./geocoding-service');
+      const stats = await geocodingService.geocodeByCity(city, state);
+      res.json({
+        success: true,
+        message: `Geocoded ${city}, ${state}: ${stats.successful}/${stats.total} successful`,
+        statistics: stats
+      });
+    } catch (error) {
+      console.error('Error during city geocoding:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to geocode city communities'
+      });
+    }
+  });
+
   // Google Reviews restoration endpoint
   app.post('/api/admin/restore-authentic-reviews', async (req, res) => {
     try {
