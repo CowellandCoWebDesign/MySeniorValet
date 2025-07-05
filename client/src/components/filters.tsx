@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -156,11 +156,30 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
     updateFilters({ availability: value });
   };
 
+  // Debounce price range changes to prevent rapid API calls
+  const debouncedPriceUpdate = useCallback(
+    debounce((newPriceRange: { min: string; max: string }) => {
+      updateFilters({ priceRange: newPriceRange });
+    }, 500),
+    [updateFilters]
+  );
+
   const handlePriceRangeChange = (field: 'min' | 'max', value: string) => {
-    updateFilters({ 
-      priceRange: { ...filters.priceRange, [field]: value }
-    });
+    const newPriceRange = { ...filters.priceRange, [field]: value };
+    // Update local state immediately for responsive UI
+    setFilters(prev => ({ ...prev, priceRange: newPriceRange }));
+    // Debounce the filter update to prevent rapid API calls
+    debouncedPriceUpdate(newPriceRange);
   };
+
+  // Simple debounce utility
+  function debounce<T extends (...args: any[]) => void>(func: T, wait: number): T {
+    let timeout: NodeJS.Timeout;
+    return ((...args: any[]) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func(...args), wait);
+    }) as T;
+  }
 
   const handleClearFilters = () => {
     const clearedFilters = {
