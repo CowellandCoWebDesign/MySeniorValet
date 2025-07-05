@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { DisclaimerBanner } from "@/components/disclaimer-banner";
 import Home from "@/pages/home";
 import Search from "@/pages/search";
+import Explore from "@/pages/explore";
 import Community from "@/pages/community";
 import CommunityPage from "@/pages/community";
 import Claim from "@/pages/claim";
@@ -27,6 +28,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/search" component={Search} />
+      <Route path="/explore" component={Explore} />
       <Route path="/community/:id" component={CommunityPage} />
       <Route path="/claim/:communityId" component={Claim} />
       <Route path="/admin" component={AdminCleanFull} />
