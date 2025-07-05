@@ -15,7 +15,7 @@ interface FiltersProps {
 export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
   const [filters, setFilters] = useState({
     distance: "Within 10 miles",
-    careServices: [] as string[],
+    careTypes: [] as string[],
     amenities: [] as string[],
     priceRange: { min: "", max: "" },
     minRating: "any",
@@ -24,7 +24,7 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
   });
 
   const [expandedSections, setExpandedSections] = useState({
-    careServices: true,
+    careTypes: true,
     amenities: false,
   });
 
@@ -36,7 +36,7 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
     if (initialFilters) {
       const convertedFilters = {
         distance: "Within 10 miles",
-        careServices: [] as string[],
+        careTypes: [] as string[],
         amenities: [] as string[],
         priceRange: { min: "", max: "" },
         minRating: "any",
@@ -44,9 +44,9 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
         verificationStatus: "all",
       };
       
-      // Convert careType to careServices
+      // Convert careType to careTypes
       if (initialFilters.careType) {
-        convertedFilters.careServices = initialFilters.careType.split(',');
+        convertedFilters.careTypes = initialFilters.careType.split(',');
       }
       
       // Convert budget to priceRange
@@ -88,7 +88,7 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
   }, [JSON.stringify(initialFilters)]);
 
   const hasActiveFilters = () => {
-    return filters.careServices.length > 0 || 
+    return filters.careTypes.length > 0 || 
            filters.amenities.length > 0 || 
            filters.minRating !== "any" || 
            filters.availability !== "all" ||
@@ -97,7 +97,7 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
            filters.priceRange.max !== "";
   };
 
-  const careServiceOptions = [
+  const careTypeOptions = [
     "Independent Living",
     "Assisted Living", 
     "Memory Care",
@@ -142,11 +142,11 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
     updateFilters({ distance: value });
   };
 
-  const handleCareServiceChange = (service: string, checked: boolean) => {
-    const newCareServices = checked
-      ? [...filters.careServices, service]
-      : filters.careServices.filter(s => s !== service);
-    updateFilters({ careServices: newCareServices });
+  const handleCareTypeChange = (careType: string, checked: boolean) => {
+    const newCareTypes = checked
+      ? [...filters.careTypes, careType]
+      : filters.careTypes.filter(t => t !== careType);
+    updateFilters({ careTypes: newCareTypes });
   };
 
   const handleAmenityChange = (amenity: string, checked: boolean) => {
@@ -174,7 +174,7 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
   const handleClearFilters = () => {
     const clearedFilters = {
       distance: "Within 10 miles",
-      careServices: [],
+      careTypes: [],
       amenities: [],
       priceRange: { min: "", max: "" },
       minRating: "any",
@@ -186,7 +186,7 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
     onFiltersChange?.(clearedFilters);
   };
 
-  const toggleExpandSection = (section: 'careServices' | 'amenities') => {
+  const toggleExpandSection = (section: 'careTypes' | 'amenities') => {
     setExpandedSections(prev => ({
       ...prev,
       [section]: !prev[section]
@@ -285,20 +285,20 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
         </div>
       </div>
 
-      {/* Care Services */}
+      {/* Care Types */}
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-base font-medium flex items-center gap-2">
               <Home className="h-4 w-4 text-blue-600" />
-              Care Services ({filters.careServices.length} selected)
+              Care Types ({filters.careTypes.length} selected)
             </CardTitle>
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => toggleExpandSection('careServices')}
+              onClick={() => toggleExpandSection('careTypes')}
             >
-              {expandedSections.careServices ? (
+              {expandedSections.careTypes ? (
                 <ChevronUp className="h-4 w-4" />
               ) : (
                 <ChevronDown className="h-4 w-4" />
@@ -306,23 +306,23 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
             </Button>
           </div>
         </CardHeader>
-        {expandedSections.careServices && (
+        {expandedSections.careTypes && (
           <CardContent className="pt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {careServiceOptions.map((service) => (
-                <div key={service} className="flex items-center space-x-2">
+              {careTypeOptions.map((careType) => (
+                <div key={careType} className="flex items-center space-x-2">
                   <Checkbox
-                    id={`care-${service}`}
-                    checked={filters.careServices.includes(service)}
+                    id={`care-${careType}`}
+                    checked={filters.careTypes.includes(careType)}
                     onCheckedChange={(checked) => 
-                      handleCareServiceChange(service, checked as boolean)
+                      handleCareTypeChange(careType, checked as boolean)
                     }
                   />
                   <Label 
-                    htmlFor={`care-${service}`}
+                    htmlFor={`care-${careType}`}
                     className="text-sm cursor-pointer"
                   >
-                    {service}
+                    {careType}
                   </Label>
                 </div>
               ))}
