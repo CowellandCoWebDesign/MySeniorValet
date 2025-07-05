@@ -172,6 +172,8 @@ The application is configured for multiple deployment environments:
 **Compliance**: Full ADA, CPRA, and state licensing compliance
 **Security**: Comprehensive audit and hardening implementation
 **Admin Dashboard**: Creative "Mission Control" design with animated backgrounds, sparkle effects, space-age theme
+**Unit Types & Floor Plans**: Comprehensive implementation with verification placeholders and data integrity protection
+**Marketing Priority Order**: Availability and floor plans first, pricing second, amenities third - optimized for user decision-making
 
 ## ⚠️ CRITICAL API COST PROTECTION IMPLEMENTED (January 5, 2025)
 **Issue Identified**: Previous runaway API costs of $300+ from uncontrolled photo enrichment
