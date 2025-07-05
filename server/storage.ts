@@ -479,6 +479,11 @@ export class DatabaseStorage implements IStorage {
       }
     }
 
+    // Photos filtering
+    if (params.hasPhotos === true) {
+      conditions.push(sql`${communities.photos} IS NOT NULL AND array_length(${communities.photos}, 1) > 0`);
+    }
+
     // Skip amenities filtering for now to avoid array search issues
     if (params.amenities && params.amenities.length > 0) {
       // TODO: Fix PostgreSQL array search for amenities
