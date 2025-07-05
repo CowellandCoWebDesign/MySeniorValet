@@ -30,7 +30,6 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
 
   // Update filters when initial filters change
   useEffect(() => {
-    console.log('initialFilters changed:', initialFilters);
     if (initialFilters) {
       const convertedFilters = {
         distance: "Within 10 miles",
@@ -68,7 +67,6 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
       // Convert minRating
       if (initialFilters.minRating) {
         const ratingValue = parseFloat(initialFilters.minRating.toString()).toFixed(1);
-        console.log('Converting minRating:', initialFilters.minRating, 'to:', ratingValue);
         convertedFilters.minRating = ratingValue;
       }
       
@@ -82,7 +80,6 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
         convertedFilters.amenities = initialFilters.amenities;
       }
       
-      console.log('Setting converted filters:', convertedFilters);
       setFilters(convertedFilters);
     }
   }, [JSON.stringify(initialFilters)]);
@@ -128,7 +125,6 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
 
   const updateFilters = (updates: Partial<typeof filters>) => {
     const newFilters = { ...filters, ...updates };
-    console.log('Updating filters:', { old: filters, updates, new: newFilters });
     setFilters(newFilters);
     onFiltersChange?.(newFilters);
   };
