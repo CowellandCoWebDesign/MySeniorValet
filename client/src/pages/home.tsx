@@ -9,8 +9,16 @@ import { Link } from "wouter";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-blue-400/10 to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-r from-pink-400/10 to-cyan-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-3/4 left-3/4 w-64 h-64 bg-gradient-to-r from-emerald-400/10 to-teal-400/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+      </div>
+      
+      <div className="relative z-10">
+        <Header />
       
       {/* Hero Section - Optimized Sizing */}
       <section className="relative py-12 lg:py-20 overflow-hidden min-h-[80vh] flex items-center">
@@ -41,13 +49,15 @@ export default function Home() {
             
             {/* Optimized Feature Pills */}
             <div className="flex flex-wrap justify-center gap-2 lg:gap-3 mb-8">
-              <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-md px-4 py-2 rounded-xl shadow-md border border-green-200/50 hover:shadow-lg transition-shadow duration-300">
-                <div className="p-1 bg-green-100 rounded-full">
+              <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-md px-4 py-2 rounded-xl shadow-md border border-green-200/50 hover:shadow-lg transition-all duration-300 group relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 to-emerald-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="p-1 bg-green-100 rounded-full relative z-10">
                   <DollarSign className="text-green-600 h-4 w-4" />
                 </div>
-                <span className="text-sm font-semibold text-green-800">Real Pricing</span>
+                <span className="text-sm font-semibold text-green-800 relative z-10">Real Pricing</span>
+                <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full opacity-0 group-hover:opacity-100 animate-ping"></div>
               </div>
-              <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-md px-4 py-2 rounded-xl shadow-md border border-yellow-200/50 hover:shadow-lg transition-shadow duration-300">
+              <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-md px-4 py-2 rounded-xl shadow-md border border-yellow-200/50 hover:shadow-lg transition-all duration-300 group relative overflow-hidden">
                 <div className="p-1 bg-yellow-100 rounded-full">
                   <Star className="text-yellow-500 h-4 w-4" />
                 </div>
@@ -259,6 +269,7 @@ export default function Home() {
       </section>
 
       <Footer />
+      </div>
     </div>
   );
 }
