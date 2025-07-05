@@ -21,7 +21,7 @@ interface SearchFilters {
   hasPhotos: boolean;
 }
 
-export default function SearchNew() {
+export default function Search() {
   const [filters, setFilters] = useState<SearchFilters>({
     location: '',
     careType: 'all',
