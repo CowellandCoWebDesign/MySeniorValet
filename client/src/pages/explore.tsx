@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { MapPin, Filter, Search, Star, Clock, DollarSign, Phone, Globe, Heart, MapIcon } from 'lucide-react';
+import { MapPin, Filter, Search, Star, Clock, DollarSign, Phone, Globe, Heart, MapIcon, Camera, Shield } from 'lucide-react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -54,6 +54,9 @@ interface ExploreFilters {
   careType: string;
   minRating: string;
   hasPhotos: boolean;
+  verifiedOnly: boolean;
+  priceRange: string;
+  amenities: string[];
 }
 
 // Create custom markers for different care types
@@ -78,12 +81,35 @@ const createCustomIcon = (careType: string) => {
   });
 };
 
+// Helper functions for price estimation
+const getEstimatedPrice = (careTypes: string[]): number => {
+  if (careTypes.includes('Skilled Nursing')) return 7000;
+  if (careTypes.includes('Memory Care')) return 6500;
+  if (careTypes.includes('Assisted Living')) return 5000;
+  if (careTypes.includes('CCRC')) return 8000;
+  if (careTypes.includes('Independent Living')) return 3500;
+  return 4500; // Default
+};
+
+const matchesPriceRange = (price: number, range: string): boolean => {
+  switch (range) {
+    case 'budget': return price < 4000;
+    case 'mid': return price >= 4000 && price <= 6000;
+    case 'premium': return price > 6000 && price <= 8000;
+    case 'luxury': return price > 8000;
+    default: return true;
+  }
+};
+
 export default function Explore() {
   const [filters, setFilters] = useState<ExploreFilters>({
     city: 'all',
     careType: 'all',
     minRating: 'all',
-    hasPhotos: false
+    hasPhotos: false,
+    verifiedOnly: false,
+    priceRange: 'all',
+    amenities: []
   });
   
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
@@ -119,6 +145,15 @@ export default function Explore() {
       // Photos filter
       if (filters.hasPhotos && (!community.photosCount || community.photosCount === 0)) return false;
       
+      // Verified only filter
+      if (filters.verifiedOnly && !community.verified) return false;
+      
+      // Price range filter (basic estimation based on care type)
+      if (filters.priceRange && filters.priceRange !== 'all') {
+        const estimatedPrice = getEstimatedPrice(community.careTypes);
+        if (!matchesPriceRange(estimatedPrice, filters.priceRange)) return false;
+      }
+      
       return true;
     });
   }, [allCommunities, filters]);
@@ -150,7 +185,10 @@ export default function Explore() {
       city: 'all',
       careType: 'all',
       minRating: 'all',
-      hasPhotos: false
+      hasPhotos: false,
+      verifiedOnly: false,
+      priceRange: 'all',
+      amenities: []
     });
   };
 
@@ -233,6 +271,60 @@ export default function Explore() {
                     <SelectItem value="4">4+ Stars ⭐⭐⭐⭐</SelectItem>
                     <SelectItem value="3">3+ Stars ⭐⭐⭐</SelectItem>
                     <SelectItem value="2">2+ Stars ⭐⭐</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700 flex items-center">
+                  <Camera className="h-4 w-4 mr-1 text-gray-500" />
+                  Premium Features
+                </label>
+                <div className="flex items-center space-x-2">
+                  <input 
+                    type="checkbox"
+                    id="hasPhotos"
+                    checked={filters.hasPhotos}
+                    onChange={(e) => handleFilterChange('hasPhotos', e.target.checked)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="hasPhotos" className="text-sm text-gray-700">
+                    Has Photos
+                  </label>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700 flex items-center">
+                  <Shield className="h-4 w-4 mr-1 text-gray-500" />
+                  Verification
+                </label>
+                <div className="flex items-center space-x-2">
+                  <input 
+                    type="checkbox"
+                    id="verifiedOnly"
+                    checked={filters.verifiedOnly}
+                    onChange={(e) => handleFilterChange('verifiedOnly', e.target.checked)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="verifiedOnly" className="text-sm text-gray-700">
+                    Verified Communities Only
+                  </label>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700 flex items-center">
+                  <DollarSign className="h-4 w-4 mr-1 text-gray-500" />
+                  Price Range
+                </label>
+                <Select value={filters.priceRange} onValueChange={(value) => handleFilterChange('priceRange', value)}>
+                  <SelectTrigger className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                    <SelectValue placeholder="All Price Ranges" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Price Ranges</SelectItem>
+                    <SelectItem value="budget">Budget-Friendly (Under $4,000)</SelectItem>
+                    <SelectItem value="mid">Mid-Range ($4,000 - $6,000)</SelectItem>
+                    <SelectItem value="premium">Premium ($6,000 - $8,000)</SelectItem>
+                    <SelectItem value="luxury">Luxury ($8,000+)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
