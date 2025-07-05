@@ -5828,5 +5828,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ========================================
+  // REGIONAL EXPANSION API
+  // ========================================
+  
+  // Expand specific county
+  app.post('/api/admin/expand-county', async (req, res) => {
+    try {
+      const { county } = req.body;
+      
+      if (!county) {
+        return res.status(400).json({ message: 'County name required' });
+      }
+
+      console.log(`🎯 Starting expansion for ${county}...`);
+      
+      const result = await regionalExpansionEngine.researchCountySystematically(county);
+      
+      res.json({
+        county,
+        discovered: result.discovered?.length || 0,
+        added: result.added || 0,
+        duplicates: result.duplicates || 0,
+        success: true
+      });
+    } catch (error) {
+      console.error(`Failed to expand ${req.body.county}:`, error);
+      res.status(500).json({ 
+        message: 'County expansion failed',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   return httpServer;
 }
