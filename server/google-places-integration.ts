@@ -1,3 +1,4 @@
+import { trackAPICall, checkCostLimits } from './cost-tracker';
 import axios from 'axios';
 import type { Community } from '@shared/schema';
 
@@ -62,6 +63,13 @@ export class GooglePlacesIntegration {
     if (!this.apiKey) {
       console.warn('GOOGLE_API_KEY or GOOGLE_PLACES_API_KEY not found in environment variables');
     }
+    
+    // Check cost limits before any operations
+    const costCheck = checkCostLimits();
+    if (!costCheck.canProceed) {
+      throw new Error(`Cost limit exceeded: ${costCheck.reason}`);
+    }
+  }
   }
 
   async enrichCommunityWithGooglePlaces(community: Community): Promise<GooglePlacesEnrichmentResult | null> {
@@ -282,6 +290,7 @@ export class GooglePlacesIntegration {
 
       this.callCount++;
       this.totalCost += this.costPerDetailsRequest;
+        trackAPICall('placeDetails', this.costPerDetailsRequest);
 
       return response.data?.result || null;
 
@@ -305,6 +314,7 @@ export class GooglePlacesIntegration {
         photoUrls.push(photoUrl);
         
         this.totalCost += this.costPerPhotoRequest;
+        trackAPICall('photo', this.costPerPhotoRequest);
 
         // Rate limiting
         await this.delay(50);
