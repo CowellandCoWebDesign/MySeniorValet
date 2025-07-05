@@ -173,7 +173,9 @@ The application is configured for multiple deployment environments:
 
 ## ⚠️ CRITICAL API COST PROTECTION IMPLEMENTED (January 5, 2025)
 **Issue Identified**: Previous runaway API costs of $300+ from uncontrolled photo enrichment
-**Root Cause**: Google Places Photo API called excessively without limits (potentially 20+ photos × 182 communities)
+**CONFIRMED ROOT CAUSE**: Google Photos API made exactly **41,384 requests** in one day (227x expected volume)
+**Cost Analysis**: 41,384 requests × $0.007 = $289.68 (matching the $300 burn)
+**Loop Factor**: System hit error loops or pagination issues causing massive call multiplication
 **Permanent Solutions Implemented**:
 
 ### 1. API Cost Protection System
