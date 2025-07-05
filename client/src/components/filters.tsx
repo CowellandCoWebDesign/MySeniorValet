@@ -67,8 +67,9 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
       
       // Convert minRating
       if (initialFilters.minRating) {
-        console.log('Converting minRating:', initialFilters.minRating, 'to:', initialFilters.minRating.toString());
-        convertedFilters.minRating = initialFilters.minRating.toString();
+        const ratingValue = parseFloat(initialFilters.minRating.toString()).toFixed(1);
+        console.log('Converting minRating:', initialFilters.minRating, 'to:', ratingValue);
+        convertedFilters.minRating = ratingValue;
       }
       
       // Convert availability
@@ -240,7 +241,12 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
           </Label>
           <Select value={filters.minRating} onValueChange={handleRatingChange}>
             <SelectTrigger>
-              <SelectValue placeholder="Any rating" />
+              <SelectValue placeholder="Any rating">
+                {filters.minRating === "any" 
+                  ? "Any rating" 
+                  : ratingOptions.find(opt => opt.value === filters.minRating)?.label || `${filters.minRating}+ Stars`
+                }
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="any">Any rating</SelectItem>
