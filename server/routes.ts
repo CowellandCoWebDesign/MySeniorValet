@@ -4629,6 +4629,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get real-time expansion progress
+  app.get('/api/regional-expansion/progress', async (req, res) => {
+    try {
+      const progress = await regionalExpansionEngine.getExpansionProgress();
+      res.json(progress);
+    } catch (error) {
+      console.error('Error getting expansion progress:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to get expansion progress',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Get expansion results
+  app.get('/api/regional-expansion/results', async (req, res) => {
+    try {
+      const results = await regionalExpansionEngine.getExpansionResults();
+      res.json({
+        success: true,
+        summary: {
+          totalCounties: results.length,
+          totalCommunitiesFound: results.reduce((sum, r) => sum + r.newCommunities, 0),
+          completedCounties: results.filter(r => r.totalFound >= 0).length,
+          averageProcessingTime: results.length > 0 
+            ? results.reduce((sum, r) => sum + (r.processingTime || 0), 0) / results.length 
+            : 0
+        },
+        detailedResults: results
+      });
+    } catch (error) {
+      console.error('Error getting expansion results:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to get expansion results',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Systematic county research endpoint
   app.post('/api/admin/research/county/:county', async (req, res) => {
     try {
