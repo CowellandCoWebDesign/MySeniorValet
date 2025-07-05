@@ -441,7 +441,7 @@ export class DatabaseStorage implements IStorage {
     }
 
     if (params.minRating) {
-      conditions.push(gte(communities.rating, params.minRating.toString()));
+      conditions.push(gte(communities.rating, params.minRating));
     }
 
     if (params.availability && params.availability !== "All Status") {
