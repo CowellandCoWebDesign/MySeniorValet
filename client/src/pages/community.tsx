@@ -563,11 +563,49 @@ export default function CommunityPage() {
                             <p className="text-gray-700 leading-relaxed">{review.text}</p>
                           </div>
                         ))}
+                        
+                        {/* Link to Read All Google Reviews */}
+                        <div className="mt-4 p-4 bg-white border border-blue-200 rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <div className="w-5 h-5 bg-blue-500 rounded flex items-center justify-center">
+                                <span className="text-white text-xs font-bold">G</span>
+                              </div>
+                              <span className="text-sm font-medium text-gray-700">
+                                Read all {community.googleReviewCount || 'reviews'} Google reviews
+                              </span>
+                            </div>
+                            <a
+                              href={`https://www.google.com/search?q=${encodeURIComponent(community.name + ' ' + community.city + ' ' + community.state)}&tbm=lcl`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+                            >
+                              View on Google
+                              <svg className="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                              </svg>
+                            </a>
+                          </div>
+                        </div>
                       </div>
                     ) : (
                       <div className="text-center py-4 text-gray-500">
                         <div className="text-sm">No Google review snippets available yet</div>
                         <div className="text-xs text-gray-400 mt-1">Review highlights will be automatically processed and displayed here</div>
+                        <div className="mt-2">
+                          <a
+                            href={`https://www.google.com/search?q=${encodeURIComponent(community.name + ' ' + community.city + ' ' + community.state)}&tbm=lcl`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+                          >
+                            Find on Google
+                            <svg className="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                          </a>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -605,8 +643,22 @@ export default function CommunityPage() {
                         ))}
                       </div>
                     ) : (
-                      <div className="text-gray-500 text-sm bg-gray-50 p-4 rounded-lg">
-                        No Yelp reviews available yet. Reviews will be displayed when Yelp API integration is completed.
+                      <div className="text-center py-4 text-gray-500">
+                        <div className="text-sm">Yelp API integration not yet configured</div>
+                        <div className="text-xs text-gray-400 mt-1">Yelp reviews will be displayed when API key is added</div>
+                        <div className="mt-2">
+                          <a
+                            href={`https://www.yelp.com/search?find_desc=${encodeURIComponent(community.name)}&find_loc=${encodeURIComponent(community.city + ', ' + community.state)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center px-3 py-1 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 transition-colors"
+                          >
+                            Find on Yelp
+                            <svg className="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                          </a>
+                        </div>
                       </div>
                     )}
                   </div>
