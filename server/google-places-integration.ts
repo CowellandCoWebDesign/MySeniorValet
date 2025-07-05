@@ -1,4 +1,3 @@
-import { trackAPICall, checkCostLimits } from './cost-tracker';
 import axios from 'axios';
 import type { Community } from '@shared/schema';
 
@@ -53,7 +52,7 @@ export class GooglePlacesIntegration {
   private readonly baseUrl = 'https://maps.googleapis.com/maps/api/place';
   private callCount = 0;
   private totalCost = 0;
-  private readonly dailyLimit = 0; // EMERGENCY SHUTDOWN: $300 spent yesterday // EMERGENCY: Reduced from 1000 // Conservative limit
+  private readonly dailyLimit = 1000; // Conservative limit
   private readonly costPerTextSearch = 0.032; // $0.032 per request
   private readonly costPerDetailsRequest = 0.017; // $0.017 per request
   private readonly costPerPhotoRequest = 0.007; // $0.007 per request
@@ -63,13 +62,6 @@ export class GooglePlacesIntegration {
     if (!this.apiKey) {
       console.warn('GOOGLE_API_KEY or GOOGLE_PLACES_API_KEY not found in environment variables');
     }
-    
-    // Check cost limits before any operations
-    const costCheck = checkCostLimits();
-    if (!costCheck.canProceed) {
-      throw new Error(`Cost limit exceeded: ${costCheck.reason}`);
-    }
-  }
   }
 
   async enrichCommunityWithGooglePlaces(community: Community): Promise<GooglePlacesEnrichmentResult | null> {
@@ -84,7 +76,7 @@ export class GooglePlacesIntegration {
       return null;
     }
 
-    if (this.totalCost >= 0) // EMERGENCY SHUTDOWN: No more spending allowed { // EMERGENCY: Reduced from $85
+    if (this.totalCost >= 85) { // $85 monthly budget as recommended by OpenAI
       console.warn('Google Places API monthly budget reached');
       return null;
     }
@@ -124,7 +116,7 @@ export class GooglePlacesIntegration {
       const photos: string[] = [];
       if (detailsResult.photos) {
         // Get up to 6 photos instead of limiting to 3
-        const photoUrls = await this.getPlacePhotos(detailsResult.photos.slice(0, 3)); // EMERGENCY: Reduced from 6
+        const photoUrls = await this.getPlacePhotos(detailsResult.photos.slice(0, 6));
         // Filter out any photos that might already exist
         const newUniquePhotos = photoUrls.filter(url => !existingPhotos.includes(url));
         photos.push(...newUniquePhotos);
@@ -290,7 +282,6 @@ export class GooglePlacesIntegration {
 
       this.callCount++;
       this.totalCost += this.costPerDetailsRequest;
-        trackAPICall('placeDetails', this.costPerDetailsRequest);
 
       return response.data?.result || null;
 
@@ -314,7 +305,6 @@ export class GooglePlacesIntegration {
         photoUrls.push(photoUrl);
         
         this.totalCost += this.costPerPhotoRequest;
-        trackAPICall('photo', this.costPerPhotoRequest);
 
         // Rate limiting
         await this.delay(50);
