@@ -350,11 +350,31 @@ export class RegionalExpansionEngine {
 
   /**
    * Execute comprehensive regional expansion for all target counties
+   * 🔥 FIRE-PROOFED: Includes cost protection and session tracking
    */
   async executeRegionalExpansion(): Promise<ExpansionResults[]> {
-    const results: ExpansionResults[] = [];
+    const { expansionFireProofing } = await import('./expansion-fire-proofing');
     
-    console.log("🌍 Starting Regional Expansion for 7 Target Counties...");
+    // CRITICAL: Check if expansion is allowed and get cost estimate
+    const expansionCheck = await expansionFireProofing.checkExpansionAllowed();
+    if (!expansionCheck.allowed) {
+      throw new Error(`Expansion blocked: ${expansionCheck.reason}`);
+    }
+
+    console.log("🔥 FIRE-PROOFED Regional Expansion Starting...");
+    console.log(`   Estimated Cost: $${expansionCheck.estimatedCost.toFixed(2)}`);
+    console.log(`   Estimated API Calls: ${expansionCheck.totalApiCalls}`);
+    console.log(`   Counties to Process: ${this.targetCounties.length}`);
+
+    // Start tracked session
+    const sessionId = await expansionFireProofing.startExpansionSession(
+      this.targetCounties.length,
+      expansionCheck.estimatedCost
+    );
+
+    const results: ExpansionResults[] = [];
+    let actualCost = 0;
+    let totalApiCalls = 0;
     
     // Initialize progress tracking
     this.expansionProgress = {
@@ -375,47 +395,83 @@ export class RegionalExpansionEngine {
     // Process counties in priority order
     const sortedCounties = this.targetCounties.sort((a, b) => b.priority - a.priority);
     
-    for (const county of sortedCounties) {
-      console.log(`🔍 Processing ${county.county} County (${county.region})...`);
-      
-      this.expansionProgress.currentCounty = county.county;
-      this.expansionProgress.currentRegion = county.region;
-      
-      const startTime = Date.now();
-      
-      try {
-        const result = await this.expandToCounty(county);
-        const processingTime = Date.now() - startTime;
+    try {
+      for (const county of sortedCounties) {
+        // Check if session is still valid before each county
+        if (!expansionFireProofing.isSessionValid(sessionId)) {
+          throw new Error('Expansion session invalidated');
+        }
+
+        console.log(`🔍 Processing ${county.county} County (${county.region})...`);
         
-        const resultWithTiming = { ...result, processingTime };
-        results.push(resultWithTiming);
-        this.expansionResults.push(resultWithTiming);
+        this.expansionProgress.currentCounty = county.county;
+        this.expansionProgress.currentRegion = county.region;
         
-        this.expansionProgress.countiesProcessed++;
-        this.expansionProgress.communitiesFound += result.newCommunities;
+        const startTime = Date.now();
         
-        // Rate limiting between counties
-        await this.delay(2000);
-        
-      } catch (error: any) {
-        console.error(`❌ Error processing ${county.county}:`, error);
-        const errorResult = {
-          county: county.county,
-          region: county.region,
-          totalFound: 0,
-          newCommunities: 0,
-          duplicatesFiltered: 0,
-          enrichedCommunities: 0,
-          verificationLevel: "Low" as const,
-          discoveryMethods: [],
-          errors: [error?.message || 'Unknown error'],
-          processingTime: Date.now() - startTime
-        };
-        results.push(errorResult);
-        this.expansionResults.push(errorResult);
-        
-        this.expansionProgress.countiesProcessed++;
+        try {
+          const result = await this.expandToCounty(county);
+          const processingTime = Date.now() - startTime;
+          
+          // Estimate cost for this county (rough calculation)
+          const countyCost = county.primaryCities.length * this.discoveryQueries.length * 0.032;
+          actualCost += countyCost;
+          totalApiCalls += county.primaryCities.length * this.discoveryQueries.length;
+          
+          const resultWithTiming = { ...result, processingTime };
+          results.push(resultWithTiming);
+          this.expansionResults.push(resultWithTiming);
+          
+          this.expansionProgress.countiesProcessed++;
+          this.expansionProgress.communitiesFound += result.newCommunities;
+          
+          // Update session progress
+          await expansionFireProofing.updateSessionProgress(
+            sessionId,
+            this.expansionProgress.countiesProcessed,
+            actualCost,
+            totalApiCalls
+          );
+          
+          // Rate limiting between counties
+          await this.delay(2000);
+          
+        } catch (error: any) {
+          console.error(`❌ Error processing ${county.county}:`, error);
+          const errorResult = {
+            county: county.county,
+            region: county.region,
+            totalFound: 0,
+            newCommunities: 0,
+            duplicatesFiltered: 0,
+            enrichedCommunities: 0,
+            verificationLevel: "Low" as const,
+            discoveryMethods: [],
+            errors: [error?.message || 'Unknown error'],
+            processingTime: Date.now() - startTime
+          };
+          results.push(errorResult);
+          this.expansionResults.push(errorResult);
+          
+          this.expansionProgress.countiesProcessed++;
+          
+          // Update session even on error
+          await expansionFireProofing.updateSessionProgress(
+            sessionId,
+            this.expansionProgress.countiesProcessed,
+            actualCost,
+            totalApiCalls
+          );
+        }
       }
+
+      // Complete session successfully
+      await expansionFireProofing.completeExpansionSession(sessionId);
+      
+    } catch (error: any) {
+      // Emergency stop the session
+      await expansionFireProofing.emergencyStopSession(sessionId, error.message);
+      throw error;
     }
     
     // Mark expansion as complete
