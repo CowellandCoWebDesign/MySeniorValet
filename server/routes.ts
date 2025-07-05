@@ -5387,6 +5387,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/admin/enrichment/investigation', async (req, res) => {
+    try {
+      const { enrichmentCostAnalyzer } = await import('./enrichment-cost-analyzer');
+      
+      const photoAnalysis = enrichmentCostAnalyzer.analyzePhotoEnrichment();
+      const reviewAnalysis = enrichmentCostAnalyzer.analyzeReviewEnrichment();
+      const dangerousScenarios = enrichmentCostAnalyzer.analyzeDangerousScenarios();
+      const vulnerabilities = enrichmentCostAnalyzer.identifyVulnerabilities();
+      const fireProofingRecommendations = enrichmentCostAnalyzer.generateFireProofingRecommendations();
+      const potential300Scenarios = enrichmentCostAnalyzer.calculatePotential300DollarScenarios();
+      
+      res.json({
+        photoAnalysis,
+        reviewAnalysis,
+        dangerousScenarios,
+        vulnerabilities,
+        fireProofingRecommendations,
+        potential300Scenarios,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Failed to investigate enrichment costs:', error);
+      res.status(500).json({ message: 'Failed to investigate enrichment costs' });
+    }
+  });
+
+  // Enrichment fire-proofing control endpoints
+  app.get('/api/admin/enrichment/sessions', async (req, res) => {
+    try {
+      const { enrichmentFireProofing } = await import('./enrichment-fire-proofing');
+      const sessions = enrichmentFireProofing.getAllSessions();
+      res.json({
+        sessions,
+        activeSessions: sessions.filter(s => s.status === 'running').length,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Failed to get enrichment sessions:', error);
+      res.status(500).json({ message: 'Failed to get enrichment sessions' });
+    }
+  });
+
+  app.post('/api/admin/enrichment/emergency-stop', async (req, res) => {
+    try {
+      const { enrichmentFireProofing } = await import('./enrichment-fire-proofing');
+      const { reason = 'Manual emergency stop' } = req.body;
+      
+      await enrichmentFireProofing.emergencyStop(reason);
+      
+      res.json({
+        success: true,
+        message: 'Emergency stop executed',
+        reason,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Failed to execute emergency stop:', error);
+      res.status(500).json({ message: 'Failed to execute emergency stop' });
+    }
+  });
+
+  app.get('/api/admin/enrichment/session/:sessionId', async (req, res) => {
+    try {
+      const { enrichmentFireProofing } = await import('./enrichment-fire-proofing');
+      const { sessionId } = req.params;
+      
+      const session = enrichmentFireProofing.getSessionStatus(sessionId);
+      if (!session) {
+        return res.status(404).json({ message: 'Session not found' });
+      }
+      
+      res.json({
+        session,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Failed to get session status:', error);
+      res.status(500).json({ message: 'Failed to get session status' });
+    }
+  });
+
   // ============================================================================
   // DATA PROTECTION API ROUTES - Multi-layered safeguards against synthetic data
   // ============================================================================
