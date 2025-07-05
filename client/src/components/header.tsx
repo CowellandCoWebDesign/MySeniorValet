@@ -14,17 +14,24 @@ export function Header() {
   ];
 
   return (
-    <header className="bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200/60 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <header className="bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200/60 sticky top-0 z-50 relative overflow-hidden">
+      {/* Subtle animated background */}
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-50/30 via-purple-50/30 to-cyan-50/30 opacity-60"></div>
+      <div className="absolute top-0 left-1/4 w-32 h-32 bg-gradient-to-r from-blue-400/10 to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute top-0 right-1/4 w-24 h-24 bg-gradient-to-r from-cyan-400/10 to-teal-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-8">
             <Link href="/" className="flex items-center space-x-3 group" aria-label="TrueView Home - Senior Living Community Search">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow duration-200" aria-hidden="true">
-                <Home className="text-white h-5 w-5" />
+              <div className="relative w-10 h-10 bg-gradient-to-br from-blue-600 via-purple-600 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 overflow-hidden" aria-hidden="true">
+                <Home className="text-white h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full opacity-0 group-hover:opacity-100 animate-pulse transition-opacity duration-300"></div>
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-display font-bold text-gray-900 group-hover:text-primary transition-colors">TrueView</span>
-                <span className="text-xs text-gray-500 font-medium -mt-1 group-hover:text-gray-600 transition-colors">Senior Living Search</span>
+                <span className="text-xl font-display font-bold text-gray-900 group-hover:text-primary transition-colors duration-300 group-hover:scale-105 transform">TrueView</span>
+                <span className="text-xs text-gray-500 font-medium -mt-1 group-hover:text-gray-600 transition-colors duration-300">Senior Living Search</span>
               </div>
             </Link>
             <nav className="hidden lg:flex space-x-1">
@@ -34,14 +41,15 @@ export function Header() {
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-lg font-medium transition-all duration-200 ${
+                    className={`relative flex items-center space-x-2 px-3 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 group ${
                       location === item.href
                         ? "text-primary bg-primary/10 shadow-sm"
-                        : "text-gray-700 hover:text-primary hover:bg-gray-50"
+                        : "text-gray-700 hover:text-primary hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50"
                     }`}
                   >
-                    <Icon className="h-4 w-4" />
+                    <Icon className="h-4 w-4 group-hover:scale-110 transition-transform duration-300" />
                     <span>{item.name}</span>
+                    <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
                   </Link>
                 );
               })}

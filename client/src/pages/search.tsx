@@ -132,8 +132,16 @@ export default function Search() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/3 left-1/5 w-72 h-72 bg-gradient-to-r from-purple-400/10 to-pink-400/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/3 right-1/5 w-64 h-64 bg-gradient-to-r from-cyan-400/10 to-blue-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-2/3 left-2/3 w-56 h-56 bg-gradient-to-r from-emerald-400/10 to-teal-400/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+      </div>
+      
+      <div className="relative z-10">
+        <Header />
       
       {/* Search Header */}
       <section className="bg-white shadow-sm py-8">
@@ -389,6 +397,7 @@ export default function Search() {
       </section>
 
       <Footer />
+      </div>
     </div>
   );
 }
