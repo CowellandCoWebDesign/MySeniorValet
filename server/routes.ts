@@ -22,7 +22,7 @@ import { dataQualityEnhancement } from './data-quality-enhancement';
 import { enhancedSearchService } from "./enhanced-search-service";
 import { zipCodeService } from "./zip-code-mapping";
 import { googlePlacesReviews } from './google-places-reviews';
-import { unsplashService } from './unsplash-integration';
+// REMOVED: Unsplash integration - violates "no synthetic data" policy
 import { dataProtectionService } from './data-protection';
 import { z } from "zod";
 
@@ -5265,165 +5265,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ============================================================================
-  // UNSPLASH PREMIUM IMAGERY API ROUTES
+  // AUTHENTIC IMAGERY API ROUTES - NO SYNTHETIC DATA
   // ============================================================================
+  
+  // NOTE: All Unsplash synthetic data endpoints removed to comply with 
+  // "no synthetic data" policy. Only authentic Google Places photos used.
 
-  // Get hero images for homepage
-  app.get('/api/images/hero', async (req, res) => {
-    try {
-      const cachedImages = await apiCache.get('hero-images');
-      if (cachedImages) {
-        return res.json(cachedImages);
-      }
-
-      const heroImages = await unsplashService.getHeroImages();
-      
-      // Cache for 24 hours
-      await apiCache.set('hero-images', heroImages, 24 * 60 * 60);
-      
-      res.json(heroImages);
-    } catch (error) {
-      console.error('Failed to fetch hero images:', error);
-      res.status(500).json({ 
-        message: 'Failed to load premium images',
-        fallback: '/hero-senior-community.svg'
-      });
-    }
-  });
-
-  // Get random premium image for specific use case
-  app.get('/api/images/random', async (req, res) => {
-    try {
-      const { query = 'senior living', orientation = 'landscape' } = req.query;
-      
-      const cacheKey = `random-image-${query}-${orientation}`;
-      const cachedImage = await apiCache.get(cacheKey);
-      if (cachedImage) {
-        return res.json(cachedImage);
-      }
-
-      const randomImage = await unsplashService.getRandomImage(
-        query as string,
-        orientation as 'landscape' | 'portrait' | 'squarish'
-      );
-      
-      // Cache for 1 hour
-      await apiCache.set(cacheKey, randomImage, 60 * 60);
-      
-      res.json(randomImage);
-    } catch (error) {
-      console.error('Failed to fetch random image:', error);
-      res.status(500).json({ 
-        message: 'Failed to load premium image',
-        fallback: '/hero-senior-community.svg'
-      });
-    }
-  });
-
-  // Get community-specific images
+  // Get community-specific images (AUTHENTIC ONLY - NO SYNTHETIC DATA)
   app.get('/api/images/community/:communityId', async (req, res) => {
     try {
       const { communityId } = req.params;
       
-      // Get community details
+      // Get community details with authentic photos only
       const community = await storage.getCommunity(parseInt(communityId));
       if (!community) {
         return res.status(404).json({ message: 'Community not found' });
       }
 
-      const cacheKey = `community-images-${communityId}`;
-      const cachedImages = await apiCache.get(cacheKey);
-      if (cachedImages) {
-        return res.json(cachedImages);
-      }
-
-      const primaryCareType = community.careTypes?.[0] || 'assisted living';
-      const communityImages = await unsplashService.getCommunityImages(
-        community.name,
-        primaryCareType
-      );
+      // Convert photo URLs to the format expected by AuthenticImage component
+      const authenticPhotos = (community.photos || []).map((photoUrl, index) => ({
+        photoReference: photoUrl, // The Google Places photo URL
+        attributions: [], // Google Places attributions if available
+        width: 1024, // Default width
+        height: 768  // Default height
+      }));
       
-      // Cache for 6 hours
-      await apiCache.set(cacheKey, communityImages, 6 * 60 * 60);
-      
-      res.json(communityImages);
+      res.json({
+        communityId,
+        communityName: community.name,
+        photos: authenticPhotos,
+        photoCount: authenticPhotos.length,
+        source: 'google_places_authentic'
+      });
     } catch (error) {
       console.error('Failed to fetch community images:', error);
       res.status(500).json({ 
         message: 'Failed to load community images',
-        fallback: []
+        photos: []
       });
     }
   });
 
-  // Get optimized image by ID
-  app.get('/api/images/optimized/:imageId', async (req, res) => {
-    try {
-      const { imageId } = req.params;
-      const { width = '1200', height = '600' } = req.query;
-      
-      const cacheKey = `optimized-${imageId}-${width}x${height}`;
-      const cachedUrl = await apiCache.get(cacheKey);
-      if (cachedUrl) {
-        return res.json({ url: cachedUrl });
-      }
-
-      const optimizedUrl = await unsplashService.getOptimizedImage(
-        imageId,
-        parseInt(width as string),
-        parseInt(height as string)
-      );
-      
-      // Trigger download attribution
-      await unsplashService.triggerDownload(imageId);
-      
-      // Cache for 24 hours
-      await apiCache.set(cacheKey, optimizedUrl, 24 * 60 * 60);
-      
-      res.json({ url: optimizedUrl });
-    } catch (error) {
-      console.error('Failed to get optimized image:', error);
-      res.status(500).json({ 
-        message: 'Failed to optimize image',
-        fallback: '/hero-senior-community.svg'
-      });
-    }
-  });
-
-  // Search for specific images
-  app.get('/api/images/search', async (req, res) => {
-    try {
-      const { 
-        q: query = 'senior living community', 
-        page = '1', 
-        per_page = '20' 
-      } = req.query;
-      
-      const cacheKey = `search-images-${query}-${page}-${per_page}`;
-      const cachedResults = await apiCache.get(cacheKey);
-      if (cachedResults) {
-        return res.json(cachedResults);
-      }
-
-      const searchResults = await unsplashService.searchSeniorLivingImages(
-        query as string,
-        parseInt(page as string),
-        parseInt(per_page as string)
-      );
-      
-      // Cache for 2 hours
-      await apiCache.set(cacheKey, searchResults, 2 * 60 * 60);
-      
-      res.json(searchResults);
-    } catch (error) {
-      console.error('Failed to search images:', error);
-      res.status(500).json({ 
-        message: 'Failed to search premium images',
-        results: [],
-        total: 0
-      });
-    }
-  });
+  // REMOVED: All Unsplash synthetic data endpoints violate "no synthetic data" policy
+  // Community photos now come only from authentic Google Places photos in database
 
   // ============================================================================
   // DATA PROTECTION API ROUTES - Multi-layered safeguards against synthetic data
