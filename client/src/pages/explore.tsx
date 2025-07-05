@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { MapPin, Filter, Search, Star, Clock, DollarSign, Phone, Globe, Heart, MapIcon } from 'lucide-react';
 import { Link } from 'wouter';
@@ -88,28 +88,45 @@ export default function Explore() {
   const [mapCenter, setMapCenter] = useState<[number, number]>([37.7749, -122.4194]); // Default to SF
   const [mapZoom, setMapZoom] = useState(10);
 
-  const { data: communities, isLoading } = useQuery<Community[]>({
-    queryKey: ['/api/communities/search', filters],
+  const { data: allCommunities, isLoading } = useQuery<Community[]>({
+    queryKey: ['/api/communities'],
     queryFn: async () => {
-      const params = new URLSearchParams();
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== '' && value !== 'all') {
-          params.set(key, value.toString());
-        }
-      });
-      
-      const response = await fetch(`/api/communities/search?${params.toString()}`);
+      const response = await fetch('/api/communities');
       if (!response.ok) throw new Error('Failed to fetch communities');
       return response.json();
     },
   });
 
+  // Filter communities on the frontend
+  const communities = useMemo(() => {
+    if (!allCommunities) return [];
+    
+    return allCommunities.filter(community => {
+      // City filter
+      if (filters.city && filters.city !== 'all' && community.city !== filters.city) return false;
+      
+      // Care type filter
+      if (filters.careType && filters.careType !== 'all' && !community.careTypes.includes(filters.careType)) return false;
+      
+      // Rating filter
+      if (filters.minRating && filters.minRating !== 'all') {
+        const rating = community.googleRating || 0;
+        if (rating < parseInt(filters.minRating)) return false;
+      }
+      
+      // Photos filter
+      if (filters.hasPhotos && (!community.photosCount || community.photosCount === 0)) return false;
+      
+      return true;
+    });
+  }, [allCommunities, filters]);
+
   // Filter communities that have location data for the map
   const mappableCommunities = communities?.filter(c => c.latitude && c.longitude) || [];
 
   // Get unique cities and care types for filters
-  const cities = [...new Set(communities?.map(c => c.city) || [])].sort();
-  const careTypes = [...new Set(communities?.flatMap(c => c.careTypes) || [])].sort();
+  const cities = [...new Set(allCommunities?.map(c => c.city) || [])].sort();
+  const careTypes = [...new Set(allCommunities?.flatMap(c => c.careTypes) || [])].sort();
 
   // Center map on filtered results
   useEffect(() => {
@@ -370,7 +387,12 @@ export default function Explore() {
                             {community.priceRange && (
                               <div className="flex items-center text-green-600">
                                 <DollarSign className="h-4 w-4 mr-1" />
-                                {community.priceRange}
+                                {typeof community.priceRange === 'string' 
+                                  ? community.priceRange 
+                                  : typeof community.priceRange === 'object' && community.priceRange.min && community.priceRange.max
+                                    ? `$${community.priceRange.min} - $${community.priceRange.max}`
+                                    : 'Contact for pricing'
+                                }
                               </div>
                             )}
                             {community.availabilityStatus && (
