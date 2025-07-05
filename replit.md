@@ -173,7 +173,7 @@ The application is configured for multiple deployment environments:
 **Security**: Comprehensive audit and hardening implementation
 **Admin Dashboard**: Creative "Mission Control" design with animated backgrounds, sparkle effects, space-age theme
 **Unit Types & Floor Plans**: Comprehensive implementation with verification placeholders and data integrity protection
-**Marketing Priority Order**: Availability and floor plans first, pricing second, amenities third - optimized for user decision-making
+**Marketing Priority Order**: 1) Availability and floor plans, 2) Pricing, 3) Special offers, 4) Care types, 5) Reviews - optimized for user decision-making flow
 
 ## ⚠️ CRITICAL API COST PROTECTION IMPLEMENTED (January 5, 2025)
 **Issue Identified**: Previous runaway API costs of $300+ from uncontrolled photo enrichment
