@@ -41,7 +41,7 @@ export default function Home() {
             <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-display font-bold text-gray-900 mb-6 leading-tight">
               Find Senior Living with{" "}
               <span className="text-primary bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Transparent Pricing</span> &{" "}
-              <span className="text-green-600 bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">Live Availability</span>
+              <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">Live Availability</span>
             </h1>
             <p className="text-lg lg:text-xl text-gray-700 max-w-3xl mx-auto mb-8 leading-relaxed">
               Get real pricing, read authentic reviews, check live availability, and explore amenities to make confident decisions for your family.
