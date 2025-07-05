@@ -32,26 +32,179 @@ export interface ExpansionResults {
 
 export class RegionalExpansionEngine {
   private readonly targetCounties: RegionalExpansionTarget[] = [
-    // Adjacent to Shasta County - Next logical expansion
+    // COMPLETED COUNTIES (148 communities total)
+    // Bay Area: Alameda, Contra Costa, Santa Clara, San Mateo, Marin, San Francisco
+    // Sacramento Region: Sacramento, Placer, Yolo, Solano, Sonoma
+    // North State: Shasta (30 communities)
+    
+    // REMAINING NORTHERN CALIFORNIA COUNTIES FOR COMPLETE COVERAGE
+    
+    // Central Valley North - Major Population Centers (UNCOVERED)
     {
-      county: "Tehama",
-      region: "Northern California",
-      primaryCities: ["Red Bluff", "Corning", "Tehama", "Los Molinos"],
-      state: "CA", 
-      searchRadius: 25,
-      centerCoordinates: { lat: 40.1785, lng: -122.2357 },
+      county: "Butte",
+      region: "Central Valley North", 
+      primaryCities: ["Chico", "Oroville", "Paradise", "Gridley", "Biggs"],
+      state: "CA",
+      searchRadius: 30,
+      centerCoordinates: { lat: 39.7285, lng: -121.8375 }, // Chico center
       priority: 10,
+      marketSize: "Suburban"
+    },
+    {
+      county: "Sutter",
+      region: "Central Valley North",
+      primaryCities: ["Yuba City", "Live Oak", "Sutter"],
+      state: "CA",
+      searchRadius: 20,
+      centerCoordinates: { lat: 39.1404, lng: -121.6169 }, // Yuba City
+      priority: 9,
+      marketSize: "Suburban"
+    },
+    {
+      county: "Yuba",
+      region: "Central Valley North",
+      primaryCities: ["Marysville", "Wheatland", "Olivehurst"],
+      state: "CA",
+      searchRadius: 20,
+      centerCoordinates: { lat: 39.1457, lng: -121.5914 }, // Marysville
+      priority: 8,
       marketSize: "Rural"
     },
     {
-      county: "Butte",
-      region: "Northern California", 
-      primaryCities: ["Chico", "Oroville", "Paradise", "Gridley"],
+      county: "Glenn",
+      region: "Central Valley North",
+      primaryCities: ["Willows", "Orland", "Hamilton City"],
+      state: "CA",
+      searchRadius: 25,
+      centerCoordinates: { lat: 39.5240, lng: -122.1942 }, // Willows
+      priority: 7,
+      marketSize: "Rural"
+    },
+    {
+      county: "Colusa",
+      region: "Central Valley North",
+      primaryCities: ["Colusa", "Williams", "Arbuckle"],
+      state: "CA",
+      searchRadius: 20,
+      centerCoordinates: { lat: 39.2143, lng: -122.0094 }, // Colusa
+      priority: 6,
+      marketSize: "Rural"
+    },
+    {
+      county: "Tehama",
+      region: "North State",
+      primaryCities: ["Red Bluff", "Corning", "Tehama", "Los Molinos"],
+      state: "CA",
+      searchRadius: 25,
+      centerCoordinates: { lat: 40.1785, lng: -122.2357 }, // Red Bluff
+      priority: 9,
+      marketSize: "Rural"
+    },
+    
+    // North Coast - UNCOVERED REGION
+    {
+      county: "Humboldt",
+      region: "North Coast",
+      primaryCities: ["Eureka", "Arcata", "Fortuna", "McKinleyville", "Ferndale"],
+      state: "CA",
+      searchRadius: 35,
+      centerCoordinates: { lat: 40.8021, lng: -124.1637 }, // Eureka
+      priority: 10,
+      marketSize: "Suburban"
+    },
+    {
+      county: "Del Norte",
+      region: "North Coast",
+      primaryCities: ["Crescent City", "Klamath", "Gasquet"],
       state: "CA",
       searchRadius: 30,
-      centerCoordinates: { lat: 39.6285, lng: -121.6077 },
+      centerCoordinates: { lat: 41.7557, lng: -124.2026 }, // Crescent City
+      priority: 8,
+      marketSize: "Rural"
+    },
+    {
+      county: "Mendocino",
+      region: "North Coast",
+      primaryCities: ["Ukiah", "Fort Bragg", "Willits", "Point Arena"],
+      state: "CA",
+      searchRadius: 35,
+      centerCoordinates: { lat: 39.1502, lng: -123.2078 }, // Ukiah
       priority: 9,
-      marketSize: "Suburban"
+      marketSize: "Rural"
+    },
+    {
+      county: "Lake",
+      region: "North Coast",
+      primaryCities: ["Lakeport", "Clearlake", "Kelseyville"],
+      state: "CA",
+      searchRadius: 25,
+      centerCoordinates: { lat: 39.0436, lng: -122.9161 }, // Lakeport
+      priority: 7,
+      marketSize: "Rural"
+    },
+    
+    // Far North - UNCOVERED REGION
+    {
+      county: "Siskiyou",
+      region: "Far North",
+      primaryCities: ["Yreka", "Mount Shasta", "Weed", "Tulelake"],
+      state: "CA",
+      searchRadius: 40,
+      centerCoordinates: { lat: 41.7357, lng: -122.6344 }, // Yreka
+      priority: 8,
+      marketSize: "Rural"
+    },
+    {
+      county: "Modoc",
+      region: "Far North",
+      primaryCities: ["Alturas", "Cedarville", "Tulelake"],
+      state: "CA",
+      searchRadius: 35,
+      centerCoordinates: { lat: 41.4871, lng: -120.5424 }, // Alturas
+      priority: 6,
+      marketSize: "Rural"
+    },
+    {
+      county: "Lassen",
+      region: "Far North",
+      primaryCities: ["Susanville", "Westwood", "Herlong"],
+      state: "CA",
+      searchRadius: 30,
+      centerCoordinates: { lat: 40.4162, lng: -120.6510 }, // Susanville
+      priority: 7,
+      marketSize: "Rural"
+    },
+    
+    // Sierra Nevada - UNCOVERED REGION
+    {
+      county: "Plumas",
+      region: "Sierra Nevada",
+      primaryCities: ["Quincy", "Portola", "Chester"],
+      state: "CA",
+      searchRadius: 30,
+      centerCoordinates: { lat: 39.9368, lng: -120.9468 }, // Quincy
+      priority: 6,
+      marketSize: "Rural"
+    },
+    {
+      county: "Sierra",
+      region: "Sierra Nevada",
+      primaryCities: ["Downieville", "Loyalton", "Sierraville"],
+      state: "CA",
+      searchRadius: 25,
+      centerCoordinates: { lat: 39.5590, lng: -120.8191 }, // Downieville
+      priority: 5,
+      marketSize: "Rural"
+    },
+    {
+      county: "Nevada",
+      region: "Sierra Nevada",
+      primaryCities: ["Nevada City", "Grass Valley", "Truckee"],
+      state: "CA",
+      searchRadius: 25,
+      centerCoordinates: { lat: 39.2609, lng: -121.0160 }, // Nevada City
+      priority: 8,
+      marketSize: "Rural"
     },
     {
       county: "Alameda",
