@@ -429,8 +429,16 @@ export class DatabaseStorage implements IStorage {
     console.log('Search parameters received:', params);
 
     if (params.careType && params.careType !== "All Types") {
-      // Skip careType filtering for now to avoid array search issues
-      // TODO: Fix PostgreSQL array search
+      // Handle single care type or comma-separated care types
+      const careTypes = params.careType.split(',').map(t => t.trim());
+      const careTypeConditions = careTypes.map(careType => 
+        sql`${communities.careTypes} @> ARRAY[${careType}]::text[]`
+      );
+      if (careTypeConditions.length === 1) {
+        conditions.push(careTypeConditions[0]);
+      } else {
+        conditions.push(sql`(${careTypeConditions.join(' OR ')})`);
+      }
     }
 
     if (params.location) {
@@ -441,11 +449,33 @@ export class DatabaseStorage implements IStorage {
     }
 
     if (params.minRating) {
-      conditions.push(gte(communities.rating, params.minRating));
+      conditions.push(sql`${communities.rating} >= ${params.minRating}`);
     }
 
     if (params.availability && params.availability !== "All Status") {
-      conditions.push(eq(communities.availabilityStatus, params.availability));
+      conditions.push(sql`${communities.availabilityStatus} = ${params.availability}`);
+    }
+
+    // Budget filtering
+    if (params.budget) {
+      if (params.budget.includes(' - ')) {
+        // Range: "$3000 - $5000"
+        const [minStr, maxStr] = params.budget.replace(/\$/g, '').split(' - ');
+        const minBudget = parseInt(minStr);
+        const maxBudget = parseInt(maxStr);
+        conditions.push(sql`(
+          (${communities.priceRange}->>'min')::numeric <= ${maxBudget} AND 
+          (${communities.priceRange}->>'max')::numeric >= ${minBudget}
+        )`);
+      } else if (params.budget.includes('+')) {
+        // Minimum: "$3000+"
+        const minBudget = parseInt(params.budget.replace(/\$|\+/g, ''));
+        conditions.push(sql`(${communities.priceRange}->>'min')::numeric <= ${minBudget}`);
+      } else if (params.budget.includes('Under')) {
+        // Maximum: "Under $5000"
+        const maxBudget = parseInt(params.budget.replace(/Under \$/g, ''));
+        conditions.push(sql`(${communities.priceRange}->>'max')::numeric <= ${maxBudget}`);
+      }
     }
 
     // Skip amenities filtering for now to avoid array search issues
