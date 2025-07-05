@@ -41,7 +41,7 @@ interface Community {
   googleReviewCount: number | null;
   yelpRating: number | null;
   yelpReviewCount: number | null;
-  photosCount: number | null;
+  photos: string[] | null;
   verified: boolean;
   featured: boolean;
   priceRange: string | null;
@@ -142,8 +142,8 @@ export default function Explore() {
         if (rating < parseInt(filters.minRating)) return false;
       }
       
-      // Photos filter
-      if (filters.hasPhotos && (!community.photosCount || community.photosCount === 0)) return false;
+      // Photos filter - check if photos array exists and has items
+      if (filters.hasPhotos && (!community.photos || !Array.isArray(community.photos) || community.photos.length === 0)) return false;
       
       // Verified only filter
       if (filters.verifiedOnly && !community.verified) return false;
