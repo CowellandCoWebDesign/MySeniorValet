@@ -28,6 +28,9 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
     amenities: false,
   });
 
+  const [pendingFilters, setPendingFilters] = useState(filters);
+  const [hasChanges, setHasChanges] = useState(false);
+
   // Update filters when initial filters change
   useEffect(() => {
     if (initialFilters) {
@@ -126,7 +129,13 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
   const updateFilters = (updates: Partial<typeof filters>) => {
     const newFilters = { ...filters, ...updates };
     setFilters(newFilters);
-    onFiltersChange?.(newFilters);
+    // Don't automatically trigger search - wait for Apply Filters button
+    setHasChanges(true);
+  };
+
+  const applyFilters = () => {
+    onFiltersChange?.(filters);
+    setHasChanges(false);
   };
 
   const handleDistanceChange = (value: string) => {
@@ -156,30 +165,11 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
     updateFilters({ availability: value });
   };
 
-  // Debounce price range changes to prevent rapid API calls
-  const debouncedPriceUpdate = useCallback(
-    debounce((newPriceRange: { min: string; max: string }) => {
-      updateFilters({ priceRange: newPriceRange });
-    }, 500),
-    [updateFilters]
-  );
-
   const handlePriceRangeChange = (field: 'min' | 'max', value: string) => {
-    const newPriceRange = { ...filters.priceRange, [field]: value };
-    // Update local state immediately for responsive UI
-    setFilters(prev => ({ ...prev, priceRange: newPriceRange }));
-    // Debounce the filter update to prevent rapid API calls
-    debouncedPriceUpdate(newPriceRange);
+    updateFilters({ 
+      priceRange: { ...filters.priceRange, [field]: value }
+    });
   };
-
-  // Simple debounce utility
-  function debounce<T extends (...args: any[]) => void>(func: T, wait: number): T {
-    let timeout: NodeJS.Timeout;
-    return ((...args: any[]) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func(...args), wait);
-    }) as T;
-  }
 
   const handleClearFilters = () => {
     const clearedFilters = {
@@ -192,6 +182,7 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
       verificationStatus: "all",
     };
     setFilters(clearedFilters);
+    setHasChanges(false);
     onFiltersChange?.(clearedFilters);
   };
 
@@ -386,9 +377,17 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
         )}
       </Card>
 
-      {/* Clear Filters Button */}
-      {hasActiveFilters() && (
-        <div className="flex justify-center pt-4">
+      {/* Filter Action Buttons */}
+      <div className="flex justify-center gap-3 pt-4">
+        <Button 
+          onClick={applyFilters}
+          disabled={!hasChanges}
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+        >
+          <Filter className="h-4 w-4" />
+          Apply Filters
+        </Button>
+        {hasActiveFilters() && (
           <Button 
             variant="outline" 
             onClick={handleClearFilters}
@@ -397,8 +396,8 @@ export function Filters({ onFiltersChange, initialFilters }: FiltersProps) {
             <X className="h-4 w-4" />
             Clear All Filters
           </Button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

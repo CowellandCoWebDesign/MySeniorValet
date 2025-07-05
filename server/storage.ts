@@ -431,13 +431,14 @@ export class DatabaseStorage implements IStorage {
     if (params.careType && params.careType !== "All Types") {
       // Handle single care type or comma-separated care types
       const careTypes = params.careType.split(',').map(t => t.trim());
-      const careTypeConditions = careTypes.map(careType => 
-        sql`${communities.careTypes} @> ARRAY[${careType}]::text[]`
-      );
-      if (careTypeConditions.length === 1) {
-        conditions.push(careTypeConditions[0]);
+      if (careTypes.length === 1) {
+        conditions.push(sql`${communities.careTypes} @> ARRAY[${careTypes[0]}]::text[]`);
       } else {
-        conditions.push(sql`(${careTypeConditions.join(' OR ')})`);
+        // For multiple care types, use OR condition
+        const careTypeConditions = careTypes.map(careType => 
+          sql`${communities.careTypes} @> ARRAY[${careType}]::text[]`
+        );
+        conditions.push(or(...careTypeConditions));
       }
     }
 
