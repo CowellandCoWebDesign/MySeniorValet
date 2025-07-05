@@ -41,7 +41,7 @@ export default function Home() {
             <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-display font-bold text-gray-900 mb-6 leading-tight">
               Find Senior Living with{" "}
               <span className="text-primary bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Transparent Pricing</span> &{" "}
-              <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">Live Availability</span>
+              <span className="bg-gradient-to-r from-indigo-600 to-purple-700 bg-clip-text text-transparent">Live Availability</span>
             </h1>
             <p className="text-lg lg:text-xl text-gray-700 max-w-3xl mx-auto mb-8 leading-relaxed">
               Get real pricing, read authentic reviews, check live availability, and explore amenities to make confident decisions for your family.
@@ -49,13 +49,13 @@ export default function Home() {
             
             {/* Optimized Feature Pills */}
             <div className="flex flex-wrap justify-center gap-2 lg:gap-3 mb-8">
-                <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-md px-4 py-2 rounded-xl shadow-md border border-green-200/50 hover:shadow-lg transition-all duration-300 group relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 to-emerald-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="p-1 bg-green-100 rounded-full relative z-10">
-                    <DollarSign className="text-green-600 h-4 w-4" />
+                <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-md px-4 py-2 rounded-xl shadow-md border border-blue-200/50 hover:shadow-lg transition-all duration-300 group relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-indigo-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="p-1 bg-blue-100 rounded-full relative z-10">
+                    <DollarSign className="text-blue-600 h-4 w-4" />
                   </div>
-                  <span className="text-sm font-semibold text-green-800 relative z-10">Real Pricing</span>
-                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full opacity-0 group-hover:opacity-100 animate-ping"></div>
+                  <span className="text-sm font-semibold text-blue-800 relative z-10">Real Pricing</span>
+                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-400 rounded-full opacity-0 group-hover:opacity-100 animate-ping"></div>
                 </div>
                 <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-md px-4 py-2 rounded-xl shadow-md border border-yellow-200/50 hover:shadow-lg transition-all duration-300 group relative overflow-hidden">
                   <div className="p-1 bg-yellow-100 rounded-full">
