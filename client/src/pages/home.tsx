@@ -34,7 +34,7 @@ export default function Home() {
             alt="Welcoming senior living community with diverse residents, families, and caregivers in a beautiful setting"
             fallback="/hero-senior-community.svg"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-white/85 via-white/70 to-white/50"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-white/75 via-white/60 to-white/40"></div>
         </div>
         <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 lg:mb-12">
