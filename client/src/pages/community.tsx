@@ -778,6 +778,198 @@ export default function CommunityPage() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* UNIT TYPES & FLOOR PLANS SECTION */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Home className="h-6 w-6 text-blue-600" />
+                  <span>Unit Types & Floor Plans</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {community.unitTypes && community.unitTypes.length > 0 ? (
+                  <div className="space-y-6">
+                    {community.unitTypes.map((unitType, index) => (
+                      <div key={index} className="border border-blue-200 rounded-lg p-6 bg-blue-50">
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <h3 className="text-xl font-semibold text-blue-900">{unitType.name}</h3>
+                            <p className="text-blue-700 font-medium">{unitType.type}</p>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-2xl font-bold text-blue-900">
+                              ${unitType.priceRange.min.toLocaleString()} - ${unitType.priceRange.max.toLocaleString()}
+                            </div>
+                            <div className="text-sm text-blue-700">per month</div>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                          <div className="space-y-2">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm font-medium text-blue-800">Square Footage:</span>
+                              <span className="text-sm text-blue-700">{unitType.squareFootage} sq ft</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm font-medium text-blue-800">Available Units:</span>
+                              <span className="text-sm text-blue-700">{unitType.available}</span>
+                            </div>
+                          </div>
+                          
+                          {unitType.floorPlan && (
+                            <div className="flex justify-end">
+                              <Button variant="outline" size="sm" className="text-blue-600 border-blue-300">
+                                <Camera className="h-4 w-4 mr-2" />
+                                View Floor Plan
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {unitType.features && unitType.features.length > 0 && (
+                          <div className="mb-4">
+                            <h4 className="font-semibold text-blue-900 mb-2">Features:</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {unitType.features.map((feature, idx) => (
+                                <Badge key={idx} variant="secondary" className="bg-blue-100 text-blue-800">
+                                  {feature}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {unitType.availability && unitType.availability.length > 0 && (
+                          <div>
+                            <h4 className="font-semibold text-blue-900 mb-2">Available Units:</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                              {unitType.availability.slice(0, 4).map((unit, idx) => (
+                                <div key={idx} className="bg-white border border-blue-200 rounded p-3">
+                                  <div className="flex justify-between items-center">
+                                    <span className="font-medium text-blue-900">Unit {unit.unitNumber}</span>
+                                    <span className="text-sm text-blue-700">${unit.price.toLocaleString()}/mo</span>
+                                  </div>
+                                  <div className="text-sm text-blue-600">
+                                    Available: {unit.availableDate}
+                                  </div>
+                                  {unit.specialOffers && unit.specialOffers.length > 0 && (
+                                    <div className="text-xs text-green-600 mt-1">
+                                      {unit.specialOffers[0]}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8">
+                      <Home className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Unit Types & Floor Plans</h3>
+                      <p className="text-gray-600 mb-4">
+                        We're working to gather verified unit type information for this community.
+                      </p>
+                      <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+                        <div className="flex items-center justify-center space-x-2 mb-2">
+                          <ShieldCheck className="h-5 w-5 text-blue-600" />
+                          <span className="font-medium text-gray-900">What We'll Show You</span>
+                        </div>
+                        <div className="text-sm text-gray-600 space-y-1">
+                          <div>• Studio, 1-bedroom, and 2-bedroom options</div>
+                          <div>• Square footage and floor plans</div>
+                          <div>• Current availability and pricing</div>
+                          <div>• Unit features and amenities</div>
+                        </div>
+                      </div>
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                        <div className="flex items-center space-x-2">
+                          <AlertCircle className="h-5 w-5 text-yellow-600" />
+                          <span className="text-sm font-medium text-yellow-800">
+                            Only verified unit data will be displayed
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* FLOOR PLANS GALLERY SECTION */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Camera className="h-6 w-6 text-purple-600" />
+                  <span>Floor Plans Gallery</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {community.unitTypes && community.unitTypes.some(unit => unit.floorPlan) ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {community.unitTypes
+                      .filter(unit => unit.floorPlan)
+                      .map((unitType, index) => (
+                        <div key={index} className="border border-purple-200 rounded-lg overflow-hidden">
+                          <div className="bg-purple-50 px-4 py-3 border-b border-purple-200">
+                            <h3 className="font-semibold text-purple-900">{unitType.name}</h3>
+                            <p className="text-sm text-purple-700">{unitType.squareFootage} sq ft</p>
+                          </div>
+                          <div className="p-4">
+                            <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center mb-3">
+                              <img 
+                                src={unitType.floorPlan} 
+                                alt={`Floor plan for ${unitType.name}`}
+                                className="max-w-full max-h-full object-contain"
+                              />
+                            </div>
+                            <div className="text-center">
+                              <Button variant="outline" size="sm" className="text-purple-600 border-purple-300">
+                                <ExternalLink className="h-4 w-4 mr-2" />
+                                View Full Size
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8">
+                      <Camera className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Floor Plans Gallery</h3>
+                      <p className="text-gray-600 mb-4">
+                        We're working to gather verified floor plan images for this community.
+                      </p>
+                      <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+                        <div className="flex items-center justify-center space-x-2 mb-2">
+                          <ShieldCheck className="h-5 w-5 text-purple-600" />
+                          <span className="font-medium text-gray-900">What We'll Show You</span>
+                        </div>
+                        <div className="text-sm text-gray-600 space-y-1">
+                          <div>• Detailed floor plan layouts</div>
+                          <div>• Room dimensions and flow</div>
+                          <div>• Furniture placement options</div>
+                          <div>• Accessibility features</div>
+                        </div>
+                      </div>
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                        <div className="flex items-center space-x-2">
+                          <AlertCircle className="h-5 w-5 text-yellow-600" />
+                          <span className="text-sm font-medium text-yellow-800">
+                            Only verified floor plans will be displayed
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
 
           {/* RIGHT COLUMN - Pricing & Quick Actions */}
