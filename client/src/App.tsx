@@ -12,6 +12,7 @@ import CommunityPage from "@/pages/community";
 import Claim from "@/pages/claim";
 import Admin from "@/pages/admin";
 import AdminCleanFull from "@/pages/admin-clean-full";
+import AdminCreative from "@/pages/admin-creative";
 import ExpansionMonitor from "@/pages/expansion-monitor";
 import ApiCostDashboard from "@/pages/api-cost-dashboard";
 import Privacy from "@/pages/privacy";
@@ -31,7 +32,7 @@ function Router() {
       <Route path="/explore" component={Explore} />
       <Route path="/community/:id" component={CommunityPage} />
       <Route path="/claim/:communityId" component={Claim} />
-      <Route path="/admin" component={AdminCleanFull} />
+      <Route path="/admin" component={AdminCreative} />
       <Route path="/expansion-monitor" component={ExpansionMonitor} />
       <Route path="/api-costs" component={ApiCostDashboard} />
       <Route path="/dashboard" component={Dashboard} />
