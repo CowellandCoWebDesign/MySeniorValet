@@ -54,8 +54,8 @@ export class EnrichmentFireProofing {
     this.config = {
       maxPhotosPerCommunity: 10, // Increased to 10 photos per community
       maxReviewsPerCommunity: 5, // Limit reviews to 5 per community
-      maxCostPerOperation: 25, // Max $25 per enrichment operation
-      maxCallsPerOperation: 500, // Max 500 API calls per operation
+      maxCostPerOperation: 30, // Max $30 per enrichment operation (increased to accommodate 10 photos)
+      maxCallsPerOperation: 600, // Max 600 API calls per operation
       sessionTimeoutMinutes: 30, // Auto-stop after 30 minutes
       rateLimitMs: 2000, // 2 seconds between communities
       emergencyStopCost: 75, // Emergency stop at $75 total cost
