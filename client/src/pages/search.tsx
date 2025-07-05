@@ -203,13 +203,19 @@ export default function Search() {
                   <Button
                     variant={showFilters ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setShowFilters(!showFilters)}
+                    className="relative group transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                    onClick={() => {
+                      console.log('Filter button clicked. Current state:', showFilters);
+                      setShowFilters(!showFilters);
+                      console.log('Filter state will change to:', !showFilters);
+                    }}
                   >
-                    <Filter className="h-4 w-4 mr-2" />
+                    <Filter className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
                     Filters
                     {showFilters && (
-                      <X className="h-3 w-3 ml-2" />
+                      <X className="h-3 w-3 ml-2 animate-spin" />
                     )}
+                    <div className="absolute -top-1 -right-1 w-2 h-2 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full opacity-0 group-hover:opacity-100 animate-pulse transition-opacity duration-300"></div>
                   </Button>
                   
                   {/* Sort Options */}

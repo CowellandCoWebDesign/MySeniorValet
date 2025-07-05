@@ -155,13 +155,23 @@ export default function Explore() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      <Header />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/5 left-1/4 w-80 h-80 bg-gradient-to-r from-purple-400/10 to-pink-400/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-gradient-to-r from-cyan-400/10 to-blue-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-2/3 left-2/3 w-64 h-64 bg-gradient-to-r from-emerald-400/10 to-teal-400/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+      </div>
+      
+      <div className="relative z-10">
+        <Header />
 
       {/* Enhanced Filters */}
       <section className="bg-gray-50/50 border-b border-gray-200 py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-lg border border-gray-200/60 p-6 relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-50/30 to-purple-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="relative z-10">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">Refine Your Search</h2>
@@ -237,6 +247,7 @@ export default function Explore() {
                   Reset Filters
                 </Button>
               </div>
+            </div>
             </div>
           </div>
         </div>
@@ -363,6 +374,7 @@ export default function Explore() {
       </div>
 
       <Footer />
+      </div>
     </div>
   );
 }

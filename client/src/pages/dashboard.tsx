@@ -97,9 +97,18 @@ export default function Dashboard() {
   const userInitials = `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase();
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-800 shadow">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-purple-900 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/6 right-1/4 w-80 h-80 bg-gradient-to-r from-purple-400/8 to-pink-400/8 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 left-1/6 w-72 h-72 bg-gradient-to-r from-cyan-400/8 to-blue-400/8 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-2/3 right-1/3 w-64 h-64 bg-gradient-to-r from-emerald-400/8 to-teal-400/8 rounded-full blur-3xl animate-pulse delay-2000"></div>
+      </div>
+      
+      <div className="relative z-10">
+        {/* Header */}
+        <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-lg border-b border-gray-200/60 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-50/30 via-purple-50/30 to-cyan-50/30 opacity-60"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-4">
@@ -112,11 +121,14 @@ export default function Dashboard() {
               </h2>
             </div>
             <div className="flex items-center space-x-4">
-              <Avatar>
-                <AvatarFallback className="bg-blue-600 text-white">
-                  {userInitials}
-                </AvatarFallback>
-              </Avatar>
+              <div className="relative group">
+                <Avatar className="transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg">
+                  <AvatarFallback className="bg-gradient-to-br from-blue-600 to-purple-600 text-white transition-all duration-300 group-hover:from-purple-600 group-hover:to-blue-600">
+                    {userInitials}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse"></div>
+              </div>
               <div className="hidden sm:block">
                 <p className="text-sm font-medium text-gray-900 dark:text-white">
                   {user.firstName} {user.lastName}
@@ -568,6 +580,7 @@ export default function Dashboard() {
             </Card>
           </TabsContent>
         </Tabs>
+      </div>
       </div>
     </div>
   );
