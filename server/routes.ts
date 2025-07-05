@@ -5310,6 +5310,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Community photos now come only from authentic Google Places photos in database
 
   // ============================================================================
+  // API COST ANALYSIS ROUTES - Track and analyze API usage costs
+  // ============================================================================
+
+  app.get('/api/admin/api-costs/analysis', async (req, res) => {
+    try {
+      const { apiCostAnalyzer } = await import('./api-cost-analyzer');
+      
+      const [actionCosts, pageLoadCosts, burnAnalysis] = await Promise.all([
+        apiCostAnalyzer.analyzeActionCosts(),
+        apiCostAnalyzer.analyzePageLoadCosts(),
+        apiCostAnalyzer.investigate300DollarBurn()
+      ]);
+
+      res.json({
+        actionCosts,
+        pageLoadCosts,
+        burnAnalysis,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Failed to analyze API costs:', error);
+      res.status(500).json({ message: 'Failed to analyze API costs' });
+    }
+  });
+
+  app.get('/api/admin/api-costs/live-tracking', async (req, res) => {
+    try {
+      const { apiCostAnalyzer } = await import('./api-cost-analyzer');
+      const liveUsage = await apiCostAnalyzer.trackLiveUsage();
+      
+      res.json({
+        ...liveUsage,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Failed to track live API usage:', error);
+      res.status(500).json({ message: 'Failed to track live API usage' });
+    }
+  });
+
+  app.get('/api/admin/api-costs/optimization', async (req, res) => {
+    try {
+      const { apiCostAnalyzer } = await import('./api-cost-analyzer');
+      const recommendations = await apiCostAnalyzer.generateOptimizationRecommendations();
+      
+      res.json({
+        recommendations,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Failed to generate cost optimization recommendations:', error);
+      res.status(500).json({ message: 'Failed to generate recommendations' });
+    }
+  });
+
+  // ============================================================================
   // DATA PROTECTION API ROUTES - Multi-layered safeguards against synthetic data
   // ============================================================================
 
