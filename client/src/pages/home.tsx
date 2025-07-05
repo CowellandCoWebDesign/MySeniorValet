@@ -14,7 +14,7 @@ export default function Home() {
       
       {/* Hero Section - Optimized Sizing */}
       <section className="relative py-12 lg:py-20 overflow-hidden min-h-[80vh] flex items-center">
-        {/* Premium Background Image */}
+        {/* Hero Background Image - Unsplash Exemption */}
         <div className="absolute inset-0">
           <PremiumImage 
             type="hero"
