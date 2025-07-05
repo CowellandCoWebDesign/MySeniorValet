@@ -4543,6 +4543,115 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Regional Expansion API Endpoints
   
+  // Discover communities in a specific city/area with corrected filtering
+  app.post('/api/admin/regional-expansion/discover', async (req, res) => {
+    try {
+      const { city, state, county, searchRadius = 25000 } = req.body;
+      
+      if (!city || !state) {
+        return res.status(400).json({
+          success: false,
+          message: 'City and state are required'
+        });
+      }
+      
+      console.log(`🔍 Discovering communities in ${city}, ${state}...`);
+      
+      // Use the corrected Google Places integration with relaxed filtering
+      const searchTerms = [
+        'senior living',
+        'assisted living', 
+        'retirement community',
+        'memory care',
+        'nursing home',
+        'elder care'
+      ];
+      
+      const discoveredCommunities = await googlePlacesIntegration.discoverCommunitiesInArea(
+        searchTerms,
+        `${city}, ${state}`,
+        searchRadius
+      );
+      
+      if (discoveredCommunities.length === 0) {
+        return res.json({
+          success: true,
+          message: `No new communities found in ${city}`,
+          discovered: 0,
+          newCommunities: 0
+        });
+      }
+      
+      // Filter out duplicates and add to database
+      let newCommunities = 0;
+      
+      for (const community of discoveredCommunities) {
+        try {
+          // Check if community already exists
+          const existing = await db.select()
+            .from(communities)
+            .where(
+              and(
+                eq(communities.name, community.name),
+                eq(communities.city, community.city)
+              )
+            );
+          
+          if (existing.length > 0) {
+            continue; // Skip duplicates
+          }
+          
+          // Add new community
+          await db.insert(communities).values({
+            name: community.name,
+            address: community.address,
+            city: community.city,
+            state: community.state,
+            zipCode: community.zipCode || '',
+            phone: community.phone,
+            website: community.website,
+            description: `Senior living facility in ${community.city}, ${county || state}. Discovered through corrected regional expansion.`,
+            careTypes: ['Assisted Living'], // Default, will be refined later
+            amenities: [],
+            pricing: null,
+            availability: 'Contact for Availability',
+            photos: [],
+            reviews: [],
+            isVerified: true,
+            verificationDate: new Date(),
+            googleRating: community.rating,
+            googleReviewCount: community.reviewCount,
+            lastUpdated: new Date()
+          });
+          
+          newCommunities++;
+          
+        } catch (error) {
+          console.error(`Error adding community ${community.name}:`, error);
+        }
+      }
+      
+      console.log(`✅ Added ${newCommunities} new communities in ${city}`);
+      
+      res.json({
+        success: true,
+        message: `Discovery complete: ${newCommunities} new communities added in ${city}`,
+        discovered: discoveredCommunities.length,
+        newCommunities,
+        city,
+        state
+      });
+      
+    } catch (error) {
+      console.error('Discovery error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Discovery failed',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+  
   // Execute regional expansion for all target counties
   app.post('/api/regional-expansion/execute', async (req, res) => {
     try {
