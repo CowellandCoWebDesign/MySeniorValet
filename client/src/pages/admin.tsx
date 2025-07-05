@@ -202,75 +202,138 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export Data
-          </Button>
-          <Button variant="outline" size="sm">
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh
-          </Button>
+    <div className="min-h-screen bg-gray-50">
+      {/* Enhanced Admin Header */}
+      <div className="bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-4">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Shield className="text-white h-5 w-5" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-display font-bold text-gray-900">TrueView Admin</h1>
+                <p className="text-sm text-gray-500 font-medium">Enterprise Control Center</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2 px-3 py-1 bg-green-50 border border-green-200 rounded-full">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-sm font-medium text-green-800">System Operational</span>
+              </div>
+              <Button variant="outline" size="sm" className="shadow-sm hover:shadow-md transition-shadow">
+                <Download className="h-4 w-4 mr-2" />
+                Export Data
+              </Button>
+              <Button variant="outline" size="sm" className="shadow-sm hover:shadow-md transition-shadow">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 
-      <Tabs defaultValue="overview" className="w-full">
-        {/* Professional Tab Organization */}
-        <TabsList className="grid w-full grid-cols-5 gap-1">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="communities">Communities</TabsTrigger>
-          <TabsTrigger value="expansion">Regional Expansion</TabsTrigger>
-          <TabsTrigger value="protection">Data Protection</TabsTrigger>
-          <TabsTrigger value="audit">Audit & Security</TabsTrigger>
-        </TabsList>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
-        {/* Overview Dashboard Tab */}
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Communities</CardTitle>
-                <Building2 className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">28</div>
-                <p className="text-xs text-muted-foreground">+3 from last week</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">2,847</div>
-                <p className="text-xs text-muted-foreground">+180 from last week</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">API Calls Today</CardTitle>
-                <Activity className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">1,234</div>
-                <p className="text-xs text-muted-foreground">+23% from yesterday</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">System Health</CardTitle>
-                <Shield className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-600">99.9%</div>
-                <p className="text-xs text-muted-foreground">All systems operational</p>
-              </CardContent>
-            </Card>
+        <Tabs defaultValue="overview" className="w-full">
+          {/* Enhanced Professional Tab Organization */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-1 mb-8">
+            <TabsList className="grid w-full grid-cols-5 gap-1 bg-transparent h-auto p-0">
+              <TabsTrigger 
+                value="overview" 
+                className="flex items-center justify-center space-x-2 px-4 py-3 rounded-md data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:shadow-sm font-medium transition-all"
+              >
+                <BarChart3 className="h-4 w-4" />
+                <span>Overview</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="communities" 
+                className="flex items-center justify-center space-x-2 px-4 py-3 rounded-md data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:shadow-sm font-medium transition-all"
+              >
+                <Building2 className="h-4 w-4" />
+                <span>Communities</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="expansion" 
+                className="flex items-center justify-center space-x-2 px-4 py-3 rounded-md data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:shadow-sm font-medium transition-all"
+              >
+                <TrendingUp className="h-4 w-4" />
+                <span>Expansion</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="protection" 
+                className="flex items-center justify-center space-x-2 px-4 py-3 rounded-md data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:shadow-sm font-medium transition-all"
+              >
+                <Shield className="h-4 w-4" />
+                <span>Protection</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="audit" 
+                className="flex items-center justify-center space-x-2 px-4 py-3 rounded-md data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:shadow-sm font-medium transition-all"
+              >
+                <Eye className="h-4 w-4" />
+                <span>Audit</span>
+              </TabsTrigger>
+            </TabsList>
           </div>
+
+          {/* Overview Dashboard Tab */}
+          <TabsContent value="overview" className="space-y-8">
+            {/* Enhanced Metrics Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 hover:shadow-xl transition-shadow duration-300">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                  <CardTitle className="text-sm font-semibold text-blue-900">Total Communities</CardTitle>
+                  <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center shadow-md">
+                    <Building2 className="h-5 w-5 text-white" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-blue-900 mb-1">182</div>
+                  <p className="text-sm text-blue-700 font-medium">Northern California Coverage</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100 hover:shadow-xl transition-shadow duration-300">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                  <CardTitle className="text-sm font-semibold text-green-900">Photo Coverage</CardTitle>
+                  <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center shadow-md">
+                    <Camera className="h-5 w-5 text-white" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-green-900 mb-1">89%</div>
+                  <p className="text-sm text-green-700 font-medium">1,608 photos enriched</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-purple-100 hover:shadow-xl transition-shadow duration-300">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                  <CardTitle className="text-sm font-semibold text-purple-900">API Protection</CardTitle>
+                  <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center shadow-md">
+                    <Shield className="h-5 w-5 text-white" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-purple-900 mb-1">$30</div>
+                  <p className="text-sm text-purple-700 font-medium">Daily cost limit active</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-orange-100 hover:shadow-xl transition-shadow duration-300">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                  <CardTitle className="text-sm font-semibold text-orange-900">Data Quality</CardTitle>
+                  <div className="w-10 h-10 bg-orange-600 rounded-full flex items-center justify-center shadow-md">
+                    <CheckCircle className="h-5 w-5 text-white" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-orange-900 mb-1">100%</div>
+                  <p className="text-sm text-orange-700 font-medium">Authentic data sources</p>
+                </CardContent>
+              </Card>
+            </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
@@ -2234,7 +2297,8 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         )}
-      </Tabs>
+        </Tabs>
+      </div>
     </div>
   );
 }
