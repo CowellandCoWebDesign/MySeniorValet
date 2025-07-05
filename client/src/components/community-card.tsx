@@ -24,6 +24,16 @@ export function CommunityCard({ community }: CommunityCardProps) {
       [section]: !prev[section]
     }));
   };
+
+  const getCareIcon = (careType: string) => {
+    switch(careType) {
+      case "Independent Living": return <Home className="h-4 w-4" />;
+      case "Assisted Living": return <UserCheck className="h-4 w-4" />;
+      case "Memory Care": return <Stethoscope className="h-4 w-4" />;
+      case "Skilled Nursing": return <Activity className="h-4 w-4" />;
+      default: return <Home className="h-4 w-4" />;
+    }
+  };
   const getAvailabilityConfig = (status: string) => {
     switch (status) {
       case "Available Now": 
@@ -243,82 +253,76 @@ export function CommunityCard({ community }: CommunityCardProps) {
           )}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-          {/* LEFT COLUMN: AVAILABILITY & UNIT TYPES */}
-          <div className="space-y-4">
-            {/* AVAILABILITY STATUS - Top Priority */}
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <div className="flex items-center space-x-2 mb-2">
-                <CheckCircle className="h-5 w-5 text-green-600" />
-                <span className="font-bold text-green-900">Current Availability</span>
-              </div>
-              <div className="text-lg font-semibold text-green-800">{community.availabilityStatus}</div>
-              {community.availableUnits && (
-                <div className="text-sm text-green-700">{community.availableUnits} units currently available</div>
-              )}
-            </div>
-
-            {/* SPECIAL OFFERS */}
-            {specialOffers.length > 0 && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Badge className="bg-red-600 text-white">
-                    {specialOffers.length} Special Offer{specialOffers.length > 1 ? 's' : ''}
-                  </Badge>
-                </div>
-                {specialOffers.slice(0, 2).map((offer: any, index: number) => (
-                  <div key={index} className="mb-2 last:mb-0">
-                    <div className="font-semibold text-red-900">{offer.title}</div>
-                    <div className="text-sm text-red-700">Save ${offer.savings?.toLocaleString()}</div>
-                  </div>
-                ))}
-              </div>
-            )}
+        {/* 1. AVAILABILITY & FLOOR PLANS - Top Priority */}
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+          <div className="flex items-center space-x-2 mb-2">
+            <CheckCircle className="h-5 w-5 text-green-600" />
+            <span className="font-bold text-green-900">Current Availability</span>
           </div>
-
-          {/* RIGHT COLUMN: PRICING - Second Priority */}
-          <div className="space-y-4">
-            {/* PRICING WITH VERIFICATION NOTICE */}
-            <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex items-center space-x-2">
-                  <DollarSign className="h-6 w-6 text-blue-600" />
-                  <span className="font-bold text-blue-900 text-lg">Typical Monthly Cost</span>
-                </div>
-                <Badge className="bg-orange-500 text-white text-xs">
-                  Pending Verification
-                </Badge>
-              </div>
-              
-              {pricing ? (
-                <div>
-                  <div className="text-3xl font-bold text-blue-900 mb-1">
-                    {pricing.range}
-                  </div>
-                  <div className="text-sm text-blue-700 mb-2">per month (typical range)</div>
-                  <div className="bg-white border border-blue-200 rounded p-2">
-                    <div className="text-xs text-blue-600">
-                      <div className="font-medium mb-1">Typical move-in costs vary by facility</div>
-                      <div>• Contact for current pricing and fees</div>
-                    </div>
-                  </div>
-                  <div className="text-xs text-orange-600 mt-2">
-                    Exact pricing and current specials pending community verification
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  <div className="text-xl font-semibold text-blue-900 mb-2">Contact for Current Pricing</div>
-                  <div className="bg-white border border-blue-200 rounded p-2">
-                    <div className="text-xs text-blue-600">
-                      <div>• Move-in costs vary by facility</div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+          <div className="text-lg font-semibold text-green-800">{community.availabilityStatus}</div>
+          {community.availableUnits && (
+            <div className="text-sm text-green-700">{community.availableUnits} units currently available</div>
+          )}
         </div>
+
+        {/* 2. PRICING - Second Priority */}
+        <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-4">
+          <div className="flex items-start justify-between mb-2">
+            <div className="flex items-center space-x-2">
+              <DollarSign className="h-6 w-6 text-blue-600" />
+              <span className="font-bold text-blue-900 text-lg">Typical Monthly Cost</span>
+            </div>
+            <Badge className="bg-orange-500 text-white text-xs">
+              Pending Verification
+            </Badge>
+          </div>
+          
+          {pricing ? (
+            <div>
+              <div className="text-3xl font-bold text-blue-900 mb-1">
+                {pricing.range}
+              </div>
+              <div className="text-sm text-blue-700 mb-2">per month (typical range)</div>
+              <div className="bg-white border border-blue-200 rounded p-2">
+                <div className="text-xs text-blue-600">
+                  <div className="font-medium mb-1">Typical move-in costs vary by facility</div>
+                  <div>• Contact for current pricing and fees</div>
+                </div>
+              </div>
+              <div className="text-xs text-orange-600 mt-2">
+                Exact pricing and current specials pending community verification
+              </div>
+            </div>
+          ) : (
+            <div>
+              <div className="text-xl font-semibold text-blue-900 mb-2">Contact for Current Pricing</div>
+              <div className="bg-white border border-blue-200 rounded p-2">
+                <div className="text-xs text-blue-600">
+                  <div>• Move-in costs vary by facility</div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 3. SPECIAL OFFERS - Third Priority */}
+        {specialOffers.length > 0 && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <div className="flex items-center space-x-2 mb-3">
+              <Badge className="bg-red-600 text-white">
+                {specialOffers.length} Special Offer{specialOffers.length > 1 ? 's' : ''}
+              </Badge>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {specialOffers.slice(0, 4).map((offer: any, index: number) => (
+                <div key={index} className="bg-white border border-red-200 rounded p-3">
+                  <div className="font-semibold text-red-900">{offer.title}</div>
+                  <div className="text-sm text-red-700">Save ${offer.savings?.toLocaleString()}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* CARE LEVELS & SERVICES - Full Width */}
         <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4">
@@ -435,40 +439,29 @@ export function CommunityCard({ community }: CommunityCardProps) {
           )}
         </div>
 
-        {/* AMENITIES & FEATURES - After Availability and Pricing */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center space-x-2">
-              <Activity className="h-5 w-5 text-blue-600" />
-              <span className="font-semibold text-blue-900">Top Amenities & Features</span>
-            </div>
-            {community.amenities && community.amenities.length > 8 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => toggleSection('amenities')}
-                className="text-blue-600 hover:text-blue-700"
-              >
-                {expandedSections.amenities ? (
-                  <>
-                    <ChevronUp className="h-4 w-4 mr-1" />
-                    Show Less
-                  </>
-                ) : (
-                  <>
-                    <ChevronDown className="h-4 w-4 mr-1" />
-                    Show All ({community.amenities.length})
-                  </>
-                )}
-              </Button>
-            )}
+        {/* 4. CARE TYPES - Fourth Priority */}
+        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4">
+          <div className="flex items-center space-x-2 mb-3">
+            <Heart className="h-5 w-5 text-purple-600" />
+            <span className="font-semibold text-purple-900">Care & Services</span>
           </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            {topAmenities.slice(0, expandedSections.amenities ? undefined : 8).map((amenity, index) => (
-              <div key={index} className="flex items-center space-x-2 bg-white rounded px-2 py-1">
-                {amenity.icon}
-                <span className="text-sm text-blue-900">{amenity.name}</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {community.careTypes.map((type, index) => (
+              <div key={index} className="bg-white border border-purple-200 rounded p-3">
+                <div className="flex items-center space-x-3 mb-2">
+                  <span className="text-purple-600">{getCareIcon(type)}</span>
+                  <span className="font-semibold text-purple-900">{type}</span>
+                </div>
+                {community.careServices && community.careServices.length > 0 && (
+                  <div className="space-y-1">
+                    {community.careServices.slice(0, 2).map((service, serviceIndex) => (
+                      <div key={serviceIndex} className="text-sm text-purple-700 flex items-center space-x-2">
+                        <span className="w-1.5 h-1.5 bg-purple-400 rounded-full"></span>
+                        <span>{service}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>
