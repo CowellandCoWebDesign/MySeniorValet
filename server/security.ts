@@ -8,8 +8,8 @@ const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 const SECURITY_CONFIG = {
   rateLimiting: {
     windowMs: 15 * 60 * 1000, // 15 minutes
-    maxRequests: 100, // per window
-    apiMaxRequests: 50, // for API endpoints
+    maxRequests: 300, // per window - increased for normal browsing
+    apiMaxRequests: 200, // for API endpoints - increased for communities data
     authMaxRequests: 5, // for auth endpoints
   },
   headers: {
