@@ -154,6 +154,20 @@ export function CommunityCard({ community }: CommunityCardProps) {
             className="h-48"
           />
           
+          {/* FAVORITE HEART OVERLAY */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              // TODO: Implement favorite toggle functionality
+              console.log('Toggle favorite for community:', community.id);
+            }}
+            className="absolute top-3 left-3 p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white/90 transition-all duration-200 group shadow-lg z-10"
+            aria-label="Add to favorites"
+          >
+            <Heart className="h-5 w-5 text-red-500/70 group-hover:text-red-500 group-hover:fill-red-500/20 transition-all duration-200" />
+          </button>
+
           {/* OVERLAY BADGES */}
           <div className="absolute top-3 right-3 flex space-x-2">
             {allPhotos.length > 1 && (
