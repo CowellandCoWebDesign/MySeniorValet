@@ -44,6 +44,7 @@ import { googlePlacesIntegration } from "./google-places-integration";
 import { authService, requireAuth } from "./auth";
 import { regionalExpansionEngine } from "./regional-expansion";
 import { comprehensivePhotoEnrichment } from "./comprehensive-photo-enrichment";
+import { apiCostProtection } from "./api-cost-protection";
 import { systematicPhotoEnrichment } from "./systematic-photo-enrichment";
 import { emergencyEnrichment } from "./emergency-enrichment";
 
@@ -5606,6 +5607,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // 🚨 CRITICAL API COST MONITORING ENDPOINTS
+  
+  // Get current API usage and costs
+  app.get('/api/admin/api-costs', async (req, res) => {
+    try {
+      const usage = apiCostProtection.getUsageStatus();
+      res.json({
+        success: true,
+        usage: usage.usage,
+        limits: usage.limits,
+        remaining: usage.remaining,
+        warnings: usage.warnings,
+        status: usage.usage.emergencyStop ? 'EMERGENCY_STOP' : 
+                usage.usage.quotaExceeded ? 'QUOTA_EXCEEDED' : 'NORMAL'
+      });
+    } catch (error) {
+      console.error('Error getting API costs:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to get API cost information'
+      });
+    }
+  });
+
+  // Emergency stop all API operations
+  app.post('/api/admin/api-costs/emergency-stop', async (req, res) => {
+    try {
+      const { reason } = req.body;
+      await apiCostProtection.triggerEmergencyStop(reason || 'Manual emergency stop');
+      
+      res.json({
+        success: true,
+        message: 'Emergency stop activated - all API operations blocked'
+      });
+    } catch (error) {
+      console.error('Error triggering emergency stop:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to trigger emergency stop'
+      });
+    }
+  });
+
+  // Reset emergency stop (admin only)
+  app.post('/api/admin/api-costs/reset-emergency', async (req, res) => {
+    try {
+      await apiCostProtection.resetEmergencyStop();
+      
+      res.json({
+        success: true,
+        message: 'Emergency stop reset - API operations restored'
+      });
+    } catch (error) {
+      console.error('Error resetting emergency stop:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to reset emergency stop'
       });
     }
   });
