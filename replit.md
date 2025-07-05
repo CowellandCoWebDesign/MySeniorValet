@@ -165,8 +165,9 @@ The application is configured for multiple deployment environments:
 ## Current Status (January 5, 2025)
 **Database**: 182 authenticated Northern California communities
 **Coverage**: Complete Bay Area, Sacramento Region, North Coast, Central Valley
-**Photos**: Photo enrichment system with permanent cost protection
+**Photos**: Google Photos API restored and working with fire-proofing protection (10 photos max, $30 cost limit)
 **Reviews**: Direct Google/Yelp platform integration
+**Hero Images**: Unsplash hero images restored for homepage (exception to no-synthetic-data policy)
 **Infrastructure**: Enterprise-ready with 10,000+ user capacity
 **Compliance**: Full ADA, CPRA, and state licensing compliance
 **Security**: Comprehensive audit and hardening implementation
