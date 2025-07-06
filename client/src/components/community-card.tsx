@@ -163,9 +163,19 @@ export function CommunityCard({ community }: CommunityCardProps) {
   const allPhotos = getAllPhotos();
   const hasPhotos = allPhotos.length > 0;
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't navigate if clicking on buttons or links
+    if ((e.target as HTMLElement).closest('button, a')) {
+      return;
+    }
+    window.location.href = `/community/${community.id}`;
+  };
+
   return (
-    <Link href={`/community/${community.id}`} className="block group">
-      <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 border-l-4 border-l-blue-500 cursor-pointer">
+    <Card 
+      className="overflow-hidden hover:shadow-xl transition-all duration-300 border-l-4 border-l-blue-500 cursor-pointer group"
+      onClick={handleCardClick}
+    >
         {/* ENHANCED PHOTO CAROUSEL */}
         {hasPhotos ? (
           <div className="relative">
@@ -596,7 +606,6 @@ export function CommunityCard({ community }: CommunityCardProps) {
           )}
         </div>
       </CardContent>
-      </Card>
-    </Link>
+    </Card>
   );
 }
