@@ -5332,6 +5332,126 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ========================================
+  // MANUAL EXPANSION SYSTEM
+  // ========================================
+
+  // Get available counties for expansion
+  app.get('/api/admin/expansion/available-counties', async (req, res) => {
+    const californiaCounties = [
+      'Orange', 'Riverside', 'Ventura', 'San Bernardino', 'Fresno', 'Kern', 
+      'Santa Barbara', 'Tulare', 'Imperial', 'Kings', 'Madera', 'Merced',
+      'Monterey', 'San Benito', 'San Luis Obispo', 'Stanislaus', 'Sutter',
+      'Yuba', 'Butte', 'Colusa', 'Glenn', 'Tehama', 'Shasta', 'Siskiyou',
+      'Modoc', 'Lassen', 'Plumas', 'Sierra', 'Nevada', 'El Dorado', 'Alpine',
+      'Amador', 'Calaveras', 'Tuolumne', 'Mariposa', 'Mono', 'Inyo'
+    ];
+    
+    // Get counties we already have coverage in
+    const coveredCounties = ['San Francisco', 'Alameda', 'Santa Clara', 'San Mateo', 
+                            'Marin', 'Contra Costa', 'Solano', 'Napa', 'Sonoma', 
+                            'Sacramento', 'Placer', 'Yolo', 'Humboldt', 'Shasta'];
+    
+    res.json({
+      available: californiaCounties.filter(county => !coveredCounties.includes(county)),
+      covered: coveredCounties,
+      total: californiaCounties.length + coveredCounties.length
+    });
+  });
+
+  // Research specific county (manual operation)
+  app.post('/api/admin/expansion/research-county', async (req, res) => {
+    try {
+      const { county } = req.body;
+      if (!county) {
+        return res.status(400).json({ message: 'County name is required' });
+      }
+
+      // Import county research system
+      const { countyResearchSystem } = await import('./county-research-system');
+      
+      const result = await countyResearchSystem.researchCountySystematically(county);
+      
+      res.json({
+        message: `Research completed for ${county} County`,
+        result
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        message: 'Error researching county',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Bulk enrich selected communities
+  app.post('/api/admin/enrichment/bulk-photos', async (req, res) => {
+    try {
+      const { communityIds } = req.body;
+      if (!Array.isArray(communityIds) || communityIds.length === 0) {
+        return res.status(400).json({ message: 'Community IDs array is required' });
+      }
+
+      const results = [];
+      let totalCost = 0;
+      
+      for (const id of communityIds) {
+        const result = await manualEnrichment.addPhotosToOne(parseInt(id));
+        results.push({ communityId: id, ...result });
+        totalCost += result.cost;
+        
+        // Small delay between communities
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      
+      res.json({
+        message: `Processed ${communityIds.length} communities`,
+        results,
+        totalCost,
+        successful: results.filter(r => r.success).length
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        message: 'Error in bulk photo enrichment',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Bulk enrich selected communities with reviews
+  app.post('/api/admin/enrichment/bulk-reviews', async (req, res) => {
+    try {
+      const { communityIds } = req.body;
+      if (!Array.isArray(communityIds) || communityIds.length === 0) {
+        return res.status(400).json({ message: 'Community IDs array is required' });
+      }
+
+      const results = [];
+      let totalCost = 0;
+      
+      for (const id of communityIds) {
+        const result = await manualEnrichment.addReviewsToOne(parseInt(id));
+        results.push({ communityId: id, ...result });
+        totalCost += result.cost;
+        
+        // Small delay between communities
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      
+      res.json({
+        message: `Processed ${communityIds.length} communities`,
+        results,
+        totalCost,
+        successful: results.filter(r => r.success).length
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        message: 'Error in bulk review enrichment',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // EMERGENCY FREEZE: Systematic photo enrichment disabled
   app.post('/api/admin/photo-enrichment/systematic', async (req, res) => {
     return res.status(503).json({ error: 'EMERGENCY FREEZE: Photo enrichment disabled due to runaway charges' });
