@@ -176,6 +176,8 @@ The application is configured for multiple deployment environments:
 **Marketing Priority Order**: 1) Availability and floor plans, 2) Pricing, 3) Special offers, 4) Care types, 5) Reviews - optimized for user decision-making flow
 **Favorites System**: Transparent heart overlay on community photos for saving favorites
 **User Dashboard**: Polished experience with favorites management, search alerts, visits, notes, and account settings
+**Search State Persistence**: URL-based filter preservation prevents search reset on back navigation
+**Enhanced UX**: Larger search buttons (h-12), fully clickable community cards, prominent photo carousel arrows, automatic scroll-to-top on page navigation
 
 ## ⚠️ CRITICAL API COST PROTECTION IMPLEMENTED (January 5, 2025)
 **Issue Identified**: Previous runaway API costs of $300+ from uncontrolled photo enrichment

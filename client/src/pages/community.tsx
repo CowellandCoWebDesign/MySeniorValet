@@ -20,10 +20,14 @@ export default function CommunityPage() {
     queryKey: [`/api/communities/${params?.id}`],
   });
 
-  // Scroll to top when community data loads
+  // Scroll to top immediately when page loads and when community data loads
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  
   useEffect(() => {
     if (community) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo(0, 0);
     }
   }, [community]);
 
