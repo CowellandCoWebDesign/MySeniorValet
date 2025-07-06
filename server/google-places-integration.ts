@@ -67,6 +67,19 @@ export class GooglePlacesIntegration {
   }
 
   async enrichCommunityWithGooglePlaces(community: Community): Promise<GooglePlacesEnrichmentResult | null> {
+    // 🚨🚨🚨 EMERGENCY KILL SWITCH - ALL API CALLS BLOCKED DUE TO $100 BURN 🚨🚨🚨
+    console.error(`🚨 EMERGENCY STOP: All Google Places API calls blocked due to unexpected $100 cost burn. Community: ${community.name}`);
+    return {
+      placeId: '',
+      rating: 0,
+      reviewCount: 0,
+      photos: [],
+      reviews: [],
+      success: false,
+      error: 'EMERGENCY STOP: All Google Places API calls blocked due to cost overrun',
+      costIncurred: 0
+    };
+    
     // Continue enrichment to gather additional photos and information
     const existingPhotos = community.photos || [];
     
@@ -170,6 +183,10 @@ export class GooglePlacesIntegration {
   }
 
   private async searchGooglePlaces(community: Community): Promise<{ place_id: string; rating?: number; user_ratings_total?: number } | null> {
+    // 🚨 EMERGENCY KILL SWITCH - NO GOOGLE PLACES SEARCH ALLOWED
+    console.error(`🚨 EMERGENCY STOP: searchGooglePlaces blocked for ${community.name} due to $100 API burn`);
+    return null;
+    
     if (!this.apiKey) {
       throw new Error('Google Places API key not configured');
     }
@@ -287,6 +304,10 @@ export class GooglePlacesIntegration {
   }
 
   private async getPlaceDetails(placeId: string): Promise<GooglePlacesBusinessData | null> {
+    // 🚨 EMERGENCY KILL SWITCH - NO GOOGLE PLACES DETAILS ALLOWED
+    console.error(`🚨 EMERGENCY STOP: getPlaceDetails blocked for placeId ${placeId} due to $100 API burn`);
+    return null;
+    
     if (!this.apiKey) {
       throw new Error('Google Places API key not configured');
     }
@@ -418,6 +439,10 @@ export class GooglePlacesIntegration {
 
   // Batch enrichment with cost control
   async enrichCommunitiesBatch(communities: Community[]): Promise<Map<number, GooglePlacesEnrichmentResult>> {
+    // 🚨 EMERGENCY KILL SWITCH - NO BATCH ENRICHMENT ALLOWED
+    console.error(`🚨 EMERGENCY STOP: enrichCommunitiesBatch blocked for ${communities.length} communities due to $100 API burn`);
+    return new Map<number, GooglePlacesEnrichmentResult>();
+    
     const results = new Map<number, GooglePlacesEnrichmentResult>();
     let totalBatchCost = 0;
     
