@@ -3986,6 +3986,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Real Google Cloud billing tracking - ACTUAL charges
+  app.get('/api/admin/real-billing', async (req, res) => {
+    try {
+      const { googleCloudRealBillingTracker } = await import('./google-cloud-real-billing-tracker');
+      const analysis = await googleCloudRealBillingTracker.getRealBillingAnalysis();
+      const todayCharges = await googleCloudRealBillingTracker.getTodayCharges();
+      const expensiveOps = await googleCloudRealBillingTracker.getMostExpensiveOperations(20);
+      
+      res.json({
+        realAnalysis: analysis,
+        todayCharges,
+        expensiveOperations: expensiveOps,
+        summary: {
+          actualTotalCost: analysis.totalCharges,
+          actualTodayCost: todayCharges.total,
+          actualRequestCount: todayCharges.count,
+          topCostService: Object.entries(analysis.chargesByService)
+            .sort(([,a], [,b]) => b - a)[0]?.[0] || 'none',
+          projectedMonthly: analysis.costProjection.monthlyProjection
+        }
+      });
+    } catch (error) {
+      console.error('Failed to get real billing analysis:', error);
+      res.status(500).json({ error: 'Failed to analyze real billing data' });
+    }
+  });
+
+  // 48-hour Google interaction analysis - EXACT charge source
+  app.get('/api/admin/google-interactions-48h', async (req, res) => {
+    try {
+      const { googleInteractionAnalyzer } = await import('./google-interaction-analyzer');
+      const analysis = await googleInteractionAnalyzer.analyzeLast48Hours();
+      const report = await googleInteractionAnalyzer.generate82DollarChargeReport();
+      
+      res.json({
+        analysis,
+        report,
+        summary: {
+          totalInteractions: analysis.totalInteractions,
+          totalCost: analysis.totalCost,
+          primaryChargeSource: analysis.exactChargeSource.primaryCause,
+          primaryCost: analysis.exactChargeSource.costContribution,
+          suspiciousPatterns: analysis.suspiciousPatterns.length,
+          criticalIssues: analysis.suspiciousPatterns.filter(p => p.severity === 'critical').length
+        }
+      });
+    } catch (error) {
+      console.error('Failed to analyze 48h Google interactions:', error);
+      res.status(500).json({ error: 'Failed to analyze Google interactions' });
+    }
+  });
+
+  // Emergency stop all Google Cloud APIs
+  app.post('/api/admin/emergency-stop-apis', async (req, res) => {
+    try {
+      const { googleCloudRealBillingTracker } = await import('./google-cloud-real-billing-tracker');
+      await googleCloudRealBillingTracker.emergencyStopAllAPIs();
+      res.json({ success: true, message: 'All Google Cloud APIs emergency stopped' });
+    } catch (error) {
+      console.error('Failed to emergency stop APIs:', error);
+      res.status(500).json({ error: 'Failed to emergency stop APIs' });
+    }
+  });
+
   // Google Cloud billing comprehensive investigation
   app.get('/api/admin/google-cloud-billing', async (req, res) => {
     try {

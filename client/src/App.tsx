@@ -18,6 +18,7 @@ import ExpansionMonitor from "@/pages/expansion-monitor";
 import ApiCostDashboard from "@/pages/api-cost-dashboard";
 import ApiCostInvestigation from "@/pages/api-cost-investigation";
 import GoogleCloudBilling from "@/pages/google-cloud-billing";
+import RealTimeBillingDashboard from "@/pages/real-time-billing-dashboard";
 import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
 import Disclaimer from "@/pages/disclaimer";
@@ -47,6 +48,7 @@ function Router() {
       <Route path="/api-costs" component={ApiCostDashboard} />
       <Route path="/api-cost-investigation" component={ApiCostInvestigation} />
       <Route path="/google-cloud-billing" component={GoogleCloudBilling} />
+      <Route path="/real-time-billing" component={RealTimeBillingDashboard} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/login" component={Login} />
       <Route path="/signup" component={Signup} />
