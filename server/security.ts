@@ -246,12 +246,13 @@ export function enhanceSessionSecurity(req: Request, res: Response, next: NextFu
   next();
 }
 
-// Cleanup expired rate limit entries
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, data] of rateLimitStore.entries()) {
-    if (now > data.resetTime) {
-      rateLimitStore.delete(key);
-    }
-  }
-}, 5 * 60 * 1000); // Clean up every 5 minutes
+// DISABLED: Cleanup expired rate limit entries
+// This was running automatically every 5 minutes - now only runs when needed
+// setInterval(() => {
+//   const now = Date.now();
+//   for (const [key, data] of rateLimitStore.entries()) {
+//     if (now > data.resetTime) {
+//       rateLimitStore.delete(key);
+//     }
+//   }
+// }, 5 * 60 * 1000); // Clean up every 5 minutes
