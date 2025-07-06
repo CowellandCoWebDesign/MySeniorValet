@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Star, Shield, AlertTriangle, DollarSign, MapPin, Heart, Share, Users, Calendar, CheckCircle, ExternalLink, Clock, Home, Wifi, Car, Utensils, Activity, Phone, Camera, Video, UserCheck, Stethoscope, Bed, ShowerHead, ChevronDown, ChevronUp, ImageIcon, ShieldCheck } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import type { Community } from "@shared/schema";
 import { PhotoCarousel } from "@/components/photo-carousel";
 
@@ -163,12 +163,15 @@ export function CommunityCard({ community }: CommunityCardProps) {
   const allPhotos = getAllPhotos();
   const hasPhotos = allPhotos.length > 0;
 
+  const [, setLocation] = useLocation();
+
   const handleCardClick = (e: React.MouseEvent) => {
     // Don't navigate if clicking on buttons or links
     if ((e.target as HTMLElement).closest('button, a')) {
       return;
     }
-    window.location.href = `/community/${community.id}`;
+    // Use proper React routing
+    setLocation(`/community/${community.id}`);
   };
 
   return (
