@@ -1,3 +1,5 @@
+// EMERGENCY FREEZE: Script disabled due to $600 in Google API charges
+exit 1;
 const axios = require('axios');
 
 // Add the specific communities we found in Eureka that were missed

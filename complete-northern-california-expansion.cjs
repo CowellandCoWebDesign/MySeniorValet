@@ -58,6 +58,10 @@ async function delay(ms) {
 
 async function searchGooglePlaces(searchTerm, location) {
   try {
+    // EMERGENCY FREEZE: Google Places API disabled due to $600 in runaway charges
+    console.error('EMERGENCY FREEZE: Google Places API calls disabled - script terminated');
+    process.exit(1);
+    
     const response = await axios.get('https://maps.googleapis.com/maps/api/place/textsearch/json', {
       params: {
         query: `${searchTerm} in ${location}`,
