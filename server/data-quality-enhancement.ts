@@ -89,7 +89,9 @@ export class DataQualityEnhancement {
       if (!community) return { reviewsAdded: 0, success: false };
 
       // Get Google Places data which includes reviews
-      const enrichmentResult = await googlePlacesIntegration.enrichCommunityWithGooglePlaces(community);
+      // 🚨 EMERGENCY STOP: Google Places API blocked due to $100 burn
+      console.error(`🚨 EMERGENCY STOP: data-quality-enhancement blocked for ${community.name}`);
+      const enrichmentResult = null; // await googlePlacesIntegration.enrichCommunityWithGooglePlaces(community);
       
       if (enrichmentResult?.success && enrichmentResult.reviews.length > 0) {
         // Convert Google reviews to our yelp_reviews format (since it's the main review field)

@@ -56,6 +56,15 @@ export class GooglePlacesReviews {
     success: boolean;
     error?: string;
   }> {
+    // 🚨 EMERGENCY KILL SWITCH - NO GOOGLE PLACES REVIEWS ALLOWED
+    console.error(`🚨 EMERGENCY STOP: Google Places Reviews blocked for community ${communityId} due to $100 API burn`);
+    return {
+      reviewsAdded: 0,
+      rating: null,
+      reviewCount: 0,
+      success: false,
+      error: 'EMERGENCY STOP: All Google Places API calls blocked due to cost overrun'
+    };
     if (!GOOGLE_API_KEY) {
       return {
         reviewsAdded: 0,

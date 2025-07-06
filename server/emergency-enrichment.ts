@@ -68,7 +68,9 @@ export class EmergencyEnrichment {
       console.log(`🚀 Emergency enriching: ${community.name} (${community.city}, ${community.state})`);
 
       // Search Google Places
-      const searchResults = await this.searchGooglePlaces(community.name, `${community.city}, ${community.state}`);
+      // 🚨 EMERGENCY STOP: Google Places API blocked due to $100 burn
+      console.error(`🚨 EMERGENCY STOP: emergency-enrichment blocked for ${community.name}`);
+      const searchResults = []; // await this.searchGooglePlaces(community.name, `${community.city}, ${community.state}`);
       
       if (searchResults.length === 0) {
         console.log(`   ❌ No Google Places found for ${community.name}`);

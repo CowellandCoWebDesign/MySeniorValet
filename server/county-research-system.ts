@@ -118,7 +118,9 @@ export class CountyResearchSystem {
           const searchQuery = `${searchTerm} near ${city}, ${county} County, California`;
           
           // Use Google Places to find all facilities
-          const results = await googlePlacesIntegration.discoverCommunitiesInArea(
+          // 🚨 EMERGENCY STOP: Google Places API blocked due to $100 burn
+          console.error(`🚨 EMERGENCY STOP: county-research-system blocked for ${county} County`);
+          const results = []; // await googlePlacesIntegration.discoverCommunitiesInArea(
             [searchTerm], // Single search term as array
             `${city}, ${county} County, California`, // Location string
             25000 // 25km radius per city for thorough coverage
