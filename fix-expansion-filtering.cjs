@@ -1,3 +1,5 @@
+// EMERGENCY FREEZE: Script disabled due to $600 in Google API charges
+exit 1;
 const { Pool } = require('@neondatabase/serverless');
 const axios = require('axios');
 
