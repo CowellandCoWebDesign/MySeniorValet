@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, X, ZoomIn, Download, Share2 } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -12,6 +12,31 @@ interface PhotoCarouselProps {
 export function PhotoCarousel({ photos, communityName, className = "" }: PhotoCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showFullscreen, setShowFullscreen] = useState(false);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!showFullscreen) return;
+      
+      switch (event.key) {
+        case 'ArrowLeft':
+          event.preventDefault();
+          prevPhoto();
+          break;
+        case 'ArrowRight':
+          event.preventDefault();
+          nextPhoto();
+          break;
+        case 'Escape':
+          event.preventDefault();
+          setShowFullscreen(false);
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showFullscreen, photos.length]);
 
   if (!photos || photos.length === 0) {
     return (
