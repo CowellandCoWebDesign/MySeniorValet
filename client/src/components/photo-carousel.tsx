@@ -55,24 +55,32 @@ export function PhotoCarousel({ photos, communityName, className = "" }: PhotoCa
             {currentIndex + 1} of {photos.length}
           </div>
 
-          {/* Navigation Arrows */}
+          {/* Enhanced Navigation Arrows - Always Visible and Prominent */}
           {photos.length > 1 && (
             <>
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white border-0"
-                onClick={prevPhoto}
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-black/90 text-white border-0 w-10 h-10 shadow-lg z-20"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  prevPhoto();
+                }}
               >
-                <ChevronLeft className="w-5 h-5" />
+                <ChevronLeft className="w-6 h-6" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white border-0"
-                onClick={nextPhoto}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-black/90 text-white border-0 w-10 h-10 shadow-lg z-20"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  nextPhoto();
+                }}
               >
-                <ChevronRight className="w-5 h-5" />
+                <ChevronRight className="w-6 h-6" />
               </Button>
             </>
           )}

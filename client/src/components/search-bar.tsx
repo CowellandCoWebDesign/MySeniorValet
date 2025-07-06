@@ -238,13 +238,22 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
         </div>
         
         <div className="mt-6 flex flex-col sm:flex-row gap-4">
-          <Button onClick={handleSearch} className="flex-1 bg-primary hover:bg-primary/90">
-            <Search className="mr-2 h-4 w-4" />
+          <Button 
+            onClick={handleSearch} 
+            className="flex-1 bg-primary hover:bg-primary/90 h-12 text-base font-semibold"
+            size="lg"
+          >
+            <Search className="mr-2 h-5 w-5" />
             Search Communities
           </Button>
           {onToggleAdvancedFilters && (
-            <Button variant="outline" onClick={onToggleAdvancedFilters}>
-              <Filter className="mr-2 h-4 w-4" />
+            <Button 
+              variant="outline" 
+              onClick={onToggleAdvancedFilters}
+              className="h-12 text-base font-semibold"
+              size="lg"
+            >
+              <Filter className="mr-2 h-5 w-5" />
               More Filters
             </Button>
           )}
