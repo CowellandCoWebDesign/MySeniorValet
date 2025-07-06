@@ -97,8 +97,9 @@ export default function CommunityPage() {
     return stars;
   };
 
-  // CONSOLIDATED: Similar communities now included in main community response
-  const similarCommunities = community?.similarCommunities || [];
+  const { data: similarCommunities } = useQuery<Community[]>({
+    queryKey: ["/api/communities/similar", params?.id],
+  });
 
   if (isLoading) {
     return (

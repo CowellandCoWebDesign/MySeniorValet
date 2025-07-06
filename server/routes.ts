@@ -47,7 +47,6 @@ import { comprehensivePhotoEnrichment } from "./comprehensive-photo-enrichment";
 import { apiCostProtection } from "./api-cost-protection";
 import { systematicPhotoEnrichment } from "./systematic-photo-enrichment";
 import { emergencyEnrichment } from "./emergency-enrichment";
-import { EmergencyApiDisable } from './emergency-api-disable';
 
 // Authentication middleware function
 const isAuthenticated = (req: any, res: any, next: any) => {
@@ -66,69 +65,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const adminRouter = express.Router();
   
   // Admin routes with minimal middleware
-  
-  // COMPREHENSIVE API USAGE DASHBOARD
-  adminRouter.get('/api-usage-dashboard', async (req, res) => {
-    try {
-      const { centralizedApiService } = await import("./centralized-api-service");
-      const apiStats = centralizedApiService.getApiStatistics();
-      const costProtectionStatus = apiCostProtection.getUsageStatus();
-      
-      // Get emergency API status
-      const emergencyStatus = await EmergencyApiDisable.getStatus();
-      
-      // Get recent API logs from cost protection
-      const dashboard = {
-        overview: {
-          totalCalls: apiStats.totalCalls,
-          totalCost: apiStats.totalCost,
-          successRate: apiStats.successRate,
-          dailyBudgetUsed: costProtectionStatus.usage.dailyCost,
-          dailyBudgetLimit: costProtectionStatus.limits.maxDailyCost,
-          emergencyStopActive: costProtectionStatus.usage.emergencyStop
-        },
-        limits: costProtectionStatus.limits,
-        currentUsage: costProtectionStatus.usage,
-        topEndpoints: apiStats.topEndpoints,
-        circuitBreakers: apiStats.circuitBreakerStatus,
-        emergencyControls: {
-          apiDisabled: emergencyStatus.disabled,
-          disabledServices: emergencyStatus.disabledServices,
-          disabledDate: emergencyStatus.disabledDate
-        },
-        alerts: []
-      };
-      
-      // Generate alerts
-      if (costProtectionStatus.usage.dailyCost > costProtectionStatus.limits.maxDailyCost * 0.8) {
-        dashboard.alerts.push({
-          level: 'warning',
-          message: `Daily budget 80% used: $${costProtectionStatus.usage.dailyCost}/$${costProtectionStatus.limits.maxDailyCost}`
-        });
-      }
-      
-      if (costProtectionStatus.usage.emergencyStop) {
-        dashboard.alerts.push({
-          level: 'critical',
-          message: 'Emergency stop active - all API calls blocked'
-        });
-      }
-      
-      if (Object.keys(apiStats.circuitBreakerStatus).length > 0) {
-        dashboard.alerts.push({
-          level: 'error',
-          message: `${Object.keys(apiStats.circuitBreakerStatus).length} circuit breakers open`
-        });
-      }
-      
-      res.json(dashboard);
-      
-    } catch (error) {
-      console.error('Failed to get API usage dashboard:', error);
-      res.status(500).json({ error: 'Failed to load API usage dashboard' });
-    }
-  });
-
   adminRouter.get('/audit-logs', (req, res) => {
     const { page = 1, limit = 50 } = req.query;
     
@@ -723,9 +659,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // REMOVED: Redundant similar communities endpoint - data now included in consolidated community response
+  // Get similar communities (specific route before :id)
+  app.get("/api/communities/similar/:id", async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) {
+        return res.status(400).json({ message: "Invalid community ID" });
+      }
 
-  // CONSOLIDATED: Get complete community data with all related information in single query
+      const targetCommunity = await storage.getCommunity(communityId);
+      if (!targetCommunity) {
+        return res.status(404).json({ message: "Community not found" });
+      }
+
+      const allCommunities = await storage.getAllCommunities();
+      
+      // Find similar communities based on care types, location, and price range
+      const similarCommunities = allCommunities
+        .filter(community => community.id !== communityId)
+        .filter(community => {
+          // Same state
+          if (community.state !== targetCommunity.state) return false;
+          
+          // Overlapping care types
+          const hasOverlappingCareTypes = community.careTypes.some(type => 
+            targetCommunity.careTypes.includes(type)
+          );
+          if (!hasOverlappingCareTypes) return false;
+          
+          // Similar price range (within 50% difference)
+          if (community.priceRange && targetCommunity.priceRange) {
+            const targetMidPrice = (targetCommunity.priceRange.min + targetCommunity.priceRange.max) / 2;
+            const communityMidPrice = (community.priceRange.min + community.priceRange.max) / 2;
+            const priceDiff = Math.abs(targetMidPrice - communityMidPrice) / targetMidPrice;
+            if (priceDiff > 0.5) return false;
+          }
+          
+          return true;
+        })
+        .slice(0, 6); // Return up to 6 similar communities
+      
+      res.json(similarCommunities);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch similar communities" });
+    }
+  });
+
+  // Get individual community by ID (must be last among community routes)
   app.get("/api/communities/:id", async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
@@ -733,67 +713,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid community ID" });
       }
       
-      // CONSOLIDATED: Single database query for all community data
       const community = await storage.getCommunity(communityId);
       if (!community) {
         return res.status(404).json({ message: "Community not found" });
       }
       
-      // CONSOLIDATED: Get similar communities in same query context to reduce DB calls
-      const allCommunities = await storage.getAllCommunities();
-      
-      const similarCommunities = allCommunities
-        .filter(c => {
-          // Same city/region
-          if (c.city !== community.city) return false;
-          
-          // Overlapping care types
-          const hasOverlappingCareTypes = c.careTypes.some(type =>
-            community.careTypes.includes(type)
-          );
-          if (!hasOverlappingCareTypes) return false;
-          
-          return true;
-        })
-        .slice(0, 4); // Limit to reduce payload size
-      
-      // CONSOLIDATED: Format all data in single response to eliminate multiple API calls
-      const consolidatedResponse = {
+      // Convert snake_case to camelCase for frontend compatibility
+      const formattedCommunity = {
         ...community,
-        // Format review data consistently (database stores authentic data only)
-        yelpReviews: community.yelpReviews || [],
-        careComReviews: community.careComReviews || [],
-        seniorAdvisorReviews: community.seniorAdvisorReviews || [],
-        aplaceformomReviews: community.aplaceformomReviews || [],
-        googleReviewSnippets: community.googleReviewSnippets || [],
-        googleRating: community.googleRating || null,
-        googleReviewCount: community.googleReviewCount || 0,
-        
-        // Include similar communities to prevent separate API call
-        similarCommunities: similarCommunities.map(sim => ({
-          id: sim.id,
-          name: sim.name,
-          address: sim.address,
-          city: sim.city,
-          state: sim.state,
-          careTypes: sim.careTypes,
-          priceRange: sim.priceRange,
-          googleRating: sim.googleRating,
-          photos: sim.photos || []
-        })),
-        
-        // Calculate transparent pricing info from our database
-        transparencyScore: {
-          hasPublicPricing: !!community.priceRange,
-          hasRecentInspection: !!community.lastInspection,
-          hasPhotos: (community.photos || []).length > 0,
-          hasVerifiedReviews: (community.googleReviewCount || 0) > 0
-        }
+        yelpReviews: community.yelp_reviews,
+        careComReviews: community.care_com_reviews,
+        seniorAdvisorReviews: community.senior_advisor_reviews,
+        aplaceformomReviews: community.aplace_for_mom_reviews,
+        googleReviewSnippets: community.google_review_snippets,
+        googleRating: community.google_rating,
+        googleReviewCount: community.google_review_count
       };
       
-      res.json(consolidatedResponse);
+      res.json(formattedCommunity);
     } catch (error) {
-      console.error('Community fetch error:', error);
       res.status(500).json({ message: "Failed to fetch community" });
     }
   });
@@ -2301,14 +2239,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Test Google Places photo enrichment for specific community
   app.post('/api/test/google-photos/:id', async (req, res) => {
-    // EMERGENCY HALT: All Google APIs completely blocked
-    EmergencyApiDisable.checkGoogleApiAccess("Google Photos Test");
-    return res.status(503).json({ 
-      error: "GOOGLE API EMERGENCY HALT", 
-      message: "All Google API access blocked after $300 cost incident. API access completely halted.",
-      disabled: true,
-      halted: true
-    });
     try {
       const communityId = parseInt(req.params.id);
       const community = await storage.getCommunity(communityId);
@@ -2317,23 +2247,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: 'Community not found' });
       }
 
-      // ENHANCED COST PROTECTION FOR TEST ENDPOINTS
-      const { centralizedApiService } = await import("./centralized-api-service");
-      const estimatedCost = 0.50; // Conservative estimate for Google Places enrichment
-      const estimatedCalls = 6; // Text search + details + photos
-      
-      const protection = await apiCostProtection.checkBeforeOperation(estimatedCalls, estimatedCost);
-      if (!protection.allowed) {
-        return res.status(429).json({ 
-          error: 'API cost protection triggered',
-          reason: protection.reason,
-          currentUsage: protection.currentUsage
-        });
-      }
-
-      // EMERGENCY: API DISABLED
-      EmergencyApiDisable.checkGoogleApiAccess('Individual Google Places Enrichment');
-      
       const { googlePlacesIntegration } = await import("./google-places-integration");
       const enrichmentResult = await googlePlacesIntegration.enrichCommunityWithGooglePlaces(community);
       
@@ -2380,42 +2293,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Google Places enrichment endpoint
   app.post('/api/enrich/google-places', createRateLimitMiddleware(apiLimiter), async (req, res) => {
-    // EMERGENCY HALT: All Google APIs completely blocked
-    EmergencyApiDisable.checkGoogleApiAccess("Google Places Enrichment");
-    return res.status(503).json({ 
-      error: "GOOGLE API EMERGENCY HALT", 
-      message: "All Google API access blocked after $300 cost incident. API access completely halted.",
-      disabled: true,
-      halted: true
-    });
     try {
       const { city, state, limit = 3, communityIds } = req.body;
-      
-      // ENHANCED BULK OPERATION PROTECTION
-      const maxBulkLimit = 5; // Maximum 5 communities per bulk operation
-      const actualLimit = Math.min(parseInt(limit.toString()), maxBulkLimit);
-      
-      const estimatedCostPerCommunity = 0.50; // Conservative estimate
-      const estimatedCallsPerCommunity = 6;
-      const totalEstimatedCost = actualLimit * estimatedCostPerCommunity;
-      const totalEstimatedCalls = actualLimit * estimatedCallsPerCommunity;
-      
-      const protection = await apiCostProtection.checkBeforeOperation(totalEstimatedCalls, totalEstimatedCost);
-      if (!protection.allowed) {
-        return res.status(429).json({ 
-          error: 'Bulk enrichment blocked by cost protection',
-          reason: protection.reason,
-          maxAllowedLimit: Math.floor(protection.currentUsage.dailyCost / estimatedCostPerCommunity),
-          currentUsage: protection.currentUsage
-        });
-      }
       
       let communities: any[] = [];
       
       if (communityIds) {
-        // Enrich specific communities by IDs (with limit)
-        const limitedIds = communityIds.slice(0, actualLimit);
-        for (const id of limitedIds) {
+        // Enrich specific communities by IDs
+        for (const id of communityIds) {
           const community = await storage.getCommunity(id);
           if (community) {
             communities.push(community);
@@ -2515,19 +2400,120 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return careTypes;
   }
 
-  // EMERGENCY HALT - Google Places discovery endpoint 
-  // THIS ENDPOINT WAS CAUSING 110,000+ API CALLS IN 24 HOURS ($300+ COST)
+  // Google Places discovery endpoint to find real communities
   app.post('/api/discover/google-places', async (req, res) => {
-    // EMERGENCY HALT: All Google APIs completely blocked
-    EmergencyApiDisable.checkGoogleApiAccess("Google Places Discovery");
-    return res.status(503).json({ 
-      error: '🚨 GOOGLE API EMERGENCY HALT: All Google API access blocked after $300 cost incident',
-      message: 'Complete halt of all Google API operations. This endpoint made 110,000+ calls in 24 hours.',
-      alternatives: 'Use existing database communities only',
-      disabledDate: new Date().toISOString(),
-      reason: 'EMERGENCY HALT - All Google APIs blocked until further notice',
-      halted: true
-    });
+    try {
+      const { city, state, limit = 10 } = req.body;
+      
+      if (!process.env.GOOGLE_API_KEY) {
+        return res.status(400).json({ 
+          message: 'Google API key not configured' 
+        });
+      }
+
+      const axios = (await import('axios')).default;
+      const searchQueries = [
+        `senior living ${city} ${state}`,
+        `assisted living ${city} ${state}`,
+        `memory care ${city} ${state}`,
+        `nursing home ${city} ${state}`,
+        `retirement community ${city} ${state}`
+      ];
+
+      const discoveredCommunities = [];
+      const seenPlaceIds = new Set();
+
+      for (const query of searchQueries) {
+        try {
+          const response = await axios.get('https://maps.googleapis.com/maps/api/place/textsearch/json', {
+            params: {
+              query,
+              key: process.env.GOOGLE_API_KEY,
+              type: 'establishment'
+            },
+            timeout: 10000
+          });
+
+          if (response.data.status === 'OK' && response.data.results) {
+            for (const place of response.data.results.slice(0, 3)) {
+              if (seenPlaceIds.has(place.place_id)) continue;
+              seenPlaceIds.add(place.place_id);
+
+              // Get detailed information
+              const detailsResponse = await axios.get('https://maps.googleapis.com/maps/api/place/details/json', {
+                params: {
+                  place_id: place.place_id,
+                  key: process.env.GOOGLE_API_KEY,
+                  fields: 'name,formatted_address,formatted_phone_number,website,rating,user_ratings_total,photos,types,geometry'
+                },
+                timeout: 10000
+              });
+
+              if (detailsResponse.data.status === 'OK') {
+                const details = detailsResponse.data.result;
+                
+                // Extract address components
+                const addressParts = details.formatted_address.split(',');
+                const zipMatch = details.formatted_address.match(/\b\d{5}\b/);
+                
+                const communityData = {
+                  name: details.name,
+                  address: addressParts[0]?.trim() || '',
+                  city: city,
+                  state: state,
+                  zipCode: zipMatch ? zipMatch[0] : '',
+                  phone: details.formatted_phone_number || '',
+                  website: details.website || '',
+                  description: `Authentic senior living community verified through Google Places API`,
+                  careTypes: determineCareTypesFromName(details.name, details.types),
+                  rating: details.rating ? details.rating.toString() : '',
+                  googleRating: details.rating ? details.rating.toString() : '',
+                  googleReviewCount: details.user_ratings_total || 0,
+                  googlePlacesId: place.place_id,
+                  latitude: details.geometry?.location?.lat?.toString() || '',
+                  longitude: details.geometry?.location?.lng?.toString() || '',
+                  isVerified: true,
+                  amenities: ['WiFi', 'Parking', 'Dining'],
+                  services: ['Personal Care', '24/7 Support'],
+                  availabilityStatus: 'Contact for Availability',
+                  priceRange: { min: 3000, max: 8000 }
+                };
+
+                discoveredCommunities.push(communityData);
+
+                // Rate limiting
+                await new Promise(resolve => setTimeout(resolve, 100));
+              }
+
+              if (discoveredCommunities.length >= limit) break;
+            }
+          }
+
+          // Rate limiting between searches
+          await new Promise(resolve => setTimeout(resolve, 200));
+
+        } catch (error) {
+          console.warn(`Search failed for query: ${query}`, error.message);
+        }
+
+        if (discoveredCommunities.length >= limit) break;
+      }
+
+      res.json({
+        success: true,
+        message: `Discovered ${discoveredCommunities.length} real communities in ${city}, ${state}`,
+        communities: discoveredCommunities,
+        totalQueries: searchQueries.length,
+        apiCallsUsed: discoveredCommunities.length * 2 // text search + details
+      });
+
+    } catch (error) {
+      console.error('Google Places discovery error:', error);
+      res.status(500).json({ 
+        message: 'Google Places discovery failed',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
   });
 
   // Save discovered communities to database
@@ -4671,9 +4657,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Execute regional expansion for all target counties
   app.post('/api/regional-expansion/execute', async (req, res) => {
     try {
-      // EMERGENCY: API DISABLED
-      EmergencyApiDisable.checkApiAccess('Regional Expansion Execute');
-      
       console.log('🚀 Starting Regional Expansion for 7 Target Counties...');
       
       const results = await regionalExpansionEngine.executeRegionalExpansion();
@@ -4956,16 +4939,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Comprehensive photo enrichment routes
   app.post('/api/admin/photo-enrichment/all', async (req, res) => {
-    // EMERGENCY DISABLED: Prevented $300+ cost overruns
-    return res.status(503).json({ 
-      error: "Service temporarily disabled", 
-      message: "Photo enrichment disabled due to cost protection measures",
-      disabled: true 
-    });
     try {
-      // EMERGENCY: API DISABLED
-      EmergencyApiDisable.checkApiAccess('Comprehensive Photo Enrichment');
-      
       console.log("🚀 Starting comprehensive photo enrichment for ALL communities");
       const result = await comprehensivePhotoEnrichment.enrichAllCommunities();
       
@@ -5142,12 +5116,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Systematic photo enrichment routes (individual community review)
   app.post('/api/admin/photo-enrichment/systematic', async (req, res) => {
-    // EMERGENCY DISABLED: Prevented $300+ cost overruns
-    return res.status(503).json({ 
-      error: "Service temporarily disabled", 
-      message: "Systematic photo enrichment disabled due to cost protection measures",
-      disabled: true 
-    });
     try {
       const { startId, endId } = req.body;
       
@@ -5169,12 +5137,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post('/api/admin/photo-enrichment/individual/:communityId', async (req, res) => {
-    // EMERGENCY DISABLED: Prevented $300+ cost overruns
-    return res.status(503).json({ 
-      error: "Service permanently disabled", 
-      message: "Individual photo enrichment disabled due to cost protection incident",
-      disabled: true 
-    });
     try {
       const communityId = parseInt(req.params.communityId);
       
@@ -5372,28 +5334,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // "no synthetic data" policy. Only authentic Google Places photos used.
   // EXCEPTION: Hero images allowed for homepage from Unsplash per project requirements.
 
-  // Get hero images (STATIC FALLBACK - NO EXTERNAL API CALLS)
+  // Get hero images (EXCEPTION: Unsplash allowed for hero only)
   app.get('/api/images/hero', async (req, res) => {
-    // CONSOLIDATED: Return static hero images, no external API calls
-    const staticHeroImages = [
-      {
-        url: '/api/placeholder/hero-1',
-        alt: 'Senior Living Community',
-        caption: 'Find Your Perfect Senior Living Community'
-      },
-      {
-        url: '/api/placeholder/hero-2', 
-        alt: 'Assisted Living',
-        caption: 'Compassionate Care in Beautiful Settings'
-      },
-      {
-        url: '/api/placeholder/hero-3',
-        alt: 'Memory Care',
-        caption: 'Specialized Memory Care Services'
-      }
-    ];
-    
-    res.json(staticHeroImages);
+    try {
+      const { unsplashService } = await import('./unsplash-integration');
+      const heroImages = await unsplashService.getHeroImages();
+      res.json(heroImages);
+    } catch (error) {
+      console.error('Hero image fetch error:', error);
+      res.status(500).json({ 
+        message: 'Failed to fetch hero images',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
   });
 
   // Get community-specific images (AUTHENTIC ONLY - NO SYNTHETIC DATA)
@@ -5843,40 +5796,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
   // Emergency enrichment endpoint - Direct Google Places integration
   app.post('/api/emergency-enrichment/start', async (req, res) => {
-    // EMERGENCY DISABLED: This endpoint caused $300+ API cost overrun  
-    return res.status(503).json({ 
-      error: "Service permanently disabled", 
-      message: "Emergency enrichment disabled due to $300 cost protection incident",
-      disabled: true 
-    });
     try {
-      // EMERGENCY: API DISABLED
-      EmergencyApiDisable.checkApiAccess('Emergency Enrichment');
-      
-      // ENHANCED EMERGENCY ENRICHMENT PROTECTION
-      const maxEmergencyBudget = 25.00; // Maximum $25 for emergency operations
-      const maxEmergencyCommunities = 50; // Maximum 50 communities
-      const estimatedCostPerCommunity = 0.50;
-      const estimatedCallsPerCommunity = 6;
-      
-      const protection = await apiCostProtection.checkBeforeOperation(
-        maxEmergencyCommunities * estimatedCallsPerCommunity, 
-        maxEmergencyBudget
-      );
-      
-      if (!protection.allowed) {
-        return res.status(429).json({ 
-          error: 'Emergency enrichment blocked by cost protection',
-          reason: protection.reason,
-          currentUsage: protection.currentUsage,
-          maxBudget: maxEmergencyBudget
-        });
-      }
-      
       console.log('🚀 STARTING EMERGENCY ENRICHMENT - Direct Google Places integration');
-      console.log(`💰 Budget allocated: $${maxEmergencyBudget}, Max communities: ${maxEmergencyCommunities}`);
       
-      // Launch emergency enrichment asynchronously with strict limits
+      // Launch emergency enrichment asynchronously
       emergencyEnrichment.enrichAllCommunities().then(result => {
         console.log(`🏁 EMERGENCY ENRICHMENT COMPLETED: ${result.enriched}/${result.total} communities enriched`);
       }).catch(error => {
