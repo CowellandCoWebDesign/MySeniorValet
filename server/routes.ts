@@ -40,13 +40,14 @@ import { aiRecommendationEngine, RecommendationRequest } from "./ai-recommendati
 import { ComprehensiveScraper } from "./scraper";
 import { licensingScraper } from "./licensing-scraper";
 import { googleReviewsAI } from "./google-reviews-ai";
-import { googlePlacesIntegration } from "./google-places-integration";
+// EMERGENCY FREEZE: All Google API integrations disabled to prevent further charges
+// import { googlePlacesIntegration } from "./google-places-integration";
 import { authService, requireAuth } from "./auth";
-import { regionalExpansionEngine } from "./regional-expansion";
-import { comprehensivePhotoEnrichment } from "./comprehensive-photo-enrichment";
-import { apiCostProtection } from "./api-cost-protection";
-import { systematicPhotoEnrichment } from "./systematic-photo-enrichment";
-import { emergencyEnrichment } from "./emergency-enrichment";
+// import { regionalExpansionEngine } from "./regional-expansion";
+// import { comprehensivePhotoEnrichment } from "./comprehensive-photo-enrichment";
+// import { apiCostProtection } from "./api-cost-protection";
+// import { systematicPhotoEnrichment } from "./systematic-photo-enrichment";
+// import { emergencyEnrichment } from "./emergency-enrichment";
 
 // Authentication middleware function
 const isAuthenticated = (req: any, res: any, next: any) => {
@@ -2237,8 +2238,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Test Google Places photo enrichment for specific community
+  // EMERGENCY FREEZE: Google API endpoints disabled to prevent further charges
   app.post('/api/test/google-photos/:id', async (req, res) => {
+    return res.status(503).json({ error: 'EMERGENCY FREEZE: Google API operations disabled due to runaway charges' });
     try {
       const communityId = parseInt(req.params.id);
       const community = await storage.getCommunity(communityId);
@@ -2291,8 +2293,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Google Places enrichment endpoint
+  // EMERGENCY FREEZE: Google Places enrichment endpoint disabled
   app.post('/api/enrich/google-places', createRateLimitMiddleware(apiLimiter), async (req, res) => {
+    return res.status(503).json({ error: 'EMERGENCY FREEZE: Google API operations disabled due to runaway charges' });
     try {
       const { city, state, limit = 3, communityIds } = req.body;
       
@@ -5098,8 +5101,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Comprehensive photo enrichment routes
+  // EMERGENCY FREEZE: All photo enrichment disabled
   app.post('/api/admin/photo-enrichment/all', async (req, res) => {
+    return res.status(503).json({ error: 'EMERGENCY FREEZE: Photo enrichment disabled due to runaway charges' });
     try {
       console.log("🚀 Starting comprehensive photo enrichment for ALL communities");
       const result = await comprehensivePhotoEnrichment.enrichAllCommunities();
@@ -5119,6 +5123,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post('/api/admin/photo-enrichment/city', async (req, res) => {
+    return res.status(503).json({ error: 'EMERGENCY FREEZE: Photo enrichment disabled due to runaway charges' });
     try {
       const { city, state } = req.body;
       
@@ -5275,8 +5280,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Systematic photo enrichment routes (individual community review)
+  // EMERGENCY FREEZE: Systematic photo enrichment disabled
   app.post('/api/admin/photo-enrichment/systematic', async (req, res) => {
+    return res.status(503).json({ error: 'EMERGENCY FREEZE: Photo enrichment disabled due to runaway charges' });
     try {
       const { startId, endId } = req.body;
       
@@ -5298,6 +5304,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post('/api/admin/photo-enrichment/individual/:communityId', async (req, res) => {
+    return res.status(503).json({ error: 'EMERGENCY FREEZE: Photo enrichment disabled due to runaway charges' });
     try {
       const communityId = parseInt(req.params.communityId);
       
