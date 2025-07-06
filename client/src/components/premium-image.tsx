@@ -50,7 +50,7 @@ export function PremiumImage({
 
   const { data: images, isLoading, isError } = useQuery({
     queryKey: [`/api/images/${type}`, query, orientation, communityId],
-    enabled: !imageError,
+    enabled: false, // DISABLED: Preventing automatic API calls to preserve cost limits
     retry: 1,
     staleTime: 24 * 60 * 60 * 1000, // 24 hours
   });
