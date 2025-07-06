@@ -1,6 +1,7 @@
 import axios from 'axios';
 import type { Community } from '@shared/schema';
 import { apiCostProtection } from './api-cost-protection';
+import { realApiCostTracker } from './real-api-cost-tracker';
 
 export interface GooglePlacesBusinessData {
   place_id: string;
@@ -197,6 +198,16 @@ export class GooglePlacesIntegration {
         this.callCount++;
         this.totalCost += this.costPerTextSearch;
 
+        // Track real API cost
+        await realApiCostTracker.trackApiCall(
+          'textSearch',
+          1,
+          this.costPerTextSearch,
+          `Search for ${community.name}`,
+          response.data?.status === 'OK',
+          response.data
+        );
+
         if (response.data?.results?.length > 0) {
           // Find the best match
           const bestMatch = this.findBestGooglePlacesMatch(community, response.data.results);
@@ -293,6 +304,16 @@ export class GooglePlacesIntegration {
       this.callCount++;
       this.totalCost += this.costPerDetailsRequest;
 
+      // Track real API cost
+      await realApiCostTracker.trackApiCall(
+        'placeDetails',
+        1,
+        this.costPerDetailsRequest,
+        `Place details for ${placeId}`,
+        response.data?.status === 'OK',
+        response.data
+      );
+
       return response.data?.result || null;
 
     } catch (error) {
@@ -330,6 +351,16 @@ export class GooglePlacesIntegration {
         
         actualCost += this.costPerPhotoRequest;
         this.totalCost += this.costPerPhotoRequest;
+
+        // Track real API cost for photos
+        await realApiCostTracker.trackApiCall(
+          'placePhotos',
+          1,
+          this.costPerPhotoRequest,
+          `Photo ${photo.photo_reference}`,
+          true,
+          { photo_reference: photo.photo_reference }
+        );
 
         // Rate limiting
         await this.delay(100); // Increased delay for safety
