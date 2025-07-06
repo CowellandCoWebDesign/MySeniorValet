@@ -66,6 +66,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const adminRouter = express.Router();
   
   // Admin routes with minimal middleware
+  
+  // COMPREHENSIVE API USAGE DASHBOARD
+  adminRouter.get('/api-usage-dashboard', async (req, res) => {
+    try {
+      const { centralizedApiService } = await import("./centralized-api-service");
+      const apiStats = centralizedApiService.getApiStatistics();
+      const costProtectionStatus = apiCostProtection.getUsageStatus();
+      
+      // Get emergency API status
+      const emergencyStatus = await emergencyApiDisable.getStatus();
+      
+      // Get recent API logs from cost protection
+      const dashboard = {
+        overview: {
+          totalCalls: apiStats.totalCalls,
+          totalCost: apiStats.totalCost,
+          successRate: apiStats.successRate,
+          dailyBudgetUsed: costProtectionStatus.usage.dailyCost,
+          dailyBudgetLimit: costProtectionStatus.limits.maxDailyCost,
+          emergencyStopActive: costProtectionStatus.usage.emergencyStop
+        },
+        limits: costProtectionStatus.limits,
+        currentUsage: costProtectionStatus.usage,
+        topEndpoints: apiStats.topEndpoints,
+        circuitBreakers: apiStats.circuitBreakerStatus,
+        emergencyControls: {
+          apiDisabled: emergencyStatus.disabled,
+          disabledServices: emergencyStatus.disabledServices,
+          disabledDate: emergencyStatus.disabledDate
+        },
+        alerts: []
+      };
+      
+      // Generate alerts
+      if (costProtectionStatus.usage.dailyCost > costProtectionStatus.limits.maxDailyCost * 0.8) {
+        dashboard.alerts.push({
+          level: 'warning',
+          message: `Daily budget 80% used: $${costProtectionStatus.usage.dailyCost}/$${costProtectionStatus.limits.maxDailyCost}`
+        });
+      }
+      
+      if (costProtectionStatus.usage.emergencyStop) {
+        dashboard.alerts.push({
+          level: 'critical',
+          message: 'Emergency stop active - all API calls blocked'
+        });
+      }
+      
+      if (Object.keys(apiStats.circuitBreakerStatus).length > 0) {
+        dashboard.alerts.push({
+          level: 'error',
+          message: `${Object.keys(apiStats.circuitBreakerStatus).length} circuit breakers open`
+        });
+      }
+      
+      res.json(dashboard);
+      
+    } catch (error) {
+      console.error('Failed to get API usage dashboard:', error);
+      res.status(500).json({ error: 'Failed to load API usage dashboard' });
+    }
+  });
+
   adminRouter.get('/audit-logs', (req, res) => {
     const { page = 1, limit = 50 } = req.query;
     
@@ -2248,6 +2311,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: 'Community not found' });
       }
 
+      // ENHANCED COST PROTECTION FOR TEST ENDPOINTS
+      const { centralizedApiService } = await import("./centralized-api-service");
+      const estimatedCost = 0.50; // Conservative estimate for Google Places enrichment
+      const estimatedCalls = 6; // Text search + details + photos
+      
+      const protection = await apiCostProtection.checkBeforeOperation(estimatedCalls, estimatedCost);
+      if (!protection.allowed) {
+        return res.status(429).json({ 
+          error: 'API cost protection triggered',
+          reason: protection.reason,
+          currentUsage: protection.currentUsage
+        });
+      }
+
       // EMERGENCY: API DISABLED
       emergencyApiDisable.checkApiAccess('Individual Google Places Enrichment');
       
@@ -2300,11 +2377,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { city, state, limit = 3, communityIds } = req.body;
       
+      // ENHANCED BULK OPERATION PROTECTION
+      const maxBulkLimit = 5; // Maximum 5 communities per bulk operation
+      const actualLimit = Math.min(parseInt(limit.toString()), maxBulkLimit);
+      
+      const estimatedCostPerCommunity = 0.50; // Conservative estimate
+      const estimatedCallsPerCommunity = 6;
+      const totalEstimatedCost = actualLimit * estimatedCostPerCommunity;
+      const totalEstimatedCalls = actualLimit * estimatedCallsPerCommunity;
+      
+      const protection = await apiCostProtection.checkBeforeOperation(totalEstimatedCalls, totalEstimatedCost);
+      if (!protection.allowed) {
+        return res.status(429).json({ 
+          error: 'Bulk enrichment blocked by cost protection',
+          reason: protection.reason,
+          maxAllowedLimit: Math.floor(protection.currentUsage.dailyCost / estimatedCostPerCommunity),
+          currentUsage: protection.currentUsage
+        });
+      }
+      
       let communities: any[] = [];
       
       if (communityIds) {
-        // Enrich specific communities by IDs
-        for (const id of communityIds) {
+        // Enrich specific communities by IDs (with limit)
+        const limitedIds = communityIds.slice(0, actualLimit);
+        for (const id of limitedIds) {
           const community = await storage.getCommunity(id);
           if (community) {
             communities.push(community);
@@ -5706,9 +5803,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // EMERGENCY: API DISABLED
       emergencyApiDisable.checkApiAccess('Emergency Enrichment');
       
-      console.log('🚀 STARTING EMERGENCY ENRICHMENT - Direct Google Places integration');
+      // ENHANCED EMERGENCY ENRICHMENT PROTECTION
+      const maxEmergencyBudget = 25.00; // Maximum $25 for emergency operations
+      const maxEmergencyCommunities = 50; // Maximum 50 communities
+      const estimatedCostPerCommunity = 0.50;
+      const estimatedCallsPerCommunity = 6;
       
-      // Launch emergency enrichment asynchronously
+      const protection = await apiCostProtection.checkBeforeOperation(
+        maxEmergencyCommunities * estimatedCallsPerCommunity, 
+        maxEmergencyBudget
+      );
+      
+      if (!protection.allowed) {
+        return res.status(429).json({ 
+          error: 'Emergency enrichment blocked by cost protection',
+          reason: protection.reason,
+          currentUsage: protection.currentUsage,
+          maxBudget: maxEmergencyBudget
+        });
+      }
+      
+      console.log('🚀 STARTING EMERGENCY ENRICHMENT - Direct Google Places integration');
+      console.log(`💰 Budget allocated: $${maxEmergencyBudget}, Max communities: ${maxEmergencyCommunities}`);
+      
+      // Launch emergency enrichment asynchronously with strict limits
       emergencyEnrichment.enrichAllCommunities().then(result => {
         console.log(`🏁 EMERGENCY ENRICHMENT COMPLETED: ${result.enriched}/${result.total} communities enriched`);
       }).catch(error => {
