@@ -1,6 +1,7 @@
 import axios from 'axios';
 import type { Community } from '@shared/schema';
 import { apiCostProtection } from './api-cost-protection';
+import { emergencyApiDisable } from './emergency-api-disable';
 
 export interface GooglePlacesBusinessData {
   place_id: string;
@@ -66,6 +67,9 @@ export class GooglePlacesIntegration {
   }
 
   async enrichCommunityWithGooglePlaces(community: Community): Promise<GooglePlacesEnrichmentResult | null> {
+    // EMERGENCY: API DISABLED
+    emergencyApiDisable.checkApiAccess('Google Places API');
+    
     // Continue enrichment to gather additional photos and information
     const existingPhotos = community.photos || [];
     

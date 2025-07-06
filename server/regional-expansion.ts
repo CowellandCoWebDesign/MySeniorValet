@@ -3,6 +3,7 @@ import { communities, type InsertCommunity } from "@shared/schema";
 import { googlePlacesIntegration } from "./google-places-integration";
 import { multiSourceVerifier } from "./multi-source-verifier";
 import { eq, and, like, or } from "drizzle-orm";
+import { emergencyApiDisable } from './emergency-api-disable';
 
 export interface RegionalExpansionTarget {
   county: string;
@@ -353,6 +354,9 @@ export class RegionalExpansionEngine {
    * 🔥 FIRE-PROOFED: Includes cost protection and session tracking
    */
   async executeRegionalExpansion(): Promise<ExpansionResults[]> {
+    // EMERGENCY: API DISABLED
+    emergencyApiDisable.checkApiAccess('Regional Expansion');
+    
     const { expansionFireProofing } = await import('./expansion-fire-proofing');
     
     // CRITICAL: Check if expansion is allowed and get cost estimate
