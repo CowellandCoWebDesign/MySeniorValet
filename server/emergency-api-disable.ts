@@ -5,12 +5,20 @@
 
 export class EmergencyApiDisable {
   private static disabled = true; // EMERGENCY: All APIs disabled
+  private static googleApisHalted = true; // EMERGENCY: Google APIs completely halted
   
   /**
    * Check if APIs are disabled
    */
   static isDisabled(): boolean {
     return this.disabled;
+  }
+  
+  /**
+   * Check if Google APIs are specifically halted
+   */
+  static isGoogleApisHalted(): boolean {
+    return this.googleApisHalted;
   }
   
   /**
@@ -35,6 +43,15 @@ export class EmergencyApiDisable {
   static checkApiAccess(apiName: string): void {
     if (this.disabled) {
       throw new Error(`🚨 API DISABLED: ${apiName} is currently disabled due to cost protection measures. All external API calls are blocked until cost issues are resolved.`);
+    }
+  }
+  
+  /**
+   * Throw error if Google APIs are specifically accessed
+   */
+  static checkGoogleApiAccess(apiName: string): void {
+    if (this.googleApisHalted) {
+      throw new Error(`🚨 GOOGLE API EMERGENCY HALT: ${apiName} is completely halted. All Google API access blocked after $300 cost incident.`);
     }
   }
 

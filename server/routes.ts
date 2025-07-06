@@ -47,7 +47,7 @@ import { comprehensivePhotoEnrichment } from "./comprehensive-photo-enrichment";
 import { apiCostProtection } from "./api-cost-protection";
 import { systematicPhotoEnrichment } from "./systematic-photo-enrichment";
 import { emergencyEnrichment } from "./emergency-enrichment";
-import { emergencyApiDisable } from './emergency-api-disable';
+import { EmergencyApiDisable } from './emergency-api-disable';
 
 // Authentication middleware function
 const isAuthenticated = (req: any, res: any, next: any) => {
@@ -75,7 +75,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const costProtectionStatus = apiCostProtection.getUsageStatus();
       
       // Get emergency API status
-      const emergencyStatus = await emergencyApiDisable.getStatus();
+      const emergencyStatus = await EmergencyApiDisable.getStatus();
       
       // Get recent API logs from cost protection
       const dashboard = {
@@ -2301,11 +2301,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Test Google Places photo enrichment for specific community
   app.post('/api/test/google-photos/:id', async (req, res) => {
-    // EMERGENCY DISABLED: This test endpoint contributed to $300 cost overrun
+    // EMERGENCY HALT: All Google APIs completely blocked
+    EmergencyApiDisable.checkGoogleApiAccess("Google Photos Test");
     return res.status(503).json({ 
-      error: "Service permanently disabled", 
-      message: "Google Photos test endpoint disabled due to cost protection incident",
-      disabled: true 
+      error: "GOOGLE API EMERGENCY HALT", 
+      message: "All Google API access blocked after $300 cost incident. API access completely halted.",
+      disabled: true,
+      halted: true
     });
     try {
       const communityId = parseInt(req.params.id);
@@ -2330,7 +2332,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // EMERGENCY: API DISABLED
-      emergencyApiDisable.checkApiAccess('Individual Google Places Enrichment');
+      EmergencyApiDisable.checkGoogleApiAccess('Individual Google Places Enrichment');
       
       const { googlePlacesIntegration } = await import("./google-places-integration");
       const enrichmentResult = await googlePlacesIntegration.enrichCommunityWithGooglePlaces(community);
@@ -2378,11 +2380,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Google Places enrichment endpoint
   app.post('/api/enrich/google-places', createRateLimitMiddleware(apiLimiter), async (req, res) => {
-    // EMERGENCY DISABLED: This endpoint caused $300 API cost overrun
+    // EMERGENCY HALT: All Google APIs completely blocked
+    EmergencyApiDisable.checkGoogleApiAccess("Google Places Enrichment");
     return res.status(503).json({ 
-      error: "Service temporarily disabled", 
-      message: "Google Places enrichment disabled due to cost protection measures",
-      disabled: true 
+      error: "GOOGLE API EMERGENCY HALT", 
+      message: "All Google API access blocked after $300 cost incident. API access completely halted.",
+      disabled: true,
+      halted: true
     });
     try {
       const { city, state, limit = 3, communityIds } = req.body;
@@ -2511,15 +2515,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return careTypes;
   }
 
-  // EMERGENCY DISABLED - Google Places discovery endpoint 
+  // EMERGENCY HALT - Google Places discovery endpoint 
   // THIS ENDPOINT WAS CAUSING 110,000+ API CALLS IN 24 HOURS ($300+ COST)
   app.post('/api/discover/google-places', async (req, res) => {
+    // EMERGENCY HALT: All Google APIs completely blocked
+    EmergencyApiDisable.checkGoogleApiAccess("Google Places Discovery");
     return res.status(503).json({ 
-      error: '🚨 EMERGENCY DISABLED: Google Places discovery endpoint permanently disabled due to massive API cost overrun (110,000+ calls in 24 hours)',
-      message: 'This endpoint was causing thousands of API calls per request, resulting in $300+ daily costs',
-      alternatives: 'Use existing database communities or contact admin for manual discovery',
+      error: '🚨 GOOGLE API EMERGENCY HALT: All Google API access blocked after $300 cost incident',
+      message: 'Complete halt of all Google API operations. This endpoint made 110,000+ calls in 24 hours.',
+      alternatives: 'Use existing database communities only',
       disabledDate: new Date().toISOString(),
-      reason: 'Cost protection - this single endpoint was making 5 text searches + multiple details calls per request'
+      reason: 'EMERGENCY HALT - All Google APIs blocked until further notice',
+      halted: true
     });
   });
 
@@ -4665,7 +4672,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/regional-expansion/execute', async (req, res) => {
     try {
       // EMERGENCY: API DISABLED
-      emergencyApiDisable.checkApiAccess('Regional Expansion Execute');
+      EmergencyApiDisable.checkApiAccess('Regional Expansion Execute');
       
       console.log('🚀 Starting Regional Expansion for 7 Target Counties...');
       
@@ -4957,7 +4964,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
     try {
       // EMERGENCY: API DISABLED
-      emergencyApiDisable.checkApiAccess('Comprehensive Photo Enrichment');
+      EmergencyApiDisable.checkApiAccess('Comprehensive Photo Enrichment');
       
       console.log("🚀 Starting comprehensive photo enrichment for ALL communities");
       const result = await comprehensivePhotoEnrichment.enrichAllCommunities();
@@ -5844,7 +5851,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
     try {
       // EMERGENCY: API DISABLED
-      emergencyApiDisable.checkApiAccess('Emergency Enrichment');
+      EmergencyApiDisable.checkApiAccess('Emergency Enrichment');
       
       // ENHANCED EMERGENCY ENRICHMENT PROTECTION
       const maxEmergencyBudget = 25.00; // Maximum $25 for emergency operations
