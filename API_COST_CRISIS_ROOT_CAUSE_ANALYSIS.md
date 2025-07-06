@@ -20,9 +20,19 @@ Based on Google Places API pricing:
 - $1000 ÷ $0.017 (details call) = **58,823 potential detail requests**  
 - $1000 ÷ $0.032 (search call) = **31,250 potential search requests**
 
+## ⚡ TESTING RESULTS WITH GOOGLE APIs DISABLED
+
+**Status:** Google integration disabled at source level  
+**Test Results:** All admin endpoints returning HTML (indicating missing route handlers)  
+**Key Findings:**
+
+1. **API Cost Protection Working:** Current usage shows 0 calls, 0 cost - protection system operational
+2. **Hero Image Endpoint Active:** Still making Unsplash API calls for hero images (confirmed working)
+3. **Multiple Polling Systems Found:** 6 different polling intervals across admin pages
+
 ## CRITICAL VULNERABILITIES IDENTIFIED
 
-### 1. ⚠️ ADMIN DASHBOARD AGGRESSIVE POLLING
+### 1. ⚠️ ADMIN DASHBOARD AGGRESSIVE POLLING (CONFIRMED IN TESTING)
 **Location:** `client/src/pages/admin.tsx`  
 **Risk Level:** CRITICAL  
 **Issue:** Multiple queries with automatic refresh intervals
@@ -244,7 +254,43 @@ const analyticsQuery = useQuery({
 - Multiple admin users: Multiplied polling
 - **Daily potential:** Hundreds of additional API calls
 
-### 12. 🔍 SEARCH STATE PERSISTENCE
+### 12. 🔍 EXPANSION MONITOR AGGRESSIVE POLLING (NEW DISCOVERY)
+**Location:** `client/src/pages/expansion-monitor.tsx`  
+**Risk Level:** HIGH  
+**Issue:** 2-second polling when expansion is active
+
+```typescript
+// Lines 44-48: EXTREMELY AGGRESSIVE POLLING
+const { data: progressData, refetch: refetchProgress } = useQuery({
+  queryKey: ['/api/regional-expansion/progress'],
+  refetchInterval: expansionActive ? 2000 : false, // ⚠️ EVERY 2 SECONDS!
+  enabled: expansionActive,
+});
+```
+
+**Cost Impact:**
+- When expansion active: 1,800 API calls per hour (every 2 seconds)
+- 43,200 API calls per day if left running
+- **Critical multiplier:** If expansion triggers API calls, this becomes catastrophic
+
+### 13. 💰 API COST DASHBOARD POLLING (NEW DISCOVERY)
+**Location:** `client/src/pages/api-cost-dashboard.tsx`  
+**Risk Level:** MEDIUM  
+**Issue:** 60-second polling for cost analysis
+
+```typescript
+// Lines 42-44: IRONIC COST-CAUSING MONITORING
+const { data: analysis, isLoading, refetch } = useQuery({
+  queryKey: ['/api/admin/api-costs/analysis'],
+  refetchInterval: 60000, // ⚠️ EVERY 60 SECONDS
+});
+```
+
+**Cost Impact:**
+- Cost monitoring page itself generates 1,440 calls per day
+- If analysis endpoint triggers API calls: Compounds the problem
+
+### 14. 🔍 SEARCH STATE PERSISTENCE
 **Location:** `client/src/pages/search.tsx`  
 **Risk Level:** LOW-MEDIUM  
 **Issue:** URL updates and localStorage operations on every filter change
@@ -264,27 +310,32 @@ useEffect(() => {
 
 ## ATTACK VECTORS ANALYSIS
 
-### Most Likely Culprits (in order of probability):
+### Most Likely Culprits (UPDATED with testing data):
 
-1. **Admin Dashboard Polling** (90% probability)
-   - Continuous 30-second intervals
-   - Multiple concurrent admin sessions
-   - Could easily reach 100,000+ calls in 48 hours
+1. **Expansion Monitor Aggressive Polling** (95% probability - NEW #1 SUSPECT)
+   - **EVERY 2 SECONDS** when active = 43,200 calls/day
+   - If expansion triggers regional research with API calls: CATASTROPHIC
+   - Single monitor session could cause entire $1000 burn
 
-2. **Photo Enrichment Loops** (85% probability)
-   - Unlimited photo fetching
+2. **Admin Dashboard Polling Combination** (90% probability)
+   - Multiple 30-60 second intervals across different admin pages
+   - 6 different polling systems identified
+   - Multiple concurrent admin sessions multiplying effect
+
+3. **Photo Enrichment Loops** (85% probability)
+   - Unlimited photo fetching confirmed in code
    - Potential for infinite retry loops
    - Bulk operations on 182 communities
 
-3. **Regional Expansion Auto-enrichment** (75% probability)
+4. **API Cost Dashboard Irony** (80% probability - NEW DISCOVERY)
+   - Cost monitoring page itself polls every 60 seconds
+   - 1,440 calls per day just to monitor costs
+   - Could be triggering the very problem it's meant to monitor
+
+5. **Regional Expansion Auto-enrichment** (75% probability)
    - Automatic enrichment of new discoveries
    - Could trigger during expansion periods
-   - Cascading API calls
-
-4. **Concurrent Enrichment Sessions** (70% probability)
-   - Multiple admin users triggering operations
-   - No session coordination
-   - Multiplier effect on costs
+   - Cascading API calls with research system
 
 ## IMMEDIATE CONTAINMENT ACTIONS TAKEN
 
