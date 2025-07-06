@@ -38,6 +38,8 @@ interface Community {
 export default function CommunityPage() {
   const { id } = useParams<{ id: string }>();
   
+  console.log('Community Page - ID:', id); // Debug log
+  
   const { data: community, isLoading, error } = useQuery<Community>({
     queryKey: ['/api/communities', id],
     enabled: !!id,
