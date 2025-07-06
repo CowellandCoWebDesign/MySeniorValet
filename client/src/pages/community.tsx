@@ -44,6 +44,8 @@ export default function CommunityPage() {
     queryKey: ['/api/communities', id],
     enabled: !!id,
   });
+  
+  console.log('Community Page - Loading:', isLoading, 'Error:', error, 'Data:', community);
 
   if (isLoading) {
     return (
