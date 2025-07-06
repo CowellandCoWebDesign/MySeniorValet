@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { emergencyApiDisable } from './emergency-api-disable';
 
 /**
  * Unsplash API Integration for Premium Quality Images
@@ -54,6 +55,9 @@ export class UnsplashService {
     page: number = 1,
     perPage: number = 20
   ): Promise<UnsplashSearchResult> {
+    // EMERGENCY: API DISABLED
+    emergencyApiDisable.checkApiAccess('Unsplash API');
+    
     try {
       const response = await axios.get(`${this.baseUrl}/search/photos`, {
         params: {

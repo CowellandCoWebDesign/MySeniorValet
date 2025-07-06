@@ -5,6 +5,8 @@ import { googlePlacesIntegration } from "./google-places-integration";
 import { dataProtectionService } from "./data-protection";
 import { apiCostProtection } from "./api-cost-protection";
 
+import { emergencyApiDisable } from './emergency-api-disable';
+
 export class ComprehensivePhotoEnrichment {
   private delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -16,6 +18,9 @@ export class ComprehensivePhotoEnrichment {
     photosAdded: number;
     errors: string[];
   }> {
+    // EMERGENCY: API DISABLED
+    emergencyApiDisable.checkApiAccess('Comprehensive Photo Enrichment');
+    
     console.log("🚀 Starting comprehensive photo enrichment for ALL communities");
     
     // 🚨 CRITICAL COST PROTECTION: Check total operation cost before starting
@@ -142,6 +147,9 @@ export class ComprehensivePhotoEnrichment {
     photosAdded: number;
     errors: string[];
   }> {
+    // EMERGENCY: API DISABLED
+    emergencyApiDisable.checkApiAccess('City Photo Enrichment');
+    
     console.log(`🚀 Starting photo enrichment for ${city}, ${state}`);
     
     // Get communities in specific city

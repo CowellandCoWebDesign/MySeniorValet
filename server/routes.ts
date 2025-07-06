@@ -47,6 +47,7 @@ import { comprehensivePhotoEnrichment } from "./comprehensive-photo-enrichment";
 import { apiCostProtection } from "./api-cost-protection";
 import { systematicPhotoEnrichment } from "./systematic-photo-enrichment";
 import { emergencyEnrichment } from "./emergency-enrichment";
+import { emergencyApiDisable } from './emergency-api-disable';
 
 // Authentication middleware function
 const isAuthenticated = (req: any, res: any, next: any) => {
@@ -2247,6 +2248,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: 'Community not found' });
       }
 
+      // EMERGENCY: API DISABLED
+      emergencyApiDisable.checkApiAccess('Individual Google Places Enrichment');
+      
       const { googlePlacesIntegration } = await import("./google-places-integration");
       const enrichmentResult = await googlePlacesIntegration.enrichCommunityWithGooglePlaces(community);
       
@@ -4657,6 +4661,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Execute regional expansion for all target counties
   app.post('/api/regional-expansion/execute', async (req, res) => {
     try {
+      // EMERGENCY: API DISABLED
+      emergencyApiDisable.checkApiAccess('Regional Expansion Execute');
+      
       console.log('🚀 Starting Regional Expansion for 7 Target Counties...');
       
       const results = await regionalExpansionEngine.executeRegionalExpansion();
@@ -4940,6 +4947,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Comprehensive photo enrichment routes
   app.post('/api/admin/photo-enrichment/all', async (req, res) => {
     try {
+      // EMERGENCY: API DISABLED
+      emergencyApiDisable.checkApiAccess('Comprehensive Photo Enrichment');
+      
       console.log("🚀 Starting comprehensive photo enrichment for ALL communities");
       const result = await comprehensivePhotoEnrichment.enrichAllCommunities();
       
@@ -5797,6 +5807,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Emergency enrichment endpoint - Direct Google Places integration
   app.post('/api/emergency-enrichment/start', async (req, res) => {
     try {
+      // EMERGENCY: API DISABLED
+      emergencyApiDisable.checkApiAccess('Emergency Enrichment');
+      
       console.log('🚀 STARTING EMERGENCY ENRICHMENT - Direct Google Places integration');
       
       // Launch emergency enrichment asynchronously
