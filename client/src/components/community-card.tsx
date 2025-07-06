@@ -167,10 +167,9 @@ export function CommunityCard({ community }: CommunityCardProps) {
 
   const handleCardClick = (e: React.MouseEvent) => {
     // Don't navigate if clicking on buttons or links
-    if ((e.target as HTMLElement).closest('button, a')) {
+    if ((e.target as HTMLElement).closest('button, a, [role="button"]')) {
       return;
     }
-    // Use proper React routing
     setLocation(`/community/${community.id}`);
   };
 

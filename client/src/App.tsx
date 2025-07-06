@@ -8,7 +8,6 @@ import { DisclaimerBanner } from "@/components/disclaimer-banner";
 import Home from "@/pages/home";
 import Search from "@/pages/search";
 import Explore from "@/pages/explore";
-import Community from "@/pages/community";
 import CommunityPage from "@/pages/community";
 import Claim from "@/pages/claim";
 import Admin from "@/pages/admin";
