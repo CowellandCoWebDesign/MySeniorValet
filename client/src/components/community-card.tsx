@@ -144,29 +144,30 @@ export function CommunityCard({ community }: CommunityCardProps) {
   const hasPhotos = allPhotos.length > 0;
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-all duration-200 border-l-4 border-l-blue-500">
-      {/* ENHANCED PHOTO CAROUSEL */}
-      {hasPhotos ? (
-        <div className="relative">
-          <PhotoCarousel 
-            photos={allPhotos} 
-            communityName={community.name}
-            className="h-48"
-          />
-          
-          {/* FAVORITE HEART OVERLAY */}
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              // TODO: Implement favorite toggle functionality
-              console.log('Toggle favorite for community:', community.id);
-            }}
-            className="absolute top-3 left-3 p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white/90 transition-all duration-200 group shadow-lg z-10"
-            aria-label="Add to favorites"
-          >
-            <Heart className="h-5 w-5 text-red-500/70 group-hover:text-red-500 group-hover:fill-red-500/20 transition-all duration-200" />
-          </button>
+    <Link href={`/community/${community.id}`} className="block group">
+      <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 border-l-4 border-l-blue-500 cursor-pointer">
+        {/* ENHANCED PHOTO CAROUSEL */}
+        {hasPhotos ? (
+          <div className="relative">
+            <PhotoCarousel 
+              photos={allPhotos} 
+              communityName={community.name}
+              className="h-48"
+            />
+            
+            {/* FAVORITE HEART OVERLAY */}
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                // TODO: Implement favorite toggle functionality
+                console.log('Toggle favorite for community:', community.id);
+              }}
+              className="absolute top-3 left-3 p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white/90 transition-all duration-200 group shadow-lg z-10"
+              aria-label="Add to favorites"
+            >
+              <Heart className="h-5 w-5 text-red-500/70 hover:text-red-500 hover:fill-red-500/20 transition-all duration-200" />
+            </button>
 
           {/* OVERLAY BADGES */}
           <div className="absolute top-3 right-3 flex space-x-2">
@@ -542,19 +543,26 @@ export function CommunityCard({ community }: CommunityCardProps) {
 
         {/* ACTION BUTTONS */}
         <div className="flex space-x-3">
-          <Link href={`/community/${community.id}`} className="flex-1">
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 py-3 text-lg font-semibold">
-              View Full Details & More Reviews
-            </Button>
-          </Link>
+          <Button className="flex-1 bg-blue-600 hover:bg-blue-700 py-3 text-lg font-semibold">
+            View Full Details & More Reviews
+          </Button>
           {community.phone && (
-            <Button variant="outline" className="px-6 py-3 border-2">
+            <Button 
+              variant="outline" 
+              className="px-6 py-3 border-2"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                window.open(`tel:${community.phone}`, '_self');
+              }}
+            >
               <Phone className="h-4 w-4 mr-2" />
               Call Now
             </Button>
           )}
         </div>
       </CardContent>
-    </Card>
+      </Card>
+    </Link>
   );
 }

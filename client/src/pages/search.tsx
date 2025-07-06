@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { CommunityCard } from "@/components/community-card";
@@ -22,19 +23,39 @@ interface SearchFilters {
 }
 
 export default function Search() {
+  const [location, setLocation] = useLocation();
+  
+  // Initialize filters from URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
   const [filters, setFilters] = useState<SearchFilters>({
-    location: '',
-    careType: 'all',
-    priceRange: 'all',
-    availability: 'all',
-    minRating: 'all',
-    hasPhotos: false,
+    location: urlParams.get('location') || '',
+    careType: urlParams.get('careType') || 'all',
+    priceRange: urlParams.get('priceRange') || 'all',
+    availability: urlParams.get('availability') || 'all',
+    minRating: urlParams.get('minRating') || 'all',
+    hasPhotos: urlParams.get('hasPhotos') === 'true',
   });
   
-  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'map'>((urlParams.get('view') as 'list' | 'map') || 'list');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
-  const [sortBy, setSortBy] = useState('relevance');
+  const [sortBy, setSortBy] = useState(urlParams.get('sortBy') || 'relevance');
+
+  // Update URL when filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (filters.location) params.set('location', filters.location);
+    if (filters.careType !== 'all') params.set('careType', filters.careType);
+    if (filters.priceRange !== 'all') params.set('priceRange', filters.priceRange);
+    if (filters.availability !== 'all') params.set('availability', filters.availability);
+    if (filters.minRating !== 'all') params.set('minRating', filters.minRating);
+    if (filters.hasPhotos) params.set('hasPhotos', 'true');
+    if (viewMode !== 'list') params.set('view', viewMode);
+    if (sortBy !== 'relevance') params.set('sortBy', sortBy);
+    
+    const newUrl = params.toString() ? `/search?${params.toString()}` : '/search';
+    window.history.replaceState({}, '', newUrl);
+  }, [filters, viewMode, sortBy]);
 
   // Convert filters to API search params
   const searchParams: SearchCommunity = {
