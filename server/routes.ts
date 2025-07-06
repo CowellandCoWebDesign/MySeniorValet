@@ -719,16 +719,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Community not found" });
       }
       
-      // Convert snake_case to camelCase for frontend compatibility
+      // Return the community data as-is (already in correct format)
       const formattedCommunity = {
-        ...community,
-        yelpReviews: community.yelp_reviews,
-        careComReviews: community.care_com_reviews,
-        seniorAdvisorReviews: community.senior_advisor_reviews,
-        aplaceformomReviews: community.aplace_for_mom_reviews,
-        googleReviewSnippets: community.google_review_snippets,
-        googleRating: community.google_rating,
-        googleReviewCount: community.google_review_count
+        ...community
       };
       
       res.json(formattedCommunity);
