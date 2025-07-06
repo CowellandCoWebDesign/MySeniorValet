@@ -199,8 +199,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Apply performance monitoring to all routes
   app.use(monitor.middleware());
   
-  // Apply general rate limiting to all routes
-  app.use(createRateLimitMiddleware(generalLimiter));
+  // TEMPORARILY DISABLED: Rate limiting causing 429 errors for normal users
+  // app.use(createRateLimitMiddleware(generalLimiter));
   
   // ===============================
   // COMPLIANCE MIDDLEWARE - APPLIED FIRST
