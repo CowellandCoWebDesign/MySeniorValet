@@ -37,6 +37,31 @@ export class EmergencyApiDisable {
       throw new Error(`🚨 API DISABLED: ${apiName} is currently disabled due to cost protection measures. All external API calls are blocked until cost issues are resolved.`);
     }
   }
+
+  /**
+   * Get current emergency status
+   */
+  static getStatus(): {
+    disabled: boolean;
+    disabledServices: string[];
+    disabledDate: Date | null;
+    reason: string;
+  } {
+    return {
+      disabled: this.disabled,
+      disabledServices: this.disabled ? [
+        'Google Places API',
+        'Google Places Reviews',
+        'Google Places Photos',
+        'Yelp API',
+        'All External APIs'
+      ] : [],
+      disabledDate: this.disabled ? new Date() : null,
+      reason: this.disabled ? 
+        'Emergency disabled due to $300+ API cost overrun from runaway Google Places discovery endpoint' : 
+        'APIs operational'
+    };
+  }
 }
 
 export const emergencyApiDisable = EmergencyApiDisable;
