@@ -4,10 +4,6 @@
  */
 
 export async function googlePlaceDetail(community) {
-  // EMERGENCY FREEZE: Google Places API disabled due to $600 in runaway charges
-  console.error('EMERGENCY FREEZE: Google Places API disabled - prevented API call');
-  return null;
-  
   if (!process.env.GOOGLE_PLACES_API_KEY) {
     console.warn('Google Places API key not configured');
     return null;
