@@ -98,7 +98,8 @@ export default function CommunityPage() {
   };
 
   const { data: similarCommunities } = useQuery<Community[]>({
-    queryKey: ["/api/communities/similar", params?.id],
+    queryKey: [`/api/communities/similar/${params?.id}`],
+    enabled: !!params?.id,
   });
 
   if (isLoading) {
