@@ -300,9 +300,11 @@ export default function CommunityPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <Star className="h-4 w-4 mr-1 text-yellow-500 fill-current" />
-                      <span className="font-semibold">{community.googleRating.toFixed(1)}</span>
+                      <span className="font-semibold">
+                        {community.googleRating ? parseFloat(community.googleRating.toString()).toFixed(1) : 'N/A'}
+                      </span>
                       <span className="text-gray-500 ml-1">
-                        ({community.googleReviewCount} reviews)
+                        ({community.googleReviewCount || 0} reviews)
                       </span>
                     </div>
                     <Button 
@@ -319,9 +321,11 @@ export default function CommunityPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <Star className="h-4 w-4 mr-1 text-yellow-500 fill-current" />
-                      <span className="font-semibold">{community.yelpRating.toFixed(1)}</span>
+                      <span className="font-semibold">
+                        {community.yelpRating ? parseFloat(community.yelpRating.toString()).toFixed(1) : 'N/A'}
+                      </span>
                       <span className="text-gray-500 ml-1">
-                        ({community.yelpReviewCount} reviews)
+                        ({community.yelpReviewCount || 0} reviews)
                       </span>
                     </div>
                     <Button 
