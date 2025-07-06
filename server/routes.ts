@@ -2404,120 +2404,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return careTypes;
   }
 
-  // Google Places discovery endpoint to find real communities
+  // EMERGENCY DISABLED - Google Places discovery endpoint 
+  // THIS ENDPOINT WAS CAUSING 110,000+ API CALLS IN 24 HOURS ($300+ COST)
   app.post('/api/discover/google-places', async (req, res) => {
-    try {
-      const { city, state, limit = 10 } = req.body;
-      
-      if (!process.env.GOOGLE_API_KEY) {
-        return res.status(400).json({ 
-          message: 'Google API key not configured' 
-        });
-      }
-
-      const axios = (await import('axios')).default;
-      const searchQueries = [
-        `senior living ${city} ${state}`,
-        `assisted living ${city} ${state}`,
-        `memory care ${city} ${state}`,
-        `nursing home ${city} ${state}`,
-        `retirement community ${city} ${state}`
-      ];
-
-      const discoveredCommunities = [];
-      const seenPlaceIds = new Set();
-
-      for (const query of searchQueries) {
-        try {
-          const response = await axios.get('https://maps.googleapis.com/maps/api/place/textsearch/json', {
-            params: {
-              query,
-              key: process.env.GOOGLE_API_KEY,
-              type: 'establishment'
-            },
-            timeout: 10000
-          });
-
-          if (response.data.status === 'OK' && response.data.results) {
-            for (const place of response.data.results.slice(0, 3)) {
-              if (seenPlaceIds.has(place.place_id)) continue;
-              seenPlaceIds.add(place.place_id);
-
-              // Get detailed information
-              const detailsResponse = await axios.get('https://maps.googleapis.com/maps/api/place/details/json', {
-                params: {
-                  place_id: place.place_id,
-                  key: process.env.GOOGLE_API_KEY,
-                  fields: 'name,formatted_address,formatted_phone_number,website,rating,user_ratings_total,photos,types,geometry'
-                },
-                timeout: 10000
-              });
-
-              if (detailsResponse.data.status === 'OK') {
-                const details = detailsResponse.data.result;
-                
-                // Extract address components
-                const addressParts = details.formatted_address.split(',');
-                const zipMatch = details.formatted_address.match(/\b\d{5}\b/);
-                
-                const communityData = {
-                  name: details.name,
-                  address: addressParts[0]?.trim() || '',
-                  city: city,
-                  state: state,
-                  zipCode: zipMatch ? zipMatch[0] : '',
-                  phone: details.formatted_phone_number || '',
-                  website: details.website || '',
-                  description: `Authentic senior living community verified through Google Places API`,
-                  careTypes: determineCareTypesFromName(details.name, details.types),
-                  rating: details.rating ? details.rating.toString() : '',
-                  googleRating: details.rating ? details.rating.toString() : '',
-                  googleReviewCount: details.user_ratings_total || 0,
-                  googlePlacesId: place.place_id,
-                  latitude: details.geometry?.location?.lat?.toString() || '',
-                  longitude: details.geometry?.location?.lng?.toString() || '',
-                  isVerified: true,
-                  amenities: ['WiFi', 'Parking', 'Dining'],
-                  services: ['Personal Care', '24/7 Support'],
-                  availabilityStatus: 'Contact for Availability',
-                  priceRange: { min: 3000, max: 8000 }
-                };
-
-                discoveredCommunities.push(communityData);
-
-                // Rate limiting
-                await new Promise(resolve => setTimeout(resolve, 100));
-              }
-
-              if (discoveredCommunities.length >= limit) break;
-            }
-          }
-
-          // Rate limiting between searches
-          await new Promise(resolve => setTimeout(resolve, 200));
-
-        } catch (error) {
-          console.warn(`Search failed for query: ${query}`, error.message);
-        }
-
-        if (discoveredCommunities.length >= limit) break;
-      }
-
-      res.json({
-        success: true,
-        message: `Discovered ${discoveredCommunities.length} real communities in ${city}, ${state}`,
-        communities: discoveredCommunities,
-        totalQueries: searchQueries.length,
-        apiCallsUsed: discoveredCommunities.length * 2 // text search + details
-      });
-
-    } catch (error) {
-      console.error('Google Places discovery error:', error);
-      res.status(500).json({ 
-        message: 'Google Places discovery failed',
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
+    return res.status(503).json({ 
+      error: '🚨 EMERGENCY DISABLED: Google Places discovery endpoint permanently disabled due to massive API cost overrun (110,000+ calls in 24 hours)',
+      message: 'This endpoint was causing thousands of API calls per request, resulting in $300+ daily costs',
+      alternatives: 'Use existing database communities or contact admin for manual discovery',
+      disabledDate: new Date().toISOString(),
+      reason: 'Cost protection - this single endpoint was making 5 text searches + multiple details calls per request'
+    });
   });
 
   // Save discovered communities to database
