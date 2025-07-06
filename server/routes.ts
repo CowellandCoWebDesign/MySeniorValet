@@ -3986,6 +3986,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Google Cloud billing comprehensive investigation
+  app.get('/api/admin/google-cloud-billing', async (req, res) => {
+    try {
+      const { googleCloudBillingInvestigator } = await import('./google-cloud-billing-investigator');
+      const investigation = await googleCloudBillingInvestigator.investigateGoogleCloudBilling();
+      const queries = googleCloudBillingInvestigator.getGoogleCloudInvestigationQueries();
+      const actions = googleCloudBillingInvestigator.getImmediateActions();
+      const consoleInstructions = googleCloudBillingInvestigator.getConsoleInstructions();
+
+      res.json({
+        investigation,
+        investigationQueries: queries,
+        immediateActions: actions,
+        consoleNavigation: consoleInstructions,
+        summary: {
+          totalEstimatedCost: Object.values(investigation.costBreakdownAnalysis).reduce((a, b) => a + b, 0),
+          topSuspectedServices: investigation.suspectedServices.slice(0, 3).map(s => s.serviceName),
+          criticalFindings: [
+            `Places API Text Search suspected: $${investigation.costBreakdownAnalysis.placesAPI} (highest cost)`,
+            `Maps API repeated loads suspected: $${investigation.costBreakdownAnalysis.mapsAPI}`,
+            `Total suspected Google Cloud services cost: $${Object.values(investigation.costBreakdownAnalysis).reduce((a, b) => a + b, 0).toFixed(2)}`
+          ]
+        }
+      });
+    } catch (error) {
+      console.error('Failed to investigate Google Cloud billing:', error);
+      res.status(500).json({ error: 'Failed to analyze Google Cloud billing' });
+    }
+  });
+
   // Real API cost investigation endpoint
   app.get('/api/admin/api-costs/investigation', async (req, res) => {
     try {
