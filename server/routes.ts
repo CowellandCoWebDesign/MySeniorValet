@@ -5674,19 +5674,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // "no synthetic data" policy. Only authentic Google Places photos used.
   // EXCEPTION: Hero images allowed for homepage from Unsplash per project requirements.
 
-  // Get hero images (EXCEPTION: Unsplash allowed for hero only)
+  // DISABLED: Hero images endpoint causing rate limit issues
   app.get('/api/images/hero', async (req, res) => {
-    try {
-      const { unsplashService } = await import('./unsplash-integration');
-      const heroImages = await unsplashService.getHeroImages();
-      res.json(heroImages);
-    } catch (error) {
-      console.error('Hero image fetch error:', error);
-      res.status(500).json({ 
-        message: 'Failed to fetch hero images',
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
+    // EMERGENCY DISABLED - API rate limits exceeded
+    res.status(503).json({ 
+      message: 'Image service temporarily disabled due to rate limits',
+      fallback: true
+    });
   });
 
   // Get community-specific images (AUTHENTIC ONLY - NO SYNTHETIC DATA)
