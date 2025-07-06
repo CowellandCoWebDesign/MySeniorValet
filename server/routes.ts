@@ -21,7 +21,7 @@ import { careTypeClassifier } from './care-type-classifier';
 import { dataQualityEnhancement } from './data-quality-enhancement';
 import { enhancedSearchService } from "./enhanced-search-service";
 import { zipCodeService } from "./zip-code-mapping";
-import { googlePlacesReviews } from './google-places-reviews';
+import { manualEnrichment } from './manual-enrichment';
 // REMOVED: Unsplash integration - violates "no synthetic data" policy
 import { dataProtectionService } from './data-protection';
 import { z } from "zod";
@@ -5229,52 +5229,104 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Google Reviews restoration endpoint
-  app.post('/api/admin/restore-authentic-reviews', async (req, res) => {
+  // ========================================
+  // MANUAL ENRICHMENT SYSTEM (NO AUTOMATIC PROCESSES)
+  // ========================================
+
+  // Get enrichment statistics
+  app.get('/api/admin/enrichment/stats', async (req, res) => {
     try {
-      console.log("🔄 Starting authentic Google reviews restoration for ALL communities");
-      
-      // Get all communities that need review restoration
-      const allCommunities = await storage.getAllCommunities();
-      
-      const { googlePlacesReviews } = await import("./google-places-reviews");
-      const communityIds = allCommunities.map(c => c.id);
-      
-      // Process in batches of 10 to avoid API overload
-      const batchSize = 10;
-      let totalProcessed = 0;
-      let totalSuccessful = 0;
-      let totalReviewsAdded = 0;
-      
-      for (let i = 0; i < communityIds.length; i += batchSize) {
-        const batch = communityIds.slice(i, i + batchSize);
-        console.log(`📦 Processing batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(communityIds.length/batchSize)} (${batch.length} communities)`);
-        
-        const result = await googlePlacesReviews.enrichCommunitiesWithGoogleReviews(batch);
-        totalProcessed += result.processed;
-        totalSuccessful += result.successful;
-        totalReviewsAdded += result.details.reduce((sum, detail) => sum + detail.reviewsAdded, 0);
-        
-        // Wait between batches to respect API limits
-        if (i + batchSize < communityIds.length) {
-          await new Promise(resolve => setTimeout(resolve, 2000));
-        }
-      }
-      
-      res.json({
-        success: true,
-        message: "Authentic Google reviews restoration completed",
-        statistics: {
-          totalProcessed,
-          totalSuccessful,
-          totalReviewsAdded,
-          successRate: `${Math.round((totalSuccessful / totalProcessed) * 100)}%`
-        }
-      });
+      const stats = await manualEnrichment.getEnrichmentStats();
+      res.json(stats);
     } catch (error) {
-      console.error("❌ Reviews restoration error:", error);
-      res.status(500).json({
-        success: false,
+      res.status(500).json({ 
+        message: 'Failed to get enrichment stats',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Get communities needing photos
+  app.get('/api/admin/enrichment/communities-needing-photos', async (req, res) => {
+    try {
+      const communities = await manualEnrichment.getCommunitiesNeedingPhotos();
+      res.json(communities);
+    } catch (error) {
+      res.status(500).json({ 
+        message: 'Failed to get communities needing photos',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Get communities needing reviews
+  app.get('/api/admin/enrichment/communities-needing-reviews', async (req, res) => {
+    try {
+      const communities = await manualEnrichment.getCommunitiesNeedingReviews();
+      res.json(communities);
+    } catch (error) {
+      res.status(500).json({ 
+        message: 'Failed to get communities needing reviews',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Add photos to one community (manual operation)
+  app.post('/api/admin/enrichment/add-photos/:id', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) {
+        return res.status(400).json({ message: 'Invalid community ID' });
+      }
+
+      const result = await manualEnrichment.addPhotosToOne(communityId);
+      
+      if (result.success) {
+        res.json({
+          message: `Successfully added ${result.photosAdded} photos`,
+          photosAdded: result.photosAdded,
+          cost: result.cost
+        });
+      } else {
+        res.status(400).json({
+          message: result.error || 'Failed to add photos',
+          cost: result.cost
+        });
+      }
+    } catch (error) {
+      res.status(500).json({ 
+        message: 'Error adding photos',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Add reviews to one community (manual operation)
+  app.post('/api/admin/enrichment/add-reviews/:id', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) {
+        return res.status(400).json({ message: 'Invalid community ID' });
+      }
+
+      const result = await manualEnrichment.addReviewsToOne(communityId);
+      
+      if (result.success) {
+        res.json({
+          message: `Successfully added ${result.reviewsAdded} reviews`,
+          reviewsAdded: result.reviewsAdded,
+          cost: result.cost
+        });
+      } else {
+        res.status(400).json({
+          message: result.error || 'Failed to add reviews',
+          cost: result.cost
+        });
+      }
+    } catch (error) {
+      res.status(500).json({ 
+        message: 'Error adding reviews',
         error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
