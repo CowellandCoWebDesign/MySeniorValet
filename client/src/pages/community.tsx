@@ -41,7 +41,7 @@ export default function CommunityPage() {
   console.log('Community Page - ID:', id); // Debug log
   
   const { data: community, isLoading, error } = useQuery<Community>({
-    queryKey: ['/api/communities', id],
+    queryKey: [`/api/communities/${id}`],
     enabled: !!id,
   });
   
