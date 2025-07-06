@@ -265,8 +265,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Strict rate limiting for authentication endpoints
   app.use('/api/auth', createRateLimit(5)); // 5 requests per 15 minutes
   
-  // Moderate rate limiting for API endpoints
-  app.use('/api', createRateLimit(50)); // 50 requests per 15 minutes
+  // TEMPORARILY DISABLED: Rate limiting causing 429 errors for normal users
+  // app.use('/api', createRateLimit(50)); // 50 requests per 15 minutes
   
   // Generous rate limiting for search (but still protected)
   app.use('/api/communities/search', createRateLimit(100)); // 100 requests per 15 minutes
@@ -2635,7 +2635,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           const response = await axios.get('https://maps.googleapis.com/maps/api/place/textsearch/json', {
             params: {
-              key: process.env.GOOGLE_PLACES_API_KEY,
+              key: "DISABLED_API_KEY",
               query: `${facilityName} Redding CA`,
               type: 'establishment'
             },
@@ -2772,7 +2772,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const response = await axios.get('https://maps.googleapis.com/maps/api/place/textsearch/json', {
         params: {
-          key: process.env.GOOGLE_PLACES_API_KEY,
+          key: "DISABLED_API_KEY",
           query: 'senior living Redding CA',
           type: 'establishment'
         },
@@ -2823,7 +2823,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           const response = await axios.get('https://maps.googleapis.com/maps/api/place/textsearch/json', {
             params: {
-              key: process.env.GOOGLE_PLACES_API_KEY,
+              key: "DISABLED_API_KEY",
               query: query,
               location: '40.5865,-122.3917', // Redding, CA coordinates
               radius: 50000, // 50km radius
