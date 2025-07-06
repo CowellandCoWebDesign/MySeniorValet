@@ -4038,6 +4038,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+
+
   // Emergency stop all Google Cloud APIs
   app.post('/api/admin/emergency-stop-apis', async (req, res) => {
     try {
