@@ -90,7 +90,7 @@ export default function Search() {
     setSearchSuggestions([...historySuggestions, ...popularSuggestions].slice(0, 8));
   };
 
-  // Update URL when filters change
+  // Update URL and localStorage when filters change
   useEffect(() => {
     const params = new URLSearchParams();
     if (filters.location) params.set('location', filters.location);
@@ -104,6 +104,19 @@ export default function Search() {
     
     const newUrl = params.toString() ? `/search?${params.toString()}` : '/search';
     window.history.replaceState({}, '', newUrl);
+    
+    // Save search state to localStorage for back navigation
+    const searchState = {
+      location: filters.location,
+      careType: filters.careType,
+      priceRange: filters.priceRange,
+      availability: filters.availability,
+      minRating: filters.minRating,
+      hasPhotos: filters.hasPhotos,
+      viewMode: viewMode,
+      sortBy: sortBy
+    };
+    localStorage.setItem('searchState', JSON.stringify(searchState));
   }, [filters, viewMode, sortBy]);
 
   // Convert filters to API search params

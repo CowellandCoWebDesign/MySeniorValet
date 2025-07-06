@@ -16,6 +16,35 @@ export default function CommunityPage() {
   const [, params] = useRoute("/community/:id");
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   
+  // Get the back URL - either from referrer or localStorage search state
+  const getBackUrl = () => {
+    // Check if we have stored search state
+    const searchState = localStorage.getItem('searchState');
+    if (searchState) {
+      try {
+        const state = JSON.parse(searchState);
+        const searchParams = new URLSearchParams();
+        
+        if (state.location) searchParams.set('location', state.location);
+        if (state.careType && state.careType !== 'all') searchParams.set('careType', state.careType);
+        if (state.priceRange && state.priceRange !== 'all') searchParams.set('priceRange', state.priceRange);
+        if (state.availability && state.availability !== 'all') searchParams.set('availability', state.availability);
+        if (state.minRating && state.minRating !== 'all') searchParams.set('minRating', state.minRating);
+        if (state.hasPhotos) searchParams.set('hasPhotos', 'true');
+        if (state.viewMode && state.viewMode !== 'list') searchParams.set('view', state.viewMode);
+        if (state.sortBy && state.sortBy !== 'relevance') searchParams.set('sortBy', state.sortBy);
+        
+        const queryString = searchParams.toString();
+        return queryString ? `/search?${queryString}` : '/search';
+      } catch (error) {
+        console.error('Error parsing search state:', error);
+      }
+    }
+    
+    // Fallback to basic search page
+    return '/search';
+  };
+  
   const { data: community, isLoading } = useQuery<Community>({
     queryKey: [`/api/communities/${params?.id}`],
   });
@@ -98,7 +127,7 @@ export default function CommunityPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Community Not Found</h1>
-            <Link href="/search">
+            <Link href={getBackUrl()}>
               <Button>Back to Search</Button>
             </Link>
           </div>
@@ -188,7 +217,7 @@ export default function CommunityPage() {
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Community Not Found</h1>
             <p className="text-gray-600 mb-6">The community you're looking for doesn't exist or has been removed.</p>
-            <Link href="/search">
+            <Link href={getBackUrl()}>
               <Button>Back to Search</Button>
             </Link>
           </div>
@@ -212,7 +241,7 @@ export default function CommunityPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Navigation */}
         <div className="mb-6">
-          <Link href="/search">
+          <Link href={getBackUrl()}>
             <Button variant="outline" className="mb-4">
               <ChevronLeft className="h-4 w-4 mr-2" />
               Back to Search
