@@ -50,9 +50,9 @@ export function PremiumImage({
 
   const { data: images, isLoading, isError } = useQuery({
     queryKey: [`/api/images/${type}`, query, orientation, communityId],
-    enabled: false, // DISABLED: Preventing automatic API calls to preserve cost limits
+    enabled: type === 'hero' ? !imageError : false, // Only allow hero images, block others
     retry: 1,
-    staleTime: 24 * 60 * 60 * 1000, // 24 hours
+    staleTime: 24 * 60 * 60 * 1000, // 24 hours - cache for long time to prevent repeat calls
   });
 
   const selectedImage = images && Array.isArray(images) ? images[0] : images;
