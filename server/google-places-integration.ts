@@ -1,7 +1,6 @@
 import axios from 'axios';
 import type { Community } from '@shared/schema';
 import { apiCostProtection } from './api-cost-protection';
-import { realApiCostTracker } from './real-api-cost-tracker';
 
 export interface GooglePlacesBusinessData {
   place_id: string;
@@ -67,19 +66,6 @@ export class GooglePlacesIntegration {
   }
 
   async enrichCommunityWithGooglePlaces(community: Community): Promise<GooglePlacesEnrichmentResult | null> {
-    // 🚨🚨🚨 EMERGENCY KILL SWITCH - ALL API CALLS BLOCKED DUE TO $100 BURN 🚨🚨🚨
-    console.error(`🚨 EMERGENCY STOP: All Google Places API calls blocked due to unexpected $100 cost burn. Community: ${community.name}`);
-    return {
-      placeId: '',
-      rating: 0,
-      reviewCount: 0,
-      photos: [],
-      reviews: [],
-      success: false,
-      error: 'EMERGENCY STOP: All Google Places API calls blocked due to cost overrun',
-      costIncurred: 0
-    };
-    
     // Continue enrichment to gather additional photos and information
     const existingPhotos = community.photos || [];
     
@@ -183,10 +169,6 @@ export class GooglePlacesIntegration {
   }
 
   private async searchGooglePlaces(community: Community): Promise<{ place_id: string; rating?: number; user_ratings_total?: number } | null> {
-    // 🚨 EMERGENCY KILL SWITCH - NO GOOGLE PLACES SEARCH ALLOWED
-    console.error(`🚨 EMERGENCY STOP: searchGooglePlaces blocked for ${community.name} due to $100 API burn`);
-    return null;
-    
     if (!this.apiKey) {
       throw new Error('Google Places API key not configured');
     }
@@ -214,16 +196,6 @@ export class GooglePlacesIntegration {
 
         this.callCount++;
         this.totalCost += this.costPerTextSearch;
-
-        // Track real API cost
-        await realApiCostTracker.trackApiCall(
-          'textSearch',
-          1,
-          this.costPerTextSearch,
-          `Search for ${community.name}`,
-          response.data?.status === 'OK',
-          response.data
-        );
 
         if (response.data?.results?.length > 0) {
           // Find the best match
@@ -304,10 +276,6 @@ export class GooglePlacesIntegration {
   }
 
   private async getPlaceDetails(placeId: string): Promise<GooglePlacesBusinessData | null> {
-    // 🚨 EMERGENCY KILL SWITCH - NO GOOGLE PLACES DETAILS ALLOWED
-    console.error(`🚨 EMERGENCY STOP: getPlaceDetails blocked for placeId ${placeId} due to $100 API burn`);
-    return null;
-    
     if (!this.apiKey) {
       throw new Error('Google Places API key not configured');
     }
@@ -324,16 +292,6 @@ export class GooglePlacesIntegration {
 
       this.callCount++;
       this.totalCost += this.costPerDetailsRequest;
-
-      // Track real API cost
-      await realApiCostTracker.trackApiCall(
-        'placeDetails',
-        1,
-        this.costPerDetailsRequest,
-        `Place details for ${placeId}`,
-        response.data?.status === 'OK',
-        response.data
-      );
 
       return response.data?.result || null;
 
@@ -372,16 +330,6 @@ export class GooglePlacesIntegration {
         
         actualCost += this.costPerPhotoRequest;
         this.totalCost += this.costPerPhotoRequest;
-
-        // Track real API cost for photos
-        await realApiCostTracker.trackApiCall(
-          'placePhotos',
-          1,
-          this.costPerPhotoRequest,
-          `Photo ${photo.photo_reference}`,
-          true,
-          { photo_reference: photo.photo_reference }
-        );
 
         // Rate limiting
         await this.delay(100); // Increased delay for safety
@@ -439,10 +387,6 @@ export class GooglePlacesIntegration {
 
   // Batch enrichment with cost control
   async enrichCommunitiesBatch(communities: Community[]): Promise<Map<number, GooglePlacesEnrichmentResult>> {
-    // 🚨 EMERGENCY KILL SWITCH - NO BATCH ENRICHMENT ALLOWED
-    console.error(`🚨 EMERGENCY STOP: enrichCommunitiesBatch blocked for ${communities.length} communities due to $100 API burn`);
-    return new Map<number, GooglePlacesEnrichmentResult>();
-    
     const results = new Map<number, GooglePlacesEnrichmentResult>();
     let totalBatchCost = 0;
     

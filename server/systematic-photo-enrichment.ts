@@ -35,9 +35,7 @@ export class SystematicPhotoEnrichment {
       console.log(`   📸 Current photos: ${existingPhotos}`);
       
       // Enrich with Google Places
-      // 🚨 EMERGENCY STOP: Google Places API blocked due to $100 burn
-      console.error(`🚨 EMERGENCY STOP: systematic-photo-enrichment blocked for ${community.name}`);
-      const enrichmentResult = null; // await googlePlacesIntegration.enrichCommunityWithGooglePlaces(community);
+      const enrichmentResult = await googlePlacesIntegration.enrichCommunityWithGooglePlaces(community);
       
       if (!enrichmentResult || !enrichmentResult.success) {
         console.log(`   ⚠️  No Google Places data found for ${community.name}`);

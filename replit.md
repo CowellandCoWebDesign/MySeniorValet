@@ -162,7 +162,7 @@ The application is configured for multiple deployment environments:
 - Community page review sections with external links
 - Complete review transparency infrastructure
 
-## Current Status (January 6, 2025)
+## Current Status (January 5, 2025)
 **Database**: 182 authenticated Northern California communities
 **Coverage**: Complete Bay Area, Sacramento Region, North Coast, Central Valley
 **Photos**: Google Photos API restored and working with fire-proofing protection (10 photos max, $30 cost limit)
@@ -178,7 +178,6 @@ The application is configured for multiple deployment environments:
 **User Dashboard**: Polished experience with favorites management, search alerts, visits, notes, and account settings
 **Search State Persistence**: URL-based filter preservation prevents search reset on back navigation
 **Enhanced UX**: Larger search buttons (h-12), fully clickable community cards, prominent photo carousel arrows, automatic scroll-to-top on page navigation
-**Community Navigation**: FIXED - Community detail pages now load properly with working card navigation and "View more full details" buttons
 
 ## ⚠️ CRITICAL API COST PROTECTION IMPLEMENTED (January 5, 2025)
 **Issue Identified**: Previous runaway API costs of $300+ from uncontrolled photo enrichment

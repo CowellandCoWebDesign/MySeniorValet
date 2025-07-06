@@ -1,5 +1,3 @@
-// EMERGENCY FREEZE: Script disabled due to $600 in Google API charges
-exit 1;
 /**
  * San Francisco Community Discovery Script
  * Expands database to include all authentic senior living communities in San Francisco

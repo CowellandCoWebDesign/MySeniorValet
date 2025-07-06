@@ -48,13 +48,20 @@ export function PremiumImage({
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  // EMERGENCY: All image queries disabled due to rate limits
-  const images = null;
-  const isLoading = false;
-  const isError = false;
-  const selectedImage = null;
-  const imageUrl = null;
-  const optimizedUrl = fallback;
+  const { data: images, isLoading, isError } = useQuery({
+    queryKey: [`/api/images/${type}`, query, orientation, communityId],
+    enabled: !imageError,
+    retry: 1,
+    staleTime: 24 * 60 * 60 * 1000, // 24 hours
+  });
+
+  const selectedImage = images && Array.isArray(images) ? images[0] : images;
+  const imageUrl = selectedImage?.urls?.regular || selectedImage?.urls?.full;
+
+  // Optimize image URL for specific dimensions
+  const optimizedUrl = imageUrl ? 
+    `${imageUrl}&w=${width}&h=${height}&fit=crop&crop=center&auto=format&q=80` : 
+    fallback;
 
   useEffect(() => {
     if (imageUrl) {
