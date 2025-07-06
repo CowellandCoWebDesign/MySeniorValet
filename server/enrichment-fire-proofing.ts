@@ -458,7 +458,8 @@ export class EnrichmentFireProofing {
 
 export const enrichmentFireProofing = new EnrichmentFireProofing();
 
-// Cleanup old sessions every 5 minutes
-setInterval(() => {
-  enrichmentFireProofing.cleanupOldSessions();
-}, 5 * 60 * 1000);
+// DISABLED: Cleanup old sessions every 5 minutes
+// This was running automatically every 5 minutes - now only runs when needed
+// setInterval(() => {
+//   enrichmentFireProofing.cleanupOldSessions();
+// }, 5 * 60 * 1000);

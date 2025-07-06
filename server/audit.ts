@@ -241,7 +241,8 @@ export class SecurityAuditService {
 
 export const auditService = new SecurityAuditService();
 
-// Schedule daily cleanup of old logs
-setInterval(() => {
-  auditService.cleanupOldLogs(90); // Keep 90 days of logs
-}, 24 * 60 * 60 * 1000); // Run daily
+// DISABLED: Schedule daily cleanup of old logs
+// This was running automatically - now only runs when manually requested
+// setInterval(() => {
+//   auditService.cleanupOldLogs(90); // Keep 90 days of logs
+// }, 24 * 60 * 60 * 1000); // Run daily

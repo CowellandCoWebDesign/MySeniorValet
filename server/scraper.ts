@@ -855,10 +855,11 @@ export class ComprehensiveScraper {
 
 export const scraper = new ComprehensiveScraper();
 
-// Run scraper every 24 hours
-setInterval(() => {
-  scraper.runDailyScrape();
-}, 24 * 60 * 60 * 1000);
+// DISABLED: Run scraper every 24 hours
+// This was causing continuous API charges - now only runs when manually requested
+// setInterval(() => {
+//   scraper.runDailyScrape();
+// }, 24 * 60 * 60 * 1000);
 
 // Initial scrape on startup (commented out to avoid overwhelming during development)
 // setTimeout(() => {
