@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { CommunityCard } from '@/components/community-card';
+import { CommunityCardSkeleton } from '@/components/community-card-skeleton';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -416,18 +417,9 @@ export default function Explore() {
           {/* Community List */}
           <div className="space-y-4">
             {isLoading ? (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {[...Array(5)].map((_, i) => (
-                  <Card key={i} className="animate-pulse">
-                    <CardHeader>
-                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="h-3 bg-gray-200 rounded w-full mb-2"></div>
-                      <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-                    </CardContent>
-                  </Card>
+                  <CommunityCardSkeleton key={i} />
                 ))}
               </div>
             ) : communities && communities.length > 0 ? (

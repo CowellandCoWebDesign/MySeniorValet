@@ -4,13 +4,15 @@ import { useLocation } from "wouter";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { CommunityCard } from "@/components/community-card";
+import { CommunityCardSkeleton } from "@/components/community-card-skeleton";
 import { MapView } from "@/components/map-view";
+import { Breadcrumb } from "@/components/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { List, Map as MapIcon, Filter, X, Search as SearchIcon } from "lucide-react";
+import { List, Map as MapIcon, Filter, X, Search as SearchIcon, MapPin, Star, AlertTriangle } from "lucide-react";
 import type { Community, SearchCommunity } from "@shared/schema";
 
 interface SearchFilters {
@@ -40,6 +42,53 @@ export default function Search() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
   const [sortBy, setSortBy] = useState(urlParams.get('sortBy') || 'relevance');
+  
+  // Search history and suggestions
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
+
+  // Load search history from localStorage
+  useEffect(() => {
+    const history = localStorage.getItem('searchHistory');
+    if (history) {
+      setSearchHistory(JSON.parse(history));
+    }
+  }, []);
+
+  // Save search to history
+  const saveSearchToHistory = (searchTerm: string) => {
+    if (!searchTerm.trim()) return;
+    
+    const newHistory = [searchTerm, ...searchHistory.filter(item => item !== searchTerm)].slice(0, 10);
+    setSearchHistory(newHistory);
+    localStorage.setItem('searchHistory', JSON.stringify(newHistory));
+  };
+
+  // Popular search suggestions
+  const popularSearches = [
+    'San Francisco', 'Sacramento', 'Oakland', 'San Jose', 'Fresno',
+    'Assisted Living', 'Memory Care', 'Independent Living', 'Skilled Nursing',
+    'Redding', 'Stockton', 'Modesto', 'Eureka', 'Chico'
+  ];
+
+  // Generate suggestions based on input
+  const generateSuggestions = (input: string) => {
+    if (!input.trim()) {
+      setSearchSuggestions([...searchHistory.slice(0, 5), ...popularSearches.slice(0, 5)]);
+      return;
+    }
+    
+    const inputLower = input.toLowerCase();
+    const historySuggestions = searchHistory.filter(item => 
+      item.toLowerCase().includes(inputLower)
+    );
+    const popularSuggestions = popularSearches.filter(item => 
+      item.toLowerCase().includes(inputLower)
+    );
+    
+    setSearchSuggestions([...historySuggestions, ...popularSuggestions].slice(0, 8));
+  };
 
   // Update URL when filters change
   useEffect(() => {
@@ -110,6 +159,15 @@ export default function Search() {
       <Header />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Breadcrumb */}
+        <Breadcrumb 
+          items={[
+            { label: 'Search', href: '/search' },
+            { label: filteredCommunities.length > 0 ? `${filteredCommunities.length} Communities` : 'Results', current: true }
+          ]}
+          className="mb-6"
+        />
+        
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Find Your Perfect Senior Living Community</h1>
@@ -119,17 +177,109 @@ export default function Search() {
           
           {/* Search Bar */}
           <div className="relative max-w-2xl">
-            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 z-10" />
             <Input
               placeholder="Search by location, community name, or ZIP code..."
               value={filters.location}
-              onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
+              onChange={(e) => {
+                const value = e.target.value;
+                setFilters(prev => ({ ...prev, location: value }));
+                generateSuggestions(value);
+                setShowSuggestions(true);
+              }}
+              onFocus={() => {
+                generateSuggestions(filters.location);
+                setShowSuggestions(true);
+              }}
+              onBlur={() => {
+                setTimeout(() => setShowSuggestions(false), 150);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  saveSearchToHistory(filters.location);
+                  setShowSuggestions(false);
+                }
+              }}
               className="pl-10 h-12 text-lg"
             />
+            
+            {/* Search Suggestions Dropdown */}
+            {showSuggestions && searchSuggestions.length > 0 && (
+              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-20 max-h-60 overflow-y-auto">
+                {searchSuggestions.map((suggestion, index) => (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      setFilters(prev => ({ ...prev, location: suggestion }));
+                      saveSearchToHistory(suggestion);
+                      setShowSuggestions(false);
+                    }}
+                    className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0 focus:outline-none focus:bg-gray-50"
+                  >
+                    <div className="flex items-center space-x-3">
+                      {searchHistory.includes(suggestion) ? (
+                        <div className="w-4 h-4 text-gray-400">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                      ) : (
+                        <SearchIcon className="w-4 h-4 text-gray-400" />
+                      )}
+                      <span className="text-gray-900">{suggestion}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Quick Filters */}
+        {/* Quick Filter Buttons */}
+        <div className="mb-6">
+          <div className="flex flex-wrap gap-2 items-center">
+            <span className="text-sm font-medium text-gray-700 mr-2">Popular filters:</span>
+            <Button
+              variant={filters.careType === "Assisted Living" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setFilters(prev => ({ 
+                ...prev, 
+                careType: prev.careType === "Assisted Living" ? "all" : "Assisted Living" 
+              }))}
+            >
+              Assisted Living
+            </Button>
+            <Button
+              variant={filters.careType === "Memory Care" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setFilters(prev => ({ 
+                ...prev, 
+                careType: prev.careType === "Memory Care" ? "all" : "Memory Care" 
+              }))}
+            >
+              Memory Care
+            </Button>
+            <Button
+              variant={filters.minRating === "4" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setFilters(prev => ({ 
+                ...prev, 
+                minRating: prev.minRating === "4" ? "all" : "4" 
+              }))}
+            >
+              4+ Stars
+            </Button>
+            <Button
+              variant={filters.hasPhotos ? "default" : "outline"}
+              size="sm"
+              onClick={() => setFilters(prev => ({ ...prev, hasPhotos: !prev.hasPhotos }))}
+            >
+              With Photos
+            </Button>
+          </div>
+        </div>
+
+        {/* Advanced Filters */}
         <div className="mb-8">
           <div className="flex flex-wrap gap-3 items-center">
             <Select value={filters.careType} onValueChange={(value) => setFilters(prev => ({ ...prev, careType: value }))}>
@@ -275,18 +425,77 @@ export default function Search() {
             {isLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[...Array(6)].map((_, i) => (
-                  <Skeleton key={i} className="h-80 rounded-lg" />
+                  <CommunityCardSkeleton key={i} />
                 ))}
               </div>
             ) : error ? (
-              <div className="text-center py-12">
-                <div className="text-red-600 text-lg font-semibold mb-2">Something went wrong</div>
-                <p className="text-gray-600">Please try refreshing the page or adjusting your search criteria.</p>
+              <div className="text-center py-12 max-w-md mx-auto">
+                <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+                  <AlertTriangle className="w-8 h-8 text-red-500" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Unable to load communities</h3>
+                <p className="text-gray-600 mb-6">
+                  We're having trouble connecting to our servers. This usually resolves quickly.
+                </p>
+                <div className="space-y-3">
+                  <Button 
+                    onClick={() => window.location.reload()}
+                    className="w-full"
+                  >
+                    Try Again
+                  </Button>
+                  <p className="text-xs text-gray-500">
+                    If the problem persists, try refreshing the page or check your internet connection.
+                  </p>
+                </div>
               </div>
             ) : !filteredCommunities.length ? (
-              <div className="text-center py-12">
-                <div className="text-gray-600 text-lg font-semibold mb-2">No communities found</div>
-                <p className="text-gray-500">Try adjusting your search criteria or removing some filters.</p>
+              <div className="text-center py-12 max-w-md mx-auto">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                  <SearchIcon className="w-8 h-8 text-gray-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">No communities found</h3>
+                <p className="text-gray-600 mb-6">
+                  Don't worry! Try these suggestions to find more communities:
+                </p>
+                <div className="space-y-3 text-left">
+                  <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
+                    <MapPin className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                    <span className="text-sm text-blue-900">
+                      Try expanding your search radius or searching nearby cities
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
+                    <Filter className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <span className="text-sm text-green-900">
+                      Remove some filters like price range or care type
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-3 p-3 bg-purple-50 rounded-lg">
+                    <Star className="w-5 h-5 text-purple-600 flex-shrink-0" />
+                    <span className="text-sm text-purple-900">
+                      Lower the minimum rating requirement
+                    </span>
+                  </div>
+                </div>
+                <div className="mt-6 space-y-2">
+                  <Button 
+                    onClick={() => setFilters({
+                      location: filters.location,
+                      careType: 'all',
+                      priceRange: 'all', 
+                      availability: 'all',
+                      minRating: 'all',
+                      hasPhotos: false
+                    })}
+                    className="w-full"
+                  >
+                    Clear All Filters
+                  </Button>
+                  <p className="text-xs text-gray-500">
+                    Popular searches: "San Francisco", "Sacramento", "Assisted Living"
+                  </p>
+                </div>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
