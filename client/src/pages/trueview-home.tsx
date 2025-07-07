@@ -102,9 +102,9 @@ export default function TrueViewHome() {
           <img 
             src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
             alt="Golden Gate Bridge background"
-            className="w-full h-full object-cover opacity-20"
+            className="w-full h-full object-cover opacity-30"
           />
-          <div className="absolute inset-0 bg-white/80"></div>
+          <div className="absolute inset-0 bg-white/70"></div>
         </div>
         
         <div className="relative z-10">
@@ -238,9 +238,9 @@ export default function TrueViewHome() {
           <img 
             src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
             alt="Golden Gate Bridge background"
-            className="w-full h-full object-cover opacity-25"
+            className="w-full h-full object-cover opacity-35"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-50/85 to-pink-50/85"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-50/75 to-pink-50/75"></div>
         </div>
         
         <div className="relative z-10">
@@ -477,9 +477,9 @@ export default function TrueViewHome() {
           <img 
             src="https://images.unsplash.com/photo-1505142468610-359e7d316be0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
             alt="Ocean waves background"
-            className="w-full h-full object-cover opacity-30"
+            className="w-full h-full object-cover opacity-40"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-50/80 to-cyan-50/80"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-50/70 to-cyan-50/70"></div>
         </div>
         
         <div className="relative z-10">
