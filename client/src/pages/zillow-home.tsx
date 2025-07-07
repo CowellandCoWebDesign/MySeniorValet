@@ -281,13 +281,21 @@ export default function ZillowHome() {
 
       {/* Care Level Guide */}
       <section className="px-4 py-8 bg-gray-50">
-        <div className="mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
-            Understanding care levels
-          </h2>
-          <p className="text-gray-600 text-sm">
-            Find the right level of care based on needs and independence
-          </p>
+        {/* Healthcare Hero Image */}
+        <div className="mb-6 relative">
+          <div className="aspect-[16/9] bg-gradient-to-r from-blue-50 to-green-50 rounded-lg overflow-hidden">
+            <img 
+              src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80"
+              alt="Healthcare professional assisting senior in comfortable care environment"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+              <div className="text-center text-white px-4">
+                <h2 className="text-2xl font-bold mb-2">Understanding care levels</h2>
+                <p className="text-sm opacity-90">Find the right level of care based on needs and independence</p>
+              </div>
+            </div>
+          </div>
         </div>
         
         <div className="space-y-4">
