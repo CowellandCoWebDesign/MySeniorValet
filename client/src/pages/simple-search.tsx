@@ -17,8 +17,8 @@ import {
   Mail
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { Icon } from 'leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import { Icon, LatLngBounds } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 // Custom marker icon for communities
@@ -33,12 +33,29 @@ const communityIcon = new Icon({
   popupAnchor: [0, -32],
 });
 
+// Component to handle map events and track visible communities
+function MapBoundsTracker({ onBoundsChange }: { onBoundsChange: (bounds: LatLngBounds) => void }) {
+  const map = useMapEvents({
+    moveend: () => {
+      onBoundsChange(map.getBounds());
+    },
+    zoomend: () => {
+      onBoundsChange(map.getBounds());
+    },
+    load: () => {
+      onBoundsChange(map.getBounds());
+    }
+  });
+  return null;
+}
+
 export default function SimpleSearch() {
   const [location] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<'list' | 'map'>('map');
   const [activeTab, setActiveTab] = useState('search');
   const [isResultsExpanded, setIsResultsExpanded] = useState(false);
+  const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
 
   // Parse URL parameters
   useEffect(() => {
@@ -54,16 +71,33 @@ export default function SimpleSearch() {
 
   console.log('SimpleSearch - communities:', communities?.length, 'loading:', isLoading);
 
-  const filteredCommunities = communities?.filter((community: any) => {
-    if (!searchQuery) return true;
+  // Filter communities by search query first
+  const searchFilteredCommunities = communities?.filter((community: any) => {
+    if (!searchQuery) {
+      return true;
+    }
     
     const query = searchQuery.toLowerCase();
-    return (
+    const matches = 
       community.name?.toLowerCase().includes(query) ||
       community.city?.toLowerCase().includes(query) ||
-      community.careTypes?.some((type: string) => type.toLowerCase().includes(query))
-    );
+      community.careTypes?.some((type: string) => type.toLowerCase().includes(query));
+    return matches;
   }) || [];
+
+  // Then filter by map bounds (communities visible in current map view)
+  const visibleCommunities = searchFilteredCommunities.filter((community: any) => {
+    // If no map bounds yet, show all search results
+    if (!mapBounds || !community.latitude || !community.longitude) {
+      return true;
+    }
+    
+    // Check if community is within current map view
+    return mapBounds.contains([community.latitude, community.longitude]);
+  });
+
+  // For display purposes - use visible communities when in map mode
+  const displayCommunities = viewMode === 'map' ? visibleCommunities : searchFilteredCommunities;
 
   // Bottom Navigation
   const BottomNav = () => (
@@ -182,8 +216,11 @@ export default function SimpleSearch() {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             
+            {/* Map Bounds Tracker */}
+            <MapBoundsTracker onBoundsChange={setMapBounds} />
+            
             {/* Community Markers */}
-            {filteredCommunities
+            {searchFilteredCommunities
               .filter((community: any) => community.latitude && community.longitude)
               .map((community: any) => (
                 <Marker
@@ -261,11 +298,13 @@ export default function SimpleSearch() {
             >
               <div className="flex items-center space-x-2">
                 <div className="text-lg font-semibold text-gray-900">
-                  {filteredCommunities.length} results
+                  {displayCommunities.length} {viewMode === 'map' ? 'in this area' : 'results'}
                 </div>
-                <div className="text-sm text-gray-600">
-                  • {filteredCommunities.filter((c: any) => c.latitude && c.longitude).length} on map
-                </div>
+                {viewMode === 'map' && (
+                  <div className="text-sm text-gray-600">
+                    • of {searchFilteredCommunities.length} total
+                  </div>
+                )}
               </div>
               <div className={`transform transition-transform duration-200 ${isResultsExpanded ? 'rotate-180' : ''}`}>
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -278,7 +317,7 @@ export default function SimpleSearch() {
             {isResultsExpanded && (
               <div className="h-64 overflow-y-auto">
                 <div className="p-2 space-y-2">
-                  {filteredCommunities.map((community: any) => (
+                  {displayCommunities.map((community: any) => (
                     <div
                       key={community.id}
                       onClick={() => window.location.href = `/community/${community.id}`}
@@ -342,7 +381,7 @@ export default function SimpleSearch() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-4">
               <span className="text-lg font-semibold">
-                {filteredCommunities.length} results
+                {displayCommunities.length} results
               </span>
               <Button
                 variant="outline"
@@ -357,7 +396,7 @@ export default function SimpleSearch() {
 
           {/* Communities List */}
           <div className="space-y-4">
-            {filteredCommunities.map((community: any, index: number) => (
+            {displayCommunities.map((community: any, index: number) => (
               <Link key={community.id} href={`/community/${community.id}`}>
                 <Card className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow">
                   <div className="flex">
