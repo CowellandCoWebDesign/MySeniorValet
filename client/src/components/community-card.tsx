@@ -6,6 +6,7 @@ import { Star, Shield, AlertTriangle, DollarSign, MapPin, Heart, Share, Users, C
 import { Link } from "wouter";
 import type { Community } from "@shared/schema";
 import { PhotoCarousel } from "@/components/photo-carousel";
+import { processPhotoUrls } from "@/lib/photoUtils";
 
 interface CommunityCardProps {
   community: Community;
@@ -156,8 +157,9 @@ export function CommunityCard({ community }: CommunityCardProps) {
       allPhotos.push(...community.imageGallery);
     }
     
-    // Remove duplicates and return
-    return Array.from(new Set(allPhotos));
+    // Remove duplicates and process URLs through proxy
+    const uniquePhotos = Array.from(new Set(allPhotos));
+    return processPhotoUrls(uniquePhotos);
   };
 
   const allPhotos = getAllPhotos();

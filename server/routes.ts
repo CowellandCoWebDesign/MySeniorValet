@@ -5368,6 +5368,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Photo proxy endpoint - serves Google Places photos with current API key
+  app.get('/api/images/photo-proxy', async (req, res) => {
+    try {
+      const { photo_reference, maxwidth = 800 } = req.query;
+      
+      if (!photo_reference) {
+        return res.status(400).json({ error: 'photo_reference parameter required' });
+      }
+
+      // Check if we have a valid Google Places API key
+      const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+      if (!apiKey) {
+        return res.status(503).json({ error: 'Google Places API key not configured' });
+      }
+
+      // Construct Google Places Photo API URL with current valid key
+      const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${maxwidth}&photo_reference=${photo_reference}&key=${apiKey}`;
+      
+      // Fetch and stream the image
+      const response = await fetch(photoUrl);
+      if (!response.ok) {
+        throw new Error(`Google Photos API error: ${response.status}`);
+      }
+
+      // Stream the image to client with appropriate headers
+      res.set('Content-Type', response.headers.get('content-type') || 'image/jpeg');
+      res.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+      
+      const arrayBuffer = await response.arrayBuffer();
+      res.send(Buffer.from(arrayBuffer));
+      
+    } catch (error) {
+      console.error('Photo proxy error:', error);
+      res.status(500).json({ 
+        error: 'Failed to fetch photo',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Get community-specific images (AUTHENTIC ONLY - NO SYNTHETIC DATA)
   app.get('/api/images/community/:communityId', async (req, res) => {
     try {
