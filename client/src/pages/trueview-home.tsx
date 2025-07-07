@@ -67,14 +67,14 @@ export default function TrueViewHome() {
           {/* Centered Headlines */}
           <div className="text-center mb-12">
             <div className="space-y-1">
-              <h1 className="text-5xl font-bold text-white leading-tight">
+              <h1 className="text-4xl font-bold text-white leading-tight">
                 Senior Living.
               </h1>
-              <h2 className="text-5xl font-bold text-white leading-tight">
+              <h2 className="text-4xl font-bold text-white leading-tight">
                 Tours. Care. Community.
               </h2>
             </div>
-            <p className="text-lg text-white opacity-90 mt-4">
+            <p className="text-base text-white opacity-90 mt-4">
               Search 182 verified communities across Northern California
             </p>
           </div>
