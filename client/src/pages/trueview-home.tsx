@@ -312,6 +312,8 @@ export default function TrueViewHome() {
         </div>
       </section>
 
+
+
       {/* Care Level Guide */}
       <section className="px-4 py-8 bg-gradient-to-br from-green-50 to-blue-50">
         {/* Healthcare Hero Image */}
@@ -449,6 +451,88 @@ export default function TrueViewHome() {
           <Button className="w-full gradient-tertiary hover:opacity-90 text-white border-0">
             Find communities by care level
           </Button>
+        </div>
+      </section>
+
+      {/* Coastal Living Section */}
+      <section className="px-4 py-8 bg-gradient-to-r from-blue-50 to-cyan-50">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-gray-900">
+            Coastal Living in Eureka
+          </h2>
+          <div className="text-right">
+            <div className="text-sm font-semibold text-gray-900">$3,200 - $4,800</div>
+            <div className="text-xs text-blue-600">Ocean views available</div>
+          </div>
+        </div>
+        
+        <p className="text-gray-600 text-sm mb-4">Oceanside communities with fresh air and scenic beauty</p>
+        
+        <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
+          {communities?.filter((community: any) => community.city === 'Eureka').slice(0, 6).map((community: any, index) => (
+            <Link key={community.id} href={`/community/${community.id}`}>
+              <Card className={`overflow-hidden flex-shrink-0 w-48 animate-float ${
+                index % 3 === 0 ? 'gradient-border-secondary' : 
+                index % 3 === 1 ? 'gradient-border-tertiary' : 
+                'card-enhanced'
+              }`} style={{animationDelay: `${index * 0.2}s`}}>
+                <div className="relative">
+                  <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
+                    <Home className="w-12 h-12 text-gray-400" />
+                  </div>
+                  
+                  {/* Heart Icon */}
+                  <div className="absolute top-3 right-3">
+                    <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
+                      <Heart className="w-4 h-4 text-gray-600" />
+                    </div>
+                  </div>
+                  
+                  {/* Coastal Living Badge */}
+                  {index % 3 === 0 && (
+                    <Badge className="absolute top-3 left-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
+                      Ocean View
+                    </Badge>
+                  )}
+                  {index % 3 === 1 && (
+                    <Badge className="absolute top-3 left-3 bg-cyan-600 text-white text-xs px-2 py-1 font-medium">
+                      Coastal
+                    </Badge>
+                  )}
+                  
+                  {/* Price Badge */}
+                  <Badge className="absolute bottom-3 left-3 bg-green-600 text-white text-xs px-2 py-1 font-medium">
+                    $3K+
+                  </Badge>
+                </div>
+                
+                <CardContent className="p-3">
+                  <div className="text-xl font-bold text-gray-900 mb-1">
+                    {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : '$3,800'}
+                  </div>
+                  
+                  <div className="text-sm text-gray-700 mb-1">
+                    {community.careTypes?.length > 0 ? 
+                      `${community.careTypes[0]} • Coastal Living` : 
+                      'Assisted Living • Ocean Views'
+                    }
+                  </div>
+                  
+                  <div className="text-sm font-medium text-gray-900 mb-2 line-clamp-1">
+                    {community.name}
+                  </div>
+                  
+                  <div className="text-xs text-gray-600 line-clamp-1">
+                    {community.address || 'Oceanside Community'}, Eureka, CA
+                  </div>
+                  
+                  <div className="flex items-center mt-2 text-xs text-gray-500">
+                    <span>🌊 Coastal Views</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
         </div>
       </section>
 
