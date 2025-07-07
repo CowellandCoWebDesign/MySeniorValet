@@ -5446,6 +5446,98 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // REMOVED: All Unsplash synthetic data endpoints violate "no synthetic data" policy
   // Community photos now come only from authentic Google Places photos in database
 
+  // Migrate existing direct photo URLs to cached photo system
+  app.post('/api/admin/migrate-photos', async (req, res) => {
+    try {
+      console.log('🔄 Starting photo migration from direct URLs to cached system...');
+      
+      // Get communities with direct Google Places URLs (not cached)
+      const communitiesWithPhotos = await db.select().from(communities)
+        .where(sql`photos IS NOT NULL AND array_length(photos, 1) > 0`);
+      
+      let migrated = 0;
+      let errors = 0;
+      
+      for (const community of communitiesWithPhotos) {
+        try {
+          // Check if photos are direct URLs (contain maps.googleapis.com)
+          const photos = community.photos || [];
+          const hasDirectUrls = photos.some(url => url.includes('maps.googleapis.com'));
+          
+          if (!hasDirectUrls) {
+            console.log(`✅ ${community.name} already has cached photos, skipping`);
+            continue;
+          }
+          
+          console.log(`🔄 Migrating ${photos.length} photos for ${community.name}`);
+          
+          // Extract photo references from existing URLs
+          const photoReferences = photos.map(url => {
+            const match = url.match(/photo_reference=([^&]+)/);
+            return match ? match[1] : null;
+          }).filter(Boolean);
+          
+          if (photoReferences.length === 0) {
+            console.warn(`⚠️ No valid photo references found for ${community.name}`);
+            continue;
+          }
+          
+          // Cache photos using the photo cache service
+          const { photoCacheService } = await import('./photo-cache-service');
+          const cachedUrls = [];
+          
+          for (let i = 0; i < Math.min(photoReferences.length, 5); i++) {
+            const photoRef = photoReferences[i];
+            const cacheResult = await photoCacheService.downloadAndCacheGooglePhoto(
+              photoRef, 
+              community.id, 
+              i
+            );
+            
+            if (cacheResult.success && cacheResult.permanentUrl) {
+              cachedUrls.push(cacheResult.permanentUrl);
+              console.log(`💾 Cached photo ${i + 1} for ${community.name}: ${cacheResult.permanentUrl}`);
+            } else {
+              console.warn(`⚠️ Failed to cache photo ${i + 1} for ${community.name}: ${cacheResult.error}`);
+            }
+            
+            // Small delay between downloads
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+          
+          // Update community with cached photo URLs
+          if (cachedUrls.length > 0) {
+            await db.update(communities)
+              .set({ photos: cachedUrls })
+              .where(eq(communities.id, community.id));
+            
+            console.log(`✅ Updated ${community.name} with ${cachedUrls.length} cached photos`);
+            migrated++;
+          }
+          
+        } catch (error) {
+          console.error(`❌ Failed to migrate photos for ${community.name}:`, error);
+          errors++;
+        }
+      }
+      
+      res.json({
+        success: true,
+        migrated,
+        errors,
+        message: `Successfully migrated photos for ${migrated} communities`
+      });
+      
+    } catch (error) {
+      console.error('❌ Photo migration failed:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Photo migration failed',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // ============================================================================
   // API COST ANALYSIS ROUTES - Track and analyze API usage costs
   // ============================================================================
