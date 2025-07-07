@@ -146,6 +146,11 @@ export function validateInput(schema: z.ZodSchema) {
 
 // SQL injection protection
 export function sqlInjectionProtection(req: Request, res: Response, next: NextFunction) {
+  // Skip photo proxy endpoint - Google photo references are legitimate
+  if (req.path === '/api/images/photo-proxy') {
+    return next();
+  }
+
   const suspiciousPatterns = [
     // Modified: Allow legitimate apostrophes in names like "Frye's Care Home"
     /(';)|(\';)|(;)|(--)|(\s(OR|AND)\s.*(=|LIKE))/i,

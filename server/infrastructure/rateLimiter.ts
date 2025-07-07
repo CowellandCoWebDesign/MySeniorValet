@@ -139,6 +139,14 @@ export const apiLimiter = new TokenBucketRateLimiter(
 
 export const uploadLimiter = new TokenBucketRateLimiter(10, 1, 300000, 5); // 5 uploads per 5 min
 
+// Image serving limiter - more permissive for photo loading
+export const imageLimiter = new TokenBucketRateLimiter(
+  isDev ? 1000 : 500,   // tokens: 1000 in dev, 500 in prod (more permissive for images)
+  isDev ? 100 : 50,     // refill rate: 100/sec in dev, 50/sec in prod
+  60000, 
+  isDev ? 600 : 300     // max requests per minute: 600 in dev, 300 in prod (more for images)
+);
+
 // Rate limiting middleware
 export function createRateLimitMiddleware(limiter: TokenBucketRateLimiter) {
   return (req: any, res: any, next: any) => {

@@ -32,6 +32,7 @@ import {
   generalLimiter, 
   searchLimiter, 
   apiLimiter, 
+  imageLimiter,
   createRateLimitMiddleware 
 } from "./infrastructure/rateLimiter";
 import { monitor } from "./infrastructure/monitoring";
@@ -5354,7 +5355,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // EXCEPTION: Hero images allowed for homepage from Unsplash per project requirements.
 
   // Get hero images (EXCEPTION: Unsplash allowed for hero only)
-  app.get('/api/images/hero', async (req, res) => {
+  app.get('/api/images/hero', createRateLimitMiddleware(imageLimiter), async (req, res) => {
     try {
       const { unsplashService } = await import('./unsplash-integration');
       const heroImages = await unsplashService.getHeroImages();
@@ -5369,7 +5370,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Photo proxy endpoint - serves Google Places photos with current API key
-  app.get('/api/images/photo-proxy', async (req, res) => {
+  app.get('/api/images/photo-proxy', createRateLimitMiddleware(imageLimiter), async (req, res) => {
     try {
       const { photo_reference, maxwidth = 800 } = req.query;
       
