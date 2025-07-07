@@ -213,47 +213,69 @@ export default function ZillowHome() {
         </Button>
       </section>
 
-      {/* Saved Searches */}
+      {/* Saved Searches with Carousel */}
       <section className="px-4 py-8 bg-gray-50">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-gray-900">
-            Your saved searches
+            Memory Care in San Francisco
           </h2>
-          <Button variant="ghost" className="text-blue-600 text-sm">
-            View all
-          </Button>
+          <div className="text-right">
+            <div className="text-sm font-semibold text-gray-900">$6,500 - $8,200</div>
+            <div className="text-xs text-blue-600">3 price drops</div>
+          </div>
         </div>
         
-        <div className="space-y-3">
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-gray-900 text-sm">Memory Care in San Francisco</h3>
-                  <p className="text-xs text-gray-600">5 new communities • Updated 2 hours ago</p>
+        <p className="text-gray-600 text-sm mb-4">5 new communities • Updated 2 hours ago</p>
+        
+        <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">
+          {communities?.slice(8, 16).map((community: any, index) => (
+            <Link key={community.id} href={`/community/${community.id}`}>
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow border-0 shadow-sm flex-shrink-0 w-48">
+                <div className="relative">
+                  <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
+                    <Home className="w-12 h-12 text-gray-400" />
+                  </div>
+                  
+                  {/* Status Badge */}
+                  <Badge 
+                    className={`absolute top-3 left-3 text-white text-xs px-2 py-1 font-medium ${
+                      index % 4 === 0 ? 'bg-red-600' : 
+                      index % 4 === 1 ? 'bg-blue-600' : 
+                      index % 4 === 2 ? 'bg-orange-600' : 'bg-green-600'
+                    }`}
+                  >
+                    {index % 4 === 0 ? 'Price drop' : 
+                     index % 4 === 1 ? 'New photos' :
+                     index % 4 === 2 ? 'Tour available' : 'Memory care'}
+                  </Badge>
                 </div>
-                <div className="text-right">
-                  <div className="text-sm font-semibold text-gray-900">$6,500 - $8,200</div>
-                  <div className="text-xs text-blue-600">3 price drops</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-gray-900 text-sm">Assisted Living in Oakland</h3>
-                  <p className="text-xs text-gray-600">2 new communities • Updated 1 day ago</p>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm font-semibold text-gray-900">$4,200 - $5,800</div>
-                  <div className="text-xs text-green-600">New incentives</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                
+                <CardContent className="p-3">
+                  <div className="text-xl font-bold text-gray-900 mb-1">
+                    ${(6500 + (index * 200)).toLocaleString()}
+                  </div>
+                  
+                  <div className="text-sm text-gray-700 mb-1">
+                    Memory Care • Assisted Living
+                  </div>
+                  
+                  <div className="text-sm font-medium text-gray-900 mb-2 line-clamp-1">
+                    {community.name}
+                  </div>
+                  
+                  <div className="text-xs text-gray-600 line-clamp-1">
+                    {community.address || `${Math.floor(Math.random() * 9999)} Memory Lane`}, {community.city}, {community.state}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          )) || []}
+        </div>
+        
+        <div className="mt-4">
+          <Button variant="outline" className="w-full text-blue-600 border-blue-600 hover:bg-blue-50">
+            View all saved searches
+          </Button>
         </div>
       </section>
 
@@ -320,6 +342,108 @@ export default function ZillowHome() {
             </div>
           </CardContent>
         </Card>
+      </section>
+
+      {/* Reviews Comparison Section */}
+      <section className="px-4 py-8 bg-white">
+        <div className="mb-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-2">
+            What families are saying
+          </h2>
+          <p className="text-gray-600 text-sm">
+            Real reviews from families who found their perfect community
+          </p>
+        </div>
+        
+        <div className="space-y-6">
+          {/* Review 1 */}
+          <Card className="border-0 shadow-sm bg-blue-50">
+            <CardContent className="p-6">
+              <div className="flex items-start space-x-4">
+                <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+                  MH
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <h3 className="font-semibold text-gray-900">Margaret H.</h3>
+                    <div className="flex items-center">
+                      {[1,2,3,4,5].map(star => (
+                        <span key={star} className="text-yellow-400 text-sm">★</span>
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-2">
+                    "The transparency in pricing made all the difference. We knew exactly what to expect for mom's memory care, and the staff has been incredible."
+                  </p>
+                  <div className="text-xs text-blue-600 font-medium">
+                    Sunrise Senior Living, Palo Alto • Memory Care
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Review 2 */}
+          <Card className="border-0 shadow-sm bg-green-50">
+            <CardContent className="p-6">
+              <div className="flex items-start space-x-4">
+                <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white font-bold">
+                  RJ
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <h3 className="font-semibold text-gray-900">Robert J.</h3>
+                    <div className="flex items-center">
+                      {[1,2,3,4,5].map(star => (
+                        <span key={star} className="text-yellow-400 text-sm">★</span>
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-2">
+                    "Found this through TrueView and couldn't be happier. The virtual tours saved us so much time, and dad loves his new home."
+                  </p>
+                  <div className="text-xs text-green-600 font-medium">
+                    The Gardens at Bay Area • Independent Living
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Review 3 */}
+          <Card className="border-0 shadow-sm bg-purple-50">
+            <CardContent className="p-6">
+              <div className="flex items-start space-x-4">
+                <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                  LC
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <h3 className="font-semibold text-gray-900">Linda C.</h3>
+                    <div className="flex items-center">
+                      {[1,2,3,4].map(star => (
+                        <span key={star} className="text-yellow-400 text-sm">★</span>
+                      ))}
+                      <span className="text-gray-300 text-sm">★</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-2">
+                    "The care level matching was spot-on. They helped us understand exactly what services mom needed, and the pricing was fair and upfront."
+                  </p>
+                  <div className="text-xs text-purple-600 font-medium">
+                    Atria Senior Living, San Rafael • Assisted Living
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="mt-6">
+          <Button variant="outline" className="w-full border-gray-300 text-gray-700 hover:bg-gray-50">
+            Read more family reviews
+          </Button>
+        </div>
       </section>
 
       {/* More Featured Communities */}
