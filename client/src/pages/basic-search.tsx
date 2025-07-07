@@ -141,14 +141,206 @@ export default function BasicSearch() {
     );
   }
 
+  if (activeTab === 'updates') {
+    return (
+      <div className="min-h-screen bg-white pb-16">
+        {/* Header */}
+        <div className="sticky top-0 bg-white z-30 border-b border-gray-200">
+          <div className="px-4 py-6">
+            <h1 className="text-3xl font-bold text-gray-900">Updates</h1>
+          </div>
+        </div>
+
+        {/* Saved Searches Section */}
+        <div className="bg-gray-50 px-4 py-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-900">Saved searches</h2>
+            <button className="text-blue-600 font-medium">Mark all as viewed</button>
+          </div>
+
+          {/* Search Alert with Badge */}
+          <div className="bg-white rounded-lg border border-gray-200 p-4 mb-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center">
+                <h3 className="text-lg font-semibold text-gray-900">Senior Living Communities</h3>
+                <span className="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">5</span>
+              </div>
+              <button className="text-blue-600">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              </button>
+            </div>
+            <p className="text-gray-600 mb-3">Memory Care, $3K - $6K</p>
+            
+            {/* Sample Community Cards */}
+            <div className="space-y-3">
+              {filteredCommunities.slice(0, 3).map((community: any, index) => (
+                <div key={community.id} className="relative bg-white rounded-lg border border-gray-200 overflow-hidden">
+                  {index === 0 && (
+                    <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+                      New listing
+                    </div>
+                  )}
+                  {index === 1 && (
+                    <div className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
+                      Price drop: $500/mo
+                    </div>
+                  )}
+                  
+                  <div className="h-32 bg-gray-200 relative">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                    <button className="absolute top-2 right-2 w-8 h-8 bg-white/80 rounded-full flex items-center justify-center">
+                      <Heart className="w-5 h-5 text-gray-600" />
+                    </button>
+                  </div>
+                  
+                  <div className="p-3">
+                    <div className="text-lg font-bold text-gray-900 mb-1">
+                      {community.monthlyRent 
+                        ? `$${community.monthlyRent.toLocaleString()}/mo` 
+                        : 'Contact for pricing'
+                      }
+                    </div>
+                    <div className="text-sm text-gray-600 mb-1">
+                      {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
+                    </div>
+                    <div className="text-sm text-gray-800 font-medium">
+                      {community.name}
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      {community.city}, {community.state}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Second Saved Search */}
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center">
+                <h3 className="text-lg font-semibold text-gray-900">For Care near Redding, CA 96003</h3>
+                <span className="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">7</span>
+              </div>
+              <button className="text-blue-600">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              </button>
+            </div>
+            <p className="text-gray-600 mb-3">For Care: &lt;$2.4K, 3+ level, Allows families</p>
+            
+            <div className="space-y-3">
+              {filteredCommunities
+                .filter(c => c.city?.toLowerCase().includes('redding'))
+                .slice(0, 2)
+                .map((community: any, index) => (
+                <div key={community.id} className="relative bg-white rounded-lg border border-gray-200 overflow-hidden">
+                  {index === 0 && (
+                    <div className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
+                      10 days on TrueView
+                    </div>
+                  )}
+                  {index === 1 && (
+                    <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+                      Apply instantly
+                    </div>
+                  )}
+                  
+                  <div className="h-32 bg-gray-200 relative">
+                    <button className="absolute top-2 right-2 w-8 h-8 bg-white/80 rounded-full flex items-center justify-center">
+                      <Heart className="w-5 h-5 text-gray-600" />
+                    </button>
+                  </div>
+                  
+                  <div className="p-3">
+                    <div className="text-lg font-bold text-gray-900 mb-1">
+                      {community.monthlyRent 
+                        ? `$${community.monthlyRent.toLocaleString()}/mo` 
+                        : 'Contact for pricing'
+                      }
+                    </div>
+                    <div className="text-sm text-gray-600 mb-1">
+                      {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
+                    </div>
+                    <div className="text-sm text-gray-800 font-medium">
+                      {community.name}
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      {community.city}, {community.state}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <BottomNav />
+      </div>
+    );
+  }
+
+  if (activeTab === 'saved') {
+    return (
+      <div className="min-h-screen bg-white pb-16">
+        <div className="px-4 py-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-6">Saved Communities</h1>
+          
+          <div className="space-y-4">
+            {filteredCommunities.slice(0, 8).map((community: any) => (
+              <div
+                key={community.id}
+                onClick={() => window.location.href = `/community/${community.id}`}
+                className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-lg transition-shadow cursor-pointer"
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <h4 className="text-lg font-semibold text-gray-900">
+                    {community.name}
+                  </h4>
+                  <Heart className="w-5 h-5 text-red-500 fill-current" />
+                </div>
+                
+                <div className="flex items-center text-gray-600 mb-2">
+                  <MapPin className="w-4 h-4 mr-1" />
+                  <span>{community.city}, {community.state}</span>
+                </div>
+                
+                <div className="text-sm text-gray-500 mb-3">
+                  {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div className="text-lg font-bold text-blue-600">
+                    {community.monthlyRent 
+                      ? `$${community.monthlyRent.toLocaleString()}/mo` 
+                      : 'Contact for pricing'
+                    }
+                  </div>
+                  {community.googleRating && (
+                    <div className="flex items-center">
+                      <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
+                      <span className="text-sm font-medium">{community.googleRating}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <BottomNav />
+      </div>
+    );
+  }
+
   if (activeTab !== 'search') {
     return (
       <div className="min-h-screen bg-gray-50 pb-16">
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
             <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-              {activeTab === 'updates' && 'Updates'}
-              {activeTab === 'saved' && 'Saved Communities'}
               {activeTab === 'tours' && 'Tours'}
               {activeTab === 'inbox' && 'Messages'}
             </h2>
