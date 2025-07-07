@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, MapPin, Star, Heart, List, Map, Bell, Calendar, Mail } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import { Icon } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -20,10 +20,31 @@ const communityIcon = new Icon({
   popupAnchor: [0, -32],
 });
 
+// Component to handle map bounds updates
+function MapBoundsUpdater({ onBoundsChange }: { onBoundsChange: (bounds: any) => void }) {
+  const map = useMapEvents({
+    moveend: () => {
+      onBoundsChange(map.getBounds());
+    },
+    zoomend: () => {
+      onBoundsChange(map.getBounds());
+    },
+  });
+
+  // Set initial bounds
+  useEffect(() => {
+    onBoundsChange(map.getBounds());
+  }, [map, onBoundsChange]);
+
+  return null;
+}
+
 export default function BasicSearch() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState('search');
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
+  const [slideUpOpen, setSlideUpOpen] = useState(false);
+  const [mapBounds, setMapBounds] = useState<any>(null);
 
   const { data: communities, isLoading, error } = useQuery({
     queryKey: ["/api/communities"],
@@ -42,6 +63,20 @@ export default function BasicSearch() {
       community.careTypes?.some((type: string) => type.toLowerCase().includes(query))
     );
   }) || [];
+
+  // Get communities visible in current map bounds
+  const visibleCommunities = filteredCommunities.filter((community: any) => {
+    if (!mapBounds || !community.latitude || !community.longitude) return true;
+    
+    const lat = community.latitude;
+    const lng = community.longitude;
+    return (
+      lat >= mapBounds.getSouth() &&
+      lat <= mapBounds.getNorth() &&
+      lng >= mapBounds.getWest() &&
+      lng <= mapBounds.getEast()
+    );
+  });
 
   // Bottom Navigation
   const BottomNav = () => (
@@ -173,6 +208,9 @@ export default function BasicSearch() {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             
+            {/* Map bounds tracker */}
+            <MapBoundsUpdater onBoundsChange={setMapBounds} />
+            
             {/* Community Markers */}
             {filteredCommunities
               .filter((community: any) => community.latitude && community.longitude)
@@ -224,16 +262,19 @@ export default function BasicSearch() {
             </Button>
           </div>
 
-          {/* Results Counter */}
+          {/* Slide-up Results Bar */}
           <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-20">
-            <div className="text-center py-3">
+            <button
+              onClick={() => setSlideUpOpen(!slideUpOpen)}
+              className="w-full text-center py-3 hover:bg-gray-50 transition-colors"
+            >
               <div className="text-lg font-semibold text-gray-900">
-                {filteredCommunities.length} results
+                {visibleCommunities.length} results
               </div>
               <div className="text-sm text-gray-600">
-                {filteredCommunities.filter((c: any) => c.latitude && c.longitude).length} on map
+                Tap to see list
               </div>
-            </div>
+            </button>
           </div>
         </div>
       ) : (
@@ -292,6 +333,87 @@ export default function BasicSearch() {
               </div>
             </div>
           ))}
+          </div>
+        </div>
+      )}
+
+      {/* Slide-up Results List */}
+      {slideUpOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50" onClick={() => setSlideUpOpen(false)}>
+          <div 
+            className="absolute bottom-0 left-0 right-0 bg-white rounded-t-lg max-h-[70vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sticky top-0 bg-white border-b border-gray-200 p-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {visibleCommunities.length} Communities
+                </h3>
+                <button
+                  onClick={() => setSlideUpOpen(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ✕
+                </button>
+              </div>
+              
+              {/* Sort Options */}
+              <div className="mt-3 flex space-x-3">
+                <button className="text-sm text-blue-600 border-b border-blue-600 pb-1">
+                  Sort: Distance
+                </button>
+                <button className="text-sm text-gray-600 hover:text-blue-600">
+                  Price
+                </button>
+                <button className="text-sm text-gray-600 hover:text-blue-600">
+                  Rating
+                </button>
+              </div>
+            </div>
+
+            <div className="p-4 space-y-4">
+              {visibleCommunities.slice(0, 20).map((community: any) => (
+                <div
+                  key={community.id}
+                  onClick={() => {
+                    setSlideUpOpen(false);
+                    window.location.href = `/community/${community.id}`;
+                  }}
+                  className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-lg transition-shadow cursor-pointer"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <h4 className="text-lg font-semibold text-gray-900">
+                      {community.name}
+                    </h4>
+                    <Heart className="w-5 h-5 text-gray-400 hover:text-red-500 cursor-pointer" />
+                  </div>
+                  
+                  <div className="flex items-center text-gray-600 mb-2">
+                    <MapPin className="w-4 h-4 mr-1" />
+                    <span>{community.city}, {community.state}</span>
+                  </div>
+                  
+                  <div className="text-sm text-gray-500 mb-3">
+                    {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="text-lg font-bold text-blue-600">
+                      {community.monthlyRent 
+                        ? `$${community.monthlyRent.toLocaleString()}/mo` 
+                        : 'Contact for pricing'
+                      }
+                    </div>
+                    {community.googleRating && (
+                      <div className="flex items-center">
+                        <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
+                        <span className="text-sm font-medium">{community.googleRating}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
