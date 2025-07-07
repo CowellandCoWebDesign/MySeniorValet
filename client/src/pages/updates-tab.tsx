@@ -48,7 +48,6 @@ interface CommunityUpdate {
 }
 
 export default function UpdatesTab() {
-  const [activeTab, setActiveTab] = useState('updates');
 
   // Mock data - in real app this would come from API
   const savedSearches: SavedSearch[] = [
@@ -291,12 +290,7 @@ export default function UpdatesTab() {
         </div>
       </div>
 
-      {/* Bottom Navigation */}
-      <BottomNavigation 
-        activeTab={activeTab} 
-        onTabChange={setActiveTab}
-        updateCount={31}
-      />
+
     </div>
   );
 }
