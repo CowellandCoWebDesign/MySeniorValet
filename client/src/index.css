@@ -216,24 +216,24 @@
   /* Clean borders for horizontal community cards only */
   .horizontal-card-gradient .coastal-card {
     border: 2px solid rgba(59, 130, 246, 0.2);
-    background-color: rgba(255, 255, 255, 0.90);
+    background-color: rgba(255, 255, 255, 0.85);
     transition: all 0.3s ease;
   }
 
   .horizontal-card-gradient .coastal-card:hover {
     border-color: rgba(59, 130, 246, 0.4);
-    background-color: rgba(255, 255, 255, 0.95);
+    background-color: rgba(255, 255, 255, 0.92);
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
   }
 
   /* Make all horizontal cards slightly transparent to show background */
   .horizontal-card-gradient .border {
-    background-color: rgba(255, 255, 255, 0.90);
+    background-color: rgba(255, 255, 255, 0.85);
   }
 
   .horizontal-card-gradient .border:hover {
-    background-color: rgba(255, 255, 255, 0.95);
+    background-color: rgba(255, 255, 255, 0.92);
   }
 }
 
