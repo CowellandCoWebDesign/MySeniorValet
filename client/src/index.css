@@ -213,22 +213,23 @@
     border-color: rgba(255, 255, 255, 0.3);
   }
 
-  /* Premium gradient border effects for featured/sponsored cards */
+  /* Premium gradient border effects for featured/sponsored cards - Edge only styling */
   .gradient-border-primary {
     background: white;
-    border: 4px solid transparent;
+    border: 6px solid transparent;
     background-clip: padding-box;
     position: relative;
     transition: all 0.3s ease;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
   }
 
   .gradient-border-primary::before {
     content: '';
     position: absolute;
-    inset: -4px;
+    inset: -6px;
     background: linear-gradient(45deg, #007cba, #4f46e5, #007cba);
-    border-radius: inherit;
+    border-radius: 12px;
     z-index: -1;
     animation: gradient-shift 4s ease infinite;
     background-size: 300% 300%;
@@ -236,19 +237,20 @@
 
   .gradient-border-secondary {
     background: white;
-    border: 4px solid transparent;
+    border: 6px solid transparent;
     background-clip: padding-box;
     position: relative;
     transition: all 0.3s ease;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
   }
 
   .gradient-border-secondary::before {
     content: '';
     position: absolute;
-    inset: -4px;
+    inset: -6px;
     background: linear-gradient(45deg, #007cba, #06b6d4, #007cba);
-    border-radius: inherit;
+    border-radius: 12px;
     z-index: -1;
     animation: gradient-shift 4s ease infinite;
     background-size: 300% 300%;
@@ -256,19 +258,20 @@
 
   .gradient-border-tertiary {
     background: white;
-    border: 4px solid transparent;
+    border: 6px solid transparent;
     background-clip: padding-box;
     position: relative;
     transition: all 0.3s ease;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
   }
 
   .gradient-border-tertiary::before {
     content: '';
     position: absolute;
-    inset: -4px;
+    inset: -6px;
     background: linear-gradient(45deg, #007cba, #8b5cf6, #007cba);
-    border-radius: inherit;
+    border-radius: 12px;
     z-index: -1;
     animation: gradient-shift 4s ease infinite;
     background-size: 300% 300%;
@@ -279,6 +282,20 @@
   .gradient-border-tertiary:hover {
     transform: translateY(-6px);
     box-shadow: 0 12px 40px rgba(0, 124, 186, 0.3);
+  }
+
+  /* Special styling for horizontal card layouts - ensures gradient only on card edges */
+  .horizontal-card-gradient .gradient-border-primary,
+  .horizontal-card-gradient .gradient-border-secondary,
+  .horizontal-card-gradient .gradient-border-tertiary {
+    overflow: hidden;
+  }
+
+  .horizontal-card-gradient .gradient-border-primary [class*="aspect-"],
+  .horizontal-card-gradient .gradient-border-secondary [class*="aspect-"],
+  .horizontal-card-gradient .gradient-border-tertiary [class*="aspect-"] {
+    background: #f3f4f6;
+    border-radius: 0;
   }
 }
 

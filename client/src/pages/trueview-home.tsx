@@ -106,7 +106,7 @@ export default function TrueViewHome() {
           </p>
         </div>
         
-        <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
           {featuredCommunities.map((community: any, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
               <Card className={`overflow-hidden flex-shrink-0 w-48 animate-float ${
@@ -237,7 +237,7 @@ export default function TrueViewHome() {
         
         <p className="text-gray-600 text-sm mb-4">5 new communities • Updated 2 hours ago</p>
         
-        <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
           {communities?.slice(8, 16).map((community: any, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
               <Card className={`overflow-hidden flex-shrink-0 w-48 animate-float ${
