@@ -213,84 +213,72 @@
     border-color: rgba(255, 255, 255, 0.3);
   }
 
-  /* Gradient border effects for featured/sponsored cards */
+  /* Premium gradient border effects for featured/sponsored cards */
   .gradient-border-primary {
     background: white;
-    border: 6px solid transparent;
+    border: 4px solid transparent;
     background-clip: padding-box;
     position: relative;
     transition: all 0.3s ease;
-    box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   }
 
   .gradient-border-primary::before {
     content: '';
     position: absolute;
-    inset: -6px;
-    background: linear-gradient(135deg, hsl(207, 100%, 36%) 0%, hsl(268, 83%, 58%) 100%);
+    inset: -4px;
+    background: linear-gradient(45deg, #007cba, #4f46e5, #007cba);
     border-radius: inherit;
     z-index: -1;
-    animation: gradient-shift 3s ease infinite;
-    background-size: 200% 200%;
+    animation: gradient-shift 4s ease infinite;
+    background-size: 300% 300%;
   }
 
   .gradient-border-secondary {
     background: white;
-    border: 6px solid transparent;
+    border: 4px solid transparent;
     background-clip: padding-box;
     position: relative;
     transition: all 0.3s ease;
-    box-shadow: 0 8px 32px rgba(236, 72, 153, 0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   }
 
   .gradient-border-secondary::before {
     content: '';
     position: absolute;
-    inset: -6px;
-    background: linear-gradient(135deg, hsl(320, 85%, 60%) 0%, hsl(25, 95%, 53%) 100%);
+    inset: -4px;
+    background: linear-gradient(45deg, #007cba, #06b6d4, #007cba);
     border-radius: inherit;
     z-index: -1;
-    animation: gradient-shift 3s ease infinite;
-    background-size: 200% 200%;
+    animation: gradient-shift 4s ease infinite;
+    background-size: 300% 300%;
   }
 
   .gradient-border-tertiary {
     background: white;
-    border: 6px solid transparent;
+    border: 4px solid transparent;
     background-clip: padding-box;
     position: relative;
     transition: all 0.3s ease;
-    box-shadow: 0 8px 32px rgba(34, 197, 94, 0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   }
 
   .gradient-border-tertiary::before {
     content: '';
     position: absolute;
-    inset: -6px;
-    background: linear-gradient(135deg, hsl(142, 71%, 45%) 0%, hsl(207, 100%, 36%) 100%);
+    inset: -4px;
+    background: linear-gradient(45deg, #007cba, #8b5cf6, #007cba);
     border-radius: inherit;
     z-index: -1;
-    animation: gradient-shift 3s ease infinite;
-    background-size: 200% 200%;
+    animation: gradient-shift 4s ease infinite;
+    background-size: 300% 300%;
   }
 
   .gradient-border-primary:hover,
   .gradient-border-secondary:hover,
   .gradient-border-tertiary:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
-  }
-
-  .gradient-border-primary:hover {
-    box-shadow: 0 24px 48px rgba(59, 130, 246, 0.4);
-  }
-
-  .gradient-border-secondary:hover {
-    box-shadow: 0 24px 48px rgba(236, 72, 153, 0.4);
-  }
-
-  .gradient-border-tertiary:hover {
-    box-shadow: 0 24px 48px rgba(34, 197, 94, 0.4);
+    transform: translateY(-6px);
+    box-shadow: 0 12px 40px rgba(0, 124, 186, 0.3);
   }
 }
 
