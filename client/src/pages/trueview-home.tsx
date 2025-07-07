@@ -458,7 +458,7 @@ export default function TrueViewHome() {
       <section className="px-4 py-8 bg-gradient-to-r from-blue-50 to-cyan-50">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-gray-900">
-            Coastal Living in Eureka
+            Coastal Living Communities
           </h2>
           <div className="text-right">
             <div className="text-sm font-semibold text-gray-900">$3,200 - $4,800</div>
@@ -466,10 +466,12 @@ export default function TrueViewHome() {
           </div>
         </div>
         
-        <p className="text-gray-600 text-sm mb-4">Oceanside communities with fresh air and scenic beauty</p>
+        <p className="text-gray-600 text-sm mb-4">Bay Area and North Coast communities with ocean views and coastal charm</p>
         
         <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
-          {communities?.filter((community: any) => community.city === 'Eureka').slice(0, 6).map((community: any, index) => (
+          {communities?.filter((community: any) => 
+            ['Eureka', 'Arcata', 'San Francisco', 'Pacifica', 'Half Moon Bay', 'Santa Cruz', 'Monterey', 'Sausalito'].includes(community.city)
+          ).slice(0, 8).map((community: any, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
               <Card className={`overflow-hidden flex-shrink-0 w-48 animate-float ${
                 index % 3 === 0 ? 'gradient-border-secondary' : 
@@ -523,7 +525,7 @@ export default function TrueViewHome() {
                   </div>
                   
                   <div className="text-xs text-gray-600 line-clamp-1">
-                    {community.address || 'Oceanside Community'}, Eureka, CA
+                    {community.address || 'Coastal Community'}, {community.city}, CA
                   </div>
                   
                   <div className="flex items-center mt-2 text-xs text-gray-500">
