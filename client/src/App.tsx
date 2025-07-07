@@ -6,7 +6,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { DisclaimerBanner } from "@/components/disclaimer-banner";
 import Home from "@/pages/home";
+import ZillowHome from "@/pages/zillow-home";
 import Search from "@/pages/search";
+import ZillowSearch from "@/pages/zillow-search";
 import Explore from "@/pages/explore";
 import Community from "@/pages/community";
 import CommunityPage from "@/pages/community";
@@ -35,8 +37,8 @@ function Router() {
 
   return (
     <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/search" component={Search} />
+      <Route path="/" component={ZillowHome} />
+      <Route path="/search" component={ZillowSearch} />
       <Route path="/explore" component={Explore} />
       <Route path="/community/:id" component={CommunityPage} />
       <Route path="/claim/:communityId" component={Claim} />
