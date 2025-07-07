@@ -106,10 +106,10 @@ export default function ZillowHome() {
           </p>
         </div>
         
-        <div className="grid grid-cols-2 gap-4">
+        <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">
           {featuredCommunities.map((community: any, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
-              <Card className="overflow-hidden hover:shadow-lg transition-shadow border-0 shadow-sm">
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow border-0 shadow-sm flex-shrink-0 w-48">
                 <div className="relative">
                   <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
                     <Home className="w-12 h-12 text-gray-400" />
@@ -274,10 +274,10 @@ export default function ZillowHome() {
           </h2>
         </div>
         
-        <div className="grid grid-cols-2 gap-4">
-          {communities?.slice(4, 8).map((community: any, index) => (
+        <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">
+          {communities?.slice(4, 12).map((community: any, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
-              <Card className="overflow-hidden hover:shadow-lg transition-shadow border-0 shadow-sm">
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow border-0 shadow-sm flex-shrink-0 w-48">
                 <div className="relative">
                   <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
                     <Home className="w-12 h-12 text-gray-400" />

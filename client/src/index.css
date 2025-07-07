@@ -98,6 +98,16 @@
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
   }
+
+  /* Hide scrollbar for horizontal scrolling */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Print Styles */
