@@ -66,36 +66,50 @@ export default function TrueViewHome() {
         <div className="relative z-10 flex flex-col items-center justify-center h-full px-6">
           {/* Centered Headlines */}
           <div className="text-center mb-12">
-            <div className="space-y-1">
-              <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight">
+            <div className="space-y-2 mb-6">
+              <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight drop-shadow-lg">
                 Senior Living.
               </h1>
-              <h2 className="text-5xl md:text-6xl font-bold text-white leading-tight">
+              <h2 className="text-5xl md:text-6xl font-bold text-white leading-tight drop-shadow-lg">
                 Tours. Care. Community.
               </h2>
             </div>
-            <p className="text-xl text-white opacity-90 mt-4">
+            <p className="text-xl text-white opacity-90 drop-shadow-md">
               Search 182 verified communities across Northern California
             </p>
           </div>
           
           {/* Search Bar */}
           <div className="w-full max-w-lg">
-            <div className="relative">
-              <Input
-                type="text"
-                placeholder="Community name, city, care type"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-6 py-4 text-lg rounded-2xl border-0 shadow-xl bg-white"
-              />
-              <Button
-                size="sm"
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-gray-700 hover:bg-gray-800 rounded-xl w-10 h-10 p-0"
-              >
-                <Search className="w-5 h-5 text-white" />
-              </Button>
-            </div>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const query = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
+              window.location.href = `/search${query}`;
+            }}>
+              <div className="relative">
+                <Input
+                  type="text"
+                  placeholder="Community name, city, care type"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const query = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
+                      window.location.href = `/search${query}`;
+                    }
+                  }}
+                  className="w-full px-6 py-4 text-lg rounded-2xl border-0 shadow-xl bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent relative z-20"
+                />
+                <Button
+                  type="submit"
+                  size="sm"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-gray-700 hover:bg-gray-800 rounded-xl w-10 h-10 p-0"
+                >
+                  <Search className="w-5 h-5 text-white" />
+                </Button>
+              </div>
+            </form>
           </div>
         </div>
       </section>
