@@ -9,6 +9,7 @@ import Home from "@/pages/home";
 import TrueViewHome from "@/pages/trueview-home";
 import Search from "@/pages/search";
 import TrueViewSearch from "@/pages/trueview-search";
+import EnhancedSearch from "@/pages/enhanced-search";
 import Explore from "@/pages/explore";
 import Community from "@/pages/community";
 import CommunityPage from "@/pages/community";
@@ -40,7 +41,8 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={TrueViewHome} />
-      <Route path="/search" component={TrueViewSearch} />
+      <Route path="/search" component={EnhancedSearch} />
+      <Route path="/old-search" component={TrueViewSearch} />
       <Route path="/explore" component={Explore} />
       <Route path="/community/:id" component={TrueViewCommunity} />
       <Route path="/claim/:communityId" component={Claim} />
