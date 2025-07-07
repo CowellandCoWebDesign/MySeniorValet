@@ -96,15 +96,26 @@ export default function TrueViewHome() {
       </section>
 
       {/* Trending Section */}
-      <section className="px-4 py-6 bg-white">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Trending Communities in Northern California
-          </h2>
-          <p className="text-gray-600 text-sm">
-            Viewed and saved the most in the area over the past 24 hours
-          </p>
+      <section className="px-4 py-6 relative overflow-hidden">
+        {/* Background Golden Gate Bridge Image */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+            alt="Golden Gate Bridge background"
+            className="w-full h-full object-cover opacity-20"
+          />
+          <div className="absolute inset-0 bg-white/80"></div>
         </div>
+        
+        <div className="relative z-10">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Trending Communities in Northern California
+            </h2>
+            <p className="text-gray-600 text-sm">
+              Viewed and saved the most in the area over the past 24 hours
+            </p>
+          </div>
         
         <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
           {featuredCommunities.map((community: any, index) => (
@@ -163,7 +174,8 @@ export default function TrueViewHome() {
                 </CardContent>
               </Card>
             </Link>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
@@ -447,23 +459,34 @@ export default function TrueViewHome() {
       </section>
 
       {/* Coastal Living Section */}
-      <section className="px-4 py-8 bg-gradient-to-r from-blue-50 to-cyan-50">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-900">
-            Coastal Living Communities
-          </h2>
-          <div className="text-right">
-            <div className="text-sm font-semibold text-gray-900">$3,200 - $4,800</div>
-            <div className="text-xs text-blue-600">Ocean views available</div>
-          </div>
+      <section className="px-4 py-8 relative overflow-hidden">
+        {/* Background Ocean Wave Image */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://images.unsplash.com/photo-1505142468610-359e7d316be0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+            alt="Ocean waves background"
+            className="w-full h-full object-cover opacity-30"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-50/80 to-cyan-50/80"></div>
         </div>
         
-        <p className="text-gray-600 text-sm mb-4">Bay Area and North Coast communities with ocean views and coastal charm</p>
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-900">
+              Coastal Living Communities
+            </h2>
+            <div className="text-right">
+              <div className="text-sm font-semibold text-gray-900">$3,200 - $4,800</div>
+              <div className="text-xs text-blue-600">Ocean views available</div>
+            </div>
+          </div>
+          
+          <p className="text-gray-600 text-sm mb-4">Bay Area and North Coast communities with ocean views and coastal charm</p>
         
-        <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
-          {(communities?.filter((community: any) => 
-            ['Eureka', 'Arcata', 'San Francisco', 'Pacifica', 'Half Moon Bay', 'Santa Cruz', 'Monterey', 'Sausalito'].includes(community.city)
-          ) || communities?.slice(0, 8) || []).slice(0, 8).map((community: any, index) => (
+          <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
+            {(communities?.filter((community: any) => 
+              ['Eureka', 'Arcata', 'San Francisco', 'Pacifica', 'Half Moon Bay', 'Santa Cruz', 'Monterey', 'Sausalito'].includes(community.city)
+            ) || communities?.slice(0, 8) || []).slice(0, 8).map((community: any, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
               <Card className="overflow-hidden flex-shrink-0 w-48 animate-float coastal-card" style={{animationDelay: `${index * 0.2}s`}}>
                 <div className="relative">
@@ -522,7 +545,8 @@ export default function TrueViewHome() {
                 </CardContent>
               </Card>
             </Link>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
