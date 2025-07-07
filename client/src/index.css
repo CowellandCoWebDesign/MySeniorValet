@@ -56,6 +56,34 @@
   }
 }
 
+/* Leaflet map customization */
+.leaflet-container {
+  font-family: inherit;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.leaflet-popup-content {
+  margin: 0;
+  font-family: inherit;
+}
+
+.community-popup .leaflet-popup-content {
+  width: auto !important;
+}
+
+/* Custom marker hover effects */
+.leaflet-marker-icon {
+  transition: transform 0.2s ease;
+}
+
+.leaflet-marker-icon:hover {
+  transform: scale(1.1);
+}
+
 .dark {
   --background: hsl(222, 84%, 4.9%);
   --foreground: hsl(210, 40%, 98%);

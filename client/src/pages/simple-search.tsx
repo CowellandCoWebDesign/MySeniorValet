@@ -17,6 +17,21 @@ import {
   Mail
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { Icon } from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+// Custom marker icon for communities
+const communityIcon = new Icon({
+  iconUrl: 'data:image/svg+xml;base64,' + btoa(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#2563eb" width="32" height="32">
+      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+    </svg>
+  `),
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
 
 export default function SimpleSearch() {
   const [location] = useLocation();
@@ -153,134 +168,91 @@ export default function SimpleSearch() {
 
       {/* Map/List View */}
       {viewMode === 'map' ? (
-        <div className="h-96 bg-green-50 relative overflow-hidden">
-          {/* Detailed California Map Background */}
-          <div className="absolute inset-0">
-            <svg className="w-full h-full" viewBox="0 0 400 300" className="bg-blue-50">
-              {/* California coastline shape */}
-              <path 
-                d="M40 60 Q60 50 80 55 L85 70 Q90 85 95 100 L100 120 Q105 140 110 160 L115 180 Q120 200 125 220 L130 240 Q135 250 140 260 L145 270 Q150 280 160 285 L180 290 Q200 285 220 280 L240 275 Q260 270 280 260 L300 250 Q320 240 340 220 L360 200 Q380 180 390 160 L395 140 Q390 120 385 100 L380 80 Q375 60 370 40 L365 20 Q360 10 350 5 L330 10 Q310 15 290 20 L270 25 Q250 30 230 35 L210 40 Q190 45 170 50 L150 55 Q130 58 110 60 L90 62 Q70 61 50 60 Z" 
-                fill="#e0f2fe" 
-                stroke="#0284c7" 
-                strokeWidth="1"
-                opacity="0.6"
-              />
-              
-              {/* Mountain ranges */}
-              <path 
-                d="M120 100 Q140 80 160 85 L180 90 Q200 85 220 90 L240 95 Q260 90 280 95 L300 100" 
-                fill="none" 
-                stroke="#16a34a" 
-                strokeWidth="2" 
-                opacity="0.4"
-              />
-              
-              {/* Major highways */}
-              <path d="M100 120 Q200 140 300 120" stroke="#6b7280" strokeWidth="2" fill="none" opacity="0.5" />
-              <path d="M80 180 Q180 200 280 180" stroke="#6b7280" strokeWidth="2" fill="none" opacity="0.5" />
-              
-              {/* Bay Area water */}
-              <circle cx="100" cy="150" r="15" fill="#3b82f6" opacity="0.3" />
-              
-              {/* Cities labels */}
-              <text x="100" y="145" fontSize="8" fill="#374151" textAnchor="middle">SF</text>
-              <text x="180" y="120" fontSize="8" fill="#374151" textAnchor="middle">Sacramento</text>
-              <text x="80" y="80" fontSize="8" fill="#374151" textAnchor="middle">Eureka</text>
-              <text x="200" y="60" fontSize="8" fill="#374151" textAnchor="middle">Redding</text>
-            </svg>
-          </div>
-
-          {/* Community Pins */}
-          <div className="absolute inset-0">
-            {filteredCommunities.slice(0, 15).map((community: any, index: number) => {
-              // Create more realistic positions for Northern California
-              const positions = [
-                { left: '25%', top: '40%' }, // San Francisco
-                { left: '30%', top: '45%' }, // Oakland
-                { left: '35%', top: '50%' }, // San Jose
-                { left: '45%', top: '35%' }, // Sacramento
-                { left: '20%', top: '20%' }, // Eureka
-                { left: '22%', top: '22%' }, // Arcata
-                { left: '50%', top: '15%' }, // Redding
-                { left: '40%', top: '40%' }, // Santa Rosa
-                { left: '55%', top: '60%' }, // Stockton
-                { left: '28%', top: '48%' }, // Fremont
-                { left: '26%', top: '42%' }, // Berkeley
-                { left: '32%', top: '47%' }, // Richmond
-                { left: '24%', top: '25%' }, // Fort Bragg
-                { left: '42%', top: '45%' }, // Napa
-                { left: '38%', top: '48%' }, // Vallejo
-              ];
-              
-              const position = positions[index] || { 
-                left: `${25 + (index % 6) * 10}%`, 
-                top: `${25 + Math.floor(index / 6) * 15}%` 
-              };
-              
-              return (
-                <div
+        <div className="h-96 relative">
+          {/* Interactive Leaflet Map */}
+          <MapContainer
+            center={[40.315, -122.32]} // Redding, CA as center of Northern California
+            zoom={7}
+            style={{ height: '100%', width: '100%' }}
+            className="z-10"
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            
+            {/* Community Markers */}
+            {filteredCommunities
+              .filter((community: any) => community.latitude && community.longitude)
+              .map((community: any) => (
+                <Marker
                   key={community.id}
-                  className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer group"
-                  style={position}
-                  onClick={() => window.location.href = `/community/${community.id}`}
+                  position={[community.latitude, community.longitude]}
+                  icon={communityIcon}
+                  eventHandlers={{
+                    click: () => window.location.href = `/community/${community.id}`,
+                  }}
                 >
-                  <div className="relative">
-                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shadow-lg hover:scale-125 transition-all duration-200 hover:bg-blue-700">
-                      <MapPin className="w-4 h-4 text-white" />
-                    </div>
-                    
-                    {/* Popup on hover */}
-                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-                      <div className="bg-white rounded-lg shadow-xl p-3 min-w-[200px] border border-gray-200">
-                        <h3 className="font-semibold text-gray-900 mb-1 text-sm">{community.name}</h3>
-                        <p className="text-xs text-gray-600 mb-2">{community.city}, {community.state}</p>
-                        {community.monthlyRent && (
-                          <p className="text-base font-bold text-blue-600 mb-1">
-                            ${community.monthlyRent.toLocaleString()}/mo
-                          </p>
-                        )}
-                        <p className="text-xs text-gray-500">
-                          {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
+                  <Popup className="community-popup">
+                    <div className="p-2 min-w-[200px]">
+                      <h3 className="font-semibold text-gray-900 mb-1 text-sm">{community.name}</h3>
+                      <p className="text-xs text-gray-600 mb-2">{community.city}, {community.state}</p>
+                      {community.monthlyRent && (
+                        <p className="text-base font-bold text-blue-600 mb-1">
+                          ${community.monthlyRent.toLocaleString()}/mo
                         </p>
-                        {community.googleRating && (
-                          <div className="flex items-center mt-1">
-                            <Star className="w-3 h-3 text-yellow-400 fill-current mr-1" />
-                            <span className="text-xs text-gray-600">{community.googleRating} ({community.googleReviewCount || 0} reviews)</span>
-                          </div>
-                        )}
-                      </div>
+                      )}
+                      <p className="text-xs text-gray-500 mb-2">
+                        {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
+                      </p>
+                      {community.googleRating && (
+                        <div className="flex items-center">
+                          <Star className="w-3 h-3 text-yellow-400 fill-current mr-1" />
+                          <span className="text-xs text-gray-600">
+                            {community.googleRating} ({community.googleReviewCount || 0} reviews)
+                          </span>
+                        </div>
+                      )}
+                      <button 
+                        onClick={() => window.location.href = `/community/${community.id}`}
+                        className="mt-2 w-full bg-blue-600 text-white text-xs py-1 px-2 rounded hover:bg-blue-700"
+                      >
+                        View Details
+                      </button>
                     </div>
-                    
-                    {/* Price badge */}
-                    {community.monthlyRent && (
-                      <div className="absolute -bottom-1 -right-1 bg-green-600 text-white text-xs px-1 py-0.5 rounded text-center min-w-[32px]">
-                        ${Math.floor(community.monthlyRent / 1000)}K
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                  </Popup>
+                </Marker>
+              ))}
+          </MapContainer>
 
-          {/* Map Controls */}
-          <div className="absolute top-4 right-4">
+          {/* Map Controls Overlay */}
+          <div className="absolute top-4 right-4 z-20">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setViewMode('list')}
-              className="bg-white shadow-md"
+              className="bg-white shadow-md hover:bg-gray-50"
             >
               <List className="w-4 h-4 mr-1" />
               List
             </Button>
           </div>
 
+          {/* Save Search Button */}
+          <div className="absolute bottom-20 right-4 z-20">
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg px-4 py-2">
+              Save search
+            </Button>
+          </div>
+
           {/* Results Counter */}
-          <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200">
-            <div className="text-center py-4">
+          <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-20">
+            <div className="text-center py-3">
               <div className="text-lg font-semibold text-gray-900">
                 {filteredCommunities.length} results
+              </div>
+              <div className="text-sm text-gray-600">
+                {filteredCommunities.filter((c: any) => c.latitude && c.longitude).length} with map locations
               </div>
             </div>
           </div>
