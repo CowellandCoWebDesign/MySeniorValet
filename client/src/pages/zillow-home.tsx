@@ -161,70 +161,165 @@ export default function ZillowHome() {
         </div>
       </section>
 
-      {/* Senior Living Specific Features */}
-      <section className="px-4 py-8 bg-gray-50">
-        <div className="space-y-6">
-          {/* Find Communities with Care Matching */}
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Search className="w-6 h-6 text-blue-600" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900">Find care communities</h3>
-                  <p className="text-sm text-gray-600">
-                    Search with transparent pricing, live availability, and care level matching
-                  </p>
-                </div>
+      {/* Care Affordability Calculator */}
+      <section className="px-4 py-8 bg-white">
+        <div className="mb-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-2">
+            Find care you can afford with CareAbility™
+          </h2>
+          <p className="text-gray-600 text-sm">
+            See what you could qualify for with our care cost calculator
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="text-center">
+            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
+              <span className="text-blue-600 font-bold text-lg">%</span>
+            </div>
+            <div className="text-xs text-gray-600">Insurance</div>
+            <div className="text-sm font-semibold">Coverage</div>
+          </div>
+          <div className="text-center">
+            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
+              <span className="text-blue-600 font-bold text-lg">$</span>
+            </div>
+            <div className="text-xs text-gray-600">Monthly</div>
+            <div className="text-sm font-semibold">Payment</div>
+          </div>
+          <div className="text-center">
+            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
+              <span className="text-blue-600 font-bold text-lg">+</span>
+            </div>
+            <div className="text-xs text-gray-600">Income</div>
+            <div className="text-sm font-semibold">Needed</div>
+          </div>
+        </div>
+        
+        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3">
+          Let's get started
+        </Button>
+      </section>
+
+      {/* Service Categories */}
+      <section className="px-4 py-8 bg-gray-50 space-y-6">
+        {/* Find Care */}
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-4">
+              <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Search className="w-8 h-8 text-blue-600" />
               </div>
-              <Link href="/search">
-                <Button className="w-full mt-4 bg-blue-600 hover:bg-blue-700">
-                  Start searching
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">Find care</h3>
+                <p className="text-sm text-gray-600 mb-3">
+                  Search communities with pricing transparency and care level matching
+                </p>
+                <Link href="/search">
+                  <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
+                    Find a community
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Finance Care */}
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-4">
+              <div className="w-16 h-16 bg-green-100 rounded-lg flex items-center justify-center">
+                <span className="text-green-600 font-bold text-2xl">$</span>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">Finance care</h3>
+                <p className="text-sm text-gray-600 mb-3">
+                  Explore insurance options, Medicaid, and long-term care financing
+                </p>
+                <Button variant="outline" className="border-green-600 text-green-600 hover:bg-green-50">
+                  Learn more
                 </Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          {/* Care Level Assessment */}
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                  <Heart className="w-6 h-6 text-green-600" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900">Care level guidance</h3>
-                  <p className="text-sm text-gray-600">
-                    AI-powered recommendations based on medical needs and care preferences
-                  </p>
-                </div>
               </div>
-              <Button variant="outline" className="w-full mt-4 border-green-600 text-green-600 hover:bg-green-50">
-                Get care assessment
-              </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Tour & Visit Coordination */}
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                  <MapPin className="w-6 h-6 text-purple-600" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900">Schedule tours & meet care teams</h3>
-                  <p className="text-sm text-gray-600">
-                    Book visits, meet care coordinators, and ask about medical accommodations
-                  </p>
-                </div>
+        {/* Plan Transitions */}
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-4">
+              <div className="w-16 h-16 bg-purple-100 rounded-lg flex items-center justify-center">
+                <MapPin className="w-8 h-8 text-purple-600" />
               </div>
-              <Button variant="outline" className="w-full mt-4 border-purple-600 text-purple-600 hover:bg-purple-50">
-                Find tours
-              </Button>
-            </CardContent>
-          </Card>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">Plan transitions</h3>
+                <p className="text-sm text-gray-600 mb-3">
+                  Get guidance for moving between care levels and community transitions
+                </p>
+                <Button variant="outline" className="border-purple-600 text-purple-600 hover:bg-purple-50">
+                  Get guidance
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* More Featured Communities */}
+      <section className="px-4 py-6 bg-white">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-gray-900">
+            More recommended communities
+          </h2>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4">
+          {communities?.slice(4, 8).map((community: any, index) => (
+            <Link key={community.id} href={`/community/${community.id}`}>
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow border-0 shadow-sm">
+                <div className="relative">
+                  <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
+                    <Home className="w-12 h-12 text-gray-400" />
+                  </div>
+                  
+                  {/* Status Badge */}
+                  <Badge 
+                    className={`absolute top-3 left-3 text-white text-xs px-2 py-1 font-medium ${
+                      index === 0 ? 'bg-red-600' : 
+                      index === 1 ? 'bg-blue-600' : 
+                      index === 2 ? 'bg-green-600' : 'bg-orange-600'
+                    }`}
+                  >
+                    {index === 0 ? 'Open house' : 
+                     index === 1 ? 'Virtual tour' :
+                     index === 2 ? 'New photos' : 'Price drop'}
+                  </Badge>
+                </div>
+                
+                <CardContent className="p-3">
+                  <div className="text-xl font-bold text-gray-900 mb-1">
+                    {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : '$4,200'}
+                  </div>
+                  
+                  <div className="text-sm text-gray-700 mb-1">
+                    {community.careTypes?.length > 0 ? 
+                      `${community.careTypes[0]} • ${community.careTypes.length > 1 ? community.careTypes[1] : 'Memory Care'}` : 
+                      'Independent Living • Assisted Living'
+                    }
+                  </div>
+                  
+                  <div className="text-sm font-medium text-gray-900 mb-2 line-clamp-1">
+                    {community.name}
+                  </div>
+                  
+                  <div className="text-xs text-gray-600 line-clamp-1">
+                    {community.address || `${Math.floor(Math.random() * 9999)} Community Way`}, {community.city}, {community.state} {community.zipCode}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          )) || []}
         </div>
       </section>
 
