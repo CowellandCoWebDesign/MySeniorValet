@@ -105,6 +105,7 @@ export const communities = pgTable("communities", {
   careServices: text("care_services").array().default([]), // ['Independent Living', 'Assisted Living', 'Memory Care', 'Skilled Nursing']
   medicalRestrictions: text("medical_restrictions").array().default([]), // ['No Insulin Patients', 'No Dialysis', 'No Ventilators']
   photos: text("photos").array().default([]), // Array of photo URLs
+  photoAttributions: text("photo_attributions").array().default([]), // Google Photos API attributions
   virtualTourUrl: text("virtual_tour_url"),
   
   // Detailed Services & Amenities

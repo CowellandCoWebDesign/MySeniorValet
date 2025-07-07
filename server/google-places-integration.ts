@@ -34,6 +34,7 @@ export interface GooglePlacesEnrichmentResult {
   reviewCount: number;
   photos: string[];
   photoReferences: string[]; // Add photo references for caching
+  photoAttributions: string[]; // Google Photos API html_attributions
   reviews: Array<{
     author: string;
     rating: number;
@@ -114,6 +115,7 @@ export class GooglePlacesIntegration {
           reviewCount: 0,
           photos: [],
           photoReferences: [],
+          photoAttributions: [],
           reviews: [],
           success: false,
           error: 'Business not found on Google Places',
@@ -130,6 +132,7 @@ export class GooglePlacesIntegration {
           reviewCount: searchResult.user_ratings_total || 0,
           photos: [],
           photoReferences: [],
+          photoAttributions: [],
           reviews: [],
           success: false,
           error: 'Failed to get place details',
@@ -140,11 +143,18 @@ export class GooglePlacesIntegration {
       // Get photo references for caching and photo URLs for legacy support
       const photos: string[] = [];
       const photoReferences: string[] = [];
+      const photoAttributions: string[] = [];
       
       if (detailsResult.photos) {
         // Extract photo references for the new caching system
         const photoRefs = detailsResult.photos.slice(0, 6).map(photo => photo.photo_reference);
         photoReferences.push(...photoRefs);
+        
+        // Capture html_attributions from the photos
+        const attributions = Array.isArray(detailsResult.html_attributions) 
+          ? detailsResult.html_attributions.filter(Boolean) 
+          : [];
+        photoAttributions.push(...attributions);
         
         // Get up to 6 photos for legacy support (will be replaced by cached photos)
         const photoUrls = await this.getPlacePhotos(detailsResult.photos.slice(0, 6));
@@ -169,6 +179,7 @@ export class GooglePlacesIntegration {
         reviewCount: detailsResult.user_ratings_total || 0,
         photos,
         photoReferences,
+        photoAttributions,
         reviews,
         website: detailsResult.website,
         phone: detailsResult.formatted_phone_number,

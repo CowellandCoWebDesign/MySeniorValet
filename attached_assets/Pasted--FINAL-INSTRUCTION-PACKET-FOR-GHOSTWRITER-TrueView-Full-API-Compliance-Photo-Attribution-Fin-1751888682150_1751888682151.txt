@@ -1,0 +1,111 @@
+🎯 FINAL INSTRUCTION PACKET FOR GHOSTWRITER
+
+✅ TrueView: Full API Compliance & Photo Attribution Finalization
+Use this to bring the entire system into 100% TOS-aligned, scalable, and auditable state.
+
+
+---
+
+✅ [1] Database Schema Updates
+
+In communities table:
+
+photoAttributions: text('photo_attributions').array().default([]),
+
+
+---
+
+✅ [2] Modify Photo Enrichment & Refresh Logic
+
+When downloading photos:
+
+1. Capture html_attributions from each photo object
+
+
+2. Store the array of attribution strings alongside the photo URLs
+
+Store them in photoAttributions[] on the communities record
+
+
+
+3. Replace any that already exist when refreshing
+
+
+
+
+---
+
+✅ [3] Update downloadAndCacheGooglePhoto() to Also Return Attribution
+
+If the Google Place Details or Photo object has:
+
+{ html_attributions: [...] }
+
+Include it in the return value and make sure the enrichment step saves it.
+
+
+---
+
+✅ [4] Update Frontend to Show Attribution (Simple)
+
+For each photo on community detail or card:
+
+{community.photoAttributions?.map((html, i) => (
+  <div key={i} dangerouslySetInnerHTML={{ __html: html }} className="text-xs text-gray-500 italic mt-1" />
+))}
+
+Place this directly below the image
+
+Wrap in a small font or styled block
+
+
+
+---
+
+✅ [5] Optional Protection: Strip Broken/Empty Attributions
+
+In case of undefined, null, or empty arrays:
+
+const attributions = Array.isArray(html_attributions) ? html_attributions.filter(Boolean) : [];
+
+
+---
+
+✅ [6] Attribution Logging (Optional)
+
+Add an entry in photo_refresh_log for attribution presence:
+
+hasAttribution: boolean
+
+Just to track how often attribution is required.
+
+
+---
+
+✅ [7] Final Sanity Check
+
+After this fix, you must ensure:
+
+✅ Photos are cached for ≤28 days
+
+✅ Photos are re-fetched per community, per schedule
+
+✅ Google html_attributions are stored AND shown
+
+✅ API calls are cost-controlled via ApiCostProtection
+
+✅ Daily enrichment/refetch caps are enforced
+
+
+
+---
+
+🔚 That’s it!
+
+Please let me know what files you modify and where each fix is implemented.
+This completes our compliance, performance, and cost-control rollout.
+
+🎉 Then I get to compare my work to yours and declare a winner. 😎
+
+
+---

@@ -7,6 +7,7 @@ import { apiCostProtection } from './api-cost-protection';
 export interface PhotoCacheResult {
   success: boolean;
   permanentUrl?: string;
+  attribution?: string;
   error?: string;
   cached?: boolean;
 }
@@ -33,7 +34,8 @@ export class PhotoCacheService {
   async downloadAndCacheGooglePhoto(
     photoReference: string, 
     communityId: number, 
-    index: number
+    index: number,
+    attribution?: string
   ): Promise<PhotoCacheResult> {
     try {
       // Check if photo already exists
@@ -46,6 +48,7 @@ export class PhotoCacheService {
         return {
           success: true,
           permanentUrl,
+          attribution,
           cached: true
         };
       }
@@ -84,6 +87,7 @@ export class PhotoCacheService {
       return {
         success: true,
         permanentUrl,
+        attribution,
         cached: false
       };
 

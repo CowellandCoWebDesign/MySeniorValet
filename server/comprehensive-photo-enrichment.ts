@@ -94,16 +94,19 @@ export class ComprehensivePhotoEnrichment {
             
             // Download and cache photos using the new photo cache service
             const cachedPhotoUrls: string[] = [];
+            const photoAttributions = enrichmentResult.photoAttributions || [];
             const maxPhotos = Math.min(photoReferences.length, ComprehensivePhotoEnrichment.MAX_PHOTOS_PER_COMMUNITY);
             
             for (let i = 0; i < maxPhotos; i++) {
               const photoRef = photoReferences[i];
+              const attribution = photoAttributions[i]; // Get corresponding attribution
               console.log(`💾 Caching photo ${i + 1}/${maxPhotos} for ${community.name}`);
               
               const cacheResult = await photoCacheService.downloadAndCacheGooglePhoto(
                 photoRef, 
                 community.id, 
-                i
+                i,
+                attribution
               );
               
               if (cacheResult.success && cacheResult.permanentUrl) {
@@ -141,6 +144,7 @@ export class ComprehensivePhotoEnrichment {
             await db.update(communities)
               .set({
                 photos: cachedPhotoUrls,
+                photoAttributions: photoAttributions,
                 googleRating: enrichmentResult.rating?.toString() || community.googleRating,
                 googleReviewCount: enrichmentResult.reviewCount || community.googleReviewCount,
                 phone: enrichmentResult.phone || community.phone,

@@ -38,6 +38,7 @@ interface Community {
   phone?: string;
   website?: string;
   photos?: string[];
+  photoAttributions?: string[];
   amenities?: string[];
   description?: string;
   latitude?: number;
@@ -79,9 +80,26 @@ export default function TrueViewCommunity() {
     <div className="min-h-screen bg-white">
       {/* Photo Gallery */}
       <div className="relative h-80 bg-gray-200">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <Home className="w-16 h-16 text-gray-400" />
-        </div>
+        {community.photos && community.photos.length > 0 ? (
+          <div className="w-full h-full">
+            <img 
+              src={community.photos[0]} 
+              alt={community.name}
+              className="w-full h-full object-cover"
+            />
+            {/* Photo Attribution */}
+            {community.photoAttributions && community.photoAttributions[0] && (
+              <div 
+                dangerouslySetInnerHTML={{ __html: community.photoAttributions[0] }} 
+                className="absolute bottom-1 right-1 text-xs text-white bg-black bg-opacity-50 px-1 py-0.5 rounded"
+              />
+            )}
+          </div>
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Home className="w-16 h-16 text-gray-400" />
+          </div>
+        )}
         
         {/* Header Overlay */}
         <div className="absolute top-0 left-0 right-0 p-4">

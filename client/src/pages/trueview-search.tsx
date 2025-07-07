@@ -23,6 +23,7 @@ interface Community {
   phone?: string;
   website?: string;
   photos?: string[];
+  photoAttributions?: string[];
 }
 
 export default function TrueViewSearch() {
@@ -183,9 +184,26 @@ export default function TrueViewSearch() {
                 <div className="flex">
                   {/* Photo Section */}
                   <div className="relative w-32 h-32 flex-shrink-0">
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center rounded-l-lg">
-                      <Home className="w-8 h-8 text-gray-400" />
-                    </div>
+                    {community.photos && community.photos.length > 0 ? (
+                      <div className="w-full h-full">
+                        <img 
+                          src={community.photos[0]} 
+                          alt={community.name}
+                          className="w-full h-full object-cover rounded-l-lg"
+                        />
+                        {/* Photo Attribution */}
+                        {community.photoAttributions && community.photoAttributions[0] && (
+                          <div 
+                            dangerouslySetInnerHTML={{ __html: community.photoAttributions[0] }} 
+                            className="absolute bottom-0 left-0 right-0 text-xs text-white bg-black bg-opacity-60 px-1 py-0.5 rounded-bl-lg line-clamp-1"
+                          />
+                        )}
+                      </div>
+                    ) : (
+                      <div className="w-full h-full bg-gray-200 flex items-center justify-center rounded-l-lg">
+                        <Home className="w-8 h-8 text-gray-400" />
+                      </div>
+                    )}
                     <div className="absolute top-2 right-2">
                       <button
                         onClick={(e) => handleHeartClick(e, community.id)}
