@@ -21,6 +21,21 @@ const SECURITY_CONFIG = {
 // Rate limiting middleware
 export function createRateLimit(maxRequests: number = SECURITY_CONFIG.rateLimiting.maxRequests) {
   return (req: Request, res: Response, next: NextFunction) => {
+    // Skip rate limiting for static files and main app routes
+    if (req.path.startsWith('/src/') || 
+        req.path.startsWith('/@') || 
+        req.path === '/' || 
+        req.path === '/search' || 
+        req.path === '/community' ||
+        req.path.startsWith('/community/') ||
+        req.path.endsWith('.js') || 
+        req.path.endsWith('.css') || 
+        req.path.endsWith('.map') ||
+        req.path.includes('vite') ||
+        req.path.includes('hmr')) {
+      return next();
+    }
+    
     const clientId = req.ip || 'unknown';
     const now = Date.now();
     const windowMs = SECURITY_CONFIG.rateLimiting.windowMs;
