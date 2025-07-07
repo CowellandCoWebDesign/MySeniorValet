@@ -174,24 +174,39 @@ export default function TrueViewSearch() {
         <div className="px-4 py-2 space-y-3">
           {filteredCommunities.map((community, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
-              <Card className="card-enhanced overflow-hidden cursor-pointer particles animate-float" style={{animationDelay: `${index * 0.1}s`}}>
+              <Card className={`overflow-hidden cursor-pointer animate-float ${
+                index % 4 === 0 ? 'gradient-border-primary' : 
+                index % 4 === 1 ? 'gradient-border-secondary' : 
+                index % 4 === 2 ? 'gradient-border-tertiary' :
+                'card-enhanced'
+              }`} style={{animationDelay: `${index * 0.1}s`}}>
                 <div className="flex">
                   {/* Photo Section */}
                   <div className="relative w-32 h-32 flex-shrink-0">
-                    <div className="w-full h-full gradient-hero flex items-center justify-center rounded-l-lg relative overflow-hidden">
-                      <Home className="w-8 h-8 text-white animate-pulse-glow" />
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/10" />
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center rounded-l-lg">
+                      <Home className="w-8 h-8 text-gray-400" />
                     </div>
                     <div className="absolute top-2 right-2">
                       <button
                         onClick={(e) => handleHeartClick(e, community.id)}
-                        className="p-1 rounded-full glass hover:bg-white/30 transition-colors shadow-sm animate-sparkle"
+                        className="p-1 rounded-full bg-white/90 hover:bg-white transition-colors shadow-sm"
                       >
-                        <Heart className="w-4 h-4 text-white hover:text-pink-300" />
+                        <Heart className="w-4 h-4 text-gray-600 hover:text-red-500" />
                       </button>
                     </div>
+                    {/* Featured/Sponsored Labels */}
+                    {index % 4 === 0 && (
+                      <Badge className="absolute top-2 left-2 gradient-primary text-white px-1.5 py-0.5 text-xs animate-pulse">
+                        Featured
+                      </Badge>
+                    )}
+                    {index % 4 === 1 && (
+                      <Badge className="absolute top-2 left-2 gradient-secondary text-white px-1.5 py-0.5 text-xs animate-pulse">
+                        Sponsored
+                      </Badge>
+                    )}
                     {community.monthlyRent && (
-                      <Badge className="absolute bottom-2 left-2 gradient-secondary text-white px-1.5 py-0.5 text-xs animate-gradient">
+                      <Badge className="absolute bottom-2 left-2 bg-red-600 text-white px-1.5 py-0.5 text-xs">
                         ${Math.floor(community.monthlyRent / 1000)}K+
                       </Badge>
                     )}

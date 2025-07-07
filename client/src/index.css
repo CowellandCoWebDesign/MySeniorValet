@@ -201,7 +201,7 @@
 
   /* Enhanced card effects */
   .card-enhanced {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.18);
     transition: all 0.3s ease;
@@ -211,6 +211,38 @@
     transform: translateY(-5px);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
     border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  /* Gradient border effects for featured/sponsored cards */
+  .gradient-border-primary {
+    background: white;
+    border: 3px solid;
+    border-image: linear-gradient(135deg, hsl(207, 100%, 36%) 0%, hsl(268, 83%, 58%) 100%) 1;
+    animation: gradient-shift 3s ease infinite;
+    transition: all 0.3s ease;
+  }
+
+  .gradient-border-secondary {
+    background: white;
+    border: 3px solid;
+    border-image: linear-gradient(135deg, hsl(320, 85%, 60%) 0%, hsl(25, 95%, 53%) 100%) 1;
+    animation: gradient-shift 3s ease infinite;
+    transition: all 0.3s ease;
+  }
+
+  .gradient-border-tertiary {
+    background: white;
+    border: 3px solid;
+    border-image: linear-gradient(135deg, hsl(142, 71%, 45%) 0%, hsl(207, 100%, 36%) 100%) 1;
+    animation: gradient-shift 3s ease infinite;
+    transition: all 0.3s ease;
+  }
+
+  .gradient-border-primary:hover,
+  .gradient-border-secondary:hover,
+  .gradient-border-tertiary:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
   }
 }
 

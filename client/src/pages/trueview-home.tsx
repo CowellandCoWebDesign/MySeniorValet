@@ -109,32 +109,34 @@ export default function TrueViewHome() {
         <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">
           {featuredCommunities.map((community: any, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
-              <Card className="card-enhanced overflow-hidden flex-shrink-0 w-48 particles animate-float" style={{animationDelay: `${index * 0.2}s`}}>
+              <Card className={`overflow-hidden flex-shrink-0 w-48 animate-float ${
+                index % 3 === 0 ? 'gradient-border-primary' : 
+                index % 3 === 1 ? 'gradient-border-secondary' : 
+                'card-enhanced'
+              }`} style={{animationDelay: `${index * 0.2}s`}}>
                 <div className="relative">
-                  <div className="aspect-[4/3] gradient-hero flex items-center justify-center relative overflow-hidden">
-                    <Home className="w-12 h-12 text-white animate-pulse-glow" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                  <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
+                    <Home className="w-12 h-12 text-gray-400" />
                   </div>
                   
-                  {/* Heart Icon with Glow */}
+                  {/* Heart Icon */}
                   <div className="absolute top-3 right-3">
-                    <div className="w-8 h-8 glass rounded-full flex items-center justify-center animate-sparkle">
-                      <Heart className="w-4 h-4 text-white" />
+                    <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
+                      <Heart className="w-4 h-4 text-gray-600" />
                     </div>
                   </div>
                   
-                  {/* Status Badge with Animation */}
-                  <Badge 
-                    className={`absolute top-3 left-3 text-white text-xs px-2 py-1 font-medium animate-gradient ${
-                      index === 0 ? 'gradient-secondary' : 
-                      index === 1 ? 'gradient-primary' : 
-                      index === 2 ? 'gradient-tertiary' : 'gradient-hero'
-                    }`}
-                  >
-                    {index === 0 ? '2 hours ago' : 
-                     index === 1 ? 'Premium care' :
-                     index === 2 ? 'Memory care' : 'New listing'}
-                  </Badge>
+                  {/* Featured/Sponsored Badge */}
+                  {index % 3 === 0 && (
+                    <Badge className="absolute top-3 left-3 gradient-primary text-white text-xs px-2 py-1 font-medium animate-pulse">
+                      Featured
+                    </Badge>
+                  )}
+                  {index % 3 === 1 && (
+                    <Badge className="absolute top-3 left-3 gradient-secondary text-white text-xs px-2 py-1 font-medium animate-pulse">
+                      Sponsored
+                    </Badge>
+                  )}
                 </div>
                 
                 <CardContent className="p-3">
@@ -238,19 +240,34 @@ export default function TrueViewHome() {
         <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">
           {communities?.slice(8, 16).map((community: any, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
-              <Card className="card-enhanced overflow-hidden flex-shrink-0 w-48 particles animate-float" style={{animationDelay: `${index * 0.2}s`}}>
+              <Card className={`overflow-hidden flex-shrink-0 w-48 animate-float ${
+                index % 3 === 0 ? 'gradient-border-tertiary' : 
+                index % 3 === 1 ? 'gradient-border-primary' : 
+                'card-enhanced'
+              }`} style={{animationDelay: `${index * 0.2}s`}}>
                 <div className="relative">
-                  <div className="aspect-[4/3] gradient-tertiary flex items-center justify-center relative overflow-hidden">
-                    <Home className="w-12 h-12 text-white animate-pulse-glow" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                  <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
+                    <Home className="w-12 h-12 text-gray-400" />
                   </div>
                   
-                  {/* Heart Icon with Glow */}
+                  {/* Heart Icon */}
                   <div className="absolute top-3 right-3">
-                    <div className="w-8 h-8 glass rounded-full flex items-center justify-center animate-sparkle">
-                      <Heart className="w-4 h-4 text-white" />
+                    <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
+                      <Heart className="w-4 h-4 text-gray-600" />
                     </div>
                   </div>
+                  
+                  {/* Featured/Sponsored Badge */}
+                  {index % 3 === 0 && (
+                    <Badge className="absolute top-3 left-3 gradient-tertiary text-white text-xs px-2 py-1 font-medium animate-pulse">
+                      Premium
+                    </Badge>
+                  )}
+                  {index % 3 === 1 && (
+                    <Badge className="absolute top-3 left-3 gradient-primary text-white text-xs px-2 py-1 font-medium animate-pulse">
+                      Featured
+                    </Badge>
+                  )}
                   
                   {/* Status Badge */}
                   <Badge 
