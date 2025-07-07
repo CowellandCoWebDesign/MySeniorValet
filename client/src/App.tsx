@@ -14,6 +14,7 @@ import SearchWorking from "@/pages/search-working";
 import SimpleSearch from "@/pages/simple-search";
 import WorkingSearch from "@/pages/working-search";
 import BasicSearch from "@/pages/basic-search";
+import TestSearch from "@/pages/test-search";
 import Explore from "@/pages/explore";
 import Community from "@/pages/community";
 import CommunityPage from "@/pages/community";
@@ -45,7 +46,8 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={TrueViewHome} />
-      <Route path="/search" component={BasicSearch} />
+      <Route path="/search" component={TestSearch} />
+      <Route path="/full-search" component={BasicSearch} />
       <Route path="/old-search" component={TrueViewSearch} />
       <Route path="/explore" component={Explore} />
       <Route path="/community/:id" component={TrueViewCommunity} />
