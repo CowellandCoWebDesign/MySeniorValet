@@ -66,14 +66,14 @@ export default function TrueViewSearch() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <header className="glass border-b border-white/20 sticky top-0 z-50 particles">
         <div className="px-4 py-3">
           <div className="flex items-center space-x-4">
             <Link href="/">
-              <Button variant="ghost" size="sm" className="p-1">
-                <ArrowLeft className="w-5 h-5 text-gray-600" />
+              <Button variant="ghost" size="sm" className="p-1 glass hover:bg-white/20 animate-sparkle">
+                <ArrowLeft className="w-5 h-5 text-gray-700" />
               </Button>
             </Link>
             <div className="flex-1 relative">
@@ -83,29 +83,29 @@ export default function TrueViewSearch() {
                 placeholder="Care type, location, community name"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 rounded-lg border border-gray-300"
+                className="pl-10 pr-4 py-2 rounded-lg border border-white/30 bg-white/80 backdrop-blur-sm"
               />
             </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setShowFilters(!showFilters)}
-              className="p-2"
+              className="p-2 glass hover:bg-white/20 animate-float"
             >
-              <Filter className="w-5 h-5 text-gray-600" />
+              <Filter className="w-5 h-5 text-gray-700" />
             </Button>
           </div>
         </div>
       </header>
 
       {/* Filter Pills */}
-      <div className="px-4 py-3 bg-white border-b border-gray-100">
+      <div className="px-4 py-3 gradient-card border-b border-white/20">
         <div className="flex items-center justify-between">
           <div className="flex space-x-2 overflow-x-auto">
             <Button
               variant="outline"
               size="sm"
-              className="flex-shrink-0 border-blue-600 text-blue-600 hover:bg-blue-50"
+              className="flex-shrink-0 gradient-primary text-white border-0 hover:opacity-90 animate-gradient"
             >
               <Filter className="w-4 h-4 mr-2" />
               Care type
@@ -113,7 +113,7 @@ export default function TrueViewSearch() {
             <Button
               variant="outline"
               size="sm"
-              className="flex-shrink-0"
+              className="flex-shrink-0 gradient-secondary text-white border-0 hover:opacity-90"
             >
               Price
             </Button>
@@ -147,12 +147,12 @@ export default function TrueViewSearch() {
       </div>
 
       {/* Results Count */}
-      <div className="px-4 py-3 bg-white border-b border-gray-100">
+      <div className="px-4 py-3 gradient-card border-b border-white/20">
         <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-700 font-medium">
             {filteredCommunities.length} results
           </p>
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full">
+          <Button className="gradient-primary hover:opacity-90 text-white px-4 py-2 rounded-full border-0 animate-gradient">
             <Search className="w-4 h-4 mr-2" />
             Save search
           </Button>
@@ -162,33 +162,36 @@ export default function TrueViewSearch() {
       {/* Loading State */}
       {isLoading && (
         <div className="px-4 py-8 text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="text-gray-600 mt-2">Loading communities...</p>
+          <div className="gradient-card p-8 rounded-lg animate-pulse-glow particles">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto animate-gradient"></div>
+            <p className="text-gradient mt-2 font-semibold">Loading communities...</p>
+          </div>
         </div>
       )}
 
       {/* Communities List */}
       {!isLoading && (
         <div className="px-4 py-2 space-y-3">
-          {filteredCommunities.map((community) => (
+          {filteredCommunities.map((community, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
-              <Card className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer border-0 shadow-sm">
+              <Card className="card-enhanced overflow-hidden cursor-pointer particles animate-float" style={{animationDelay: `${index * 0.1}s`}}>
                 <div className="flex">
                   {/* Photo Section */}
                   <div className="relative w-32 h-32 flex-shrink-0">
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center rounded-l-lg">
-                      <Home className="w-8 h-8 text-gray-400" />
+                    <div className="w-full h-full gradient-hero flex items-center justify-center rounded-l-lg relative overflow-hidden">
+                      <Home className="w-8 h-8 text-white animate-pulse-glow" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/10" />
                     </div>
                     <div className="absolute top-2 right-2">
                       <button
                         onClick={(e) => handleHeartClick(e, community.id)}
-                        className="p-1 rounded-full bg-white/90 hover:bg-white transition-colors shadow-sm"
+                        className="p-1 rounded-full glass hover:bg-white/30 transition-colors shadow-sm animate-sparkle"
                       >
-                        <Heart className="w-4 h-4 text-gray-600 hover:text-red-500" />
+                        <Heart className="w-4 h-4 text-white hover:text-pink-300" />
                       </button>
                     </div>
                     {community.monthlyRent && (
-                      <Badge className="absolute bottom-2 left-2 bg-red-600 text-white px-1.5 py-0.5 text-xs">
+                      <Badge className="absolute bottom-2 left-2 gradient-secondary text-white px-1.5 py-0.5 text-xs animate-gradient">
                         ${Math.floor(community.monthlyRent / 1000)}K+
                       </Badge>
                     )}
