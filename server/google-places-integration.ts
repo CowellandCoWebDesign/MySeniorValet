@@ -33,6 +33,7 @@ export interface GooglePlacesEnrichmentResult {
   rating: number;
   reviewCount: number;
   photos: string[];
+  photoReferences: string[]; // Add photo references for caching
   reviews: Array<{
     author: string;
     rating: number;
@@ -112,6 +113,7 @@ export class GooglePlacesIntegration {
           rating: 0,
           reviewCount: 0,
           photos: [],
+          photoReferences: [],
           reviews: [],
           success: false,
           error: 'Business not found on Google Places',
@@ -127,6 +129,7 @@ export class GooglePlacesIntegration {
           rating: searchResult.rating || 0,
           reviewCount: searchResult.user_ratings_total || 0,
           photos: [],
+          photoReferences: [],
           reviews: [],
           success: false,
           error: 'Failed to get place details',
@@ -134,10 +137,16 @@ export class GooglePlacesIntegration {
         };
       }
 
-      // Get all available photos (avoid duplicates)
+      // Get photo references for caching and photo URLs for legacy support
       const photos: string[] = [];
+      const photoReferences: string[] = [];
+      
       if (detailsResult.photos) {
-        // Get up to 6 photos instead of limiting to 3
+        // Extract photo references for the new caching system
+        const photoRefs = detailsResult.photos.slice(0, 6).map(photo => photo.photo_reference);
+        photoReferences.push(...photoRefs);
+        
+        // Get up to 6 photos for legacy support (will be replaced by cached photos)
         const photoUrls = await this.getPlacePhotos(detailsResult.photos.slice(0, 6));
         // Filter out any photos that might already exist
         const newUniquePhotos = photoUrls.filter(url => !existingPhotos.includes(url));
@@ -159,6 +168,7 @@ export class GooglePlacesIntegration {
         rating: detailsResult.rating || 0,
         reviewCount: detailsResult.user_ratings_total || 0,
         photos,
+        photoReferences,
         reviews,
         website: detailsResult.website,
         phone: detailsResult.formatted_phone_number,

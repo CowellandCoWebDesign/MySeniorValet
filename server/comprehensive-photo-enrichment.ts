@@ -4,6 +4,7 @@ import { eq, sql } from "drizzle-orm";
 import { googlePlacesIntegration } from "./google-places-integration";
 import { dataProtectionService } from "./data-protection";
 import { apiCostProtection } from "./api-cost-protection";
+import { photoCacheService } from "./photo-cache-service";
 
 export class ComprehensivePhotoEnrichment {
   private static readonly MAX_PHOTOS_PER_COMMUNITY = 5;
@@ -33,7 +34,24 @@ export class ComprehensivePhotoEnrichment {
       console.log("🚀 Starting comprehensive photo enrichment for ALL communities");
       
       // 🚨 CRITICAL COST PROTECTION: Check total operation cost before starting
-      const allCommunities = await db.select().from(communities);
+      // Only get communities that haven't been enriched yet or were enriched more than 30 days ago
+      const thirtyDaysAgo = new Date(Date.now() - (30 * 24 * 60 * 60 * 1000));
+      const allCommunities = await db.select().from(communities).where(
+        sql`${communities.enrichmentCompleted} IS NULL OR ${communities.enrichmentCompleted} = false OR ${communities.lastEnrichmentDate} < ${thirtyDaysAgo}`
+      );
+      
+      console.log(`📊 Found ${allCommunities.length} communities needing enrichment`);
+      
+      if (allCommunities.length === 0) {
+        console.log("✅ All communities have been enriched recently. No work needed.");
+        return {
+          totalCommunities: 0,
+          enriched: 0,
+          photosAdded: 0,
+          errors: []
+        };
+      }
+      
       const totalEstimatedCost = allCommunities.length * 0.50; // $0.50 per community (conservative estimate)
       const totalEstimatedCalls = allCommunities.length * 10; // 10 calls per community
       
@@ -49,8 +67,6 @@ export class ComprehensivePhotoEnrichment {
         };
       }
       
-      console.log(`📊 Found ${allCommunities.length} communities to enrich`);
-      
       let enriched = 0;
       let totalPhotosAdded = 0;
       const errors: string[] = [];
@@ -59,64 +75,98 @@ export class ComprehensivePhotoEnrichment {
         try {
           console.log(`🔍 Enriching: ${community.name} (ID: ${community.id})`);
           
-          // Get existing photos count
-          const existingPhotosCount = community.photos?.length || 0;
+          // Skip if already enriched recently
+          if (community.enrichmentCompleted && community.lastEnrichmentDate) {
+            const daysSinceEnrichment = (Date.now() - new Date(community.lastEnrichmentDate).getTime()) / (1000 * 60 * 60 * 24);
+            if (daysSinceEnrichment < 30) {
+              console.log(`⏭️ ${community.name}: Already enriched ${daysSinceEnrichment.toFixed(1)} days ago, skipping`);
+              continue;
+            }
+          }
           
-          // Enrich with Google Places
+          // Enrich with Google Places to get photo references
           const enrichmentResult = await googlePlacesIntegration.enrichCommunityWithGooglePlaces(community);
           
           if (enrichmentResult && enrichmentResult.success) {
-            // Update community with LIMITED photos (MAX 5 per community)
-            const existingPhotos = community.photos || [];
-            const newPhotos = enrichmentResult.photos || [];
+            // Get photo references from Google Places
+            const photoReferences = enrichmentResult.photoReferences || [];
+            console.log(`📷 Found ${photoReferences.length} photo references for ${community.name}`);
             
-            // Filter out duplicates by checking photo reference IDs
-            const newUniquePhotos = newPhotos.filter(photo => 
-              !existingPhotos.some(existing => 
-                existing.includes(photo.split('photo_reference=')[1]?.split('&')[0] || '')
-              )
-            );
+            // Download and cache photos using the new photo cache service
+            const cachedPhotoUrls: string[] = [];
+            const maxPhotos = Math.min(photoReferences.length, ComprehensivePhotoEnrichment.MAX_PHOTOS_PER_COMMUNITY);
             
-            // Limit total photos per community to MAX_PHOTOS_PER_COMMUNITY
-            const allPhotos = [...existingPhotos, ...newUniquePhotos]
-              .slice(0, ComprehensivePhotoEnrichment.MAX_PHOTOS_PER_COMMUNITY);
+            for (let i = 0; i < maxPhotos; i++) {
+              const photoRef = photoReferences[i];
+              console.log(`💾 Caching photo ${i + 1}/${maxPhotos} for ${community.name}`);
+              
+              const cacheResult = await photoCacheService.downloadAndCacheGooglePhoto(
+                photoRef, 
+                community.id, 
+                i
+              );
+              
+              if (cacheResult.success && cacheResult.permanentUrl) {
+                cachedPhotoUrls.push(cacheResult.permanentUrl);
+                if (cacheResult.cached) {
+                  console.log(`📷 Used cached photo ${i + 1} for ${community.name}`);
+                } else {
+                  console.log(`💾 Downloaded and cached photo ${i + 1} for ${community.name}`);
+                }
+              } else {
+                console.warn(`⚠️ Failed to cache photo ${i + 1} for ${community.name}: ${cacheResult.error}`);
+              }
+              
+              // Small delay between photo downloads
+              await this.delay(1000);
+            }
             
-            // Data Protection: Validate photo enrichment data before update
+            // Data Protection: Validate enriched data before update
             const updateData = {
-              photos: allPhotos,
+              photos: cachedPhotoUrls,
               googleRating: enrichmentResult.rating?.toString(),
               googleReviewCount: enrichmentResult.reviewCount,
               phone: enrichmentResult.phone,
               website: enrichmentResult.website
             };
 
-            const protectionResult = await dataProtectionService.enforceDataProtection([updateData], 'google_places_photos');
+            const protectionResult = await dataProtectionService.enforceDataProtection([updateData], 'google_places_enrichment');
             
             if (protectionResult.blocked.length > 0) {
-              console.warn(`⚠️ Data protection blocked photo update for ${community.name}:`, protectionResult.summary);
+              console.warn(`⚠️ Data protection blocked enrichment for ${community.name}:`, protectionResult.summary);
               continue; // Skip this community
             }
             
-            // Update database with enriched data
+            // Update database with enriched data and mark as completed
             await db.update(communities)
               .set({
-                photos: allPhotos,
+                photos: cachedPhotoUrls,
                 googleRating: enrichmentResult.rating?.toString() || community.googleRating,
                 googleReviewCount: enrichmentResult.reviewCount || community.googleReviewCount,
                 phone: enrichmentResult.phone || community.phone,
                 website: enrichmentResult.website || community.website,
                 lastEnrichmentDate: new Date(),
+                enrichmentCompleted: true, // Mark as completed
                 updatedAt: new Date()
               })
               .where(eq(communities.id, community.id));
             
-            const photosAdded = newUniquePhotos.length;
+            const photosAdded = cachedPhotoUrls.length;
             totalPhotosAdded += photosAdded;
             enriched++;
             
-            console.log(`✅ ${community.name}: Added ${photosAdded} photos (total: ${allPhotos.length})`);
+            console.log(`✅ ${community.name}: Cached ${photosAdded} photos, marked as complete`);
           } else {
-            console.log(`⚠️  ${community.name}: No enrichment data found`);
+            console.log(`⚠️ ${community.name}: No enrichment data found`);
+            
+            // Mark as completed even if no photos found to prevent re-processing
+            await db.update(communities)
+              .set({
+                enrichmentCompleted: true,
+                lastEnrichmentDate: new Date(),
+                updatedAt: new Date()
+              })
+              .where(eq(communities.id, community.id));
           }
           
           // 🚨 CRITICAL: Check if we're approaching limits after each community
@@ -126,13 +176,25 @@ export class ComprehensivePhotoEnrichment {
             break;
           }
           
-          // Rate limiting to avoid API quota issues - increased to 5-10 seconds
-          await this.delay(7000); // 7 second delay between communities
+          // Rate limiting to avoid API quota issues - 5 second delay between communities
+          await this.delay(5000);
           
         } catch (error) {
           const errorMsg = `Error enriching ${community.name}: ${error instanceof Error ? error.message : 'Unknown error'}`;
           errors.push(errorMsg);
           console.error(`❌ ${errorMsg}`);
+          
+          // Mark as failed attempt to prevent infinite retries
+          try {
+            await db.update(communities)
+              .set({
+                lastEnrichmentDate: new Date(),
+                updatedAt: new Date()
+              })
+              .where(eq(communities.id, community.id));
+          } catch (dbError) {
+            console.error(`Failed to update failure timestamp for ${community.name}:`, dbError);
+          }
         }
       }
       
