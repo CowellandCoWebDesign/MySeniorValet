@@ -124,42 +124,44 @@ export default function ZillowHome() {
           </Link>
         </div>
         
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3">
           {featuredCommunities.map((community: any) => (
-            <Link key={community.id} href={`/communities/${community.id}`}>
-              <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+            <Link key={community.id} href={`/community/${community.id}`}>
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow border-0 shadow-sm">
                 <div className="relative">
                   <div className="aspect-video bg-gray-200 flex items-center justify-center">
                     <Home className="w-8 h-8 text-gray-400" />
                   </div>
                   <div className="absolute top-2 right-2">
-                    <Heart className="w-5 h-5 text-white fill-current opacity-75" />
+                    <div className="p-1.5 rounded-full bg-white/80 hover:bg-white transition-colors">
+                      <Heart className="w-4 h-4 text-gray-600 hover:text-red-500" />
+                    </div>
                   </div>
                   {community.monthlyRent && (
-                    <Badge className="absolute top-2 left-2 bg-red-600 text-white">
-                      From ${community.monthlyRent.toLocaleString()}
+                    <Badge className="absolute top-2 left-2 bg-red-600 text-white text-xs px-1.5 py-1">
+                      ${Math.floor(community.monthlyRent / 1000)}K+
                     </Badge>
                   )}
                 </div>
                 <CardContent className="p-3">
-                  <div className="text-2xl font-bold text-gray-900 mb-1">
+                  <div className="text-lg font-bold text-gray-900 mb-1">
                     {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : 'Contact for pricing'}
                   </div>
-                  <div className="text-sm text-gray-600 mb-2">
-                    {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
+                  <div className="text-xs text-gray-600 mb-1">
+                    {community.careTypes?.slice(0, 1).join('') || 'Senior Living'}
                   </div>
-                  <div className="text-sm font-medium text-gray-900 mb-1">
+                  <div className="text-sm font-medium text-gray-900 mb-1 line-clamp-2 leading-tight">
                     {community.name}
                   </div>
-                  <div className="flex items-center text-sm text-gray-600">
+                  <div className="flex items-center text-xs text-gray-600 mb-1">
                     <MapPin className="w-3 h-3 mr-1" />
-                    {community.city}, {community.state}
+                    <span className="line-clamp-1">{community.city}, {community.state}</span>
                   </div>
                   {community.googleRating && (
-                    <div className="flex items-center mt-2">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-sm text-gray-600 ml-1">
-                        {community.googleRating} ({community.googleReviewCount} reviews)
+                    <div className="flex items-center">
+                      <Star className="w-3 h-3 text-yellow-400 fill-current mr-1" />
+                      <span className="text-xs text-gray-600">
+                        {community.googleRating} ({community.googleReviewCount})
                       </span>
                     </div>
                   )}

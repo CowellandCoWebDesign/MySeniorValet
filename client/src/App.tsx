@@ -12,6 +12,7 @@ import ZillowSearch from "@/pages/zillow-search";
 import Explore from "@/pages/explore";
 import Community from "@/pages/community";
 import CommunityPage from "@/pages/community";
+import ZillowCommunity from "@/pages/zillow-community";
 import Claim from "@/pages/claim";
 import Admin from "@/pages/admin";
 import AdminCleanFull from "@/pages/admin-clean-full";
@@ -40,7 +41,7 @@ function Router() {
       <Route path="/" component={ZillowHome} />
       <Route path="/search" component={ZillowSearch} />
       <Route path="/explore" component={Explore} />
-      <Route path="/community/:id" component={CommunityPage} />
+      <Route path="/community/:id" component={ZillowCommunity} />
       <Route path="/claim/:communityId" component={Claim} />
       <Route path="/admin" component={AdminCreative} />
       <Route path="/expansion-monitor" component={ExpansionMonitor} />
