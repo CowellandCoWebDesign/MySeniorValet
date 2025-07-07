@@ -232,18 +232,29 @@ export default function TrueViewHome() {
       </section>
 
       {/* Saved Searches with Carousel */}
-      <section className="px-4 py-8 bg-gradient-to-r from-purple-50 to-pink-50">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-900">
-            Memory Care in San Francisco
-          </h2>
-          <div className="text-right">
-            <div className="text-sm font-semibold text-gray-900">$6,500 - $8,200</div>
-            <div className="text-xs text-blue-600">3 price drops</div>
-          </div>
+      <section className="px-4 py-8 relative overflow-hidden">
+        {/* Background Golden Gate Bridge Image */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+            alt="Golden Gate Bridge background"
+            className="w-full h-full object-cover opacity-25"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-50/85 to-pink-50/85"></div>
         </div>
         
-        <p className="text-gray-600 text-sm mb-4">5 new communities • Updated 2 hours ago</p>
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-900">
+              Memory Care in San Francisco
+            </h2>
+            <div className="text-right">
+              <div className="text-sm font-semibold text-gray-900">$6,500 - $8,200</div>
+              <div className="text-xs text-blue-600">3 price drops</div>
+            </div>
+          </div>
+          
+          <p className="text-gray-600 text-sm mb-4">5 new communities • Updated 2 hours ago</p>
         
         <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
           {communities?.slice(8, 16).map((community: any, index) => (
@@ -313,6 +324,7 @@ export default function TrueViewHome() {
           <Button variant="outline" className="w-full gradient-secondary text-white border-0 hover:opacity-90">
             View all saved searches
           </Button>
+        </div>
         </div>
       </section>
 
