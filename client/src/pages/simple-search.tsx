@@ -38,6 +38,7 @@ export default function SimpleSearch() {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<'list' | 'map'>('map');
   const [activeTab, setActiveTab] = useState('search');
+  const [isResultsExpanded, setIsResultsExpanded] = useState(false);
 
   // Parse URL parameters
   useEffect(() => {
@@ -239,22 +240,101 @@ export default function SimpleSearch() {
           </div>
 
           {/* Save Search Button */}
-          <div className="absolute bottom-20 right-4 z-20">
+          <div className={`absolute right-4 z-20 transition-all duration-300 ${
+            isResultsExpanded ? 'bottom-96' : 'bottom-20'
+          }`}>
             <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg px-4 py-2">
               Save search
             </Button>
           </div>
 
-          {/* Results Counter */}
-          <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-20">
-            <div className="text-center py-3">
-              <div className="text-lg font-semibold text-gray-900">
-                {filteredCommunities.length} results
+          {/* Slide-Up Results List */}
+          <div 
+            className={`absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-20 transition-all duration-300 ease-in-out ${
+              isResultsExpanded ? 'h-80' : 'h-16'
+            }`}
+          >
+            {/* Header - Always visible */}
+            <div 
+              className="flex items-center justify-between px-4 py-3 cursor-pointer border-b border-gray-100"
+              onClick={() => setIsResultsExpanded(!isResultsExpanded)}
+            >
+              <div className="flex items-center space-x-2">
+                <div className="text-lg font-semibold text-gray-900">
+                  {filteredCommunities.length} results
+                </div>
+                <div className="text-sm text-gray-600">
+                  • {filteredCommunities.filter((c: any) => c.latitude && c.longitude).length} on map
+                </div>
               </div>
-              <div className="text-sm text-gray-600">
-                {filteredCommunities.filter((c: any) => c.latitude && c.longitude).length} with map locations
+              <div className={`transform transition-transform duration-200 ${isResultsExpanded ? 'rotate-180' : ''}`}>
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
               </div>
             </div>
+
+            {/* Expanded Results List */}
+            {isResultsExpanded && (
+              <div className="h-64 overflow-y-auto">
+                <div className="p-2 space-y-2">
+                  {filteredCommunities.map((community: any) => (
+                    <div
+                      key={community.id}
+                      onClick={() => window.location.href = `/community/${community.id}`}
+                      className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer border border-gray-100"
+                    >
+                      {/* Community Image */}
+                      <div className="w-12 h-12 flex-shrink-0">
+                        {community.photos && community.photos.length > 0 ? (
+                          <img 
+                            src={community.photos[0]} 
+                            alt={community.name}
+                            className="w-full h-full object-cover rounded-lg"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-200 flex items-center justify-center rounded-lg">
+                            <Home className="w-5 h-5 text-gray-400" />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Community Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-sm font-semibold text-gray-900 truncate">
+                              {community.name}
+                            </h3>
+                            <p className="text-xs text-gray-600 flex items-center mt-0.5">
+                              <MapPin className="w-3 h-3 mr-1" />
+                              {community.city}, {community.state}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                              {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
+                            </p>
+                          </div>
+                          
+                          <div className="text-right ml-2">
+                            {community.monthlyRent && (
+                              <div className="text-sm font-bold text-blue-600">
+                                ${Math.floor(community.monthlyRent / 1000)}K+
+                              </div>
+                            )}
+                            {community.googleRating && (
+                              <div className="flex items-center mt-0.5">
+                                <Star className="w-3 h-3 text-yellow-400 fill-current mr-1" />
+                                <span className="text-xs text-gray-600">{community.googleRating}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       ) : (
