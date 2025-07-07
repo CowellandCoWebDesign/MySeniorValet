@@ -54,22 +54,30 @@ export default function SearchWorking() {
     if (q) setSearchQuery(q);
   }, [location]);
 
-  const { data: communities, isLoading } = useQuery<Community[]>({
+  const { data: communities, isLoading, error } = useQuery<Community[]>({
     queryKey: ["/api/communities"],
     retry: false,
   });
 
+  // Debug logging
+  console.log('Search page - communities:', communities?.length, 'loading:', isLoading, 'error:', error);
+
   const filteredCommunities = communities?.filter(community => {
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      const matches = 
-        community.name.toLowerCase().includes(query) ||
-        community.city.toLowerCase().includes(query) ||
-        community.careTypes.some(type => type.toLowerCase().includes(query));
-      if (!matches) return false;
+    // If no search query, show all communities
+    if (!searchQuery) {
+      return true;
     }
-    return true;
+    
+    // If search query exists, filter
+    const query = searchQuery.toLowerCase();
+    const matches = 
+      community.name?.toLowerCase().includes(query) ||
+      community.city?.toLowerCase().includes(query) ||
+      community.careTypes?.some(type => type.toLowerCase().includes(query));
+    return matches;
   }) || [];
+
+  console.log('Search query:', searchQuery, 'Total communities:', communities?.length, 'Filtered communities:', filteredCommunities.length);
 
   const handleCommunityClick = (communityId: number) => {
     window.location.href = `/community/${communityId}`;
@@ -220,9 +228,39 @@ export default function SearchWorking() {
               {activeTab === 'inbox' && 'Messages'}
             </h2>
             <p className="text-gray-600">Coming soon...</p>
+            <Button 
+              onClick={() => setActiveTab('search')}
+              className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              Back to Search
+            </Button>
           </div>
         </div>
         <BottomNav />
+      </div>
+    );
+  }
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white pb-16 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="text-gray-600 mt-4">Loading communities...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-white pb-16 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Error loading communities</p>
+          <Button onClick={() => window.location.reload()}>Retry</Button>
+        </div>
       </div>
     );
   }
