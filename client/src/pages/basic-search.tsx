@@ -4,10 +4,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, MapPin, Star, Heart, List, Map, Bell, Calendar, Mail } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { Icon } from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+// Custom marker icon for communities
+const communityIcon = new Icon({
+  iconUrl: 'data:image/svg+xml;base64,' + btoa(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#2563eb" width="32" height="32">
+      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+    </svg>
+  `),
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
 
 export default function BasicSearch() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState('search');
+  const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
 
   const { data: communities, isLoading, error } = useQuery({
     queryKey: ["/api/communities"],
@@ -143,41 +159,99 @@ export default function BasicSearch() {
         </div>
       </div>
 
-      {/* Simple Map Placeholder */}
-      <div className="h-96 relative bg-blue-50">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center bg-white p-6 rounded-lg shadow-lg">
-            <MapPin className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Interactive Map
-            </h3>
-            <p className="text-gray-600 mb-4">
-              {filteredCommunities.length} communities in Northern California
-            </p>
-            <div className="text-sm text-gray-500">
-              Map functionality will load here
+      {/* Map/List View */}
+      {viewMode === 'map' ? (
+        <div className="h-96 relative">
+          <MapContainer
+            center={[40.315, -122.32]} // Northern California center
+            zoom={7}
+            style={{ height: '100%', width: '100%' }}
+            className="z-10"
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            
+            {/* Community Markers */}
+            {filteredCommunities
+              .filter((community: any) => community.latitude && community.longitude)
+              .map((community: any) => (
+                <Marker
+                  key={community.id}
+                  position={[community.latitude, community.longitude]}
+                  icon={communityIcon}
+                  eventHandlers={{
+                    click: () => window.location.href = `/community/${community.id}`,
+                  }}
+                >
+                  <Popup>
+                    <div className="p-2 min-w-[200px]">
+                      <h3 className="font-semibold text-gray-900 mb-1 text-sm">{community.name}</h3>
+                      <p className="text-xs text-gray-600 mb-2">{community.city}, {community.state}</p>
+                      {community.monthlyRent && (
+                        <p className="text-base font-bold text-blue-600 mb-1">
+                          ${community.monthlyRent.toLocaleString()}/mo
+                        </p>
+                      )}
+                      <p className="text-xs text-gray-500 mb-2">
+                        {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
+                      </p>
+                      {community.googleRating && (
+                        <div className="flex items-center">
+                          <Star className="w-3 h-3 text-yellow-400 fill-current mr-1" />
+                          <span className="text-xs text-gray-600">
+                            {community.googleRating} ({community.googleReviewCount || 0} reviews)
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </Popup>
+                </Marker>
+              ))}
+          </MapContainer>
+
+          {/* Map Controls */}
+          <div className="absolute top-4 right-4 z-20">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="bg-white shadow-md"
+              onClick={() => setViewMode('list')}
+            >
+              <List className="w-4 h-4 mr-1" />
+              List
+            </Button>
+          </div>
+
+          {/* Results Counter */}
+          <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-20">
+            <div className="text-center py-3">
+              <div className="text-lg font-semibold text-gray-900">
+                {filteredCommunities.length} results
+              </div>
+              <div className="text-sm text-gray-600">
+                {filteredCommunities.filter((c: any) => c.latitude && c.longitude).length} on map
+              </div>
             </div>
           </div>
         </div>
-        
-        {/* Map Controls */}
-        <div className="absolute top-4 right-4 z-20">
-          <Button variant="outline" size="sm" className="bg-white shadow-md">
-            <List className="w-4 h-4 mr-1" />
-            List
-          </Button>
-        </div>
-      </div>
-
-      {/* Results List */}
-      <div className="px-4 py-4">
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">
-            {filteredCommunities.length} Results
-          </h3>
-        </div>
-
-        <div className="space-y-4">
+      ) : (
+        <div className="px-4 py-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-lg font-semibold text-gray-900">
+              {filteredCommunities.length} Results
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setViewMode('map')}
+            >
+              <Map className="w-4 h-4 mr-1" />
+              Map
+            </Button>
+          </div>
+          <div className="space-y-4">
           {filteredCommunities.slice(0, 10).map((community: any) => (
             <div 
               key={community.id} 
@@ -218,8 +292,9 @@ export default function BasicSearch() {
               </div>
             </div>
           ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <BottomNav />
     </div>
