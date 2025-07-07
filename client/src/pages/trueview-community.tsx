@@ -44,7 +44,7 @@ interface Community {
   longitude?: number;
 }
 
-export default function ZillowCommunity() {
+export default function TrueViewCommunity() {
   const { id } = useParams();
   const [isFavorite, setIsFavorite] = useState(false);
   const [selectedTab, setSelectedTab] = useState<'overview' | 'amenities' | 'reviews'>('overview');

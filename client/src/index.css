@@ -26,9 +26,9 @@
   --destructive-foreground: hsl(210, 40%, 98%);
   --ring: hsl(222, 84%, 4.9%);
   --radius: 0.5rem;
-  --zillow-blue: hsl(207, 100%, 36%);
-  --zillow-light-blue: hsl(207, 100%, 96%);
-  --zillow-dark-blue: hsl(207, 100%, 28%);
+  --trueview-blue: hsl(207, 100%, 36%);
+  --trueview-light-blue: hsl(207, 100%, 96%);
+  --trueview-dark-blue: hsl(207, 100%, 28%);
 }
 
 .dark {

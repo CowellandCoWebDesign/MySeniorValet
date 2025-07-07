@@ -7,7 +7,7 @@ import { Search, Heart, MapPin, Star, Home } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 
-export default function ZillowHome() {
+export default function TrueViewHome() {
   const [searchQuery, setSearchQuery] = useState("");
   
   const { data: communities, isLoading } = useQuery({

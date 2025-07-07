@@ -25,7 +25,7 @@ interface Community {
   photos?: string[];
 }
 
-export default function ZillowSearch() {
+export default function TrueViewSearch() {
   const [location] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');

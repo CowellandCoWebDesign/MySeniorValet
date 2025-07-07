@@ -6,13 +6,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { DisclaimerBanner } from "@/components/disclaimer-banner";
 import Home from "@/pages/home";
-import ZillowHome from "@/pages/zillow-home";
+import TrueViewHome from "@/pages/trueview-home";
 import Search from "@/pages/search";
-import ZillowSearch from "@/pages/zillow-search";
+import TrueViewSearch from "@/pages/trueview-search";
 import Explore from "@/pages/explore";
 import Community from "@/pages/community";
 import CommunityPage from "@/pages/community";
-import ZillowCommunity from "@/pages/zillow-community";
+import TrueViewCommunity from "@/pages/trueview-community";
 import Claim from "@/pages/claim";
 import Admin from "@/pages/admin";
 import AdminCleanFull from "@/pages/admin-clean-full";
@@ -38,10 +38,10 @@ function Router() {
 
   return (
     <Switch>
-      <Route path="/" component={ZillowHome} />
-      <Route path="/search" component={ZillowSearch} />
+      <Route path="/" component={TrueViewHome} />
+      <Route path="/search" component={TrueViewSearch} />
       <Route path="/explore" component={Explore} />
-      <Route path="/community/:id" component={ZillowCommunity} />
+      <Route path="/community/:id" component={TrueViewCommunity} />
       <Route path="/claim/:communityId" component={Claim} />
       <Route path="/admin" component={AdminCreative} />
       <Route path="/expansion-monitor" component={ExpansionMonitor} />
