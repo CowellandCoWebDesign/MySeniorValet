@@ -60,7 +60,7 @@ export default function SearchWorking() {
   });
 
   // Debug logging
-  console.log('Search page - communities:', communities?.length, 'loading:', isLoading, 'error:', error);
+  console.log('SearchWorking - communities:', communities?.length, 'loading:', isLoading, 'error:', error);
 
   const filteredCommunities = communities?.filter(community => {
     // If no search query, show all communities
@@ -265,13 +265,24 @@ export default function SearchWorking() {
     );
   }
 
+  // Debug and fallback
+  console.log('SearchWorking - Debug:', { 
+    communitiesLength: communities?.length, 
+    isLoading, 
+    error,
+    filteredLength: displayCommunities?.length 
+  });
+
   // Simple fallback if there are any issues
-  if (!communities) {
+  if (!communities && !isLoading) {
     return (
       <div className="min-h-screen bg-white pb-16 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="text-gray-600 mt-4">Loading TrueView Search...</p>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 max-w-md">
+            <h3 className="text-lg font-semibold text-red-800 mb-2">Loading Issue</h3>
+            <p className="text-red-600 mb-4">Communities data not loading</p>
+            <Button onClick={() => window.location.reload()}>Refresh Page</Button>
+          </div>
         </div>
       </div>
     );
