@@ -216,33 +216,81 @@
   /* Gradient border effects for featured/sponsored cards */
   .gradient-border-primary {
     background: white;
-    border: 3px solid;
-    border-image: linear-gradient(135deg, hsl(207, 100%, 36%) 0%, hsl(268, 83%, 58%) 100%) 1;
-    animation: gradient-shift 3s ease infinite;
+    border: 6px solid transparent;
+    background-clip: padding-box;
+    position: relative;
     transition: all 0.3s ease;
+    box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
+  }
+
+  .gradient-border-primary::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    background: linear-gradient(135deg, hsl(207, 100%, 36%) 0%, hsl(268, 83%, 58%) 100%);
+    border-radius: inherit;
+    z-index: -1;
+    animation: gradient-shift 3s ease infinite;
+    background-size: 200% 200%;
   }
 
   .gradient-border-secondary {
     background: white;
-    border: 3px solid;
-    border-image: linear-gradient(135deg, hsl(320, 85%, 60%) 0%, hsl(25, 95%, 53%) 100%) 1;
-    animation: gradient-shift 3s ease infinite;
+    border: 6px solid transparent;
+    background-clip: padding-box;
+    position: relative;
     transition: all 0.3s ease;
+    box-shadow: 0 8px 32px rgba(236, 72, 153, 0.3);
+  }
+
+  .gradient-border-secondary::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    background: linear-gradient(135deg, hsl(320, 85%, 60%) 0%, hsl(25, 95%, 53%) 100%);
+    border-radius: inherit;
+    z-index: -1;
+    animation: gradient-shift 3s ease infinite;
+    background-size: 200% 200%;
   }
 
   .gradient-border-tertiary {
     background: white;
-    border: 3px solid;
-    border-image: linear-gradient(135deg, hsl(142, 71%, 45%) 0%, hsl(207, 100%, 36%) 100%) 1;
-    animation: gradient-shift 3s ease infinite;
+    border: 6px solid transparent;
+    background-clip: padding-box;
+    position: relative;
     transition: all 0.3s ease;
+    box-shadow: 0 8px 32px rgba(34, 197, 94, 0.3);
+  }
+
+  .gradient-border-tertiary::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    background: linear-gradient(135deg, hsl(142, 71%, 45%) 0%, hsl(207, 100%, 36%) 100%);
+    border-radius: inherit;
+    z-index: -1;
+    animation: gradient-shift 3s ease infinite;
+    background-size: 200% 200%;
   }
 
   .gradient-border-primary:hover,
   .gradient-border-secondary:hover,
   .gradient-border-tertiary:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    transform: translateY(-8px);
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+  }
+
+  .gradient-border-primary:hover {
+    box-shadow: 0 24px 48px rgba(59, 130, 246, 0.4);
+  }
+
+  .gradient-border-secondary:hover {
+    box-shadow: 0 24px 48px rgba(236, 72, 153, 0.4);
+  }
+
+  .gradient-border-tertiary:hover {
+    box-shadow: 0 24px 48px rgba(34, 197, 94, 0.4);
   }
 }
 
