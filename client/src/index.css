@@ -37,6 +37,25 @@
   --gradient-hero: linear-gradient(135deg, hsl(207, 100%, 36%) 0%, hsl(268, 83%, 58%) 50%, hsl(320, 85%, 60%) 100%);
 }
 
+/* Mobile viewport fixes */
+@media (max-width: 768px) {
+  .hero-mobile-safe {
+    min-height: 100vh;
+    min-height: 100dvh; /* Dynamic viewport height for mobile */
+    padding-bottom: 2rem;
+  }
+  
+  .hero-content {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+  
+  /* Fix for mobile keyboard overlaying content */
+  .mobile-keyboard-safe {
+    padding-bottom: env(keyboard-inset-height, 0);
+  }
+}
+
 .dark {
   --background: hsl(222, 84%, 4.9%);
   --foreground: hsl(210, 40%, 98%);

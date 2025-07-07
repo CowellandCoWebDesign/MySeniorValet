@@ -51,7 +51,7 @@ export default function TrueViewHome() {
       </header>
 
       {/* Hero Section with Search */}
-      <section className="relative h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <section className="relative hero-mobile-safe bg-gradient-to-br from-blue-50 to-indigo-100">
         {heroImages && heroImages.length > 0 && (
           <div className="absolute inset-0">
             <img
@@ -63,24 +63,24 @@ export default function TrueViewHome() {
           </div>
         )}
         
-        <div className="relative z-10 flex flex-col items-center justify-center h-full px-6">
+        <div className="relative z-10 flex flex-col items-center justify-center hero-content min-h-screen px-6 py-20 mobile-keyboard-safe">
           {/* Centered Headlines */}
-          <div className="text-center mb-12">
+          <div className="text-center mb-8 md:mb-12">
             <div className="space-y-2 mb-6">
-              <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight drop-shadow-lg">
+              <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white leading-tight drop-shadow-lg">
                 Senior Living.
               </h1>
-              <h2 className="text-5xl md:text-6xl font-bold text-white leading-tight drop-shadow-lg">
+              <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white leading-tight drop-shadow-lg">
                 Tours. Care. Community.
               </h2>
             </div>
-            <p className="text-xl text-white opacity-90 drop-shadow-md">
+            <p className="text-base sm:text-lg md:text-xl text-white opacity-90 drop-shadow-md px-4">
               Search 182 verified communities across Northern California
             </p>
           </div>
           
           {/* Search Bar */}
-          <div className="w-full max-w-lg">
+          <div className="w-full max-w-lg mb-8 md:mb-16">
             <form onSubmit={(e) => {
               e.preventDefault();
               const query = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
@@ -99,14 +99,14 @@ export default function TrueViewHome() {
                       window.location.href = `/search${query}`;
                     }
                   }}
-                  className="w-full px-6 py-4 text-lg rounded-2xl border-0 shadow-xl bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent relative z-20"
+                  className="w-full px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg rounded-2xl border-0 shadow-xl bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent relative z-20"
                 />
                 <Button
                   type="submit"
                   size="sm"
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-gray-700 hover:bg-gray-800 rounded-xl w-10 h-10 p-0"
+                  className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 bg-gray-700 hover:bg-gray-800 rounded-xl w-8 h-8 sm:w-10 sm:h-10 p-0"
                 >
-                  <Search className="w-5 h-5 text-white" />
+                  <Search className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </Button>
               </div>
             </form>
@@ -115,7 +115,7 @@ export default function TrueViewHome() {
       </section>
 
       {/* Trending Section */}
-      <section className="px-4 py-6 relative overflow-hidden">
+      <section className="px-4 py-12 relative overflow-hidden">
         {/* Background Golden Gate Bridge Image */}
         <div className="absolute inset-0 z-0">
           <img 
