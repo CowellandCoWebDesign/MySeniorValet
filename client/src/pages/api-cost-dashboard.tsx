@@ -40,7 +40,7 @@ export default function ApiCostDashboard() {
     timestamp: string;
   }>({
     queryKey: ['/api/admin/api-costs/analysis'],
-    refetchInterval: 60000, // Refresh every minute
+    // POLLING REMOVED FOR COST PROTECTION - Manual refresh only
   });
 
   const getRiskColor = (riskLevel: string) => {

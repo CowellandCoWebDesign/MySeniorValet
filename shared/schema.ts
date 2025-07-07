@@ -270,6 +270,9 @@ export const communities = pgTable("communities", {
   discoverySource: text("discovery_source"), // 'Google Places', 'Yelp', 'State Licensing', 'Directory Scraping'
   discoveryDate: timestamp("discovery_date").defaultNow(),
   lastEnrichmentDate: timestamp("last_enrichment_date"),
+  
+  // Enrichment completion tracking
+  enrichmentCompleted: boolean("enrichment_completed").default(false), // Tracks if community has been fully enriched
 });
 
 export const inspections = pgTable("inspections", {

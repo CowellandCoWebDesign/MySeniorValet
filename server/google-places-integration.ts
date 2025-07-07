@@ -57,6 +57,12 @@ export class GooglePlacesIntegration {
   private readonly costPerTextSearch = 0.032; // $0.032 per request
   private readonly costPerDetailsRequest = 0.017; // $0.017 per request
   private readonly costPerPhotoRequest = 0.007; // $0.007 per request
+  
+  // Circuit breaker properties
+  private static failureCount = 0;
+  private static lastFailureTime = 0;
+  private static readonly FAILURE_THRESHOLD = 3;
+  private static readonly FAILURE_TIMEOUT = 5 * 60 * 1000; // 5 minutes
 
   constructor() {
     this.apiKey = process.env.GOOGLE_API_KEY || process.env.GOOGLE_PLACES_API_KEY || '';
@@ -69,15 +75,21 @@ export class GooglePlacesIntegration {
     // Continue enrichment to gather additional photos and information
     const existingPhotos = community.photos || [];
     
-    // Note: Always attempt enrichment to potentially find new photos, reviews, or updated information
+    // 🚨 CIRCUIT BREAKER: Check if API calls should be blocked due to recent failures
+    if (this.isCircuitBreakerOpen()) {
+      const error = `Circuit breaker is open. API calls blocked due to ${GooglePlacesIntegration.failureCount} recent failures.`;
+      console.error(`🚨 ${error}`);
+      throw new Error(error);
+    }
 
     // 🚨 CRITICAL COST PROTECTION: Check before ANY API calls
     const estimatedCost = this.costPerTextSearch + this.costPerDetailsRequest + (5 * this.costPerPhotoRequest);
     const protection = await apiCostProtection.checkBeforeOperation(6, estimatedCost);
     
     if (!protection.allowed) {
+      const error = `API cost protection blocked enrichment: ${protection.reason}`;
       console.error(`🚨 ENRICHMENT BLOCKED for ${community.name}: ${protection.reason}`);
-      return null;
+      throw new Error(error);
     }
 
     // Rate limiting and cost control
@@ -139,6 +151,9 @@ export class GooglePlacesIntegration {
                        (photos.length * this.costPerPhotoRequest);
       this.totalCost += totalCost;
 
+      // Record successful operation for circuit breaker
+      this.recordSuccess();
+
       return {
         placeId: detailsResult.place_id,
         rating: detailsResult.rating || 0,
@@ -154,17 +169,47 @@ export class GooglePlacesIntegration {
       };
 
     } catch (error) {
+      // Record failure for circuit breaker
+      this.recordFailure();
+      
       console.error(`Google Places enrichment failed for ${community.name}:`, error);
-      return {
-        placeId: '',
-        rating: 0,
-        reviewCount: 0,
-        photos: [],
-        reviews: [],
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        costIncurred: this.costPerTextSearch
-      };
+      
+      // DO NOT return null or success=false - throw error to prevent automatic retry
+      throw new Error(`Google Places enrichment failed for ${community.name}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  // Circuit breaker implementation
+  private isCircuitBreakerOpen(): boolean {
+    if (GooglePlacesIntegration.failureCount < GooglePlacesIntegration.FAILURE_THRESHOLD) {
+      return false;
+    }
+    
+    const timeSinceLastFailure = Date.now() - GooglePlacesIntegration.lastFailureTime;
+    if (timeSinceLastFailure > GooglePlacesIntegration.FAILURE_TIMEOUT) {
+      // Reset circuit breaker after timeout
+      GooglePlacesIntegration.failureCount = 0;
+      return false;
+    }
+    
+    return true;
+  }
+
+  private recordFailure(): void {
+    GooglePlacesIntegration.failureCount++;
+    GooglePlacesIntegration.lastFailureTime = Date.now();
+    console.warn(`🚨 Google Places API failure recorded. Count: ${GooglePlacesIntegration.failureCount}`);
+    
+    if (GooglePlacesIntegration.failureCount >= GooglePlacesIntegration.FAILURE_THRESHOLD) {
+      console.error('🚨 Circuit breaker OPENED - API calls will be blocked for 5 minutes');
+    }
+  }
+
+  private recordSuccess(): void {
+    // Reset failure count on successful operation
+    if (GooglePlacesIntegration.failureCount > 0) {
+      console.log('✅ Google Places API success - resetting failure count');
+      GooglePlacesIntegration.failureCount = 0;
     }
   }
 

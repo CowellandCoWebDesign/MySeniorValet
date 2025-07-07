@@ -4938,8 +4938,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Comprehensive photo enrichment routes
-  app.post('/api/admin/photo-enrichment/all', async (req, res) => {
+  app.post('/api/admin/photo-enrichment/all', createRateLimitMiddleware({ max: 1, windowMs: 10000 }), async (req, res) => {
     try {
+      // 🚨 CHECK API COST PROTECTION: Ensure emergency mode is not active
+      const protection = await apiCostProtection.checkBeforeOperation(1, 0.1);
+      if (!protection.allowed) {
+        return res.status(503).json({
+          success: false,
+          message: "API operations are currently blocked",
+          reason: protection.reason
+        });
+      }
+
+      // 🚨 ENRICHMENT LOCK: Check if another enrichment is in progress
+      if (comprehensivePhotoEnrichment.constructor.isEnrichmentInProgress()) {
+        return res.status(409).json({
+          success: false,
+          message: "Enrichment is already in progress. Please wait for the current operation to complete.",
+          lockTime: comprehensivePhotoEnrichment.constructor.getEnrichmentLockTime()
+        });
+      }
+
       console.log("🚀 Starting comprehensive photo enrichment for ALL communities");
       const result = await comprehensivePhotoEnrichment.enrichAllCommunities();
       

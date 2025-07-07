@@ -117,23 +117,20 @@ export default function AdminDashboard() {
     enabled: showHealthDetails
   });
 
-  // Data Protection queries
+  // Data Protection queries - POLLING REMOVED FOR COST PROTECTION
   const dataProtectionStatusQuery = useQuery({
     queryKey: ['/api/data-protection/status'],
     retry: false,
-    refetchInterval: 30000,
   });
 
   const protectionLogsQuery = useQuery({
     queryKey: ['/api/data-protection/logs'],
     retry: false,
-    refetchInterval: 60000,
   });
 
   const protectionMetricsQuery = useQuery({
     queryKey: ['/api/data-protection/metrics'],
     retry: false,
-    refetchInterval: 30000,
   });
 
   // Data Protection mutations

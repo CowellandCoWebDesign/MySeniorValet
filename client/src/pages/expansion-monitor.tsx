@@ -40,17 +40,15 @@ export default function ExpansionMonitor() {
   const [realTimeProgress, setRealTimeProgress] = useState<ExpansionProgress | null>(null);
   const [countyResults, setCountyResults] = useState<CountyResult[]>([]);
 
-  // Poll for real-time expansion progress
+  // POLLING REMOVED FOR COST PROTECTION - Manual refresh only
   const { data: progressData, refetch: refetchProgress } = useQuery({
     queryKey: ['/api/regional-expansion/progress'],
-    refetchInterval: expansionActive ? 2000 : false, // Poll every 2 seconds when active
     enabled: expansionActive,
   });
 
-  // Get expansion results
+  // Get expansion results - POLLING REMOVED FOR COST PROTECTION
   const { data: resultsData, refetch: refetchResults } = useQuery({
     queryKey: ['/api/regional-expansion/results'],
-    refetchInterval: 5000, // Poll every 5 seconds
   });
 
   // Start expansion
