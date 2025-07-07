@@ -109,11 +109,7 @@ export default function TrueViewHome() {
         <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
           {featuredCommunities.map((community: any, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
-              <Card className={`overflow-hidden flex-shrink-0 w-48 animate-float ${
-                index % 3 === 0 ? 'gradient-border-primary' : 
-                index % 3 === 1 ? 'gradient-border-secondary' : 
-                'card-enhanced'
-              }`} style={{animationDelay: `${index * 0.2}s`}}>
+              <Card className="overflow-hidden flex-shrink-0 w-48 animate-float border border-gray-200 hover:border-gray-300 transition-colors" style={{animationDelay: `${index * 0.2}s`}}>
                 <div className="relative">
                   <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
                     <Home className="w-12 h-12 text-gray-400" />
@@ -240,11 +236,7 @@ export default function TrueViewHome() {
         <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
           {communities?.slice(8, 16).map((community: any, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
-              <Card className={`overflow-hidden flex-shrink-0 w-48 animate-float ${
-                index % 3 === 0 ? 'gradient-border-tertiary' : 
-                index % 3 === 1 ? 'gradient-border-primary' : 
-                'card-enhanced'
-              }`} style={{animationDelay: `${index * 0.2}s`}}>
+              <Card className="overflow-hidden flex-shrink-0 w-48 animate-float border border-gray-200 hover:border-gray-300 transition-colors" style={{animationDelay: `${index * 0.2}s`}}>
                 <div className="relative">
                   <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
                     <Home className="w-12 h-12 text-gray-400" />
@@ -469,15 +461,11 @@ export default function TrueViewHome() {
         <p className="text-gray-600 text-sm mb-4">Bay Area and North Coast communities with ocean views and coastal charm</p>
         
         <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
-          {communities?.filter((community: any) => 
+          {(communities?.filter((community: any) => 
             ['Eureka', 'Arcata', 'San Francisco', 'Pacifica', 'Half Moon Bay', 'Santa Cruz', 'Monterey', 'Sausalito'].includes(community.city)
-          ).slice(0, 8).map((community: any, index) => (
+          ) || communities?.slice(0, 8) || []).slice(0, 8).map((community: any, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
-              <Card className={`overflow-hidden flex-shrink-0 w-48 animate-float ${
-                index % 3 === 0 ? 'gradient-border-secondary' : 
-                index % 3 === 1 ? 'gradient-border-tertiary' : 
-                'card-enhanced'
-              }`} style={{animationDelay: `${index * 0.2}s`}}>
+              <Card className="overflow-hidden flex-shrink-0 w-48 animate-float coastal-card" style={{animationDelay: `${index * 0.2}s`}}>
                 <div className="relative">
                   <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
                     <Home className="w-12 h-12 text-gray-400" />
