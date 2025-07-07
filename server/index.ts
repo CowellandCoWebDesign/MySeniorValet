@@ -23,6 +23,9 @@ app.use(securityHeaders);
 app.use(securityLogger);
 app.use(enhanceSessionSecurity);
 
+// Apply rate limiting only to API routes
+app.use('/api', createRateLimit());
+
 // Basic parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
