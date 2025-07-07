@@ -1,0 +1,71 @@
+👋 I need you to take my current TrueView codebase (the pre-crisis version) and apply all of the following cost-protection and stability fixes.
+
+🧱 THIS IS A FUNCTIONAL VERSION — do not disable or remove functionality. Instead, harden it by patching in these upgrades.
+
+---
+
+✅ [1] Fix `enrichAllCommunities()` in `server/comprehensive-photo-enrichment.ts`
+
+• Add a MAX_PHOTOS_PER_COMMUNITY constant (set it to 5)
+• Limit the number of Google photo URLs fetched per community using `.slice(0, MAX_PHOTOS_PER_COMMUNITY)`
+• Add a global "enrichment in progress" lock so no other enrichment run can start at the same time
+• If the lock is active, throw an error or respond that enrichment is already in progress
+• After completion, reset the lock
+• Use `ApiCostProtection.checkBeforeOperation()` before every enrichment pass to estimate calls and prevent overruns
+• Introduce a 5-10 second delay between each community’s enrichment to reduce call rate
+
+---
+
+✅ [2] Fix `google-places-integration.ts`
+
+• If `checkBeforeOperation()` returns `allowed: false`, DO NOT return `null` — throw an error and do not allow retry unless user manually re-runs it
+• If an enrichment fails, DO NOT retry automatically
+• Integrate a simple circuit breaker that trips if a single operation fails more than 3 times in 5 minutes
+
+---
+
+✅ [3] Fix `routes.ts`
+
+• Wrap all enrichment endpoints (`/enrich-all`, `/enrich-photos`, etc.) with the new enrichment lock — reject the request if another is running
+• Ensure all endpoints use `ApiCostProtection` and honor emergency mode
+• Add route-level rate limiting (e.g. no more than 1 call every 10 seconds per user for enrichment routes)
+
+---
+
+✅ [4] Frontend Fixes
+
+• `admin.tsx`, `expansion-monitor.tsx`, and `api-cost-dashboard.tsx`:
+  → REMOVE ALL `refetchInterval` values from `useQuery()` — convert to manual refresh buttons if needed
+  → Especially remove the 2-second and 30-second intervals
+• In `queryClient.ts`, set `retry: false` globally or at least on all queries that trigger enrichment or analytics
+• In `home.tsx`, replace hero image fetch with a locally cached or randomized preloaded hero image list
+• In `search.tsx`, debounce filter changes and ensure it only queries the local DB, not Google
+
+---
+
+✅ [5] Database Schema
+
+• Add a new `enrichmentCompleted` boolean column to the `communities` table
+• When a community has been fully enriched, set this flag
+• In enrichment logic, check this flag — if it’s already true, skip enrichment for that community
+
+---
+
+✅ [6] Add Emergency Kill Switch Integration
+
+• Import and check `EmergencyApiDisable.checkApiAccess()` at the top of any route or service that makes external API calls
+• Block the operation if emergency mode is active
+
+---
+
+✅ [7] Optional (If time allows)
+
+• Build a small API usage dashboard using existing cost tracking (`ApiCostProtection`) but make it static or manual-refresh only — no polling
+• Implement admin confirmation dialogs before starting any bulk enrichment (show estimated call/cost)
+• Write logs any time enrichment is started or stopped
+
+---
+
+Do NOT change app behavior or break the enrichment logic — just wrap it in cost, safety, and session controls.
+
+When done, let me know which files were modified and where each fix was implemented. Thank you!
