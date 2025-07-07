@@ -161,44 +161,100 @@ export default function ZillowHome() {
         </div>
       </section>
 
-      {/* Care Affordability Calculator */}
+      {/* Move-In Cost Calculator */}
       <section className="px-4 py-8 bg-white">
         <div className="mb-6">
           <h2 className="text-xl font-bold text-gray-900 mb-2">
-            Find care you can afford with CareAbility™
+            Understand your move-in costs
           </h2>
           <p className="text-gray-600 text-sm">
-            See what you could qualify for with our care cost calculator
+            Typical move-in expenses and financing options available
           </p>
         </div>
         
         <div className="grid grid-cols-3 gap-4 mb-6">
           <div className="text-center">
             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-              <span className="text-blue-600 font-bold text-lg">%</span>
+              <span className="text-blue-600 font-bold text-lg">1×</span>
             </div>
-            <div className="text-xs text-gray-600">Insurance</div>
-            <div className="text-sm font-semibold">Coverage</div>
+            <div className="text-xs text-gray-600">Community</div>
+            <div className="text-sm font-semibold">Fee</div>
           </div>
           <div className="text-center">
             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-              <span className="text-blue-600 font-bold text-lg">$</span>
+              <span className="text-blue-600 font-bold text-lg">2×</span>
             </div>
             <div className="text-xs text-gray-600">Monthly</div>
-            <div className="text-sm font-semibold">Payment</div>
+            <div className="text-sm font-semibold">Rent</div>
           </div>
           <div className="text-center">
             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-              <span className="text-blue-600 font-bold text-lg">+</span>
+              <span className="text-blue-600 font-bold text-lg">💰</span>
             </div>
-            <div className="text-xs text-gray-600">Income</div>
-            <div className="text-sm font-semibold">Needed</div>
+            <div className="text-xs text-gray-600">VA Benefits</div>
+            <div className="text-sm font-semibold">$1,500+</div>
           </div>
         </div>
         
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+          <div className="flex items-center space-x-2 mb-2">
+            <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
+              <span className="text-white text-xs font-bold">E</span>
+            </div>
+            <span className="text-sm font-semibold text-green-800">ElderLife Financing Available</span>
+          </div>
+          <p className="text-xs text-green-700">
+            Bridge financing while waiting for home sale or VA benefits approval
+          </p>
+        </div>
+        
         <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3">
-          Let's get started
+          Calculate move-in costs
         </Button>
+      </section>
+
+      {/* Saved Searches */}
+      <section className="px-4 py-8 bg-gray-50">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-gray-900">
+            Your saved searches
+          </h2>
+          <Button variant="ghost" className="text-blue-600 text-sm">
+            View all
+          </Button>
+        </div>
+        
+        <div className="space-y-3">
+          <Card className="border-0 shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-gray-900 text-sm">Memory Care in San Francisco</h3>
+                  <p className="text-xs text-gray-600">5 new communities • Updated 2 hours ago</p>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-gray-900">$6,500 - $8,200</div>
+                  <div className="text-xs text-blue-600">3 price drops</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-0 shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-gray-900 text-sm">Assisted Living in Oakland</h3>
+                  <p className="text-xs text-gray-600">2 new communities • Updated 1 day ago</p>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-gray-900">$4,200 - $5,800</div>
+                  <div className="text-xs text-green-600">New incentives</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </section>
 
       {/* Service Categories */}
