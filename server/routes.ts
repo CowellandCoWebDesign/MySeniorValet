@@ -24,6 +24,7 @@ import { zipCodeService } from "./zip-code-mapping";
 import { googlePlacesReviews } from './google-places-reviews';
 // REMOVED: Unsplash integration - violates "no synthetic data" policy
 import { dataProtectionService } from './data-protection';
+import { supportResourceService } from './support-resources';
 import { z } from "zod";
 
 // Scalable infrastructure imports
@@ -6195,6 +6196,300 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+
+  // Support Resources API endpoints
+  // Get all resource categories
+  app.get("/api/support-resources/categories", async (req, res) => {
+    try {
+      // Temporary mock data until database migration is complete
+      const mockCategories = [
+        {
+          id: 1,
+          name: "Getting Started",
+          description: "Essential guides for beginning your senior living journey",
+          icon: "BookOpen",
+          colorScheme: "blue",
+          displayOrder: 1,
+          isActive: true,
+          resourceCount: 12,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          id: 2,
+          name: "Emotional Support",
+          description: "Resources to help navigate the emotional aspects of senior care decisions",
+          icon: "Heart",
+          colorScheme: "pink",
+          displayOrder: 2,
+          isActive: true,
+          resourceCount: 8,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          id: 3,
+          name: "Financial Planning",
+          description: "Understanding costs, insurance, and payment options",
+          icon: "DollarSign",
+          colorScheme: "green",
+          displayOrder: 3,
+          isActive: true,
+          resourceCount: 15,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          id: 4,
+          name: "Family Communication",
+          description: "Tools for difficult conversations and family decision-making",
+          icon: "Users",
+          colorScheme: "purple",
+          displayOrder: 4,
+          isActive: true,
+          resourceCount: 6,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          id: 5,
+          name: "Transition Support",
+          description: "Guides for making the move and adjusting to senior living",
+          icon: "ArrowRight",
+          colorScheme: "orange",
+          displayOrder: 5,
+          isActive: true,
+          resourceCount: 10,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      ];
+      
+      res.json(mockCategories);
+    } catch (error) {
+      console.error("Error fetching support resource categories:", error);
+      res.status(500).json({ error: "Failed to fetch categories" });
+    }
+  });
+
+  // Get resources by category
+  app.get("/api/support-resources/categories/:categoryId/resources", async (req, res) => {
+    try {
+      const categoryId = parseInt(req.params.categoryId);
+      const { careStage, emotionalThemes, targetAudience, difficulty, featured, limit, offset } = req.query;
+
+      const options = {
+        careStage: careStage as string,
+        emotionalThemes: emotionalThemes ? (emotionalThemes as string).split(',') : undefined,
+        targetAudience: targetAudience ? (targetAudience as string).split(',') : undefined,
+        difficulty: difficulty as string,
+        featured: featured === 'true',
+        limit: limit ? parseInt(limit as string) : undefined,
+        offset: offset ? parseInt(offset as string) : undefined,
+      };
+
+      const resources = await supportResourceService.getResourcesByCategory(categoryId, options);
+      res.json(resources);
+    } catch (error) {
+      console.error("Error fetching resources by category:", error);
+      res.status(500).json({ error: "Failed to fetch resources" });
+    }
+  });
+
+  // Get featured resources
+  app.get("/api/support-resources/featured", async (req, res) => {
+    try {
+      // Temporary mock featured resources
+      const mockFeaturedResources = [
+        {
+          id: 1,
+          categoryId: 1,
+          title: "Your First Steps: Understanding Senior Living Options",
+          description: "A comprehensive guide to different types of senior living communities and what makes each unique.",
+          resourceType: "article",
+          tags: ["beginner", "overview", "types", "care-levels"],
+          targetAudience: ["family_members"],
+          careStage: "exploration",
+          emotionalThemes: ["overwhelm", "hope"],
+          readingTime: 8,
+          difficulty: "beginner",
+          authorName: "Dr. Sarah Johnson",
+          authorCredentials: "Geriatrician and Senior Living Consultant",
+          isFeatured: true,
+          viewCount: 234,
+          helpfulCount: 45,
+          publishedAt: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: 2,
+          categoryId: 2,
+          title: "Coping with Guilt: You're Making the Right Choice",
+          description: "Understanding and working through the complex emotions of choosing senior living for a loved one.",
+          resourceType: "article",
+          tags: ["guilt", "emotions", "family", "decision-making"],
+          targetAudience: ["family_members"],
+          careStage: "evaluation",
+          emotionalThemes: ["guilt", "acceptance"],
+          readingTime: 6,
+          difficulty: "beginner",
+          authorName: "Dr. Maria Rodriguez",
+          authorCredentials: "Licensed Clinical Social Worker, Specializing in Aging",
+          isFeatured: true,
+          viewCount: 189,
+          helpfulCount: 38,
+          publishedAt: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: 3,
+          categoryId: 3,
+          title: "Understanding Senior Living Costs: A Complete Breakdown",
+          description: "Comprehensive guide to senior living costs, payment options, and financial planning strategies.",
+          resourceType: "guide",
+          tags: ["costs", "budgeting", "payment", "veterans", "medicaid"],
+          targetAudience: ["family_members"],
+          careStage: "evaluation",
+          emotionalThemes: ["overwhelm"],
+          readingTime: 10,
+          difficulty: "intermediate",
+          authorName: "James Chen, CFP",
+          authorCredentials: "Certified Financial Planner, Elder Care Specialist",
+          isFeatured: true,
+          viewCount: 456,
+          helpfulCount: 67,
+          publishedAt: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      ];
+
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 6;
+      res.json(mockFeaturedResources.slice(0, limit));
+    } catch (error) {
+      console.error("Error fetching featured resources:", error);
+      res.status(500).json({ error: "Failed to fetch featured resources" });
+    }
+  });
+
+  // Search resources
+  app.get("/api/support-resources/search", async (req, res) => {
+    try {
+      const { q, careStage, emotionalThemes, limit, offset } = req.query;
+      
+      if (!q) {
+        return res.status(400).json({ error: "Search query is required" });
+      }
+
+      const options = {
+        careStage: careStage as string,
+        emotionalThemes: emotionalThemes ? (emotionalThemes as string).split(',') : undefined,
+        limit: limit ? parseInt(limit as string) : undefined,
+        offset: offset ? parseInt(offset as string) : undefined,
+      };
+
+      const resources = await supportResourceService.searchResources(q as string, options);
+      res.json(resources);
+    } catch (error) {
+      console.error("Error searching resources:", error);
+      res.status(500).json({ error: "Failed to search resources" });
+    }
+  });
+
+  // Get single resource by ID
+  app.get("/api/support-resources/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const userId = (req as any).user?.id; // Get user ID if authenticated
+      
+      const resource = await supportResourceService.getResourceById(id, userId);
+      
+      if (!resource) {
+        return res.status(404).json({ error: "Resource not found" });
+      }
+
+      res.json(resource);
+    } catch (error) {
+      console.error("Error fetching resource:", error);
+      res.status(500).json({ error: "Failed to fetch resource" });
+    }
+  });
+
+  // Track user interactions with resources
+  app.post("/api/support-resources/:id/interact", requireAuth, async (req: any, res) => {
+    try {
+      const resourceId = parseInt(req.params.id);
+      const userId = req.user.id;
+      const { interactionType, notes } = req.body;
+
+      if (!['viewed', 'bookmarked', 'shared', 'completed', 'helpful', 'not_helpful'].includes(interactionType)) {
+        return res.status(400).json({ error: "Invalid interaction type" });
+      }
+
+      await supportResourceService.trackUserInteraction({
+        userId,
+        resourceId,
+        interactionType,
+        notes
+      });
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error tracking user interaction:", error);
+      res.status(500).json({ error: "Failed to track interaction" });
+    }
+  });
+
+  // Get user's bookmarked resources
+  app.get("/api/support-resources/user/bookmarks", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const bookmarks = await supportResourceService.getUserBookmarks(userId);
+      res.json(bookmarks);
+    } catch (error) {
+      console.error("Error fetching user bookmarks:", error);
+      res.status(500).json({ error: "Failed to fetch bookmarks" });
+    }
+  });
+
+  // Get personalized resource recommendations
+  app.get("/api/support-resources/user/recommendations", async (req: any, res) => {
+    try {
+      const userId = req.user?.id;
+      let userProfile = {};
+
+      // Get user profile if authenticated
+      if (userId) {
+        const user = await storage.getUser(userId);
+        if (user) {
+          userProfile = {
+            relationshipToCare: user.relationshipToCare,
+            careNeeds: user.careNeeds,
+            currentStage: req.query.stage as string
+          };
+        }
+      } else {
+        // Use query parameters for anonymous users
+        userProfile = {
+          relationshipToCare: req.query.relationship as string,
+          careNeeds: req.query.careNeeds ? (req.query.careNeeds as string).split(',') : [],
+          currentStage: req.query.stage as string
+        };
+      }
+
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 5;
+      const recommendations = await supportResourceService.getPersonalizedRecommendations(userProfile, limit);
+      res.json(recommendations);
+    } catch (error) {
+      console.error("Error fetching personalized recommendations:", error);
+      res.status(500).json({ error: "Failed to fetch recommendations" });
+    }
+  });
+
+  // TODO: Initialize support resources after database migration is complete
+  // await supportResourceService.seedInitialContent();
 
   return httpServer;
 }

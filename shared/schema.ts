@@ -1358,3 +1358,99 @@ export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type PendingCommunity = typeof pendingCommunities.$inferSelect;
 export type InsertPendingCommunity = typeof pendingCommunities.$inferInsert;
+
+// Emotional Support Resource Tables
+export const supportResourceCategories = pgTable("support_resource_categories", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  icon: text("icon").notNull(), // lucide icon name
+  colorScheme: text("color_scheme").notNull().default("blue"), // for UI theming
+  displayOrder: integer("display_order").default(0),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const supportResources = pgTable("support_resources", {
+  id: serial("id").primaryKey(),
+  categoryId: integer("category_id").references(() => supportResourceCategories.id),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  content: text("content").notNull(), // Markdown content
+  resourceType: text("resource_type", {
+    enum: ["article", "guide", "checklist", "video", "audio", "worksheet", "external_link"]
+  }).notNull(),
+  tags: text("tags").array().default([]),
+  targetAudience: text("target_audience").array().default([]), // ['family_members', 'caregivers', 'seniors', 'professionals']
+  careStage: text("care_stage", {
+    enum: ["exploration", "evaluation", "transition", "adjustment", "ongoing_care", "crisis_support"]
+  }),
+  emotionalThemes: text("emotional_themes").array().default([]), // ['guilt', 'overwhelm', 'grief', 'hope', 'acceptance']
+  readingTime: integer("reading_time"), // in minutes
+  difficulty: text("difficulty", {
+    enum: ["beginner", "intermediate", "advanced"]
+  }).default("beginner"),
+  authorName: text("author_name"),
+  authorCredentials: text("author_credentials"),
+  sourceUrl: text("source_url"),
+  thumbnailUrl: text("thumbnail_url"),
+  videoUrl: text("video_url"),
+  audioUrl: text("audio_url"),
+  downloadUrl: text("download_url"),
+  isHelpful: boolean("is_helpful").default(true),
+  isFeatured: boolean("is_featured").default(false),
+  viewCount: integer("view_count").default(0),
+  helpfulCount: integer("helpful_count").default(0),
+  publishedAt: timestamp("published_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const userSupportResourceInteractions = pgTable("user_support_resource_interactions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  resourceId: integer("resource_id").references(() => supportResources.id),
+  interactionType: text("interaction_type", {
+    enum: ["viewed", "bookmarked", "shared", "completed", "helpful", "not_helpful"]
+  }).notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Support Resource Relations
+export const supportResourceCategoriesRelations = relations(supportResourceCategories, ({ many }) => ({
+  resources: many(supportResources),
+}));
+
+export const supportResourcesRelations = relations(supportResources, ({ one, many }) => ({
+  category: one(supportResourceCategories, {
+    fields: [supportResources.categoryId],
+    references: [supportResourceCategories.id],
+  }),
+  interactions: many(userSupportResourceInteractions),
+}));
+
+export const userSupportResourceInteractionsRelations = relations(userSupportResourceInteractions, ({ one }) => ({
+  user: one(users, {
+    fields: [userSupportResourceInteractions.userId],
+    references: [users.id],
+  }),
+  resource: one(supportResources, {
+    fields: [userSupportResourceInteractions.resourceId],
+    references: [supportResources.id],
+  }),
+}));
+
+// Support Resource Insert schemas
+export const insertSupportResourceCategorySchema = createInsertSchema(supportResourceCategories);
+export const insertSupportResourceSchema = createInsertSchema(supportResources);
+export const insertUserSupportResourceInteractionSchema = createInsertSchema(userSupportResourceInteractions);
+
+// Support Resource Types
+export type SupportResourceCategory = typeof supportResourceCategories.$inferSelect;
+export type InsertSupportResourceCategory = typeof supportResourceCategories.$inferInsert;
+export type SupportResource = typeof supportResources.$inferSelect;
+export type InsertSupportResource = typeof supportResources.$inferInsert;
+export type UserSupportResourceInteraction = typeof userSupportResourceInteractions.$inferSelect;
+export type InsertUserSupportResourceInteraction = typeof userSupportResourceInteractions.$inferInsert;
