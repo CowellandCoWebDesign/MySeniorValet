@@ -213,89 +213,168 @@
     border-color: rgba(255, 255, 255, 0.3);
   }
 
-  /* Premium gradient border effects for featured/sponsored cards - Edge only styling */
+  /* Enhanced Premium gradient border effects with inner black border and green glow */
   .gradient-border-primary {
     background: white;
-    border: 6px solid transparent;
-    background-clip: padding-box;
+    border: 3px solid #1a1a1a;
     position: relative;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    border-radius: 12px;
+    border-radius: 16px;
+    box-shadow: 
+      0 0 0 3px transparent,
+      0 4px 20px rgba(0, 0, 0, 0.1);
   }
 
   .gradient-border-primary::before {
     content: '';
     position: absolute;
     inset: -6px;
-    background: linear-gradient(45deg, #007cba, #4f46e5, #007cba);
-    border-radius: 12px;
+    background: linear-gradient(45deg, #10b981, #22c55e, #16a34a, #10b981);
+    border-radius: 20px;
     z-index: -1;
-    animation: gradient-shift 4s ease infinite;
+    animation: gradient-shift 3s ease infinite;
     background-size: 300% 300%;
+    opacity: 0.8;
+  }
+
+  .gradient-border-primary::after {
+    content: '';
+    position: absolute;
+    inset: -12px;
+    background: linear-gradient(45deg, #10b981, #22c55e, #16a34a, #10b981);
+    border-radius: 24px;
+    z-index: -2;
+    animation: gradient-shift 3s ease infinite reverse;
+    background-size: 400% 400%;
+    opacity: 0.4;
+    filter: blur(8px);
   }
 
   .gradient-border-secondary {
     background: white;
-    border: 6px solid transparent;
-    background-clip: padding-box;
+    border: 3px solid #1a1a1a;
     position: relative;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    border-radius: 12px;
+    border-radius: 16px;
+    box-shadow: 
+      0 0 0 3px transparent,
+      0 4px 20px rgba(0, 0, 0, 0.1);
   }
 
   .gradient-border-secondary::before {
     content: '';
     position: absolute;
     inset: -6px;
-    background: linear-gradient(45deg, #007cba, #06b6d4, #007cba);
-    border-radius: 12px;
+    background: linear-gradient(45deg, #3b82f6, #06b6d4, #0ea5e9, #3b82f6);
+    border-radius: 20px;
     z-index: -1;
-    animation: gradient-shift 4s ease infinite;
+    animation: gradient-shift 3s ease infinite;
     background-size: 300% 300%;
+    opacity: 0.8;
+  }
+
+  .gradient-border-secondary::after {
+    content: '';
+    position: absolute;
+    inset: -12px;
+    background: linear-gradient(45deg, #3b82f6, #06b6d4, #0ea5e9, #3b82f6);
+    border-radius: 24px;
+    z-index: -2;
+    animation: gradient-shift 3s ease infinite reverse;
+    background-size: 400% 400%;
+    opacity: 0.4;
+    filter: blur(8px);
   }
 
   .gradient-border-tertiary {
     background: white;
-    border: 6px solid transparent;
-    background-clip: padding-box;
+    border: 3px solid #1a1a1a;
     position: relative;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    border-radius: 12px;
+    border-radius: 16px;
+    box-shadow: 
+      0 0 0 3px transparent,
+      0 4px 20px rgba(0, 0, 0, 0.1);
   }
 
   .gradient-border-tertiary::before {
     content: '';
     position: absolute;
     inset: -6px;
-    background: linear-gradient(45deg, #007cba, #8b5cf6, #007cba);
-    border-radius: 12px;
+    background: linear-gradient(45deg, #8b5cf6, #a855f7, #9333ea, #8b5cf6);
+    border-radius: 20px;
     z-index: -1;
-    animation: gradient-shift 4s ease infinite;
+    animation: gradient-shift 3s ease infinite;
     background-size: 300% 300%;
+    opacity: 0.8;
+  }
+
+  .gradient-border-tertiary::after {
+    content: '';
+    position: absolute;
+    inset: -12px;
+    background: linear-gradient(45deg, #8b5cf6, #a855f7, #9333ea, #8b5cf6);
+    border-radius: 24px;
+    z-index: -2;
+    animation: gradient-shift 3s ease infinite reverse;
+    background-size: 400% 400%;
+    opacity: 0.4;
+    filter: blur(8px);
   }
 
   .gradient-border-primary:hover,
   .gradient-border-secondary:hover,
   .gradient-border-tertiary:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 40px rgba(0, 124, 186, 0.3);
+    transform: translateY(-8px);
+    box-shadow: 
+      0 0 0 3px rgba(16, 185, 129, 0.3),
+      0 16px 50px rgba(0, 0, 0, 0.2);
+  }
+
+  .gradient-border-primary:hover::after {
+    opacity: 0.7;
+    filter: blur(12px);
+  }
+
+  .gradient-border-secondary:hover::after {
+    opacity: 0.7;
+    filter: blur(12px);
+  }
+
+  .gradient-border-tertiary:hover::after {
+    opacity: 0.7;
+    filter: blur(12px);
+  }
+
+  /* Enhanced glow animation */
+  @keyframes glow-pulse {
+    0%, 100% {
+      opacity: 0.4;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.05);
+    }
   }
 
   /* Special styling for horizontal card layouts - ensures gradient only on card edges */
   .horizontal-card-gradient .gradient-border-primary,
   .horizontal-card-gradient .gradient-border-secondary,
   .horizontal-card-gradient .gradient-border-tertiary {
-    overflow: hidden;
+    overflow: visible; /* Allow glow effect to show */
   }
 
   .horizontal-card-gradient .gradient-border-primary [class*="aspect-"],
   .horizontal-card-gradient .gradient-border-secondary [class*="aspect-"],
   .horizontal-card-gradient .gradient-border-tertiary [class*="aspect-"] {
     background: #f3f4f6;
-    border-radius: 0;
+    border-radius: 12px 12px 0 0;
+  }
+
+  /* Featured card gets special green glow treatment */
+  .gradient-border-primary::after {
+    animation: glow-pulse 2s ease-in-out infinite;
   }
 }
 
