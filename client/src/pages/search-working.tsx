@@ -265,6 +265,18 @@ export default function SearchWorking() {
     );
   }
 
+  // Simple fallback if there are any issues
+  if (!communities) {
+    return (
+      <div className="min-h-screen bg-white pb-16 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="text-gray-600 mt-4">Loading TrueView Search...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white pb-16">
       {/* Header */}
