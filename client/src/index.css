@@ -216,33 +216,32 @@
   /* Enhanced Premium gradient border effects with inner black border and green glow */
   .gradient-border-primary {
     background: white;
-    border: 3px solid #1a1a1a;
     position: relative;
     transition: all 0.3s ease;
-    border-radius: 16px;
-    box-shadow: 
-      0 0 0 3px transparent,
-      0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   }
 
   .gradient-border-primary::before {
     content: '';
     position: absolute;
-    inset: -6px;
+    inset: -3px;
     background: linear-gradient(45deg, #10b981, #22c55e, #16a34a, #10b981);
-    border-radius: 20px;
+    border-radius: 15px;
     z-index: -1;
     animation: gradient-shift 3s ease infinite;
     background-size: 300% 300%;
-    opacity: 0.8;
+    padding: 3px;
   }
 
   .gradient-border-primary::after {
     content: '';
     position: absolute;
-    inset: -12px;
+    inset: -9px;
     background: linear-gradient(45deg, #10b981, #22c55e, #16a34a, #10b981);
-    border-radius: 24px;
+    border-radius: 21px;
     z-index: -2;
     animation: gradient-shift 3s ease infinite reverse;
     background-size: 400% 400%;
@@ -252,33 +251,32 @@
 
   .gradient-border-secondary {
     background: white;
-    border: 3px solid #1a1a1a;
     position: relative;
     transition: all 0.3s ease;
-    border-radius: 16px;
-    box-shadow: 
-      0 0 0 3px transparent,
-      0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   }
 
   .gradient-border-secondary::before {
     content: '';
     position: absolute;
-    inset: -6px;
+    inset: -3px;
     background: linear-gradient(45deg, #3b82f6, #06b6d4, #0ea5e9, #3b82f6);
-    border-radius: 20px;
+    border-radius: 15px;
     z-index: -1;
     animation: gradient-shift 3s ease infinite;
     background-size: 300% 300%;
-    opacity: 0.8;
+    padding: 3px;
   }
 
   .gradient-border-secondary::after {
     content: '';
     position: absolute;
-    inset: -12px;
+    inset: -9px;
     background: linear-gradient(45deg, #3b82f6, #06b6d4, #0ea5e9, #3b82f6);
-    border-radius: 24px;
+    border-radius: 21px;
     z-index: -2;
     animation: gradient-shift 3s ease infinite reverse;
     background-size: 400% 400%;
@@ -288,33 +286,32 @@
 
   .gradient-border-tertiary {
     background: white;
-    border: 3px solid #1a1a1a;
     position: relative;
     transition: all 0.3s ease;
-    border-radius: 16px;
-    box-shadow: 
-      0 0 0 3px transparent,
-      0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   }
 
   .gradient-border-tertiary::before {
     content: '';
     position: absolute;
-    inset: -6px;
+    inset: -3px;
     background: linear-gradient(45deg, #8b5cf6, #a855f7, #9333ea, #8b5cf6);
-    border-radius: 20px;
+    border-radius: 15px;
     z-index: -1;
     animation: gradient-shift 3s ease infinite;
     background-size: 300% 300%;
-    opacity: 0.8;
+    padding: 3px;
   }
 
   .gradient-border-tertiary::after {
     content: '';
     position: absolute;
-    inset: -12px;
+    inset: -9px;
     background: linear-gradient(45deg, #8b5cf6, #a855f7, #9333ea, #8b5cf6);
-    border-radius: 24px;
+    border-radius: 21px;
     z-index: -2;
     animation: gradient-shift 3s ease infinite reverse;
     background-size: 400% 400%;
@@ -325,10 +322,8 @@
   .gradient-border-primary:hover,
   .gradient-border-secondary:hover,
   .gradient-border-tertiary:hover {
-    transform: translateY(-8px);
-    box-shadow: 
-      0 0 0 3px rgba(16, 185, 129, 0.3),
-      0 16px 50px rgba(0, 0, 0, 0.2);
+    transform: translateY(-6px);
+    box-shadow: 0 16px 50px rgba(0, 0, 0, 0.2);
   }
 
   .gradient-border-primary:hover::after {
@@ -369,7 +364,7 @@
   .horizontal-card-gradient .gradient-border-secondary [class*="aspect-"],
   .horizontal-card-gradient .gradient-border-tertiary [class*="aspect-"] {
     background: #f3f4f6;
-    border-radius: 12px 12px 0 0;
+    border-radius: 8px 8px 0 0;
   }
 
   /* Featured card gets special green glow treatment */
