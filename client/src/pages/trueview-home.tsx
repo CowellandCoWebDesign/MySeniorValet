@@ -9,6 +9,8 @@ import { useQuery } from "@tanstack/react-query";
 
 export default function TrueViewHome() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   
   const { data: communities, isLoading } = useQuery({
     queryKey: ["/api/communities"],
@@ -21,6 +23,86 @@ export default function TrueViewHome() {
   });
 
   const featuredCommunities = communities?.slice(0, 4) || [];
+
+  // Generate location suggestions based on available community data
+  const generateSuggestions = (query: string) => {
+    if (!query.trim() || query.length < 2) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    const lowerQuery = query.toLowerCase();
+    const allSuggestions = new Set<string>();
+
+    // Add popular Northern California cities first
+    const popularCities = [
+      "San Francisco, CA",
+      "San Jose, CA", 
+      "Oakland, CA",
+      "Sacramento, CA",
+      "Redding, CA",
+      "Santa Rosa, CA",
+      "Stockton, CA",
+      "Fremont, CA",
+      "Berkeley, CA",
+      "Richmond, CA",
+      "Eureka, CA",
+      "Arcata, CA",
+      "Napa, CA",
+      "Petaluma, CA",
+      "Vallejo, CA"
+    ];
+
+    popularCities.forEach(city => {
+      if (city.toLowerCase().includes(lowerQuery)) {
+        allSuggestions.add(city);
+      }
+    });
+
+    // Add matching communities from database
+    if (communities) {
+      communities.forEach((community: any) => {
+        if (community.name.toLowerCase().includes(lowerQuery)) {
+          allSuggestions.add(community.name);
+        }
+        if (community.city && community.city.toLowerCase().includes(lowerQuery)) {
+          allSuggestions.add(`${community.city}, ${community.state || 'CA'}`);
+        }
+      });
+    }
+
+    // Add care type suggestions
+    const careTypes = [
+      "Independent Living",
+      "Assisted Living", 
+      "Memory Care",
+      "Skilled Nursing",
+      "Independent Living with Services"
+    ];
+
+    careTypes.forEach(careType => {
+      if (careType.toLowerCase().includes(lowerQuery)) {
+        allSuggestions.add(careType);
+      }
+    });
+
+    const filteredSuggestions = Array.from(allSuggestions).slice(0, 6);
+    setSuggestions(filteredSuggestions);
+    setShowSuggestions(filteredSuggestions.length > 0);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    generateSuggestions(value);
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setSearchQuery(suggestion);
+    setShowSuggestions(false);
+    const query = `?q=${encodeURIComponent(suggestion)}`;
+    window.location.href = `/search${query}`;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
@@ -80,7 +162,7 @@ export default function TrueViewHome() {
           </div>
           
           {/* Search Bar */}
-          <div className="w-full max-w-lg mb-8 md:mb-16">
+          <div className="w-full max-w-lg mb-8 md:mb-16 relative">
             <form onSubmit={(e) => {
               e.preventDefault();
               const query = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
@@ -91,24 +173,60 @@ export default function TrueViewHome() {
                   type="text"
                   placeholder="Community name, city, care type"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
+                      setShowSuggestions(false);
                       const query = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
                       window.location.href = `/search${query}`;
+                    } else if (e.key === 'Escape') {
+                      setShowSuggestions(false);
                     }
+                  }}
+                  onFocus={() => {
+                    if (suggestions.length > 0) {
+                      setShowSuggestions(true);
+                    }
+                  }}
+                  onBlur={() => {
+                    // Delay hiding suggestions to allow click events
+                    setTimeout(() => setShowSuggestions(false), 150);
                   }}
                   className="w-full px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg rounded-2xl border-0 shadow-xl bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent relative z-20"
                 />
                 <Button
                   type="submit"
                   size="sm"
-                  className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 bg-gray-700 hover:bg-gray-800 rounded-xl w-8 h-8 sm:w-10 sm:h-10 p-0"
+                  className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 bg-gray-700 hover:bg-gray-800 rounded-xl w-8 h-8 sm:w-10 sm:h-10 p-0 z-30"
                 >
                   <Search className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </Button>
               </div>
+              
+              {/* Suggestions Dropdown */}
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-50">
+                  {suggestions.map((suggestion, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => handleSuggestionClick(suggestion)}
+                      className="w-full px-4 sm:px-6 py-3 text-left hover:bg-gray-50 border-b border-gray-50 last:border-b-0 flex items-center space-x-3 transition-colors"
+                    >
+                      {/* Icon based on suggestion type */}
+                      {suggestion.includes(', CA') ? (
+                        <MapPin className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                      ) : suggestion.includes('Living') || suggestion.includes('Care') || suggestion.includes('Nursing') ? (
+                        <Heart className="w-4 h-4 text-red-500 flex-shrink-0" />
+                      ) : (
+                        <Home className="w-4 h-4 text-green-500 flex-shrink-0" />
+                      )}
+                      <span className="text-gray-900 text-sm sm:text-base">{suggestion}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </form>
           </div>
         </div>
