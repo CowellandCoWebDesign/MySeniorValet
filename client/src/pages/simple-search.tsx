@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -37,15 +37,23 @@ const communityIcon = new Icon({
 function MapBoundsTracker({ onBoundsChange }: { onBoundsChange: (bounds: LatLngBounds) => void }) {
   const map = useMapEvents({
     moveend: () => {
-      onBoundsChange(map.getBounds());
+      const bounds = map.getBounds();
+      onBoundsChange(bounds);
     },
     zoomend: () => {
-      onBoundsChange(map.getBounds());
-    },
-    load: () => {
-      onBoundsChange(map.getBounds());
+      const bounds = map.getBounds();
+      onBoundsChange(bounds);
     }
   });
+  
+  // Set initial bounds when map loads
+  useEffect(() => {
+    if (map) {
+      const bounds = map.getBounds();
+      onBoundsChange(bounds);
+    }
+  }, [map, onBoundsChange]);
+  
   return null;
 }
 
@@ -56,6 +64,11 @@ export default function SimpleSearch() {
   const [activeTab, setActiveTab] = useState('search');
   const [isResultsExpanded, setIsResultsExpanded] = useState(false);
   const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
+
+  // Memoize the bounds change handler to prevent infinite loops
+  const handleBoundsChange = useCallback((bounds: LatLngBounds) => {
+    setMapBounds(bounds);
+  }, []);
 
   // Parse URL parameters
   useEffect(() => {
@@ -87,9 +100,9 @@ export default function SimpleSearch() {
 
   // Then filter by map bounds (communities visible in current map view)
   const visibleCommunities = searchFilteredCommunities.filter((community: any) => {
-    // If no map bounds yet, show all search results
+    // If no map bounds yet or no coordinates, show in search results but not in map view
     if (!mapBounds || !community.latitude || !community.longitude) {
-      return true;
+      return viewMode !== 'map';
     }
     
     // Check if community is within current map view
@@ -217,7 +230,7 @@ export default function SimpleSearch() {
             />
             
             {/* Map Bounds Tracker */}
-            <MapBoundsTracker onBoundsChange={setMapBounds} />
+            <MapBoundsTracker onBoundsChange={handleBoundsChange} />
             
             {/* Community Markers */}
             {searchFilteredCommunities
