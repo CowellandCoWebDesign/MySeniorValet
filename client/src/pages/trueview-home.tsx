@@ -23,7 +23,7 @@ export default function TrueViewHome() {
   const featuredCommunities = communities?.slice(0, 4) || [];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 z-50 bg-transparent">
         <div className="px-4 py-4">
@@ -37,10 +37,10 @@ export default function TrueViewHome() {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                  <Home className="w-6 h-6 text-blue-600" />
+                <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
+                  <Home className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-xl font-bold text-white">TrueView</span>
+                <span className="text-xl font-bold text-white drop-shadow-lg">TrueView</span>
               </div>
             </div>
             <div className="text-white font-medium">
@@ -162,7 +162,7 @@ export default function TrueViewHome() {
       </section>
 
       {/* Move-In Cost Calculator */}
-      <section className="px-4 py-8 bg-white">
+      <section className="px-4 py-8 gradient-card">
         <div className="mb-6">
           <h2 className="text-xl font-bold text-gray-900 mb-2">
             Understand your move-in costs
@@ -208,13 +208,13 @@ export default function TrueViewHome() {
           </p>
         </div>
         
-        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3">
+        <Button className="w-full gradient-primary hover:opacity-90 text-white py-3 border-0">
           Calculate move-in costs
         </Button>
       </section>
 
       {/* Saved Searches with Carousel */}
-      <section className="px-4 py-8 bg-gray-50">
+      <section className="px-4 py-8 bg-gradient-to-r from-purple-50 to-pink-50">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-gray-900">
             Memory Care in San Francisco
@@ -273,14 +273,14 @@ export default function TrueViewHome() {
         </div>
         
         <div className="mt-4">
-          <Button variant="outline" className="w-full text-blue-600 border-blue-600 hover:bg-blue-50">
+          <Button variant="outline" className="w-full gradient-secondary text-white border-0 hover:opacity-90">
             View all saved searches
           </Button>
         </div>
       </section>
 
       {/* Care Level Guide */}
-      <section className="px-4 py-8 bg-gray-50">
+      <section className="px-4 py-8 bg-gradient-to-br from-green-50 to-blue-50">
         {/* Healthcare Hero Image */}
         <div className="mb-6 relative">
           <div className="aspect-[16/9] bg-gradient-to-r from-blue-50 to-green-50 rounded-lg overflow-hidden">
@@ -413,14 +413,14 @@ export default function TrueViewHome() {
         </div>
         
         <div className="mt-6">
-          <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+          <Button className="w-full gradient-tertiary hover:opacity-90 text-white border-0">
             Find communities by care level
           </Button>
         </div>
       </section>
 
       {/* Reviews Comparison Section */}
-      <section className="px-4 py-8 bg-white">
+      <section className="px-4 py-8 gradient-card">
         <div className="mb-6">
           <h2 className="text-xl font-bold text-gray-900 mb-2">
             What families are saying

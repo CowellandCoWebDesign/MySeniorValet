@@ -6,29 +6,35 @@
 @tailwind utilities;
 
 :root {
-  --background: hsl(0, 0%, 100%);
+  --background: hsl(220, 30%, 98%);
   --foreground: hsl(222, 84%, 4.9%);
-  --muted: hsl(210, 40%, 96%);
+  --muted: hsl(220, 25%, 92%);
   --muted-foreground: hsl(215, 16%, 46.9%);
-  --popover: hsl(0, 0%, 100%);
+  --popover: hsl(220, 30%, 97%);
   --popover-foreground: hsl(222, 84%, 4.9%);
   --card: hsl(0, 0%, 100%);
   --card-foreground: hsl(222, 84%, 4.9%);
-  --border: hsl(214, 32%, 91%);
-  --input: hsl(214, 32%, 91%);
+  --border: hsl(220, 20%, 88%);
+  --input: hsl(220, 20%, 90%);
   --primary: hsl(207, 100%, 36%);
   --primary-foreground: hsl(210, 40%, 98%);
-  --secondary: hsl(207, 100%, 36%);
-  --secondary-foreground: hsl(355, 7%, 97%);
-  --accent: hsl(210, 40%, 96%);
-  --accent-foreground: hsl(222, 84%, 4.9%);
+  --secondary: hsl(268, 83%, 58%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --accent: hsl(320, 85%, 60%);
+  --accent-foreground: hsl(0, 0%, 100%);
   --destructive: hsl(0, 84%, 60%);
   --destructive-foreground: hsl(210, 40%, 98%);
   --ring: hsl(222, 84%, 4.9%);
   --radius: 0.5rem;
   --trueview-blue: hsl(207, 100%, 36%);
-  --trueview-light-blue: hsl(207, 100%, 96%);
-  --trueview-dark-blue: hsl(207, 100%, 28%);
+  --trueview-purple: hsl(268, 83%, 58%);
+  --trueview-pink: hsl(320, 85%, 60%);
+  --trueview-orange: hsl(25, 95%, 53%);
+  --trueview-green: hsl(142, 71%, 45%);
+  --gradient-primary: linear-gradient(135deg, hsl(207, 100%, 36%) 0%, hsl(268, 83%, 58%) 100%);
+  --gradient-secondary: linear-gradient(135deg, hsl(320, 85%, 60%) 0%, hsl(25, 95%, 53%) 100%);
+  --gradient-tertiary: linear-gradient(135deg, hsl(142, 71%, 45%) 0%, hsl(207, 100%, 36%) 100%);
+  --gradient-hero: linear-gradient(135deg, hsl(207, 100%, 36%) 0%, hsl(268, 83%, 58%) 50%, hsl(320, 85%, 60%) 100%);
 }
 
 .dark {
@@ -70,11 +76,32 @@
 
 @layer components {
   .gradient-primary {
-    background: linear-gradient(135deg, hsl(221, 83%, 53%) 0%, hsl(142, 76%, 36%) 100%);
+    background: linear-gradient(135deg, hsl(207, 100%, 36%) 0%, hsl(268, 83%, 58%) 100%);
+  }
+  
+  .gradient-secondary {
+    background: linear-gradient(135deg, hsl(320, 85%, 60%) 0%, hsl(25, 95%, 53%) 100%);
+  }
+  
+  .gradient-tertiary {
+    background: linear-gradient(135deg, hsl(142, 71%, 45%) 0%, hsl(207, 100%, 36%) 100%);
   }
   
   .gradient-hero {
-    background: linear-gradient(135deg, hsl(221, 83%, 97%) 0%, hsl(142, 76%, 97%) 100%);
+    background: linear-gradient(135deg, hsl(207, 100%, 36%) 0%, hsl(268, 83%, 58%) 50%, hsl(320, 85%, 60%) 100%);
+  }
+  
+  .gradient-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  .text-gradient {
+    background: linear-gradient(135deg, hsl(207, 100%, 36%) 0%, hsl(268, 83%, 58%) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   /* Zillow-style utilities */
