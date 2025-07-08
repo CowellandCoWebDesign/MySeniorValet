@@ -972,25 +972,26 @@ export default function BasicSearch() {
                             </div>
 
                             {/* Contact Information */}
-                            <div className="flex items-center justify-between text-xs mb-3">
-                              {community.phone && (
-                                <div className="flex items-center text-gray-500">
-                                  <Phone className="w-3 h-3 mr-1" />
-                                  <span className="font-medium">{community.phone}</span>
-                                </div>
-                              )}
-                              
-                              <div className="flex items-center space-x-2">
-                                {community.website && (
-                                  <div className="flex items-center text-blue-600">
-                                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1"></div>
-                                    <span className="text-xs font-medium">Website</span>
+                            <div className="mb-3">
+                              <div className="flex items-center justify-between text-xs mb-1">
+                                {community.phone && (
+                                  <div className="flex items-center text-gray-500">
+                                    <Phone className="w-3 h-3 mr-1" />
+                                    <span className="font-medium">{community.phone}</span>
                                   </div>
                                 )}
+                                
                                 <span className="text-gray-500 font-medium">
                                   {community.availabilityStatus || 'Available Now'}
                                 </span>
                               </div>
+                              
+                              {community.website && (
+                                <div className="flex items-center text-blue-600 text-xs">
+                                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1"></div>
+                                  <span className="font-medium">Website Available</span>
+                                </div>
+                              )}
                             </div>
 
                             {/* Availability Information */}
