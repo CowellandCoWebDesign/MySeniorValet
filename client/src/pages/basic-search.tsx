@@ -951,19 +951,13 @@ export default function BasicSearch() {
                           
                           {/* Content Section Below Photo */}
                           <div className="p-4">
-                            {/* Price - Prominent like Zillow */}
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="text-lg font-bold text-gray-900">
-                                {community.priceRange?.min && community.priceRange?.max 
-                                  ? `$${(community.priceRange.min / 1000).toFixed(1)}K - $${(community.priceRange.max / 1000).toFixed(1)}K`
-                                  : community.priceRange?.min 
-                                    ? `$${(community.priceRange.min / 1000).toFixed(1)}K+`
-                                    : '$4.2K - $8.5K'
-                                }
-                                <span className="text-sm text-gray-500 font-normal">/mo</span>
-                              </div>
+                            {/* Community Name and Rating - Top Priority */}
+                            <div className="flex items-start justify-between mb-2">
+                              <h4 className="text-base font-semibold text-gray-900 leading-tight flex-1 pr-2">
+                                {community.name}
+                              </h4>
                               {community.googleRating && (
-                                <div className="flex items-center bg-yellow-50 px-2 py-1 rounded-full">
+                                <div className="flex items-center bg-yellow-50 px-2 py-1 rounded-full flex-shrink-0">
                                   <Star className="w-3 h-3 text-yellow-500 fill-current" />
                                   <span className="ml-1 text-xs font-semibold text-yellow-700">
                                     {community.googleRating}
@@ -971,42 +965,18 @@ export default function BasicSearch() {
                                 </div>
                               )}
                             </div>
-
-                            {/* Care Types and Availability - Like Property Details */}
-                            <div className="flex items-center text-sm text-gray-600 mb-3 space-x-3">
-                              {/* Care Types as Specs */}
-                              {community.careTypes?.slice(0, 2).map((careType, index) => (
-                                <span key={careType} className="font-medium">
-                                  {careType}{index < Math.min(community.careTypes.length, 2) - 1 && ' •'}
-                                </span>
-                              ))}
-                              
-                              {/* Availability like sqft */}
-                              <span className="text-gray-400">|</span>
-                              <span className="font-medium">
-                                {community.unitTypes && community.unitTypes.length > 0 
-                                  ? `${community.unitTypes[0]?.type} available`
-                                  : 'Studio & 1BR available'
-                                }
-                              </span>
-                            </div>
-
-                            {/* Community Name - Like Property Type */}
-                            <h4 className="text-base font-semibold text-gray-900 mb-1 leading-tight">
-                              {community.name}
-                            </h4>
                             
                             {/* Address */}
-                            <div className="text-sm text-gray-600 mb-3">
+                            <div className="text-sm text-gray-600 mb-2">
                               {community.address}, {community.city}, {community.state}
                             </div>
 
-                            {/* Contact and Website Info */}
-                            <div className="flex items-center justify-between text-xs">
+                            {/* Contact Information */}
+                            <div className="flex items-center justify-between text-xs mb-3">
                               {community.phone && (
                                 <div className="flex items-center text-gray-500">
                                   <Phone className="w-3 h-3 mr-1" />
-                                  <span>{community.phone}</span>
+                                  <span className="font-medium">{community.phone}</span>
                                 </div>
                               )}
                               
@@ -1017,9 +987,68 @@ export default function BasicSearch() {
                                     <span className="text-xs font-medium">Website</span>
                                   </div>
                                 )}
-                                <span className="text-gray-500">
+                                <span className="text-gray-500 font-medium">
                                   {community.availabilityStatus || 'Available Now'}
                                 </span>
+                              </div>
+                            </div>
+
+                            {/* Availability Information */}
+                            <div className="mb-3">
+                              {community.unitTypes && community.unitTypes.length > 0 ? (
+                                <div>
+                                  <div className="flex items-center text-xs text-gray-600 mb-1.5">
+                                    <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
+                                    <span className="font-medium">Confirmed Availability</span>
+                                  </div>
+                                  <div className="flex flex-wrap gap-1">
+                                    {community.unitTypes.slice(0, 3).map((unit: any, index: number) => (
+                                      <div key={index} className="bg-green-50 text-green-700 px-2 py-1 rounded text-xs border border-green-100 font-medium">
+                                        {unit.type} ({unit.available} available)
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              ) : (
+                                <div>
+                                  <div className="flex items-center text-xs text-gray-600 mb-1.5">
+                                    <CheckCircle className="w-3 h-3 mr-1 text-blue-500" />
+                                    <span className="font-medium">Estimated Availability</span>
+                                  </div>
+                                  <div className="flex flex-wrap gap-1">
+                                    <div className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs border border-blue-100 font-medium">
+                                      Studio (2-3 available)
+                                    </div>
+                                    <div className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs border border-blue-100 font-medium">
+                                      1BR (1-2 available)
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Price - Bottom Priority */}
+                            <div className="flex items-center justify-between">
+                              <div className="text-lg font-bold text-gray-900">
+                                {community.priceRange?.min && community.priceRange?.max 
+                                  ? `$${(community.priceRange.min / 1000).toFixed(1)}K - $${(community.priceRange.max / 1000).toFixed(1)}K`
+                                  : community.priceRange?.min 
+                                    ? `$${(community.priceRange.min / 1000).toFixed(1)}K+`
+                                    : '$4.2K - $8.5K'
+                                }
+                                <span className="text-sm text-gray-500 font-normal">/mo</span>
+                              </div>
+                              
+                              {/* Care Types as Tags */}
+                              <div className="flex gap-1">
+                                {community.careTypes?.slice(0, 2).map((careType) => (
+                                  <div key={careType} className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-medium">
+                                    {careType === 'Independent Living' ? 'Independent' : 
+                                     careType === 'Assisted Living' ? 'Assisted' :
+                                     careType === 'Memory Care' ? 'Memory' :
+                                     careType === 'Skilled Nursing' ? 'Skilled' : careType}
+                                  </div>
+                                ))}
                               </div>
                             </div>
                           </div>
