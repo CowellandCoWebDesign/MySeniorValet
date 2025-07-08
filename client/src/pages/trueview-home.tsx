@@ -168,41 +168,41 @@ export default function TrueViewHome() {
               const query = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
               window.location.href = `/search${query}`;
             }}>
-              <div className="relative">
-                <Input
-                  type="text"
-                  placeholder="Community name, city, care type"
-                  value={searchQuery}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      setShowSuggestions(false);
-                      const query = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
-                      window.location.href = `/search${query}`;
-                    } else if (e.key === 'Escape') {
-                      setShowSuggestions(false);
-                    }
-                  }}
-                  onFocus={() => {
-                    if (suggestions.length > 0) {
-                      setShowSuggestions(true);
-                    }
-                  }}
-                  onBlur={() => {
-                    // Delay hiding suggestions to allow click events
-                    setTimeout(() => setShowSuggestions(false), 150);
-                  }}
-                  className="w-full px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg rounded-2xl border-0 shadow-xl bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent relative z-20"
-                />
-                <Button
-                  type="submit"
-                  size="sm"
-                  className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-gray-700 hover:bg-gray-800 rounded-xl w-8 h-8 sm:w-10 sm:h-10 p-0 z-30"
-                  style={{ right: '4px' }}
-                >
-                  <Search className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                </Button>
+              <div className="relative bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div className="flex items-center">
+                  <input
+                    type="text"
+                    placeholder="Community name, city, care type"
+                    value={searchQuery}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        setShowSuggestions(false);
+                        const query = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
+                        window.location.href = `/search${query}`;
+                      } else if (e.key === 'Escape') {
+                        setShowSuggestions(false);
+                      }
+                    }}
+                    onFocus={() => {
+                      if (suggestions.length > 0) {
+                        setShowSuggestions(true);
+                      }
+                    }}
+                    onBlur={() => {
+                      // Delay hiding suggestions to allow click events
+                      setTimeout(() => setShowSuggestions(false), 150);
+                    }}
+                    className="flex-1 px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 placeholder-gray-500"
+                  />
+                  <button
+                    type="submit"
+                    className="bg-gray-700 hover:bg-gray-800 text-white p-2 sm:p-3 m-1 rounded-xl transition-colors flex items-center justify-center"
+                  >
+                    <Search className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </button>
+                </div>
               </div>
               
               {/* Suggestions Dropdown */}
