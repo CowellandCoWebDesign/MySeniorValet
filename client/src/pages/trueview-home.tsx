@@ -141,22 +141,25 @@ export default function TrueViewHome() {
               alt="Senior living community"
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+            <div className="absolute inset-0 bg-black bg-opacity-50"></div>
           </div>
         )}
         
         <div className="relative z-10 flex flex-col items-center justify-center hero-content min-h-screen px-6 py-20 mobile-keyboard-safe">
           {/* Centered Headlines */}
           <div className="text-center mb-8 md:mb-12">
-            <div className="space-y-2 mb-6">
-              <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white leading-tight drop-shadow-lg">
+            <div className="space-y-4 mb-6">
+              <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white leading-tight drop-shadow-lg animate-fade-in-up">
                 Senior Living, Unlocked.
               </h1>
+              <p className="text-base sm:text-lg md:text-xl text-white opacity-90 drop-shadow-md px-4 animate-fade-in-up animation-delay-300">
+                Helping families find care — without the noise.
+              </p>
             </div>
           </div>
           
           {/* Search Bar */}
-          <div className="w-full max-w-lg mb-8 md:mb-16 relative">
+          <div className="w-full max-w-lg mb-8 md:mb-16 relative animate-fade-in-up animation-delay-600">
             <form onSubmit={(e) => {
               e.preventDefault();
               const query = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
@@ -223,11 +226,6 @@ export default function TrueViewHome() {
                 </div>
               )}
             </form>
-            
-            {/* Search Subtext */}
-            <p className="text-center text-base sm:text-lg md:text-xl text-white opacity-90 drop-shadow-md px-4 mt-4">
-              Helping families find care — without the noise.
-            </p>
           </div>
         </div>
       </section>
