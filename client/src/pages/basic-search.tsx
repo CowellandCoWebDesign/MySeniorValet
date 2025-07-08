@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, Star, Heart, List, Map, Bell, Calendar, Mail, Phone, ExternalLink, Users, CheckCircle, AlertTriangle, Activity, UserCheck, Stethoscope, Clock, ImageIcon } from "lucide-react";
+import { Search, MapPin, Star, Heart, List, Map, Bell, Calendar, Mail, Phone, ExternalLink, Users, CheckCircle, AlertTriangle, Activity, UserCheck, Stethoscope, Clock, ImageIcon, ChevronDown, SortAsc } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import { Icon } from 'leaflet';
@@ -43,6 +43,8 @@ export default function BasicSearch() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState('search');
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
+  const [sortBy, setSortBy] = useState('recommended');
+  const [showSortOptions, setShowSortOptions] = useState(false);
 
   const [mapBounds, setMapBounds] = useState<any>(null);
   const [slidePosition, setSlidePosition] = useState(200); // Height from bottom
@@ -58,6 +60,16 @@ export default function BasicSearch() {
 
   console.log('BasicSearch - communities:', communities?.length, 'loading:', isLoading, 'error:', error);
 
+  const sortOptions = [
+    { id: 'recommended', label: 'Communities for You', description: 'Best match for your needs' },
+    { id: 'rating', label: 'Highest Rated', description: 'Best reviews first' },
+    { id: 'price-low', label: 'Price: Low to High', description: 'Most affordable first' },
+    { id: 'price-high', label: 'Price: High to Low', description: 'Premium communities first' },
+    { id: 'newest', label: 'Recently Added', description: 'Latest listings' },
+    { id: 'name', label: 'Alphabetical', description: 'A to Z by name' },
+    { id: 'distance', label: 'Nearest First', description: 'Closest to map center' }
+  ];
+
   const filteredCommunities = communities?.filter((community: any) => {
     if (!searchQuery) return true;
     
@@ -69,8 +81,44 @@ export default function BasicSearch() {
     );
   }) || [];
 
+  const sortCommunities = (communities: any[], sortType: string) => {
+    const sorted = [...communities];
+    
+    switch (sortType) {
+      case 'rating':
+        return sorted.sort((a, b) => (b.googleRating || 0) - (a.googleRating || 0));
+      case 'price-low':
+        return sorted.sort((a, b) => {
+          const aPrice = a.priceRange?.min || 999999;
+          const bPrice = b.priceRange?.min || 999999;
+          return aPrice - bPrice;
+        });
+      case 'price-high':
+        return sorted.sort((a, b) => {
+          const aPrice = a.priceRange?.max || 0;
+          const bPrice = b.priceRange?.max || 0;
+          return bPrice - aPrice;
+        });
+      case 'newest':
+        return sorted.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+      case 'name':
+        return sorted.sort((a, b) => a.name.localeCompare(b.name));
+      case 'distance':
+        // For now, sort by ID as a proxy for distance - could be enhanced with actual distance calculation
+        return sorted.sort((a, b) => a.id - b.id);
+      case 'recommended':
+      default:
+        // Recommended: combination of rating, availability, and completeness
+        return sorted.sort((a, b) => {
+          const aScore = (a.googleRating || 0) * 2 + (a.photos?.length || 0) * 0.1 + (a.priceRange ? 1 : 0);
+          const bScore = (b.googleRating || 0) * 2 + (b.photos?.length || 0) * 0.1 + (b.priceRange ? 1 : 0);
+          return bScore - aScore;
+        });
+    }
+  };
+
   // Get communities visible in current map bounds
-  const visibleCommunities = filteredCommunities.filter((community: any) => {
+  const boundsFilteredCommunities = filteredCommunities.filter((community: any) => {
     if (!mapBounds || !community.latitude || !community.longitude) return false;
     
     const lat = parseFloat(community.latitude);
@@ -85,6 +133,21 @@ export default function BasicSearch() {
       lng <= (mapBounds.getEast() + buffer)
     );
   });
+
+  // Apply sorting to visible communities
+  const visibleCommunities = sortCommunities(boundsFilteredCommunities, sortBy);
+
+  // Close sort dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showSortOptions) {
+        setShowSortOptions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showSortOptions]);
 
   // Handle drag for slide panel - Only for the handle
   const handleDragStart = (e: React.TouchEvent | React.MouseEvent) => {
@@ -566,12 +629,59 @@ export default function BasicSearch() {
                   <div className="w-10 h-1 bg-gray-300 rounded-full"></div>
                 </div>
                 <div className="px-4 pt-1 pb-2">
-                  <h2 className="text-lg font-bold text-gray-900">
-                    Communities in this map area
-                  </h2>
-                  <p className="text-sm text-gray-600">
-                    {visibleCommunities.length} communities found
-                  </p>
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900">
+                        Communities in this map area
+                      </h2>
+                      <p className="text-sm text-gray-600">
+                        {visibleCommunities.length} communities found
+                      </p>
+                    </div>
+                    
+                    {/* Sort Dropdown */}
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowSortOptions(!showSortOptions)}
+                        className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                      >
+                        <SortAsc className="w-4 h-4" />
+                        <span>Sort</span>
+                        <ChevronDown className={`w-4 h-4 transition-transform ${showSortOptions ? 'rotate-180' : ''}`} />
+                      </button>
+                      
+                      {/* Sort Options Dropdown */}
+                      {showSortOptions && (
+                        <div className="absolute top-full right-0 mt-1 w-64 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
+                          <div className="p-2">
+                            <h3 className="text-sm font-semibold text-gray-900 px-2 py-1 mb-1">Sort by</h3>
+                            {sortOptions.map((option) => (
+                              <button
+                                key={option.id}
+                                onClick={() => {
+                                  setSortBy(option.id);
+                                  setShowSortOptions(false);
+                                }}
+                                className={`w-full text-left px-2 py-2 rounded-lg hover:bg-gray-50 transition-colors ${
+                                  sortBy === option.id ? 'bg-blue-50 text-blue-700' : 'text-gray-900'
+                                }`}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div>
+                                    <div className="font-medium text-sm">{option.label}</div>
+                                    <div className="text-xs text-gray-500">{option.description}</div>
+                                  </div>
+                                  {sortBy === option.id && (
+                                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                                  )}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
 
