@@ -63,17 +63,16 @@ TrueView provides information "as is" without warranties of any kind.
 
 **Maximum Liability:** Our total liability to you for any claims shall not exceed $100 or the amount you paid to use our services, whichever is greater.
 
-## 7. Neutrality & Platform Independence
+## 7. Founder Ownership & Platform Independence
 
-**Platform Independence Commitment:**
-TrueView operates as an independent, neutral listing and leasing platform. We are not affiliated with, endorsed by, or bound to any specific operator or senior living provider. Participating communities retain full control over their listings, and TrueView does not favor or suppress any brand, chain, or provider.
+**Founder Ownership Statement:**
+TrueView is an independent platform solely founded, developed, and operated by Scott Cowell. The platform was created entirely on personal time, without the use of any company-owned systems, confidential materials, employee collaboration, or proprietary intellectual property.
 
-**Our Independence Principles:**
-- No financial relationships that influence listing presentation
-- Equal opportunity for all communities to participate
-- Transparent sponsored listing identification
-- No preferential treatment based on operator size or brand
-- Community-controlled listing management and information
+**Platform Independence:**
+TrueView is not affiliated with, endorsed by, or developed on behalf of any senior living brand, operator, management company, parent organization, or affiliated entity — including but not limited to Discovery Senior Living, Provincial Senior Living, Atria Senior Living, Brookdale Senior Living, Sunrise Senior Living, Holiday by Atria, or any national, regional, or local senior housing provider or partner.
+
+**Rights & Ownership:**
+No operator, employer, or entity outside of Scott Cowell holds any ownership, control, or development rights in the platform, unless such a relationship is explicitly established through a future written agreement. All rights — past, present, and future — are retained by Scott Cowell as the sole creator and founder.
 
 ## 8. Privacy and Data
 

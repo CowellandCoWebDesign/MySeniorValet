@@ -83,30 +83,39 @@ export default function Terms() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Scale className="h-5 w-5" aria-hidden="true" />
-                Neutrality & Platform Independence
+                <Shield className="h-5 w-5" aria-hidden="true" />
+                Founder Ownership & Platform Independence
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                <p className="text-green-800 font-medium mb-2">Platform Independence Commitment:</p>
-                <p className="text-green-700 text-sm">
-                  TrueView operates as an independent, neutral listing and leasing platform. We are not 
-                  affiliated with, endorsed by, or bound to any specific operator or senior living provider. 
-                  Participating communities retain full control over their listings, and TrueView does not 
-                  favor or suppress any brand, chain, or provider.
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-blue-800 font-medium mb-3">Founder Ownership Statement:</p>
+                <p className="text-blue-700 text-sm mb-3">
+                  TrueView is an independent platform solely founded, developed, and operated by Scott Cowell. 
+                  The platform was created entirely on personal time, without the use of any company-owned 
+                  systems, confidential materials, employee collaboration, or proprietary intellectual property.
                 </p>
               </div>
               
-              <div>
-                <h3 className="font-semibold mb-2">Our Independence Principles:</h3>
-                <ul className="list-disc list-inside space-y-1 text-gray-700">
-                  <li>No financial relationships that influence listing presentation</li>
-                  <li>Equal opportunity for all communities to participate</li>
-                  <li>Transparent sponsored listing identification</li>
-                  <li>No preferential treatment based on operator size or brand</li>
-                  <li>Community-controlled listing management and information</li>
-                </ul>
+              <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                <p className="text-green-800 font-medium mb-3">Platform Independence:</p>
+                <p className="text-green-700 text-sm mb-3">
+                  TrueView is not affiliated with, endorsed by, or developed on behalf of any senior living 
+                  brand, operator, management company, parent organization, or affiliated entity — including 
+                  but not limited to Discovery Senior Living, Provincial Senior Living, Atria Senior Living, 
+                  Brookdale Senior Living, Sunrise Senior Living, Holiday by Atria, or any national, regional, 
+                  or local senior housing provider or partner.
+                </p>
+              </div>
+
+              <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-gray-800 font-medium mb-3">Rights & Ownership:</p>
+                <p className="text-gray-700 text-sm">
+                  No operator, employer, or entity outside of Scott Cowell holds any ownership, control, or 
+                  development rights in the platform, unless such a relationship is explicitly established 
+                  through a future written agreement. All rights — past, present, and future — are retained 
+                  by Scott Cowell as the sole creator and founder.
+                </p>
               </div>
             </CardContent>
           </Card>
