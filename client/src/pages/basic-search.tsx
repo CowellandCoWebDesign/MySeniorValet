@@ -127,17 +127,19 @@ export default function BasicSearch() {
     if (!isDragging) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      e.preventDefault();
       handleDragMove(e);
     };
     const handleTouchMove = (e: TouchEvent) => {
-      e.preventDefault();
+      // Only prevent default during drag operations, not for all touches
+      if (isDragging) {
+        e.preventDefault();
+      }
       handleDragMove(e);
     };
     const handleMouseUp = () => handleDragEnd();
     const handleTouchEnd = () => handleDragEnd();
 
-    document.addEventListener('mousemove', handleMouseMove, { passive: false });
+    document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('touchmove', handleTouchMove, { passive: false });
     document.addEventListener('mouseup', handleMouseUp);
     document.addEventListener('touchend', handleTouchEnd);
@@ -596,7 +598,12 @@ export default function BasicSearch() {
             </div>
 
             {/* Scrollable Results List */}
-            <div className="flex-1 overflow-y-auto overflow-x-hidden">
+            <div 
+              className="flex-1 overflow-y-auto overflow-x-hidden"
+              style={{ touchAction: 'pan-y' }}
+              onTouchStart={(e) => e.stopPropagation()}
+              onTouchMove={(e) => e.stopPropagation()}
+            >
               {visibleCommunities.length === 0 ? (
                 <div className="p-8 text-center text-gray-500">
                   <MapPin className="w-8 h-8 mx-auto mb-2 text-gray-400" />
