@@ -226,6 +226,21 @@ export default function TrueViewHome() {
                 </div>
               )}
             </form>
+            
+            {/* Dynamic Community Count Text */}
+            <div className="text-center mt-6 animate-fade-in-up animation-delay-900">
+              <p className="text-white/80 text-sm sm:text-base drop-shadow-md">
+                {isLoading ? (
+                  <span>Loading verified communities...</span>
+                ) : (
+                  <span>
+                    Search <strong className="text-white">{communities?.length || 0} verified communities</strong> with transparent listing information
+                    <br className="hidden sm:block" />
+                    <span className="block sm:inline sm:ml-1">— no sales pressure, no surprise calls</span>
+                  </span>
+                )}
+              </p>
+            </div>
           </div>
         </div>
       </section>
