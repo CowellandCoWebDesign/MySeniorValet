@@ -150,15 +150,9 @@ export default function TrueViewHome() {
           <div className="text-center mb-8 md:mb-12">
             <div className="space-y-2 mb-6">
               <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white leading-tight drop-shadow-lg">
-                Senior Living.
+                Senior Living, Unlocked.
               </h1>
-              <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white leading-tight drop-shadow-lg">
-                Tours. Care. Community.
-              </h2>
             </div>
-            <p className="text-base sm:text-lg md:text-xl text-white opacity-90 drop-shadow-md px-4">
-              Search 182 verified communities across Northern California
-            </p>
           </div>
           
           {/* Search Bar */}
@@ -229,6 +223,11 @@ export default function TrueViewHome() {
                 </div>
               )}
             </form>
+            
+            {/* Search Subtext */}
+            <p className="text-center text-base sm:text-lg md:text-xl text-white opacity-90 drop-shadow-md px-4 mt-4">
+              Helping families find care — without the noise.
+            </p>
           </div>
         </div>
       </section>
