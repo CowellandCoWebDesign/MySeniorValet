@@ -134,16 +134,14 @@ export default function TrueViewHome() {
 
       {/* Hero Section with Search */}
       <section className="relative hero-mobile-safe bg-gradient-to-br from-blue-50 to-indigo-100">
-        {heroImages && heroImages.length > 0 && (
-          <div className="absolute inset-0">
-            <img
-              src={heroImages[0].urls.regular}
-              alt="Senior living community"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-black bg-opacity-50"></div>
-          </div>
-        )}
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+            alt="Happy seniors enjoying activities together"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+        </div>
         
         <div className="relative z-10 flex flex-col items-center justify-center hero-content min-h-screen px-6 py-20 mobile-keyboard-safe">
           {/* Centered Headlines */}
