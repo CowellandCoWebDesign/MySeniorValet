@@ -544,16 +544,17 @@ export default function BasicSearch() {
 
           {/* Draggable Slide-up Results Panel - Zillow Style */}
           <div 
-            className="fixed left-0 right-0 bg-white border-t border-gray-200 z-20 rounded-t-2xl shadow-2xl"
+            className="fixed left-0 right-0 bg-white border-t border-gray-200 z-20 rounded-t-2xl shadow-2xl flex flex-col"
             style={{ 
               bottom: 0,
               height: `${slidePosition}px`,
-              transition: isDragging ? 'none' : 'height 0.3s ease-out'
+              transition: isDragging ? 'none' : 'height 0.3s ease-out',
+              maxHeight: '90vh'
             }}
           >
             {/* Draggable Header Area - Entire top section is draggable */}
             <div 
-              className="cursor-grab active:cursor-grabbing select-none"
+              className="cursor-grab active:cursor-grabbing select-none flex-shrink-0"
               onMouseDown={handleDragStart}
               onTouchStart={handleDragStart}
               style={{ touchAction: 'none' }}
@@ -595,13 +596,7 @@ export default function BasicSearch() {
             </div>
 
             {/* Scrollable Results List */}
-            <div 
-              className="overflow-y-auto overflow-x-hidden"
-              style={{ 
-                height: `${Math.max(0, slidePosition - 180)}px`,
-                maxHeight: `${Math.max(0, slidePosition - 180)}px`
-              }}
-            >
+            <div className="flex-1 overflow-y-auto overflow-x-hidden">
               {visibleCommunities.length === 0 ? (
                 <div className="p-8 text-center text-gray-500">
                   <MapPin className="w-8 h-8 mx-auto mb-2 text-gray-400" />
