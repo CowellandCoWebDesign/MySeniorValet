@@ -86,15 +86,15 @@ export default function BasicSearch() {
     );
   });
 
-  // Handle drag for slide panel
+  // Handle drag for slide panel - Only for the handle
   const handleDragStart = (e: React.TouchEvent | React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
     setIsDragging(true);
     setDragFromHandle(true);
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     setDragStartY(clientY);
     setDragStartPosition(slidePosition);
+    // Only prevent default on the handle, not globally
+    e.preventDefault();
   };
 
   const handleDragMove = (e: React.TouchEvent | React.MouseEvent) => {
@@ -125,39 +125,24 @@ export default function BasicSearch() {
     }
   };
 
-  // Global mouse/touch events for dragging - Simplified to not interfere with scrolling
+  // Global mouse/touch events for dragging - Only for mouse, let touch scroll naturally
   useEffect(() => {
     if (!isDragging) return;
 
     const handleMouseMove = (e: MouseEvent) => {
       handleDragMove(e);
     };
-    const handleTouchMove = (e: TouchEvent) => {
-      // Check if the touch is on the scrollable content
-      const target = e.target as HTMLElement;
-      const isScrollableArea = target.closest('.scrollable-results');
-      
-      // Only prevent default and handle drag if NOT in scrollable area
-      if (!isScrollableArea && isDragging && dragFromHandle) {
-        e.preventDefault();
-        handleDragMove(e);
-      }
-    };
     const handleMouseUp = () => handleDragEnd();
-    const handleTouchEnd = () => handleDragEnd();
 
+    // Only add mouse event listeners, not touch - let touch scroll naturally
     document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('touchmove', handleTouchMove, { passive: false });
     document.addEventListener('mouseup', handleMouseUp);
-    document.addEventListener('touchend', handleTouchEnd);
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('touchmove', handleTouchMove);
       document.removeEventListener('mouseup', handleMouseUp);
-      document.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [isDragging, dragStartY, dragStartPosition, slidePosition, dragFromHandle]);
+  }, [isDragging, dragStartY, dragStartPosition, slidePosition]);
 
   // Bottom Navigation
   const BottomNav = () => (
@@ -553,24 +538,28 @@ export default function BasicSearch() {
 
           {/* Draggable Slide-up Results Panel - Zillow Style */}
           <div 
-            className="fixed left-0 right-0 bg-white border-t border-gray-200 z-20 rounded-t-2xl shadow-2xl"
+            className="fixed left-0 right-0 bg-white border-t border-gray-200 z-20 rounded-t-2xl shadow-2xl overflow-hidden"
             style={{ 
               bottom: 0,
               height: `${slidePosition}px`,
               transition: isDragging ? 'none' : 'height 0.3s ease-out',
-              maxHeight: '90vh',
-              display: 'flex',
-              flexDirection: 'column'
+              maxHeight: '90vh'
             }}
           >
-            {/* Header Area - Only handle is draggable */}
-            <div style={{ flexShrink: 0 }}>
+            {/* Fixed height header that doesn't scroll */}
+            <div className="absolute top-0 left-0 right-0 bg-white rounded-t-2xl z-10">
               {/* Visual handle indicator - Only this part is draggable */}
               <div 
                 className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing select-none"
                 onMouseDown={handleDragStart}
                 onTouchStart={handleDragStart}
-                style={{ touchAction: 'none' }}
+                onTouchMove={(e) => {
+                  if (isDragging) {
+                    e.preventDefault();
+                    handleDragMove(e);
+                  }
+                }}
+                onTouchEnd={handleDragEnd}
               >
                 <div className="w-10 h-1.5 bg-gray-400 rounded-full hover:bg-gray-500 transition-colors"></div>
               </div>
@@ -606,17 +595,25 @@ export default function BasicSearch() {
               </div>
             </div>
 
-            {/* Scrollable Results List - Same structure as list view */}
-            <div className="px-4 py-4 overflow-y-auto scrollable-results" style={{ flex: '1 1 auto' }}>
-              {visibleCommunities.length === 0 ? (
-                <div className="p-8 text-center text-gray-500">
-                  <MapPin className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                  <p>No communities found in this map area.</p>
-                  <p className="text-sm mt-1">Try zooming out or moving the map.</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {visibleCommunities.slice(0, 20).map((community: any, index) => (
+            {/* Scrollable Results List - Independent of header */}
+            <div 
+              className="absolute inset-0 overflow-y-auto"
+              style={{ 
+                top: '100px', // Space for header
+                overscrollBehavior: 'contain',
+                WebkitOverflowScrolling: 'touch'
+              }}
+            >
+              <div className="px-4 py-4">
+                {visibleCommunities.length === 0 ? (
+                  <div className="p-8 text-center text-gray-500">
+                    <MapPin className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                    <p>No communities found in this map area.</p>
+                    <p className="text-sm mt-1">Try zooming out or moving the map.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {visibleCommunities.slice(0, 20).map((community: any, index) => (
                       <div
                         key={community.id}
                         onClick={() => {
@@ -672,7 +669,8 @@ export default function BasicSearch() {
                     {/* Padding for bottom navigation */}
                     <div className="h-20"></div>
                   </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>
