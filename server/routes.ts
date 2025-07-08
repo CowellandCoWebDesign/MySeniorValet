@@ -675,6 +675,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get trending communities for homepage - fast-loading diverse selection
+  app.get('/api/communities/trending', async (req, res) => {
+    try {
+      const communities = await storage.getAllCommunities();
+      
+      // Create diverse trending communities with good geographic spread
+      const trendingCommunities = communities
+        .filter(c => c.latitude && c.longitude && c.googleRating && c.googleRating > 3.0)
+        .sort((a, b) => {
+          // Sort by rating and review count for quality
+          const aScore = (a.googleRating || 0) * (a.googleReviewCount || 1);
+          const bScore = (b.googleRating || 0) * (b.googleReviewCount || 1);
+          return bScore - aScore;
+        })
+        .slice(0, 16) // Get more than we need for variety
+        .map(community => ({
+          ...community,
+          trendingScore: Math.random() * 100, // Add some randomness for variety
+        }))
+        .sort((a, b) => b.trendingScore - a.trendingScore)
+        .slice(0, 8); // Return top 8 for carousel
+      
+      res.json(trendingCommunities);
+    } catch (error) {
+      console.error('Error fetching trending communities:', error);
+      res.status(500).json({ message: 'Failed to fetch trending communities' });
+    }
+  });
+
   // Get all communities
   app.get("/api/communities", async (req, res) => {
     try {

@@ -23,8 +23,14 @@ export default function TrueViewHome() {
     retry: false,
   });
 
-  // No featured communities needed on homepage for performance
-  const featuredCommunities: any[] = [];
+  // Fast-loading trending communities with diverse search examples
+  const { data: trendingCommunities, isLoading: trendingLoading } = useQuery({
+    queryKey: ["/api/communities/trending"],
+    retry: false,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+
+  const featuredCommunities = trendingCommunities?.slice(0, 8) || [];
 
   // Generate location suggestions based on available community data
   const generateSuggestions = (query: string) => {
@@ -37,12 +43,17 @@ export default function TrueViewHome() {
     const lowerQuery = query.toLowerCase();
     const allSuggestions = new Set<string>();
 
-    // Add popular Northern California cities first
+    // Add popular California cities from different regions
     const popularCities = [
       "San Francisco, CA",
-      "San Jose, CA", 
-      "Oakland, CA",
+      "Los Angeles, CA",
+      "San Diego, CA", 
       "Sacramento, CA",
+      "San Jose, CA",
+      "Oakland, CA",
+      "Fresno, CA",
+      "Long Beach, CA",
+      "Santa Ana, CA",
       "Redding, CA",
       "Santa Rosa, CA",
       "Stockton, CA",
@@ -250,16 +261,30 @@ export default function TrueViewHome() {
         <div className="relative z-10">
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Trending Communities in Northern California
+              Explore Communities Across California
             </h2>
             <p className="text-gray-600 text-sm">
-              Viewed and saved the most in the area over the past 24 hours
+              Discover highly-rated communities in different areas - find your perfect match
             </p>
           </div>
         
         <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
-          {featuredCommunities.map((community: any, index) => (
-            <Link key={community.id} href={`/community/${community.id}`}>
+          {trendingLoading ? (
+            // Loading skeleton cards
+            Array.from({ length: 4 }).map((_, index) => (
+              <Card key={index} className="overflow-hidden flex-shrink-0 w-48 border border-gray-200 animate-pulse">
+                <div className="aspect-[4/3] bg-gray-200"></div>
+                <CardContent className="p-3">
+                  <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-1"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded"></div>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            featuredCommunities.map((community: any, index) => (
+              <Link key={community.id} href={`/community/${community.id}`}>
               <Card className="overflow-hidden flex-shrink-0 w-48 animate-float border border-gray-200 hover:border-gray-300 transition-colors" style={{animationDelay: `${index * 0.2}s`}}>
                 <div className="relative">
                   <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
@@ -314,8 +339,9 @@ export default function TrueViewHome() {
                 </CardContent>
               </Card>
             </Link>
-            ))}
-          </div>
+            ))
+          )}
+        </div>
         </div>
       </section>
 
