@@ -78,12 +78,17 @@ export default function SimpleSearch() {
   }, [location]);
 
   const { data: communitiesResponse, isLoading } = useQuery({
-    queryKey: ["/api/communities"],
+    queryKey: ["/api/communities/search", { limit: 2000 }],
+    queryFn: async () => {
+      const response = await fetch("/api/communities/search?limit=2000");
+      if (!response.ok) throw new Error("Failed to fetch communities");
+      return response.json();
+    },
     retry: false,
   });
 
-  // Extract communities array from paginated response
-  const communities = communitiesResponse?.communities || [];
+  // Extract communities array from search response (now returns direct array, not paginated)
+  const communities = Array.isArray(communitiesResponse) ? communitiesResponse : [];
 
   console.log('SimpleSearch - communities:', communities?.length, 'loading:', isLoading);
 

@@ -86,15 +86,20 @@ export default function BasicSearch() {
   const [displayCount, setDisplayCount] = useState(20); // For pagination
 
   const { data: communitiesResponse, isLoading, error } = useQuery({
-    queryKey: ["/api/communities"],
+    queryKey: ["/api/communities/search", { limit: 2000 }],
+    queryFn: async () => {
+      const response = await fetch("/api/communities/search?limit=2000");
+      if (!response.ok) throw new Error("Failed to fetch communities");
+      return response.json();
+    },
     retry: false,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     cacheTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
   });
 
-  // Extract communities array from paginated response
-  const communities = communitiesResponse?.communities || [];
-  const pagination = communitiesResponse?.pagination || {};
+  // Extract communities array from search response (now returns direct array, not paginated)
+  const communities = Array.isArray(communitiesResponse) ? communitiesResponse : [];
+  const pagination = {};
 
   console.log('BasicSearch - communities:', communities?.length, 'loading:', isLoading, 'error:', error);
 
