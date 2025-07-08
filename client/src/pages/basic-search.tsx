@@ -821,7 +821,7 @@ export default function BasicSearch() {
           </div>
           
           {/* Custom Zoom Controls - Positioned away from slide panel */}
-          <div className="absolute top-4 left-4 z-20 flex flex-col space-y-1">
+          <div className="absolute top-32 left-4 z-20 flex flex-col space-y-1">
             <Button 
               variant="outline" 
               size="sm" 
