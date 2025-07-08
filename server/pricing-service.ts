@@ -24,38 +24,59 @@ export class PricingService {
   private readonly careTypePricing: CareTypePricing[] = [
     {
       careType: 'Independent Living',
-      baseMin: 2500,
+      baseMin: 2800,
       baseMax: 4500,
-      californiaMultiplier: 1.4,
-      description: 'Apartment-style living with minimal care services'
+      californiaMultiplier: 1.0,
+      description: 'Active senior communities with social activities and dining'
+    },
+    {
+      careType: 'Independent Living with Services',
+      baseMin: 3500,
+      baseMax: 5500,
+      californiaMultiplier: 1.0,
+      description: 'Independent apartments plus care services and housekeeping'
     },
     {
       careType: 'Assisted Living',
-      baseMin: 3500,
-      baseMax: 6500,
-      californiaMultiplier: 1.5,
-      description: 'Personal care assistance with daily activities'
+      baseMin: 4200,
+      baseMax: 7000,
+      californiaMultiplier: 1.0,
+      description: 'Personal care assistance, medication management, and meals'
     },
     {
       careType: 'Memory Care',
-      baseMin: 5500,
-      baseMax: 8500,
-      californiaMultiplier: 1.6,
-      description: 'Specialized dementia and Alzheimer\'s care'
+      baseMin: 6500,
+      baseMax: 9500,
+      californiaMultiplier: 1.0,
+      description: 'Specialized dementia/Alzheimer\'s care in secure environments'
     },
     {
       careType: 'Skilled Nursing',
-      baseMin: 7500,
+      baseMin: 8000,
       baseMax: 12000,
-      californiaMultiplier: 1.3,
-      description: '24/7 medical care and rehabilitation'
+      californiaMultiplier: 1.0,
+      description: '24/7 medical care, rehabilitation, and complex medical needs'
+    },
+    {
+      careType: 'Senior Apartments',
+      baseMin: 1800,
+      baseMax: 3200,
+      californiaMultiplier: 1.0,
+      description: 'Age-restricted housing with minimal services'
+    },
+    {
+      careType: 'HUD/VASH',
+      baseMin: 800,
+      baseMax: 1500,
+      californiaMultiplier: 1.0,
+      description: 'Subsidized housing with IHSS or SLS home care support'
     },
     {
       careType: 'Respite Care',
       baseMin: 150,
       baseMax: 400,
-      californiaMultiplier: 1.4,
-      description: 'Short-term care (daily rate)'
+      californiaMultiplier: 1.0,
+      description: 'Short-term care for caregiver relief (daily rates)'
     }
   ];
 

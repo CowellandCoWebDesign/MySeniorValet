@@ -9,11 +9,14 @@ const path = require('path');
 neonConfig.webSocketConstructor = ws;
 
 const careTypePricing = {
-  'Independent Living': { baseMin: 2500, baseMax: 4500, californiaMultiplier: 1.4 },
-  'Assisted Living': { baseMin: 3500, baseMax: 6500, californiaMultiplier: 1.5 },
-  'Memory Care': { baseMin: 5500, baseMax: 8500, californiaMultiplier: 1.6 },
-  'Skilled Nursing': { baseMin: 7500, baseMax: 12000, californiaMultiplier: 1.3 },
-  'Respite Care': { baseMin: 150, baseMax: 400, californiaMultiplier: 1.4 }
+  'Independent Living': { baseMin: 2800, baseMax: 4500, californiaMultiplier: 1.0 },
+  'Independent Living with Services': { baseMin: 3500, baseMax: 5500, californiaMultiplier: 1.0 },
+  'Assisted Living': { baseMin: 4200, baseMax: 7000, californiaMultiplier: 1.0 },
+  'Memory Care': { baseMin: 6500, baseMax: 9500, californiaMultiplier: 1.0 },
+  'Skilled Nursing': { baseMin: 8000, baseMax: 12000, californiaMultiplier: 1.0 },
+  'Senior Apartments': { baseMin: 1800, baseMax: 3200, californiaMultiplier: 1.0 },
+  'HUD/VASH': { baseMin: 800, baseMax: 1500, californiaMultiplier: 1.0 },
+  'Respite Care': { baseMin: 150, baseMax: 400, californiaMultiplier: 1.0 }
 };
 
 function getRegionalMultiplier(city, state) {
@@ -54,24 +57,21 @@ function calculateCommunityPricing(community) {
   if (!care_types || care_types.length === 0) {
     // Default to assisted living
     const pricing = careTypePricing['Assisted Living'];
-    minPrice = Math.round(pricing.baseMin * pricing.californiaMultiplier);
-    maxPrice = Math.round(pricing.baseMax * pricing.californiaMultiplier);
+    minPrice = pricing.baseMin;
+    maxPrice = pricing.baseMax;
   } else {
     // Calculate based on care types
     let foundValidPricing = false;
     care_types.forEach(careType => {
       const pricing = careTypePricing[careType];
       if (pricing) {
-        const adjustedMin = Math.round(pricing.baseMin * pricing.californiaMultiplier);
-        const adjustedMax = Math.round(pricing.baseMax * pricing.californiaMultiplier);
-        
         if (!foundValidPricing) {
-          minPrice = adjustedMin;
-          maxPrice = adjustedMax;
+          minPrice = pricing.baseMin;
+          maxPrice = pricing.baseMax;
           foundValidPricing = true;
         } else {
-          minPrice = Math.min(minPrice, adjustedMin);
-          maxPrice = Math.max(maxPrice, adjustedMax);
+          minPrice = Math.min(minPrice, pricing.baseMin);
+          maxPrice = Math.max(maxPrice, pricing.baseMax);
         }
       }
     });
@@ -79,18 +79,18 @@ function calculateCommunityPricing(community) {
     // If no valid pricing found, default to assisted living
     if (!foundValidPricing) {
       const pricing = careTypePricing['Assisted Living'];
-      minPrice = Math.round(pricing.baseMin * pricing.californiaMultiplier);
-      maxPrice = Math.round(pricing.baseMax * pricing.californiaMultiplier);
+      minPrice = pricing.baseMin;
+      maxPrice = pricing.baseMax;
     }
   }
   
-  // Apply regional multiplier
+  // Apply regional multiplier (keeping original logic but with your base prices)
   const regionalMultiplier = getRegionalMultiplier(city, state);
   minPrice = Math.round(minPrice * regionalMultiplier);
   maxPrice = Math.round(maxPrice * regionalMultiplier);
   
-  // Add variance (+/- 10%)
-  const variance = 0.1;
+  // Add small variance (+/- 5% for more realistic pricing)
+  const variance = 0.05;
   const minVariance = 1 - variance + (Math.random() * variance * 2);
   const maxVariance = 1 - variance + (Math.random() * variance * 2);
   
