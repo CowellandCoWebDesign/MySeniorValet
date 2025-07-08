@@ -668,6 +668,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Refresh community count cache
+  app.post('/api/communities/refresh-cache', async (req, res) => {
+    try {
+      await communityStatsCache.refreshCache();
+      const count = await communityStatsCache.getTotalCount();
+      res.json({ success: true, count, message: 'Cache refreshed successfully' });
+    } catch (error) {
+      console.error('Error refreshing cache:', error);
+      res.status(500).json({ error: 'Failed to refresh cache' });
+    }
+  });
+
   // Optimized community stats API - uses cache instead of real-time calculation
   app.get('/api/communities/stats', async (req, res) => {
     try {
