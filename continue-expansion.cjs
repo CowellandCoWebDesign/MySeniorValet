@@ -1,91 +1,139 @@
-#!/usr/bin/env node
-
 /**
- * CONTINUE NORTHERN CALIFORNIA EXPANSION
- * Focus on high-priority remaining counties
+ * Continue Expansion - Monitor and Process Remaining Facilities
+ * More efficient batch processing for the remaining facilities
  */
 
-const { spawn } = require('child_process');
+const fs = require('fs');
+const { Pool, neonConfig } = require('@neondatabase/serverless');
+const csv = require('csv-parser');
+const ws = require('ws');
 
-// High-priority counties to target next
-const priorityCounties = [
-  'Butte County',     // Chico area - large population
-  'Placer County',    // Auburn, Roseville - growing area  
-  'Shasta County',    // Redding area - significant population
-  'El Dorado County', // South Lake Tahoe area
-  'Nevada County',    // Grass Valley, Nevada City
-  'Yolo County'       // Davis area - near UC Davis
-];
+// Configure Neon
+neonConfig.webSocketConstructor = ws;
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
-async function runExpansion() {
-  console.log('🚀 CONTINUING NORTHERN CALIFORNIA EXPANSION');
-  console.log(`🎯 Targeting ${priorityCounties.length} high-priority counties\n`);
+const CSV_FILE = './california_facilities_20250708_044619.csv';
 
-  let totalAdded = 0;
-  let totalDiscovered = 0;
-
-  for (const county of priorityCounties) {
-    console.log(`\n📍 Processing ${county}...`);
+async function batchProcessFacilities() {
+  console.log('🔄 BATCH PROCESSING REMAINING FACILITIES');
+  console.log('========================================');
+  
+  try {
+    // Get current count
+    const client = await pool.connect();
+    const currentCount = await client.query('SELECT COUNT(*) as count FROM communities');
+    const govCount = await client.query('SELECT COUNT(*) as count FROM communities WHERE government_verified = true');
+    console.log(`Current database: ${currentCount.rows[0].count} communities`);
+    console.log(`Government verified: ${govCount.rows[0].count} facilities`);
+    client.release();
     
-    try {
-      // Use the Google Places integration directly for faster processing
-      const result = await processCountyFast(county);
-      totalAdded += result.added || 0;
-      totalDiscovered += result.discovered || 0;
-      
-      console.log(`✅ ${county}: ${result.discovered || 0} discovered, ${result.added || 0} added`);
-      
-      // Brief pause between counties to respect rate limits
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-    } catch (error) {
-      console.error(`❌ ${county} failed: ${error.message}`);
+    // Load unprocessed facilities from CSV
+    const unprocessedFacilities = [];
+    
+    await new Promise((resolve, reject) => {
+      fs.createReadStream(CSV_FILE)
+        .pipe(csv())
+        .on('data', async (row) => {
+          if (row.name && row.address && row.data_source) {
+            // Quick check if this facility exists
+            const checkClient = await pool.connect();
+            try {
+              const exists = await checkClient.query(
+                'SELECT 1 FROM communities WHERE LOWER(name) = LOWER($1) AND LOWER(city) = LOWER($2) LIMIT 1',
+                [row.name, row.city]
+              );
+              
+              if (exists.rows.length === 0) {
+                unprocessedFacilities.push(row);
+              }
+            } finally {
+              checkClient.release();
+            }
+          }
+        })
+        .on('end', resolve)
+        .on('error', reject);
+    });
+    
+    console.log(`📊 Found ${unprocessedFacilities.length} unprocessed facilities`);
+    
+    if (unprocessedFacilities.length === 0) {
+      console.log('✅ All facilities already processed!');
+      return;
     }
-  }
-
-  console.log(`\n🎉 EXPANSION COMPLETE!`);
-  console.log(`📊 Total: ${totalDiscovered} discovered, ${totalAdded} added`);
-}
-
-async function processCountyFast(county) {
-  return new Promise((resolve, reject) => {
-    // Use curl to hit our API endpoint directly
-    const command = `curl -X POST http://localhost:5000/api/admin/expand-county -H "Content-Type: application/json" -d '{"county":"${county}"}'`;
     
-    const child = spawn('bash', ['-c', command], { stdio: 'pipe' });
+    // Process in smaller efficient batches
+    const batchSize = 50;
+    let totalInserted = 0;
     
-    let output = '';
-    let errorOutput = '';
-    
-    child.stdout.on('data', (data) => {
-      output += data.toString();
-    });
-    
-    child.stderr.on('data', (data) => {
-      errorOutput += data.toString();
-    });
-    
-    child.on('close', (code) => {
-      if (code === 0) {
+    for (let i = 0; i < unprocessedFacilities.length; i += batchSize) {
+      const batch = unprocessedFacilities.slice(i, i + batchSize);
+      console.log(`Processing batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(unprocessedFacilities.length/batchSize)}...`);
+      
+      for (const facility of batch) {
         try {
-          const result = JSON.parse(output.trim());
-          resolve(result);
+          const careTypes = facility.data_source === 'alw_assisted_living' ? ['Assisted Living'] : ['Skilled Nursing'];
+          const capacity = facility.capacity && !isNaN(facility.capacity) ? parseInt(facility.capacity) : null;
+          
+          const insertClient = await pool.connect();
+          const result = await insertClient.query(`
+            INSERT INTO communities (
+              name, address, city, state, zip_code, phone, 
+              latitude, longitude, care_types, capacity, 
+              license_number, data_source, government_verified,
+              county, created_at, updated_at
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW(), NOW())
+            ON CONFLICT DO NOTHING
+            RETURNING id
+          `, [
+            facility.name,
+            facility.address || '',
+            facility.city || '',
+            'California',
+            facility.zip || '',
+            facility.phone || null,
+            facility.latitude ? parseFloat(facility.latitude) : null,
+            facility.longitude ? parseFloat(facility.longitude) : null,
+            careTypes,
+            capacity,
+            facility.license_number || '',
+            facility.data_source,
+            true,
+            facility.county || ''
+          ]);
+          
+          if (result.rows.length > 0) {
+            totalInserted++;
+          }
+          insertClient.release();
+          
         } catch (error) {
-          // Fallback if JSON parsing fails
-          resolve({ discovered: 0, added: 0, error: 'Parse error' });
+          console.error(`Error inserting ${facility.name}:`, error.message);
         }
-      } else {
-        reject(new Error(`Request failed: ${errorOutput}`));
       }
-    });
+      
+      // Progress update
+      console.log(`Batch complete. Total inserted so far: ${totalInserted}`);
+    }
     
-    // 5 minute timeout per county
-    setTimeout(() => {
-      child.kill();
-      reject(new Error('County processing timed out'));
-    }, 5 * 60 * 1000);
-  });
+    // Final count
+    const finalClient = await pool.connect();
+    const finalCount = await finalClient.query('SELECT COUNT(*) as count FROM communities');
+    const finalGovCount = await finalClient.query('SELECT COUNT(*) as count FROM communities WHERE government_verified = true');
+    finalClient.release();
+    
+    console.log('\n🎉 BATCH PROCESSING COMPLETE!');
+    console.log(`Final database: ${finalCount.rows[0].count} communities`);
+    console.log(`Government verified: ${finalGovCount.rows[0].count} facilities`);
+    console.log(`Newly inserted: ${totalInserted} facilities`);
+    
+  } catch (error) {
+    console.error('❌ Batch processing failed:', error.message);
+  }
 }
 
-// Run the expansion
-runExpansion().catch(console.error);
+if (require.main === module) {
+  batchProcessFacilities().catch(console.error);
+}
+
+module.exports = { batchProcessFacilities };
