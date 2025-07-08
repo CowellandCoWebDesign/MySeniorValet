@@ -148,17 +148,6 @@ export default function BasicSearch() {
   // Apply sorting to filtered communities
   const sortedCommunities = sortCommunities(filteredCommunities, sortBy);
 
-  // Sort options for the dropdown
-  const sortOptions = [
-    { value: 'recommended', label: 'Communities for You', description: 'Best match for your needs' },
-    { value: 'rating', label: 'Highest Rated', description: 'Best reviews first' },
-    { value: 'priceAsc', label: 'Price: Low to High', description: 'Most affordable first' },
-    { value: 'priceDesc', label: 'Price: High to Low', description: 'Premium communities first' },
-    { value: 'newest', label: 'Recently Added', description: 'Latest listings' },
-    { value: 'nameAsc', label: 'Alphabetical', description: 'A to Z by name' },
-    { value: 'distance', label: 'Nearest First', description: 'Closest to map center' }
-  ];
-
   // Get communities visible in current map bounds
   const boundsFilteredCommunities = filteredCommunities.filter((community: any) => {
     if (!mapBounds || !community.latitude || !community.longitude) return false;
@@ -753,57 +742,54 @@ export default function BasicSearch() {
           >
             {/* Professional Header Design - Entire header is draggable */}
             <div className="absolute inset-0 flex flex-col">
-              {/* Compact Draggable Header - Easier to grab */}
+              {/* Ultra-Thin Draggable Header - Minimal & Refined */}
               <div 
                 className="flex-shrink-0 bg-white cursor-grab active:cursor-grabbing select-none"
                 onMouseDown={handleDragStart}
                 onTouchStart={handleDragStart}
                 style={{ 
-                  borderRadius: slidePosition > 120 ? '20px 20px 0 0' : '12px 12px 0 0',
+                  borderRadius: slidePosition > 120 ? '16px 16px 0 0' : '10px 10px 0 0',
                   touchAction: 'none'
                 }}
               >
-                {/* Enhanced Drag Handle - Larger grab area */}
-                <div className="flex justify-center pt-3 pb-2">
-                  <div className="w-10 h-1.5 bg-gray-400 rounded-full transition-colors hover:bg-gray-500"></div>
+                {/* Minimal Drag Handle */}
+                <div className="flex justify-center pt-2 pb-1">
+                  <div className="w-8 h-1 bg-gray-300 rounded-full transition-colors hover:bg-gray-400"></div>
                 </div>
 
-                {/* Compact Header */}
-                <div className="px-4 pb-3 border-b border-gray-100">
+                {/* Ultra-Compact Header */}
+                <div className="px-3 pb-2 border-b border-gray-100">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-0.5">
-                        <h2 className="text-base font-bold text-gray-900">
+                      <div className="flex items-center space-x-1.5">
+                        <h2 className="text-sm font-semibold text-gray-900">
                           {visibleCommunities.length} communities
                         </h2>
-                        <div className="h-1 w-1 bg-gray-400 rounded-full"></div>
-                        <span className="text-xs text-gray-500 font-medium">in map area</span>
+                        <div className="h-0.5 w-0.5 bg-gray-400 rounded-full"></div>
+                        <span className="text-xs text-gray-500">in view</span>
                       </div>
-                      <p className="text-xs text-gray-500">
-                        Showing {displayedCommunities.length} of {visibleCommunities.length} visible • {communities?.length || 0} total
-                      </p>
                     </div>
                     
-                    {/* Compact Sort Button */}
+                    {/* Minimal Sort Button */}
                     <div className="relative sort-dropdown">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           setShowSortOptions(!showSortOptions);
                         }}
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-all duration-200 font-medium"
+                        className="flex items-center gap-1 px-2 py-1 text-xs bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-md transition-all duration-200"
                       >
                         <SortAsc className="w-3 h-3 text-gray-600" />
-                        <span className="text-gray-700">Sort</span>
+                        <span className="text-gray-600">Sort</span>
                         <ChevronDown className={`w-3 h-3 text-gray-500 transition-transform duration-200 ${showSortOptions ? 'rotate-180' : ''}`} />
                       </button>
                       
-                      {/* Enhanced Sort Dropdown */}
+                      {/* Compact Sort Dropdown */}
                       {showSortOptions && (
-                        <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden">
-                          <div className="p-3">
-                            <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-100">
-                              <h3 className="text-sm font-semibold text-gray-900">Sort communities</h3>
+                        <div className="absolute top-full right-0 mt-1 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50 overflow-hidden">
+                          <div className="p-2">
+                            <div className="flex items-center justify-between mb-2 pb-1 border-b border-gray-100">
+                              <h3 className="text-xs font-medium text-gray-700">Sort by</h3>
                               <button 
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -811,12 +797,12 @@ export default function BasicSearch() {
                                 }}
                                 className="text-gray-400 hover:text-gray-600 transition-colors"
                               >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                               </button>
                             </div>
-                            <div className="space-y-1">
+                            <div className="space-y-0.5">
                               {sortOptions.map((option) => (
                                 <button
                                   key={option.value}
@@ -825,18 +811,18 @@ export default function BasicSearch() {
                                     setSortBy(option.value);
                                     setShowSortOptions(false);
                                   }}
-                                  className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all duration-200 flex items-start justify-between group ${
+                                  className={`w-full text-left px-2 py-1.5 rounded-md text-xs transition-all duration-200 flex items-center justify-between ${
                                     sortBy === option.value 
-                                      ? 'bg-blue-50 text-blue-700 border border-blue-200' 
-                                      : 'hover:bg-gray-50 text-gray-700 border border-transparent'
+                                      ? 'bg-blue-50 text-blue-700' 
+                                      : 'hover:bg-gray-50 text-gray-700'
                                   }`}
                                 >
                                   <div className="flex-1">
                                     <div className="font-medium">{option.label}</div>
-                                    <div className="text-xs text-gray-500 mt-0.5">{option.description}</div>
+                                    <div className="text-xs text-gray-500 mt-0.5 leading-tight">{option.description}</div>
                                   </div>
                                   {sortBy === option.value && (
-                                    <CheckCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                                    <CheckCircle className="w-3 h-3 text-blue-600 flex-shrink-0" />
                                   )}
                                 </button>
                               ))}
