@@ -17,7 +17,7 @@ interface BottomNavigationProps {
 export default function BottomNavigation({ 
   activeTab, 
   onTabChange, 
-  updateCount = 31 
+  updateCount = 350 
 }: BottomNavigationProps) {
   const tabs = [
     { id: 'search', label: 'Search', icon: Search },

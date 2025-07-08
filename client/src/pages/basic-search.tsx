@@ -220,7 +220,7 @@ export default function BasicSearch() {
       <div className="flex justify-around items-center py-2">
         {[
           { id: 'search', label: 'Search', icon: Search },
-          { id: 'updates', label: 'Updates', icon: Bell, badge: 31 },
+          { id: 'updates', label: 'Updates', icon: Bell, badge: communities?.length || 0 },
           { id: 'saved', label: 'Saved', icon: Heart },
           { id: 'tours', label: 'Tours', icon: Calendar },
           { id: 'inbox', label: 'Inbox', icon: Mail },
@@ -635,7 +635,7 @@ export default function BasicSearch() {
                         Communities in this map area
                       </h2>
                       <p className="text-sm text-gray-600">
-                        {visibleCommunities.length} communities found
+                        {visibleCommunities.length} of {communities?.length || 0} communities in this area
                       </p>
                     </div>
                     
