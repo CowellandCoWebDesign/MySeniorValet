@@ -604,62 +604,64 @@ export default function BasicSearch() {
                   <p className="text-sm mt-1">Try zooming out or moving the map.</p>
                 </div>
               ) : (
-                <div className="divide-y divide-gray-100">
-                  {visibleCommunities.slice(0, 20).map((community: any, index) => (
-                    <div
-                      key={community.id}
-                      onClick={() => {
-                        window.location.href = `/community/${community.id}`;
-                      }}
-                      className="p-4 hover:bg-gray-50 transition-colors cursor-pointer"
-                    >
-                    {/* Community Card - Zillow Style */}
-                    <div className="flex">
-                      {/* Image placeholder */}
-                      <div className="w-24 h-20 bg-gray-200 rounded-lg mr-4 flex-shrink-0 relative">
-                        {index === 0 && (
-                          <div className="absolute top-1 left-1 bg-orange-500 text-white text-xs px-1.5 py-0.5 rounded">
-                            Featured
+                <div className="px-4 py-4">
+                  <div className="space-y-4">
+                    {visibleCommunities.slice(0, 20).map((community: any, index) => (
+                      <div
+                        key={community.id}
+                        onClick={() => {
+                          window.location.href = `/community/${community.id}`;
+                        }}
+                        className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-lg transition-shadow cursor-pointer"
+                      >
+                        {/* Community Card - Zillow Style */}
+                        <div className="flex">
+                          {/* Image placeholder */}
+                          <div className="w-24 h-20 bg-gray-200 rounded-lg mr-4 flex-shrink-0 relative">
+                            {index === 0 && (
+                              <div className="absolute top-1 left-1 bg-orange-500 text-white text-xs px-1.5 py-0.5 rounded">
+                                Featured
+                              </div>
+                            )}
+                            <Heart className="absolute top-1 right-1 w-4 h-4 text-white" />
                           </div>
-                        )}
-                        <Heart className="absolute top-1 right-1 w-4 h-4 text-white" />
-                      </div>
-                      
-                      {/* Content */}
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between mb-1">
-                          <div className="text-lg font-bold text-blue-600">
-                            {community.monthlyRent 
-                              ? `$${community.monthlyRent.toLocaleString()}/mo` 
-                              : 'Contact for pricing'
-                            }
-                          </div>
-                          {community.googleRating && (
-                            <div className="flex items-center">
-                              <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
-                              <span className="text-sm font-medium">{community.googleRating}</span>
+                          
+                          {/* Content */}
+                          <div className="flex-1">
+                            <div className="flex items-start justify-between mb-1">
+                              <div className="text-lg font-bold text-blue-600">
+                                {community.monthlyRent 
+                                  ? `$${community.monthlyRent.toLocaleString()}/mo` 
+                                  : 'Contact for pricing'
+                                }
+                              </div>
+                              {community.googleRating && (
+                                <div className="flex items-center">
+                                  <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
+                                  <span className="text-sm font-medium">{community.googleRating}</span>
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                        
-                        <div className="text-sm text-gray-600 mb-1">
-                          {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
-                        </div>
-                        
-                        <div className="text-base font-semibold text-gray-900 mb-1">
-                          {community.name}
-                        </div>
-                        
-                        <div className="text-sm text-gray-600">
-                          {community.city}, {community.state}
+                            
+                            <div className="text-sm text-gray-600 mb-1">
+                              {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
+                            </div>
+                            
+                            <div className="text-base font-semibold text-gray-900 mb-1">
+                              {community.name}
+                            </div>
+                            
+                            <div className="text-sm text-gray-600">
+                              {community.city}, {community.state}
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    </div>
-                  ))}
-                  
-                  {/* Padding for bottom navigation */}
-                  <div className="h-20"></div>
+                    ))}
+                    
+                    {/* Padding for bottom navigation */}
+                    <div className="h-20"></div>
+                  </div>
                 </div>
               )}
             </div>
