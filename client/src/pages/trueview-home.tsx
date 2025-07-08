@@ -147,8 +147,8 @@ export default function TrueViewHome() {
         
         <div className="relative z-10 flex flex-col items-center justify-center hero-content min-h-screen px-6 py-20 mobile-keyboard-safe">
           {/* Centered Headlines */}
-          <div className="text-center mb-8 md:mb-12">
-            <div className="space-y-4 mb-6">
+          <div className="text-center mb-12 md:mb-16">
+            <div className="space-y-6 mb-8">
               <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white leading-tight drop-shadow-lg animate-fade-in-up">
                 Senior Living, Unlocked.
               </h1>
@@ -228,7 +228,7 @@ export default function TrueViewHome() {
             </form>
             
             {/* Dynamic Community Count Text */}
-            <div className="text-center mt-6 animate-fade-in-up animation-delay-900">
+            <div className="text-center mt-12 animate-fade-in-up animation-delay-900">
               <p className="text-white/80 text-sm sm:text-base drop-shadow-md">
                 {isLoading ? (
                   <span>Loading verified communities...</span>
