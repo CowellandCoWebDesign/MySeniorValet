@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, Star, Heart, List, Map, Bell, Calendar, Mail, Phone, ExternalLink, Users, CheckCircle, AlertTriangle, Activity, UserCheck, Stethoscope, Clock, ImageIcon, ChevronDown, SortAsc } from "lucide-react";
+import { Search, MapPin, Star, Heart, List, Map, Bell, Calendar, Mail, Phone, ExternalLink, Users, CheckCircle, AlertTriangle, Activity, UserCheck, Stethoscope, Clock, ImageIcon, ChevronDown, SortAsc, ArrowLeft, Home } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import { Icon } from 'leaflet';
+import { Link } from "wouter";
 import 'leaflet/dist/leaflet.css';
 
 // Custom marker icon for communities
@@ -496,8 +497,32 @@ export default function BasicSearch() {
 
   return (
     <div className="min-h-screen bg-white pb-16">
+      {/* Navigation Bar */}
+      <div className="sticky top-0 bg-white z-40 border-b border-gray-200 shadow-sm">
+        <div className="px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Link href="/">
+                <Button variant="ghost" size="sm" className="p-2 hover:bg-gray-100">
+                  <ArrowLeft className="w-5 h-5 text-gray-600" />
+                </Button>
+              </Link>
+              <Link href="/" className="flex items-center space-x-2">
+                <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
+                  <Home className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-xl font-bold text-gray-900">TrueView</span>
+              </Link>
+            </div>
+            <div className="text-gray-600 font-medium text-sm">
+              {communities?.length || 0} communities
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
-      <div className="sticky top-0 bg-white z-30 border-b border-gray-200">
+      <div className="sticky top-16 bg-white z-30 border-b border-gray-200">
         <div className="px-4 py-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -529,7 +554,7 @@ export default function BasicSearch() {
 
       {/* Map/List View */}
       {viewMode === 'map' ? (
-        <div className="flex-1 relative" style={{ height: 'calc(100vh - 180px)' }}>
+        <div className="flex-1 relative" style={{ height: 'calc(100vh - 240px)' }}>
           <MapContainer
             center={[40.315, -122.32]} // Northern California center
             zoom={7}
