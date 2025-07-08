@@ -53,6 +53,7 @@ export default function BasicSearch() {
   const [dragStartY, setDragStartY] = useState(0);
   const [dragStartPosition, setDragStartPosition] = useState(0);
   const [dragFromHandle, setDragFromHandle] = useState(false);
+  const [displayCount, setDisplayCount] = useState(20); // For pagination
 
   const { data: communities, isLoading, error } = useQuery({
     queryKey: ["/api/communities"],
@@ -137,6 +138,25 @@ export default function BasicSearch() {
 
   // Apply sorting to visible communities
   const visibleCommunities = sortCommunities(boundsFilteredCommunities, sortBy);
+  
+  // Pagination for community display
+  const displayedCommunities = visibleCommunities.slice(0, displayCount);
+  
+  // Load more communities when scrolling near bottom
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLDivElement;
+    const { scrollTop, scrollHeight, clientHeight } = target;
+    
+    // Load more when within 200px of bottom
+    if (scrollHeight - scrollTop <= clientHeight + 200 && displayCount < visibleCommunities.length) {
+      setDisplayCount(prev => Math.min(prev + 20, visibleCommunities.length));
+    }
+  };
+  
+  // Reset display count when communities change
+  useEffect(() => {
+    setDisplayCount(20);
+  }, [visibleCommunities.length]);
 
   // Close sort dropdown when clicking outside
   useEffect(() => {
@@ -150,14 +170,19 @@ export default function BasicSearch() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showSortOptions]);
 
-  // Handle drag for slide panel - Only for the handle
+  // Handle drag for slide panel - Entire header is draggable
   const handleDragStart = (e: React.TouchEvent | React.MouseEvent) => {
+    // Don't start drag if clicking on interactive elements (buttons, dropdowns)
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('.sort-dropdown')) {
+      return;
+    }
+    
     setIsDragging(true);
     setDragFromHandle(true);
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     setDragStartY(clientY);
     setDragStartPosition(slidePosition);
-    // Only prevent default on the handle, not globally
     e.preventDefault();
   };
 
@@ -643,17 +668,20 @@ export default function BasicSearch() {
               borderTop: '1px solid #e5e7eb'
             }}
           >
-            {/* Professional Header Design */}
+            {/* Professional Header Design - Entire header is draggable */}
             <div className="absolute inset-0 flex flex-col">
-              {/* Drag Handle + Header */}
-              <div className="flex-shrink-0 bg-white" style={{ borderRadius: slidePosition > 120 ? '20px 20px 0 0' : '12px 12px 0 0' }}>
+              {/* Draggable Header Section */}
+              <div 
+                className="flex-shrink-0 bg-white cursor-grab active:cursor-grabbing select-none"
+                onMouseDown={handleDragStart}
+                onTouchStart={handleDragStart}
+                style={{ 
+                  borderRadius: slidePosition > 120 ? '20px 20px 0 0' : '12px 12px 0 0',
+                  touchAction: 'none'
+                }}
+              >
                 {/* Drag Handle */}
-                <div 
-                  className="flex justify-center pt-2.5 pb-1 cursor-grab active:cursor-grabbing select-none"
-                  onMouseDown={handleDragStart}
-                  onTouchStart={handleDragStart}
-                  style={{ touchAction: 'none' }}
-                >
+                <div className="flex justify-center pt-2.5 pb-1">
                   <div className="w-8 h-1 bg-gray-400 rounded-full transition-colors hover:bg-gray-500"></div>
                 </div>
 
@@ -669,14 +697,17 @@ export default function BasicSearch() {
                         <span className="text-sm text-gray-500 font-medium">in map area</span>
                       </div>
                       <p className="text-xs text-gray-500">
-                        Showing {visibleCommunities.length} of {communities?.length || 0} total communities
+                        Showing {displayedCommunities.length} of {visibleCommunities.length} visible • {communities?.length || 0} total
                       </p>
                     </div>
                     
                     {/* Professional Sort Button */}
-                    <div className="relative">
+                    <div className="relative sort-dropdown">
                       <button
-                        onClick={() => setShowSortOptions(!showSortOptions)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowSortOptions(!showSortOptions);
+                        }}
                         className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-all duration-200 font-medium"
                       >
                         <SortAsc className="w-3.5 h-3.5 text-gray-600" />
@@ -691,7 +722,10 @@ export default function BasicSearch() {
                             <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-100">
                               <h3 className="text-sm font-bold text-gray-900">Sort communities</h3>
                               <button 
-                                onClick={() => setShowSortOptions(false)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setShowSortOptions(false);
+                                }}
                                 className="text-gray-400 hover:text-gray-600 transition-colors"
                               >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -703,7 +737,8 @@ export default function BasicSearch() {
                               {sortOptions.map((option) => (
                                 <button
                                   key={option.id}
-                                  onClick={() => {
+                                  onClick={(e) => {
+                                    e.stopPropagation();
                                     setSortBy(option.id);
                                     setShowSortOptions(false);
                                   }}
@@ -739,13 +774,14 @@ export default function BasicSearch() {
                 </div>
               </div>
 
-              {/* Scrollable Results - Enhanced */}
+              {/* Scrollable Results - Enhanced with Infinite Loading */}
               <div
                 className="flex-1 overflow-y-auto bg-gray-50"
                 style={{
                   WebkitOverflowScrolling: 'touch',
                   touchAction: 'auto',
                 }}
+                onScroll={handleScroll}
               >
                 {visibleCommunities.length === 0 ? (
                   <div className="p-8 text-center">
@@ -757,7 +793,7 @@ export default function BasicSearch() {
                   </div>
                 ) : (
                   <div className="p-3 space-y-2">
-                    {visibleCommunities.slice(0, 20).map((community: any) => {
+                    {displayedCommunities.map((community: any) => {
                       const firstPhoto = community.photos && community.photos.length > 0 ? community.photos[0] : null;
                       const careTypeIcons = {
                         'Independent Living': <Activity className="h-3 w-3" />,
@@ -862,6 +898,30 @@ export default function BasicSearch() {
                         </div>
                       );
                     })}
+                    
+                    {/* Load More Indicator */}
+                    {displayCount < visibleCommunities.length && (
+                      <div className="p-4 text-center">
+                        <div className="inline-flex items-center text-sm text-gray-500">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                          Loading more communities...
+                        </div>
+                        <p className="text-xs text-gray-400 mt-1">
+                          Showing {displayCount} of {visibleCommunities.length} in this area
+                        </p>
+                      </div>
+                    )}
+                    
+                    {/* End of Results */}
+                    {displayCount >= visibleCommunities.length && visibleCommunities.length > 20 && (
+                      <div className="p-4 text-center">
+                        <p className="text-sm text-gray-500 font-medium">All communities loaded</p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          {visibleCommunities.length} communities in this map area
+                        </p>
+                      </div>
+                    )}
+                    
                     <div className="h-20" /> {/* Spacer for bottom */}
                   </div>
                 )}
