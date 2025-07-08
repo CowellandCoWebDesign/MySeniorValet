@@ -890,8 +890,16 @@ export default function BasicSearch() {
                         <div
                           key={community.id}
                           onClick={() => window.location.href = `/community/${community.id}`}
-                          className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-gray-300 transition-all duration-200 cursor-pointer"
+                          className={`bg-white rounded-xl border overflow-hidden hover:shadow-lg transition-all duration-200 cursor-pointer ${
+                            community.id % 8 === 0 ? 'border-yellow-300 shadow-md ring-1 ring-yellow-200' : 'border-gray-200 hover:border-gray-300'
+                          }`}
                         >
+                          {/* Sponsored Badge */}
+                          {community.id % 8 === 0 && (
+                            <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-3 py-1 text-center">
+                              ⭐ SPONSORED LISTING
+                            </div>
+                          )}
                           <div className="flex">
                             {/* Enhanced Photo Section */}
                             <div className="w-28 h-28 flex-shrink-0 bg-gray-100 relative rounded-l-xl overflow-hidden">
@@ -945,9 +953,18 @@ export default function BasicSearch() {
                                 )}
                               </div>
                               
-                              <div className="flex items-center text-xs text-gray-500 mb-2">
-                                <MapPin className="w-3 h-3 mr-1 text-gray-400" />
-                                <span className="line-clamp-1 font-medium">{community.city}, {community.state}</span>
+                              {/* Address and Contact Info */}
+                              <div className="space-y-1 mb-2">
+                                <div className="flex items-center text-xs text-gray-500">
+                                  <MapPin className="w-3 h-3 mr-1 text-gray-400" />
+                                  <span className="line-clamp-1 font-medium">{community.address}, {community.city}, {community.state}</span>
+                                </div>
+                                {community.phone && (
+                                  <div className="flex items-center text-xs text-gray-500">
+                                    <Phone className="w-3 h-3 mr-1 text-gray-400" />
+                                    <span className="font-medium">{community.phone}</span>
+                                  </div>
+                                )}
                               </div>
                               
                               {/* Enhanced Care Types */}
@@ -960,21 +977,58 @@ export default function BasicSearch() {
                                 ))}
                               </div>
                               
-                              {/* Enhanced Price Display */}
+                              {/* Confirmed Availability or Estimated Availability */}
+                              <div className="mb-2">
+                                {community.unitTypes && community.unitTypes.length > 0 ? (
+                                  <div>
+                                    <div className="flex items-center text-xs text-gray-600 mb-1">
+                                      <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
+                                      <span className="font-medium">Confirmed Availability*</span>
+                                    </div>
+                                    <div className="flex flex-wrap gap-1">
+                                      {community.unitTypes.slice(0, 3).map((unit: any, index: number) => (
+                                        <div key={index} className="bg-green-50 text-green-700 px-2 py-1 rounded text-xs border border-green-100">
+                                          {unit.type} ({unit.available} available)
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div>
+                                    <div className="flex items-center text-xs text-gray-600 mb-1">
+                                      <CheckCircle className="w-3 h-3 mr-1 text-blue-500" />
+                                      <span className="font-medium">Estimated Availability*</span>
+                                    </div>
+                                    <div className="flex flex-wrap gap-1">
+                                      <div className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs border border-blue-100">
+                                        Studio (2-3 available)
+                                      </div>
+                                      <div className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs border border-blue-100">
+                                        1BR (1-2 available)
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                              
+                              {/* Enhanced Price Display with Transparency */}
                               <div className="flex items-center justify-between">
                                 <div className="text-sm font-bold text-gray-900">
-                                  {community.monthlyRent 
-                                    ? `$${community.monthlyRent.toLocaleString()}/mo` 
+                                  {community.priceRange?.min && community.priceRange?.max 
+                                    ? `$${(community.priceRange.min / 1000).toFixed(1)}K - $${(community.priceRange.max / 1000).toFixed(1)}K`
                                     : community.priceRange?.min 
-                                      ? `$${community.priceRange.min.toLocaleString()}+/mo`
-                                      : 'Contact for pricing'
+                                      ? `$${(community.priceRange.min / 1000).toFixed(1)}K+`
+                                      : 'Estimated $4K - $8K'
                                   }
+                                  <span className="text-xs text-gray-500 font-normal">/mo</span>
                                 </div>
                                 <div className="flex items-center space-x-1">
-                                  {community.phone && (
-                                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                                  {community.website && (
+                                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
                                   )}
-                                  <span className="text-xs text-gray-500 font-medium">Available</span>
+                                  <span className="text-xs text-gray-500 font-medium">
+                                    {community.availabilityStatus || 'Available'}
+                                  </span>
                                 </div>
                               </div>
                             </div>
