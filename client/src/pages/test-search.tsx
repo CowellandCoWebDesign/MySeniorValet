@@ -7,10 +7,13 @@ import { Search, MapPin, Star, Heart } from "lucide-react";
 export default function TestSearch() {
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: communities, isLoading, error } = useQuery({
+  const { data: communitiesResponse, isLoading, error } = useQuery({
     queryKey: ["/api/communities"],
     retry: false,
   });
+
+  // Extract communities array from paginated response
+  const communities = communitiesResponse?.communities || [];
 
   console.log('TestSearch - communities:', communities?.length, 'loading:', isLoading, 'error:', error);
 

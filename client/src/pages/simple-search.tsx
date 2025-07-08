@@ -77,10 +77,13 @@ export default function SimpleSearch() {
     if (q) setSearchQuery(q);
   }, [location]);
 
-  const { data: communities, isLoading } = useQuery({
+  const { data: communitiesResponse, isLoading } = useQuery({
     queryKey: ["/api/communities"],
     retry: false,
   });
+
+  // Extract communities array from paginated response
+  const communities = communitiesResponse?.communities || [];
 
   console.log('SimpleSearch - communities:', communities?.length, 'loading:', isLoading);
 

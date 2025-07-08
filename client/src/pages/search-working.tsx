@@ -54,10 +54,13 @@ export default function SearchWorking() {
     if (q) setSearchQuery(q);
   }, [location]);
 
-  const { data: communities, isLoading, error } = useQuery<Community[]>({
+  const { data: communitiesResponse, isLoading, error } = useQuery({
     queryKey: ["/api/communities"],
     retry: false,
   });
+
+  // Extract communities array from paginated response
+  const communities = communitiesResponse?.communities || [];
 
   // Debug logging
   console.log('SearchWorking - communities:', communities?.length, 'loading:', isLoading, 'error:', error);

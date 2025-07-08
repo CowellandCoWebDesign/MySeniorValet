@@ -62,10 +62,13 @@ export default function EnhancedSearch() {
     if (q) setSearchQuery(q);
   }, [location]);
 
-  const { data: communities, isLoading } = useQuery<Community[]>({
+  const { data: communitiesResponse, isLoading } = useQuery({
     queryKey: ["/api/communities"],
     retry: false,
   });
+
+  // Extract communities array from paginated response
+  const communities = communitiesResponse?.communities || [];
 
   const filteredCommunities = communities?.filter(community => {
     // Search query filter

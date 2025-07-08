@@ -85,14 +85,16 @@ export default function BasicSearch() {
   const [dragFromHandle, setDragFromHandle] = useState(false);
   const [displayCount, setDisplayCount] = useState(20); // For pagination
 
-  const { data: communities, isLoading, error } = useQuery({
+  const { data: communitiesResponse, isLoading, error } = useQuery({
     queryKey: ["/api/communities"],
     retry: false,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     cacheTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
   });
 
-  // communities is now a direct array from the fast endpoint
+  // Extract communities array from paginated response
+  const communities = communitiesResponse?.communities || [];
+  const pagination = communitiesResponse?.pagination || {};
 
   console.log('BasicSearch - communities:', communities?.length, 'loading:', isLoading, 'error:', error);
 
