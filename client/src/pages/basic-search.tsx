@@ -225,6 +225,11 @@ export default function BasicSearch() {
   const [dragVelocity, setDragVelocity] = useState(0);
   const [lastDragTime, setLastDragTime] = useState(0);
   const [lastDragY, setLastDragY] = useState(0);
+  
+  // Overscroll tracking for panel control
+  const [isOverscrolling, setIsOverscrolling] = useState(false);
+  const [overscrollStartY, setOverscrollStartY] = useState(0);
+  const [overscrollStartPosition, setOverscrollStartPosition] = useState(0);
 
   // Handle drag for slide panel - Entire header is draggable
   const handleDragStart = (e: React.TouchEvent | React.MouseEvent) => {
@@ -940,7 +945,80 @@ export default function BasicSearch() {
                   transform: 'translateZ(0)', // Hardware acceleration
                   contain: 'layout style paint' // Optimize rendering
                 }}
-                onScroll={handleScroll}
+                onScroll={(e) => {
+                  handleScroll(e);
+                  const scrollTop = e.currentTarget.scrollTop;
+                  // Reset overscroll state when scrolling normally
+                  if (scrollTop > 0) {
+                    setIsOverscrolling(false);
+                  }
+                }}
+                onTouchStart={(e) => {
+                  const scrollTop = e.currentTarget.scrollTop;
+                  if (scrollTop === 0) {
+                    // At the top, prepare for potential overscroll
+                    setOverscrollStartY(e.touches[0].clientY);
+                    setOverscrollStartPosition(slidePosition);
+                  }
+                }}
+                onTouchMove={(e) => {
+                  const scrollTop = e.currentTarget.scrollTop;
+                  if (scrollTop === 0) {
+                    const currentY = e.touches[0].clientY;
+                    const deltaY = currentY - overscrollStartY;
+                    
+                    // If pulling down at the top, start overscroll behavior
+                    if (deltaY > 15 && !isOverscrolling) {
+                      setIsOverscrolling(true);
+                      e.preventDefault();
+                    }
+                    
+                    // If overscrolling, control the panel
+                    if (isOverscrolling) {
+                      e.preventDefault();
+                      const pullDistance = Math.max(0, deltaY - 15);
+                      const newPosition = Math.max(120, overscrollStartPosition - pullDistance * 0.6);
+                      setSlidePosition(newPosition);
+                    }
+                  }
+                }}
+                onTouchEnd={() => {
+                  if (isOverscrolling) {
+                    setIsOverscrolling(false);
+                    
+                    // Animate to appropriate position
+                    const screenHeight = window.innerHeight;
+                    let targetPosition;
+                    
+                    if (slidePosition < 180) {
+                      targetPosition = 120; // Minimize
+                    } else if (slidePosition < screenHeight * 0.6) {
+                      targetPosition = Math.min(320, screenHeight * 0.4); // Partial
+                    } else {
+                      targetPosition = screenHeight * 0.85; // Full
+                    }
+                    
+                    // Smooth transition to target position
+                    const startPosition = slidePosition;
+                    const startTime = Date.now();
+                    const duration = 300;
+                    
+                    const animate = () => {
+                      const elapsed = Date.now() - startTime;
+                      const progress = Math.min(elapsed / duration, 1);
+                      const easeOut = 1 - Math.pow(1 - progress, 3);
+                      const currentPosition = startPosition + (targetPosition - startPosition) * easeOut;
+                      
+                      setSlidePosition(currentPosition);
+                      
+                      if (progress < 1) {
+                        requestAnimationFrame(animate);
+                      }
+                    };
+                    
+                    animate();
+                  }
+                }}
               >
                 {visibleCommunities.length === 0 ? (
                   <div className="p-8 text-center">
