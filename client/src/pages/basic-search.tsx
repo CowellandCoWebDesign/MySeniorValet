@@ -521,40 +521,40 @@ export default function BasicSearch() {
         </div>
       </div>
 
-      {/* Header */}
+      {/* Header - Compact Search */}
       <div className="sticky top-12 bg-white z-30 border-b border-gray-200">
-        <div className="px-4 py-3">
+        <div className="px-4 py-2.5">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               type="text"
-              placeholder="Senior living communities, city, region"
+              placeholder="Search communities, cities..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 h-12 text-base border-gray-300 rounded-lg"
+              className="pl-9 pr-4 h-9 text-sm border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:border-blue-500"
             />
           </div>
         </div>
 
-        {/* Filter Pills - Zillow Style */}
-        <div className="px-4 pb-3 flex space-x-3 overflow-x-auto">
-          <Button variant="outline" className="border-blue-600 text-blue-600 bg-blue-50 rounded-full px-4 py-1 h-8 text-sm whitespace-nowrap">
-            <span className="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
+        {/* Filter Pills - Refined */}
+        <div className="px-4 pb-2.5 flex space-x-2 overflow-x-auto scrollbar-hide">
+          <Button variant="outline" className="border-blue-500 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-full px-3 py-1 h-7 text-xs font-medium whitespace-nowrap flex items-center">
+            <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mr-1.5"></div>
             Assisted Living
           </Button>
-          <Button variant="outline" className="border-blue-600 text-blue-600 bg-blue-50 rounded-full px-4 py-1 h-8 text-sm whitespace-nowrap">
-            <span className="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
-            $2K - $6K/mo
+          <Button variant="outline" className="border-blue-500 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-full px-3 py-1 h-7 text-xs font-medium whitespace-nowrap flex items-center">
+            <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mr-1.5"></div>
+            $2K - $6K
           </Button>
-          <Button variant="outline" className="border-gray-300 text-gray-600 rounded-full px-4 py-1 h-8 text-sm whitespace-nowrap">
-            + More filters
+          <Button variant="outline" className="border-gray-300 text-gray-600 hover:bg-gray-50 rounded-full px-3 py-1 h-7 text-xs font-medium whitespace-nowrap">
+            + Filters
           </Button>
         </div>
       </div>
 
       {/* Map/List View */}
       {viewMode === 'map' ? (
-        <div className="flex-1 relative" style={{ height: 'calc(100vh - 200px)' }}>
+        <div className="flex-1 relative" style={{ height: 'calc(100vh - 160px)' }}>
           <MapContainer
             center={[40.315, -122.32]} // Northern California center
             zoom={7}
@@ -620,88 +620,117 @@ export default function BasicSearch() {
             </Button>
           </div>
 
-          {/* Save Search Button - Zillow Style */}
+          {/* Save Search Button - Enhanced */}
           <div className="absolute bottom-20 right-4 z-20">
             <Button 
-              className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg px-4 py-2 rounded-full"
+              className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg px-3 py-2 rounded-full text-sm font-medium"
               onClick={() => alert('Search saved!')}
             >
-              <Search className="w-4 h-4 mr-2" />
-              Save search
+              <Search className="w-4 h-4 mr-1.5" />
+              Save
             </Button>
           </div>
 
-          {/* Draggable Slide-up Results Panel - Zillow Style */}
+          {/* Draggable Slide-up Results Panel - Refined & Professional */}
           <div 
-            className="fixed left-0 right-0 bg-white border-t border-gray-200 z-20 rounded-t-2xl shadow-2xl overflow-hidden"
+            className="fixed left-0 right-0 bg-white z-20 shadow-2xl overflow-hidden"
             style={{ 
               bottom: 0,
               height: `${slidePosition}px`,
-              transition: isDragging ? 'none' : 'height 0.3s ease-out',
-              maxHeight: '90vh'
+              transition: isDragging ? 'none' : 'height 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              maxHeight: '90vh',
+              borderRadius: slidePosition > 120 ? '20px 20px 0 0' : '12px 12px 0 0',
+              borderTop: '1px solid #e5e7eb'
             }}
           >
-            {/* ====== FIXED HEADER + SCROLLABLE BODY ====== */}
-            <div className="absolute inset-0 flex flex-col z-0">
+            {/* Professional Header Design */}
+            <div className="absolute inset-0 flex flex-col">
               {/* Drag Handle + Header */}
-              <div className="flex-shrink-0 bg-white rounded-t-2xl shadow-md pb-2">
+              <div className="flex-shrink-0 bg-white" style={{ borderRadius: slidePosition > 120 ? '20px 20px 0 0' : '12px 12px 0 0' }}>
+                {/* Drag Handle */}
                 <div 
-                  className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing select-none"
+                  className="flex justify-center pt-2.5 pb-1 cursor-grab active:cursor-grabbing select-none"
                   onMouseDown={handleDragStart}
                   onTouchStart={handleDragStart}
                   style={{ touchAction: 'none' }}
                 >
-                  <div className="w-10 h-1 bg-gray-300 rounded-full"></div>
+                  <div className="w-8 h-1 bg-gray-400 rounded-full transition-colors hover:bg-gray-500"></div>
                 </div>
-                <div className="px-4 pt-1 pb-2">
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <h2 className="text-lg font-bold text-gray-900">
-                        Communities in this map area
-                      </h2>
-                      <p className="text-sm text-gray-600">
-                        {visibleCommunities.length} of {communities?.length || 0} communities in this area
+
+                {/* Refined Header */}
+                <div className="px-4 pt-1 pb-3 border-b border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <h2 className="text-lg font-bold text-gray-900">
+                          {visibleCommunities.length} communities
+                        </h2>
+                        <div className="h-1 w-1 bg-gray-400 rounded-full"></div>
+                        <span className="text-sm text-gray-500 font-medium">in map area</span>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        Showing {visibleCommunities.length} of {communities?.length || 0} total communities
                       </p>
                     </div>
                     
-                    {/* Sort Dropdown */}
+                    {/* Professional Sort Button */}
                     <div className="relative">
                       <button
                         onClick={() => setShowSortOptions(!showSortOptions)}
-                        className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-all duration-200 font-medium"
                       >
-                        <SortAsc className="w-4 h-4" />
-                        <span>Sort</span>
-                        <ChevronDown className={`w-4 h-4 transition-transform ${showSortOptions ? 'rotate-180' : ''}`} />
+                        <SortAsc className="w-3.5 h-3.5 text-gray-600" />
+                        <span className="text-gray-700">Sort</span>
+                        <ChevronDown className={`w-3.5 h-3.5 text-gray-500 transition-transform duration-200 ${showSortOptions ? 'rotate-180' : ''}`} />
                       </button>
                       
-                      {/* Sort Options Dropdown */}
+                      {/* Enhanced Sort Dropdown */}
                       {showSortOptions && (
-                        <div className="absolute top-full right-0 mt-1 w-64 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
-                          <div className="p-2">
-                            <h3 className="text-sm font-semibold text-gray-900 px-2 py-1 mb-1">Sort by</h3>
-                            {sortOptions.map((option) => (
-                              <button
-                                key={option.id}
-                                onClick={() => {
-                                  setSortBy(option.id);
-                                  setShowSortOptions(false);
-                                }}
-                                className={`w-full text-left px-2 py-2 rounded-lg hover:bg-gray-50 transition-colors ${
-                                  sortBy === option.id ? 'bg-blue-50 text-blue-700' : 'text-gray-900'
-                                }`}
+                        <div className="absolute top-full right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
+                          <div className="p-3">
+                            <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-100">
+                              <h3 className="text-sm font-bold text-gray-900">Sort communities</h3>
+                              <button 
+                                onClick={() => setShowSortOptions(false)}
+                                className="text-gray-400 hover:text-gray-600 transition-colors"
                               >
-                                <div className="flex items-center justify-between">
-                                  <div>
-                                    <div className="font-medium text-sm">{option.label}</div>
-                                    <div className="text-xs text-gray-500">{option.description}</div>
-                                  </div>
-                                  {sortBy === option.id && (
-                                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                                  )}
-                                </div>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
                               </button>
-                            ))}
+                            </div>
+                            <div className="space-y-1">
+                              {sortOptions.map((option) => (
+                                <button
+                                  key={option.id}
+                                  onClick={() => {
+                                    setSortBy(option.id);
+                                    setShowSortOptions(false);
+                                  }}
+                                  className={`w-full text-left px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all duration-200 ${
+                                    sortBy === option.id ? 'bg-blue-50 border border-blue-200' : 'border border-transparent'
+                                  }`}
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex-1">
+                                      <div className={`font-semibold text-sm ${sortBy === option.id ? 'text-blue-700' : 'text-gray-900'}`}>
+                                        {option.label}
+                                      </div>
+                                      <div className={`text-xs mt-0.5 ${sortBy === option.id ? 'text-blue-600' : 'text-gray-500'}`}>
+                                        {option.description}
+                                      </div>
+                                    </div>
+                                    {sortBy === option.id && (
+                                      <div className="flex items-center justify-center w-5 h-5 bg-blue-600 rounded-full flex-shrink-0 ml-2">
+                                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                      </div>
+                                    )}
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
                           </div>
                         </div>
                       )}
@@ -710,22 +739,24 @@ export default function BasicSearch() {
                 </div>
               </div>
 
-              {/* Scrollable Results */}
+              {/* Scrollable Results - Enhanced */}
               <div
-                className="flex-1 overflow-y-auto relative z-0 px-4 py-4"
+                className="flex-1 overflow-y-auto bg-gray-50"
                 style={{
                   WebkitOverflowScrolling: 'touch',
                   touchAction: 'auto',
                 }}
               >
                 {visibleCommunities.length === 0 ? (
-                  <div className="p-8 text-center text-gray-500">
-                    <MapPin className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                    <p>No communities found in this map area.</p>
-                    <p className="text-sm mt-1">Try zooming out or moving the map.</p>
+                  <div className="p-8 text-center">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <MapPin className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">No communities in this area</h3>
+                    <p className="text-sm text-gray-500">Try zooming out or moving the map to see more options</p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="p-3 space-y-2">
                     {visibleCommunities.slice(0, 20).map((community: any) => {
                       const firstPhoto = community.photos && community.photos.length > 0 ? community.photos[0] : null;
                       const careTypeIcons = {
@@ -739,48 +770,55 @@ export default function BasicSearch() {
                         <div
                           key={community.id}
                           onClick={() => window.location.href = `/community/${community.id}`}
-                          className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                          className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-gray-300 transition-all duration-200 cursor-pointer"
                         >
                           <div className="flex">
-                            {/* Photo Section */}
-                            <div className="w-24 h-24 flex-shrink-0 bg-gray-100 relative">
+                            {/* Enhanced Photo Section */}
+                            <div className="w-28 h-28 flex-shrink-0 bg-gray-100 relative rounded-l-xl overflow-hidden">
                               {firstPhoto ? (
                                 <img
                                   src={firstPhoto.startsWith('http') ? firstPhoto : `/api/communities/${community.id}/photos/${firstPhoto}`}
                                   alt={community.name}
-                                  className="w-full h-full object-cover"
+                                  className="w-full h-full object-cover transition-transform duration-200 hover:scale-105"
                                   onError={(e) => {
                                     e.currentTarget.style.display = 'none';
                                     e.currentTarget.nextElementSibling?.classList.remove('hidden');
                                   }}
                                 />
                               ) : null}
-                              <div className={`absolute inset-0 flex items-center justify-center bg-gray-100 ${firstPhoto ? 'hidden' : ''}`}>
+                              <div className={`absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 ${firstPhoto ? 'hidden' : ''}`}>
                                 <ImageIcon className="w-8 h-8 text-gray-400" />
                               </div>
                               
-                              {/* Heart favorite button */}
+                              {/* Enhanced Heart Button */}
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   // Add favorite logic here
                                 }}
-                                className="absolute top-1 right-1 w-6 h-6 bg-white/80 rounded-full flex items-center justify-center hover:bg-white transition-colors"
+                                className="absolute top-2 right-2 w-7 h-7 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white hover:scale-110 transition-all duration-200 shadow-sm"
                               >
-                                <Heart className="w-3 h-3 text-gray-600" />
+                                <Heart className="w-3.5 h-3.5 text-gray-600 hover:text-red-500 transition-colors" />
                               </button>
+
+                              {/* Photo count badge */}
+                              {community.photos && community.photos.length > 1 && (
+                                <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
+                                  +{community.photos.length - 1}
+                                </div>
+                              )}
                             </div>
                             
-                            {/* Content Section */}
-                            <div className="flex-1 p-3">
-                              <div className="flex items-start justify-between mb-1">
-                                <h4 className="text-sm font-semibold text-gray-900 leading-tight line-clamp-1">
+                            {/* Enhanced Content Section */}
+                            <div className="flex-1 p-3.5">
+                              <div className="flex items-start justify-between mb-1.5">
+                                <h4 className="text-sm font-bold text-gray-900 leading-tight line-clamp-1 pr-2">
                                   {community.name}
                                 </h4>
                                 {community.googleRating && (
-                                  <div className="flex items-center ml-2 flex-shrink-0">
-                                    <Star className="w-3 h-3 text-yellow-400 fill-current" />
-                                    <span className="ml-1 text-xs text-gray-600">
+                                  <div className="flex items-center flex-shrink-0 bg-yellow-50 px-1.5 py-0.5 rounded-full">
+                                    <Star className="w-3 h-3 text-yellow-500 fill-current" />
+                                    <span className="ml-1 text-xs font-semibold text-yellow-700">
                                       {community.googleRating}
                                     </span>
                                   </div>
@@ -788,60 +826,35 @@ export default function BasicSearch() {
                               </div>
                               
                               <div className="flex items-center text-xs text-gray-500 mb-2">
-                                <MapPin className="w-3 h-3 mr-1" />
-                                <span className="line-clamp-1">{community.city}, {community.state}</span>
+                                <MapPin className="w-3 h-3 mr-1 text-gray-400" />
+                                <span className="line-clamp-1 font-medium">{community.city}, {community.state}</span>
                               </div>
                               
-                              {/* Care Types */}
-                              <div className="flex flex-wrap gap-1 mb-2">
+                              {/* Enhanced Care Types */}
+                              <div className="flex flex-wrap gap-1 mb-2.5">
                                 {community.careTypes?.slice(0, 2).map((careType) => (
-                                  <div key={careType} className="flex items-center bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full text-xs">
+                                  <div key={careType} className="flex items-center bg-blue-50 text-blue-700 px-2 py-1 rounded-lg text-xs border border-blue-100">
                                     {careTypeIcons[careType] || <Activity className="h-3 w-3" />}
-                                    <span className="ml-1 font-medium">{careType}</span>
+                                    <span className="ml-1 font-semibold">{careType}</span>
                                   </div>
                                 ))}
-                                {community.careTypes && community.careTypes.length > 2 && (
-                                  <div className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-xs">
-                                    +{community.careTypes.length - 2} more
-                                  </div>
-                                )}
                               </div>
                               
-                              {/* Pricing */}
+                              {/* Enhanced Price Display */}
                               <div className="flex items-center justify-between">
-                                <div className="text-sm font-bold text-blue-600">
-                                  {community.priceRange 
-                                    ? `$${Math.floor(community.priceRange.min/1000)}K+/mo`
-                                    : 'Contact for pricing'
+                                <div className="text-sm font-bold text-gray-900">
+                                  {community.monthlyRent 
+                                    ? `$${community.monthlyRent.toLocaleString()}/mo` 
+                                    : community.priceRange?.min 
+                                      ? `$${community.priceRange.min.toLocaleString()}+/mo`
+                                      : 'Contact for pricing'
                                   }
                                 </div>
-                                
-                                {/* Quick Action Buttons */}
-                                <div className="flex items-center gap-1">
+                                <div className="flex items-center space-x-1">
                                   {community.phone && (
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        window.location.href = `tel:${community.phone}`;
-                                      }}
-                                      className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-                                      title="Call"
-                                    >
-                                      <Phone className="w-3 h-3 text-gray-600" />
-                                    </button>
+                                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
                                   )}
-                                  {community.website && (
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        window.open(community.website, '_blank');
-                                      }}
-                                      className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-                                      title="Visit website"
-                                    >
-                                      <ExternalLink className="w-3 h-3 text-gray-600" />
-                                    </button>
-                                  )}
+                                  <span className="text-xs text-gray-500 font-medium">Available</span>
                                 </div>
                               </div>
                             </div>
