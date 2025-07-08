@@ -499,22 +499,22 @@ export default function BasicSearch() {
     <div className="min-h-screen bg-white pb-16">
       {/* Navigation Bar */}
       <div className="sticky top-0 bg-white z-40 border-b border-gray-200 shadow-sm">
-        <div className="px-4 py-3">
+        <div className="px-3 py-2">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2">
               <Link href="/">
-                <Button variant="ghost" size="sm" className="p-2 hover:bg-gray-100">
-                  <ArrowLeft className="w-5 h-5 text-gray-600" />
+                <Button variant="ghost" size="sm" className="p-1.5 hover:bg-gray-100">
+                  <ArrowLeft className="w-4 h-4 text-gray-600" />
                 </Button>
               </Link>
-              <Link href="/" className="flex items-center space-x-2">
-                <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
-                  <Home className="w-5 h-5 text-white" />
+              <Link href="/" className="flex items-center space-x-1.5">
+                <div className="w-6 h-6 gradient-primary rounded-md flex items-center justify-center">
+                  <Home className="w-4 h-4 text-white" />
                 </div>
-                <span className="text-xl font-bold text-gray-900">TrueView</span>
+                <span className="text-lg font-bold text-gray-900">TrueView</span>
               </Link>
             </div>
-            <div className="text-gray-600 font-medium text-sm">
+            <div className="text-gray-600 font-medium text-xs">
               {communities?.length || 0} communities
             </div>
           </div>
@@ -522,7 +522,7 @@ export default function BasicSearch() {
       </div>
 
       {/* Header */}
-      <div className="sticky top-16 bg-white z-30 border-b border-gray-200">
+      <div className="sticky top-12 bg-white z-30 border-b border-gray-200">
         <div className="px-4 py-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -554,7 +554,7 @@ export default function BasicSearch() {
 
       {/* Map/List View */}
       {viewMode === 'map' ? (
-        <div className="flex-1 relative" style={{ height: 'calc(100vh - 240px)' }}>
+        <div className="flex-1 relative" style={{ height: 'calc(100vh - 200px)' }}>
           <MapContainer
             center={[40.315, -122.32]} // Northern California center
             zoom={7}
