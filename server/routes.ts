@@ -48,6 +48,7 @@ import { authService, requireAuth } from "./auth";
 import { regionalExpansionEngine } from "./regional-expansion";
 import { comprehensivePhotoEnrichment } from "./comprehensive-photo-enrichment";
 import { apiCostProtection } from "./api-cost-protection";
+import { communityStatsCache } from "./community-stats-cache";
 import { systematicPhotoEnrichment } from "./systematic-photo-enrichment";
 import { emergencyEnrichment } from "./emergency-enrichment";
 
@@ -64,6 +65,9 @@ import fs from 'fs';
 import path from 'path';
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Initialize community stats cache on startup
+  await communityStatsCache.initialize();
+  
   // Create a separate router for admin routes without heavy middleware interference
   const adminRouter = express.Router();
   
@@ -646,6 +650,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error("Search error:", error);
         res.status(500).json({ message: "Failed to search communities" });
       }
+    }
+  });
+
+  // Fast community count endpoint for homepage (must be before :id route)
+  app.get('/api/communities/count', async (req, res) => {
+    try {
+      const count = await communityStatsCache.getTotalCount();
+      res.json({ count });
+    } catch (error) {
+      console.error('Community count error:', error);
+      res.status(500).json({ error: 'Failed to fetch community count' });
+    }
+  });
+
+  // Optimized community stats API - uses cache instead of real-time calculation
+  app.get('/api/communities/stats', async (req, res) => {
+    try {
+      const stats = await communityStatsCache.getStats();
+      res.json(stats);
+    } catch (error) {
+      console.error('Community stats error:', error);
+      res.status(500).json({ error: 'Failed to fetch community statistics' });
     }
   });
 
