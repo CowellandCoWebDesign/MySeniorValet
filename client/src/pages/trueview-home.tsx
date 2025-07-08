@@ -199,6 +199,7 @@ export default function TrueViewHome() {
                   type="submit"
                   size="sm"
                   className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-gray-700 hover:bg-gray-800 rounded-xl w-8 h-8 sm:w-10 sm:h-10 p-0 z-30"
+                  style={{ right: '4px' }}
                 >
                   <Search className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </Button>
