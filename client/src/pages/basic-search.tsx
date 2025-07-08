@@ -379,11 +379,11 @@ export default function BasicSearch() {
         <div className="px-4 pb-3 flex space-x-3 overflow-x-auto">
           <Button variant="outline" className="border-blue-600 text-blue-600 bg-blue-50 rounded-full px-4 py-1 h-8 text-sm whitespace-nowrap">
             <span className="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
-            Care Level (1)
+            Assisted Living
           </Button>
           <Button variant="outline" className="border-blue-600 text-blue-600 bg-blue-50 rounded-full px-4 py-1 h-8 text-sm whitespace-nowrap">
             <span className="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
-            $600k or less
+            $2K - $6K/mo
           </Button>
           <Button variant="outline" className="border-gray-300 text-gray-600 rounded-full px-4 py-1 h-8 text-sm whitespace-nowrap">
             + More filters
@@ -597,7 +597,7 @@ export default function BasicSearch() {
                     {visibleCommunities.length} results
                   </div>
                   <div className="text-sm text-gray-600">
-                    Communities in this area
+                    Senior living communities in this area
                   </div>
                 </div>
                 <button
@@ -611,10 +611,13 @@ export default function BasicSearch() {
               {/* Sort Options */}
               <div className="flex items-center space-x-4">
                 <button className="text-sm text-blue-600 border-b-2 border-blue-600 pb-1 font-medium">
-                  Sort: Care Level
+                  Sort: Best Match
                 </button>
                 <button className="text-sm text-gray-600 hover:text-blue-600 pb-1">
-                  Price: Low to High
+                  Price
+                </button>
+                <button className="text-sm text-gray-600 hover:text-blue-600 pb-1">
+                  Distance
                 </button>
                 <button className="text-sm text-gray-600 hover:text-blue-600 pb-1">
                   Rating
