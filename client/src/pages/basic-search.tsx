@@ -9,17 +9,36 @@ import { Icon } from 'leaflet';
 import { Link } from "wouter";
 import 'leaflet/dist/leaflet.css';
 
-// Custom marker icon for communities
-const communityIcon = new Icon({
-  iconUrl: 'data:image/svg+xml;base64,' + btoa(`
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#2563eb" width="32" height="32">
-      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-    </svg>
-  `),
-  iconSize: [32, 32],
-  iconAnchor: [16, 32],
-  popupAnchor: [0, -32],
-});
+// Custom house-style marker icons for communities (Zillow-style)
+const createHouseIcon = (isViewed: boolean = false, isFavorited: boolean = false) => {
+  const fillColor = isFavorited ? '#dc2626' : isViewed ? '#fca5a5' : '#dc2626'; // Red for unviewed, light red for viewed, red for favorited
+  const strokeColor = '#991b1b';
+  
+  const heartIcon = isFavorited ? `
+    <path d="M16 8c0-2.21-1.79-4-4-4S8 5.79 8 8c0 1.5.83 2.8 2.05 3.48L12 14l1.95-2.52C15.17 10.8 16 9.5 16 8z" fill="white" stroke="#991b1b" stroke-width="0.5"/>
+  ` : '';
+  
+  return new Icon({
+    iconUrl: 'data:image/svg+xml;base64,' + btoa(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28">
+        <!-- House body -->
+        <rect x="6" y="12" width="12" height="8" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1.5" rx="1"/>
+        <!-- House roof -->
+        <path d="M4 14 L12 6 L20 14 L18 14 L12 8 L6 14 Z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1.5"/>
+        <!-- Door -->
+        <rect x="10" y="16" width="4" height="4" fill="white" stroke="${strokeColor}" stroke-width="0.8"/>
+        <!-- Window -->
+        <rect x="7.5" y="14" width="2.5" height="2.5" fill="white" stroke="${strokeColor}" stroke-width="0.8"/>
+        <rect x="14" y="14" width="2.5" height="2.5" fill="white" stroke="${strokeColor}" stroke-width="0.8"/>
+        <!-- Heart for favorited -->
+        ${heartIcon}
+      </svg>
+    `),
+    iconSize: [28, 28],
+    iconAnchor: [14, 28],
+    popupAnchor: [0, -28],
+  });
+};
 
 // Component to handle map bounds updates
 function MapBoundsUpdater({ onBoundsChange }: { onBoundsChange: (bounds: any) => void }) {
@@ -594,42 +613,85 @@ export default function BasicSearch() {
             {/* Map bounds tracker */}
             <MapBoundsUpdater onBoundsChange={setMapBounds} />
             
-            {/* Community Markers */}
+            {/* Community Markers - House Style with State */}
             {filteredCommunities
               .filter((community: any) => community.latitude && community.longitude)
-              .map((community: any) => (
-                <Marker
-                  key={community.id}
-                  position={[community.latitude, community.longitude]}
-                  icon={communityIcon}
-                  eventHandlers={{
-                    click: () => window.location.href = `/community/${community.id}`,
-                  }}
-                >
-                  <Popup>
-                    <div className="p-2 min-w-[200px]">
-                      <h3 className="font-semibold text-gray-900 mb-1 text-sm">{community.name}</h3>
-                      <p className="text-xs text-gray-600 mb-2">{community.city}, {community.state}</p>
-                      {community.monthlyRent && (
-                        <p className="text-base font-bold text-blue-600 mb-1">
-                          ${community.monthlyRent.toLocaleString()}/mo
-                        </p>
-                      )}
-                      <p className="text-xs text-gray-500 mb-2">
-                        {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
-                      </p>
-                      {community.googleRating && (
-                        <div className="flex items-center">
-                          <Star className="w-3 h-3 text-yellow-400 fill-current mr-1" />
-                          <span className="text-xs text-gray-600">
-                            {community.googleRating} ({community.googleReviewCount || 0} reviews)
-                          </span>
+              .map((community: any) => {
+                // Determine marker state (for demo purposes, using community ID for variety)
+                const isViewed = community.id % 3 === 0; // Every 3rd community is "viewed"
+                const isFavorited = community.id % 7 === 0; // Every 7th community is "favorited"
+                
+                return (
+                  <Marker
+                    key={community.id}
+                    position={[community.latitude, community.longitude]}
+                    icon={createHouseIcon(isViewed, isFavorited)}
+                    eventHandlers={{
+                      click: () => window.location.href = `/community/${community.id}`,
+                    }}
+                  >
+                    <Popup>
+                      <div className="p-3 min-w-[220px]">
+                        <div className="flex items-start justify-between mb-2">
+                          <h3 className="font-bold text-sm text-gray-900 pr-2 leading-tight">{community.name}</h3>
+                          {isFavorited && (
+                            <div className="flex-shrink-0">
+                              <Heart className="w-4 h-4 text-red-500 fill-current" />
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
+                        
+                        <div className="flex items-center text-xs text-gray-600 mb-2">
+                          <MapPin className="w-3 h-3 mr-1" />
+                          {community.city}, {community.state}
+                        </div>
+                        
+                        {community.googleRating && (
+                          <div className="flex items-center mb-2">
+                            <Star className="w-3 h-3 text-yellow-400 fill-current mr-1" />
+                            <span className="text-xs text-gray-600">{community.googleRating} rating</span>
+                            {community.googleReviewCount && (
+                              <span className="text-xs text-gray-500 ml-1">({community.googleReviewCount})</span>
+                            )}
+                          </div>
+                        )}
+                        
+                        {community.careTypes && community.careTypes.length > 0 && (
+                          <div className="mb-2">
+                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                              {community.careTypes.slice(0, 2).join(' • ')}
+                            </span>
+                          </div>
+                        )}
+                        
+                        <div className="flex justify-between items-center mt-3">
+                          <div className="text-sm font-bold text-gray-900">
+                            {community.priceRange?.min 
+                              ? `$${Math.floor(community.priceRange.min/1000)}K+/mo` 
+                              : community.monthlyRent
+                              ? `$${community.monthlyRent.toLocaleString()}/mo`
+                              : 'Contact for pricing'
+                            }
+                          </div>
+                          <button
+                            onClick={() => window.location.href = `/community/${community.id}`}
+                            className="bg-blue-600 text-white text-xs py-1.5 px-3 rounded-lg hover:bg-blue-700 font-medium transition-colors"
+                          >
+                            View Details
+                          </button>
+                        </div>
+                        
+                        {isViewed && !isFavorited && (
+                          <div className="mt-2 text-xs text-gray-500 flex items-center">
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Recently viewed
+                          </div>
+                        )}
+                      </div>
+                    </Popup>
+                  </Marker>
+                );
+              })}
           </MapContainer>
 
           {/* Map Controls */}
