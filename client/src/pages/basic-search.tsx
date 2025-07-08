@@ -125,7 +125,7 @@ export default function BasicSearch() {
     }
   };
 
-  // Global mouse/touch events for dragging
+  // Global mouse/touch events for dragging - Simplified to not interfere with scrolling
   useEffect(() => {
     if (!isDragging) return;
 
@@ -133,8 +133,12 @@ export default function BasicSearch() {
       handleDragMove(e);
     };
     const handleTouchMove = (e: TouchEvent) => {
-      // Only handle drag if it started from the handle area
-      if (isDragging && dragFromHandle) {
+      // Check if the touch is on the scrollable content
+      const target = e.target as HTMLElement;
+      const isScrollableArea = target.closest('.scrollable-results');
+      
+      // Only prevent default and handle drag if NOT in scrollable area
+      if (!isScrollableArea && isDragging && dragFromHandle) {
         e.preventDefault();
         handleDragMove(e);
       }
@@ -153,7 +157,7 @@ export default function BasicSearch() {
       document.removeEventListener('mouseup', handleMouseUp);
       document.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [isDragging, dragStartY, dragStartPosition, slidePosition]);
+  }, [isDragging, dragStartY, dragStartPosition, slidePosition, dragFromHandle]);
 
   // Bottom Navigation
   const BottomNav = () => (
@@ -549,16 +553,18 @@ export default function BasicSearch() {
 
           {/* Draggable Slide-up Results Panel - Zillow Style */}
           <div 
-            className="fixed left-0 right-0 bg-white border-t border-gray-200 z-20 rounded-t-2xl shadow-2xl flex flex-col"
+            className="fixed left-0 right-0 bg-white border-t border-gray-200 z-20 rounded-t-2xl shadow-2xl"
             style={{ 
               bottom: 0,
               height: `${slidePosition}px`,
               transition: isDragging ? 'none' : 'height 0.3s ease-out',
-              maxHeight: '90vh'
+              maxHeight: '90vh',
+              display: 'flex',
+              flexDirection: 'column'
             }}
           >
             {/* Header Area - Only handle is draggable */}
-            <div className="flex-shrink-0">
+            <div style={{ flexShrink: 0 }}>
               {/* Visual handle indicator - Only this part is draggable */}
               <div 
                 className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing select-none"
@@ -600,14 +606,8 @@ export default function BasicSearch() {
               </div>
             </div>
 
-            {/* Scrollable Results List */}
-            <div 
-              className="flex-1 overflow-y-auto overflow-x-hidden webkit-scrolling-touch"
-              style={{ 
-                touchAction: 'pan-y',
-                WebkitOverflowScrolling: 'touch'
-              }}
-            >
+            {/* Scrollable Results List - Same structure as list view */}
+            <div className="px-4 py-4 overflow-y-auto scrollable-results" style={{ flex: '1 1 auto' }}>
               {visibleCommunities.length === 0 ? (
                 <div className="p-8 text-center text-gray-500">
                   <MapPin className="w-8 h-8 mx-auto mb-2 text-gray-400" />
@@ -615,9 +615,8 @@ export default function BasicSearch() {
                   <p className="text-sm mt-1">Try zooming out or moving the map.</p>
                 </div>
               ) : (
-                <div className="px-4 py-4">
-                  <div className="space-y-4">
-                    {visibleCommunities.slice(0, 20).map((community: any, index) => (
+                <div className="space-y-4">
+                  {visibleCommunities.slice(0, 20).map((community: any, index) => (
                       <div
                         key={community.id}
                         onClick={() => {
@@ -673,7 +672,6 @@ export default function BasicSearch() {
                     {/* Padding for bottom navigation */}
                     <div className="h-20"></div>
                   </div>
-                </div>
               )}
             </div>
           </div>
