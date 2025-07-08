@@ -493,6 +493,15 @@ export class DatabaseStorage implements IStorage {
       query = query.where(and(...conditions));
     }
 
+    // Add pagination support for performance
+    if (params.limit) {
+      query = query.limit(params.limit);
+    }
+    
+    if (params.offset) {
+      query = query.offset(params.offset);
+    }
+
     const results = await query;
     console.log(`Search returned ${results.length} communities`);
     return results;

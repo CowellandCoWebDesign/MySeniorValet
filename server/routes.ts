@@ -217,7 +217,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const validateSearchFilters = (req: any, res: any, next: any) => {
     const allowedFilters = [
       'location', 'careType', 'budget', 'availability', 
-      'amenities', 'distance', 'minRating'
+      'amenities', 'distance', 'minRating', 'limit', 'offset', 'hasPhotos'
     ];
     
     // Check for prohibited filter keys that could enable discrimination
@@ -611,18 +611,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Search communities - SIMPLIFIED FOR DEBUGGING
+  // Search communities - OPTIMIZED FOR PERFORMANCE
   app.get("/api/communities/search", async (req, res) => {
     try {
+      const startTime = Date.now();
       console.log('Search request received:', req.query);
       
-      // Parse query parameters manually to handle string conversion
-      const searchParams: any = {};
+      // Parse query parameters with defaults
+      const searchParams: any = {
+        limit: parseInt(req.query.limit as string) || 20,
+        offset: parseInt(req.query.offset as string) || 0
+      };
       
-      if (req.query.location) searchParams.location = req.query.location as string;
-      if (req.query.careType) searchParams.careType = req.query.careType as string;
+      // Only add parameters if they exist and aren't empty
+      if (req.query.location && req.query.location !== '') {
+        searchParams.location = req.query.location as string;
+      }
+      if (req.query.careType && req.query.careType !== 'All Types') {
+        searchParams.careType = req.query.careType as string;
+      }
       if (req.query.budget) searchParams.budget = req.query.budget as string;
-      if (req.query.availability) searchParams.availability = req.query.availability as string;
+      if (req.query.availability && req.query.availability !== 'All Status') {
+        searchParams.availability = req.query.availability as string;
+      }
       if (req.query.distance) searchParams.distance = parseInt(req.query.distance as string);
       if (req.query.minRating) searchParams.minRating = parseFloat(req.query.minRating as string);
       if (req.query.amenities) {
@@ -635,11 +646,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log('Parsed search parameters:', searchParams);
       
-      // Call storage search
+      // Call storage search with optimized parameters
       const communities = await storage.searchCommunities(searchParams);
-      console.log(`Found ${communities.length} communities`);
+      console.log(`Found ${communities.length} communities in ${Date.now() - startTime}ms`);
       
-      // Enhance communities with pricing transparency badges
+      // Enhance communities with pricing transparency badges (only for displayed results)
       const enrichedCommunities = await pricingTransparencyService.enrichCommunitiesWithBadges(communities);
       
       res.json(enrichedCommunities);
@@ -720,13 +731,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get all communities
+  // Get all communities (optimized with pagination)
   app.get("/api/communities", async (req, res) => {
     try {
-      console.log("Fetching communities from database...");
-      const communities = await storage.getAllCommunities();
-      console.log(`Found ${communities.length} communities`);
-      res.json(communities);
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 50;
+      const offset = (page - 1) * limit;
+      
+      console.log(`Fetching communities: page ${page}, limit ${limit}, offset ${offset}`);
+      
+      // Use direct database query for better performance
+      const communitiesResult = await db.select().from(communities).limit(limit).offset(offset);
+      const totalCount = await communityStatsCache.getTotalCount();
+      
+      console.log(`Found ${communitiesResult.length} communities (page ${page} of ${Math.ceil(totalCount / limit)})`);
+      
+      res.json({
+        communities: communitiesResult,
+        pagination: {
+          page,
+          limit,
+          total: totalCount,
+          hasMore: (page * limit) < totalCount
+        }
+      });
     } catch (error) {
       console.error("Error fetching communities:", error);
       res.status(500).json({ message: "Failed to fetch communities" });

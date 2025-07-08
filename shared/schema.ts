@@ -1228,6 +1228,8 @@ export const searchCommunitySchema = z.object({
   amenities: z.array(z.string()).optional(),
   minRating: z.number().optional(),
   hasPhotos: z.boolean().optional(),
+  limit: z.number().optional(),
+  offset: z.number().optional(),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
