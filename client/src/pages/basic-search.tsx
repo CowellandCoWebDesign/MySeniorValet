@@ -45,6 +45,10 @@ export default function BasicSearch() {
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [slideUpOpen, setSlideUpOpen] = useState(false);
   const [mapBounds, setMapBounds] = useState<any>(null);
+  const [slidePosition, setSlidePosition] = useState(200); // Height from bottom
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStartY, setDragStartY] = useState(0);
+  const [dragStartPosition, setDragStartPosition] = useState(0);
 
   const { data: communities, isLoading, error } = useQuery({
     queryKey: ["/api/communities"],
@@ -66,17 +70,75 @@ export default function BasicSearch() {
 
   // Get communities visible in current map bounds
   const visibleCommunities = filteredCommunities.filter((community: any) => {
-    if (!mapBounds || !community.latitude || !community.longitude) return true;
+    if (!mapBounds || !community.latitude || !community.longitude) return false;
     
-    const lat = community.latitude;
-    const lng = community.longitude;
+    const lat = parseFloat(community.latitude);
+    const lng = parseFloat(community.longitude);
+    
+    // Add small buffer to bounds for better UX
+    const buffer = 0.01;
     return (
-      lat >= mapBounds.getSouth() &&
-      lat <= mapBounds.getNorth() &&
-      lng >= mapBounds.getWest() &&
-      lng <= mapBounds.getEast()
+      lat >= (mapBounds.getSouth() - buffer) &&
+      lat <= (mapBounds.getNorth() + buffer) &&
+      lng >= (mapBounds.getWest() - buffer) &&
+      lng <= (mapBounds.getEast() + buffer)
     );
   });
+
+  // Handle drag for slide panel
+  const handleDragStart = (e: React.TouchEvent | React.MouseEvent) => {
+    setIsDragging(true);
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    setDragStartY(clientY);
+    setDragStartPosition(slidePosition);
+  };
+
+  const handleDragMove = (e: React.TouchEvent | React.MouseEvent) => {
+    if (!isDragging) return;
+    
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    const deltaY = dragStartY - clientY; // Inverted because dragging up increases position
+    const newPosition = Math.max(100, Math.min(window.innerHeight - 100, dragStartPosition + deltaY));
+    setSlidePosition(newPosition);
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+    
+    // Snap to positions based on final location
+    if (slidePosition < 200) {
+      setSlidePosition(120); // Minimized
+      setSlideUpOpen(false);
+    } else if (slidePosition < 400) {
+      setSlidePosition(200); // Partial
+      setSlideUpOpen(false);
+    } else {
+      setSlidePosition(window.innerHeight * 0.8); // Full open
+      setSlideUpOpen(true);
+    }
+  };
+
+  // Global mouse/touch events for dragging
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleMouseMove = (e: MouseEvent) => handleDragMove(e);
+    const handleTouchMove = (e: TouchEvent) => handleDragMove(e);
+    const handleMouseUp = () => handleDragEnd();
+    const handleTouchEnd = () => handleDragEnd();
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('touchmove', handleTouchMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isDragging, dragStartY, dragStartPosition]);
 
   // Bottom Navigation
   const BottomNav = () => (
@@ -470,43 +532,128 @@ export default function BasicSearch() {
             </Button>
           </div>
 
-          {/* Slide-up Results Bar - Zillow Style */}
-          <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-20 rounded-t-lg shadow-lg">
-            {/* Handle indicator */}
-            <div className="flex justify-center pt-2 pb-1">
-              <div className="w-8 h-1 bg-gray-300 rounded-full"></div>
+          {/* Draggable Slide-up Results Panel - Zillow Style */}
+          <div 
+            className="absolute left-0 right-0 bg-white border-t border-gray-200 z-20 rounded-t-2xl shadow-2xl transition-all duration-300 ease-out"
+            style={{ 
+              bottom: 0,
+              height: `${slidePosition}px`,
+              transform: isDragging ? 'none' : 'translateY(0)'
+            }}
+          >
+            {/* Draggable Handle */}
+            <div 
+              className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing"
+              onMouseDown={handleDragStart}
+              onTouchStart={handleDragStart}
+            >
+              <div className="w-10 h-1 bg-gray-300 rounded-full"></div>
             </div>
             
-            <button
-              onClick={() => setSlideUpOpen(!slideUpOpen)}
-              className="w-full text-center py-2 hover:bg-gray-50 transition-colors"
-            >
-              <div className="text-lg font-bold text-gray-900">
-                {visibleCommunities.length} results
-              </div>
-            </button>
-            
-            {/* Preview of first result when closed */}
-            {!slideUpOpen && visibleCommunities.length > 0 && (
-              <div className="px-4 pb-4">
-                <div className="bg-gray-50 rounded-lg p-3 cursor-pointer" onClick={() => setSlideUpOpen(true)}>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="font-semibold text-sm text-gray-900 mb-1">
-                        {visibleCommunities[0].name}
-                      </div>
-                      <div className="text-blue-600 font-bold text-lg">
-                        {visibleCommunities[0].monthlyRent 
-                          ? `$${visibleCommunities[0].monthlyRent.toLocaleString()}/mo` 
-                          : 'Contact for pricing'
-                        }
-                      </div>
-                    </div>
-                    <Heart className="w-5 h-5 text-gray-400" />
+            {/* Header with results count */}
+            <div className="px-4 pb-3 border-b border-gray-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-xl font-bold text-gray-900">
+                    {visibleCommunities.length} results
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Communities in this map area
                   </div>
                 </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSlidePosition(slidePosition > 300 ? 120 : window.innerHeight * 0.8)}
+                  className="rounded-full"
+                >
+                  {slidePosition > 300 ? 'Minimize' : 'Expand'}
+                </Button>
               </div>
-            )}
+              
+              {/* Sort Options */}
+              <div className="flex items-center space-x-4 mt-3">
+                <button className="text-sm text-blue-600 border-b-2 border-blue-600 pb-1 font-medium">
+                  Sort: Best Match
+                </button>
+                <button className="text-sm text-gray-600 hover:text-blue-600 pb-1">
+                  Price
+                </button>
+                <button className="text-sm text-gray-600 hover:text-blue-600 pb-1">
+                  Distance
+                </button>
+                <button className="text-sm text-gray-600 hover:text-blue-600 pb-1">
+                  Rating
+                </button>
+              </div>
+            </div>
+
+            {/* Scrollable Results List */}
+            <div className="overflow-y-auto" style={{ height: `${slidePosition - 140}px` }}>
+              {visibleCommunities.length === 0 ? (
+                <div className="p-8 text-center text-gray-500">
+                  <MapPin className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                  <p>No communities found in this map area.</p>
+                  <p className="text-sm mt-1">Try zooming out or moving the map.</p>
+                </div>
+              ) : (
+                visibleCommunities.slice(0, 20).map((community: any, index) => (
+                  <div
+                    key={community.id}
+                    onClick={() => {
+                      window.location.href = `/community/${community.id}`;
+                    }}
+                    className="border-b border-gray-100 p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                  >
+                    {/* Community Card - Zillow Style */}
+                    <div className="flex">
+                      {/* Image placeholder */}
+                      <div className="w-24 h-20 bg-gray-200 rounded-lg mr-4 flex-shrink-0 relative">
+                        {index === 0 && (
+                          <div className="absolute top-1 left-1 bg-orange-500 text-white text-xs px-1.5 py-0.5 rounded">
+                            Featured
+                          </div>
+                        )}
+                        <Heart className="absolute top-1 right-1 w-4 h-4 text-white" />
+                      </div>
+                      
+                      {/* Content */}
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between mb-1">
+                          <div className="text-lg font-bold text-blue-600">
+                            {community.monthlyRent 
+                              ? `$${community.monthlyRent.toLocaleString()}/mo` 
+                              : 'Contact for pricing'
+                            }
+                          </div>
+                          {community.googleRating && (
+                            <div className="flex items-center">
+                              <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
+                              <span className="text-sm font-medium">{community.googleRating}</span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="text-sm text-gray-600 mb-1">
+                          {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
+                        </div>
+                        
+                        <div className="text-base font-semibold text-gray-900 mb-1">
+                          {community.name}
+                        </div>
+                        
+                        <div className="text-sm text-gray-600">
+                          {community.city}, {community.state}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+              
+              {/* Padding for bottom navigation */}
+              <div className="h-20"></div>
+            </div>
           </div>
         </div>
       ) : (
