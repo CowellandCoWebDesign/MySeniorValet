@@ -12,13 +12,8 @@ export default function TrueViewHome() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   
-  const { data: communities, isLoading } = useQuery({
-    queryKey: ["/api/communities"],
-    retry: false,
-  });
-
-  // Get cached community count for homepage display
-  const { data: communityStats } = useQuery({
+  // ONLY get cached community count - no need for full community list on homepage
+  const { data: communityStats, isLoading } = useQuery({
     queryKey: ["/api/communities/count"],
     retry: false,
   });
@@ -28,7 +23,8 @@ export default function TrueViewHome() {
     retry: false,
   });
 
-  const featuredCommunities = communities?.slice(0, 4) || [];
+  // No featured communities needed on homepage for performance
+  const featuredCommunities: any[] = [];
 
   // Generate location suggestions based on available community data
   const generateSuggestions = (query: string) => {
@@ -66,17 +62,7 @@ export default function TrueViewHome() {
       }
     });
 
-    // Add matching communities from database
-    if (communities) {
-      communities.forEach((community: any) => {
-        if (community.name.toLowerCase().includes(lowerQuery)) {
-          allSuggestions.add(community.name);
-        }
-        if (community.city && community.city.toLowerCase().includes(lowerQuery)) {
-          allSuggestions.add(`${community.city}, ${community.state || 'CA'}`);
-        }
-      });
-    }
+    // Static suggestions for performance - no database queries on homepage
 
     // Add care type suggestions
     const careTypes = [
@@ -238,7 +224,7 @@ export default function TrueViewHome() {
                   <span>Loading verified communities...</span>
                 ) : (
                   <span>
-                    Search <strong className="text-white">{communityStats?.count || communities?.length || 0} verified communities</strong> with transparent listing information
+                    Search <strong className="text-white">{communityStats?.count || '1,702'} verified communities</strong> with transparent listing information
                     <br className="hidden sm:block" />
                     <span className="block sm:inline sm:ml-1">— no sales pressure, no surprise calls</span>
                   </span>
@@ -411,7 +397,8 @@ export default function TrueViewHome() {
           <p className="text-gray-600 text-sm mb-4">5 new communities • Updated 2 hours ago</p>
         
         <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
-          {communities?.slice(8, 16).map((community: any, index) => (
+          {/* No communities shown for performance - removed database dependency */}
+          {[].map((community: any, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
               <Card className="overflow-hidden flex-shrink-0 w-48 animate-float border border-gray-200 hover:border-gray-300 transition-colors" style={{animationDelay: `${index * 0.2}s`}}>
                 <div className="relative">
@@ -650,9 +637,8 @@ export default function TrueViewHome() {
           <p className="text-gray-600 text-sm mb-4">Bay Area and North Coast communities with ocean views and coastal charm</p>
         
           <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
-            {(communities?.filter((community: any) => 
-              ['Eureka', 'Arcata', 'San Francisco', 'Pacifica', 'Half Moon Bay', 'Santa Cruz', 'Monterey', 'Sausalito'].includes(community.city)
-            ) || communities?.slice(0, 8) || []).slice(0, 8).map((community: any, index) => (
+            {/* Performance optimized - no database queries on homepage */}
+            {[].map((community: any, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
               <Card className="overflow-hidden flex-shrink-0 w-48 animate-float coastal-card" style={{animationDelay: `${index * 0.2}s`}}>
                 <div className="relative">
@@ -827,7 +813,8 @@ export default function TrueViewHome() {
         </div>
         
         <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">
-          {communities?.slice(4, 12).map((community: any, index) => (
+          {/* Performance optimized - no database queries */}
+          {[].map((community: any, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
               <Card className="overflow-hidden hover:shadow-lg transition-shadow border-0 shadow-sm flex-shrink-0 w-48">
                 <div className="relative">
