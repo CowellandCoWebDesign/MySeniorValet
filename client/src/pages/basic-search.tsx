@@ -104,11 +104,19 @@ export default function BasicSearch() {
     return Math.max(20, visibleCards * 2); // Show 2x visible cards for smooth scrolling
   };
 
-  // Enhanced sorting function
+  // Enhanced sorting function with sponsored listing priority
   const sortCommunities = (communities: any[], sortBy: string) => {
     if (!communities) return [];
     
     return [...communities].sort((a, b) => {
+      // First priority: Sponsored listings always appear first
+      const isASponsored = a.id % 8 === 0;
+      const isBSponsored = b.id % 8 === 0;
+      
+      if (isASponsored && !isBSponsored) return -1;
+      if (!isASponsored && isBSponsored) return 1;
+      
+      // If both are sponsored or both are not sponsored, apply regular sorting
       switch (sortBy) {
         case 'priceAsc':
           const priceA = a.priceRange?.min || a.monthlyRent || 0;
