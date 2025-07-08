@@ -890,8 +890,8 @@ export default function BasicSearch() {
                         <div
                           key={community.id}
                           onClick={() => window.location.href = `/community/${community.id}`}
-                          className={`bg-white rounded-xl border overflow-hidden hover:shadow-lg transition-all duration-200 cursor-pointer ${
-                            community.id % 8 === 0 ? 'border-yellow-300 shadow-md ring-1 ring-yellow-200' : 'border-gray-200 hover:border-gray-300'
+                          className={`bg-white rounded-xl overflow-hidden hover:shadow-lg transition-all duration-200 cursor-pointer mb-4 ${
+                            community.id % 8 === 0 ? 'border-2 border-yellow-300 shadow-md ring-1 ring-yellow-200' : 'border border-gray-200 hover:border-gray-300'
                           }`}
                         >
                           {/* Sponsored Badge */}
@@ -900,136 +900,126 @@ export default function BasicSearch() {
                               ⭐ SPONSORED LISTING
                             </div>
                           )}
-                          <div className="flex">
-                            {/* Enhanced Photo Section */}
-                            <div className="w-28 h-28 flex-shrink-0 bg-gray-100 relative rounded-l-xl overflow-hidden">
-                              {firstPhoto ? (
-                                <img
-                                  src={firstPhoto.startsWith('http') ? firstPhoto : `/api/communities/${community.id}/photos/${firstPhoto}`}
-                                  alt={community.name}
-                                  className="w-full h-full object-cover transition-transform duration-200 hover:scale-105"
-                                  onError={(e) => {
-                                    e.currentTarget.style.display = 'none';
-                                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                                  }}
-                                />
-                              ) : null}
-                              <div className={`absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 ${firstPhoto ? 'hidden' : ''}`}>
-                                <ImageIcon className="w-8 h-8 text-gray-400" />
-                              </div>
-                              
-                              {/* Enhanced Heart Button */}
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  // Add favorite logic here
+                          
+                          {/* Large Photo Above - Zillow Style */}
+                          <div className="relative w-full h-48 bg-gray-100 overflow-hidden">
+                            {firstPhoto ? (
+                              <img
+                                src={firstPhoto.startsWith('http') ? firstPhoto : `/api/communities/${community.id}/photos/${firstPhoto}`}
+                                alt={community.name}
+                                className="w-full h-full object-cover transition-transform duration-200 hover:scale-105"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
                                 }}
-                                className="absolute top-2 right-2 w-7 h-7 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white hover:scale-110 transition-all duration-200 shadow-sm"
-                              >
-                                <Heart className="w-3.5 h-3.5 text-gray-600 hover:text-red-500 transition-colors" />
-                              </button>
+                              />
+                            ) : null}
+                            <div className={`absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 ${firstPhoto ? 'hidden' : ''}`}>
+                              <ImageIcon className="w-12 h-12 text-gray-400" />
+                            </div>
+                            
+                            {/* Top Left Badges */}
+                            {community.id % 5 === 0 && (
+                              <div className="absolute top-3 left-3 bg-black/70 text-white text-xs px-2 py-1 rounded-md font-medium">
+                                Large lot
+                              </div>
+                            )}
+                            
+                            {/* Enhanced Heart Button - Top Right */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // Add favorite logic here
+                              }}
+                              className="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white hover:scale-110 transition-all duration-200 shadow-sm"
+                            >
+                              <Heart className="w-4 h-4 text-gray-600 hover:text-red-500 transition-colors" />
+                            </button>
 
-                              {/* Photo count badge */}
-                              {community.photos && community.photos.length > 1 && (
-                                <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
-                                  +{community.photos.length - 1}
+                            {/* Photo count indicators - Bottom Center */}
+                            {community.photos && community.photos.length > 1 && (
+                              <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex space-x-1">
+                                {Array.from({ length: Math.min(community.photos.length, 5) }).map((_, index) => (
+                                  <div
+                                    key={index}
+                                    className={`w-2 h-2 rounded-full ${index === 0 ? 'bg-white' : 'bg-white/50'}`}
+                                  />
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Content Section Below Photo */}
+                          <div className="p-4">
+                            {/* Price - Prominent like Zillow */}
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="text-lg font-bold text-gray-900">
+                                {community.priceRange?.min && community.priceRange?.max 
+                                  ? `$${(community.priceRange.min / 1000).toFixed(1)}K - $${(community.priceRange.max / 1000).toFixed(1)}K`
+                                  : community.priceRange?.min 
+                                    ? `$${(community.priceRange.min / 1000).toFixed(1)}K+`
+                                    : '$4.2K - $8.5K'
+                                }
+                                <span className="text-sm text-gray-500 font-normal">/mo</span>
+                              </div>
+                              {community.googleRating && (
+                                <div className="flex items-center bg-yellow-50 px-2 py-1 rounded-full">
+                                  <Star className="w-3 h-3 text-yellow-500 fill-current" />
+                                  <span className="ml-1 text-xs font-semibold text-yellow-700">
+                                    {community.googleRating}
+                                  </span>
                                 </div>
                               )}
                             </div>
+
+                            {/* Care Types and Availability - Like Property Details */}
+                            <div className="flex items-center text-sm text-gray-600 mb-3 space-x-3">
+                              {/* Care Types as Specs */}
+                              {community.careTypes?.slice(0, 2).map((careType, index) => (
+                                <span key={careType} className="font-medium">
+                                  {careType}{index < Math.min(community.careTypes.length, 2) - 1 && ' •'}
+                                </span>
+                              ))}
+                              
+                              {/* Availability like sqft */}
+                              <span className="text-gray-400">|</span>
+                              <span className="font-medium">
+                                {community.unitTypes && community.unitTypes.length > 0 
+                                  ? `${community.unitTypes[0]?.type} available`
+                                  : 'Studio & 1BR available'
+                                }
+                              </span>
+                            </div>
+
+                            {/* Community Name - Like Property Type */}
+                            <h4 className="text-base font-semibold text-gray-900 mb-1 leading-tight">
+                              {community.name}
+                            </h4>
                             
-                            {/* Enhanced Content Section */}
-                            <div className="flex-1 p-3.5">
-                              <div className="flex items-start justify-between mb-1.5">
-                                <h4 className="text-sm font-bold text-gray-900 leading-tight line-clamp-1 pr-2">
-                                  {community.name}
-                                </h4>
-                                {community.googleRating && (
-                                  <div className="flex items-center flex-shrink-0 bg-yellow-50 px-1.5 py-0.5 rounded-full">
-                                    <Star className="w-3 h-3 text-yellow-500 fill-current" />
-                                    <span className="ml-1 text-xs font-semibold text-yellow-700">
-                                      {community.googleRating}
-                                    </span>
+                            {/* Address */}
+                            <div className="text-sm text-gray-600 mb-3">
+                              {community.address}, {community.city}, {community.state}
+                            </div>
+
+                            {/* Contact and Website Info */}
+                            <div className="flex items-center justify-between text-xs">
+                              {community.phone && (
+                                <div className="flex items-center text-gray-500">
+                                  <Phone className="w-3 h-3 mr-1" />
+                                  <span>{community.phone}</span>
+                                </div>
+                              )}
+                              
+                              <div className="flex items-center space-x-2">
+                                {community.website && (
+                                  <div className="flex items-center text-blue-600">
+                                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1"></div>
+                                    <span className="text-xs font-medium">Website</span>
                                   </div>
                                 )}
-                              </div>
-                              
-                              {/* Address and Contact Info */}
-                              <div className="space-y-1 mb-2">
-                                <div className="flex items-center text-xs text-gray-500">
-                                  <MapPin className="w-3 h-3 mr-1 text-gray-400" />
-                                  <span className="line-clamp-1 font-medium">{community.address}, {community.city}, {community.state}</span>
-                                </div>
-                                {community.phone && (
-                                  <div className="flex items-center text-xs text-gray-500">
-                                    <Phone className="w-3 h-3 mr-1 text-gray-400" />
-                                    <span className="font-medium">{community.phone}</span>
-                                  </div>
-                                )}
-                              </div>
-                              
-                              {/* Enhanced Care Types */}
-                              <div className="flex flex-wrap gap-1 mb-2.5">
-                                {community.careTypes?.slice(0, 2).map((careType) => (
-                                  <div key={careType} className="flex items-center bg-blue-50 text-blue-700 px-2 py-1 rounded-lg text-xs border border-blue-100">
-                                    {careTypeIcons[careType] || <Activity className="h-3 w-3" />}
-                                    <span className="ml-1 font-semibold">{careType}</span>
-                                  </div>
-                                ))}
-                              </div>
-                              
-                              {/* Confirmed Availability or Estimated Availability */}
-                              <div className="mb-2">
-                                {community.unitTypes && community.unitTypes.length > 0 ? (
-                                  <div>
-                                    <div className="flex items-center text-xs text-gray-600 mb-1">
-                                      <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
-                                      <span className="font-medium">Confirmed Availability*</span>
-                                    </div>
-                                    <div className="flex flex-wrap gap-1">
-                                      {community.unitTypes.slice(0, 3).map((unit: any, index: number) => (
-                                        <div key={index} className="bg-green-50 text-green-700 px-2 py-1 rounded text-xs border border-green-100">
-                                          {unit.type} ({unit.available} available)
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <div>
-                                    <div className="flex items-center text-xs text-gray-600 mb-1">
-                                      <CheckCircle className="w-3 h-3 mr-1 text-blue-500" />
-                                      <span className="font-medium">Estimated Availability*</span>
-                                    </div>
-                                    <div className="flex flex-wrap gap-1">
-                                      <div className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs border border-blue-100">
-                                        Studio (2-3 available)
-                                      </div>
-                                      <div className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs border border-blue-100">
-                                        1BR (1-2 available)
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                              
-                              {/* Enhanced Price Display with Transparency */}
-                              <div className="flex items-center justify-between">
-                                <div className="text-sm font-bold text-gray-900">
-                                  {community.priceRange?.min && community.priceRange?.max 
-                                    ? `$${(community.priceRange.min / 1000).toFixed(1)}K - $${(community.priceRange.max / 1000).toFixed(1)}K`
-                                    : community.priceRange?.min 
-                                      ? `$${(community.priceRange.min / 1000).toFixed(1)}K+`
-                                      : 'Estimated $4K - $8K'
-                                  }
-                                  <span className="text-xs text-gray-500 font-normal">/mo</span>
-                                </div>
-                                <div className="flex items-center space-x-1">
-                                  {community.website && (
-                                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
-                                  )}
-                                  <span className="text-xs text-gray-500 font-medium">
-                                    {community.availabilityStatus || 'Available'}
-                                  </span>
-                                </div>
+                                <span className="text-gray-500">
+                                  {community.availabilityStatus || 'Available Now'}
+                                </span>
                               </div>
                             </div>
                           </div>
