@@ -148,6 +148,17 @@ export default function BasicSearch() {
   // Apply sorting to filtered communities
   const sortedCommunities = sortCommunities(filteredCommunities, sortBy);
 
+  // Sort options for the dropdown
+  const sortOptions = [
+    { value: 'recommended', label: 'Communities for You', description: 'Best match for your needs' },
+    { value: 'rating', label: 'Highest Rated', description: 'Best reviews first' },
+    { value: 'priceAsc', label: 'Price: Low to High', description: 'Most affordable first' },
+    { value: 'priceDesc', label: 'Price: High to Low', description: 'Premium communities first' },
+    { value: 'newest', label: 'Recently Added', description: 'Latest listings' },
+    { value: 'nameAsc', label: 'Alphabetical', description: 'A to Z by name' },
+    { value: 'distance', label: 'Nearest First', description: 'Closest to map center' }
+  ];
+
   // Get communities visible in current map bounds
   const boundsFilteredCommunities = filteredCommunities.filter((community: any) => {
     if (!mapBounds || !community.latitude || !community.longitude) return false;
