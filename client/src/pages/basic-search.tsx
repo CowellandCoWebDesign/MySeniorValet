@@ -88,9 +88,21 @@ export default function BasicSearch() {
   const { data: communities, isLoading, error } = useQuery({
     queryKey: ["/api/communities"],
     retry: false,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    cacheTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
   });
 
+  // communities is now a direct array from the fast endpoint
+
   console.log('BasicSearch - communities:', communities?.length, 'loading:', isLoading, 'error:', error);
+
+  // Optimize display count based on viewport for better performance
+  const getOptimalDisplayCount = () => {
+    const viewportHeight = window.innerHeight;
+    const cardHeight = 120; // Approximate card height
+    const visibleCards = Math.floor(viewportHeight / cardHeight);
+    return Math.max(20, visibleCards * 2); // Show 2x visible cards for smooth scrolling
+  };
 
   // Enhanced sorting function
   const sortCommunities = (communities: any[], sortBy: string) => {
@@ -169,7 +181,9 @@ export default function BasicSearch() {
   const visibleCommunities = sortCommunities(boundsFilteredCommunities, sortBy);
   
   // Pagination for community display
-  const displayedCommunities = visibleCommunities.slice(0, displayCount);
+  // Smart pagination for performance - only render what's needed
+  const optimalCount = getOptimalDisplayCount();
+  const displayedCommunities = visibleCommunities.slice(0, Math.min(displayCount, optimalCount));
   
   // Load more communities when scrolling near bottom
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
