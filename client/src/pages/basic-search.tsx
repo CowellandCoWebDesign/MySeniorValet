@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, Star, Heart, List, Map, Bell, Calendar, Mail, Phone, ExternalLink, Users, CheckCircle, AlertTriangle, Activity, UserCheck, Stethoscope, Clock, ImageIcon, ChevronDown, SortAsc, ArrowLeft, Home } from "lucide-react";
+import { Search, MapPin, Star, Heart, List, Map, Bell, Calendar, Mail, Phone, ExternalLink, Users, CheckCircle, AlertTriangle, Activity, UserCheck, Stethoscope, Clock, ImageIcon, ChevronDown, SortAsc, ArrowLeft, Home, Plus, Minus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import { Icon } from 'leaflet';
@@ -715,6 +715,8 @@ export default function BasicSearch() {
             zoom={7}
             style={{ height: '100%', width: '100%' }}
             className="z-10"
+            zoomControl={false} // Disable default zoom control
+            attributionControl={false} // Disable default attribution control
           >
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -815,6 +817,32 @@ export default function BasicSearch() {
             >
               <List className="w-4 h-4 mr-1" />
               List
+            </Button>
+          </div>
+          
+          {/* Custom Zoom Controls - Positioned away from slide panel */}
+          <div className="absolute top-4 left-4 z-20 flex flex-col space-y-1">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="bg-white shadow-md w-8 h-8 p-0 flex items-center justify-center"
+              onClick={() => {
+                // Zoom in functionality would go here
+                console.log('Zoom in clicked');
+              }}
+            >
+              <Plus className="w-4 h-4" />
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="bg-white shadow-md w-8 h-8 p-0 flex items-center justify-center"
+              onClick={() => {
+                // Zoom out functionality would go here
+                console.log('Zoom out clicked');
+              }}
+            >
+              <Minus className="w-4 h-4" />
             </Button>
           </div>
 
