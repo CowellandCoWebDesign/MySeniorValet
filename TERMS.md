@@ -63,19 +63,31 @@ TrueView provides information "as is" without warranties of any kind.
 
 **Maximum Liability:** Our total liability to you for any claims shall not exceed $100 or the amount you paid to use our services, whichever is greater.
 
-## 7. Privacy and Data
+## 7. Neutrality & Platform Independence
+
+**Platform Independence Commitment:**
+TrueView operates as an independent, neutral listing and leasing platform. We are not affiliated with, endorsed by, or bound to any specific operator or senior living provider. Participating communities retain full control over their listings, and TrueView does not favor or suppress any brand, chain, or provider.
+
+**Our Independence Principles:**
+- No financial relationships that influence listing presentation
+- Equal opportunity for all communities to participate
+- Transparent sponsored listing identification
+- No preferential treatment based on operator size or brand
+- Community-controlled listing management and information
+
+## 8. Privacy and Data
 
 Your privacy is important to us. Please review our Privacy Policy for details on how we collect, use, and protect your information.
 
-## 8. Termination
+## 9. Termination
 
 We reserve the right to terminate or suspend access to our service immediately, without prior notice, for conduct that we believe violates these Terms of Service.
 
-## 9. Changes to Terms
+## 10. Changes to Terms
 
 We reserve the right to modify these terms at any time. Changes will be effective when posted on this page with an updated revision date. Your continued use of TrueView after any changes constitutes acceptance of the new terms.
 
-## 10. Contact Information
+## 11. Contact Information
 
 For questions about these Terms of Service:
 - **Email:** legal@trueview.com

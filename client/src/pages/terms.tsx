@@ -1,7 +1,7 @@
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Scale, AlertTriangle, Users } from "lucide-react";
+import { FileText, Scale, AlertTriangle, Users, Shield } from "lucide-react";
 
 export default function Terms() {
   return (
@@ -76,6 +76,37 @@ export default function Terms() {
                   TrueView is not a licensed placement agency and does not receive referral fees. 
                   We provide information only - all placement decisions are between you and the communities.
                 </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Scale className="h-5 w-5" aria-hidden="true" />
+                Neutrality & Platform Independence
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                <p className="text-green-800 font-medium mb-2">Platform Independence Commitment:</p>
+                <p className="text-green-700 text-sm">
+                  TrueView operates as an independent, neutral listing and leasing platform. We are not 
+                  affiliated with, endorsed by, or bound to any specific operator or senior living provider. 
+                  Participating communities retain full control over their listings, and TrueView does not 
+                  favor or suppress any brand, chain, or provider.
+                </p>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold mb-2">Our Independence Principles:</h3>
+                <ul className="list-disc list-inside space-y-1 text-gray-700">
+                  <li>No financial relationships that influence listing presentation</li>
+                  <li>Equal opportunity for all communities to participate</li>
+                  <li>Transparent sponsored listing identification</li>
+                  <li>No preferential treatment based on operator size or brand</li>
+                  <li>Community-controlled listing management and information</li>
+                </ul>
               </div>
             </CardContent>
           </Card>

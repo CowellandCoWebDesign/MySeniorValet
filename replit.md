@@ -186,6 +186,7 @@ The application is configured for multiple deployment environments:
 **Photo System Evolution**: Migrated from direct photo URLs to cached photo references with proxy serving for enhanced reliability and cost control
 **TRUEVIEW REDESIGN**: Complete mobile-first interface transformation with modern UX patterns (January 7, 2025)
 **API COMPLIANCE SYSTEM**: Full Google Places API compliance implemented with photo attribution system (January 7, 2025)
+**NEUTRALITY CLAUSE ADDED**: Platform independence commitment added to Terms of Service for community onboarding (January 8, 2025)
 **SLIDE PANEL SCROLLING FIXED**: Critical UI bug resolved after 7+ attempts using external ChatGPT consultation (January 8, 2025)
 **CALIFORNIA GOVERNMENT DATA SUCCESS**: Official state database integration complete - 2,145 authentic facilities downloaded and 1,220+ integrated (January 8, 2025)
 **DATABASE EXPANSION SUCCESS**: Massive 73% growth from 705 to 1,220 communities through systematic government data integration (January 8, 2025)
