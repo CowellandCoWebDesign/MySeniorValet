@@ -25,6 +25,7 @@ import { googlePlacesReviews } from './google-places-reviews';
 // REMOVED: Unsplash integration - violates "no synthetic data" policy
 import { dataProtectionService } from './data-protection';
 import { supportResourceService } from './support-resources';
+import { pixabayService } from './pixabay-api';
 import { z } from "zod";
 
 // Scalable infrastructure imports
@@ -6485,6 +6486,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching personalized recommendations:", error);
       res.status(500).json({ error: "Failed to fetch recommendations" });
+    }
+  });
+
+  // Pixabay API endpoint for hero images
+  app.get('/api/pixabay/hero-images', async (req, res) => {
+    try {
+      const images = await pixabayService.getHeroImages();
+      res.json({
+        success: true,
+        images: images.map(img => ({
+          id: img.id,
+          webformatURL: img.webformatURL,
+          largeImageURL: img.largeImageURL,
+          tags: img.tags,
+          user: img.user,
+          views: img.views,
+          downloads: img.downloads,
+          likes: img.likes
+        }))
+      });
+    } catch (error) {
+      console.error('Pixabay API error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to fetch hero images from Pixabay',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 
