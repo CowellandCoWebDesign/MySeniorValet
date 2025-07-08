@@ -7,71 +7,120 @@ import os
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://www.ccld.dss.ca.gov/carefacilitysearch/Results"
+BASE_URL = "https://www.ccld.dss.ca.gov/carefacilitysearch/Search/ElderlyAssistedLiving"
+SEARCH_API_URL = "https://www.ccld.dss.ca.gov/carefacilitysearch/api/search"
 HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (compatible; TrueViewBot/1.0; +https://trueviewsenior.com)'
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept': 'application/json, text/plain, */*',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Content-Type': 'application/json',
+    'Referer': 'https://www.ccld.dss.ca.gov/carefacilitysearch/Search/ElderlyAssistedLiving'
 }
 COUNTY = "Shasta"
 FACILITY_TYPE = "Residential Care Elderly"
 
-def scrape_cdss(county=COUNTY, facility_type=FACILITY_TYPE):
-    """Scrape CDSS for senior living facilities in a specific county"""
-    payload = {
-        'facilityType': facility_type,
-        'county': county,
-        'facilityName': '',
-        'city': '',
-        'zip': '',
-        'licNum': '',
-        'action': 'Search'
-    }
-
+def search_cdss_facilities(county=COUNTY, facility_type="RCFE"):
+    """Search CDSS transparency API for senior living facilities"""
+    
+    # First, try to get the main search page to find API structure
     try:
-        response = requests.post(BASE_URL, data=payload, headers=HEADERS, timeout=30)
+        # Get the main search page
+        response = requests.get("https://www.ccld.dss.ca.gov/carefacilitysearch/", headers=HEADERS, timeout=30)
         response.raise_for_status()
         
+        # Try to extract API endpoints or search structure
         soup = BeautifulSoup(response.text, 'html.parser')
-        cards = soup.find_all('div', class_='result-card')
-
-        results = []
-        for card in cards:
-            name = card.find('h4').text.strip() if card.find('h4') else ''
-            details = card.find_all('p')
-            data = {
-                'Name': name,
-                'Address': '',
-                'Phone': '',
-                'License Number': '',
-                'Facility Type': '',
-                'Capacity': '',
-                'Status': '',
-                'County': county,
-                'Scraped At': datetime.now().isoformat()
+        
+        # Look for Angular app configuration or API calls
+        scripts = soup.find_all('script')
+        api_urls = []
+        
+        for script in scripts:
+            if script.string:
+                content = script.string
+                # Look for API endpoints
+                if 'api/' in content or 'transparencyapi' in content:
+                    print(f"Found potential API reference: {content[:200]}...")
+                    
+        # Try the transparency API directly
+        transparency_api_url = "https://www.ccld.dss.ca.gov/transparencyapi/api/FacilitySearch"
+        
+        # Attempt to search using different payload structures
+        payloads_to_try = [
+            {
+                "county": county,
+                "facilityType": facility_type,
+                "pageNumber": 1,
+                "pageSize": 100
+            },
+            {
+                "County": county,
+                "FacilityType": facility_type
+            },
+            {
+                "searchCriteria": {
+                    "county": county,
+                    "facilityType": facility_type
+                }
             }
-
-            for detail in details:
-                text = detail.text.strip()
-                if "Address:" in text:
-                    data['Address'] = text.replace("Address:", "").strip()
-                elif "Phone:" in text:
-                    data['Phone'] = text.replace("Phone:", "").strip()
-                elif "License Number:" in text:
-                    data['License Number'] = text.replace("License Number:", "").strip()
-                elif "Facility Type:" in text:
-                    data['Facility Type'] = text.replace("Facility Type:", "").strip()
-                elif "Capacity:" in text:
-                    data['Capacity'] = text.replace("Capacity:", "").strip()
-                elif "Status:" in text:
-                    data['Status'] = text.replace("Status:", "").strip()
-
-            # Only add if we have meaningful data
-            if data['Name'] and data['Address']:
-                results.append(data)
-
+        ]
+        
+        results = []
+        
+        for i, payload in enumerate(payloads_to_try):
+            try:
+                print(f"Trying payload structure {i+1}: {payload}")
+                api_response = requests.post(transparency_api_url, 
+                                           json=payload, 
+                                           headers=HEADERS, 
+                                           timeout=30)
+                
+                if api_response.status_code == 200:
+                    data = api_response.json()
+                    print(f"Success! Got response: {str(data)[:200]}...")
+                    
+                    # Process the JSON response
+                    if isinstance(data, list):
+                        facilities = data
+                    elif isinstance(data, dict) and 'data' in data:
+                        facilities = data['data']
+                    elif isinstance(data, dict) and 'facilities' in data:
+                        facilities = data['facilities']
+                    else:
+                        facilities = [data] if data else []
+                    
+                    for facility in facilities:
+                        if isinstance(facility, dict):
+                            facility_data = {
+                                'Name': facility.get('facilityName', facility.get('name', '')),
+                                'Address': facility.get('address', ''),
+                                'Phone': facility.get('phone', ''),
+                                'License Number': facility.get('licenseNumber', facility.get('facilityNumber', '')),
+                                'Facility Type': facility.get('facilityType', ''),
+                                'Capacity': facility.get('capacity', ''),
+                                'Status': facility.get('status', ''),
+                                'County': county,
+                                'Scraped At': datetime.now().isoformat()
+                            }
+                            
+                            if facility_data['Name']:
+                                results.append(facility_data)
+                    
+                    if results:
+                        return results
+                        
+                else:
+                    print(f"API call {i+1} failed with status: {api_response.status_code}")
+                    print(f"Response: {api_response.text[:200]}...")
+                    
+            except Exception as e:
+                print(f"Error with payload {i+1}: {e}")
+                continue
+        
         return results
         
-    except requests.RequestException as e:
-        print(f"Error scraping CDSS for {county}: {e}")
+    except Exception as e:
+        print(f"Error accessing CDSS: {e}")
         return []
 
 def save_to_csv(data, filename="cdss_facilities.csv"):
@@ -91,7 +140,7 @@ def save_to_json(data, filename="cdss_facilities.json"):
         json.dump(data, f, indent=2, ensure_ascii=False)
 
 def scrape_all_counties():
-    """Scrape all California counties for RCFE facilities"""
+    """Search all California counties for RCFE facilities"""
     ca_counties = [
         "Alameda", "Alpine", "Amador", "Butte", "Calaveras", "Colusa", "Contra Costa",
         "Del Norte", "El Dorado", "Fresno", "Glenn", "Humboldt", "Imperial", "Inyo",
@@ -108,8 +157,8 @@ def scrape_all_counties():
     success_count = 0
     
     for county in ca_counties:
-        print(f"Scraping {county} County...")
-        results = scrape_cdss(county)
+        print(f"Searching {county} County...")
+        results = search_cdss_facilities(county)
         
         if results:
             all_results.extend(results)
@@ -128,8 +177,8 @@ def scrape_all_counties():
 
 if __name__ == "__main__":
     # First test with single county
-    print(f"Testing CDSS scraper with {COUNTY} County ({FACILITY_TYPE})...")
-    results = scrape_cdss()
+    print(f"Testing CDSS API search with {COUNTY} County...")
+    results = search_cdss_facilities()
     
     if results:
         save_to_csv(results, f"cdss_{COUNTY.lower()}_test.csv")
@@ -151,7 +200,36 @@ if __name__ == "__main__":
                 print("❌ No facilities found in full scrape")
     else:
         print("❌ Test failed - no results found")
-        print("This could be due to:")
-        print("- Website blocking requests")
-        print("- Changes to website structure")
-        print("- Network connectivity issues")
+        print("Investigating API structure and endpoints...")
+        
+        # Try alternative approach - look for actual API structure
+        try:
+            print("\nTrying to find working API endpoints...")
+            response = requests.get("https://www.ccld.dss.ca.gov/carefacilitysearch/", 
+                                  headers={'User-Agent': 'Mozilla/5.0 (compatible; TrueViewBot/1.0)'})
+            
+            if response.status_code == 200:
+                print("✅ Main site is accessible")
+                
+                # Look for API calls in the page source
+                soup = BeautifulSoup(response.text, 'html.parser')
+                scripts = soup.find_all('script')
+                
+                print("Analyzing page structure for API endpoints...")
+                for script in scripts:
+                    if script.get('src'):
+                        js_url = script.get('src')
+                        if 'controller' in js_url or 'app' in js_url or 'search' in js_url:
+                            print(f"Found relevant JS file: {js_url}")
+                            
+                print("\nRecommendations:")
+                print("1. The site may use a complex Angular/React app structure")
+                print("2. Consider using Selenium for browser automation")
+                print("3. Check the California Open Data Portal for facility datasets")
+                print("4. Contact CDSS directly for API access")
+                
+            else:
+                print(f"❌ Site returned status: {response.status_code}")
+                
+        except Exception as e:
+            print(f"Error investigating site: {e}")
