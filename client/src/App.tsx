@@ -46,8 +46,8 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={TrueViewHome} />
-      <Route path="/search" component={TestSearch} />
-      <Route path="/full-search" component={BasicSearch} />
+      <Route path="/search" component={BasicSearch} />
+      <Route path="/test-search" component={TestSearch} />
       <Route path="/old-search" component={TrueViewSearch} />
       <Route path="/explore" component={Explore} />
       <Route path="/community/:id" component={TrueViewCommunity} />

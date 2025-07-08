@@ -375,20 +375,25 @@ export default function BasicSearch() {
           </div>
         </div>
 
-        {/* Filter Pills */}
-        <div className="px-4 pb-3 flex space-x-3">
-          <Button variant="outline" className="border-blue-600 text-blue-600">
-            Care Level
+        {/* Filter Pills - Zillow Style */}
+        <div className="px-4 pb-3 flex space-x-3 overflow-x-auto">
+          <Button variant="outline" className="border-blue-600 text-blue-600 bg-blue-50 rounded-full px-4 py-1 h-8 text-sm whitespace-nowrap">
+            <span className="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
+            Care Level (1)
           </Button>
-          <Button variant="outline" className="border-blue-600 text-blue-600">
-            $2K - $6K
+          <Button variant="outline" className="border-blue-600 text-blue-600 bg-blue-50 rounded-full px-4 py-1 h-8 text-sm whitespace-nowrap">
+            <span className="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
+            $600k or less
+          </Button>
+          <Button variant="outline" className="border-gray-300 text-gray-600 rounded-full px-4 py-1 h-8 text-sm whitespace-nowrap">
+            + More filters
           </Button>
         </div>
       </div>
 
       {/* Map/List View */}
       {viewMode === 'map' ? (
-        <div className="h-96 relative">
+        <div className="flex-1 relative" style={{ height: 'calc(100vh - 180px)' }}>
           <MapContainer
             center={[40.315, -122.32]} // Northern California center
             zoom={7}
@@ -442,7 +447,7 @@ export default function BasicSearch() {
           </MapContainer>
 
           {/* Map Controls */}
-          <div className="absolute top-4 right-4 z-20">
+          <div className="absolute top-4 right-4 z-20 flex flex-col space-y-2">
             <Button 
               variant="outline" 
               size="sm" 
@@ -451,6 +456,17 @@ export default function BasicSearch() {
             >
               <List className="w-4 h-4 mr-1" />
               List
+            </Button>
+          </div>
+
+          {/* Save Search Button - Zillow Style */}
+          <div className="absolute bottom-20 right-4 z-20">
+            <Button 
+              className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg px-4 py-2 rounded-full"
+              onClick={() => alert('Search saved!')}
+            >
+              <Search className="w-4 h-4 mr-2" />
+              Save search
             </Button>
           </div>
 
