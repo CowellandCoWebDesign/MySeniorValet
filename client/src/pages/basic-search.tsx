@@ -556,51 +556,36 @@ export default function BasicSearch() {
               maxHeight: '90vh'
             }}
           >
-            {/* Fixed height header that doesn't scroll */}
-            <div className="absolute top-0 left-0 right-0 bg-white rounded-t-2xl z-10">
-              {/* Visual handle indicator - Only this part is draggable */}
-              <div 
-                className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing select-none"
-                onMouseDown={handleDragStart}
-                onTouchStart={handleDragStart}
-                style={{ touchAction: 'none' }}
-              >
-                <div className="w-10 h-1.5 bg-gray-400 rounded-full hover:bg-gray-500 transition-colors"></div>
-              </div>
-              
-              {/* Header with results count - NOT draggable */}
-              <div className="px-4 pb-3 border-b border-gray-100">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-xl font-bold text-gray-900">
-                      {visibleCommunities.length} results
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      Communities in this map area
-                    </div>
-                  </div>
+            {/* ====== FIXED HEADER + SCROLLABLE BODY ====== */}
+            <div className="absolute inset-0 flex flex-col z-0">
+              {/* Drag Handle + Header */}
+              <div className="flex-shrink-0 bg-white rounded-t-2xl shadow-md pb-2">
+                <div 
+                  className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing select-none"
+                  onMouseDown={handleDragStart}
+                  onTouchStart={handleDragStart}
+                  style={{ touchAction: 'none' }}
+                >
+                  <div className="w-10 h-1 bg-gray-300 rounded-full"></div>
                 </div>
-                
-                {/* Sort Options - removed to eliminate any event interference */}
-                <div className="flex items-center space-x-4 mt-3">
-                  <span className="text-sm text-gray-600 pb-1">
-                    {visibleCommunities.length} communities in map area
-                  </span>
+                <div className="px-4 pt-1 pb-2">
+                  <h2 className="text-lg font-bold text-gray-900">
+                    Communities in this map area
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    {visibleCommunities.length} communities found
+                  </p>
                 </div>
               </div>
-            </div>
 
-            {/* Scrollable Results List - Independent of header */}
-            <div 
-              className="absolute inset-0 overflow-y-scroll"
-              style={{ 
-                top: '100px', // Space for header
-                overscrollBehavior: 'contain',
-                WebkitOverflowScrolling: 'touch',
-                touchAction: 'pan-y' // Allow vertical scrolling only
-              }}
-            >
-              <div className="px-4 py-4">
+              {/* Scrollable Results */}
+              <div
+                className="flex-1 overflow-y-auto relative z-0 px-4 py-4"
+                style={{
+                  WebkitOverflowScrolling: 'touch',
+                  touchAction: 'auto',
+                }}
+              >
                 {visibleCommunities.length === 0 ? (
                   <div className="p-8 text-center text-gray-500">
                     <MapPin className="w-8 h-8 mx-auto mb-2 text-gray-400" />
@@ -609,61 +594,33 @@ export default function BasicSearch() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {visibleCommunities.slice(0, 20).map((community: any, index) => (
+                    {visibleCommunities.slice(0, 20).map((community: any) => (
                       <div
                         key={community.id}
-                        onClick={() => {
-                          window.location.href = `/community/${community.id}`;
-                        }}
+                        onClick={() => window.location.href = `/community/${community.id}`}
                         className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-lg transition-shadow cursor-pointer"
                       >
-                        {/* Community Card - Zillow Style */}
-                        <div className="flex">
-                          {/* Image placeholder */}
-                          <div className="w-24 h-20 bg-gray-200 rounded-lg mr-4 flex-shrink-0 relative">
-                            {index === 0 && (
-                              <div className="absolute top-1 left-1 bg-orange-500 text-white text-xs px-1.5 py-0.5 rounded">
-                                Featured
-                              </div>
-                            )}
-                            <Heart className="absolute top-1 right-1 w-4 h-4 text-white" />
+                        <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                          {community.name}
+                        </h4>
+                        <p className="text-gray-600 mb-2">{community.address}</p>
+                        <div className="flex items-center justify-between">
+                          <div className="text-blue-600 font-medium">
+                            {community.priceRange 
+                              ? `$${community.priceRange.min?.toLocaleString()} - $${community.priceRange.max?.toLocaleString()}/mo`
+                              : 'Contact for pricing'
+                            }
                           </div>
-                          
-                          {/* Content */}
-                          <div className="flex-1">
-                            <div className="flex items-start justify-between mb-1">
-                              <div className="text-lg font-bold text-blue-600">
-                                {community.monthlyRent 
-                                  ? `$${community.monthlyRent.toLocaleString()}/mo` 
-                                  : 'Contact for pricing'
-                                }
-                              </div>
-                              {community.googleRating && (
-                                <div className="flex items-center">
-                                  <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
-                                  <span className="text-sm font-medium">{community.googleRating}</span>
-                                </div>
-                              )}
-                            </div>
-                            
-                            <div className="text-sm text-gray-600 mb-1">
-                              {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
-                            </div>
-                            
-                            <div className="text-base font-semibold text-gray-900 mb-1">
-                              {community.name}
-                            </div>
-                            
-                            <div className="text-sm text-gray-600">
-                              {community.city}, {community.state}
-                            </div>
+                          <div className="flex items-center">
+                            <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                            <span className="ml-1 text-sm text-gray-600">
+                              {community.googleRating || 'No rating'}
+                            </span>
                           </div>
                         </div>
                       </div>
                     ))}
-                    
-                    {/* Padding for bottom navigation */}
-                    <div className="h-20"></div>
+                    <div className="h-20" /> {/* Spacer for bottom */}
                   </div>
                 )}
               </div>
