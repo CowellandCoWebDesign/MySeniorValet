@@ -125,24 +125,34 @@ export default function BasicSearch() {
     }
   };
 
-  // Global mouse/touch events for dragging - Only for mouse, let touch scroll naturally
+  // Global mouse/touch events for dragging - Handle both mouse and touch
   useEffect(() => {
     if (!isDragging) return;
 
     const handleMouseMove = (e: MouseEvent) => {
       handleDragMove(e);
     };
+    const handleTouchMove = (e: TouchEvent) => {
+      if (isDragging && dragFromHandle) {
+        e.preventDefault();
+        handleDragMove(e);
+      }
+    };
     const handleMouseUp = () => handleDragEnd();
+    const handleTouchEnd = () => handleDragEnd();
 
-    // Only add mouse event listeners, not touch - let touch scroll naturally
     document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
     document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('touchend', handleTouchEnd);
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('touchmove', handleTouchMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [isDragging, dragStartY, dragStartPosition, slidePosition]);
+  }, [isDragging, dragStartY, dragStartPosition, slidePosition, dragFromHandle]);
 
   // Bottom Navigation
   const BottomNav = () => (
@@ -553,13 +563,7 @@ export default function BasicSearch() {
                 className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing select-none"
                 onMouseDown={handleDragStart}
                 onTouchStart={handleDragStart}
-                onTouchMove={(e) => {
-                  if (isDragging) {
-                    e.preventDefault();
-                    handleDragMove(e);
-                  }
-                }}
-                onTouchEnd={handleDragEnd}
+                style={{ touchAction: 'none' }}
               >
                 <div className="w-10 h-1.5 bg-gray-400 rounded-full hover:bg-gray-500 transition-colors"></div>
               </div>
@@ -577,31 +581,23 @@ export default function BasicSearch() {
                   </div>
                 </div>
                 
-                {/* Sort Options */}
+                {/* Sort Options - removed to eliminate any event interference */}
                 <div className="flex items-center space-x-4 mt-3">
-                  <button className="text-sm text-blue-600 border-b-2 border-blue-600 pb-1 font-medium">
-                    Sort: Best Match
-                  </button>
-                  <button className="text-sm text-gray-600 hover:text-blue-600 pb-1">
-                    Price
-                  </button>
-                  <button className="text-sm text-gray-600 hover:text-blue-600 pb-1">
-                    Distance
-                  </button>
-                  <button className="text-sm text-gray-600 hover:text-blue-600 pb-1">
-                    Rating
-                  </button>
+                  <span className="text-sm text-gray-600 pb-1">
+                    {visibleCommunities.length} communities in map area
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* Scrollable Results List - Independent of header */}
             <div 
-              className="absolute inset-0 overflow-y-auto"
+              className="absolute inset-0 overflow-y-scroll"
               style={{ 
                 top: '100px', // Space for header
                 overscrollBehavior: 'contain',
-                WebkitOverflowScrolling: 'touch'
+                WebkitOverflowScrolling: 'touch',
+                touchAction: 'pan-y' // Allow vertical scrolling only
               }}
             >
               <div className="px-4 py-4">
