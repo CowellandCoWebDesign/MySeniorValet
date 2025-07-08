@@ -18,6 +18,12 @@ interface Community {
   zipCode: string;
   careTypes: string[];
   monthlyRent?: number;
+  priceRange?: {
+    min: number;
+    max: number;
+  };
+  pricingType?: 'estimated' | 'live';
+  isClaimed?: boolean;
   googleRating?: number;
   googleReviewCount?: number;
   phone?: string;
@@ -256,6 +262,27 @@ export default function TrueViewSearch() {
                       <MapPin className="w-3 h-3 mr-1" />
                       <span className="line-clamp-1">{community.city}, {community.state}</span>
                     </div>
+
+                    {/* Pricing Display */}
+                    {community.priceRange && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="text-sm font-semibold text-green-600">
+                          ${community.priceRange.min?.toLocaleString()}
+                          {community.priceRange.max && community.priceRange.max !== community.priceRange.min && 
+                            ` - $${community.priceRange.max.toLocaleString()}`}
+                        </div>
+                        {community.pricingType === 'live' && (
+                          <Badge className="bg-green-100 text-green-800 text-xs px-1.5 py-0.5">
+                            Live
+                          </Badge>
+                        )}
+                        {community.pricingType === 'estimated' && (
+                          <Badge className="bg-blue-100 text-blue-800 text-xs px-1.5 py-0.5">
+                            Est.
+                          </Badge>
+                        )}
+                      </div>
+                    )}
 
                     {community.googleReviewCount && (
                       <div className="text-xs text-gray-500">

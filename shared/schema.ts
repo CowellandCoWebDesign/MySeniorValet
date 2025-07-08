@@ -198,6 +198,16 @@ export const communities = pgTable("communities", {
       validUntil?: string;
     }>;
   }>().default({}),
+  // Pricing system fields
+  isClaimed: boolean("is_claimed").default(false),
+  livePricing: json("live_pricing").$type<{
+    min: number;
+    max: number;
+    lastUpdated: string;
+    updatedBy?: string;
+  }>(),
+  pricingType: text("pricing_type", { enum: ["estimated", "live"] }).default("estimated"),
+  pricingLastUpdated: timestamp("pricing_last_updated").defaultNow(),
   availabilityStatus: text("availability_status", { enum: ["Available Now", "Waitlist", "Full", "Contact for Availability"] }).default("Contact for Availability"),
   availableUnits: integer("available_units"),
   totalUnits: integer("total_units"),
@@ -251,7 +261,6 @@ export const communities = pgTable("communities", {
   lastInspection: timestamp("last_inspection"),
   violations: integer("violations").default(0),
   isVerified: boolean("is_verified").default(false),
-  isClaimed: boolean("is_claimed").default(false),
   lastPriceUpdate: timestamp("last_price_update"),
   lastAvailabilityUpdate: timestamp("last_availability_update"),
   createdAt: timestamp("created_at").defaultNow(),
