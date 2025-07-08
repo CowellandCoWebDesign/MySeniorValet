@@ -10,7 +10,7 @@ import {
   type Lead, type InsertLead, type LeadActivity, type InsertLeadActivity
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, like, ilike, gte, and, or, sql, inArray } from "drizzle-orm";
+import { eq, like, ilike, gte, and, or, sql, inArray, desc, isNotNull, gt } from "drizzle-orm";
 import { zipCodeService } from "./zip-code-mapping";
 
 export interface IStorage {
@@ -30,6 +30,7 @@ export interface IStorage {
   // Community methods
   getCommunity(id: number): Promise<Community | undefined>;
   getAllCommunities(): Promise<Community[]>;
+  getTrendingCommunities(limit?: number): Promise<Community[]>;
   searchCommunities(params: SearchCommunity): Promise<Community[]>;
   createCommunity(community: InsertCommunity): Promise<Community>;
   updateCommunity(id: number, updates: Partial<InsertCommunity>): Promise<Community | undefined>;
@@ -302,6 +303,20 @@ export class MemStorage implements IStorage {
     return Array.from(this.communities.values());
   }
 
+  async getTrendingCommunities(limit: number = 8): Promise<Community[]> {
+    // For in-memory storage, simulate the same logic
+    const communities = Array.from(this.communities.values());
+    
+    return communities
+      .filter(c => c.latitude && c.longitude && c.googleRating && c.googleRating > 3.0)
+      .sort((a, b) => {
+        const aScore = (a.googleRating || 0) * (a.googleReviewCount || 1);
+        const bScore = (b.googleRating || 0) * (b.googleReviewCount || 1);
+        return bScore - aScore;
+      })
+      .slice(0, limit);
+  }
+
   async searchCommunities(params: SearchCommunity): Promise<Community[]> {
     let results = Array.from(this.communities.values());
 
@@ -420,6 +435,23 @@ export class DatabaseStorage implements IStorage {
 
   async getAllCommunities(): Promise<Community[]> {
     return await db.select().from(communities);
+  }
+
+  async getTrendingCommunities(limit: number = 8): Promise<Community[]> {
+    // Optimized query: get trending communities directly from database
+    return await db.select()
+      .from(communities)
+      .where(and(
+        isNotNull(communities.latitude),
+        isNotNull(communities.longitude),
+        isNotNull(communities.googleRating),
+        gt(communities.googleRating, 3.0)
+      ))
+      .orderBy(
+        desc(sql`(${communities.googleRating} * COALESCE(${communities.googleReviewCount}, 1))`),
+        desc(communities.googleRating)
+      )
+      .limit(limit);
   }
 
   async searchCommunities(params: SearchCommunity): Promise<Community[]> {

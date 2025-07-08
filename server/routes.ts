@@ -705,18 +705,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get trending communities for homepage - fast-loading diverse selection
   app.get('/api/communities/trending', async (req, res) => {
     try {
-      const communities = await storage.getAllCommunities();
+      const startTime = Date.now();
+      // Use optimized database query instead of loading all communities
+      const trendingCommunities = await storage.getTrendingCommunities(16);
       
-      // Create diverse trending communities with good geographic spread
-      const trendingCommunities = communities
-        .filter(c => c.latitude && c.longitude && c.googleRating && c.googleRating > 3.0)
-        .sort((a, b) => {
-          // Sort by rating and review count for quality
-          const aScore = (a.googleRating || 0) * (a.googleReviewCount || 1);
-          const bScore = (b.googleRating || 0) * (b.googleReviewCount || 1);
-          return bScore - aScore;
-        })
-        .slice(0, 16) // Get more than we need for variety
+      // Add some randomness for variety while keeping the quality high
+      const shuffledCommunities = trendingCommunities
         .map(community => ({
           ...community,
           trendingScore: Math.random() * 100, // Add some randomness for variety
@@ -724,7 +718,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .sort((a, b) => b.trendingScore - a.trendingScore)
         .slice(0, 8); // Return top 8 for carousel
       
-      res.json(trendingCommunities);
+      console.log(`Trending communities loaded in ${Date.now() - startTime}ms`);
+      res.json(shuffledCommunities);
     } catch (error) {
       console.error('Error fetching trending communities:', error);
       res.status(500).json({ message: 'Failed to fetch trending communities' });
