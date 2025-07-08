@@ -131,7 +131,12 @@ export default function BasicSearch() {
       handleDragMove(e);
     };
     const handleTouchMove = (e: TouchEvent) => {
-      e.preventDefault();
+      // Only prevent default if we're actually dragging from the header
+      const target = e.target as HTMLElement;
+      const isScrollArea = target.closest('[data-scroll-area="true"]');
+      if (!isScrollArea) {
+        e.preventDefault();
+      }
       handleDragMove(e);
     };
     const handleMouseUp = () => handleDragEnd();
@@ -597,10 +602,14 @@ export default function BasicSearch() {
             {/* Scrollable Results List */}
             <div 
               className="overflow-y-auto overflow-x-hidden"
+              data-scroll-area="true"
               style={{ 
                 height: `${Math.max(0, slidePosition - 180)}px`,
-                maxHeight: `${Math.max(0, slidePosition - 180)}px`
+                maxHeight: `${Math.max(0, slidePosition - 180)}px`,
+                touchAction: 'pan-y'
               }}
+              onTouchStart={(e) => e.stopPropagation()}
+              onTouchMove={(e) => e.stopPropagation()}
             >
               {visibleCommunities.length === 0 ? (
                 <div className="p-8 text-center text-gray-500">
