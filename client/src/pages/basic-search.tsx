@@ -87,6 +87,8 @@ export default function BasicSearch() {
 
   // Handle drag for slide panel
   const handleDragStart = (e: React.TouchEvent | React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     setIsDragging(true);
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     setDragStartY(clientY);
@@ -96,9 +98,10 @@ export default function BasicSearch() {
   const handleDragMove = (e: React.TouchEvent | React.MouseEvent) => {
     if (!isDragging) return;
     
+    e.preventDefault();
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     const deltaY = dragStartY - clientY; // Inverted because dragging up increases position
-    const newPosition = Math.max(100, Math.min(window.innerHeight - 100, dragStartPosition + deltaY));
+    const newPosition = Math.max(120, Math.min(window.innerHeight - 50, dragStartPosition + deltaY));
     setSlidePosition(newPosition);
   };
 
@@ -535,11 +538,11 @@ export default function BasicSearch() {
 
           {/* Draggable Slide-up Results Panel - Zillow Style */}
           <div 
-            className="absolute left-0 right-0 bg-white border-t border-gray-200 z-20 rounded-t-2xl shadow-2xl transition-all duration-300 ease-out"
+            className="fixed left-0 right-0 bg-white border-t border-gray-200 z-20 rounded-t-2xl shadow-2xl"
             style={{ 
               bottom: 0,
               height: `${slidePosition}px`,
-              transform: isDragging ? 'none' : 'translateY(0)'
+              transition: isDragging ? 'none' : 'height 0.3s ease-out'
             }}
           >
             {/* Draggable Handle - Always active */}
