@@ -219,6 +219,31 @@
     display: none;
   }
 
+  /* Smooth sliding panel optimizations */
+  .slide-panel {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    will-change: transform;
+    -webkit-transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    -webkit-will-change: transform;
+  }
+
+  .slide-panel.dragging {
+    will-change: height, transform;
+    -webkit-will-change: height, transform;
+  }
+
+  /* Optimize rendering for better performance */
+  .hardware-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+    -webkit-transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    -webkit-perspective: 1000px;
+  }
+
   /* Animated effects */
   @keyframes float {
     0%, 100% { transform: translateY(0px); }

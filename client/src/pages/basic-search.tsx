@@ -219,25 +219,31 @@ export default function BasicSearch() {
     if (!isDragging) return;
     
     e.preventDefault();
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-    const deltaY = dragStartY - clientY; // Inverted because dragging up increases position
-    const newPosition = Math.max(120, Math.min(window.innerHeight - 50, dragStartPosition + deltaY));
-    setSlidePosition(newPosition);
+    
+    // Use requestAnimationFrame for smoother updates
+    requestAnimationFrame(() => {
+      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+      const deltaY = dragStartY - clientY; // Inverted because dragging up increases position
+      const newPosition = Math.max(120, Math.min(window.innerHeight - 50, dragStartPosition + deltaY));
+      setSlidePosition(newPosition);
+    });
   };
 
   const handleDragEnd = () => {
     setIsDragging(false);
     setDragFromHandle(false);
     
-    // Snap to positions based on final location with better thresholds
-    const screenHeight = window.innerHeight;
-    if (slidePosition < 150) {
-      setSlidePosition(120); // Minimized
-    } else if (slidePosition < screenHeight * 0.4) {
-      setSlidePosition(Math.min(300, screenHeight * 0.35)); // Partial view
-    } else {
-      setSlidePosition(screenHeight * 0.75); // Full open but not overwhelming
-    }
+    // Smooth snap to positions with better thresholds
+    requestAnimationFrame(() => {
+      const screenHeight = window.innerHeight;
+      if (slidePosition < 150) {
+        setSlidePosition(120); // Minimized
+      } else if (slidePosition < screenHeight * 0.4) {
+        setSlidePosition(Math.min(280, screenHeight * 0.35)); // Partial view
+      } else {
+        setSlidePosition(screenHeight * 0.75); // Full open but not overwhelming
+      }
+    });
   };
 
   // Global mouse/touch events for dragging - Handle both mouse and touch
@@ -245,6 +251,7 @@ export default function BasicSearch() {
     if (!isDragging) return;
 
     const handleMouseMove = (e: MouseEvent) => {
+      e.preventDefault();
       handleDragMove(e);
     };
     const handleTouchMove = (e: TouchEvent) => {
@@ -728,15 +735,15 @@ export default function BasicSearch() {
             </Button>
           </div>
 
-          {/* Draggable Slide-up Results Panel - Refined & Professional */}
+          {/* Draggable Slide-up Results Panel - Smooth & Optimized */}
           <div 
-            className="fixed left-0 right-0 bg-white z-20 shadow-2xl overflow-hidden"
+            className={`fixed left-0 right-0 bg-white z-30 shadow-2xl overflow-hidden slide-panel ${isDragging ? 'dragging' : ''}`}
             style={{ 
               bottom: 0,
               height: `${slidePosition}px`,
-              transition: isDragging ? 'none' : 'height 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              transition: isDragging ? 'none' : 'height 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
               maxHeight: '90vh',
-              borderRadius: slidePosition > 120 ? '20px 20px 0 0' : '12px 12px 0 0',
+              borderRadius: slidePosition > 120 ? '16px 16px 0 0' : '10px 10px 0 0',
               borderTop: '1px solid #e5e7eb'
             }}
           >
@@ -835,12 +842,14 @@ export default function BasicSearch() {
                 </div>
               </div>
 
-              {/* Scrollable Results - Enhanced with Infinite Loading */}
+              {/* Scrollable Results - Optimized Performance */}
               <div
                 className="flex-1 overflow-y-auto bg-gray-50"
                 style={{
                   WebkitOverflowScrolling: 'touch',
                   touchAction: 'auto',
+                  transform: 'translateZ(0)', // Hardware acceleration
+                  contain: 'layout style paint' // Optimize rendering
                 }}
                 onScroll={handleScroll}
               >
