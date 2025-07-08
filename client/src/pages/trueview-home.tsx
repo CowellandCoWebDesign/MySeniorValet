@@ -136,8 +136,8 @@ export default function TrueViewHome() {
       <section className="relative hero-mobile-safe bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="absolute inset-0">
           <img
-            src="https://pixabay.com/get/g237032d5bcf30811fafe777e6fc8feb0b91a3f5c96193ecffb7d5ebc9eb7c87c1ec954367341e8f32671d2db62e4b1be4ad12781979550ba0028119c0f1773f0_1280.jpg"
-            alt="Happy smiling seniors enjoying activities"
+            src="https://cdn.pixabay.com/photo/2023/01/19/17/21/man-7770930_1280.jpg"
+            alt="Senior man enjoying music with guitar"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-black bg-opacity-50"></div>
