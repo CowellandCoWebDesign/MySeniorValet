@@ -595,7 +595,13 @@ export default function BasicSearch() {
             </div>
 
             {/* Scrollable Results List */}
-            <div className="overflow-y-auto" style={{ height: `${slidePosition - 160}px` }}>
+            <div 
+              className="overflow-y-auto overflow-x-hidden"
+              style={{ 
+                height: `${Math.max(0, slidePosition - 180)}px`,
+                maxHeight: `${Math.max(0, slidePosition - 180)}px`
+              }}
+            >
               {visibleCommunities.length === 0 ? (
                 <div className="p-8 text-center text-gray-500">
                   <MapPin className="w-8 h-8 mx-auto mb-2 text-gray-400" />
@@ -603,14 +609,15 @@ export default function BasicSearch() {
                   <p className="text-sm mt-1">Try zooming out or moving the map.</p>
                 </div>
               ) : (
-                visibleCommunities.slice(0, 20).map((community: any, index) => (
-                  <div
-                    key={community.id}
-                    onClick={() => {
-                      window.location.href = `/community/${community.id}`;
-                    }}
-                    className="border-b border-gray-100 p-4 hover:bg-gray-50 transition-colors cursor-pointer"
-                  >
+                <div className="divide-y divide-gray-100">
+                  {visibleCommunities.slice(0, 20).map((community: any, index) => (
+                    <div
+                      key={community.id}
+                      onClick={() => {
+                        window.location.href = `/community/${community.id}`;
+                      }}
+                      className="p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                    >
                     {/* Community Card - Zillow Style */}
                     <div className="flex">
                       {/* Image placeholder */}
@@ -653,12 +660,13 @@ export default function BasicSearch() {
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))
+                    </div>
+                  ))}
+                  
+                  {/* Padding for bottom navigation */}
+                  <div className="h-20"></div>
+                </div>
               )}
-              
-              {/* Padding for bottom navigation */}
-              <div className="h-20"></div>
             </div>
           </div>
         </div>
