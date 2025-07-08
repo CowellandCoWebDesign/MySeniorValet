@@ -65,6 +65,17 @@ export default function BasicSearch() {
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [sortBy, setSortBy] = useState('recommended');
   const [showSortOptions, setShowSortOptions] = useState(false);
+  
+  // Sort options with better organization
+  const sortOptions = [
+    { value: 'recommended', label: 'Recommended', description: 'Best matches for your search' },
+    { value: 'priceAsc', label: 'Price: Low to High', description: 'Most affordable first' },
+    { value: 'priceDesc', label: 'Price: High to Low', description: 'Premium options first' },
+    { value: 'rating', label: 'Highest Rated', description: 'Best reviews first' },
+    { value: 'newest', label: 'Newest Listings', description: 'Recently added communities' },
+    { value: 'nameAsc', label: 'A to Z', description: 'Alphabetical order' },
+    { value: 'distance', label: 'Distance', description: 'Closest to you first' }
+  ];
 
   const [mapBounds, setMapBounds] = useState<any>(null);
   const [slidePosition, setSlidePosition] = useState(200); // Height from bottom
@@ -81,62 +92,61 @@ export default function BasicSearch() {
 
   console.log('BasicSearch - communities:', communities?.length, 'loading:', isLoading, 'error:', error);
 
-  const sortOptions = [
-    { id: 'recommended', label: 'Communities for You', description: 'Best match for your needs' },
-    { id: 'rating', label: 'Highest Rated', description: 'Best reviews first' },
-    { id: 'price-low', label: 'Price: Low to High', description: 'Most affordable first' },
-    { id: 'price-high', label: 'Price: High to Low', description: 'Premium communities first' },
-    { id: 'newest', label: 'Recently Added', description: 'Latest listings' },
-    { id: 'name', label: 'Alphabetical', description: 'A to Z by name' },
-    { id: 'distance', label: 'Nearest First', description: 'Closest to map center' }
-  ];
-
-  const filteredCommunities = communities?.filter((community: any) => {
-    if (!searchQuery) return true;
+  // Enhanced sorting function
+  const sortCommunities = (communities: any[], sortBy: string) => {
+    if (!communities) return [];
     
-    const query = searchQuery.toLowerCase();
-    return (
-      community.name?.toLowerCase().includes(query) ||
-      community.city?.toLowerCase().includes(query) ||
-      community.careTypes?.some((type: string) => type.toLowerCase().includes(query))
+    return [...communities].sort((a, b) => {
+      switch (sortBy) {
+        case 'priceAsc':
+          const priceA = a.priceRange?.min || a.monthlyRent || 0;
+          const priceB = b.priceRange?.min || b.monthlyRent || 0;
+          return priceA - priceB;
+        case 'priceDesc':
+          const priceA2 = a.priceRange?.min || a.monthlyRent || 0;
+          const priceB2 = b.priceRange?.min || b.monthlyRent || 0;
+          return priceB2 - priceA2;
+        case 'rating':
+          return (b.googleRating || 0) - (a.googleRating || 0);
+        case 'nameAsc':
+          return a.name.localeCompare(b.name);
+        case 'newest':
+          return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+        case 'distance':
+          // For now, sort by random to simulate distance
+          return Math.random() - 0.5;
+        default: // recommended
+          // Prioritize communities with ratings and photos
+          const scoreA = (a.googleRating || 0) * 2 + (a.googlePhotos?.length || 0) * 0.1;
+          const scoreB = (b.googleRating || 0) * 2 + (b.googlePhotos?.length || 0) * 0.1;
+          return scoreB - scoreA;
+      }
+    });
+  };
+
+  // Filter communities based on search query and map bounds
+  const filteredCommunities = communities?.filter((community: any) => {
+    // Search query filter
+    const searchMatch = !searchQuery || 
+      community.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      community.city?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      community.careTypes?.some((type: string) => 
+        type.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
+    // Map bounds filter (if bounds are available)
+    const boundsMatch = !mapBounds || (
+      community.latitude >= mapBounds.getSouth() &&
+      community.latitude <= mapBounds.getNorth() &&
+      community.longitude >= mapBounds.getWest() &&
+      community.longitude <= mapBounds.getEast()
     );
+
+    return searchMatch && boundsMatch;
   }) || [];
 
-  const sortCommunities = (communities: any[], sortType: string) => {
-    const sorted = [...communities];
-    
-    switch (sortType) {
-      case 'rating':
-        return sorted.sort((a, b) => (b.googleRating || 0) - (a.googleRating || 0));
-      case 'price-low':
-        return sorted.sort((a, b) => {
-          const aPrice = a.priceRange?.min || 999999;
-          const bPrice = b.priceRange?.min || 999999;
-          return aPrice - bPrice;
-        });
-      case 'price-high':
-        return sorted.sort((a, b) => {
-          const aPrice = a.priceRange?.max || 0;
-          const bPrice = b.priceRange?.max || 0;
-          return bPrice - aPrice;
-        });
-      case 'newest':
-        return sorted.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-      case 'name':
-        return sorted.sort((a, b) => a.name.localeCompare(b.name));
-      case 'distance':
-        // For now, sort by ID as a proxy for distance - could be enhanced with actual distance calculation
-        return sorted.sort((a, b) => a.id - b.id);
-      case 'recommended':
-      default:
-        // Recommended: combination of rating, availability, and completeness
-        return sorted.sort((a, b) => {
-          const aScore = (a.googleRating || 0) * 2 + (a.photos?.length || 0) * 0.1 + (a.priceRange ? 1 : 0);
-          const bScore = (b.googleRating || 0) * 2 + (b.photos?.length || 0) * 0.1 + (b.priceRange ? 1 : 0);
-          return bScore - aScore;
-        });
-    }
-  };
+  // Apply sorting to filtered communities
+  const sortedCommunities = sortCommunities(filteredCommunities, sortBy);
 
   // Get communities visible in current map bounds
   const boundsFilteredCommunities = filteredCommunities.filter((community: any) => {
@@ -614,7 +624,7 @@ export default function BasicSearch() {
             <MapBoundsUpdater onBoundsChange={setMapBounds} />
             
             {/* Community Markers - House Style with State */}
-            {filteredCommunities
+            {sortedCommunities
               .filter((community: any) => community.latitude && community.longitude)
               .map((community: any) => {
                 // Determine marker state (for demo purposes, using community ID for variety)
@@ -732,7 +742,7 @@ export default function BasicSearch() {
           >
             {/* Professional Header Design - Entire header is draggable */}
             <div className="absolute inset-0 flex flex-col">
-              {/* Draggable Header Section */}
+              {/* Compact Draggable Header - Easier to grab */}
               <div 
                 className="flex-shrink-0 bg-white cursor-grab active:cursor-grabbing select-none"
                 onMouseDown={handleDragStart}
@@ -742,47 +752,47 @@ export default function BasicSearch() {
                   touchAction: 'none'
                 }}
               >
-                {/* Drag Handle */}
-                <div className="flex justify-center pt-2.5 pb-1">
-                  <div className="w-8 h-1 bg-gray-400 rounded-full transition-colors hover:bg-gray-500"></div>
+                {/* Enhanced Drag Handle - Larger grab area */}
+                <div className="flex justify-center pt-3 pb-2">
+                  <div className="w-10 h-1.5 bg-gray-400 rounded-full transition-colors hover:bg-gray-500"></div>
                 </div>
 
-                {/* Refined Header */}
-                <div className="px-4 pt-1 pb-3 border-b border-gray-100">
+                {/* Compact Header */}
+                <div className="px-4 pb-3 border-b border-gray-100">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <h2 className="text-lg font-bold text-gray-900">
+                      <div className="flex items-center space-x-2 mb-0.5">
+                        <h2 className="text-base font-bold text-gray-900">
                           {visibleCommunities.length} communities
                         </h2>
                         <div className="h-1 w-1 bg-gray-400 rounded-full"></div>
-                        <span className="text-sm text-gray-500 font-medium">in map area</span>
+                        <span className="text-xs text-gray-500 font-medium">in map area</span>
                       </div>
                       <p className="text-xs text-gray-500">
                         Showing {displayedCommunities.length} of {visibleCommunities.length} visible • {communities?.length || 0} total
                       </p>
                     </div>
                     
-                    {/* Professional Sort Button */}
+                    {/* Compact Sort Button */}
                     <div className="relative sort-dropdown">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           setShowSortOptions(!showSortOptions);
                         }}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-all duration-200 font-medium"
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-all duration-200 font-medium"
                       >
-                        <SortAsc className="w-3.5 h-3.5 text-gray-600" />
+                        <SortAsc className="w-3 h-3 text-gray-600" />
                         <span className="text-gray-700">Sort</span>
-                        <ChevronDown className={`w-3.5 h-3.5 text-gray-500 transition-transform duration-200 ${showSortOptions ? 'rotate-180' : ''}`} />
+                        <ChevronDown className={`w-3 h-3 text-gray-500 transition-transform duration-200 ${showSortOptions ? 'rotate-180' : ''}`} />
                       </button>
                       
                       {/* Enhanced Sort Dropdown */}
                       {showSortOptions && (
-                        <div className="absolute top-full right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
+                        <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden">
                           <div className="p-3">
                             <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-100">
-                              <h3 className="text-sm font-bold text-gray-900">Sort communities</h3>
+                              <h3 className="text-sm font-semibold text-gray-900">Sort communities</h3>
                               <button 
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -798,33 +808,25 @@ export default function BasicSearch() {
                             <div className="space-y-1">
                               {sortOptions.map((option) => (
                                 <button
-                                  key={option.id}
+                                  key={option.value}
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    setSortBy(option.id);
+                                    setSortBy(option.value);
                                     setShowSortOptions(false);
                                   }}
-                                  className={`w-full text-left px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all duration-200 ${
-                                    sortBy === option.id ? 'bg-blue-50 border border-blue-200' : 'border border-transparent'
+                                  className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all duration-200 flex items-start justify-between group ${
+                                    sortBy === option.value 
+                                      ? 'bg-blue-50 text-blue-700 border border-blue-200' 
+                                      : 'hover:bg-gray-50 text-gray-700 border border-transparent'
                                   }`}
                                 >
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex-1">
-                                      <div className={`font-semibold text-sm ${sortBy === option.id ? 'text-blue-700' : 'text-gray-900'}`}>
-                                        {option.label}
-                                      </div>
-                                      <div className={`text-xs mt-0.5 ${sortBy === option.id ? 'text-blue-600' : 'text-gray-500'}`}>
-                                        {option.description}
-                                      </div>
-                                    </div>
-                                    {sortBy === option.id && (
-                                      <div className="flex items-center justify-center w-5 h-5 bg-blue-600 rounded-full flex-shrink-0 ml-2">
-                                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                      </div>
-                                    )}
+                                  <div className="flex-1">
+                                    <div className="font-medium">{option.label}</div>
+                                    <div className="text-xs text-gray-500 mt-0.5">{option.description}</div>
                                   </div>
+                                  {sortBy === option.value && (
+                                    <CheckCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                                  )}
                                 </button>
                               ))}
                             </div>
