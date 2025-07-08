@@ -221,6 +221,11 @@ export default function BasicSearch() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showSortOptions]);
 
+  // Enhanced drag state for velocity tracking
+  const [dragVelocity, setDragVelocity] = useState(0);
+  const [lastDragTime, setLastDragTime] = useState(0);
+  const [lastDragY, setLastDragY] = useState(0);
+
   // Handle drag for slide panel - Entire header is draggable
   const handleDragStart = (e: React.TouchEvent | React.MouseEvent) => {
     // Don't start drag if clicking on interactive elements (buttons, dropdowns)
@@ -234,6 +239,9 @@ export default function BasicSearch() {
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     setDragStartY(clientY);
     setDragStartPosition(slidePosition);
+    setLastDragY(clientY);
+    setLastDragTime(Date.now());
+    setDragVelocity(0);
     e.preventDefault();
   };
 
@@ -245,9 +253,21 @@ export default function BasicSearch() {
     // Use requestAnimationFrame for smoother updates
     requestAnimationFrame(() => {
       const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+      const currentTime = Date.now();
       const deltaY = dragStartY - clientY; // Inverted because dragging up increases position
       const newPosition = Math.max(120, Math.min(window.innerHeight - 50, dragStartPosition + deltaY));
+      
+      // Calculate velocity for flick detection
+      const timeDelta = currentTime - lastDragTime;
+      if (timeDelta > 0) {
+        const yDelta = lastDragY - clientY;
+        const velocity = yDelta / timeDelta; // pixels per millisecond
+        setDragVelocity(velocity);
+      }
+      
       setSlidePosition(newPosition);
+      setLastDragY(clientY);
+      setLastDragTime(currentTime);
     });
   };
 
@@ -255,16 +275,63 @@ export default function BasicSearch() {
     setIsDragging(false);
     setDragFromHandle(false);
     
-    // Smooth snap to positions with better thresholds
+    // Enhanced snap logic with velocity consideration
     requestAnimationFrame(() => {
       const screenHeight = window.innerHeight;
-      if (slidePosition < 150) {
-        setSlidePosition(120); // Minimized
-      } else if (slidePosition < screenHeight * 0.4) {
-        setSlidePosition(Math.min(280, screenHeight * 0.35)); // Partial view
+      const flickThreshold = 0.5; // pixels per millisecond
+      
+      // Determine target position based on velocity and current position
+      let targetPosition;
+      
+      if (Math.abs(dragVelocity) > flickThreshold) {
+        // Fast flick detected - move to next logical position
+        if (dragVelocity > 0) {
+          // Flicking up - go to next higher position
+          if (slidePosition < 200) {
+            targetPosition = Math.min(320, screenHeight * 0.4);
+          } else {
+            targetPosition = screenHeight * 0.85;
+          }
+        } else {
+          // Flicking down - go to next lower position
+          if (slidePosition > screenHeight * 0.6) {
+            targetPosition = Math.min(320, screenHeight * 0.4);
+          } else {
+            targetPosition = 120;
+          }
+        }
       } else {
-        setSlidePosition(screenHeight * 0.75); // Full open but not overwhelming
+        // Slow drag - snap to nearest position
+        if (slidePosition < 180) {
+          targetPosition = 120; // Minimized
+        } else if (slidePosition < screenHeight * 0.6) {
+          targetPosition = Math.min(320, screenHeight * 0.4); // Partial view
+        } else {
+          targetPosition = screenHeight * 0.85; // Full open
+        }
       }
+      
+      // Smooth transition to target position
+      const startPosition = slidePosition;
+      const startTime = Date.now();
+      const duration = 300; // ms
+      
+      const animate = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Ease-out animation
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        const currentPosition = startPosition + (targetPosition - startPosition) * easeOut;
+        
+        setSlidePosition(currentPosition);
+        
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        }
+      };
+      
+      animate();
     });
   };
 
@@ -296,7 +363,7 @@ export default function BasicSearch() {
       document.removeEventListener('mouseup', handleMouseUp);
       document.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [isDragging, dragStartY, dragStartPosition, slidePosition, dragFromHandle]);
+  }, [isDragging, dragStartY, dragStartPosition, slidePosition, dragFromHandle, lastDragTime, lastDragY]);
 
   // Bottom Navigation
   const BottomNav = () => (
@@ -763,7 +830,7 @@ export default function BasicSearch() {
             style={{ 
               bottom: 0,
               height: `${slidePosition}px`,
-              transition: isDragging ? 'none' : 'height 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+              transition: isDragging ? 'none' : 'height 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               maxHeight: '90vh',
               borderRadius: slidePosition > 120 ? '16px 16px 0 0' : '10px 10px 0 0',
               borderTop: '1px solid #e5e7eb'
