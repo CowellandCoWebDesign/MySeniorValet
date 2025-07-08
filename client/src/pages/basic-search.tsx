@@ -126,13 +126,19 @@ export default function BasicSearch() {
   useEffect(() => {
     if (!isDragging) return;
 
-    const handleMouseMove = (e: MouseEvent) => handleDragMove(e);
-    const handleTouchMove = (e: TouchEvent) => handleDragMove(e);
+    const handleMouseMove = (e: MouseEvent) => {
+      e.preventDefault();
+      handleDragMove(e);
+    };
+    const handleTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      handleDragMove(e);
+    };
     const handleMouseUp = () => handleDragEnd();
     const handleTouchEnd = () => handleDragEnd();
 
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('touchmove', handleTouchMove);
+    document.addEventListener('mousemove', handleMouseMove, { passive: false });
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
     document.addEventListener('mouseup', handleMouseUp);
     document.addEventListener('touchend', handleTouchEnd);
 
@@ -142,7 +148,7 @@ export default function BasicSearch() {
       document.removeEventListener('mouseup', handleMouseUp);
       document.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [isDragging, dragStartY, dragStartPosition]);
+  }, [isDragging, dragStartY, dragStartPosition, slidePosition]);
 
   // Bottom Navigation
   const BottomNav = () => (
@@ -545,48 +551,51 @@ export default function BasicSearch() {
               transition: isDragging ? 'none' : 'height 0.3s ease-out'
             }}
           >
-            {/* Draggable Handle - Always active */}
+            {/* Draggable Header Area - Entire top section is draggable */}
             <div 
-              className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing select-none"
+              className="cursor-grab active:cursor-grabbing select-none"
               onMouseDown={handleDragStart}
               onTouchStart={handleDragStart}
               style={{ touchAction: 'none' }}
             >
-              <div className="w-10 h-1.5 bg-gray-400 rounded-full hover:bg-gray-500 transition-colors"></div>
-            </div>
-            
-            {/* Header with results count */}
-            <div className="px-4 pb-3 border-b border-gray-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-xl font-bold text-gray-900">
-                    {visibleCommunities.length} results
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    Communities in this map area
-                  </div>
-                </div>
+              {/* Visual handle indicator */}
+              <div className="flex justify-center pt-3 pb-2">
+                <div className="w-10 h-1.5 bg-gray-400 rounded-full hover:bg-gray-500 transition-colors"></div>
               </div>
               
-              {/* Sort Options */}
-              <div className="flex items-center space-x-4 mt-3">
-                <button className="text-sm text-blue-600 border-b-2 border-blue-600 pb-1 font-medium">
-                  Sort: Best Match
-                </button>
-                <button className="text-sm text-gray-600 hover:text-blue-600 pb-1">
-                  Price
-                </button>
-                <button className="text-sm text-gray-600 hover:text-blue-600 pb-1">
-                  Distance
-                </button>
-                <button className="text-sm text-gray-600 hover:text-blue-600 pb-1">
-                  Rating
-                </button>
+              {/* Header with results count - also draggable */}
+              <div className="px-4 pb-3 border-b border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-xl font-bold text-gray-900">
+                      {visibleCommunities.length} results
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      Communities in this map area
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Sort Options */}
+                <div className="flex items-center space-x-4 mt-3">
+                  <button className="text-sm text-blue-600 border-b-2 border-blue-600 pb-1 font-medium">
+                    Sort: Best Match
+                  </button>
+                  <button className="text-sm text-gray-600 hover:text-blue-600 pb-1">
+                    Price
+                  </button>
+                  <button className="text-sm text-gray-600 hover:text-blue-600 pb-1">
+                    Distance
+                  </button>
+                  <button className="text-sm text-gray-600 hover:text-blue-600 pb-1">
+                    Rating
+                  </button>
+                </div>
               </div>
             </div>
 
             {/* Scrollable Results List */}
-            <div className="overflow-y-auto" style={{ height: `${slidePosition - 140}px` }}>
+            <div className="overflow-y-auto" style={{ height: `${slidePosition - 160}px` }}>
               {visibleCommunities.length === 0 ? (
                 <div className="p-8 text-center text-gray-500">
                   <MapPin className="w-8 h-8 mx-auto mb-2 text-gray-400" />
