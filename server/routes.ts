@@ -51,6 +51,7 @@ import { apiCostProtection } from "./api-cost-protection";
 import { communityStatsCache } from "./community-stats-cache";
 import { systematicPhotoEnrichment } from "./systematic-photo-enrichment";
 import { emergencyEnrichment } from "./emergency-enrichment";
+import { pricingTransparencyService } from "./pricing-transparency-badges";
 
 // Authentication middleware function
 const isAuthenticated = (req: any, res: any, next: any) => {
@@ -638,7 +639,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const communities = await storage.searchCommunities(searchParams);
       console.log(`Found ${communities.length} communities`);
       
-      res.json(communities);
+      // Enhance communities with pricing transparency badges
+      const enrichedCommunities = await pricingTransparencyService.enrichCommunitiesWithBadges(communities);
+      
+      res.json(enrichedCommunities);
     } catch (error) {
       if (error instanceof z.ZodError) {
         console.error("Search validation error:", error.errors);

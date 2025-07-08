@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Search, Heart, MapPin, Filter, Star, Home, ArrowLeft, Settings, Map, List } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import { PricingTransparencyBadgeList, TransparencyScore } from "@/components/PricingTransparencyBadge";
 
 interface Community {
   id: number;
@@ -30,6 +31,16 @@ interface Community {
   website?: string;
   photos?: string[];
   photoAttributions?: string[];
+  transparencyBadges?: Array<{
+    id: string;
+    name: string;
+    description: string;
+    icon: string;
+    color: string;
+    rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+    points: number;
+  }>;
+  transparencyScore?: number;
 }
 
 export default function TrueViewSearch() {
@@ -281,6 +292,17 @@ export default function TrueViewSearch() {
                             Est.
                           </Badge>
                         )}
+                      </div>
+                    )}
+
+                    {/* Pricing Transparency Badges */}
+                    {community.transparencyBadges && community.transparencyBadges.length > 0 && (
+                      <div className="mb-2">
+                        <PricingTransparencyBadgeList 
+                          badges={community.transparencyBadges} 
+                          maxDisplay={2}
+                          size="sm"
+                        />
                       </div>
                     )}
 
