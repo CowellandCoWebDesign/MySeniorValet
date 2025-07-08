@@ -470,19 +470,43 @@ export default function BasicSearch() {
             </Button>
           </div>
 
-          {/* Slide-up Results Bar */}
-          <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-20">
+          {/* Slide-up Results Bar - Zillow Style */}
+          <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-20 rounded-t-lg shadow-lg">
+            {/* Handle indicator */}
+            <div className="flex justify-center pt-2 pb-1">
+              <div className="w-8 h-1 bg-gray-300 rounded-full"></div>
+            </div>
+            
             <button
               onClick={() => setSlideUpOpen(!slideUpOpen)}
-              className="w-full text-center py-3 hover:bg-gray-50 transition-colors"
+              className="w-full text-center py-2 hover:bg-gray-50 transition-colors"
             >
-              <div className="text-lg font-semibold text-gray-900">
+              <div className="text-lg font-bold text-gray-900">
                 {visibleCommunities.length} results
               </div>
-              <div className="text-sm text-gray-600">
-                Tap to see list
-              </div>
             </button>
+            
+            {/* Preview of first result when closed */}
+            {!slideUpOpen && visibleCommunities.length > 0 && (
+              <div className="px-4 pb-4">
+                <div className="bg-gray-50 rounded-lg p-3 cursor-pointer" onClick={() => setSlideUpOpen(true)}>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="font-semibold text-sm text-gray-900 mb-1">
+                        {visibleCommunities[0].name}
+                      </div>
+                      <div className="text-blue-600 font-bold text-lg">
+                        {visibleCommunities[0].monthlyRent 
+                          ? `$${visibleCommunities[0].monthlyRent.toLocaleString()}/mo` 
+                          : 'Contact for pricing'
+                        }
+                      </div>
+                    </div>
+                    <Heart className="w-5 h-5 text-gray-400" />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       ) : (
@@ -545,82 +569,117 @@ export default function BasicSearch() {
         </div>
       )}
 
-      {/* Slide-up Results List */}
+      {/* Slide-up Results List - Improved Zillow Style */}
       {slideUpOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50" onClick={() => setSlideUpOpen(false)}>
+        <div className="fixed inset-0 z-50">
+          {/* Backdrop */}
           <div 
-            className="absolute bottom-0 left-0 right-0 bg-white rounded-t-lg max-h-[70vh] overflow-y-auto"
+            className="absolute inset-0 bg-black bg-opacity-30" 
+            onClick={() => setSlideUpOpen(false)}
+          />
+          
+          {/* Slide-up Panel */}
+          <div 
+            className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[80vh] overflow-hidden transition-transform duration-300 ease-out"
+            style={{ transform: 'translateY(0)' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="sticky top-0 bg-white border-b border-gray-200 p-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {visibleCommunities.length} Communities
-                </h3>
+            {/* Drag Handle */}
+            <div className="flex justify-center pt-3 pb-2">
+              <div className="w-10 h-1 bg-gray-300 rounded-full"></div>
+            </div>
+            
+            {/* Header */}
+            <div className="sticky top-0 bg-white border-b border-gray-100 px-4 pb-3">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <div className="text-xl font-bold text-gray-900">
+                    {visibleCommunities.length} results
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Communities in this area
+                  </div>
+                </div>
                 <button
                   onClick={() => setSlideUpOpen(false)}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200"
                 >
                   ✕
                 </button>
               </div>
               
               {/* Sort Options */}
-              <div className="mt-3 flex space-x-3">
-                <button className="text-sm text-blue-600 border-b border-blue-600 pb-1">
-                  Sort: Distance
+              <div className="flex items-center space-x-4">
+                <button className="text-sm text-blue-600 border-b-2 border-blue-600 pb-1 font-medium">
+                  Sort: Care Level
                 </button>
-                <button className="text-sm text-gray-600 hover:text-blue-600">
-                  Price
+                <button className="text-sm text-gray-600 hover:text-blue-600 pb-1">
+                  Price: Low to High
                 </button>
-                <button className="text-sm text-gray-600 hover:text-blue-600">
+                <button className="text-sm text-gray-600 hover:text-blue-600 pb-1">
                   Rating
                 </button>
               </div>
             </div>
 
-            <div className="p-4 space-y-4">
-              {visibleCommunities.slice(0, 20).map((community: any) => (
+            {/* Results List */}
+            <div className="overflow-y-auto">
+              {visibleCommunities.slice(0, 20).map((community: any, index) => (
                 <div
                   key={community.id}
                   onClick={() => {
                     setSlideUpOpen(false);
                     window.location.href = `/community/${community.id}`;
                   }}
-                  className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-lg transition-shadow cursor-pointer"
+                  className="border-b border-gray-100 p-4 hover:bg-gray-50 transition-colors cursor-pointer"
                 >
-                  <div className="flex items-start justify-between mb-2">
-                    <h4 className="text-lg font-semibold text-gray-900">
-                      {community.name}
-                    </h4>
-                    <Heart className="w-5 h-5 text-gray-400 hover:text-red-500 cursor-pointer" />
-                  </div>
-                  
-                  <div className="flex items-center text-gray-600 mb-2">
-                    <MapPin className="w-4 h-4 mr-1" />
-                    <span>{community.city}, {community.state}</span>
-                  </div>
-                  
-                  <div className="text-sm text-gray-500 mb-3">
-                    {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="text-lg font-bold text-blue-600">
-                      {community.monthlyRent 
-                        ? `$${community.monthlyRent.toLocaleString()}/mo` 
-                        : 'Contact for pricing'
-                      }
+                  {/* Community Card - Zillow Style */}
+                  <div className="flex">
+                    {/* Image placeholder */}
+                    <div className="w-24 h-20 bg-gray-200 rounded-lg mr-4 flex-shrink-0 relative">
+                      {index === 0 && (
+                        <div className="absolute top-1 left-1 bg-orange-500 text-white text-xs px-1.5 py-0.5 rounded">
+                          Featured
+                        </div>
+                      )}
+                      <Heart className="absolute top-1 right-1 w-4 h-4 text-white" />
                     </div>
-                    {community.googleRating && (
-                      <div className="flex items-center">
-                        <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
-                        <span className="text-sm font-medium">{community.googleRating}</span>
+                    
+                    {/* Content */}
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between mb-1">
+                        <div className="text-lg font-bold text-blue-600">
+                          {community.monthlyRent 
+                            ? `$${community.monthlyRent.toLocaleString()}/mo` 
+                            : 'Contact for pricing'
+                          }
+                        </div>
+                        {community.googleRating && (
+                          <div className="flex items-center">
+                            <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
+                            <span className="text-sm font-medium">{community.googleRating}</span>
+                          </div>
+                        )}
                       </div>
-                    )}
+                      
+                      <div className="text-sm text-gray-600 mb-1">
+                        {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
+                      </div>
+                      
+                      <div className="text-base font-semibold text-gray-900 mb-1">
+                        {community.name}
+                      </div>
+                      
+                      <div className="text-sm text-gray-600">
+                        {community.city}, {community.state}
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
+              
+              {/* Padding for bottom navigation */}
+              <div className="h-20"></div>
             </div>
           </div>
         </div>
