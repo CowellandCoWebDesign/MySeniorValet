@@ -105,15 +105,16 @@ export default function BasicSearch() {
   const handleDragEnd = () => {
     setIsDragging(false);
     
-    // Snap to positions based on final location
-    if (slidePosition < 200) {
+    // Snap to positions based on final location with better thresholds
+    const screenHeight = window.innerHeight;
+    if (slidePosition < 150) {
       setSlidePosition(120); // Minimized
       setSlideUpOpen(false);
-    } else if (slidePosition < 400) {
-      setSlidePosition(200); // Partial
+    } else if (slidePosition < screenHeight * 0.4) {
+      setSlidePosition(Math.min(300, screenHeight * 0.35)); // Partial view
       setSlideUpOpen(false);
     } else {
-      setSlidePosition(window.innerHeight * 0.8); // Full open
+      setSlidePosition(screenHeight * 0.75); // Full open but not overwhelming
       setSlideUpOpen(true);
     }
   };
@@ -541,13 +542,14 @@ export default function BasicSearch() {
               transform: isDragging ? 'none' : 'translateY(0)'
             }}
           >
-            {/* Draggable Handle */}
+            {/* Draggable Handle - Always active */}
             <div 
-              className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing"
+              className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing select-none"
               onMouseDown={handleDragStart}
               onTouchStart={handleDragStart}
+              style={{ touchAction: 'none' }}
             >
-              <div className="w-10 h-1 bg-gray-300 rounded-full"></div>
+              <div className="w-10 h-1.5 bg-gray-400 rounded-full hover:bg-gray-500 transition-colors"></div>
             </div>
             
             {/* Header with results count */}
@@ -561,14 +563,6 @@ export default function BasicSearch() {
                     Communities in this map area
                   </div>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSlidePosition(slidePosition > 300 ? 120 : window.innerHeight * 0.8)}
-                  className="rounded-full"
-                >
-                  {slidePosition > 300 ? 'Minimize' : 'Expand'}
-                </Button>
               </div>
               
               {/* Sort Options */}
