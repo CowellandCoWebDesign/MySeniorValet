@@ -111,14 +111,7 @@ export class PricingTransparencyService {
     const hasMultipleCareTypes = community.careTypes && community.careTypes.length > 1;
     const hasSpecialRates = community.specialOffers && community.specialOffers.length > 0;
     
-    // Debug logging
-    console.log(`Evaluating badges for ${community.name}:`);
-    console.log(`  hasPricing: ${hasPricing}`);
-    console.log(`  hasLivePricing: ${hasLivePricing}`);
-    console.log(`  hasRangeDetailed: ${hasRangeDetailed}`);
-    console.log(`  hasRecentUpdate: ${hasRecentUpdate}`);
-    console.log(`  hasMultipleCareTypes: ${hasMultipleCareTypes}`);
-    console.log(`  hasSpecialRates: ${hasSpecialRates}`);
+
     
     // Check each badge
     for (const badge of PRICING_TRANSPARENCY_BADGES) {
@@ -133,12 +126,9 @@ export class PricingTransparencyService {
       if (criteria.hasSpecialRates && !hasSpecialRates) qualifies = false;
       
       if (qualifies) {
-        console.log(`  ✓ Earned badge: ${badge.name}`);
         earnedBadges.push(badge);
       }
     }
-    
-    console.log(`  Total badges earned: ${earnedBadges.length}`);
     return earnedBadges;
   }
   
