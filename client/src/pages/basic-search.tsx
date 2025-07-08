@@ -552,19 +552,19 @@ export default function BasicSearch() {
               maxHeight: '90vh'
             }}
           >
-            {/* Draggable Header Area - Entire top section is draggable */}
-            <div 
-              className="cursor-grab active:cursor-grabbing select-none flex-shrink-0"
-              onMouseDown={handleDragStart}
-              onTouchStart={handleDragStart}
-              style={{ touchAction: 'none' }}
-            >
-              {/* Visual handle indicator */}
-              <div className="flex justify-center pt-3 pb-2">
+            {/* Header Area - Only handle is draggable */}
+            <div className="flex-shrink-0">
+              {/* Visual handle indicator - Only this part is draggable */}
+              <div 
+                className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing select-none"
+                onMouseDown={handleDragStart}
+                onTouchStart={handleDragStart}
+                style={{ touchAction: 'none' }}
+              >
                 <div className="w-10 h-1.5 bg-gray-400 rounded-full hover:bg-gray-500 transition-colors"></div>
               </div>
               
-              {/* Header with results count - also draggable */}
+              {/* Header with results count - NOT draggable */}
               <div className="px-4 pb-3 border-b border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
