@@ -49,6 +49,7 @@ export default function BasicSearch() {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartY, setDragStartY] = useState(0);
   const [dragStartPosition, setDragStartPosition] = useState(0);
+  const [dragFromHandle, setDragFromHandle] = useState(false);
 
   const { data: communities, isLoading, error } = useQuery({
     queryKey: ["/api/communities"],
@@ -90,6 +91,7 @@ export default function BasicSearch() {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(true);
+    setDragFromHandle(true);
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     setDragStartY(clientY);
     setDragStartPosition(slidePosition);
@@ -107,6 +109,7 @@ export default function BasicSearch() {
 
   const handleDragEnd = () => {
     setIsDragging(false);
+    setDragFromHandle(false);
     
     // Snap to positions based on final location with better thresholds
     const screenHeight = window.innerHeight;
@@ -130,11 +133,11 @@ export default function BasicSearch() {
       handleDragMove(e);
     };
     const handleTouchMove = (e: TouchEvent) => {
-      // Only prevent default during drag operations, not for all touches
-      if (isDragging) {
+      // Only handle drag if it started from the handle area
+      if (isDragging && dragFromHandle) {
         e.preventDefault();
+        handleDragMove(e);
       }
-      handleDragMove(e);
     };
     const handleMouseUp = () => handleDragEnd();
     const handleTouchEnd = () => handleDragEnd();
@@ -599,10 +602,11 @@ export default function BasicSearch() {
 
             {/* Scrollable Results List */}
             <div 
-              className="flex-1 overflow-y-auto overflow-x-hidden"
-              style={{ touchAction: 'pan-y' }}
-              onTouchStart={(e) => e.stopPropagation()}
-              onTouchMove={(e) => e.stopPropagation()}
+              className="flex-1 overflow-y-auto overflow-x-hidden webkit-scrolling-touch"
+              style={{ 
+                touchAction: 'pan-y',
+                WebkitOverflowScrolling: 'touch'
+              }}
             >
               {visibleCommunities.length === 0 ? (
                 <div className="p-8 text-center text-gray-500">
