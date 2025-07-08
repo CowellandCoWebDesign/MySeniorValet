@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, Star, Heart, List, Map, Bell, Calendar, Mail } from "lucide-react";
+import { Search, MapPin, Star, Heart, List, Map, Bell, Calendar, Mail, Phone, ExternalLink, Users, CheckCircle, AlertTriangle, Activity, UserCheck, Stethoscope, Clock, ImageIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import { Icon } from 'leaflet';
@@ -590,33 +590,130 @@ export default function BasicSearch() {
                     <p className="text-sm mt-1">Try zooming out or moving the map.</p>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    {visibleCommunities.slice(0, 20).map((community: any) => (
-                      <div
-                        key={community.id}
-                        onClick={() => window.location.href = `/community/${community.id}`}
-                        className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-lg transition-shadow cursor-pointer"
-                      >
-                        <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                          {community.name}
-                        </h4>
-                        <p className="text-gray-600 mb-2">{community.address}</p>
-                        <div className="flex items-center justify-between">
-                          <div className="text-blue-600 font-medium">
-                            {community.priceRange 
-                              ? `$${community.priceRange.min?.toLocaleString()} - $${community.priceRange.max?.toLocaleString()}/mo`
-                              : 'Contact for pricing'
-                            }
-                          </div>
-                          <div className="flex items-center">
-                            <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                            <span className="ml-1 text-sm text-gray-600">
-                              {community.googleRating || 'No rating'}
-                            </span>
+                  <div className="space-y-3">
+                    {visibleCommunities.slice(0, 20).map((community: any) => {
+                      const firstPhoto = community.photos && community.photos.length > 0 ? community.photos[0] : null;
+                      const careTypeIcons = {
+                        'Independent Living': <Activity className="h-3 w-3" />,
+                        'Assisted Living': <UserCheck className="h-3 w-3" />,
+                        'Memory Care': <Stethoscope className="h-3 w-3" />,
+                        'Skilled Nursing': <Activity className="h-3 w-3" />
+                      };
+                      
+                      return (
+                        <div
+                          key={community.id}
+                          onClick={() => window.location.href = `/community/${community.id}`}
+                          className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                        >
+                          <div className="flex">
+                            {/* Photo Section */}
+                            <div className="w-24 h-24 flex-shrink-0 bg-gray-100 relative">
+                              {firstPhoto ? (
+                                <img
+                                  src={firstPhoto.startsWith('http') ? firstPhoto : `/api/communities/${community.id}/photos/${firstPhoto}`}
+                                  alt={community.name}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                  }}
+                                />
+                              ) : null}
+                              <div className={`absolute inset-0 flex items-center justify-center bg-gray-100 ${firstPhoto ? 'hidden' : ''}`}>
+                                <ImageIcon className="w-8 h-8 text-gray-400" />
+                              </div>
+                              
+                              {/* Heart favorite button */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // Add favorite logic here
+                                }}
+                                className="absolute top-1 right-1 w-6 h-6 bg-white/80 rounded-full flex items-center justify-center hover:bg-white transition-colors"
+                              >
+                                <Heart className="w-3 h-3 text-gray-600" />
+                              </button>
+                            </div>
+                            
+                            {/* Content Section */}
+                            <div className="flex-1 p-3">
+                              <div className="flex items-start justify-between mb-1">
+                                <h4 className="text-sm font-semibold text-gray-900 leading-tight line-clamp-1">
+                                  {community.name}
+                                </h4>
+                                {community.googleRating && (
+                                  <div className="flex items-center ml-2 flex-shrink-0">
+                                    <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                                    <span className="ml-1 text-xs text-gray-600">
+                                      {community.googleRating}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                              
+                              <div className="flex items-center text-xs text-gray-500 mb-2">
+                                <MapPin className="w-3 h-3 mr-1" />
+                                <span className="line-clamp-1">{community.city}, {community.state}</span>
+                              </div>
+                              
+                              {/* Care Types */}
+                              <div className="flex flex-wrap gap-1 mb-2">
+                                {community.careTypes?.slice(0, 2).map((careType) => (
+                                  <div key={careType} className="flex items-center bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full text-xs">
+                                    {careTypeIcons[careType] || <Activity className="h-3 w-3" />}
+                                    <span className="ml-1 font-medium">{careType}</span>
+                                  </div>
+                                ))}
+                                {community.careTypes && community.careTypes.length > 2 && (
+                                  <div className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-xs">
+                                    +{community.careTypes.length - 2} more
+                                  </div>
+                                )}
+                              </div>
+                              
+                              {/* Pricing */}
+                              <div className="flex items-center justify-between">
+                                <div className="text-sm font-bold text-blue-600">
+                                  {community.priceRange 
+                                    ? `$${Math.floor(community.priceRange.min/1000)}K+/mo`
+                                    : 'Contact for pricing'
+                                  }
+                                </div>
+                                
+                                {/* Quick Action Buttons */}
+                                <div className="flex items-center gap-1">
+                                  {community.phone && (
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        window.location.href = `tel:${community.phone}`;
+                                      }}
+                                      className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                                      title="Call"
+                                    >
+                                      <Phone className="w-3 h-3 text-gray-600" />
+                                    </button>
+                                  )}
+                                  {community.website && (
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        window.open(community.website, '_blank');
+                                      }}
+                                      className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                                      title="Visit website"
+                                    >
+                                      <ExternalLink className="w-3 h-3 text-gray-600" />
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                     <div className="h-20" /> {/* Spacer for bottom */}
                   </div>
                 )}
