@@ -5450,31 +5450,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // "no synthetic data" policy. Only authentic Google Places photos used.
   // EXCEPTION: Hero images allowed for homepage from Unsplash per project requirements.
 
-  // Get hero images (Using Pixabay for better quality images)
+  // Get hero images (Using specific Unsplash swimming pool image)
   app.get('/api/images/hero', createRateLimitMiddleware(imageLimiter), async (req, res) => {
     try {
-      const { pixabayService } = await import('./pixabay-api');
-      const heroImages = await pixabayService.getHeroImages();
-      
-      // Convert Pixabay format to match expected frontend format
-      const formattedImages = heroImages.map(image => ({
-        id: image.id.toString(),
+      // Use the specific Unsplash swimming pool image requested
+      const heroImage = {
+        id: "X4Lj9LB5XAI",
         urls: {
-          regular: image.largeImageURL,
-          full: image.largeImageURL,
-          thumb: image.webformatURL
+          regular: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+          full: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+          thumb: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80"
         },
-        alt_description: image.tags,
-        description: image.tags,
+        alt_description: "wavy swimming pool during daytime",
+        description: "Beautiful wavy swimming pool during daytime",
         user: {
-          name: image.user
+          name: "Unsplash Photographer"
         },
-        likes: image.likes,
-        views: image.views,
-        downloads: image.downloads
-      }));
+        likes: 0,
+        views: 0,
+        downloads: 0
+      };
       
-      res.json(formattedImages);
+      res.json([heroImage]);
     } catch (error) {
       console.error('Hero image fetch error:', error);
       res.status(500).json({ 
