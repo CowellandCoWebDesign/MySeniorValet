@@ -431,8 +431,11 @@ export default function TrueViewHome() {
           <p className="text-gray-600 text-sm mb-4">5 new communities • Updated 2 hours ago</p>
         
         <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
-          {/* Show memory care communities from trending data */}
-          {featuredCommunities.filter(c => c.careTypes?.includes('Memory Care')).slice(0, 6).map((community: any, index) => (
+          {/* Show memory care communities - fallback to all communities if none found */}
+          {(featuredCommunities.filter(c => c.careTypes?.includes('Memory Care')).length > 0 
+            ? featuredCommunities.filter(c => c.careTypes?.includes('Memory Care'))
+            : featuredCommunities.slice(0, 6)
+          ).map((community: any, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
               <Card className="overflow-hidden flex-shrink-0 w-48 animate-float border border-gray-200 hover:border-gray-300 transition-colors" style={{animationDelay: `${index * 0.2}s`}}>
                 <div className="relative">
@@ -671,14 +674,27 @@ export default function TrueViewHome() {
           <p className="text-gray-600 text-sm mb-4">Bay Area and North Coast communities with ocean views and coastal charm</p>
         
           <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
-            {/* Show coastal communities (San Francisco, Oakland, etc.) */}
-            {featuredCommunities.filter(c => 
-              c.city?.toLowerCase().includes('san francisco') || 
+            {/* Show coastal communities - broader filter for Bay Area */}
+            {(featuredCommunities.filter(c => 
+              c.city?.toLowerCase().includes('san') || 
               c.city?.toLowerCase().includes('oakland') ||
-              c.city?.toLowerCase().includes('san jose') ||
               c.city?.toLowerCase().includes('berkeley') ||
-              c.city?.toLowerCase().includes('santa')
-            ).slice(0, 6).map((community: any, index) => (
+              c.city?.toLowerCase().includes('santa') ||
+              c.city?.toLowerCase().includes('alameda') ||
+              c.city?.toLowerCase().includes('fremont') ||
+              c.state === 'CA'
+            ).length > 0 
+              ? featuredCommunities.filter(c => 
+                  c.city?.toLowerCase().includes('san') || 
+                  c.city?.toLowerCase().includes('oakland') ||
+                  c.city?.toLowerCase().includes('berkeley') ||
+                  c.city?.toLowerCase().includes('santa') ||
+                  c.city?.toLowerCase().includes('alameda') ||
+                  c.city?.toLowerCase().includes('fremont') ||
+                  c.state === 'CA'
+                ).slice(0, 6)
+              : featuredCommunities.slice(2, 8)
+            ).map((community: any, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
               <Card className="overflow-hidden flex-shrink-0 w-48 animate-float coastal-card" style={{animationDelay: `${index * 0.2}s`}}>
                 <div className="relative">
