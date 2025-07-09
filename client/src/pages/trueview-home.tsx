@@ -138,11 +138,19 @@ export default function TrueViewHome() {
       {/* Hero Section with Search */}
       <section className="relative hero-mobile-safe bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="absolute inset-0">
-          <img
-            src="https://pixabay.com/get/g372c8ac6025184bd57e3348911d318d34fcc4ca6449ecbf324afd9556d94a2c42d7268c79e269273cd17612ed16277c831e8cc000499572736f947139d518211_1280.jpg"
-            alt="Resort style swimming pool with comfortable seating"
-            className="w-full h-full object-cover"
-          />
+          {heroImages && heroImages.length > 0 ? (
+            <img
+              src={heroImages[0].urls.regular}
+              alt={heroImages[0].alt_description || "Senior living community"}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <img
+              src="https://pixabay.com/get/g372c8ac6025184bd57e3348911d318d34fcc4ca6449ecbf324afd9556d94a2c42d7268c79e269273cd17612ed16277c831e8cc000499572736f947139d518211_1280.jpg"
+              alt="Resort style swimming pool with comfortable seating"
+              className="w-full h-full object-cover"
+            />
+          )}
           <div className="absolute inset-0 bg-black bg-opacity-50"></div>
         </div>
         

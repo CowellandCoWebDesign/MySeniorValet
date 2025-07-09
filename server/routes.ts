@@ -5450,12 +5450,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // "no synthetic data" policy. Only authentic Google Places photos used.
   // EXCEPTION: Hero images allowed for homepage from Unsplash per project requirements.
 
-  // Get hero images (EXCEPTION: Unsplash allowed for hero only)
+  // Get hero images (Using Pixabay for better quality images)
   app.get('/api/images/hero', createRateLimitMiddleware(imageLimiter), async (req, res) => {
     try {
-      const { unsplashService } = await import('./unsplash-integration');
-      const heroImages = await unsplashService.getHeroImages();
-      res.json(heroImages);
+      const { pixabayService } = await import('./pixabay-api');
+      const heroImages = await pixabayService.getHeroImages();
+      
+      // Convert Pixabay format to match expected frontend format
+      const formattedImages = heroImages.map(image => ({
+        id: image.id.toString(),
+        urls: {
+          regular: image.largeImageURL,
+          full: image.largeImageURL,
+          thumb: image.webformatURL
+        },
+        alt_description: image.tags,
+        description: image.tags,
+        user: {
+          name: image.user
+        },
+        likes: image.likes,
+        views: image.views,
+        downloads: image.downloads
+      }));
+      
+      res.json(formattedImages);
     } catch (error) {
       console.error('Hero image fetch error:', error);
       res.status(500).json({ 
