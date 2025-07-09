@@ -726,6 +726,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get communities by location for horizontal sections
+  app.get('/api/communities/by-location/:location', async (req, res) => {
+    try {
+      const startTime = Date.now();
+      const location = req.params.location;
+      const limit = parseInt(req.query.limit as string) || 20;
+      
+      // Use the same search logic as the main search
+      const searchResults = await storage.searchCommunities({
+        location: location,
+        limit: limit,
+        offset: 0
+      });
+      
+      console.log(`Location communities (${location}) loaded in ${Date.now() - startTime}ms`);
+      res.json(searchResults);
+    } catch (error) {
+      console.error('Error fetching location communities:', error);
+      res.status(500).json({ message: 'Failed to fetch location communities' });
+    }
+  });
+
   // Get all communities (optimized with pagination)
   app.get("/api/communities", async (req, res) => {
     try {

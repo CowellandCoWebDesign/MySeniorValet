@@ -30,6 +30,25 @@ export default function TrueViewHome() {
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
+  // Location-specific queries for horizontal sections
+  const { data: reddingCommunities, isLoading: reddingLoading } = useQuery({
+    queryKey: ["/api/communities/by-location/Redding"],
+    retry: false,
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+  });
+
+  const { data: sacramentoCommunities, isLoading: sacramentoLoading } = useQuery({
+    queryKey: ["/api/communities/by-location/Sacramento"],
+    retry: false,
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+  });
+
+  const { data: sanFranciscoCommunities, isLoading: sanFranciscoLoading } = useQuery({
+    queryKey: ["/api/communities/by-location/San Francisco"],
+    retry: false,
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+  });
+
   const featuredCommunities = trendingCommunities?.slice(0, 8) || [];
 
   // Generate location suggestions based on available community data
@@ -473,115 +492,89 @@ export default function TrueViewHome() {
             </div>
           </div>
           
-          <p className="text-gray-600 text-sm mb-4">3 quality communities • Updated 30 minutes ago</p>
+          <p className="text-gray-600 text-sm mb-4">{reddingCommunities?.length || 0} quality communities • Updated 30 minutes ago</p>
         
         <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
-          {/* Show Redding communities with fallback to Northern California */}
-          {(() => {
-            const reddingCommunities = featuredCommunities.filter(c => 
-              c.city?.toLowerCase().includes('redding') || 
-              c.city?.toLowerCase().includes('anderson') ||
-              c.city?.toLowerCase().includes('shasta') ||
-              c.city?.toLowerCase().includes('palo cedro') ||
-              c.city?.toLowerCase().includes('cottonwood')
-            );
-            
-            if (reddingCommunities.length >= 2) {
-              return reddingCommunities.slice(0, 6);
-            } else {
-              // Fallback to Northern California communities
-              return featuredCommunities.filter(c => 
-                c.city?.toLowerCase().includes('redding') ||
-                c.city?.toLowerCase().includes('chico') ||
-                c.city?.toLowerCase().includes('yuba city') ||
-                c.city?.toLowerCase().includes('marysville') ||
-                c.city?.toLowerCase().includes('eureka') ||
-                c.city?.toLowerCase().includes('sacramento') ||
-                c.city?.toLowerCase().includes('stockton') ||
-                c.city?.toLowerCase().includes('modesto') ||
-                c.city?.toLowerCase().includes('fresno') ||
-                c.city?.toLowerCase().includes('oakland') ||
-                c.city?.toLowerCase().includes('berkeley') ||
-                c.city?.toLowerCase().includes('vallejo') ||
-                c.city?.toLowerCase().includes('antioch') ||
-                c.city?.toLowerCase().includes('concord') ||
-                c.city?.toLowerCase().includes('san jose') ||
-                c.city?.toLowerCase().includes('santa rosa') ||
-                c.city?.toLowerCase().includes('petaluma') ||
-                c.city?.toLowerCase().includes('napa') ||
-                c.city?.toLowerCase().includes('fairfield') ||
-                c.city?.toLowerCase().includes('vacaville') ||
-                c.city?.toLowerCase().includes('davis') ||
-                c.city?.toLowerCase().includes('woodland') ||
-                c.city?.toLowerCase().includes('santa cruz') ||
-                c.city?.toLowerCase().includes('salinas') ||
-                c.city?.toLowerCase().includes('monterey')
-              ).slice(0, 6);
-            }
-          })().map((community: any, index) => (
-            <Link key={community.id} href={`/community/${community.id}`}>
-              <Card className="overflow-hidden flex-shrink-0 w-48 animate-float border border-gray-200 hover:border-gray-300 transition-colors" style={{animationDelay: `${index * 0.2}s`}}>
-                <div className="relative">
-                  <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
-                    <Home className="w-12 h-12 text-gray-400" />
-                  </div>
-                  
-                  {/* Heart Icon */}
-                  <div className="absolute top-3 right-3">
-                    <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
-                      <Heart className="w-4 h-4 text-gray-600" />
-                    </div>
-                  </div>
-                  
-                  {/* Featured/Sponsored Badge */}
-                  {index % 3 === 0 && (
-                    <Badge className="absolute top-3 left-3 gradient-tertiary text-white text-xs px-2 py-1 font-medium animate-pulse">
-                      Premium
-                    </Badge>
-                  )}
-                  {index % 3 === 1 && (
-                    <Badge className="absolute top-3 left-3 gradient-primary text-white text-xs px-2 py-1 font-medium animate-pulse">
-                      Featured
-                    </Badge>
-                  )}
-                  
-                  {/* Status Badge */}
-                  <Badge 
-                    className={`absolute top-3 left-3 text-white text-xs px-2 py-1 font-medium ${
-                      index % 4 === 0 ? 'bg-red-600' : 
-                      index % 4 === 1 ? 'bg-blue-600' : 
-                      index % 4 === 2 ? 'bg-orange-600' : 'bg-green-600'
-                    }`}
-                  >
-                    {index % 4 === 0 ? 'Price drop' : 
-                     index % 4 === 1 ? 'New photos' :
-                     index % 4 === 2 ? 'Tour available' : 'Memory care'}
-                  </Badge>
-                </div>
-                
+          {/* Show ALL Redding communities from dedicated endpoint */}
+          {reddingLoading ? (
+            // Loading skeleton cards
+            Array.from({ length: 4 }).map((_, index) => (
+              <Card key={index} className="overflow-hidden flex-shrink-0 w-48 border border-gray-200 animate-pulse">
+                <div className="aspect-[4/3] bg-gray-200"></div>
                 <CardContent className="p-3">
-                  <div className="text-xl font-bold text-gray-900 mb-1">
-                    {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : `$${(3800 + (index * 180)).toLocaleString()}`}
-                  </div>
-                  
-                  <div className="text-sm text-gray-700 mb-1">
-                    {community.careTypes?.length > 0 ? 
-                      `${community.careTypes[0]} • ${community.careTypes.length > 1 ? community.careTypes[1] : 'Assisted Living'}` : 
-                      'Assisted Living • Memory Care'
-                    }
-                  </div>
-                  
-                  <div className="text-sm font-medium text-gray-900 mb-2 line-clamp-1">
-                    {community.name}
-                  </div>
-                  
-                  <div className="text-xs text-gray-600 line-clamp-1">
-                    {community.address || `${Math.floor(Math.random() * 9999)} Memory Lane`}, {community.city}, {community.state}
-                  </div>
+                  <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-1"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded"></div>
                 </CardContent>
               </Card>
-            </Link>
-          )) || []}
+            ))
+          ) : (
+            (reddingCommunities || []).map((community: any, index) => (
+              <Link key={community.id} href={`/community/${community.id}`}>
+                <Card className="overflow-hidden flex-shrink-0 w-48 animate-float border border-gray-200 hover:border-gray-300 transition-colors" style={{animationDelay: `${index * 0.2}s`}}>
+                  <div className="relative">
+                    <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
+                      <Home className="w-12 h-12 text-gray-400" />
+                    </div>
+                    
+                    {/* Heart Icon */}
+                    <div className="absolute top-3 right-3">
+                      <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
+                        <Heart className="w-4 h-4 text-gray-600" />
+                      </div>
+                    </div>
+                    
+                    {/* Featured/Sponsored Badge */}
+                    {index % 3 === 0 && (
+                      <Badge className="absolute top-3 left-3 gradient-tertiary text-white text-xs px-2 py-1 font-medium animate-pulse">
+                        Premium
+                      </Badge>
+                    )}
+                    {index % 3 === 1 && (
+                      <Badge className="absolute top-3 left-3 gradient-primary text-white text-xs px-2 py-1 font-medium animate-pulse">
+                        Featured
+                      </Badge>
+                    )}
+                    
+                    {/* Status Badge */}
+                    <Badge 
+                      className={`absolute top-3 left-3 text-white text-xs px-2 py-1 font-medium ${
+                        index % 4 === 0 ? 'bg-red-600' : 
+                        index % 4 === 1 ? 'bg-blue-600' : 
+                        index % 4 === 2 ? 'bg-orange-600' : 'bg-green-600'
+                      }`}
+                    >
+                      {index % 4 === 0 ? 'Price drop' : 
+                       index % 4 === 1 ? 'New photos' :
+                       index % 4 === 2 ? 'Tour available' : 'Memory care'}
+                    </Badge>
+                  </div>
+                  
+                  <CardContent className="p-3">
+                    <div className="text-xl font-bold text-gray-900 mb-1">
+                      {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : `$${(3800 + (index * 180)).toLocaleString()}`}
+                    </div>
+                    
+                    <div className="text-sm text-gray-700 mb-1">
+                      {community.careTypes?.length > 0 ? 
+                        `${community.careTypes[0]} • ${community.careTypes.length > 1 ? community.careTypes[1] : 'Assisted Living'}` : 
+                        'Assisted Living • Memory Care'
+                      }
+                    </div>
+                    
+                    <div className="text-sm font-medium text-gray-900 mb-2 line-clamp-1">
+                      {community.name}
+                    </div>
+                    
+                    <div className="text-xs text-gray-600 line-clamp-1">
+                      {community.address || `${Math.floor(Math.random() * 9999)} Memory Lane`}, {community.city}, {community.state}
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))
+          )}
         </div>
         
         <div className="mt-4">
@@ -757,31 +750,26 @@ export default function TrueViewHome() {
             </div>
           </div>
           
-          <p className="text-gray-600 text-sm mb-4">Bay Area and North Coast communities with ocean views and coastal charm</p>
+          <p className="text-gray-600 text-sm mb-4">{sanFranciscoCommunities?.length || 0} Bay Area communities • Ocean views and coastal charm</p>
         
           <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
-            {/* Show coastal communities - broader filter for Bay Area */}
-            {(featuredCommunities.filter(c => 
-              c.city?.toLowerCase().includes('san') || 
-              c.city?.toLowerCase().includes('oakland') ||
-              c.city?.toLowerCase().includes('berkeley') ||
-              c.city?.toLowerCase().includes('santa') ||
-              c.city?.toLowerCase().includes('alameda') ||
-              c.city?.toLowerCase().includes('fremont') ||
-              c.state === 'CA'
-            ).length > 0 
-              ? featuredCommunities.filter(c => 
-                  c.city?.toLowerCase().includes('san') || 
-                  c.city?.toLowerCase().includes('oakland') ||
-                  c.city?.toLowerCase().includes('berkeley') ||
-                  c.city?.toLowerCase().includes('santa') ||
-                  c.city?.toLowerCase().includes('alameda') ||
-                  c.city?.toLowerCase().includes('fremont') ||
-                  c.state === 'CA'
-                ).slice(0, 6)
-              : featuredCommunities.slice(2, 8)
-            ).map((community: any, index) => (
-            <Link key={community.id} href={`/community/${community.id}`}>
+            {/* Show San Francisco communities from dedicated endpoint */}
+            {sanFranciscoLoading ? (
+              // Loading skeleton cards
+              Array.from({ length: 4 }).map((_, index) => (
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-48 border border-gray-200 animate-pulse">
+                  <div className="aspect-[4/3] bg-gray-200"></div>
+                  <CardContent className="p-3">
+                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-1"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded"></div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              (sanFranciscoCommunities || []).map((community: any, index) => (
+                <Link key={community.id} href={`/community/${community.id}`}>
               <Card className="overflow-hidden flex-shrink-0 w-48 animate-float coastal-card" style={{animationDelay: `${index * 0.2}s`}}>
                 <div className="relative">
                   <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
@@ -839,9 +827,10 @@ export default function TrueViewHome() {
                 </CardContent>
               </Card>
             </Link>
-            ))}
-          </div>
-        </div>
+          ))
+        )}
+      </div>
+      </div>
       </section>
 
       {/* Reviews Comparison Section */}
