@@ -117,17 +117,17 @@ export class TokenBucketRateLimiter {
 const isDev = process.env.NODE_ENV === 'development';
 
 export const generalLimiter = new TokenBucketRateLimiter(
-  isDev ? 500 : 100,    // tokens: 500 in dev, 100 in prod
-  isDev ? 50 : 10,      // refill rate: 50/sec in dev, 10/sec in prod  
+  isDev ? 2000 : 100,    // tokens: 2000 in dev, 100 in prod
+  isDev ? 200 : 10,      // refill rate: 200/sec in dev, 10/sec in prod  
   60000, 
-  isDev ? 300 : 60      // max requests per minute: 300 in dev, 60 in prod
+  isDev ? 1000 : 60      // max requests per minute: 1000 in dev, 60 in prod
 );
 
 export const searchLimiter = new TokenBucketRateLimiter(
-  isDev ? 200 : 50,     // tokens: 200 in dev, 50 in prod
-  isDev ? 20 : 5,       // refill rate: 20/sec in dev, 5/sec in prod
+  isDev ? 1000 : 50,     // tokens: 1000 in dev, 50 in prod
+  isDev ? 100 : 5,       // refill rate: 100/sec in dev, 5/sec in prod
   60000, 
-  isDev ? 150 : 30      // max requests per minute: 150 in dev, 30 in prod
+  isDev ? 500 : 30       // max requests per minute: 500 in dev, 30 in prod
 );
 
 export const apiLimiter = new TokenBucketRateLimiter(
