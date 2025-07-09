@@ -431,8 +431,8 @@ export default function TrueViewHome() {
           <p className="text-gray-600 text-sm mb-4">5 new communities • Updated 2 hours ago</p>
         
         <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
-          {/* No communities shown for performance - removed database dependency */}
-          {[].map((community: any, index) => (
+          {/* Show memory care communities from trending data */}
+          {featuredCommunities.filter(c => c.careTypes?.includes('Memory Care')).slice(0, 6).map((community: any, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
               <Card className="overflow-hidden flex-shrink-0 w-48 animate-float border border-gray-200 hover:border-gray-300 transition-colors" style={{animationDelay: `${index * 0.2}s`}}>
                 <div className="relative">
@@ -671,8 +671,14 @@ export default function TrueViewHome() {
           <p className="text-gray-600 text-sm mb-4">Bay Area and North Coast communities with ocean views and coastal charm</p>
         
           <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
-            {/* Performance optimized - no database queries on homepage */}
-            {[].map((community: any, index) => (
+            {/* Show coastal communities (San Francisco, Oakland, etc.) */}
+            {featuredCommunities.filter(c => 
+              c.city?.toLowerCase().includes('san francisco') || 
+              c.city?.toLowerCase().includes('oakland') ||
+              c.city?.toLowerCase().includes('san jose') ||
+              c.city?.toLowerCase().includes('berkeley') ||
+              c.city?.toLowerCase().includes('santa')
+            ).slice(0, 6).map((community: any, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
               <Card className="overflow-hidden flex-shrink-0 w-48 animate-float coastal-card" style={{animationDelay: `${index * 0.2}s`}}>
                 <div className="relative">
@@ -847,8 +853,8 @@ export default function TrueViewHome() {
         </div>
         
         <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">
-          {/* Performance optimized - no database queries */}
-          {[].map((community: any, index) => (
+          {/* Show remaining recommended communities */}
+          {featuredCommunities.slice(4).map((community: any, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
               <Card className="overflow-hidden hover:shadow-lg transition-shadow border-0 shadow-sm flex-shrink-0 w-48">
                 <div className="relative">
