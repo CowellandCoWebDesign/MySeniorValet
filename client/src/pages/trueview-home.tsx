@@ -420,7 +420,7 @@ export default function TrueViewHome() {
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-gray-900">
-              Memory Care in San Francisco
+              San Francisco Communities
             </h2>
             <div className="text-right">
               <div className="text-sm font-semibold text-gray-900">$6,500 - $8,200</div>
@@ -431,11 +431,11 @@ export default function TrueViewHome() {
           <p className="text-gray-600 text-sm mb-4">5 new communities • Updated 2 hours ago</p>
         
         <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
-          {/* Show memory care communities - fallback to all communities if none found */}
-          {(featuredCommunities.filter(c => c.careTypes?.includes('Memory Care')).length > 0 
-            ? featuredCommunities.filter(c => c.careTypes?.includes('Memory Care'))
-            : featuredCommunities.slice(0, 6)
-          ).map((community: any, index) => (
+          {/* Show San Francisco communities since Memory Care options are limited */}
+          {featuredCommunities.filter(c => 
+            c.city?.toLowerCase().includes('san francisco') || 
+            c.city?.toLowerCase().includes('sf')
+          ).slice(0, 6).map((community: any, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
               <Card className="overflow-hidden flex-shrink-0 w-48 animate-float border border-gray-200 hover:border-gray-300 transition-colors" style={{animationDelay: `${index * 0.2}s`}}>
                 <div className="relative">
