@@ -224,33 +224,17 @@ export default function BasicSearch() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showSortOptions]);
 
-  // Simplified panel state management
-  const [panelHeight, setPanelHeight] = useState<'collapsed' | 'half' | 'full'>('half');
+  // Ultra-simple panel state - just use CSS classes for performance
+  const [panelState, setPanelState] = useState<'min' | 'mid' | 'max'>('mid');
   
-  // Simple panel toggle function
-  const togglePanel = () => {
-    setPanelHeight(prev => {
-      if (prev === 'collapsed') return 'half';
-      if (prev === 'half') return 'full';
-      return 'collapsed';
+  // Simple click handler
+  const handlePanelClick = () => {
+    setPanelState(prev => {
+      if (prev === 'min') return 'mid';
+      if (prev === 'mid') return 'max';
+      return 'min';
     });
   };
-
-  // Get panel height based on state
-  const getPanelHeight = () => {
-    const screenHeight = window.innerHeight;
-    switch (panelHeight) {
-      case 'collapsed': return 120;
-      case 'half': return Math.min(320, screenHeight * 0.4);
-      case 'full': return screenHeight * 0.85;
-      default: return 320;
-    }
-  };
-
-  // Update slidePosition when panelHeight changes
-  useEffect(() => {
-    setSlidePosition(getPanelHeight());
-  }, [panelHeight]);
 
   // Bottom Navigation
   const BottomNav = () => (
@@ -739,30 +723,28 @@ export default function BasicSearch() {
             </Button>
           </div>
 
-          {/* Simplified Click-to-Expand Results Panel */}
+          {/* Ultra-Fast CSS-Only Slide Panel */}
           <div 
-            className="fixed left-0 right-0 bg-white z-30 shadow-2xl overflow-hidden slide-panel"
+            className={`fixed left-0 right-0 bg-white z-30 shadow-2xl overflow-hidden transition-all duration-300 ease-out ${
+              panelState === 'min' ? 'h-24' : 
+              panelState === 'mid' ? 'h-80' : 
+              'h-[85vh]'
+            }`}
             style={{ 
               bottom: 0,
-              height: `${slidePosition}px`,
-              transition: 'height 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              maxHeight: '90vh',
-              borderRadius: slidePosition > 120 ? '16px 16px 0 0' : '10px 10px 0 0',
+              borderRadius: '16px 16px 0 0',
               borderTop: '1px solid #e5e7eb'
             }}
           >
-            {/* Fixed Header with Simple Click Toggle */}
-            <div className="absolute inset-0 flex flex-col">
+            {/* Simple Click Header */}
+            <div className="flex flex-col h-full">
               <div 
-                className="flex-shrink-0 bg-white cursor-pointer select-none"
-                onClick={togglePanel}
-                style={{ 
-                  borderRadius: slidePosition > 120 ? '16px 16px 0 0' : '10px 10px 0 0'
-                }}
+                className="flex-shrink-0 bg-white cursor-pointer select-none rounded-t-2xl"
+                onClick={handlePanelClick}
               >
                 {/* Click Handle */}
                 <div className="flex justify-center pt-2 pb-1">
-                  <div className="w-8 h-1 bg-gray-300 rounded-full transition-colors hover:bg-gray-400"></div>
+                  <div className="w-8 h-1 bg-gray-300 rounded-full hover:bg-gray-400 transition-colors"></div>
                 </div>
 
                 {/* Ultra-Compact Header */}
