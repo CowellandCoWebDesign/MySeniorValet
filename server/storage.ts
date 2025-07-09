@@ -439,17 +439,17 @@ export class DatabaseStorage implements IStorage {
 
   async getTrendingCommunities(limit: number = 8): Promise<Community[]> {
     // Optimized query: get trending communities directly from database
+    // More inclusive filtering - only require coordinates, not necessarily ratings
     return await db.select()
       .from(communities)
       .where(and(
         isNotNull(communities.latitude),
-        isNotNull(communities.longitude),
-        isNotNull(communities.googleRating),
-        gt(communities.googleRating, 3.0)
+        isNotNull(communities.longitude)
       ))
       .orderBy(
-        desc(sql`(${communities.googleRating} * COALESCE(${communities.googleReviewCount}, 1))`),
-        desc(communities.googleRating)
+        desc(sql`(COALESCE(${communities.googleRating}, 3.5) * COALESCE(${communities.googleReviewCount}, 1))`),
+        desc(sql`COALESCE(${communities.googleRating}, 3.5)`),
+        desc(communities.id)
       )
       .limit(limit);
   }
