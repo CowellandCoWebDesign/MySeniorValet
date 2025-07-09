@@ -43,8 +43,9 @@ export default function TrueViewHome() {
     staleTime: 10 * 60 * 1000, // Cache for 10 minutes
   });
 
-  const { data: sanFranciscoCommunities, isLoading: sanFranciscoLoading } = useQuery({
-    queryKey: ["/api/communities/by-location/San Francisco"],
+  // Coastal communities - search for actual coastal cities
+  const { data: coastalCommunities, isLoading: coastalLoading } = useQuery({
+    queryKey: ["/api/communities/coastal"],
     retry: false,
     staleTime: 10 * 60 * 1000, // Cache for 10 minutes
   });
@@ -750,11 +751,11 @@ export default function TrueViewHome() {
             </div>
           </div>
           
-          <p className="text-gray-600 text-sm mb-4">{sanFranciscoCommunities?.length || 0} Bay Area communities • Ocean views and coastal charm</p>
+          <p className="text-gray-600 text-sm mb-4">{coastalCommunities?.length || 0} coastal communities • Ocean views and coastal charm</p>
         
           <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
-            {/* Show San Francisco communities from dedicated endpoint */}
-            {sanFranciscoLoading ? (
+            {/* Show coastal communities from dedicated endpoint */}
+            {coastalLoading ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
                 <Card key={index} className="overflow-hidden flex-shrink-0 w-48 border border-gray-200 animate-pulse">
@@ -768,7 +769,7 @@ export default function TrueViewHome() {
                 </Card>
               ))
             ) : (
-              (sanFranciscoCommunities || []).map((community: any, index) => (
+              (coastalCommunities || []).map((community: any, index) => (
                 <Link key={community.id} href={`/community/${community.id}`}>
               <Card className="overflow-hidden flex-shrink-0 w-48 animate-float coastal-card" style={{animationDelay: `${index * 0.2}s`}}>
                 <div className="relative">

@@ -726,6 +726,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get coastal communities for horizontal sections (must be before :id routes)
+  app.get('/api/communities/coastal', async (req, res) => {
+    try {
+      const startTime = Date.now();
+      const limit = parseInt(req.query.limit as string) || 20;
+      
+      // Search for communities in actual coastal cities
+      const coastalCities = ['Santa Monica', 'Monterey'];
+      const allCoastalCommunities = [];
+      
+      for (const city of coastalCities) {
+        const searchResults = await storage.searchCommunities({
+          location: city,
+          limit: 10, // Get 10 from each city
+          offset: 0
+        });
+        allCoastalCommunities.push(...searchResults);
+      }
+      
+      // Limit to requested amount and shuffle for variety
+      const shuffledResults = allCoastalCommunities
+        .sort(() => Math.random() - 0.5)
+        .slice(0, limit);
+      
+      console.log(`Coastal communities loaded in ${Date.now() - startTime}ms`);
+      res.json(shuffledResults);
+    } catch (error) {
+      console.error('Error fetching coastal communities:', error);
+      res.status(500).json({ message: 'Failed to fetch coastal communities' });
+    }
+  });
+
   // Get communities by location for horizontal sections
   app.get('/api/communities/by-location/:location', async (req, res) => {
     try {
@@ -747,6 +779,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: 'Failed to fetch location communities' });
     }
   });
+
+
 
   // Get all communities (optimized with pagination)
   app.get("/api/communities", async (req, res) => {
