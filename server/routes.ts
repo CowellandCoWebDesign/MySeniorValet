@@ -5450,28 +5450,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // "no synthetic data" policy. Only authentic Google Places photos used.
   // EXCEPTION: Hero images allowed for homepage from Unsplash per project requirements.
 
-  // Get hero images (Using specific Unsplash swimming pool image)
+  // Get hero images (Using Unsplash API for swimming pool image)
   app.get('/api/images/hero', createRateLimitMiddleware(imageLimiter), async (req, res) => {
     try {
-      // Use the specific Unsplash swimming pool image requested
-      const heroImage = {
-        id: "X4Lj9LB5XAI",
-        urls: {
-          regular: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-          full: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-          thumb: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80"
-        },
-        alt_description: "wavy swimming pool during daytime",
-        description: "Beautiful wavy swimming pool during daytime",
-        user: {
-          name: "Unsplash Photographer"
-        },
-        likes: 0,
-        views: 0,
-        downloads: 0
-      };
+      const { unsplashService } = await import('./unsplash-integration');
       
-      res.json([heroImage]);
+      // Try to get the specific swimming pool image first
+      try {
+        const specificImage = await unsplashService.getSpecificImage('X4Lj9LB5XAI');
+        if (specificImage) {
+          res.json([specificImage]);
+          return;
+        }
+      } catch (error) {
+        console.log('Specific image not found, falling back to search');
+      }
+      
+      // Fallback to search for swimming pool images
+      const heroImages = await unsplashService.searchImages('swimming pool senior living facility', 1);
+      res.json(heroImages);
     } catch (error) {
       console.error('Hero image fetch error:', error);
       res.status(500).json({ 

@@ -107,6 +107,38 @@ export class UnsplashService {
   }
 
   /**
+   * Get a specific image by ID
+   */
+  async getSpecificImage(imageId: string): Promise<UnsplashImage | null> {
+    try {
+      const response = await axios.get(`${this.baseUrl}/photos/${imageId}`, {
+        headers: {
+          'Authorization': `Client-ID ${this.accessKey}`,
+          'Accept-Version': 'v1'
+        }
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error(`Failed to fetch specific image ${imageId}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Search for images with a specific query
+   */
+  async searchImages(query: string, perPage: number = 20): Promise<UnsplashImage[]> {
+    try {
+      const result = await this.searchSeniorLivingImages(query, 1, perPage);
+      return result.results;
+    } catch (error) {
+      console.error(`Failed to search images for query: ${query}`, error);
+      return [];
+    }
+  }
+
+  /**
    * Get community-specific images
    */
   async getCommunityImages(communityName: string, careType: string = 'assisted living'): Promise<UnsplashImage[]> {
