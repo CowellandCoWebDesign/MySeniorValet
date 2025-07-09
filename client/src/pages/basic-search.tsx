@@ -79,10 +79,6 @@ export default function BasicSearch() {
 
   const [mapBounds, setMapBounds] = useState<any>(null);
   const [slidePosition, setSlidePosition] = useState(200); // Height from bottom
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStartY, setDragStartY] = useState(0);
-  const [dragStartPosition, setDragStartPosition] = useState(0);
-  const [dragFromHandle, setDragFromHandle] = useState(false);
   const [displayCount, setDisplayCount] = useState(20); // For pagination
 
   const { data: communitiesResponse, isLoading, error } = useQuery({
@@ -228,154 +224,33 @@ export default function BasicSearch() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showSortOptions]);
 
-  // Enhanced drag state for velocity tracking
-  const [dragVelocity, setDragVelocity] = useState(0);
-  const [lastDragTime, setLastDragTime] = useState(0);
-  const [lastDragY, setLastDragY] = useState(0);
+  // Simplified panel state management
+  const [panelHeight, setPanelHeight] = useState<'collapsed' | 'half' | 'full'>('half');
   
-  // Overscroll tracking for panel control
-  const [isOverscrolling, setIsOverscrolling] = useState(false);
-  const [overscrollStartY, setOverscrollStartY] = useState(0);
-  const [overscrollStartPosition, setOverscrollStartPosition] = useState(0);
+  // Simple panel toggle function
+  const togglePanel = () => {
+    setPanelHeight(prev => {
+      if (prev === 'collapsed') return 'half';
+      if (prev === 'half') return 'full';
+      return 'collapsed';
+    });
+  };
 
-  // Handle drag for slide panel - Entire header is draggable
-  const handleDragStart = (e: React.TouchEvent | React.MouseEvent) => {
-    // Don't start drag if clicking on interactive elements (buttons, dropdowns)
-    const target = e.target as HTMLElement;
-    if (target.closest('button') || target.closest('.sort-dropdown')) {
-      return;
+  // Get panel height based on state
+  const getPanelHeight = () => {
+    const screenHeight = window.innerHeight;
+    switch (panelHeight) {
+      case 'collapsed': return 120;
+      case 'half': return Math.min(320, screenHeight * 0.4);
+      case 'full': return screenHeight * 0.85;
+      default: return 320;
     }
-    
-    setIsDragging(true);
-    setDragFromHandle(true);
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-    setDragStartY(clientY);
-    setDragStartPosition(slidePosition);
-    setLastDragY(clientY);
-    setLastDragTime(Date.now());
-    setDragVelocity(0);
-    e.preventDefault();
   };
 
-  const handleDragMove = (e: React.TouchEvent | React.MouseEvent) => {
-    if (!isDragging) return;
-    
-    e.preventDefault();
-    
-    // Use requestAnimationFrame for smoother updates
-    requestAnimationFrame(() => {
-      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-      const currentTime = Date.now();
-      const deltaY = dragStartY - clientY; // Inverted because dragging up increases position
-      const newPosition = Math.max(120, Math.min(window.innerHeight - 50, dragStartPosition + deltaY));
-      
-      // Calculate velocity for flick detection
-      const timeDelta = currentTime - lastDragTime;
-      if (timeDelta > 0) {
-        const yDelta = lastDragY - clientY;
-        const velocity = yDelta / timeDelta; // pixels per millisecond
-        setDragVelocity(velocity);
-      }
-      
-      setSlidePosition(newPosition);
-      setLastDragY(clientY);
-      setLastDragTime(currentTime);
-    });
-  };
-
-  const handleDragEnd = () => {
-    setIsDragging(false);
-    setDragFromHandle(false);
-    
-    // Enhanced snap logic with velocity consideration
-    requestAnimationFrame(() => {
-      const screenHeight = window.innerHeight;
-      const flickThreshold = 0.5; // pixels per millisecond
-      
-      // Determine target position based on velocity and current position
-      let targetPosition;
-      
-      if (Math.abs(dragVelocity) > flickThreshold) {
-        // Fast flick detected - move to next logical position
-        if (dragVelocity > 0) {
-          // Flicking up - go to next higher position
-          if (slidePosition < 200) {
-            targetPosition = Math.min(320, screenHeight * 0.4);
-          } else {
-            targetPosition = screenHeight * 0.85;
-          }
-        } else {
-          // Flicking down - go to next lower position
-          if (slidePosition > screenHeight * 0.6) {
-            targetPosition = Math.min(320, screenHeight * 0.4);
-          } else {
-            targetPosition = 120;
-          }
-        }
-      } else {
-        // Slow drag - snap to nearest position
-        if (slidePosition < 180) {
-          targetPosition = 120; // Minimized
-        } else if (slidePosition < screenHeight * 0.6) {
-          targetPosition = Math.min(320, screenHeight * 0.4); // Partial view
-        } else {
-          targetPosition = screenHeight * 0.85; // Full open
-        }
-      }
-      
-      // Smooth transition to target position
-      const startPosition = slidePosition;
-      const startTime = Date.now();
-      const duration = 300; // ms
-      
-      const animate = () => {
-        const elapsed = Date.now() - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        
-        // Ease-out animation
-        const easeOut = 1 - Math.pow(1 - progress, 3);
-        const currentPosition = startPosition + (targetPosition - startPosition) * easeOut;
-        
-        setSlidePosition(currentPosition);
-        
-        if (progress < 1) {
-          requestAnimationFrame(animate);
-        }
-      };
-      
-      animate();
-    });
-  };
-
-  // Global mouse/touch events for dragging - Handle both mouse and touch
+  // Update slidePosition when panelHeight changes
   useEffect(() => {
-    if (!isDragging) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      e.preventDefault();
-      handleDragMove(e);
-    };
-    const handleTouchMove = (e: TouchEvent) => {
-      if (isDragging && dragFromHandle) {
-        e.preventDefault();
-        handleDragMove(e);
-      }
-    };
-    const handleMouseUp = () => handleDragEnd();
-    const handleTouchEnd = () => handleDragEnd();
-
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('touchmove', handleTouchMove, { passive: false });
-    document.addEventListener('mouseup', handleMouseUp);
-    document.addEventListener('touchend', handleTouchEnd);
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('touchmove', handleTouchMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.removeEventListener('touchend', handleTouchEnd);
-    };
-  }, [isDragging, dragStartY, dragStartPosition, slidePosition, dragFromHandle, lastDragTime, lastDragY]);
+    setSlidePosition(getPanelHeight());
+  }, [panelHeight]);
 
   // Bottom Navigation
   const BottomNav = () => (
@@ -864,31 +739,28 @@ export default function BasicSearch() {
             </Button>
           </div>
 
-          {/* Draggable Slide-up Results Panel - Smooth & Optimized */}
+          {/* Simplified Click-to-Expand Results Panel */}
           <div 
-            className={`fixed left-0 right-0 bg-white z-30 shadow-2xl overflow-hidden slide-panel ${isDragging ? 'dragging' : ''}`}
+            className="fixed left-0 right-0 bg-white z-30 shadow-2xl overflow-hidden slide-panel"
             style={{ 
               bottom: 0,
               height: `${slidePosition}px`,
-              transition: isDragging ? 'none' : 'height 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              transition: 'height 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               maxHeight: '90vh',
               borderRadius: slidePosition > 120 ? '16px 16px 0 0' : '10px 10px 0 0',
               borderTop: '1px solid #e5e7eb'
             }}
           >
-            {/* Professional Header Design - Entire header is draggable */}
+            {/* Fixed Header with Simple Click Toggle */}
             <div className="absolute inset-0 flex flex-col">
-              {/* Ultra-Thin Draggable Header - Minimal & Refined */}
               <div 
-                className="flex-shrink-0 bg-white cursor-grab active:cursor-grabbing select-none"
-                onMouseDown={handleDragStart}
-                onTouchStart={handleDragStart}
+                className="flex-shrink-0 bg-white cursor-pointer select-none"
+                onClick={togglePanel}
                 style={{ 
-                  borderRadius: slidePosition > 120 ? '16px 16px 0 0' : '10px 10px 0 0',
-                  touchAction: 'none'
+                  borderRadius: slidePosition > 120 ? '16px 16px 0 0' : '10px 10px 0 0'
                 }}
               >
-                {/* Minimal Drag Handle */}
+                {/* Click Handle */}
                 <div className="flex justify-center pt-2 pb-1">
                   <div className="w-8 h-1 bg-gray-300 rounded-full transition-colors hover:bg-gray-400"></div>
                 </div>
@@ -971,89 +843,14 @@ export default function BasicSearch() {
                 </div>
               </div>
 
-              {/* Scrollable Results - Optimized Performance */}
+              {/* Scrollable Results - Simplified & Smooth */}
               <div
                 className="flex-1 overflow-y-auto bg-gray-50"
                 style={{
                   WebkitOverflowScrolling: 'touch',
-                  touchAction: 'auto',
-                  transform: 'translateZ(0)', // Hardware acceleration
-                  contain: 'layout style paint' // Optimize rendering
+                  touchAction: 'auto'
                 }}
-                onScroll={(e) => {
-                  handleScroll(e);
-                  const scrollTop = e.currentTarget.scrollTop;
-                  // Reset overscroll state when scrolling normally
-                  if (scrollTop > 0) {
-                    setIsOverscrolling(false);
-                  }
-                }}
-                onTouchStart={(e) => {
-                  const scrollTop = e.currentTarget.scrollTop;
-                  if (scrollTop === 0) {
-                    // At the top, prepare for potential overscroll
-                    setOverscrollStartY(e.touches[0].clientY);
-                    setOverscrollStartPosition(slidePosition);
-                  }
-                }}
-                onTouchMove={(e) => {
-                  const scrollTop = e.currentTarget.scrollTop;
-                  if (scrollTop === 0) {
-                    const currentY = e.touches[0].clientY;
-                    const deltaY = currentY - overscrollStartY;
-                    
-                    // If pulling down at the top, start overscroll behavior
-                    if (deltaY > 15 && !isOverscrolling) {
-                      setIsOverscrolling(true);
-                      e.preventDefault();
-                    }
-                    
-                    // If overscrolling, control the panel
-                    if (isOverscrolling) {
-                      e.preventDefault();
-                      const pullDistance = Math.max(0, deltaY - 15);
-                      const newPosition = Math.max(120, overscrollStartPosition - pullDistance * 0.6);
-                      setSlidePosition(newPosition);
-                    }
-                  }
-                }}
-                onTouchEnd={() => {
-                  if (isOverscrolling) {
-                    setIsOverscrolling(false);
-                    
-                    // Animate to appropriate position
-                    const screenHeight = window.innerHeight;
-                    let targetPosition;
-                    
-                    if (slidePosition < 180) {
-                      targetPosition = 120; // Minimize
-                    } else if (slidePosition < screenHeight * 0.6) {
-                      targetPosition = Math.min(320, screenHeight * 0.4); // Partial
-                    } else {
-                      targetPosition = screenHeight * 0.85; // Full
-                    }
-                    
-                    // Smooth transition to target position
-                    const startPosition = slidePosition;
-                    const startTime = Date.now();
-                    const duration = 300;
-                    
-                    const animate = () => {
-                      const elapsed = Date.now() - startTime;
-                      const progress = Math.min(elapsed / duration, 1);
-                      const easeOut = 1 - Math.pow(1 - progress, 3);
-                      const currentPosition = startPosition + (targetPosition - startPosition) * easeOut;
-                      
-                      setSlidePosition(currentPosition);
-                      
-                      if (progress < 1) {
-                        requestAnimationFrame(animate);
-                      }
-                    };
-                    
-                    animate();
-                  }
-                }}
+                onScroll={handleScroll}
               >
                 {visibleCommunities.length === 0 ? (
                   <div className="p-8 text-center">
