@@ -5457,7 +5457,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Try to get the specific swimming pool image first
       try {
-        const specificImage = await unsplashService.getSpecificImage('X4Lj9LB5XAI');
+        const specificImage = await unsplashService.getSpecificImage('02jiPaAepM0');
         if (specificImage) {
           res.json([specificImage]);
           return;
