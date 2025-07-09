@@ -707,7 +707,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const startTime = Date.now();
       // Use optimized database query instead of loading all communities
-      const trendingCommunities = await storage.getTrendingCommunities(16);
+      const trendingCommunities = await storage.getTrendingCommunities(50);
       
       // Add some randomness for variety while keeping the quality high
       const shuffledCommunities = trendingCommunities
@@ -716,7 +716,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           trendingScore: Math.random() * 100, // Add some randomness for variety
         }))
         .sort((a, b) => b.trendingScore - a.trendingScore)
-        .slice(0, 8); // Return top 8 for carousel
+        .slice(0, 24); // Return top 24 for multiple sections
       
       console.log(`Trending communities loaded in ${Date.now() - startTime}ms`);
       res.json(shuffledCommunities);

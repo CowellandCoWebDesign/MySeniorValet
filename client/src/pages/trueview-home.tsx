@@ -465,22 +465,60 @@ export default function TrueViewHome() {
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-gray-900">
-              San Francisco Communities
+              Redding Communities
             </h2>
             <div className="text-right">
-              <div className="text-sm font-semibold text-gray-900">$6,500 - $8,200</div>
-              <div className="text-xs text-blue-600">3 price drops</div>
+              <div className="text-sm font-semibold text-gray-900">$3,800 - $4,900</div>
+              <div className="text-xs text-blue-600">1 price drop</div>
             </div>
           </div>
           
-          <p className="text-gray-600 text-sm mb-4">5 new communities • Updated 2 hours ago</p>
+          <p className="text-gray-600 text-sm mb-4">3 quality communities • Updated 30 minutes ago</p>
         
         <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
-          {/* Show San Francisco communities since Memory Care options are limited */}
-          {featuredCommunities.filter(c => 
-            c.city?.toLowerCase().includes('san francisco') || 
-            c.city?.toLowerCase().includes('sf')
-          ).slice(0, 6).map((community: any, index) => (
+          {/* Show Redding communities with fallback to Northern California */}
+          {(() => {
+            const reddingCommunities = featuredCommunities.filter(c => 
+              c.city?.toLowerCase().includes('redding') || 
+              c.city?.toLowerCase().includes('anderson') ||
+              c.city?.toLowerCase().includes('shasta') ||
+              c.city?.toLowerCase().includes('palo cedro') ||
+              c.city?.toLowerCase().includes('cottonwood')
+            );
+            
+            if (reddingCommunities.length >= 2) {
+              return reddingCommunities.slice(0, 6);
+            } else {
+              // Fallback to Northern California communities
+              return featuredCommunities.filter(c => 
+                c.city?.toLowerCase().includes('redding') ||
+                c.city?.toLowerCase().includes('chico') ||
+                c.city?.toLowerCase().includes('yuba city') ||
+                c.city?.toLowerCase().includes('marysville') ||
+                c.city?.toLowerCase().includes('eureka') ||
+                c.city?.toLowerCase().includes('sacramento') ||
+                c.city?.toLowerCase().includes('stockton') ||
+                c.city?.toLowerCase().includes('modesto') ||
+                c.city?.toLowerCase().includes('fresno') ||
+                c.city?.toLowerCase().includes('oakland') ||
+                c.city?.toLowerCase().includes('berkeley') ||
+                c.city?.toLowerCase().includes('vallejo') ||
+                c.city?.toLowerCase().includes('antioch') ||
+                c.city?.toLowerCase().includes('concord') ||
+                c.city?.toLowerCase().includes('san jose') ||
+                c.city?.toLowerCase().includes('santa rosa') ||
+                c.city?.toLowerCase().includes('petaluma') ||
+                c.city?.toLowerCase().includes('napa') ||
+                c.city?.toLowerCase().includes('fairfield') ||
+                c.city?.toLowerCase().includes('vacaville') ||
+                c.city?.toLowerCase().includes('davis') ||
+                c.city?.toLowerCase().includes('woodland') ||
+                c.city?.toLowerCase().includes('santa cruz') ||
+                c.city?.toLowerCase().includes('salinas') ||
+                c.city?.toLowerCase().includes('monterey')
+              ).slice(0, 6);
+            }
+          })().map((community: any, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
               <Card className="overflow-hidden flex-shrink-0 w-48 animate-float border border-gray-200 hover:border-gray-300 transition-colors" style={{animationDelay: `${index * 0.2}s`}}>
                 <div className="relative">
@@ -523,11 +561,14 @@ export default function TrueViewHome() {
                 
                 <CardContent className="p-3">
                   <div className="text-xl font-bold text-gray-900 mb-1">
-                    ${(6500 + (index * 200)).toLocaleString()}
+                    {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : `$${(3800 + (index * 180)).toLocaleString()}`}
                   </div>
                   
                   <div className="text-sm text-gray-700 mb-1">
-                    Memory Care • Assisted Living
+                    {community.careTypes?.length > 0 ? 
+                      `${community.careTypes[0]} • ${community.careTypes.length > 1 ? community.careTypes[1] : 'Assisted Living'}` : 
+                      'Assisted Living • Memory Care'
+                    }
                   </div>
                   
                   <div className="text-sm font-medium text-gray-900 mb-2 line-clamp-1">
