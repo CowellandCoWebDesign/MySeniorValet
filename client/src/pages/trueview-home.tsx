@@ -421,6 +421,16 @@ export default function TrueViewHome() {
           <p className="text-xs text-green-700 mt-2">
             Tax-free income for qualifying wartime Veterans and spouses. Bridge financing also available.
           </p>
+          <div className="mt-3">
+            <a 
+              href="https://www.elderlifefinancial.com/va-benefits/va-aid-and-attendance-benefit-what-you-need-to-know/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-green-600 hover:text-green-700 underline font-medium"
+            >
+              Learn more about VA Aid & Attendance benefits →
+            </a>
+          </div>
         </div>
         
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-6">
