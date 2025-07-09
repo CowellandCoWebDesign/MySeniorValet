@@ -742,9 +742,12 @@ export default function BasicSearch() {
                 className="flex-shrink-0 bg-white cursor-pointer select-none rounded-t-2xl"
                 onClick={handlePanelClick}
               >
-                {/* Click Handle */}
+                {/* Click Handle with State Indicator */}
                 <div className="flex justify-center pt-2 pb-1">
                   <div className="w-8 h-1 bg-gray-300 rounded-full hover:bg-gray-400 transition-colors"></div>
+                </div>
+                <div className="text-center text-xs text-gray-500 pb-1">
+                  State: {panelState} | Click to toggle
                 </div>
 
                 {/* Ultra-Compact Header */}
