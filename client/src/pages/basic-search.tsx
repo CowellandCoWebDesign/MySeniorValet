@@ -60,7 +60,7 @@ function MapBoundsUpdater({ onBoundsChange }: { onBoundsChange: (bounds: any) =>
   return null;
 }
 
-export default function BasicSearch() {
+export default function BasicSearch({ initialFilters = [] }: { initialFilters?: string[] }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState('search');
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
@@ -68,7 +68,7 @@ export default function BasicSearch() {
   const [showSortOptions, setShowSortOptions] = useState(false);
   
   // Filter states
-  const [selectedCareTypes, setSelectedCareTypes] = useState<string[]>([]);
+  const [selectedCareTypes, setSelectedCareTypes] = useState<string[]>(initialFilters);
   const [priceRange, setPriceRange] = useState({ min: 0, max: 10000 });
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
@@ -87,9 +87,27 @@ export default function BasicSearch() {
   const [mapBounds, setMapBounds] = useState<any>(null);
 
   const { data: communitiesResponse, isLoading, error } = useQuery({
-    queryKey: ["/api/communities/search", { limit: 10000 }],
+    queryKey: ["/api/communities/search", { 
+      limit: 10000, 
+      location: searchQuery,
+      careTypes: selectedCareTypes 
+    }],
     queryFn: async () => {
-      const response = await fetch("/api/communities/search?limit=10000");
+      let url = "/api/communities/search?limit=10000";
+      
+      // Add location parameter if search query exists
+      if (searchQuery) {
+        url += `&location=${encodeURIComponent(searchQuery)}`;
+      }
+      
+      // Add care type parameters to trigger HUD inclusion
+      if (selectedCareTypes.length > 0) {
+        selectedCareTypes.forEach(careType => {
+          url += `&careType=${encodeURIComponent(careType)}`;
+        });
+      }
+      
+      const response = await fetch(url);
       if (!response.ok) throw new Error("Failed to fetch communities");
       return response.json();
     },
@@ -108,7 +126,9 @@ export default function BasicSearch() {
     'Memory Care',
     'Skilled Nursing',
     'Continuing Care',
-    'Veterans Housing'
+    'Veterans Housing',
+    'HUD/VASH',
+    'Affordable Housing'
   ];
   
   const amenityOptions = [
