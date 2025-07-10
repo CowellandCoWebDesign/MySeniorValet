@@ -126,8 +126,19 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
   
   // Parse URL parameters for filters
   const urlParams = new URLSearchParams(window.location.search);
+  const urlCareType = urlParams.get('careType');
   const urlFilters = urlParams.get('filters');
-  const urlFiltersArray = urlFilters ? urlFilters.split(',') : [];
+  const urlFiltersArray = [];
+  
+  // Add care type from URL parameter
+  if (urlCareType) {
+    urlFiltersArray.push(urlCareType);
+  }
+  
+  // Add filters from URL parameter
+  if (urlFilters) {
+    urlFiltersArray.push(...urlFilters.split(','));
+  }
   
   // Filter states
   const [selectedCareTypes, setSelectedCareTypes] = useState<string[]>([...initialFilters, ...urlFiltersArray]);

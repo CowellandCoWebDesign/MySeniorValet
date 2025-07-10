@@ -506,7 +506,7 @@ export default function TrueViewHome() {
                   <span>For seniors 62+ and disabled adults</span>
                 </div>
               </div>
-              <Link href="/search?filters=Affordable%20Housing">
+              <Link href="/search?careType=Affordable%20Housing">
                 <Button className="gradient-primary hover:opacity-90 text-white">
                   View Affordable Housing Options
                 </Button>

@@ -78,7 +78,7 @@ export default function HudVashMap() {
   const { data: affordableHousingData, isLoading: affordableLoading } = useQuery({
     queryKey: ['/api/communities/search', 'affordable-housing-all'],
     queryFn: async () => {
-      const response = await fetch('/api/communities/search?careType=Affordable%20Housing&limit=100');
+      const response = await fetch('/api/communities/search?careType=Affordable%20Housing&limit=1000');
       if (!response.ok) {
         throw new Error('Failed to fetch affordable housing');
       }
