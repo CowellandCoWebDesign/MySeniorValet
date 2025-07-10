@@ -7,7 +7,7 @@ from urllib.parse import urljoin, urlparse
 import json
 
 BASE_URL = "https://www.seniorhousingnet.com"
-START_URL = "https://www.seniorhousingnet.com/seniorliving-search?state=CA"
+START_URL = "https://www.seniorhousingnet.com/seniorliving-search/redding_ca?ctyp=2&ctyp=8&ctyp=10&ctyp=12&ctyp=19"
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
@@ -168,13 +168,23 @@ def scrape_seniorhousingnet():
     print("🚀 Starting SeniorHousingNet scraper...")
     listings_data = []
     
-    # Try multiple search URLs to find working listings
-    search_urls = [
-        "https://www.seniorhousingnet.com/seniorliving-search?state=CA",
-        "https://www.seniorhousingnet.com/senior-living/california",
-        "https://www.seniorhousingnet.com/communities/california",
-        "https://www.seniorhousingnet.com/search?location=california"
+    # California cities to scrape using the working URL format
+    california_cities = [
+        "redding_ca",
+        "sacramento_ca", 
+        "san_francisco_ca",
+        "los_angeles_ca",
+        "san_diego_ca",
+        "san_jose_ca",
+        "fresno_ca",
+        "oakland_ca"
     ]
+    
+    # Build search URLs using the working format
+    search_urls = []
+    for city in california_cities:
+        city_url = f"https://www.seniorhousingnet.com/seniorliving-search/{city}?ctyp=2&ctyp=8&ctyp=10&ctyp=12&ctyp=19"
+        search_urls.append(city_url)
     
     all_links = []
     for url in search_urls:
