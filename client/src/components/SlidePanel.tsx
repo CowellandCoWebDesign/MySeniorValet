@@ -11,6 +11,7 @@ export default function SlidePanel({
 }) {
   const [panelHeight, setPanelHeight] = useState(120);
   const [isAtTop, setIsAtTop] = useState(false);
+  const [snapLevel, setSnapLevel] = useState<'collapsed' | 'medium' | 'full'>('collapsed');
   const dragRef = useRef(null);
   const startYRef = useRef(0);
   const startHeightRef = useRef(120);
@@ -38,6 +39,11 @@ export default function SlidePanel({
       }
     });
   }, [communities, sortBy]);
+
+  // Debug snap state
+  useEffect(() => {
+    console.log("SNAP LEVEL:", snapLevel);
+  }, [snapLevel]);
 
   const handleDragStart = (e) => {
     // Only allow dragging down when at top position
@@ -94,15 +100,20 @@ export default function SlidePanel({
   const handleDragEnd = () => {
     const maxHeight = screenHeight - topPosition;
     
-    let snap;
+    let snap = 120;
+    let level: 'collapsed' | 'medium' | 'full' = 'collapsed';
+
     if (panelHeight < 180) {
-      snap = 120; // Collapsed
+      snap = 120;
+      level = 'collapsed';
       setIsAtTop(false);
     } else if (panelHeight < screenHeight * 0.6) {
-      snap = 350; // Medium
+      snap = 350;
+      level = 'medium';
       setIsAtTop(false);
     } else {
-      snap = maxHeight; // Full height (top position)
+      snap = maxHeight;
+      level = 'full';
       setIsAtTop(true);
     }
     
@@ -114,7 +125,12 @@ export default function SlidePanel({
       const eased = 1 - Math.pow(1 - progress, 3);
       const height = start + (snap - start) * eased;
       setPanelHeight(height);
-      if (progress < 1) rafRef.current = requestAnimationFrame(animate);
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(animate);
+      } else {
+        // Animation complete, set the snap level
+        setSnapLevel(level);
+      }
     };
     animate();
     document.removeEventListener("mousemove", handleDrag);
