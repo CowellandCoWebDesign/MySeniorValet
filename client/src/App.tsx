@@ -35,6 +35,7 @@ import Dashboard from "@/pages/dashboard";
 import SupportResources from "@/pages/support-resources";
 import VeteransHousing from "@/pages/veterans-housing";
 import AffordableHousing from "@/pages/affordable-housing";
+import HudVashMap from "@/pages/hud-vash-map";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -61,6 +62,7 @@ function Router() {
       <Route path="/support" component={SupportResources} />
       <Route path="/veterans" component={VeteransHousing} />
       <Route path="/affordable-housing" component={AffordableHousing} />
+      <Route path="/hud-vash-map" component={HudVashMap} />
       <Route path="/login" component={Login} />
       <Route path="/signup" component={Signup} />
       <Route path="/privacy" component={Privacy} />

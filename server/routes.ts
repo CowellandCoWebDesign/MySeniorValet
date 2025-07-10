@@ -809,6 +809,206 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test endpoint for HUD/VASH facilities
+  app.get('/api/hud-facilities', async (req, res) => {
+    try {
+      const state = req.query.state as string;
+      
+      // Sample HUD/VASH facilities
+      const sampleFacilities = [
+        {
+          id: 10001,
+          name: "Los Angeles HUD-VASH Program",
+          address: "1200 Wilshire Blvd",
+          city: "Los Angeles",
+          state: "CA",
+          latitude: 34.0522,
+          longitude: -118.2437,
+          phone: "(213) 555-0100",
+          website: "https://la.gov/housing",
+          type: "HUD-VASH",
+          veteran_programs: "HUD-VASH Vouchers",
+          care_types: ["Veterans Housing", "Supportive Services"]
+        },
+        {
+          id: 10002,
+          name: "San Francisco Section 202 Housing",
+          address: "800 Market Street",
+          city: "San Francisco",
+          state: "CA",
+          latitude: 37.7749,
+          longitude: -122.4194,
+          phone: "(415) 555-0200",
+          type: "Affordable Senior",
+          care_types: ["Senior Housing", "Low Income"]
+        },
+        {
+          id: 10003,
+          name: "Texas Veterans Housing Authority",
+          address: "500 Main Street",
+          city: "Austin",
+          state: "TX",
+          latitude: 30.2672,
+          longitude: -97.7431,
+          phone: "(512) 555-0300",
+          type: "Veterans Housing",
+          veteran_programs: "VA Supportive Housing",
+          care_types: ["Veterans Housing", "Mental Health Support"]
+        },
+        {
+          id: 10004,
+          name: "Honolulu Affordable Senior Housing",
+          address: "1000 Ala Moana Blvd",
+          city: "Honolulu",
+          state: "HI",
+          latitude: 21.3099,
+          longitude: -157.8581,
+          phone: "(808) 555-0400",
+          type: "Affordable Senior",
+          care_types: ["Senior Housing", "Section 202"]
+        }
+      ];
+      
+      let facilities = sampleFacilities;
+      if (state && state !== 'all') {
+        facilities = facilities.filter(facility => facility.state === state);
+      }
+      
+      const categorized = {
+        hudVash: facilities.filter(f => f.type === 'HUD-VASH'),
+        section202: facilities.filter(f => f.name.toLowerCase().includes('section 202')),
+        section811: facilities.filter(f => f.name.toLowerCase().includes('section 811')),
+        housingAuthority: facilities.filter(f => f.name.toLowerCase().includes('housing authority')),
+        veterans: facilities.filter(f => f.type === 'Veterans Housing'),
+        affordable: facilities.filter(f => f.type === 'Affordable Senior'),
+        other: facilities.filter(f => !['HUD-VASH', 'Veterans Housing', 'Affordable Senior'].includes(f.type))
+      };
+      
+      res.json({
+        total: facilities.length,
+        facilities: facilities,
+        categories: categorized,
+        states: [...new Set(facilities.map(f => f.state))].sort()
+      });
+    } catch (error) {
+      console.error('Error fetching HUD facilities:', error);
+      res.status(500).json({ message: 'Failed to fetch HUD facilities' });
+    }
+  });
+
+  // Get all HUD/VASH facilities nationwide (must be before general community routes)
+  app.get('/api/communities/hud-vash', async (req, res) => {
+    try {
+      const state = req.query.state as string;
+      
+      // Create sample HUD/VASH facilities for testing the frontend
+      const sampleFacilities = [
+        {
+          id: 10001,
+          name: "Los Angeles HUD-VASH Program",
+          address: "1200 Wilshire Blvd",
+          city: "Los Angeles",
+          state: "CA",
+          latitude: 34.0522,
+          longitude: -118.2437,
+          phone: "(213) 555-0100",
+          website: "https://la.gov/housing",
+          type: "HUD-VASH",
+          veteran_programs: "HUD-VASH Vouchers",
+          care_types: ["Veterans Housing", "Supportive Services"]
+        },
+        {
+          id: 10002,
+          name: "San Francisco Section 202 Housing",
+          address: "800 Market Street",
+          city: "San Francisco",
+          state: "CA",
+          latitude: 37.7749,
+          longitude: -122.4194,
+          phone: "(415) 555-0200",
+          type: "Affordable Senior",
+          care_types: ["Senior Housing", "Low Income"]
+        },
+        {
+          id: 10003,
+          name: "Texas Veterans Housing Authority",
+          address: "500 Main Street",
+          city: "Austin",
+          state: "TX",
+          latitude: 30.2672,
+          longitude: -97.7431,
+          phone: "(512) 555-0300",
+          type: "Veterans Housing",
+          veteran_programs: "VA Supportive Housing",
+          care_types: ["Veterans Housing", "Mental Health Support"]
+        },
+        {
+          id: 10004,
+          name: "Honolulu Affordable Senior Housing",
+          address: "1000 Ala Moana Blvd",
+          city: "Honolulu",
+          state: "HI",
+          latitude: 21.3099,
+          longitude: -157.8581,
+          phone: "(808) 555-0400",
+          type: "Affordable Senior",
+          care_types: ["Senior Housing", "Section 202"]
+        }
+      ];
+      
+      // Filter by state if provided
+      let facilities = sampleFacilities;
+      if (state && state !== 'all') {
+        facilities = facilities.filter(facility => facility.state === state);
+      }
+      
+      // Categorize facilities
+      const categorized = facilities.reduce((acc, facility) => {
+        const name = facility.name.toLowerCase();
+        const type = facility.type;
+        
+        if (name.includes('vash') || type === 'HUD-VASH') {
+          acc.hudVash.push(facility);
+        } else if (name.includes('section 202') || name.includes('202')) {
+          acc.section202.push(facility);
+        } else if (name.includes('section 811') || name.includes('811')) {
+          acc.section811.push(facility);
+        } else if (name.includes('housing authority') || name.includes('pha')) {
+          acc.housingAuthority.push(facility);
+        } else if (name.includes('veterans') || facility.veteran_programs) {
+          acc.veterans.push(facility);
+        } else if (name.includes('affordable') || type === 'Affordable Senior') {
+          acc.affordable.push(facility);
+        } else {
+          acc.other.push(facility);
+        }
+        
+        return acc;
+      }, {
+        hudVash: [],
+        section202: [],
+        section811: [],
+        housingAuthority: [],
+        veterans: [],
+        affordable: [],
+        other: []
+      });
+      
+      console.log(`Found ${facilities.length} HUD/VASH facilities${state && state !== 'all' ? ` in ${state}` : ''}`);
+      console.log(`Breakdown: HUD-VASH: ${categorized.hudVash.length}, Section 202: ${categorized.section202.length}, Section 811: ${categorized.section811.length}, Housing Authority: ${categorized.housingAuthority.length}, Veterans: ${categorized.veterans.length}, Affordable: ${categorized.affordable.length}, Other: ${categorized.other.length}`);
+      
+      res.json({
+        total: facilities.length,
+        facilities: facilities,
+        categories: categorized,
+        states: [...new Set(facilities.map(f => f.state))].sort()
+      });
+    } catch (error) {
+      console.error('Error fetching HUD/VASH facilities:', error);
+      res.status(500).json({ message: 'Failed to fetch HUD/VASH facilities' });
+    }
+  });
+
 
 
   // Get all communities (optimized with pagination)
