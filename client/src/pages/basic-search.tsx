@@ -4,61 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, MapPin, Star, Heart, List, Map, Bell, Calendar, Mail, Phone, ExternalLink, Users, CheckCircle, AlertTriangle, Activity, UserCheck, Stethoscope, Clock, ImageIcon, ChevronDown, SortAsc, ArrowLeft, Home, Plus, Minus, Filter, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
-import { Icon } from 'leaflet';
 import { Link } from "wouter";
 import SlidePanel from "@/components/SlidePanel";
-import 'leaflet/dist/leaflet.css';
-
-// Custom house-style marker icons for communities (Zillow-style)
-const createHouseIcon = (isViewed: boolean = false, isFavorited: boolean = false) => {
-  const fillColor = isFavorited ? '#dc2626' : isViewed ? '#fca5a5' : '#dc2626'; // Red for unviewed, light red for viewed, red for favorited
-  const strokeColor = '#991b1b';
-  
-  const heartIcon = isFavorited ? `
-    <path d="M16 8c0-2.21-1.79-4-4-4S8 5.79 8 8c0 1.5.83 2.8 2.05 3.48L12 14l1.95-2.52C15.17 10.8 16 9.5 16 8z" fill="white" stroke="#991b1b" stroke-width="0.5"/>
-  ` : '';
-  
-  return new Icon({
-    iconUrl: 'data:image/svg+xml;base64,' + btoa(`
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28">
-        <!-- House body -->
-        <rect x="6" y="12" width="12" height="8" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1.5" rx="1"/>
-        <!-- House roof -->
-        <path d="M4 14 L12 6 L20 14 L18 14 L12 8 L6 14 Z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1.5"/>
-        <!-- Door -->
-        <rect x="10" y="16" width="4" height="4" fill="white" stroke="${strokeColor}" stroke-width="0.8"/>
-        <!-- Window -->
-        <rect x="7.5" y="14" width="2.5" height="2.5" fill="white" stroke="${strokeColor}" stroke-width="0.8"/>
-        <rect x="14" y="14" width="2.5" height="2.5" fill="white" stroke="${strokeColor}" stroke-width="0.8"/>
-        <!-- Heart for favorited -->
-        ${heartIcon}
-      </svg>
-    `),
-    iconSize: [28, 28],
-    iconAnchor: [14, 28],
-    popupAnchor: [0, -28],
-  });
-};
-
-// Component to handle map bounds updates
-function MapBoundsUpdater({ onBoundsChange }: { onBoundsChange: (bounds: any) => void }) {
-  const map = useMapEvents({
-    moveend: () => {
-      onBoundsChange(map.getBounds());
-    },
-    zoomend: () => {
-      onBoundsChange(map.getBounds());
-    },
-  });
-
-  // Set initial bounds
-  useEffect(() => {
-    onBoundsChange(map.getBounds());
-  }, [map, onBoundsChange]);
-
-  return null;
-}
+import EnhancedMap from "@/components/EnhancedMap";
 
 export default function BasicSearch() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -660,102 +608,13 @@ export default function BasicSearch() {
       {/* Map/List View */}
       {viewMode === 'map' ? (
         <div className="flex-1 relative" style={{ height: 'calc(100vh - 160px)' }}>
-          <MapContainer
-            center={[40.315, -122.32]} // Northern California center
-            zoom={7}
-            style={{ height: '100%', width: '100%' }}
-            className="z-10"
-            zoomControl={false} // Disable default zoom control
-            attributionControl={false} // Disable default attribution control
-          >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            
-            {/* Map bounds tracker */}
-            <MapBoundsUpdater onBoundsChange={setMapBounds} />
-            
-            {/* Community Markers - House Style with State */}
-            {sortedCommunities
-              .filter((community: any) => community.latitude && community.longitude)
-              .map((community: any) => {
-                // Determine marker state (for demo purposes, using community ID for variety)
-                const isViewed = community.id % 3 === 0; // Every 3rd community is "viewed"
-                const isFavorited = community.id % 7 === 0; // Every 7th community is "favorited"
-                
-                return (
-                  <Marker
-                    key={community.id}
-                    position={[community.latitude, community.longitude]}
-                    icon={createHouseIcon(isViewed, isFavorited)}
-                    eventHandlers={{
-                      click: () => window.location.href = `/community/${community.id}`,
-                    }}
-                  >
-                    <Popup>
-                      <div className="p-3 min-w-[220px]">
-                        <div className="flex items-start justify-between mb-2">
-                          <h3 className="font-bold text-sm text-gray-900 pr-2 leading-tight">{community.name}</h3>
-                          {isFavorited && (
-                            <div className="flex-shrink-0">
-                              <Heart className="w-4 h-4 text-red-500 fill-current" />
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div className="flex items-center text-xs text-gray-600 mb-2">
-                          <MapPin className="w-3 h-3 mr-1" />
-                          {community.city}, {community.state}
-                        </div>
-                        
-                        {community.googleRating && (
-                          <div className="flex items-center mb-2">
-                            <Star className="w-3 h-3 text-yellow-400 fill-current mr-1" />
-                            <span className="text-xs text-gray-600">{community.googleRating} rating</span>
-                            {community.googleReviewCount && (
-                              <span className="text-xs text-gray-500 ml-1">({community.googleReviewCount})</span>
-                            )}
-                          </div>
-                        )}
-                        
-                        {community.careTypes && community.careTypes.length > 0 && (
-                          <div className="mb-2">
-                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                              {community.careTypes.slice(0, 2).join(' • ')}
-                            </span>
-                          </div>
-                        )}
-                        
-                        <div className="flex justify-between items-center mt-3">
-                          <div className="text-sm font-bold text-gray-900">
-                            {community.priceRange?.min 
-                              ? `$${Math.floor(community.priceRange.min/1000)}K+/mo` 
-                              : community.monthlyRent
-                              ? `$${community.monthlyRent.toLocaleString()}/mo`
-                              : 'Contact for pricing'
-                            }
-                          </div>
-                          <button
-                            onClick={() => window.location.href = `/community/${community.id}`}
-                            className="bg-blue-600 text-white text-xs py-1.5 px-3 rounded-lg hover:bg-blue-700 font-medium transition-colors"
-                          >
-                            View Details
-                          </button>
-                        </div>
-                        
-                        {isViewed && !isFavorited && (
-                          <div className="mt-2 text-xs text-gray-500 flex items-center">
-                            <CheckCircle className="w-3 h-3 mr-1" />
-                            Recently viewed
-                          </div>
-                        )}
-                      </div>
-                    </Popup>
-                  </Marker>
-                );
-              })}
-          </MapContainer>
+          <EnhancedMap
+            communities={sortedCommunities}
+            center={[36.7783, -119.4179]} // California center
+            zoom={6}
+            onBoundsChange={setMapBounds}
+            className="h-full w-full"
+          />
 
           {/* Map Controls */}
           <div className="absolute top-4 right-4 z-20 flex flex-col space-y-2">
@@ -767,32 +626,6 @@ export default function BasicSearch() {
             >
               <List className="w-4 h-4 mr-1" />
               List
-            </Button>
-          </div>
-          
-          {/* Custom Zoom Controls - Positioned away from slide panel */}
-          <div className="absolute top-32 left-4 z-20 flex flex-col space-y-1">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="bg-white shadow-md w-8 h-8 p-0 flex items-center justify-center"
-              onClick={() => {
-                // Zoom in functionality would go here
-                console.log('Zoom in clicked');
-              }}
-            >
-              <Plus className="w-4 h-4" />
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="bg-white shadow-md w-8 h-8 p-0 flex items-center justify-center"
-              onClick={() => {
-                // Zoom out functionality would go here
-                console.log('Zoom out clicked');
-              }}
-            >
-              <Minus className="w-4 h-4" />
             </Button>
           </div>
 
