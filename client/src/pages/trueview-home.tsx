@@ -465,16 +465,9 @@ export default function TrueViewHome() {
           </p>
         </div>
         
-        <div className="flex gap-2">
-          <Button className="flex-1 gradient-primary hover:opacity-90 text-white py-3 border-0">
-            Get move-in cost estimate
-          </Button>
-          <Link href="/simple-search">
-            <Button variant="outline" className="py-3 px-4 border-blue-600 text-blue-600">
-              🗺️ Map
-            </Button>
-          </Link>
-        </div>
+        <Button className="w-full gradient-primary hover:opacity-90 text-white py-3 border-0">
+          Get move-in cost estimate
+        </Button>
       </section>
 
       {/* Affordable Housing Section */}

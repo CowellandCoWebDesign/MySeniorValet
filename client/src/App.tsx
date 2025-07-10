@@ -50,7 +50,6 @@ function Router() {
     <Switch>
       <Route path="/" component={TrueViewHome} />
       <Route path="/search" component={BasicSearch} />
-      <Route path="/simple-search" component={SimpleSearch} />
       <Route path="/test-search" component={TestSearch} />
       <Route path="/old-search" component={TrueViewSearch} />
       <Route path="/explore" component={Explore} />

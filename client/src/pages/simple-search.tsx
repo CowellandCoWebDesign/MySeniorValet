@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,9 +20,6 @@ import { Link, useLocation } from "wouter";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import { Icon, LatLngBounds } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-// Enhanced map components temporarily removed to fix circular dependency issues
-// import { EnhancedMap } from '@/components/enhanced-map';
-// import { useMapOptimization } from '@/hooks/useMapOptimization';
 
 // Custom marker icon for communities
 const communityIcon = new Icon({
@@ -36,21 +33,29 @@ const communityIcon = new Icon({
   popupAnchor: [0, -32],
 });
 
-// Simplified bounds tracker - removed to fix stack overflow
-// function MapBoundsTracker({ onBoundsChange }: { onBoundsChange: (bounds: LatLngBounds) => void }) {
-//   const map = useMapEvents({
-//     moveend: () => {
-//       const bounds = map.getBounds();
-//       onBoundsChange(bounds);
-//     },
-//     zoomend: () => {
-//       const bounds = map.getBounds();
-//       onBoundsChange(bounds);
-//     }
-//   });
-//   
-//   return null;
-// }
+// Component to handle map events and track visible communities
+function MapBoundsTracker({ onBoundsChange }: { onBoundsChange: (bounds: LatLngBounds) => void }) {
+  const map = useMapEvents({
+    moveend: () => {
+      const bounds = map.getBounds();
+      onBoundsChange(bounds);
+    },
+    zoomend: () => {
+      const bounds = map.getBounds();
+      onBoundsChange(bounds);
+    }
+  });
+  
+  // Set initial bounds when map loads
+  useEffect(() => {
+    if (map) {
+      const bounds = map.getBounds();
+      onBoundsChange(bounds);
+    }
+  }, [map, onBoundsChange]);
+  
+  return null;
+}
 
 export default function SimpleSearch() {
   const [location] = useLocation();
@@ -60,17 +65,17 @@ export default function SimpleSearch() {
   const [isResultsExpanded, setIsResultsExpanded] = useState(false);
   const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
 
-  // Simple bounds change handler - removed memoization to avoid circular dependencies
-  const handleBoundsChange = (bounds: LatLngBounds) => {
+  // Memoize the bounds change handler to prevent infinite loops
+  const handleBoundsChange = useCallback((bounds: LatLngBounds) => {
     setMapBounds(bounds);
-  };
+  }, []);
 
-  // Parse URL parameters on mount only
+  // Parse URL parameters
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const q = urlParams.get('q');
     if (q) setSearchQuery(q);
-  }, []); // Empty dependency array to run only once
+  }, [location]);
 
   const { data: communitiesResponse, isLoading } = useQuery({
     queryKey: ["/api/communities/search", { limit: 2000 }],
@@ -101,8 +106,19 @@ export default function SimpleSearch() {
     return matches;
   }) || [];
 
-  // Simplified display logic - no bounds filtering for now to avoid stack overflow
-  const displayCommunities = searchFilteredCommunities;
+  // Then filter by map bounds (communities visible in current map view)
+  const visibleCommunities = searchFilteredCommunities.filter((community: any) => {
+    // If no map bounds yet or no coordinates, show in search results but not in map view
+    if (!mapBounds || !community.latitude || !community.longitude) {
+      return viewMode !== 'map';
+    }
+    
+    // Check if community is within current map view
+    return mapBounds.contains([community.latitude, community.longitude]);
+  });
+
+  // For display purposes - use visible communities when in map mode
+  const displayCommunities = viewMode === 'map' ? visibleCommunities : searchFilteredCommunities;
 
   // Bottom Navigation
   const BottomNav = () => (
@@ -209,7 +225,7 @@ export default function SimpleSearch() {
       {/* Map/List View */}
       {viewMode === 'map' ? (
         <div className="h-96 relative">
-          {/* Interactive Leaflet Map with Performance Optimizations */}
+          {/* Interactive Leaflet Map */}
           <MapContainer
             center={[40.315, -122.32]} // Redding, CA as center of Northern California
             zoom={7}
@@ -221,10 +237,10 @@ export default function SimpleSearch() {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             
-            {/* Map Bounds Tracker - temporarily disabled to fix stack overflow */}
-            {/* <MapBoundsTracker onBoundsChange={handleBoundsChange} /> */}
+            {/* Map Bounds Tracker */}
+            <MapBoundsTracker onBoundsChange={handleBoundsChange} />
             
-            {/* Optimized Community Markers */}
+            {/* Community Markers */}
             {searchFilteredCommunities
               .filter((community: any) => community.latitude && community.longitude)
               .map((community: any) => (
@@ -237,7 +253,7 @@ export default function SimpleSearch() {
                   }}
                 >
                   <Popup className="community-popup">
-                    <div className="p-3 min-w-[240px]">
+                    <div className="p-2 min-w-[200px]">
                       <h3 className="font-semibold text-gray-900 mb-1 text-sm">{community.name}</h3>
                       <p className="text-xs text-gray-600 mb-2">{community.city}, {community.state}</p>
                       {community.monthlyRent && (
@@ -249,7 +265,7 @@ export default function SimpleSearch() {
                         {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
                       </p>
                       {community.googleRating && (
-                        <div className="flex items-center mb-2">
+                        <div className="flex items-center">
                           <Star className="w-3 h-3 text-yellow-400 fill-current mr-1" />
                           <span className="text-xs text-gray-600">
                             {community.googleRating} ({community.googleReviewCount || 0} reviews)
@@ -258,7 +274,7 @@ export default function SimpleSearch() {
                       )}
                       <button 
                         onClick={() => window.location.href = `/community/${community.id}`}
-                        className="w-full bg-blue-600 text-white text-xs py-2 px-3 rounded hover:bg-blue-700 transition-colors"
+                        className="mt-2 w-full bg-blue-600 text-white text-xs py-1 px-2 rounded hover:bg-blue-700"
                       >
                         View Details
                       </button>
