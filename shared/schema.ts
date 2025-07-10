@@ -283,6 +283,28 @@ export const communities = pgTable("communities", {
   
   // Enrichment completion tracking
   enrichmentCompleted: boolean("enrichment_completed").default(false), // Tracks if community has been fully enriched
+  
+  // Veterans Housing / HUD-VASH fields
+  facilityType: text("facility_type", { 
+    enum: ["Senior Living", "HUD-VASH", "Affordable Senior", "VA CLC", "Veterans Housing"] 
+  }).default("Senior Living"),
+  veteranPrograms: text("veteran_programs").array().default([]), // ['HUD-VASH', 'SSVF', 'GPD', 'VA CLC']
+  eligibilityRequirements: text("eligibility_requirements").array().default([]), // ['Veteran Status', 'Income Qualified', 'Chronically Homeless']
+  hudProperties: json("hud_properties").$type<{
+    phaName?: string; // Public Housing Authority name
+    phaPhone?: string;
+    phaEmail?: string;
+    phaWebsite?: string;
+    voucherAllocation?: number;
+    utilizationRate?: number;
+    waitlistStatus?: string;
+    applicationUrl?: string;
+    vaOfficeDistance?: number; // Distance to nearest VA medical center in miles
+    vaOfficeName?: string;
+    lastDataUpdate?: string;
+  }>().default({}),
+  acceptsHudVouchers: boolean("accepts_hud_vouchers").default(false),
+  isVeteranFriendly: boolean("is_veteran_friendly").default(false),
 });
 
 export const inspections = pgTable("inspections", {
