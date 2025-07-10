@@ -225,7 +225,7 @@ export default function BasicSearch() {
   }, [showSortOptions]);
 
   // Smooth drag-based panel system
-  const [panelHeight, setPanelHeight] = useState(320); // Start at medium height
+  const [panelHeight, setPanelHeight] = useState(120); // Start collapsed to show property count
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartY, setDragStartY] = useState(0);
   const [dragStartHeight, setDragStartHeight] = useState(0);
@@ -245,9 +245,13 @@ export default function BasicSearch() {
     
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     const deltaY = dragStartY - clientY; // Positive when dragging up
-    const newHeight = Math.max(80, Math.min(window.innerHeight * 0.9, dragStartHeight + deltaY));
+    const newHeight = Math.max(120, Math.min(window.innerHeight * 0.9, dragStartHeight + deltaY));
     
-    setPanelHeight(newHeight);
+    // Use requestAnimationFrame for smoother updates
+    requestAnimationFrame(() => {
+      setPanelHeight(newHeight);
+    });
+    
     e.preventDefault();
   };
   
@@ -258,23 +262,25 @@ export default function BasicSearch() {
     const screenHeight = window.innerHeight;
     let snapHeight;
     
-    if (panelHeight < 150) {
-      snapHeight = 80; // Collapsed
+    if (panelHeight < 180) {
+      snapHeight = 120; // Collapsed - show property count
     } else if (panelHeight < screenHeight * 0.6) {
-      snapHeight = 320; // Medium
+      snapHeight = 350; // Medium
     } else {
       snapHeight = screenHeight * 0.85; // Full
     }
     
-    // Smooth animate to snap position
+    // Ultra-smooth animate to snap position
     const startHeight = panelHeight;
     const startTime = Date.now();
-    const duration = 200;
+    const duration = 300; // Longer duration for smoother feel
     
     const animate = () => {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      const easeOut = 1 - Math.pow(1 - progress, 3);
+      
+      // Smoother easing curve
+      const easeOut = 1 - Math.pow(1 - progress, 4);
       
       const currentHeight = startHeight + (snapHeight - startHeight) * easeOut;
       setPanelHeight(currentHeight);
