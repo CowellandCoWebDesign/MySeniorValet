@@ -456,7 +456,6 @@ export class DatabaseStorage implements IStorage {
 
   async searchCommunities(params: SearchCommunity): Promise<Community[]> {
     console.log('Search parameters received:', params);
-    console.log('Care type check:', params.careType, 'equals HUD?', params.careType === "HUD");
 
     // Handle HUD specifically to avoid SQL issues
     if (params.careType === "HUD") {
@@ -464,7 +463,6 @@ export class DatabaseStorage implements IStorage {
       const hudResults = await db.execute(
         sql`SELECT * FROM communities WHERE 'Veterans Housing' = ANY(care_types) LIMIT ${params.limit || 20} OFFSET ${params.offset || 0}`
       );
-      console.log('HUD search results:', hudResults.length || (hudResults.rows?.length || 0));
       return hudResults.rows || hudResults;
     }
 
