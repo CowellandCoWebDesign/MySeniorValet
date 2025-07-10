@@ -40,12 +40,10 @@ export default function SlidePanel({
   }, [communities, sortBy]);
 
   const handleDragStart = (e) => {
-    console.log("DRAG START - panelHeight:", panelHeight);
     setIsDragging(true);
     startYRef.current =
       "touches" in e ? e.touches[0].clientY : e.clientY;
     startHeightRef.current = panelHeight;
-    console.log("DRAG START - startY:", startYRef.current, "startHeight:", startHeightRef.current);
     document.addEventListener("mousemove", handleDrag);
     document.addEventListener("touchmove", handleDrag, { passive: false });
     document.addEventListener("mouseup", handleDragEnd);
@@ -61,10 +59,8 @@ export default function SlidePanel({
       120,
       Math.min(screenHeight * 0.9, startHeightRef.current + deltaY)
     );
-    console.log("DRAG - currentY:", currentY, "deltaY:", deltaY, "newHeight:", newHeight);
     cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(() => {
-      console.log("DRAG RAF - setting height to:", newHeight);
       setPanelHeight(newHeight);
       currentHeightRef.current = newHeight; // Update ref to avoid closure issues
     });
@@ -73,7 +69,6 @@ export default function SlidePanel({
 
   const handleDragEnd = () => {
     const currentHeight = currentHeightRef.current; // Use ref instead of state
-    console.log("DRAG END - current height from ref:", currentHeight);
     setIsDragging(false);
     const snap =
       currentHeight < 180
@@ -81,7 +76,6 @@ export default function SlidePanel({
         : currentHeight < screenHeight * 0.6
         ? 350
         : screenHeight * 0.85;
-    console.log("DRAG END - will snap to:", snap);
     const start = currentHeight;
     const duration = 200;
     const startTime = Date.now();
@@ -93,8 +87,6 @@ export default function SlidePanel({
       currentHeightRef.current = height; // Keep ref in sync
       if (progress < 1) {
         rafRef.current = requestAnimationFrame(animate);
-      } else {
-        console.log("DRAG END - animation complete, final height:", height);
       }
     };
     animate();
@@ -152,9 +144,9 @@ export default function SlidePanel({
             {c.priceRange
               ? `$${c.priceRange.min?.toLocaleString()} - $${c.priceRange.max?.toLocaleString()}/mo`
               : "Contact for pricing"}
-            {c.priceRange && !c.isVerified && (
-              <span className="ml-1 text-xs text-yellow-600">
-                (Estimated)
+            {c.priceRange && (
+              <span className={`ml-2 text-xs font-semibold ${c.isClaimed ? 'text-green-600' : 'text-yellow-600'}`}>
+                ({c.isClaimed ? 'Verified' : 'Estimated'})
               </span>
             )}
           </div>
@@ -169,10 +161,9 @@ export default function SlidePanel({
     );
   };
 
-  // Add useEffect to monitor panel height changes and sync ref
+  // Keep ref in sync with state
   useEffect(() => {
-    console.log("PANEL HEIGHT CHANGED:", panelHeight);
-    currentHeightRef.current = panelHeight; // Keep ref in sync with state
+    currentHeightRef.current = panelHeight;
   }, [panelHeight]);
 
   return (
