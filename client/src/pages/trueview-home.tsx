@@ -506,7 +506,7 @@ export default function TrueViewHome() {
                   <span>For seniors 62+ and disabled adults</span>
                 </div>
               </div>
-              <Link href="/affordable-housing">
+              <Link href="/search?filters=Affordable%20Housing">
                 <Button className="gradient-primary hover:opacity-90 text-white">
                   View Affordable Housing Options
                 </Button>
@@ -523,7 +523,7 @@ export default function TrueViewHome() {
           <p className="text-xs text-green-700 mb-2">
             If you're a veteran, explore HUD-VASH housing which combines rental assistance with VA supportive services.
           </p>
-          <Link href="/veterans" className="text-xs text-green-600 hover:text-green-700 underline font-medium">
+          <Link href="/hud-vash" className="text-xs text-green-600 hover:text-green-700 underline font-medium">
             Learn about Veterans Housing →
           </Link>
         </div>

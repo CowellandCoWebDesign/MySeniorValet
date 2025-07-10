@@ -61,9 +61,8 @@ function Router() {
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/support" component={SupportResources} />
       <Route path="/veterans" component={VeteransHousing} />
-      <Route path="/affordable-housing" component={AffordableHousing} />
-      <Route path="/hud-vash-map" component={HudVashMap} />
-      <Route path="/hud-vash" component={() => <BasicSearch initialFilters={['HUD/VASH', 'Veterans Housing', 'Affordable Housing']} />} />
+      <Route path="/hud-vash" component={HudVashMap} />
+      <Route path="/affordable-housing" component={() => <BasicSearch initialFilters={['Affordable Housing']} />} />
       <Route path="/login" component={Login} />
       <Route path="/signup" component={Signup} />
       <Route path="/privacy" component={Privacy} />

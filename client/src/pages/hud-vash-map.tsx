@@ -74,8 +74,41 @@ export default function HudVashMap() {
     }
   });
 
+  // Also fetch affordable housing from the main search API
+  const { data: affordableHousingData, isLoading: affordableLoading } = useQuery({
+    queryKey: ['/api/communities/search', 'affordable-housing-all'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/search?careType=Affordable%20Housing&limit=100');
+      if (!response.ok) {
+        throw new Error('Failed to fetch affordable housing');
+      }
+      return response.json();
+    }
+  });
+
+  // Combine HUD facilities with affordable housing communities
+  const combinedData = {
+    ...hudVashData,
+    facilities: [
+      ...(hudVashData?.facilities || []),
+      ...(affordableHousingData?.map((community: any) => ({
+        id: community.id,
+        name: community.name,
+        address: community.address,
+        city: community.city,
+        state: community.state,
+        latitude: community.latitude,
+        longitude: community.longitude,
+        phone: community.phone,
+        website: community.website,
+        type: community.type,
+        care_types: community.care_types || []
+      })) || [])
+    ]
+  };
+
   // Filter facilities based on selected category
-  const filteredFacilities = hudVashData?.facilities.filter(facility => {
+  const filteredFacilities = combinedData?.facilities.filter(facility => {
     if (selectedCategory === 'all') return true;
     
     const name = facility.name.toLowerCase();
@@ -152,13 +185,13 @@ export default function HudVashMap() {
     }
   }, [selectedState]);
 
-  if (isLoading) {
+  if (isLoading || affordableLoading) {
     return (
       <div className="min-h-screen bg-gray-50 p-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading HUD/VASH facilities...</p>
+            <p className="mt-4 text-gray-600">Loading HUD and affordable housing facilities...</p>
           </div>
         </div>
       </div>
@@ -172,7 +205,7 @@ export default function HudVashMap() {
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">HUD/VASH Housing Map</h1>
+              <h1 className="text-3xl font-bold text-gray-900">HUD & Affordable Housing Map</h1>
               <p className="mt-2 text-gray-600">
                 Veterans Affairs Supportive Housing, Section 202/811, and Affordable Housing facilities nationwide
               </p>
@@ -180,7 +213,7 @@ export default function HudVashMap() {
             <div className="flex items-center space-x-4">
               <Badge variant="outline" className="text-sm">
                 <Shield className="w-4 h-4 mr-1" />
-                {hudVashData?.total || 0} Facilities
+                {combinedData?.facilities?.length || 0} Facilities
               </Badge>
               <Badge variant="outline" className="text-sm">
                 <MapPin className="w-4 h-4 mr-1" />

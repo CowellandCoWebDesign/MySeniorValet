@@ -10,10 +10,72 @@ import { Link } from "wouter";
 import SlidePanel from "@/components/SlidePanel";
 import 'leaflet/dist/leaflet.css';
 
-// Custom house-style marker icons for communities (Zillow-style)
-const createHouseIcon = (isViewed: boolean = false, isFavorited: boolean = false) => {
-  const fillColor = isFavorited ? '#dc2626' : isViewed ? '#fca5a5' : '#dc2626'; // Red for unviewed, light red for viewed, red for favorited
-  const strokeColor = '#991b1b';
+// Care type icons and colors mapping
+const careTypeConfig = {
+  'Independent Living': { 
+    color: '#10b981', // Green
+    icon: 'home',
+    description: 'Independent senior apartments'
+  },
+  'Assisted Living': { 
+    color: '#3b82f6', // Blue
+    icon: 'users',
+    description: 'Assistance with daily activities'
+  },
+  'Memory Care': { 
+    color: '#8b5cf6', // Purple
+    icon: 'brain',
+    description: 'Specialized dementia care'
+  },
+  'Skilled Nursing': { 
+    color: '#ef4444', // Red
+    icon: 'stethoscope',
+    description: '24/7 medical care'
+  },
+  'Continuing Care': { 
+    color: '#f59e0b', // Orange
+    icon: 'activity',
+    description: 'Multiple care levels'
+  },
+  'Veterans Housing': { 
+    color: '#059669', // Dark green
+    icon: 'shield',
+    description: 'Housing for veterans'
+  },
+  'HUD/VASH': { 
+    color: '#dc2626', // Dark red
+    icon: 'shield-check',
+    description: 'HUD-VASH voucher program'
+  },
+  'Affordable Housing': { 
+    color: '#0891b2', // Cyan
+    icon: 'dollar-sign',
+    description: 'Income-based housing'
+  }
+};
+
+// Create custom marker icons based on care type
+const createCareTypeIcon = (careTypes: string[], isViewed: boolean = false, isFavorited: boolean = false) => {
+  // Determine primary care type
+  const primaryCareType = careTypes?.find(type => careTypeConfig[type as keyof typeof careTypeConfig]) || 'Independent Living';
+  const config = careTypeConfig[primaryCareType as keyof typeof careTypeConfig] || careTypeConfig['Independent Living'];
+  
+  const fillColor = isFavorited ? '#dc2626' : isViewed ? '#fca5a5' : config.color;
+  const strokeColor = '#ffffff';
+  
+  // Icon paths for different care types
+  const iconPaths = {
+    'home': `<path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke="white" stroke-width="1.5" fill="none"/>`,
+    'users': `<path d="M12 14c2.206 0 4-1.794 4-4s-1.794-4-4-4-4 1.794-4 4 1.794 4 4 4z" fill="white"/><path d="M12 14c-5 0-8 3-8 6h16c0-3-3-6-8-6z" fill="white"/>`,
+    'brain': `<circle cx="12" cy="8" r="3" fill="white"/><path d="M9 16s0-2 3-2 3 2 3 2" stroke="white" stroke-width="1.5" fill="none"/>`,
+    'stethoscope': `<path d="M11 2a2 2 0 0 0-2 2v6.5a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5V4a2 2 0 0 0-4 0v6.5a2.5 2.5 0 0 0 5 0V4" stroke="white" stroke-width="1.5" fill="none"/>`,
+    'activity': `<polyline points="22,12 18,12 15,21 9,3 6,12 2,12" stroke="white" stroke-width="1.5" fill="none"/>`,
+    'shield': `<path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" fill="white" stroke="white"/>`,
+    'shield-check': `<path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" fill="white" stroke="white"/><polyline points="9,12 11,14 16,9" stroke="${fillColor}" stroke-width="1.5" fill="none"/>`,
+    'dollar-sign': `<line x1="12" y1="1" x2="12" y2="23" stroke="white" stroke-width="1.5"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="white" stroke-width="1.5" fill="none"/>`
+  };
+  
+  const iconPath = iconPaths[config.icon as keyof typeof iconPaths] || iconPaths.home;
   
   const heartIcon = isFavorited ? `
     <path d="M16 8c0-2.21-1.79-4-4-4S8 5.79 8 8c0 1.5.83 2.8 2.05 3.48L12 14l1.95-2.52C15.17 10.8 16 9.5 16 8z" fill="white" stroke="#991b1b" stroke-width="0.5"/>
@@ -21,23 +83,18 @@ const createHouseIcon = (isViewed: boolean = false, isFavorited: boolean = false
   
   return new Icon({
     iconUrl: 'data:image/svg+xml;base64,' + btoa(`
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28">
-        <!-- House body -->
-        <rect x="6" y="12" width="12" height="8" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1.5" rx="1"/>
-        <!-- House roof -->
-        <path d="M4 14 L12 6 L20 14 L18 14 L12 8 L6 14 Z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1.5"/>
-        <!-- Door -->
-        <rect x="10" y="16" width="4" height="4" fill="white" stroke="${strokeColor}" stroke-width="0.8"/>
-        <!-- Window -->
-        <rect x="7.5" y="14" width="2.5" height="2.5" fill="white" stroke="${strokeColor}" stroke-width="0.8"/>
-        <rect x="14" y="14" width="2.5" height="2.5" fill="white" stroke="${strokeColor}" stroke-width="0.8"/>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
+        <!-- Background circle -->
+        <circle cx="12" cy="12" r="10" fill="${fillColor}" stroke="${strokeColor}" stroke-width="2"/>
+        <!-- Icon -->
+        ${iconPath}
         <!-- Heart for favorited -->
         ${heartIcon}
       </svg>
     `),
-    iconSize: [28, 28],
-    iconAnchor: [14, 28],
-    popupAnchor: [0, -28],
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+    popupAnchor: [0, -16],
   });
 };
 
@@ -67,8 +124,13 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
   const [sortBy, setSortBy] = useState('recommended');
   const [showSortOptions, setShowSortOptions] = useState(false);
   
+  // Parse URL parameters for filters
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlFilters = urlParams.get('filters');
+  const urlFiltersArray = urlFilters ? urlFilters.split(',') : [];
+  
   // Filter states
-  const [selectedCareTypes, setSelectedCareTypes] = useState<string[]>(initialFilters);
+  const [selectedCareTypes, setSelectedCareTypes] = useState<string[]>([...initialFilters, ...urlFiltersArray]);
   const [priceRange, setPriceRange] = useState({ min: 0, max: 10000 });
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
@@ -555,18 +617,24 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             }
           </Button>
           
-          {selectedCareTypes.map(careType => (
-            <Button 
-              key={careType}
-              variant="outline" 
-              onClick={() => setSelectedCareTypes(selectedCareTypes.filter(ct => ct !== careType))}
-              className="border-blue-500 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-full px-3 py-1 h-7 text-xs font-medium whitespace-nowrap flex items-center"
-            >
-              <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mr-1.5"></div>
-              {careType}
-              <X className="w-3 h-3 ml-1" />
-            </Button>
-          ))}
+          {selectedCareTypes.map(careType => {
+            const config = careTypeConfig[careType as keyof typeof careTypeConfig];
+            return (
+              <Button 
+                key={careType}
+                variant="outline" 
+                onClick={() => setSelectedCareTypes(selectedCareTypes.filter(ct => ct !== careType))}
+                className="border-blue-500 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-full px-3 py-1 h-7 text-xs font-medium whitespace-nowrap flex items-center"
+              >
+                <div 
+                  className="w-1.5 h-1.5 rounded-full mr-1.5" 
+                  style={{ backgroundColor: config?.color || '#3b82f6' }}
+                ></div>
+                {careType}
+                <X className="w-3 h-3 ml-1" />
+              </Button>
+            );
+          })}
           
           {priceRange.min > 0 || priceRange.max < 10000 ? (
             <Button 
@@ -600,27 +668,35 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             <div className="mb-4">
               <h3 className="text-xs font-semibold text-gray-700 mb-2">CARE TYPES</h3>
               <div className="flex flex-wrap gap-2">
-                {careTypeOptions.map(careType => (
-                  <Button
-                    key={careType}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      if (selectedCareTypes.includes(careType)) {
-                        setSelectedCareTypes(selectedCareTypes.filter(ct => ct !== careType));
-                      } else {
-                        setSelectedCareTypes([...selectedCareTypes, careType]);
-                      }
-                    }}
-                    className={`rounded-full text-xs h-7 ${
-                      selectedCareTypes.includes(careType)
-                        ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
-                        : 'bg-white text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    {careType}
-                  </Button>
-                ))}
+                {careTypeOptions.map(careType => {
+                  const config = careTypeConfig[careType as keyof typeof careTypeConfig];
+                  const isSelected = selectedCareTypes.includes(careType);
+                  return (
+                    <Button
+                      key={careType}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (isSelected) {
+                          setSelectedCareTypes(selectedCareTypes.filter(ct => ct !== careType));
+                        } else {
+                          setSelectedCareTypes([...selectedCareTypes, careType]);
+                        }
+                      }}
+                      className={`rounded-full text-xs h-7 flex items-center ${
+                        isSelected
+                          ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
+                          : 'bg-white text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      <div 
+                        className="w-2 h-2 rounded-full mr-1.5" 
+                        style={{ backgroundColor: config?.color || '#3b82f6' }}
+                      ></div>
+                      {careType}
+                    </Button>
+                  );
+                })}
               </div>
             </div>
             
@@ -709,7 +785,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                   <Marker
                     key={community.id}
                     position={[community.latitude, community.longitude]}
-                    icon={createHouseIcon(isViewed, isFavorited)}
+                    icon={createCareTypeIcon(community.careTypes || ['Independent Living'], isViewed, isFavorited)}
                     eventHandlers={{
                       click: () => window.location.href = `/community/${community.id}`,
                     }}
