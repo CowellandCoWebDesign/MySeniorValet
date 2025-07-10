@@ -1,0 +1,20 @@
+{
+  "total_facilities": 2145,
+  "data_sources": {
+    "healthcare_facilities": 1205,
+    "alw_assisted_living": 940
+  },
+  "cities": {
+    "LOS ANGELES": 122,
+    "FRESNO": 60,
+    "SACRAMENTO": 53,
+    "LONG BEACH": 42,
+    "RIVERSIDE": 39,
+    "SAN DIEGO": 39,
+    "BAKERSFIELD": 36,
+    "ANAHEIM": 35,
+    "NORTH HOLLYWOOD": 30,
+    "PASADENA": 28
+  },
+  "generated_at": "2025-07-10T06:16:53.592576"
+}
