@@ -664,10 +664,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .select()
           .from(communitiesTable)
           .where(
-            or(
-              sql`${communitiesTable.care_types} && ARRAY['Senior Housing', 'Low Income', 'Section 202', 'Section 811', 'Affordable Housing', 'Veterans Housing', 'HUD/VASH']::text[]`,
-              sql`${communitiesTable.careTypes} && ARRAY['Senior Housing', 'Low Income', 'Section 202', 'Section 811', 'Affordable Housing', 'Veterans Housing', 'HUD/VASH']::text[]`
-            )
+            sql`${communitiesTable.care_types} && ARRAY['Senior Housing', 'Low Income', 'Section 202', 'Section 811', 'Affordable Housing', 'Veterans Housing', 'HUD/VASH']::text[]`
           )
           .limit(1000);
         
@@ -684,20 +681,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Filter by specific care type
         if (req.query.careType === 'HUD/VASH') {
           filteredAffordableHousing = filteredAffordableHousing.filter(f => 
-            f.care_types?.includes('HUD/VASH') || f.careTypes?.includes('HUD/VASH')
+            f.care_types?.includes('HUD/VASH')
           );
         } else if (req.query.careType === 'Veterans Housing') {
           filteredAffordableHousing = filteredAffordableHousing.filter(f => 
-            f.care_types?.includes('Veterans Housing') || f.careTypes?.includes('Veterans Housing') ||
-            f.care_types?.includes('HUD/VASH') || f.careTypes?.includes('HUD/VASH')
+            f.care_types?.includes('Veterans Housing') || f.care_types?.includes('HUD/VASH')
           );
         } else if (req.query.careType === 'Affordable Housing') {
           filteredAffordableHousing = filteredAffordableHousing.filter(f => 
             f.care_types?.some((ct: string) => 
-              ct.includes('Senior Housing') || ct.includes('Low Income') || 
-              ct.includes('Section 202') || ct.includes('Section 811') || 
-              ct.includes('Affordable Housing')
-            ) || f.careTypes?.some((ct: string) => 
               ct.includes('Senior Housing') || ct.includes('Low Income') || 
               ct.includes('Section 202') || ct.includes('Section 811') || 
               ct.includes('Affordable Housing')
