@@ -87,9 +87,9 @@ export default function BasicSearch() {
   const [mapBounds, setMapBounds] = useState<any>(null);
 
   const { data: communitiesResponse, isLoading, error } = useQuery({
-    queryKey: ["/api/communities/search", { limit: 2000 }],
+    queryKey: ["/api/communities/search", { limit: 10000 }],
     queryFn: async () => {
-      const response = await fetch("/api/communities/search?limit=2000");
+      const response = await fetch("/api/communities/search?limit=10000");
       if (!response.ok) throw new Error("Failed to fetch communities");
       return response.json();
     },
