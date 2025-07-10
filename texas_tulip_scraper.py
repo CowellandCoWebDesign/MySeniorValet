@@ -1,210 +1,402 @@
-import requests
-from bs4 import BeautifulSoup
-import json
+import asyncio
 import csv
+import json
 import time
+from playwright.async_api import async_playwright
+from datetime import datetime
 import re
 
-# New Texas TULIP system URL
-TULIP_BASE = "https://txhhs.my.site.com/TULIP/s/"
-SEARCH_URL = "https://txhhs.my.site.com/TULIP/s/ltc-provider-search"
-
-def scrape_texas_tulip_assisted_living():
-    """Scrape Texas TULIP system for assisted living facilities"""
-    
-    session = requests.Session()
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Connection": "keep-alive",
-        "Upgrade-Insecure-Requests": "1",
-    }
-    session.headers.update(headers)
-    
-    print("Accessing Texas TULIP LTC Provider Search...")
-    
-    try:
-        # First, get the main search page
-        response = session.get(SEARCH_URL, timeout=30)
-        print(f"Main search page status: {response.status_code}")
+class TexasTulipScraper:
+    def __init__(self):
+        self.base_url = "https://txhhs.my.site.com/TULIP/s/ltc-provider-search"
+        self.facilities = []
+        self.page = None
+        self.browser = None
         
-        if response.status_code != 200:
-            print(f"Failed to access search page: {response.status_code}")
-            return []
+    async def start_browser(self):
+        """Initialize Playwright browser"""
+        playwright = await async_playwright().start()
+        self.browser = await playwright.chromium.launch(
+            headless=True,
+            args=['--no-sandbox', '--disable-dev-shm-usage']
+        )
+        context = await self.browser.new_context(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        )
+        self.page = await context.new_page()
         
-        # Save the page to analyze structure
-        with open('texas_tulip_search_page.html', 'w', encoding='utf-8') as f:
-            f.write(response.text)
-        print("Saved search page to texas_tulip_search_page.html")
+    async def scrape_facilities(self):
+        """Main scraping function"""
+        try:
+            await self.start_browser()
+            
+            print("🤠 Texas TULIP Scraper - Accessing provider search...")
+            await self.page.goto(self.base_url, wait_until='networkidle', timeout=30000)
+            
+            # Wait for the page to fully load
+            await self.page.wait_for_timeout(5000)
+            
+            # Look for search form elements
+            await self.find_and_interact_with_search()
+            
+            # Extract facility data from results
+            await self.extract_facility_data()
+            
+            # Save results
+            self.save_to_csv()
+            self.save_to_json()
+            
+            print(f"🎯 Scraping complete: {len(self.facilities)} facilities found")
+            
+        except Exception as e:
+            print(f"❌ Error during scraping: {e}")
+            # Save page screenshot for debugging
+            if self.page:
+                await self.page.screenshot(path="tulip_error_screenshot.png")
+                
+        finally:
+            if self.browser:
+                await self.browser.close()
+                
+    async def find_and_interact_with_search(self):
+        """Find and interact with search elements"""
+        print("🔍 Looking for search form elements...")
         
-        soup = BeautifulSoup(response.text, 'html.parser')
+        # Save page content for debugging
+        page_content = await self.page.content()
+        with open('tulip_page_content.html', 'w', encoding='utf-8') as f:
+            f.write(page_content)
         
-        # Look for forms and their structure
-        forms = soup.find_all('form')
-        print(f"Found {len(forms)} forms on page")
-        
-        # Look for JavaScript that might handle the search
-        scripts = soup.find_all('script')
-        api_endpoints = []
-        
-        for script in scripts:
-            if script.string:
-                # Look for API endpoints in JavaScript
-                api_matches = re.findall(r'["\']([^"\']*api[^"\']*)["\']', script.string)
-                api_endpoints.extend(api_matches)
-        
-        print(f"Found {len(api_endpoints)} potential API endpoints")
-        
-        # Look for Salesforce Lightning components (common in government sites)
-        lightning_elements = soup.find_all(attrs={"data-aura-class": True})
-        print(f"Found {len(lightning_elements)} Lightning components")
-        
-        # Try to find the actual search endpoint by looking for AJAX calls
-        # This is a modern JavaScript application, so we need to find the API
-        
-        # Look for provider type options in the HTML
-        provider_options = soup.find_all(text=lambda text: text and 'assisted living' in text.lower())
-        print(f"Found {len(provider_options)} mentions of assisted living")
-        
-        # Try to extract any data already on the page
-        facilities = extract_facility_data_from_page(soup)
-        
-        if facilities:
-            print(f"Found {len(facilities)} facilities on initial page")
-            save_facilities_to_csv(facilities, 'texas_tulip_facilities.csv')
-            create_integration_script(facilities)
-            return facilities
-        
-        # If no facilities found, try API approach
-        print("No facilities found on page, trying API approach...")
-        
-        # Try common API endpoints for Salesforce Community sites
-        api_urls = [
-            f"{TULIP_BASE}sfsites/aura",
-            f"{TULIP_BASE}s/sfsites/aura",
-            f"{TULIP_BASE}services/data/v55.0/query",
-            f"{TULIP_BASE}services/apexrest/",
+        # Try different selectors for search elements
+        search_selectors = [
+            'button[type="submit"]',
+            'input[type="submit"]',
+            'button:has-text("Search")',
+            'button:has-text("Find")',
+            '[data-testid*="search"]',
+            '.search-button',
+            '.btn-primary'
         ]
         
-        for api_url in api_urls:
+        search_button = None
+        for selector in search_selectors:
             try:
-                # Try to get provider data via API
-                api_response = session.get(api_url, timeout=15)
-                if api_response.status_code == 200:
-                    print(f"Successfully accessed {api_url}")
-                    # Further API exploration would go here
+                elements = await self.page.query_selector_all(selector)
+                if elements:
+                    search_button = elements[0]
+                    print(f"✅ Found search button with selector: {selector}")
+                    break
+            except:
+                continue
+                
+        # Look for provider type dropdown
+        provider_selectors = [
+            'select[name*="provider"]',
+            'select[name*="type"]',
+            'select[id*="provider"]',
+            'select[id*="type"]',
+            '.provider-select',
+            '.facility-type-select'
+        ]
+        
+        provider_dropdown = None
+        for selector in provider_selectors:
+            try:
+                element = await self.page.query_selector(selector)
+                if element:
+                    provider_dropdown = element
+                    print(f"✅ Found provider dropdown with selector: {selector}")
+                    break
+            except:
+                continue
+                
+        # If we found a provider dropdown, select assisted living
+        if provider_dropdown:
+            options = await provider_dropdown.query_selector_all('option')
+            for option in options:
+                text = await option.inner_text()
+                if 'assisted living' in text.lower() or 'alf' in text.lower():
+                    await option.click()
+                    print(f"✅ Selected: {text}")
+                    break
+                    
+        # Click search button if found
+        if search_button:
+            await search_button.click()
+            print("✅ Clicked search button")
+            await self.page.wait_for_timeout(5000)
+        else:
+            print("⚠️  No search button found, checking for existing results...")
+            
+        # Try to submit a blank search to get all results
+        await self.try_blank_search()
+        
+    async def try_blank_search(self):
+        """Try submitting a blank search to get all results"""
+        print("🔄 Attempting blank search submission...")
+        
+        # Try pressing Enter on the page
+        await self.page.keyboard.press('Enter')
+        await self.page.wait_for_timeout(3000)
+        
+        # Look for form submissions
+        forms = await self.page.query_selector_all('form')
+        for form in forms:
+            try:
+                await form.evaluate('form => form.submit()')
+                await self.page.wait_for_timeout(3000)
+                break
+            except:
+                continue
+                
+    async def extract_facility_data(self):
+        """Extract facility data from search results"""
+        print("📊 Extracting facility data...")
+        
+        # Wait for results to load
+        await self.page.wait_for_timeout(3000)
+        
+        # Look for results table or list
+        table_selectors = [
+            'table tbody tr',
+            '.search-results tr',
+            '.facility-list .facility-item',
+            '.provider-list .provider-item',
+            '[data-testid*="result"] tr',
+            '.results-table tr'
+        ]
+        
+        results_found = False
+        for selector in table_selectors:
+            try:
+                rows = await self.page.query_selector_all(selector)
+                if rows and len(rows) > 0:
+                    print(f"✅ Found {len(rows)} result rows with selector: {selector}")
+                    results_found = True
+                    
+                    for i, row in enumerate(rows):
+                        try:
+                            facility_data = await self.extract_facility_from_row(row)
+                            if facility_data:
+                                self.facilities.append(facility_data)
+                                
+                                # Add delay every 10 facilities
+                                if i % 10 == 0 and i > 0:
+                                    await self.page.wait_for_timeout(2000)
+                                    
+                        except Exception as e:
+                            print(f"❌ Error extracting facility {i}: {e}")
+                            continue
+                    break
                     
             except Exception as e:
-                print(f"API {api_url} failed: {e}")
+                print(f"❌ Error with selector {selector}: {e}")
                 continue
-        
-        return []
-        
-    except Exception as e:
-        print(f"Error accessing TULIP search: {e}")
-        return []
-
-def extract_facility_data_from_page(soup):
-    """Extract facility data from the page HTML"""
-    facilities = []
-    
-    # Look for common patterns in facility listings
-    # Tables, lists, cards, etc.
-    
-    # Check for table data
-    tables = soup.find_all('table')
-    for table in tables:
-        rows = table.find_all('tr')
-        for row in rows[1:]:  # Skip header
-            cells = row.find_all(['td', 'th'])
-            if len(cells) >= 3:  # Minimum columns for facility data
-                facility_data = {}
-                for i, cell in enumerate(cells):
-                    text = cell.get_text(strip=True)
-                    if i == 0 and text:
-                        facility_data['name'] = text
-                    elif i == 1 and text:
-                        facility_data['city'] = text
-                    elif i == 2 and text:
-                        facility_data['county'] = text
                 
-                if facility_data.get('name'):
-                    facilities.append(facility_data)
-    
-    # Check for card-like structures
-    cards = soup.find_all(['div', 'section'], class_=re.compile(r'card|facility|provider', re.I))
-    for card in cards:
-        facility_data = {}
-        
-        # Look for facility name
-        name_elem = card.find(['h1', 'h2', 'h3', 'h4', 'strong', 'b'])
-        if name_elem:
-            facility_data['name'] = name_elem.get_text(strip=True)
-        
-        # Look for address/location info
-        address_elem = card.find(text=re.compile(r'\d+.*\w+.*Street|Avenue|Road|Drive|Way|Boulevard', re.I))
-        if address_elem:
-            facility_data['address'] = address_elem.strip()
-        
-        if facility_data.get('name'):
-            facilities.append(facility_data)
-    
-    # Look for JSON data embedded in the page
-    script_tags = soup.find_all('script', type='application/json')
-    for script in script_tags:
+        if not results_found:
+            print("⚠️  No results table found, trying alternative extraction...")
+            await self.extract_from_page_content()
+            
+    async def extract_facility_from_row(self, row):
+        """Extract facility data from a table row"""
         try:
-            data = json.loads(script.string)
-            if isinstance(data, dict) and 'providers' in data:
-                # Extract provider data
-                for provider in data['providers']:
-                    facility_data = {
-                        'name': provider.get('name', ''),
-                        'address': provider.get('address', ''),
-                        'city': provider.get('city', ''),
-                        'county': provider.get('county', ''),
-                        'phone': provider.get('phone', ''),
-                        'type': provider.get('type', 'Assisted Living')
-                    }
-                    facilities.append(facility_data)
-        except:
-            continue
-    
-    return facilities
-
-def save_facilities_to_csv(facilities, filename):
-    """Save facilities to CSV file"""
-    if not facilities:
-        return
-    
-    # Standardize fields
-    fieldnames = ['name', 'address', 'city', 'county', 'state', 'zip_code', 'phone', 'type']
-    
-    with open(filename, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        
-        for facility in facilities:
-            row = {
-                'name': facility.get('name', ''),
-                'address': facility.get('address', ''),
-                'city': facility.get('city', ''),
-                'county': facility.get('county', ''),
+            # Get all cells in the row
+            cells = await row.query_selector_all('td, th')
+            
+            if len(cells) < 2:
+                return None
+                
+            facility_data = {
+                'provider_name': '',
+                'facility_type': '',
+                'address': '',
+                'city': '',
                 'state': 'TX',
-                'zip_code': facility.get('zip_code', ''),
-                'phone': facility.get('phone', ''),
-                'type': facility.get('type', 'Assisted Living')
+                'phone': '',
+                'license_number': '',
+                'license_status': '',
+                'ownership_type': '',
+                'services': '',
+                'care_category': '',
+                'source_url': self.base_url,
+                'scraped_date': datetime.now().isoformat()
             }
-            writer.writerow(row)
-    
-    print(f"Saved {len(facilities)} facilities to {filename}")
-
-def create_integration_script(facilities):
-    """Create integration script for TrueView database"""
-    
-    count = len(facilities)
-    script = f"""const {{ Pool, neonConfig }} = require('@neondatabase/serverless');
+            
+            # Extract text from cells
+            cell_texts = []
+            for cell in cells:
+                text = await cell.inner_text()
+                cell_texts.append(text.strip())
+                
+            # Map cell data to facility fields
+            if len(cell_texts) >= 1:
+                facility_data['provider_name'] = cell_texts[0]
+                
+            if len(cell_texts) >= 2:
+                facility_data['facility_type'] = cell_texts[1]
+                facility_data['care_category'] = self.categorize_facility_type(cell_texts[1])
+                
+            if len(cell_texts) >= 3:
+                facility_data['city'] = cell_texts[2]
+                
+            if len(cell_texts) >= 4:
+                facility_data['address'] = cell_texts[3]
+                
+            # Look for clickable links to get more details
+            links = await row.query_selector_all('a')
+            if links:
+                try:
+                    detail_data = await self.get_facility_details(links[0])
+                    facility_data.update(detail_data)
+                except:
+                    pass
+                    
+            return facility_data
+            
+        except Exception as e:
+            print(f"❌ Error extracting facility from row: {e}")
+            return None
+            
+    async def get_facility_details(self, link):
+        """Get detailed facility information from detail page"""
+        detail_data = {}
+        
+        try:
+            # Open link in new tab
+            new_page = await self.browser.new_page()
+            
+            href = await link.get_attribute('href')
+            if href:
+                if not href.startswith('http'):
+                    href = f"https://txhhs.my.site.com{href}"
+                    
+                await new_page.goto(href, wait_until='networkidle', timeout=15000)
+                await new_page.wait_for_timeout(3000)
+                
+                # Extract details from the page
+                page_text = await new_page.inner_text('body')
+                
+                # Look for phone numbers
+                phone_match = re.search(r'(\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4})', page_text)
+                if phone_match:
+                    detail_data['phone'] = phone_match.group(1)
+                    
+                # Look for license numbers
+                license_match = re.search(r'License[:\s#]*([A-Z0-9\-]+)', page_text, re.IGNORECASE)
+                if license_match:
+                    detail_data['license_number'] = license_match.group(1)
+                    
+                # Look for addresses
+                address_match = re.search(r'(\d+[^,]+(?:Street|Ave|Avenue|Road|Rd|Drive|Dr|Lane|Ln|Blvd|Boulevard)[^,]*)', page_text, re.IGNORECASE)
+                if address_match:
+                    detail_data['address'] = address_match.group(1)
+                    
+            await new_page.close()
+            
+        except Exception as e:
+            print(f"❌ Error getting facility details: {e}")
+            
+        return detail_data
+        
+    async def extract_from_page_content(self):
+        """Extract facilities from page content as fallback"""
+        print("🔄 Extracting from page content...")
+        
+        page_text = await self.page.inner_text('body')
+        
+        # Look for facility-like patterns in text
+        facility_patterns = [
+            r'([A-Z][a-z]+ [A-Z][a-z]+ (?:Care|Living|Center|Home|Services))',
+            r'([A-Z][a-z]+ (?:Assisted Living|Nursing Home|Adult Day Care))',
+            r'([A-Z][a-z]+ [A-Z][a-z]+ (?:LLC|Inc|Corporation))'
+        ]
+        
+        for pattern in facility_patterns:
+            matches = re.findall(pattern, page_text)
+            for match in matches:
+                facility_data = {
+                    'provider_name': match,
+                    'facility_type': 'Unknown',
+                    'address': '',
+                    'city': '',
+                    'state': 'TX',
+                    'phone': '',
+                    'license_number': '',
+                    'license_status': '',
+                    'ownership_type': '',
+                    'services': '',
+                    'care_category': 'Unknown',
+                    'source_url': self.base_url,
+                    'scraped_date': datetime.now().isoformat()
+                }
+                self.facilities.append(facility_data)
+                
+        # Deduplicate facilities
+        seen_names = set()
+        unique_facilities = []
+        for facility in self.facilities:
+            name = facility['provider_name'].lower()
+            if name not in seen_names and len(name) > 3:
+                seen_names.add(name)
+                unique_facilities.append(facility)
+                
+        self.facilities = unique_facilities
+        
+    def categorize_facility_type(self, facility_type):
+        """Categorize facility type into care categories"""
+        facility_type_lower = facility_type.lower()
+        
+        if 'assisted living' in facility_type_lower or 'alf' in facility_type_lower:
+            return 'Assisted Living'
+        elif 'nursing' in facility_type_lower or 'skilled nursing' in facility_type_lower:
+            return 'Skilled Nursing'
+        elif 'home' in facility_type_lower and 'community' in facility_type_lower:
+            return 'Home & Community Support'
+        elif 'adult day' in facility_type_lower or 'day care' in facility_type_lower:
+            return 'Adult Day Care'
+        elif 'medicaid' in facility_type_lower or 'waiver' in facility_type_lower:
+            return 'Medicaid Waiver'
+        else:
+            return 'Other'
+            
+    def save_to_csv(self):
+        """Save facilities to CSV file"""
+        if not self.facilities:
+            print("⚠️  No facilities to save")
+            return
+            
+        filename = 'texas_tulip_facilities.csv'
+        
+        fieldnames = [
+            'provider_name', 'facility_type', 'address', 'city', 'state',
+            'phone', 'license_number', 'license_status', 'ownership_type',
+            'services', 'care_category', 'source_url', 'scraped_date'
+        ]
+        
+        with open(filename, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(self.facilities)
+            
+        print(f"💾 Saved {len(self.facilities)} facilities to {filename}")
+        
+    def save_to_json(self):
+        """Save facilities to JSON file"""
+        if not self.facilities:
+            return
+            
+        filename = 'texas_tulip_facilities.json'
+        
+        with open(filename, 'w', encoding='utf-8') as f:
+            json.dump(self.facilities, f, indent=2, ensure_ascii=False)
+            
+        print(f"💾 Saved {len(self.facilities)} facilities to {filename}")
+        
+    def create_integration_script(self):
+        """Create TrueView integration script"""
+        count = len(self.facilities)
+        
+        script = f"""const {{ Pool, neonConfig }} = require('@neondatabase/serverless');
 const ws = require('ws');
 const fs = require('fs');
 const csv = require('csv-parser');
@@ -213,24 +405,21 @@ neonConfig.webSocketConstructor = ws;
 const pool = new Pool({{ connectionString: process.env.DATABASE_URL }});
 
 async function integrateTexasTulipFacilities() {{
-  console.log('🤠 TEXAS TULIP EXPANSION - Adding {count} Assisted Living Facilities');
+  console.log('🤠 TEXAS TULIP EXPANSION - Adding {count} Facilities');
   
   const facilities = [];
   
-  // Load CSV data
   await new Promise((resolve, reject) => {{
     fs.createReadStream('texas_tulip_facilities.csv')
       .pipe(csv())
-      .on('data', (row) => {{
-        facilities.push(row);
-      }})
+      .on('data', (row) => facilities.push(row))
       .on('end', resolve)
       .on('error', reject);
   }});
   
   console.log(`✅ Loaded ${{facilities.length}} Texas TULIP facilities`);
   
-  // Check existing facilities
+  // Get existing facilities to avoid duplicates
   const existingQuery = `SELECT name, city FROM communities WHERE state = 'TX'`;
   const existingResult = await pool.query(existingQuery);
   const existingSet = new Set(
@@ -243,7 +432,7 @@ async function integrateTexasTulipFacilities() {{
   let skippedCount = 0;
   
   for (const facility of facilities) {{
-    const key = `${{facility.name}}|${{facility.city}}`.toLowerCase();
+    const key = `${{facility.provider_name}}|${{facility.city}}`.toLowerCase();
     
     if (existingSet.has(key)) {{
       skippedCount++;
@@ -261,24 +450,23 @@ async function integrateTexasTulipFacilities() {{
         )
       `;
       
-      const values = [
-        facility.name,
+      await pool.query(insertQuery, [
+        facility.provider_name,
         facility.address,
         facility.city,
-        'TX',
-        facility.zip_code,
+        facility.state,
+        '',  // zip_code
         facility.phone,
-        facility.county,
-        ['Assisted Living'],
+        '',  // county
+        [facility.care_category],
         [],
         [],
         [],
         'Texas TULIP System',
         new Date().toISOString(),
         true
-      ];
+      ]);
       
-      await pool.query(insertQuery, values);
       addedCount++;
       
       if (addedCount % 100 === 0) {{
@@ -286,14 +474,30 @@ async function integrateTexasTulipFacilities() {{
       }}
       
     }} catch (error) {{
-      console.error(`❌ Error adding ${{facility.name}}:`, error.message);
+      console.error(`❌ Error adding ${{facility.provider_name}}:`, error.message);
     }}
   }}
   
   console.log(`\\n🎯 TEXAS TULIP EXPANSION COMPLETE`);
   console.log(`✅ Successfully added: ${{addedCount}} new facilities`);
   console.log(`⏭️  Skipped (duplicates): ${{skippedCount}} facilities`);
-  console.log(`📊 Total processed: ${{facilities.length}} facilities`);
+  
+  // Show care category breakdown
+  const categoryQuery = `
+    SELECT 
+      care_types,
+      COUNT(*) as count
+    FROM communities 
+    WHERE state = 'TX' 
+    GROUP BY care_types
+    ORDER BY count DESC
+  `;
+  
+  const categoryResult = await pool.query(categoryQuery);
+  console.log(`\\n📊 Texas Facilities by Care Type:`);
+  for (const row of categoryResult.rows) {{
+    console.log(`   ${{row.care_types}}: ${{row.count}}`);
+  }}
   
   // Final stats
   const statsQuery = `
@@ -318,22 +522,44 @@ if (require.main === module) {{
 }}
 
 module.exports = {{ integrateTexasTulipFacilities }};"""
+        
+        with open('integrate-texas-tulip-scraped.cjs', 'w') as f:
+            f.write(script)
+            
+        print("✅ Created integration script: integrate-texas-tulip-scraped.cjs")
+
+async def main():
+    """Main function to run the scraper"""
+    scraper = TexasTulipScraper()
+    await scraper.scrape_facilities()
+    scraper.create_integration_script()
     
-    with open('integrate-texas-tulip.cjs', 'w') as f:
-        f.write(script)
-    
-    print("✅ Created integration script: integrate-texas-tulip.cjs")
+    # Show summary
+    if scraper.facilities:
+        print(f"\n🎯 SCRAPING COMPLETE")
+        print(f"✅ Total facilities scraped: {len(scraper.facilities)}")
+        
+        # Show breakdown by care category
+        categories = {}
+        for facility in scraper.facilities:
+            cat = facility.get('care_category', 'Unknown')
+            categories[cat] = categories.get(cat, 0) + 1
+            
+        print(f"\n📊 Facilities by Care Category:")
+        for category, count in sorted(categories.items(), key=lambda x: x[1], reverse=True):
+            print(f"   {category}: {count}")
+            
+        print(f"\n📁 Output Files:")
+        print(f"   - texas_tulip_facilities.csv")
+        print(f"   - texas_tulip_facilities.json")
+        print(f"   - integrate-texas-tulip-scraped.cjs")
+        
+        print(f"\n🚀 Next Steps:")
+        print(f"   1. Run: node integrate-texas-tulip-scraped.cjs")
+        print(f"   2. This will integrate all facilities into TrueView database")
+        
+    else:
+        print(f"\n❌ No facilities found - check tulip_page_content.html for debugging")
 
 if __name__ == "__main__":
-    facilities = scrape_texas_tulip_assisted_living()
-    
-    if facilities:
-        print(f"\n🎯 SUCCESS: Found {len(facilities)} Texas assisted living facilities")
-        
-        # Show sample facilities
-        print("\nSample facilities:")
-        for facility in facilities[:10]:
-            print(f"  - {facility.get('name', 'Unknown')} in {facility.get('city', 'Unknown')}")
-    else:
-        print("\n⚠️  No facilities found - may need manual API exploration")
-        print("The page structure has been saved for analysis")
+    asyncio.run(main())
