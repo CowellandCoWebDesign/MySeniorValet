@@ -780,6 +780,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get affordable housing facilities (HUD Section 202/811)
+  app.get('/api/communities/affordable-housing', async (req, res) => {
+    try {
+      const state = req.query.state as string;
+      
+      // Build query for affordable housing
+      let query = db
+        .select()
+        .from(communities)
+        .where(eq(communities.type, 'Affordable Senior'));
+      
+      // Filter by state if provided
+      if (state && state !== 'all') {
+        query = query.where(and(
+          eq(communities.type, 'Affordable Senior'),
+          eq(communities.state, state)
+        ));
+      }
+      
+      const facilities = await query;
+      
+      console.log(`Found ${facilities.length} affordable housing facilities${state && state !== 'all' ? ` in ${state}` : ''}`);
+      res.json(facilities);
+    } catch (error) {
+      console.error('Error fetching affordable housing:', error);
+      res.status(500).json({ message: 'Failed to fetch affordable housing facilities' });
+    }
+  });
+
 
 
   // Get all communities (optimized with pagination)
