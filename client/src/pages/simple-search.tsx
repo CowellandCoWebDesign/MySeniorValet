@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -36,29 +36,21 @@ const communityIcon = new Icon({
   popupAnchor: [0, -32],
 });
 
-// Component to handle map events and track visible communities
-function MapBoundsTracker({ onBoundsChange }: { onBoundsChange: (bounds: LatLngBounds) => void }) {
-  const map = useMapEvents({
-    moveend: () => {
-      const bounds = map.getBounds();
-      onBoundsChange(bounds);
-    },
-    zoomend: () => {
-      const bounds = map.getBounds();
-      onBoundsChange(bounds);
-    }
-  });
-  
-  // Set initial bounds when map loads
-  useEffect(() => {
-    if (map) {
-      const bounds = map.getBounds();
-      onBoundsChange(bounds);
-    }
-  }, [map, onBoundsChange]);
-  
-  return null;
-}
+// Simplified bounds tracker - removed to fix stack overflow
+// function MapBoundsTracker({ onBoundsChange }: { onBoundsChange: (bounds: LatLngBounds) => void }) {
+//   const map = useMapEvents({
+//     moveend: () => {
+//       const bounds = map.getBounds();
+//       onBoundsChange(bounds);
+//     },
+//     zoomend: () => {
+//       const bounds = map.getBounds();
+//       onBoundsChange(bounds);
+//     }
+//   });
+//   
+//   return null;
+// }
 
 export default function SimpleSearch() {
   const [location] = useLocation();
@@ -68,17 +60,17 @@ export default function SimpleSearch() {
   const [isResultsExpanded, setIsResultsExpanded] = useState(false);
   const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
 
-  // Memoize the bounds change handler to prevent infinite loops
-  const handleBoundsChange = useCallback((bounds: LatLngBounds) => {
+  // Simple bounds change handler - removed memoization to avoid circular dependencies
+  const handleBoundsChange = (bounds: LatLngBounds) => {
     setMapBounds(bounds);
-  }, []);
+  };
 
-  // Parse URL parameters
+  // Parse URL parameters on mount only
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const q = urlParams.get('q');
     if (q) setSearchQuery(q);
-  }, [location]);
+  }, []); // Empty dependency array to run only once
 
   const { data: communitiesResponse, isLoading } = useQuery({
     queryKey: ["/api/communities/search", { limit: 2000 }],
@@ -109,19 +101,8 @@ export default function SimpleSearch() {
     return matches;
   }) || [];
 
-  // Then filter by map bounds (communities visible in current map view)
-  const visibleCommunities = searchFilteredCommunities.filter((community: any) => {
-    // If no map bounds yet or no coordinates, show in search results but not in map view
-    if (!mapBounds || !community.latitude || !community.longitude) {
-      return viewMode !== 'map';
-    }
-    
-    // Check if community is within current map view
-    return mapBounds.contains([community.latitude, community.longitude]);
-  });
-
-  // For display purposes - use visible communities when in map mode
-  const displayCommunities = viewMode === 'map' ? visibleCommunities : searchFilteredCommunities;
+  // Simplified display logic - no bounds filtering for now to avoid stack overflow
+  const displayCommunities = searchFilteredCommunities;
 
   // Bottom Navigation
   const BottomNav = () => (
@@ -240,8 +221,8 @@ export default function SimpleSearch() {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             
-            {/* Map Bounds Tracker */}
-            <MapBoundsTracker onBoundsChange={handleBoundsChange} />
+            {/* Map Bounds Tracker - temporarily disabled to fix stack overflow */}
+            {/* <MapBoundsTracker onBoundsChange={handleBoundsChange} /> */}
             
             {/* Optimized Community Markers */}
             {searchFilteredCommunities
