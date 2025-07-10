@@ -455,23 +455,24 @@ export class DatabaseStorage implements IStorage {
   }
 
   async searchCommunities(params: SearchCommunity): Promise<Community[]> {
+    console.log('Search parameters received:', params);
+
+    // Handle Veterans Housing specifically to avoid SQL issues
+    if (params.careType === "Veterans Housing") {
+      console.log('Searching for Veterans Housing communities...');
+      const veteransResults = await db.execute(
+        sql`SELECT * FROM communities WHERE 'Veterans Housing' = ANY(care_types) LIMIT ${params.limit || 20} OFFSET ${params.offset || 0}`
+      );
+      return veteransResults.rows || veteransResults;
+    }
+
     let query = db.select().from(communities);
     const conditions = [];
 
-    console.log('Search parameters received:', params);
-
-    if (params.careType && params.careType !== "All Types") {
-      // Handle single care type or comma-separated care types
-      const careTypes = params.careType.split(',').map(t => t.trim());
-      if (careTypes.length === 1) {
-        conditions.push(sql`${communities.careTypes} @> ARRAY[${careTypes[0]}]::text[]`);
-      } else {
-        // For multiple care types, use OR condition
-        const careTypeConditions = careTypes.map(careType => 
-          sql`${communities.careTypes} @> ARRAY[${careType}]::text[]`
-        );
-        conditions.push(or(...careTypeConditions));
-      }
+    if (params.careType && params.careType !== "All Types" && params.careType !== "Veterans Housing") {
+      // Handle other care types normally
+      const careType = params.careType.trim();
+      conditions.push(sql.raw(`'${careType}' = ANY(care_types)`));
     }
 
     if (params.location) {

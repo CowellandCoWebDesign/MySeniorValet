@@ -657,49 +657,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Add affordable housing facilities if requested via filter or care type
       const includeAffordableHousing = req.query.careType === 'HUD/VASH' || req.query.careType === 'Veterans Housing' || req.query.careType === 'Affordable Housing';
       
-      if (includeAffordableHousing) {
-        // Query affordable housing communities from database
-        const communitiesTable = communities;
-        const affordableHousingFacilities = await db
-          .select()
-          .from(communitiesTable)
-          .where(
-            sql`${communitiesTable.care_types} && ARRAY['Senior Housing', 'Low Income', 'Section 202', 'Section 811', 'Affordable Housing', 'Veterans Housing', 'HUD/VASH']::text[]`
-          )
-          .limit(1000);
-        
-        // Filter by location if specified
-        let filteredAffordableHousing = affordableHousingFacilities;
-        if (searchParams.location) {
-          const location = searchParams.location.toLowerCase();
-          filteredAffordableHousing = affordableHousingFacilities.filter(facility => 
-            facility.city?.toLowerCase().includes(location) ||
-            facility.state?.toLowerCase().includes(location)
-          );
-        }
-        
-        // Filter by specific care type
-        if (req.query.careType === 'HUD/VASH') {
-          filteredAffordableHousing = filteredAffordableHousing.filter(f => 
-            f.care_types?.includes('HUD/VASH')
-          );
-        } else if (req.query.careType === 'Veterans Housing') {
-          filteredAffordableHousing = filteredAffordableHousing.filter(f => 
-            f.care_types?.includes('Veterans Housing') || f.care_types?.includes('HUD/VASH')
-          );
-        } else if (req.query.careType === 'Affordable Housing') {
-          filteredAffordableHousing = filteredAffordableHousing.filter(f => 
-            f.care_types?.some((ct: string) => 
-              ct.includes('Senior Housing') || ct.includes('Low Income') || 
-              ct.includes('Section 202') || ct.includes('Section 811') || 
-              ct.includes('Affordable Housing')
-            )
-          );
-        }
-        
-        // Add affordable housing facilities to communities
-        communities = [...communities, ...filteredAffordableHousing];
-      }
+
       
       console.log(`Found ${communities.length} communities in ${Date.now() - startTime}ms`);
       
