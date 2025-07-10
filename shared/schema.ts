@@ -870,6 +870,68 @@ export const dataBackups = pgTable("data_backups", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// User Journey Tracking Tables
+export const userJourneySteps = pgTable("user_journey_steps", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  sessionId: text("session_id").notNull(), // Browser session for anonymous users
+  stepType: text("step_type", {
+    enum: ["homepage_visit", "search_initiated", "filters_applied", "community_viewed", "favorites_added", "tour_requested", "contact_made", "application_started"]
+  }).notNull(),
+  stepName: text("step_name").notNull(), // Human readable name
+  stepData: jsonb("step_data").$type<{
+    searchQuery?: string;
+    filters?: Record<string, any>;
+    communityId?: number;
+    communityName?: string;
+    timeSpent?: number; // seconds
+    pageUrl?: string;
+    referrer?: string;
+    userAgent?: string;
+    deviceType?: "desktop" | "mobile" | "tablet";
+  }>().default({}),
+  completedAt: timestamp("completed_at").defaultNow().notNull(),
+  nextStepPredicted: text("next_step_predicted"), // AI prediction of next step
+  progressPercentage: integer("progress_percentage").default(0), // 0-100
+}, (table) => [
+  index("user_journey_steps_user_idx").on(table.userId),
+  index("user_journey_steps_session_idx").on(table.sessionId),
+  index("user_journey_steps_step_type_idx").on(table.stepType),
+  index("user_journey_steps_completed_idx").on(table.completedAt),
+]);
+
+export const userJourneySessions = pgTable("user_journey_sessions", {
+  id: serial("id").primaryKey(),
+  sessionId: text("session_id").notNull().unique(),
+  userId: integer("user_id").references(() => users.id),
+  startedAt: timestamp("started_at").defaultNow().notNull(),
+  lastActiveAt: timestamp("last_active_at").defaultNow().notNull(),
+  currentStep: text("current_step").notNull().default("homepage_visit"),
+  totalSteps: integer("total_steps").default(0),
+  progressPercentage: integer("progress_percentage").default(0),
+  isCompleted: boolean("is_completed").default(false),
+  conversionType: text("conversion_type", {
+    enum: ["tour_booked", "contact_made", "application_submitted", "none"]
+  }).default("none"),
+  sessionData: jsonb("session_data").$type<{
+    deviceType?: "desktop" | "mobile" | "tablet";
+    referrer?: string;
+    userAgent?: string;
+    location?: string;
+    timeZone?: string;
+    language?: string;
+    searchQueries?: string[];
+    viewedCommunities?: number[];
+    favoritedCommunities?: number[];
+    appliedFilters?: Record<string, any>[];
+  }>().default({}),
+  completedAt: timestamp("completed_at"),
+}, (table) => [
+  index("user_journey_sessions_user_idx").on(table.userId),
+  index("user_journey_sessions_started_idx").on(table.startedAt),
+  index("user_journey_sessions_current_step_idx").on(table.currentStep),
+]);
+
 // Relations
 export const communitiesRelations = relations(communities, ({ many }) => ({
   inspections: many(inspections),
