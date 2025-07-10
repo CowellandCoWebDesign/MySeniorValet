@@ -37,15 +37,10 @@ const careTypeConfig = {
     icon: 'activity',
     description: 'Multiple care levels'
   },
-  'Veterans Housing': { 
+  'HUD': { 
     color: '#059669', // Dark green
     icon: 'shield',
-    description: 'Housing for veterans'
-  },
-  'HUD/VASH': { 
-    color: '#dc2626', // Dark red
-    icon: 'shield-check',
-    description: 'HUD-VASH voucher program'
+    description: 'HUD-VASH veterans housing'
   },
   'Affordable Housing': { 
     color: '#0891b2', // Cyan

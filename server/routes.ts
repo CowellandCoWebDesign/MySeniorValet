@@ -655,7 +655,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let communities = await storage.searchCommunities(searchParams);
       
       // Add affordable housing facilities if requested via filter or care type
-      const includeAffordableHousing = req.query.careType === 'HUD/VASH' || req.query.careType === 'Veterans Housing' || req.query.careType === 'Affordable Housing';
+      const includeAffordableHousing = req.query.careType === 'HUD' || req.query.careType === 'Affordable Housing';
       
 
       
