@@ -97,8 +97,48 @@ export default function BasicSearch() {
 
   console.log('BasicSearch - communities:', communities?.length, 'loading:', isLoading, 'error:', error);
 
-  // Get communities visible in current map bounds
-  const visibleCommunities = communities?.filter((community: any) => {
+  // Enhanced sorting function with sponsored listing priority
+  const sortCommunities = (communities: any[], sortBy: string) => {
+    if (!communities) return [];
+    
+    return [...communities].sort((a, b) => {
+      // First priority: Sponsored listings always appear first
+      const isASponsored = a.id % 8 === 0;
+      const isBSponsored = b.id % 8 === 0;
+      
+      if (isASponsored && !isBSponsored) return -1;
+      if (!isASponsored && isBSponsored) return 1;
+      
+      // If both are sponsored or both are not sponsored, apply regular sorting
+      switch (sortBy) {
+        case 'priceAsc':
+          const priceA = a.priceRange?.min || a.monthlyRent || 0;
+          const priceB = b.priceRange?.min || b.monthlyRent || 0;
+          return priceA - priceB;
+        case 'priceDesc':
+          const priceA2 = a.priceRange?.min || a.monthlyRent || 0;
+          const priceB2 = b.priceRange?.min || b.monthlyRent || 0;
+          return priceB2 - priceA2;
+        case 'rating':
+          return (b.googleRating || 0) - (a.googleRating || 0);
+        case 'nameAsc':
+          return a.name.localeCompare(b.name);
+        case 'newest':
+          return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+        case 'distance':
+          // For now, sort by random to simulate distance
+          return Math.random() - 0.5;
+        default: // recommended
+          // Prioritize communities with ratings and photos
+          const scoreA = (a.googleRating || 0) * 2 + (a.googlePhotos?.length || 0) * 0.1;
+          const scoreB = (b.googleRating || 0) * 2 + (b.googlePhotos?.length || 0) * 0.1;
+          return scoreB - scoreA;
+      }
+    });
+  };
+
+  // Filter communities based on search query and map bounds
+  const filteredCommunities = communities?.filter((community: any) => {
     // Search query filter
     const searchMatch = !searchQuery || 
       community.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -117,6 +157,29 @@ export default function BasicSearch() {
 
     return searchMatch && boundsMatch;
   }) || [];
+
+  // Apply sorting to filtered communities
+  const sortedCommunities = sortCommunities(filteredCommunities, sortBy);
+
+  // Get communities visible in current map bounds
+  const boundsFilteredCommunities = filteredCommunities.filter((community: any) => {
+    if (!mapBounds || !community.latitude || !community.longitude) return false;
+    
+    const lat = parseFloat(community.latitude);
+    const lng = parseFloat(community.longitude);
+    
+    // Add small buffer to bounds for better UX
+    const buffer = 0.01;
+    return (
+      lat >= (mapBounds.getSouth() - buffer) &&
+      lat <= (mapBounds.getNorth() + buffer) &&
+      lng >= (mapBounds.getWest() - buffer) &&
+      lng <= (mapBounds.getEast() + buffer)
+    );
+  });
+
+  // Apply sorting to visible communities
+  const visibleCommunities = sortCommunities(boundsFilteredCommunities, sortBy);
 
   // Close sort dropdown when clicking outside
   useEffect(() => {
