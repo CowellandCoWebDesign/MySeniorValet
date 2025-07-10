@@ -20,8 +20,9 @@ import { Link, useLocation } from "wouter";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import { Icon, LatLngBounds } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { EnhancedMap } from '@/components/enhanced-map';
-import { useMapOptimization } from '@/hooks/useMapOptimization';
+// Enhanced map components temporarily removed to fix circular dependency issues
+// import { EnhancedMap } from '@/components/enhanced-map';
+// import { useMapOptimization } from '@/hooks/useMapOptimization';
 
 // Custom marker icon for communities
 const communityIcon = new Icon({
@@ -71,13 +72,6 @@ export default function SimpleSearch() {
   const handleBoundsChange = useCallback((bounds: LatLngBounds) => {
     setMapBounds(bounds);
   }, []);
-
-  // Enhanced map optimization (optional - can be enabled for performance testing)
-  const mapOptimization = useMapOptimization(communitiesResponse || [], {
-    enableClustering: true,
-    maxMarkersBeforeClustering: 100,
-    enableVirtualization: viewMode === 'map'
-  });
 
   // Parse URL parameters
   useEffect(() => {
@@ -234,16 +228,64 @@ export default function SimpleSearch() {
       {/* Map/List View */}
       {viewMode === 'map' ? (
         <div className="h-96 relative">
-          {/* Enhanced Leaflet Map with Performance Optimizations */}
-          <EnhancedMap
-            communities={searchFilteredCommunities}
-            onBoundsChange={handleBoundsChange}
-            showBoundsTracker={true}
-            height="100%"
-            className="z-10"
+          {/* Interactive Leaflet Map with Performance Optimizations */}
+          <MapContainer
             center={[40.315, -122.32]} // Redding, CA as center of Northern California
             zoom={7}
-          />
+            style={{ height: '100%', width: '100%' }}
+            className="z-10"
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            
+            {/* Map Bounds Tracker */}
+            <MapBoundsTracker onBoundsChange={handleBoundsChange} />
+            
+            {/* Optimized Community Markers */}
+            {searchFilteredCommunities
+              .filter((community: any) => community.latitude && community.longitude)
+              .map((community: any) => (
+                <Marker
+                  key={community.id}
+                  position={[community.latitude, community.longitude]}
+                  icon={communityIcon}
+                  eventHandlers={{
+                    click: () => window.location.href = `/community/${community.id}`,
+                  }}
+                >
+                  <Popup className="community-popup">
+                    <div className="p-3 min-w-[240px]">
+                      <h3 className="font-semibold text-gray-900 mb-1 text-sm">{community.name}</h3>
+                      <p className="text-xs text-gray-600 mb-2">{community.city}, {community.state}</p>
+                      {community.monthlyRent && (
+                        <p className="text-base font-bold text-blue-600 mb-1">
+                          ${community.monthlyRent.toLocaleString()}/mo
+                        </p>
+                      )}
+                      <p className="text-xs text-gray-500 mb-2">
+                        {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
+                      </p>
+                      {community.googleRating && (
+                        <div className="flex items-center mb-2">
+                          <Star className="w-3 h-3 text-yellow-400 fill-current mr-1" />
+                          <span className="text-xs text-gray-600">
+                            {community.googleRating} ({community.googleReviewCount || 0} reviews)
+                          </span>
+                        </div>
+                      )}
+                      <button 
+                        onClick={() => window.location.href = `/community/${community.id}`}
+                        className="w-full bg-blue-600 text-white text-xs py-2 px-3 rounded hover:bg-blue-700 transition-colors"
+                      >
+                        View Details
+                      </button>
+                    </div>
+                  </Popup>
+                </Marker>
+              ))}
+          </MapContainer>
 
           {/* Map Controls Overlay */}
           <div className="absolute top-4 right-4 z-20">
