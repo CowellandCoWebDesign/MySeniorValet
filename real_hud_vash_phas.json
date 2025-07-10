@@ -1,0 +1,166 @@
+{
+  "source": "HUD PHA Contact Information",
+  "timestamp": "2025-07-10T08:56:21.536890",
+  "total_records": 14,
+  "states": [
+    "CA",
+    "TX",
+    "HI"
+  ],
+  "phas": [
+    {
+      "name": "Housing Authority of the County of Sacramento",
+      "address": "801 12th Street",
+      "city": "Sacramento",
+      "state": "CA",
+      "zip": "95814",
+      "phone": "(916) 874-2828",
+      "website": "https://www.shra.org",
+      "county": "Sacramento",
+      "hud_vash_active": true
+    },
+    {
+      "name": "Housing Authority of the City of Los Angeles",
+      "address": "2600 Wilshire Blvd, 3rd Floor",
+      "city": "Los Angeles",
+      "state": "CA",
+      "zip": "90057",
+      "phone": "(213) 252-1884",
+      "website": "https://www.hacla.org",
+      "county": "Los Angeles",
+      "hud_vash_active": true
+    },
+    {
+      "name": "San Francisco Housing Authority",
+      "address": "1815 Egbert Avenue, Suite 300",
+      "city": "San Francisco",
+      "state": "CA",
+      "zip": "94124",
+      "phone": "(415) 715-3280",
+      "website": "https://www.sfha.org",
+      "county": "San Francisco",
+      "hud_vash_active": true
+    },
+    {
+      "name": "Housing Authority of the County of San Diego",
+      "address": "3989 Ruffin Road",
+      "city": "San Diego",
+      "state": "CA",
+      "zip": "92123",
+      "phone": "(858) 694-4801",
+      "website": "https://www.sdhc.org",
+      "county": "San Diego",
+      "hud_vash_active": true
+    },
+    {
+      "name": "Oakland Housing Authority",
+      "address": "1619 Harrison Street",
+      "city": "Oakland",
+      "state": "CA",
+      "zip": "94612",
+      "phone": "(510) 874-1500",
+      "website": "https://www.oakha.org",
+      "county": "Alameda",
+      "hud_vash_active": true
+    },
+    {
+      "name": "Houston Housing Authority",
+      "address": "2640 Fountain View Dr",
+      "city": "Houston",
+      "state": "TX",
+      "zip": "77057",
+      "phone": "(713) 260-0500",
+      "website": "https://www.housingforhouston.com",
+      "county": "Harris",
+      "hud_vash_active": true
+    },
+    {
+      "name": "San Antonio Housing Authority",
+      "address": "818 S Flores St",
+      "city": "San Antonio",
+      "state": "TX",
+      "zip": "78204",
+      "phone": "(210) 477-6000",
+      "website": "https://www.saha.org",
+      "county": "Bexar",
+      "hud_vash_active": true
+    },
+    {
+      "name": "Dallas Housing Authority",
+      "address": "3939 N Hampton Rd",
+      "city": "Dallas",
+      "state": "TX",
+      "zip": "75212",
+      "phone": "(214) 951-8300",
+      "website": "https://www.dhadal.com",
+      "county": "Dallas",
+      "hud_vash_active": true
+    },
+    {
+      "name": "Housing Authority of the City of Austin",
+      "address": "1124 S IH 35",
+      "city": "Austin",
+      "state": "TX",
+      "zip": "78704",
+      "phone": "(512) 477-4488",
+      "website": "https://www.hacanet.org",
+      "county": "Travis",
+      "hud_vash_active": true
+    },
+    {
+      "name": "Fort Worth Housing Solutions",
+      "address": "1201 E 13th St",
+      "city": "Fort Worth",
+      "state": "TX",
+      "zip": "76102",
+      "phone": "(817) 333-3400",
+      "website": "https://www.fwhs.org",
+      "county": "Tarrant",
+      "hud_vash_active": true
+    },
+    {
+      "name": "Hawaii Public Housing Authority",
+      "address": "1002 N School St",
+      "city": "Honolulu",
+      "state": "HI",
+      "zip": "96817",
+      "phone": "(808) 832-5960",
+      "website": "https://www.hpha.hawaii.gov",
+      "county": "Honolulu",
+      "hud_vash_active": true
+    },
+    {
+      "name": "County of Hawaii Office of Housing",
+      "address": "50 Wailuku Dr",
+      "city": "Hilo",
+      "state": "HI",
+      "zip": "96720",
+      "phone": "(808) 961-8379",
+      "website": "https://www.hawaiicounty.gov/departments/office-of-housing",
+      "county": "Hawaii",
+      "hud_vash_active": true
+    },
+    {
+      "name": "County of Maui Department of Housing and Human Concerns",
+      "address": "35 Lunalilo St, Suite 102",
+      "city": "Wailuku",
+      "state": "HI",
+      "zip": "96793",
+      "phone": "(808) 270-7351",
+      "website": "https://www.mauicounty.gov/196/Housing-Human-Concerns",
+      "county": "Maui",
+      "hud_vash_active": true
+    },
+    {
+      "name": "County of Kauai Housing Agency",
+      "address": "4444 Rice St, Suite 330",
+      "city": "Lihue",
+      "state": "HI",
+      "zip": "96766",
+      "phone": "(808) 241-4444",
+      "website": "https://www.kauai.gov/housing",
+      "county": "Kauai",
+      "hud_vash_active": true
+    }
+  ]
+}

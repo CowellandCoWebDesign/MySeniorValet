@@ -1,0 +1,15 @@
+name,address,city,state,zip,phone,website,county,hud_vash_active
+Housing Authority of the County of Sacramento,801 12th Street,Sacramento,CA,95814,(916) 874-2828,https://www.shra.org,Sacramento,True
+Housing Authority of the City of Los Angeles,"2600 Wilshire Blvd, 3rd Floor",Los Angeles,CA,90057,(213) 252-1884,https://www.hacla.org,Los Angeles,True
+San Francisco Housing Authority,"1815 Egbert Avenue, Suite 300",San Francisco,CA,94124,(415) 715-3280,https://www.sfha.org,San Francisco,True
+Housing Authority of the County of San Diego,3989 Ruffin Road,San Diego,CA,92123,(858) 694-4801,https://www.sdhc.org,San Diego,True
+Oakland Housing Authority,1619 Harrison Street,Oakland,CA,94612,(510) 874-1500,https://www.oakha.org,Alameda,True
+Houston Housing Authority,2640 Fountain View Dr,Houston,TX,77057,(713) 260-0500,https://www.housingforhouston.com,Harris,True
+San Antonio Housing Authority,818 S Flores St,San Antonio,TX,78204,(210) 477-6000,https://www.saha.org,Bexar,True
+Dallas Housing Authority,3939 N Hampton Rd,Dallas,TX,75212,(214) 951-8300,https://www.dhadal.com,Dallas,True
+Housing Authority of the City of Austin,1124 S IH 35,Austin,TX,78704,(512) 477-4488,https://www.hacanet.org,Travis,True
+Fort Worth Housing Solutions,1201 E 13th St,Fort Worth,TX,76102,(817) 333-3400,https://www.fwhs.org,Tarrant,True
+Hawaii Public Housing Authority,1002 N School St,Honolulu,HI,96817,(808) 832-5960,https://www.hpha.hawaii.gov,Honolulu,True
+County of Hawaii Office of Housing,50 Wailuku Dr,Hilo,HI,96720,(808) 961-8379,https://www.hawaiicounty.gov/departments/office-of-housing,Hawaii,True
+County of Maui Department of Housing and Human Concerns,"35 Lunalilo St, Suite 102",Wailuku,HI,96793,(808) 270-7351,https://www.mauicounty.gov/196/Housing-Human-Concerns,Maui,True
+County of Kauai Housing Agency,"4444 Rice St, Suite 330",Lihue,HI,96766,(808) 241-4444,https://www.kauai.gov/housing,Kauai,True

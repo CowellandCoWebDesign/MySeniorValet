@@ -107,7 +107,8 @@ export default function BasicSearch() {
     'Assisted Living', 
     'Memory Care',
     'Skilled Nursing',
-    'Continuing Care'
+    'Continuing Care',
+    'Veterans Housing'
   ];
   
   const amenityOptions = [

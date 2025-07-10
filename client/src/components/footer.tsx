@@ -74,6 +74,7 @@ export function Footer() {
               </p>
             </div>
             <div className="flex flex-wrap justify-center md:justify-end space-x-6">
+              <Link href="/veterans" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Veterans Housing</Link>
               <Link href="/privacy" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Privacy</Link>
               <Link href="/terms" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Terms</Link>
               <Link href="/disclaimer" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Disclaimer</Link>
