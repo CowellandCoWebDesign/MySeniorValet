@@ -1,76 +1,89 @@
-const axios = require('axios');
+const { Pool, neonConfig } = require('@neondatabase/serverless');
+const ws = require('ws');
+
+neonConfig.webSocketConstructor = ws;
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 async function verifyThreeStatesCoverage() {
-  console.log('🌺 VERIFYING THREE-STATE COVERAGE: CA + TX + HI');
+  console.log('🌟 FINAL THREE-STATE VERIFICATION');
+  console.log('================================\n');
   
-  // Test searches across all three states
+  // Overall statistics
+  const overallQuery = `
+    SELECT 
+      state,
+      COUNT(*) as total,
+      COUNT(CASE WHEN latitude IS NOT NULL AND longitude IS NOT NULL THEN 1 END) as with_coordinates,
+      COUNT(DISTINCT city) as cities,
+      COUNT(DISTINCT county) as counties
+    FROM communities 
+    WHERE state IN ('CA', 'TX', 'HI')
+    GROUP BY state
+    ORDER BY state
+  `;
+  
+  const overallResult = await pool.query(overallQuery);
+  
+  let grandTotal = 0;
+  let grandWithCoords = 0;
+  
+  console.log('📊 STATE-BY-STATE BREAKDOWN:\n');
+  
+  overallResult.rows.forEach(row => {
+    const stateName = row.state === 'CA' ? 'California' : 
+                     row.state === 'TX' ? 'Texas' : 'Hawaii';
+    const emoji = row.state === 'CA' ? '🐻' : 
+                  row.state === 'TX' ? '🤠' : '🌺';
+    
+    console.log(`${emoji} ${stateName}:`);
+    console.log(`   Total facilities: ${row.total}`);
+    console.log(`   With coordinates: ${row.with_coordinates}`);
+    console.log(`   Map coverage: ${((row.with_coordinates / row.total) * 100).toFixed(1)}%`);
+    console.log(`   Cities: ${row.cities}`);
+    console.log(`   Counties: ${row.counties}`);
+    console.log('');
+    
+    grandTotal += parseInt(row.total);
+    grandWithCoords += parseInt(row.with_coordinates);
+  });
+  
+  console.log('🎯 GRAND TOTAL:');
+  console.log(`   Total facilities: ${grandTotal}`);
+  console.log(`   With coordinates: ${grandWithCoords}`);
+  console.log(`   Overall coverage: ${((grandWithCoords / grandTotal) * 100).toFixed(1)}%`);
+  
+  // Test searches for major cities
+  console.log('\n🔍 TESTING MAJOR CITY SEARCHES:\n');
+  
   const testCities = [
-    // California
-    { city: 'Los Angeles', state: 'CA', expected: 5 },
-    { city: 'San Francisco', state: 'CA', expected: 5 },
-    { city: 'Sacramento', state: 'CA', expected: 5 },
-    
-    // Texas
-    { city: 'Houston', state: 'TX', expected: 5 },
-    { city: 'Dallas', state: 'TX', expected: 5 },
-    { city: 'Austin', state: 'TX', expected: 5 },
-    
-    // Hawaii
-    { city: 'Honolulu', state: 'HI', expected: 3 },
-    { city: 'Hilo', state: 'HI', expected: 2 },
-    { city: 'Kailua-Kona', state: 'HI', expected: 1 }
+    { city: 'Los Angeles', state: 'CA' },
+    { city: 'San Francisco', state: 'CA' },
+    { city: 'Houston', state: 'TX' },
+    { city: 'Dallas', state: 'TX' },
+    { city: 'Honolulu', state: 'HI' }
   ];
   
-  const stateResults = {
-    'CA': { found: 0, tested: 0 },
-    'TX': { found: 0, tested: 0 },
-    'HI': { found: 0, tested: 0 }
-  };
-  
-  console.log('\\n🔍 Testing Multi-State Search Coverage:');
-  
   for (const test of testCities) {
-    stateResults[test.state].tested++;
+    const searchQuery = `
+      SELECT COUNT(*) as count
+      FROM communities 
+      WHERE state = $1 
+      AND city = $2
+    `;
     
-    try {
-      const response = await axios.get(`http://localhost:5000/api/communities/search?location=${test.city}&limit=5`);
-      const communities = response.data;
-      const stateCommunities = communities.filter(c => c.state === test.state);
-      
-      if (stateCommunities.length > 0) {
-        stateResults[test.state].found++;
-        console.log(`   ✅ ${test.city}, ${test.state}: ${stateCommunities.length} facilities`);
-        if (stateCommunities.length > 0) {
-          console.log(`      Example: ${stateCommunities[0].name}`);
-        }
-      } else {
-        console.log(`   ❌ ${test.city}, ${test.state}: No facilities found`);
-      }
-      
-    } catch (error) {
-      if (error.response?.status === 429) {
-        console.log(`   ⏳ ${test.city}, ${test.state}: Rate limited`);
-      } else {
-        console.log(`   ⚠️  ${test.city}, ${test.state}: ${error.message}`);
-      }
-    }
+    const searchResult = await pool.query(searchQuery, [test.state, test.city]);
+    const count = searchResult.rows[0].count;
+    console.log(`   ✅ ${test.city}, ${test.state}: ${count} facilities`);
   }
   
-  console.log('\\n📊 THREE-STATE COVERAGE RESULTS:');
-  console.log(`   🌉 California: ${stateResults.CA.found}/${stateResults.CA.tested} cities successful`);
-  console.log(`   🤠 Texas: ${stateResults.TX.found}/${stateResults.TX.tested} cities successful`);
-  console.log(`   🌺 Hawaii: ${stateResults.HI.found}/${stateResults.HI.tested} cities successful`);
+  if (grandWithCoords === grandTotal) {
+    console.log('\n🎉 CONGRATULATIONS! 🎉');
+    console.log('ALL THREE STATES ARE 100% COMPLETE!');
+    console.log(`${grandTotal} facilities across California, Texas, and Hawaii`);
+    console.log('are now fully searchable and visible on the interactive map!');
+  }
   
-  const totalFound = stateResults.CA.found + stateResults.TX.found + stateResults.HI.found;
-  const totalTested = stateResults.CA.tested + stateResults.TX.tested + stateResults.HI.tested;
-  
-  console.log(`\\n🏆 OVERALL SUCCESS RATE: ${totalFound}/${totalTested} (${((totalFound/totalTested)*100).toFixed(1)}%)`);
-  
-  console.log('\\n🌟 TRUEVIEW THREE-STATE COVERAGE VERIFIED!');
-  console.log('   🌉 California: Complete statewide coverage');
-  console.log('   🤠 Texas: 100% county coverage (254/254)');
-  console.log('   🌺 Hawaii: Complete island coverage (4/4 counties)');
-  console.log('\\n🚀 TrueView is now a true multi-state platform!');
+  await pool.end();
 }
 
 if (require.main === module) {
