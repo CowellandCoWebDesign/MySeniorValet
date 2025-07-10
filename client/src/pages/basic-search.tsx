@@ -95,8 +95,6 @@ export default function BasicSearch() {
   // Extract communities array from search response (now returns direct array, not paginated)
   const communities = Array.isArray(communitiesResponse) ? communitiesResponse : [];
 
-  console.log('BasicSearch - communities:', communities?.length, 'loading:', isLoading, 'error:', error);
-
   // Enhanced sorting function with sponsored listing priority
   const sortCommunities = (communities: any[], sortBy: string) => {
     if (!communities) return [];

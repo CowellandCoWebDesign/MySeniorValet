@@ -172,6 +172,7 @@ export default function SlidePanel({
       style={{ height: panelHeight }}
     >
       <div className="flex flex-col h-full">
+        {/* Drag Handle */}
         <div
           ref={dragRef}
           className="cursor-grab active:cursor-grabbing select-none bg-white rounded-t-2xl"
@@ -182,8 +183,11 @@ export default function SlidePanel({
           <div className="flex justify-center pt-3 pb-2">
             <div className={`w-10 h-1 rounded-full ${isDragging ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
           </div>
-          <div className="px-4 pb-2">
-            <div className="flex flex-wrap gap-2 overflow-x-auto text-xs text-gray-600">
+        </div>
+
+        {/* Sticky Sort Bar */}
+        <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-2">
+          <div className="flex flex-wrap gap-2 text-xs">
               <button
                 onClick={() => setSortBy("priceAsc")}
                 className={`px-3 py-1 rounded-full border ${
@@ -234,26 +238,34 @@ export default function SlidePanel({
               >
                 🔤 Name
               </button>
-            </div>
-            <div className="mt-2 text-sm font-semibold text-gray-900">
-              {sortedCommunities.length} communities in view
-            </div>
+          </div>
+          <div className="mt-2 text-sm font-semibold text-gray-900">
+            {sortedCommunities.length} communities in view
           </div>
         </div>
 
+        {/* Scrollable Results */}
         <div className="flex-1 overflow-hidden bg-gray-50">
-          <AutoSizer>
-            {({ height, width }) => (
-              <List
-                height={height}
-                width={width}
-                itemCount={isLoading ? 10 : sortedCommunities.length}
-                itemSize={310}
-              >
-                {Row}
-              </List>
-            )}
-          </AutoSizer>
+          {!isLoading && sortedCommunities.length === 0 && (
+            <div className="text-center text-gray-500 py-10 px-4">
+              <p className="text-lg mb-2">😕 No communities match your filters.</p>
+              <p className="text-sm">Try zooming out or adjusting your search.</p>
+            </div>
+          )}
+          {(isLoading || sortedCommunities.length > 0) && (
+            <AutoSizer>
+              {({ height, width }) => (
+                <List
+                  height={height}
+                  width={width}
+                  itemCount={isLoading ? 10 : sortedCommunities.length}
+                  itemSize={310}
+                >
+                  {Row}
+                </List>
+              )}
+            </AutoSizer>
+          )}
         </div>
       </div>
     </div>
