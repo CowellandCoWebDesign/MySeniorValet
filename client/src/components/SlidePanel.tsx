@@ -10,6 +10,7 @@ export default function SlidePanel({
   isLoading = false
 }) {
   const [panelHeight, setPanelHeight] = useState(120);
+  const [isDragging, setIsDragging] = useState(false);
   const dragRef = useRef(null);
   const startYRef = useRef(0);
   const startHeightRef = useRef(120);
@@ -38,9 +39,12 @@ export default function SlidePanel({
   }, [communities, sortBy]);
 
   const handleDragStart = (e) => {
+    console.log("DRAG START - panelHeight:", panelHeight);
+    setIsDragging(true);
     startYRef.current =
       "touches" in e ? e.touches[0].clientY : e.clientY;
     startHeightRef.current = panelHeight;
+    console.log("DRAG START - startY:", startYRef.current, "startHeight:", startHeightRef.current);
     document.addEventListener("mousemove", handleDrag);
     document.addEventListener("touchmove", handleDrag, { passive: false });
     document.addEventListener("mouseup", handleDragEnd);
@@ -56,18 +60,25 @@ export default function SlidePanel({
       120,
       Math.min(screenHeight * 0.9, startHeightRef.current + deltaY)
     );
+    console.log("DRAG - currentY:", currentY, "deltaY:", deltaY, "newHeight:", newHeight);
     cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(() => setPanelHeight(newHeight));
+    rafRef.current = requestAnimationFrame(() => {
+      console.log("DRAG RAF - setting height to:", newHeight);
+      setPanelHeight(newHeight);
+    });
     e.preventDefault();
   };
 
   const handleDragEnd = () => {
+    console.log("DRAG END - current panelHeight:", panelHeight);
+    setIsDragging(false);
     const snap =
       panelHeight < 180
         ? 120
         : panelHeight < screenHeight * 0.6
         ? 350
         : screenHeight * 0.85;
+    console.log("DRAG END - will snap to:", snap);
     const start = panelHeight;
     const duration = 200;
     const startTime = Date.now();
@@ -76,7 +87,11 @@ export default function SlidePanel({
       const eased = 1 - Math.pow(1 - progress, 3);
       const height = start + (snap - start) * eased;
       setPanelHeight(height);
-      if (progress < 1) rafRef.current = requestAnimationFrame(animate);
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(animate);
+      } else {
+        console.log("DRAG END - animation complete, final height:", height);
+      }
     };
     animate();
     document.removeEventListener("mousemove", handleDrag);
@@ -150,9 +165,14 @@ export default function SlidePanel({
     );
   };
 
+  // Add useEffect to monitor panel height changes
+  useEffect(() => {
+    console.log("PANEL HEIGHT CHANGED:", panelHeight);
+  }, [panelHeight]);
+
   return (
     <div
-      className="fixed left-0 right-0 bottom-0 bg-white z-40 rounded-t-2xl border-t border-gray-200 shadow-2xl overflow-hidden"
+      className={`fixed left-0 right-0 bottom-0 bg-white z-40 rounded-t-2xl border-t border-gray-200 shadow-2xl overflow-hidden ${isDragging ? 'transition-none' : 'transition-all duration-200'}`}
       style={{ height: panelHeight }}
     >
       <div className="flex flex-col h-full">
@@ -164,7 +184,7 @@ export default function SlidePanel({
           style={{ touchAction: "none" }}
         >
           <div className="flex justify-center pt-3 pb-2">
-            <div className="w-10 h-1 bg-gray-300 rounded-full"></div>
+            <div className={`w-10 h-1 rounded-full ${isDragging ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
           </div>
           <div className="px-4 pb-2">
             <div className="flex flex-wrap gap-2 overflow-x-auto text-xs text-gray-600">
