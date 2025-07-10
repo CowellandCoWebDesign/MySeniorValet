@@ -16,7 +16,7 @@ import {
   pendingCommunities
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc, inArray, sql } from "drizzle-orm";
+import { eq, and, or, desc, inArray, sql } from "drizzle-orm";
 import { careTypeClassifier } from './care-type-classifier';
 import { dataQualityEnhancement } from './data-quality-enhancement';
 import { enhancedSearchService } from "./enhanced-search-service";
@@ -654,106 +654,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Call storage search with optimized parameters
       let communities = await storage.searchCommunities(searchParams);
       
-      // Add HUD facilities if requested via filter or care type
-      const includeHUD = req.query.careType === 'HUD/VASH' || req.query.careType === 'Veterans Housing' || req.query.careType === 'Affordable Housing';
+      // Add affordable housing facilities if requested via filter or care type
+      const includeAffordableHousing = req.query.careType === 'HUD/VASH' || req.query.careType === 'Veterans Housing' || req.query.careType === 'Affordable Housing';
       
-      if (includeHUD) {
-        // Get HUD facilities
-        const hudFacilities = [
-          {
-            id: 10001,
-            name: "Los Angeles HUD-VASH Program",
-            address: "1200 Wilshire Blvd",
-            city: "Los Angeles",
-            state: "CA",
-            latitude: 34.0522,
-            longitude: -118.2437,
-            phone: "(213) 555-0100",
-            website: "https://la.gov/housing",
-            type: "HUD-VASH",
-            veteran_programs: "HUD-VASH Vouchers",
-            care_types: ["Veterans Housing", "Supportive Services"],
-            pricing: "Contact for eligibility",
-            availability: "Available",
-            rating: 4.5,
-            reviewCount: 15,
-            description: "HUD-VASH provides rental assistance for homeless veterans"
-          },
-          {
-            id: 10002,
-            name: "San Francisco Section 202 Housing",
-            address: "800 Market Street",
-            city: "San Francisco",
-            state: "CA",
-            latitude: 37.7749,
-            longitude: -122.4194,
-            phone: "(415) 555-0200",
-            type: "Affordable Senior",
-            care_types: ["Senior Housing", "Low Income"],
-            pricing: "Income-based rent",
-            availability: "Waitlist",
-            rating: 4.2,
-            reviewCount: 8,
-            description: "Affordable senior housing under Section 202 program"
-          },
-          {
-            id: 10003,
-            name: "Texas Veterans Housing Authority",
-            address: "500 Main Street",
-            city: "Austin",
-            state: "TX",
-            latitude: 30.2672,
-            longitude: -97.7431,
-            phone: "(512) 555-0300",
-            type: "Veterans Housing",
-            veteran_programs: "VA Supportive Housing",
-            care_types: ["Veterans Housing", "Mental Health Support"],
-            pricing: "Sliding scale",
-            availability: "Available",
-            rating: 4.8,
-            reviewCount: 22,
-            description: "Supportive housing for veterans with mental health services"
-          },
-          {
-            id: 10004,
-            name: "Honolulu Affordable Senior Housing",
-            address: "1000 Ala Moana Blvd",
-            city: "Honolulu",
-            state: "HI",
-            latitude: 21.3099,
-            longitude: -157.8581,
-            phone: "(808) 555-0400",
-            type: "Affordable Senior",
-            care_types: ["Senior Housing", "Section 202"],
-            pricing: "30% of income",
-            availability: "Limited",
-            rating: 4.0,
-            reviewCount: 5,
-            description: "Affordable senior housing with ocean views"
-          }
-        ];
+      if (includeAffordableHousing) {
+        // Query affordable housing communities from database
+        const communitiesTable = communities;
+        const affordableHousingFacilities = await db
+          .select()
+          .from(communitiesTable)
+          .where(
+            or(
+              sql`${communitiesTable.care_types} && ARRAY['Senior Housing', 'Low Income', 'Section 202', 'Section 811', 'Affordable Housing', 'Veterans Housing', 'HUD/VASH']::text[]`,
+              sql`${communitiesTable.careTypes} && ARRAY['Senior Housing', 'Low Income', 'Section 202', 'Section 811', 'Affordable Housing', 'Veterans Housing', 'HUD/VASH']::text[]`
+            )
+          )
+          .limit(1000);
         
-        // Filter HUD facilities by location if specified
-        let filteredHudFacilities = hudFacilities;
+        // Filter by location if specified
+        let filteredAffordableHousing = affordableHousingFacilities;
         if (searchParams.location) {
           const location = searchParams.location.toLowerCase();
-          filteredHudFacilities = hudFacilities.filter(facility => 
-            facility.city.toLowerCase().includes(location) ||
-            facility.state.toLowerCase().includes(location)
+          filteredAffordableHousing = affordableHousingFacilities.filter(facility => 
+            facility.city?.toLowerCase().includes(location) ||
+            facility.state?.toLowerCase().includes(location)
           );
         }
         
         // Filter by specific care type
         if (req.query.careType === 'HUD/VASH') {
-          filteredHudFacilities = filteredHudFacilities.filter(f => f.type === 'HUD-VASH');
+          filteredAffordableHousing = filteredAffordableHousing.filter(f => 
+            f.care_types?.includes('HUD/VASH') || f.careTypes?.includes('HUD/VASH')
+          );
         } else if (req.query.careType === 'Veterans Housing') {
-          filteredHudFacilities = filteredHudFacilities.filter(f => f.type === 'Veterans Housing' || f.type === 'HUD-VASH');
+          filteredAffordableHousing = filteredAffordableHousing.filter(f => 
+            f.care_types?.includes('Veterans Housing') || f.careTypes?.includes('Veterans Housing') ||
+            f.care_types?.includes('HUD/VASH') || f.careTypes?.includes('HUD/VASH')
+          );
         } else if (req.query.careType === 'Affordable Housing') {
-          filteredHudFacilities = filteredHudFacilities.filter(f => f.type === 'Affordable Senior');
+          filteredAffordableHousing = filteredAffordableHousing.filter(f => 
+            f.care_types?.some((ct: string) => 
+              ct.includes('Senior Housing') || ct.includes('Low Income') || 
+              ct.includes('Section 202') || ct.includes('Section 811') || 
+              ct.includes('Affordable Housing')
+            ) || f.careTypes?.some((ct: string) => 
+              ct.includes('Senior Housing') || ct.includes('Low Income') || 
+              ct.includes('Section 202') || ct.includes('Section 811') || 
+              ct.includes('Affordable Housing')
+            )
+          );
         }
         
-        // Add HUD facilities to communities
-        communities = [...communities, ...filteredHudFacilities];
+        // Add affordable housing facilities to communities
+        communities = [...communities, ...filteredAffordableHousing];
       }
       
       console.log(`Found ${communities.length} communities in ${Date.now() - startTime}ms`);
