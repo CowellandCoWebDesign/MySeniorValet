@@ -1,6 +1,6 @@
 /**
  * Complete California Expansion
- * Systematic addition of all missing California facilities
+ * Add ALL remaining California counties with government data
  */
 
 const { Pool, neonConfig } = require('@neondatabase/serverless');
@@ -12,53 +12,85 @@ const csv = require('csv-parser');
 neonConfig.webSocketConstructor = ws;
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
+// ALL 58 California counties
+const allCaliforniaCounties = [
+  'ALAMEDA', 'ALPINE', 'AMADOR', 'BUTTE', 'CALAVERAS', 'COLUSA', 'CONTRA COSTA',
+  'DEL NORTE', 'EL DORADO', 'FRESNO', 'GLENN', 'HUMBOLDT', 'IMPERIAL', 'INYO',
+  'KERN', 'KINGS', 'LAKE', 'LASSEN', 'LOS ANGELES', 'MADERA', 'MARIN', 'MARIPOSA',
+  'MENDOCINO', 'MERCED', 'MODOC', 'MONO', 'MONTEREY', 'NAPA', 'NEVADA', 'ORANGE',
+  'PLACER', 'PLUMAS', 'RIVERSIDE', 'SACRAMENTO', 'SAN BENITO', 'SAN BERNARDINO',
+  'SAN DIEGO', 'SAN FRANCISCO', 'SAN JOAQUIN', 'SAN LUIS OBISPO', 'SAN MATEO',
+  'SANTA BARBARA', 'SANTA CLARA', 'SANTA CRUZ', 'SHASTA', 'SIERRA', 'SISKIYOU',
+  'SOLANO', 'SONOMA', 'STANISLAUS', 'SUTTER', 'TEHAMA', 'TRINITY', 'TULARE',
+  'TUOLUMNE', 'VENTURA', 'YOLO', 'YUBA'
+];
+
 /**
- * Complete California expansion with progress tracking
+ * Complete California expansion
  */
 async function completeCaliforniaExpansion() {
-  console.log('🚀 Complete California Expansion - Systematic Addition');
+  console.log('🎯 COMPLETE CALIFORNIA EXPANSION - Adding All Missing Counties');
   console.log('=' * 50);
   
   try {
-    // Check current status
-    const currentQuery = `
+    // Get current database status
+    const statusQuery = `
       SELECT 
-        COUNT(*) as total_communities,
-        COUNT(DISTINCT city) as unique_cities,
-        COUNT(DISTINCT county) as unique_counties
+        COUNT(*) as total,
+        COUNT(DISTINCT UPPER(county)) as counties,
+        COUNT(DISTINCT city) as cities
       FROM communities 
-      WHERE state = 'CA'
+      WHERE state = 'CA' AND county IS NOT NULL AND county != ''
     `;
     
-    const currentResult = await pool.query(currentQuery);
-    const currentStats = currentResult.rows[0];
+    const statusResult = await pool.query(statusQuery);
+    const currentStats = statusResult.rows[0];
     
-    console.log(`📊 Current California Coverage:`);
-    console.log(`   Total Communities: ${currentStats.total_communities}`);
-    console.log(`   Unique Cities: ${currentStats.unique_cities}`);
-    console.log(`   Unique Counties: ${currentStats.unique_counties}`);
+    console.log(`📊 Current California Database Status:`);
+    console.log(`   Total Communities: ${currentStats.total}`);
+    console.log(`   Unique Counties: ${currentStats.counties}`);
+    console.log(`   Unique Cities: ${currentStats.cities}`);
     
-    // Load facilities from CSV
+    // Get existing counties in our database
+    const existingCountiesQuery = `
+      SELECT DISTINCT UPPER(county) as county_name 
+      FROM communities 
+      WHERE state = 'CA' AND county IS NOT NULL AND county != ''
+    `;
+    
+    const existingCountiesResult = await pool.query(existingCountiesQuery);
+    const existingCounties = new Set(existingCountiesResult.rows.map(row => row.county_name));
+    
+    console.log(`\n📋 Counties Currently in Database:`);
+    [...existingCounties].sort().forEach(county => console.log(`   ✅ ${county}`));
+    
+    // Find missing counties
+    const missingCounties = allCaliforniaCounties.filter(county => !existingCounties.has(county));
+    
+    console.log(`\n❌ Missing Counties (${missingCounties.length}):`);
+    missingCounties.forEach(county => console.log(`   - ${county}`));
+    
+    // Load ALL government facility data
     const csvFile = 'california_facilities_20250710_061653.csv';
-    console.log(`📄 Loading facilities from: ${csvFile}`);
+    const allFacilities = [];
     
-    const facilities = [];
     await new Promise((resolve, reject) => {
       fs.createReadStream(csvFile)
         .pipe(csv())
         .on('data', (row) => {
-          if (row.name && row.city) {
-            facilities.push({
+          if (row.name && row.city && row.county) {
+            allFacilities.push({
               name: row.name.trim(),
               address: row.address || '',
               city: row.city.trim(),
-              county: row.county || '',
+              county: row.county.trim().toUpperCase(),
               state: 'CA',
               zipCode: row.zip || '',
               phone: row.phone || '',
               latitude: parseFloat(row.latitude) || null,
               longitude: parseFloat(row.longitude) || null,
-              dataSource: row.data_source || 'California CDSS'
+              dataSource: row.data_source || 'California CDSS',
+              facilityType: row.facility_type || ''
             });
           }
         })
@@ -66,7 +98,16 @@ async function completeCaliforniaExpansion() {
         .on('error', reject);
     });
     
-    console.log(`✅ Loaded ${facilities.length} facilities from government data`);
+    console.log(`\n✅ Loaded ${allFacilities.length} total government facilities`);
+    
+    // Find counties in government data
+    const governmentCounties = [...new Set(allFacilities.map(f => f.county))];
+    console.log(`📊 Counties in Government Data: ${governmentCounties.length}`);
+    
+    // Counties missing from government data
+    const notInGovernment = allCaliforniaCounties.filter(county => !governmentCounties.includes(county));
+    console.log(`\n🚫 Counties NOT in Government Data (${notInGovernment.length}):`);
+    notInGovernment.forEach(county => console.log(`   - ${county}`));
     
     // Get existing facilities to avoid duplicates
     const existingQuery = `SELECT name, city FROM communities WHERE state = 'CA'`;
@@ -75,57 +116,54 @@ async function completeCaliforniaExpansion() {
       existingResult.rows.map(row => `${row.name}|${row.city}`.toLowerCase())
     );
     
-    // Filter new facilities
-    const newFacilities = facilities.filter(facility => {
+    // Filter for missing counties with new facilities
+    const newFacilities = allFacilities.filter(facility => {
+      const isInMissingCounty = missingCounties.includes(facility.county);
       const key = `${facility.name}|${facility.city}`.toLowerCase();
-      return !existingSet.has(key);
+      const isNew = !existingSet.has(key);
+      
+      return isInMissingCounty && isNew;
     });
     
-    console.log(`🆕 Found ${newFacilities.length} new facilities to add`);
+    console.log(`\n🆕 New Facilities to Add: ${newFacilities.length}`);
+    
+    // Group by county
+    const facilitiesByCounty = {};
+    newFacilities.forEach(facility => {
+      if (!facilitiesByCounty[facility.county]) {
+        facilitiesByCounty[facility.county] = [];
+      }
+      facilitiesByCounty[facility.county].push(facility);
+    });
+    
+    console.log(`\n📍 New Facilities by County:`);
+    Object.entries(facilitiesByCounty).forEach(([county, facilities]) => {
+      console.log(`   ${county}: ${facilities.length} facilities`);
+    });
     
     if (newFacilities.length === 0) {
-      console.log('✅ All California facilities already in database');
+      console.log('\n✅ All available government facilities already in database');
       return;
     }
     
-    // Group by priority regions
-    const priorityRegions = {
-      'Los Angeles County': [],
-      'Orange County': [],
-      'San Diego County': [],
-      'Other Counties': []
-    };
+    // Add facilities efficiently
+    let addedCount = 0;
     
-    newFacilities.forEach(facility => {
-      const county = facility.county.toLowerCase();
-      if (county.includes('los angeles')) {
-        priorityRegions['Los Angeles County'].push(facility);
-      } else if (county.includes('orange')) {
-        priorityRegions['Orange County'].push(facility);
-      } else if (county.includes('san diego')) {
-        priorityRegions['San Diego County'].push(facility);
-      } else {
-        priorityRegions['Other Counties'].push(facility);
-      }
-    });
-    
-    console.log('\n📍 New Facilities by Region:');
-    Object.entries(priorityRegions).forEach(([region, facilities]) => {
-      console.log(`   ${region}: ${facilities.length} facilities`);
-    });
-    
-    // Add facilities region by region
-    let totalAdded = 0;
-    
-    for (const [region, regionFacilities] of Object.entries(priorityRegions)) {
-      if (regionFacilities.length === 0) continue;
+    for (const [county, facilities] of Object.entries(facilitiesByCounty)) {
+      console.log(`\n🏠 Adding ${facilities.length} facilities in ${county} County...`);
       
-      console.log(`\n🏠 Adding ${regionFacilities.length} facilities in ${region}...`);
-      
-      for (let i = 0; i < regionFacilities.length; i++) {
-        const facility = regionFacilities[i];
-        
+      for (const facility of facilities) {
         try {
+          // Determine care types
+          let careTypes = ['Assisted Living'];
+          if (facility.facilityType.includes('SKILLED NURSING')) {
+            careTypes = ['Skilled Nursing', 'Assisted Living'];
+          } else if (facility.facilityType.includes('INTERMEDIATE')) {
+            careTypes = ['Intermediate Care', 'Assisted Living'];
+          } else if (facility.facilityType.includes('HOSPICE')) {
+            careTypes = ['Hospice Care', 'Assisted Living'];
+          }
+          
           const insertQuery = `
             INSERT INTO communities (
               name, address, city, state, zip_code, phone, county,
@@ -135,9 +173,6 @@ async function completeCaliforniaExpansion() {
               $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
             )
           `;
-          
-          const careTypes = facility.dataSource === 'alw_assisted_living' ? 
-            ['Assisted Living'] : ['Skilled Nursing', 'Assisted Living'];
           
           const values = [
             facility.name,
@@ -159,49 +194,64 @@ async function completeCaliforniaExpansion() {
           ];
           
           await pool.query(insertQuery, values);
-          totalAdded++;
+          addedCount++;
           
-          if (totalAdded % 25 === 0) {
-            console.log(`   ✅ ${totalAdded} facilities added so far (${region})`);
-          }
+          console.log(`   ✅ Added: ${facility.name} in ${facility.city}`);
           
         } catch (error) {
-          console.error(`❌ Error adding ${facility.name}:`, error.message);
+          console.error(`   ❌ Error adding ${facility.name}:`, error.message);
         }
       }
       
-      console.log(`✅ Completed ${region}: ${regionFacilities.length} facilities processed`);
+      console.log(`✅ Completed ${county} County: ${facilities.length} facilities processed`);
     }
     
     console.log('\n' + '=' * 50);
-    console.log('🎯 Complete California Expansion Results');
-    console.log(`✅ Successfully added: ${totalAdded} new facilities`);
+    console.log('🎯 COMPLETE CALIFORNIA EXPANSION RESULTS');
+    console.log(`✅ Successfully added: ${addedCount} new facilities`);
     
-    // Show final coverage
-    const finalResult = await pool.query(currentQuery);
+    // Show final statistics
+    const finalResult = await pool.query(statusQuery);
     const finalStats = finalResult.rows[0];
     
     console.log('\n📊 Final California Coverage:');
-    console.log(`   Total Communities: ${finalStats.total_communities} (was ${currentStats.total_communities})`);
-    console.log(`   Unique Cities: ${finalStats.unique_cities} (was ${currentStats.unique_cities})`);
-    console.log(`   Unique Counties: ${finalStats.unique_counties} (was ${currentStats.unique_counties})`);
+    console.log(`   Total Communities: ${finalStats.total} (was ${currentStats.total})`);
+    console.log(`   Unique Counties: ${finalStats.counties} (was ${currentStats.counties})`);
+    console.log(`   Unique Cities: ${finalStats.cities} (was ${currentStats.cities})`);
     
-    // Show major cities
-    const majorCitiesQuery = `
-      SELECT city, COUNT(*) as count
+    // Show all counties now covered
+    const allCountiesQuery = `
+      SELECT UPPER(county) as county_name, COUNT(*) as count
       FROM communities 
-      WHERE state = 'CA' 
-      GROUP BY city 
-      ORDER BY count DESC 
-      LIMIT 15
+      WHERE state = 'CA' AND county IS NOT NULL AND county != ''
+      GROUP BY UPPER(county)
+      ORDER BY count DESC
     `;
     
-    const majorCitiesResult = await pool.query(majorCitiesQuery);
+    const allCountiesResult = await pool.query(allCountiesQuery);
     
-    console.log('\n🏙️ Major California Cities Now Covered:');
-    majorCitiesResult.rows.forEach(row => {
-      console.log(`   ${row.city}: ${row.count} communities`);
+    console.log('\n🏛️ All California Counties Now Covered:');
+    allCountiesResult.rows.forEach(row => {
+      console.log(`   ${row.county_name}: ${row.count} communities`);
     });
+    
+    // Show coverage vs all 58 counties
+    const coveredCounties = allCountiesResult.rows.length;
+    const coveragePercent = ((coveredCounties / 58) * 100).toFixed(1);
+    
+    console.log(`\n🎯 CALIFORNIA COVERAGE SUMMARY:`);
+    console.log(`   Counties Covered: ${coveredCounties} out of 58 (${coveragePercent}%)`);
+    console.log(`   Counties with Government Data: ${governmentCounties.length} out of 58`);
+    console.log(`   Database Coverage of Available Data: ${((coveredCounties / governmentCounties.length) * 100).toFixed(1)}%`);
+    
+    // Show total database size
+    const totalQuery = `SELECT COUNT(*) as total FROM communities`;
+    const totalResult = await pool.query(totalQuery);
+    
+    console.log('\n🌟 COMPLETE DATABASE STATUS:');
+    console.log(`   Total Communities (All States): ${totalResult.rows[0].total}`);
+    console.log(`   California Communities: ${finalStats.total}`);
+    console.log(`   California Coverage: ${((finalStats.total / totalResult.rows[0].total) * 100).toFixed(1)}% of total database`);
     
   } catch (error) {
     console.error('❌ Complete expansion failed:', error);
@@ -210,7 +260,7 @@ async function completeCaliforniaExpansion() {
   }
 }
 
-// Run expansion
+// Run complete expansion
 if (require.main === module) {
   completeCaliforniaExpansion().catch(console.error);
 }
