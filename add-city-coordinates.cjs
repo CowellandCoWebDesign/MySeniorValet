@@ -1,0 +1,376 @@
+const { Pool, neonConfig } = require('@neondatabase/serverless');
+const ws = require('ws');
+require('dotenv').config();
+
+neonConfig.webSocketConstructor = ws;
+
+// California city coordinates
+const californiaCityCoords = {
+  'Los Angeles': { lat: 34.0522, lng: -118.2437 },
+  'San Francisco': { lat: 37.7749, lng: -122.4194 },
+  'San Diego': { lat: 32.7157, lng: -117.1611 },
+  'Sacramento': { lat: 38.5816, lng: -121.4944 },
+  'San Jose': { lat: 37.3382, lng: -121.8863 },
+  'Oakland': { lat: 37.8044, lng: -122.2712 },
+  'Fresno': { lat: 36.7378, lng: -119.7871 },
+  'Long Beach': { lat: 33.7701, lng: -118.1937 },
+  'Bakersfield': { lat: 35.3733, lng: -119.0187 },
+  'Anaheim': { lat: 33.8366, lng: -117.9143 },
+  'Santa Ana': { lat: 33.7455, lng: -117.8677 },
+  'Riverside': { lat: 33.9533, lng: -117.3962 },
+  'Stockton': { lat: 37.9577, lng: -121.2908 },
+  'Irvine': { lat: 33.6846, lng: -117.8265 },
+  'Chula Vista': { lat: 32.6401, lng: -117.0842 },
+  'Fremont': { lat: 37.5485, lng: -121.9886 },
+  'San Bernardino': { lat: 34.1083, lng: -117.2898 },
+  'Modesto': { lat: 37.6391, lng: -120.9969 },
+  'Fontana': { lat: 34.0922, lng: -117.4350 },
+  'Santa Clarita': { lat: 34.3917, lng: -118.5426 },
+  'Oxnard': { lat: 34.1975, lng: -119.1771 },
+  'Moreno Valley': { lat: 33.9425, lng: -117.2297 },
+  'Glendale': { lat: 34.1425, lng: -118.2551 },
+  'Huntington Beach': { lat: 33.6595, lng: -117.9988 },
+  'Ontario': { lat: 34.0633, lng: -117.6509 },
+  'Rancho Cucamonga': { lat: 34.1064, lng: -117.5931 },
+  'Santa Rosa': { lat: 38.4404, lng: -122.7141 },
+  'Garden Grove': { lat: 33.7739, lng: -117.9378 },
+  'Oceanside': { lat: 33.1959, lng: -117.3795 },
+  'Lancaster': { lat: 34.6868, lng: -118.1542 },
+  'Elk Grove': { lat: 38.4088, lng: -121.3716 },
+  'Palmdale': { lat: 34.5794, lng: -118.1165 },
+  'Corona': { lat: 33.8753, lng: -117.5664 },
+  'Salinas': { lat: 36.6777, lng: -121.6555 },
+  'Pomona': { lat: 34.0551, lng: -117.7500 },
+  'Torrance': { lat: 33.8358, lng: -118.3406 },
+  'Escondido': { lat: 33.1192, lng: -117.0864 },
+  'Hayward': { lat: 37.6688, lng: -122.0808 },
+  'Sunnyvale': { lat: 37.3688, lng: -122.0363 },
+  'Pasadena': { lat: 34.1478, lng: -118.1445 },
+  'Fullerton': { lat: 33.8703, lng: -117.9253 },
+  'Orange': { lat: 33.7879, lng: -117.8531 },
+  'Thousand Oaks': { lat: 34.1705, lng: -118.8376 },
+  'Visalia': { lat: 36.3302, lng: -119.2921 },
+  'Simi Valley': { lat: 34.2694, lng: -118.7815 },
+  'Concord': { lat: 37.9780, lng: -122.0311 },
+  'Roseville': { lat: 38.7521, lng: -121.2880 },
+  'Santa Clara': { lat: 37.3541, lng: -121.9552 },
+  'Vallejo': { lat: 38.1041, lng: -122.2566 },
+  'Victorville': { lat: 34.5362, lng: -117.2928 },
+  'Berkeley': { lat: 37.8716, lng: -122.2727 },
+  'Fairfield': { lat: 38.2494, lng: -122.0400 },
+  'Murrieta': { lat: 33.5539, lng: -117.2139 },
+  'Richmond': { lat: 37.9358, lng: -122.3477 },
+  'Carlsbad': { lat: 33.1581, lng: -117.3506 },
+  'Antioch': { lat: 38.0049, lng: -121.8058 },
+  'Downey': { lat: 33.9401, lng: -118.1332 },
+  'Costa Mesa': { lat: 33.6412, lng: -117.9187 },
+  'Inglewood': { lat: 33.9617, lng: -118.3531 },
+  'San Buenaventura (Ventura)': { lat: 34.2805, lng: -119.2945 },
+  'Ventura': { lat: 34.2805, lng: -119.2945 },
+  'Santa Maria': { lat: 34.9530, lng: -120.4357 },
+  'Daly City': { lat: 37.6879, lng: -122.4702 },
+  'Burbank': { lat: 34.1808, lng: -118.3090 },
+  'El Monte': { lat: 34.0686, lng: -118.0276 },
+  'Jurupa Valley': { lat: 33.9989, lng: -117.4759 },
+  'Rialto': { lat: 34.1064, lng: -117.3703 },
+  'San Mateo': { lat: 37.5630, lng: -122.3255 },
+  'Clovis': { lat: 36.8252, lng: -119.7029 },
+  'Compton': { lat: 33.8958, lng: -118.2201 },
+  'South Gate': { lat: 33.9548, lng: -118.2120 },
+  'Vista': { lat: 33.2000, lng: -117.2425 },
+  'Mission Viejo': { lat: 33.6000, lng: -117.6720 },
+  'Vacaville': { lat: 38.3566, lng: -121.9877 },
+  'Carson': { lat: 33.8317, lng: -118.2820 },
+  'Redding': { lat: 40.5865, lng: -122.3917 },
+  'San Leandro': { lat: 37.7249, lng: -122.1561 },
+  'San Marcos': { lat: 33.1434, lng: -117.1661 },
+  'Westminster': { lat: 33.7513, lng: -117.9940 },
+  'Santa Barbara': { lat: 34.4208, lng: -119.6982 },
+  'Whittier': { lat: 33.9792, lng: -118.0328 },
+  'Newport Beach': { lat: 33.6189, lng: -117.9289 },
+  'Hawthorne': { lat: 33.9164, lng: -118.3526 },
+  'Alhambra': { lat: 34.0953, lng: -118.1270 },
+  'Buena Park': { lat: 33.8675, lng: -117.9981 },
+  'Lakewood': { lat: 33.8536, lng: -118.1340 },
+  'Hemet': { lat: 33.7476, lng: -116.9717 },
+  'Chino': { lat: 34.0122, lng: -117.6889 },
+  'Menifee': { lat: 33.6786, lng: -117.1851 },
+  'Tracy': { lat: 37.7397, lng: -121.4252 },
+  'Merced': { lat: 37.3022, lng: -120.4829 },
+  'Indio': { lat: 33.7206, lng: -116.2156 },
+  'Redwood City': { lat: 37.4852, lng: -122.2364 },
+  'Lake Forest': { lat: 33.6469, lng: -117.6893 },
+  'Napa': { lat: 38.2975, lng: -122.2869 },
+  'Tustin': { lat: 33.7458, lng: -117.8261 },
+  'Baldwin Park': { lat: 34.0853, lng: -117.9609 },
+  'Chino Hills': { lat: 33.9898, lng: -117.7326 },
+  'Mountain View': { lat: 37.3861, lng: -122.0839 },
+  'Alameda': { lat: 37.7652, lng: -122.2416 },
+  'Upland': { lat: 34.0975, lng: -117.6484 },
+  'Folsom': { lat: 38.6780, lng: -121.1761 },
+  'San Ramon': { lat: 37.7799, lng: -121.9780 },
+  'Pleasanton': { lat: 37.6624, lng: -121.8747 },
+  'Lynwood': { lat: 33.9303, lng: -118.2115 },
+  'Union City': { lat: 37.5934, lng: -122.0438 },
+  'Apple Valley': { lat: 34.5008, lng: -117.1859 },
+  'Redlands': { lat: 34.0556, lng: -117.1825 },
+  'Turlock': { lat: 37.4947, lng: -120.8466 },
+  'Perris': { lat: 33.7825, lng: -117.2287 },
+  'Manteca': { lat: 37.7974, lng: -121.2161 },
+  'Milpitas': { lat: 37.4323, lng: -121.8996 },
+  'Rowland Heights': { lat: 33.9761, lng: -117.9053 },
+  'Paramount': { lat: 33.8895, lng: -118.1598 },
+  'South San Francisco': { lat: 37.6547, lng: -122.4077 },
+  'Glendora': { lat: 34.1361, lng: -117.8653 },
+  'Willowbrook': { lat: 33.9228, lng: -118.2529 },
+  'West Covina': { lat: 34.0686, lng: -117.9390 },
+  'Norwalk': { lat: 33.9022, lng: -118.0817 },
+  'El Cajon': { lat: 32.7947, lng: -116.9625 },
+  'Pico Rivera': { lat: 33.9831, lng: -118.0967 },
+  'Montebello': { lat: 34.0165, lng: -118.1138 },
+  'Lodi': { lat: 38.1302, lng: -121.2725 },
+  'Glendale': { lat: 34.1706, lng: -118.2468 },
+  'Monterey Park': { lat: 34.0625, lng: -118.1228 },
+  'Madera': { lat: 36.9614, lng: -120.0607 },
+  'Santa Monica': { lat: 34.0195, lng: -118.4912 },
+  'Citrus Heights': { lat: 38.7071, lng: -121.2811 },
+  'Davis': { lat: 38.5449, lng: -121.7405 },
+  'Camarillo': { lat: 34.2164, lng: -119.0376 },
+  'Yuba City': { lat: 39.1405, lng: -121.6169 },
+  'Walnut Creek': { lat: 37.9101, lng: -122.0652 },
+  'Pittsburg': { lat: 38.0280, lng: -121.8847 },
+  'Aliso Viejo': { lat: 33.5750, lng: -117.7256 },
+  'Yorba Linda': { lat: 33.8886, lng: -117.8131 },
+  'Santee': { lat: 32.8384, lng: -116.9739 },
+  'Dublin': { lat: 37.7022, lng: -121.9358 },
+  'Monterey': { lat: 36.6002, lng: -121.8947 },
+  'La Habra': { lat: 33.9320, lng: -117.9461 },
+  'Encinitas': { lat: 33.0370, lng: -117.2920 },
+  'Tulare': { lat: 36.2077, lng: -119.3473 },
+  'Gardena': { lat: 33.8884, lng: -118.3090 },
+  'National City': { lat: 32.6781, lng: -117.0992 },
+  'Rocklin': { lat: 38.7907, lng: -121.2358 },
+  'Petaluma': { lat: 38.2324, lng: -122.6367 },
+  'Huntington Park': { lat: 33.9817, lng: -118.2251 },
+  'San Rafael': { lat: 37.9735, lng: -122.5311 },
+  'La Mesa': { lat: 32.7678, lng: -117.0231 },
+  'Novato': { lat: 38.1074, lng: -122.5697 },
+  'Arcadia': { lat: 34.1397, lng: -118.0353 },
+  'Fountain Valley': { lat: 33.7092, lng: -117.9536 },
+  'Diamond Bar': { lat: 34.0286, lng: -117.8103 },
+  'Woodland': { lat: 38.6785, lng: -121.7733 },
+  'Lake Elsinore': { lat: 33.6681, lng: -117.3273 },
+  'Cathedral City': { lat: 33.7797, lng: -116.4653 },
+  'Palo Alto': { lat: 37.4419, lng: -122.1430 },
+  'Azusa': { lat: 34.1336, lng: -117.9076 },
+  'Laguna Niguel': { lat: 33.5225, lng: -117.7076 },
+  'Placentia': { lat: 33.8722, lng: -117.8703 },
+  'West Sacramento': { lat: 38.5805, lng: -121.5301 },
+  'Gilroy': { lat: 37.0058, lng: -121.5683 },
+  'Coachella': { lat: 33.6803, lng: -116.1739 },
+  'Cerritos': { lat: 33.8584, lng: -118.0648 },
+  'San Clemente': { lat: 33.4270, lng: -117.6120 },
+  'Covina': { lat: 34.0900, lng: -117.8903 },
+  'Rancho Cordova': { lat: 38.5891, lng: -121.3028 },
+  'Colton': { lat: 34.0739, lng: -117.3137 },
+  'Highland': { lat: 34.1283, lng: -117.2086 },
+  'Delano': { lat: 35.7689, lng: -119.2471 },
+  'Campbell': { lat: 37.2872, lng: -121.9500 },
+  'La Mirada': { lat: 33.9172, lng: -118.0120 },
+  'Cypress': { lat: 33.8170, lng: -118.0373 },
+  'San Gabriel': { lat: 34.0961, lng: -118.1058 },
+  'Stanton': { lat: 33.8025, lng: -117.9931 },
+  'Morgan Hill': { lat: 37.1305, lng: -121.6544 },
+  'Poway': { lat: 32.9628, lng: -117.0359 },
+  'La Puente': { lat: 34.0200, lng: -117.9495 },
+  'Bell Gardens': { lat: 33.9653, lng: -118.1515 },
+  'Rancho Santa Margarita': { lat: 33.6409, lng: -117.6031 },
+  'San Luis Obispo': { lat: 35.2828, lng: -120.6596 },
+  'Rohnert Park': { lat: 38.3396, lng: -122.7011 },
+  'Montclair': { lat: 34.0775, lng: -117.6897 },
+  'Lompoc': { lat: 34.6391, lng: -120.4579 },
+  'El Centro': { lat: 32.7920, lng: -115.5631 },
+  'Brentwood': { lat: 37.9319, lng: -121.6958 },
+  'Hollister': { lat: 36.8525, lng: -121.4016 },
+  'Martinez': { lat: 38.0194, lng: -122.1341 },
+  'Ceres': { lat: 37.5950, lng: -120.9577 },
+  'San Dimas': { lat: 34.1067, lng: -117.8067 },
+  'Culver City': { lat: 34.0211, lng: -118.3965 },
+  'Desert Hot Springs': { lat: 33.9631, lng: -116.5017 },
+  'San Juan Capistrano': { lat: 33.5017, lng: -117.6626 },
+  'La Quinta': { lat: 33.6464, lng: -116.3100 },
+  'Manhattan Beach': { lat: 33.8847, lng: -118.4109 },
+  'Bell': { lat: 33.9775, lng: -118.1870 },
+  'Claremont': { lat: 34.0967, lng: -117.7198 },
+  'West Hollywood': { lat: 34.0900, lng: -118.3617 },
+  'Rosemead': { lat: 34.0806, lng: -118.0729 },
+  'Beverly Hills': { lat: 34.0736, lng: -118.4004 },
+  'San Jacinto': { lat: 33.7839, lng: -116.9586 },
+  'Oakley': { lat: 37.9974, lng: -121.7125 },
+  'Temple City': { lat: 34.1072, lng: -118.0578 },
+  'Brea': { lat: 33.9167, lng: -117.9000 },
+  'Newark': { lat: 37.5297, lng: -122.0402 },
+  'Port Hueneme': { lat: 34.1478, lng: -119.1951 },
+  'Beaumont': { lat: 33.9295, lng: -116.9772 },
+  'Suisun City': { lat: 38.2382, lng: -122.0400 },
+  'Foster City': { lat: 37.5585, lng: -122.2711 },
+  'Eureka': { lat: 40.8021, lng: -124.1637 },
+  'Pacifica': { lat: 37.6138, lng: -122.4869 },
+  'American Canyon': { lat: 38.1749, lng: -122.2608 },
+  'La Verne': { lat: 34.1008, lng: -117.7678 },
+  'Valinda': { lat: 34.0453, lng: -117.9436 },
+  'Adelanto': { lat: 34.5828, lng: -117.4092 },
+  'South Pasadena': { lat: 34.1161, lng: -118.1504 },
+  'Twenty-Nine Palms': { lat: 34.1356, lng: -116.0542 },
+  'Ridgecrest': { lat: 35.6225, lng: -117.6709 },
+  'Wildomar': { lat: 33.5989, lng: -117.2800 },
+  'San Fernando': { lat: 34.2819, lng: -118.4390 },
+  'Cudahy': { lat: 33.9606, lng: -118.1857 },
+  'Selma': { lat: 36.5708, lng: -119.6121 },
+  'Coronado': { lat: 32.6859, lng: -117.1831 },
+  'Banning': { lat: 33.9256, lng: -116.8764 },
+  'Los Banos': { lat: 37.0583, lng: -120.8499 },
+  'Marina': { lat: 36.6844, lng: -121.8022 },
+  'Seal Beach': { lat: 33.7414, lng: -118.1048 },
+  'Atwater': { lat: 37.3477, lng: -120.6091 },
+  'Imperial Beach': { lat: 32.5839, lng: -117.1131 },
+  'Pleasant Hill': { lat: 37.9480, lng: -122.0608 },
+  'Wasco': { lat: 35.5941, lng: -119.3409 },
+  'Maywood': { lat: 33.9867, lng: -118.1853 },
+  'Hercules': { lat: 38.0172, lng: -122.2886 },
+  'El Segundo': { lat: 33.9192, lng: -118.4165 },
+  'Lomita': { lat: 33.7922, lng: -118.3151 },
+  'Duarte': { lat: 34.1394, lng: -117.9773 },
+  'Soledad': { lat: 36.4247, lng: -121.3263 },
+  'Coalinga': { lat: 36.1397, lng: -120.3602 },
+  'Agoura Hills': { lat: 34.1533, lng: -118.7617 },
+  'Sanger': { lat: 36.7080, lng: -119.5560 },
+  'Barstow': { lat: 34.8958, lng: -117.0173 },
+  'Norco': { lat: 33.9311, lng: -117.5486 },
+  'Benicia': { lat: 38.0494, lng: -122.1586 },
+  'Lemoore': { lat: 36.3008, lng: -119.7829 },
+  'El Cerrito': { lat: 37.9161, lng: -122.3108 },
+  'Rancho Palos Verdes': { lat: 33.7445, lng: -118.3870 },
+  'Greenfield': { lat: 36.3208, lng: -121.2438 },
+  'Fillmore': { lat: 34.3989, lng: -118.9181 },
+  'Commerce': { lat: 33.9953, lng: -118.1598 },
+  'Lawndale': { lat: 33.8872, lng: -118.3526 },
+  'Oakdale': { lat: 37.7663, lng: -120.8472 },
+  'Cudahy': { lat: 33.9606, lng: -118.1851 },
+  'Arroyo Grande': { lat: 35.1186, lng: -120.5907 },
+  'Reedley': { lat: 36.5963, lng: -119.4504 },
+  'Earlimart': { lat: 35.8841, lng: -119.2724 },
+  'Moraga': { lat: 37.8350, lng: -122.1297 },
+  'Scotts Valley': { lat: 37.0511, lng: -122.0147 },
+  'South El Monte': { lat: 34.0520, lng: -118.0468 },
+  'San Pablo': { lat: 37.9621, lng: -122.3455 },
+  'Saratoga': { lat: 37.2638, lng: -122.0230 },
+  'Walnut': { lat: 34.0203, lng: -117.8653 },
+  'Riverbank': { lat: 37.7360, lng: -120.9355 },
+  'Los Altos': { lat: 37.3852, lng: -122.1141 },
+  'Hawaiian Gardens': { lat: 33.8314, lng: -118.0728 },
+  'Oroville': { lat: 39.5138, lng: -121.5563 },
+  'Emeryville': { lat: 37.8313, lng: -122.2852 },
+  'Capitola': { lat: 36.9752, lng: -121.9533 },
+  'Half Moon Bay': { lat: 37.4636, lng: -122.4286 },
+  'Grover Beach': { lat: 35.1217, lng: -120.6213 },
+  'Livingston': { lat: 37.3869, lng: -120.7235 },
+  'Dinuba': { lat: 36.5433, lng: -119.3870 },
+  'Artesia': { lat: 33.8658, lng: -118.0831 },
+  'Lakeside': { lat: 32.8573, lng: -116.9220 },
+  'Sonoma': { lat: 38.2919, lng: -122.4580 },
+  'Calexico': { lat: 32.6789, lng: -115.4989 },
+  'Patterson': { lat: 37.4716, lng: -121.1297 },
+  'Los Alamitos': { lat: 33.8031, lng: -118.0726 },
+  'Millbrae': { lat: 37.5985, lng: -122.3872 },
+  'Live Oak': { lat: 36.9836, lng: -121.9803 },
+  'Santa Paula': { lat: 34.3542, lng: -119.0593 },
+  'Albany': { lat: 37.8869, lng: -122.2978 },
+  'Morro Bay': { lat: 35.3658, lng: -120.8499 },
+  'Burlingame': { lat: 37.5841, lng: -122.3661 },
+  'Lathrop': { lat: 37.8227, lng: -121.2766 },
+  'San Carlos': { lat: 37.5072, lng: -122.2605 },
+  'Parlier': { lat: 36.6116, lng: -119.5270 },
+  'Clayton': { lat: 37.9410, lng: -121.9358 },
+  'King City': { lat: 36.2127, lng: -121.1260 },
+  'Shafter': { lat: 35.5005, lng: -119.2718 },
+  'Sierra Madre': { lat: 34.1617, lng: -118.0528 },
+  'Mill Valley': { lat: 37.9060, lng: -122.5450 },
+  'Piedmont': { lat: 37.8244, lng: -122.2316 },
+  'Pinole': { lat: 38.0044, lng: -122.2989 },
+  'Kingsburg': { lat: 36.5138, lng: -119.5540 },
+  'Newman': { lat: 37.3138, lng: -121.0208 },
+  'Winters': { lat: 38.5252, lng: -121.9708 },
+  'Farmersville': { lat: 36.2977, lng: -119.2068 },
+  'Ripon': { lat: 37.7416, lng: -121.1244 },
+  'Escalon': { lat: 37.7974, lng: -120.9966 },
+  'Belmont': { lat: 37.5202, lng: -122.2758 },
+  'Larkspur': { lat: 37.9341, lng: -122.5350 },
+  'Orinda': { lat: 37.8771, lng: -122.1797 },
+  'San Anselmo': { lat: 37.9746, lng: -122.5619 },
+  'Guadalupe': { lat: 34.9716, lng: -120.5719 }
+};
+
+async function addCityCoordinates() {
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  
+  try {
+    console.log('Adding coordinates based on city locations...\n');
+    
+    let totalUpdated = 0;
+    
+    // Process each city
+    for (const [cityName, coords] of Object.entries(californiaCityCoords)) {
+      // Update all communities in this city that don't have coordinates
+      const result = await pool.query(`
+        UPDATE communities
+        SET latitude = $1, longitude = $2
+        WHERE city = $3 
+        AND state = 'CA'
+        AND (latitude IS NULL OR longitude IS NULL)
+        RETURNING id, name
+      `, [coords.lat, coords.lng, cityName]);
+      
+      if (result.rowCount > 0) {
+        console.log(`✓ Updated ${result.rowCount} communities in ${cityName} (${coords.lat}, ${coords.lng})`);
+        totalUpdated += result.rowCount;
+      }
+    }
+    
+    // Check final status
+    const remainingResult = await pool.query(`
+      SELECT COUNT(*) 
+      FROM communities 
+      WHERE latitude IS NULL OR longitude IS NULL
+    `);
+    
+    console.log('\n=== Summary ===');
+    console.log(`Total communities updated: ${totalUpdated}`);
+    console.log(`Remaining communities without coordinates: ${remainingResult.rows[0].count}`);
+    
+    // Show remaining cities that need coordinates
+    const missingCitiesResult = await pool.query(`
+      SELECT DISTINCT city, state, COUNT(*) as count
+      FROM communities
+      WHERE latitude IS NULL OR longitude IS NULL
+      GROUP BY city, state
+      ORDER BY count DESC
+      LIMIT 10
+    `);
+    
+    if (missingCitiesResult.rows.length > 0) {
+      console.log('\nTop cities still needing coordinates:');
+      missingCitiesResult.rows.forEach(row => {
+        console.log(`- ${row.city}, ${row.state}: ${row.count} communities`);
+      });
+    }
+    
+  } catch (error) {
+    console.error('Error adding city coordinates:', error);
+  } finally {
+    await pool.end();
+  }
+}
+
+// Run the script
+addCityCoordinates();
