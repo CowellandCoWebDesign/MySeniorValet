@@ -130,7 +130,43 @@ export default function BasicSearch() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showSortOptions]);
 
-  // Note: BottomNav component is defined at the end of the file
+  // Bottom Navigation
+  const BottomNav = () => (
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
+      <div className="flex justify-around items-center py-2">
+        {[
+          { id: 'search', label: 'Search', icon: Search },
+          { id: 'updates', label: 'Updates', icon: Bell, badge: communities?.length || 0 },
+          { id: 'saved', label: 'Saved', icon: Heart },
+          { id: 'tours', label: 'Tours', icon: Calendar },
+          { id: 'inbox', label: 'Inbox', icon: Mail },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex flex-col items-center py-1 px-2 min-w-0 flex-1 ${
+                isActive ? 'text-blue-600' : 'text-gray-600'
+              }`}
+            >
+              <div className="relative">
+                <Icon className="w-5 h-5" />
+                {tab.badge && (
+                  <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 min-w-0 h-5">
+                    {tab.badge}
+                  </Badge>
+                )}
+              </div>
+              <span className="text-xs mt-0.5 truncate">{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
 
   if (isLoading) {
     return (
@@ -588,6 +624,81 @@ export default function BasicSearch() {
             setSortBy={setSortBy}
             isLoading={isLoading}
           />
+                                <div>
+                                  <div className="flex items-center text-xs text-gray-600 mb-1.5">
+                                    <CheckCircle className="w-3 h-3 mr-1 text-blue-500" />
+                                    <span className="font-medium">Estimated Availability</span>
+                                  </div>
+                                  <div className="flex flex-wrap gap-1">
+                                    <div className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs border border-blue-100 font-medium">
+                                      Studio (2-3 available)
+                                    </div>
+                                    <div className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs border border-blue-100 font-medium">
+                                      1BR (1-2 available)
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Price - Bottom Priority */}
+                            <div className="flex items-center justify-between">
+                              <div className="text-lg font-bold text-gray-900">
+                                {community.priceRange?.min && community.priceRange?.max 
+                                  ? `$${(community.priceRange.min / 1000).toFixed(1)}K - $${(community.priceRange.max / 1000).toFixed(1)}K`
+                                  : community.priceRange?.min 
+                                    ? `$${(community.priceRange.min / 1000).toFixed(1)}K+`
+                                    : '$4.2K - $8.5K'
+                                }
+                                <span className="text-sm text-gray-500 font-normal">/mo</span>
+                              </div>
+                              
+                              {/* Care Types as Tags */}
+                              <div className="flex gap-1">
+                                {community.careTypes?.slice(0, 2).map((careType) => (
+                                  <div key={careType} className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-medium">
+                                    {careType === 'Independent Living' ? 'Independent' : 
+                                     careType === 'Assisted Living' ? 'Assisted' :
+                                     careType === 'Memory Care' ? 'Memory' :
+                                     careType === 'Skilled Nursing' ? 'Skilled' : careType}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    
+                    {/* Load More Indicator */}
+                    {displayCount < visibleCommunities.length && (
+                      <div className="p-4 text-center">
+                        <div className="inline-flex items-center text-sm text-gray-500">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                          Loading more communities...
+                        </div>
+                        <p className="text-xs text-gray-400 mt-1">
+                          Showing {displayCount} of {visibleCommunities.length} in this area
+                        </p>
+                      </div>
+                    )}
+                    
+                    {/* End of Results */}
+                    {displayCount >= visibleCommunities.length && visibleCommunities.length > 20 && (
+                      <div className="p-4 text-center">
+                        <p className="text-sm text-gray-500 font-medium">All communities loaded</p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          {visibleCommunities.length} communities in this map area
+                        </p>
+                      </div>
+                    )}
+                    
+                    <div className="h-20" /> {/* Spacer for bottom */}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       ) : (
         <div className="px-4 py-4">
@@ -655,38 +766,3 @@ export default function BasicSearch() {
     </div>
   );
 }
-
-// Bottom Navigation Component
-const BottomNav = () => {
-  const [activeTab, setActiveTab] = useState('search');
-
-  return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
-      <div className="flex justify-around items-center py-2">
-        {[
-          { id: 'search', label: 'Search', icon: Search },
-          { id: 'updates', label: 'Updates', icon: Bell },
-          { id: 'saved', label: 'Saved', icon: Heart },
-          { id: 'tours', label: 'Tours', icon: Calendar },
-          { id: 'inbox', label: 'Inbox', icon: Mail },
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
-          
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-col items-center py-1 px-2 min-w-0 flex-1 ${
-                isActive ? 'text-blue-600' : 'text-gray-600'
-              }`}
-            >
-              <Icon className="w-5 h-5" />
-              <span className="text-xs mt-0.5 truncate">{tab.label}</span>
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
