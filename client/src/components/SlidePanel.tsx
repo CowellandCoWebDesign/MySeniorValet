@@ -14,6 +14,7 @@ export default function SlidePanel({
   const dragRef = useRef(null);
   const startYRef = useRef(0);
   const startHeightRef = useRef(120);
+  const currentHeightRef = useRef(120); // Track current height to avoid closure issues
   const rafRef = useRef(0);
 
   const screenHeight =
@@ -65,21 +66,23 @@ export default function SlidePanel({
     rafRef.current = requestAnimationFrame(() => {
       console.log("DRAG RAF - setting height to:", newHeight);
       setPanelHeight(newHeight);
+      currentHeightRef.current = newHeight; // Update ref to avoid closure issues
     });
     e.preventDefault();
   };
 
   const handleDragEnd = () => {
-    console.log("DRAG END - current panelHeight:", panelHeight);
+    const currentHeight = currentHeightRef.current; // Use ref instead of state
+    console.log("DRAG END - current height from ref:", currentHeight);
     setIsDragging(false);
     const snap =
-      panelHeight < 180
+      currentHeight < 180
         ? 120
-        : panelHeight < screenHeight * 0.6
+        : currentHeight < screenHeight * 0.6
         ? 350
         : screenHeight * 0.85;
     console.log("DRAG END - will snap to:", snap);
-    const start = panelHeight;
+    const start = currentHeight;
     const duration = 200;
     const startTime = Date.now();
     const animate = () => {
@@ -87,6 +90,7 @@ export default function SlidePanel({
       const eased = 1 - Math.pow(1 - progress, 3);
       const height = start + (snap - start) * eased;
       setPanelHeight(height);
+      currentHeightRef.current = height; // Keep ref in sync
       if (progress < 1) {
         rafRef.current = requestAnimationFrame(animate);
       } else {
@@ -165,9 +169,10 @@ export default function SlidePanel({
     );
   };
 
-  // Add useEffect to monitor panel height changes
+  // Add useEffect to monitor panel height changes and sync ref
   useEffect(() => {
     console.log("PANEL HEIGHT CHANGED:", panelHeight);
+    currentHeightRef.current = panelHeight; // Keep ref in sync with state
   }, [panelHeight]);
 
   return (
