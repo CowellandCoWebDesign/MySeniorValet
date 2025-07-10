@@ -244,57 +244,6 @@ export default function SimpleSearch() {
             center={[40.315, -122.32]} // Redding, CA as center of Northern California
             zoom={7}
           />
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            
-            {/* Map Bounds Tracker */}
-            <MapBoundsTracker onBoundsChange={handleBoundsChange} />
-            
-            {/* Community Markers */}
-            {searchFilteredCommunities
-              .filter((community: any) => community.latitude && community.longitude)
-              .map((community: any) => (
-                <Marker
-                  key={community.id}
-                  position={[community.latitude, community.longitude]}
-                  icon={communityIcon}
-                  eventHandlers={{
-                    click: () => window.location.href = `/community/${community.id}`,
-                  }}
-                >
-                  <Popup className="community-popup">
-                    <div className="p-2 min-w-[200px]">
-                      <h3 className="font-semibold text-gray-900 mb-1 text-sm">{community.name}</h3>
-                      <p className="text-xs text-gray-600 mb-2">{community.city}, {community.state}</p>
-                      {community.monthlyRent && (
-                        <p className="text-base font-bold text-blue-600 mb-1">
-                          ${community.monthlyRent.toLocaleString()}/mo
-                        </p>
-                      )}
-                      <p className="text-xs text-gray-500 mb-2">
-                        {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
-                      </p>
-                      {community.googleRating && (
-                        <div className="flex items-center">
-                          <Star className="w-3 h-3 text-yellow-400 fill-current mr-1" />
-                          <span className="text-xs text-gray-600">
-                            {community.googleRating} ({community.googleReviewCount || 0} reviews)
-                          </span>
-                        </div>
-                      )}
-                      <button 
-                        onClick={() => window.location.href = `/community/${community.id}`}
-                        className="mt-2 w-full bg-blue-600 text-white text-xs py-1 px-2 rounded hover:bg-blue-700"
-                      >
-                        View Details
-                      </button>
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-          </MapContainer>
 
           {/* Map Controls Overlay */}
           <div className="absolute top-4 right-4 z-20">
