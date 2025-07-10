@@ -224,17 +224,90 @@ export default function BasicSearch() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showSortOptions]);
 
-  // Ultra-simple panel state - just use CSS classes for performance
-  const [panelState, setPanelState] = useState<'min' | 'mid' | 'max'>('mid');
+  // Smooth drag-based panel system
+  const [panelHeight, setPanelHeight] = useState(320); // Start at medium height
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStartY, setDragStartY] = useState(0);
+  const [dragStartHeight, setDragStartHeight] = useState(0);
   
-  // Simple click handler
-  const handlePanelClick = () => {
-    setPanelState(prev => {
-      if (prev === 'min') return 'mid';
-      if (prev === 'mid') return 'max';
-      return 'min';
-    });
+  // Handle drag start
+  const handleDragStart = (e: React.TouchEvent | React.MouseEvent) => {
+    setIsDragging(true);
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    setDragStartY(clientY);
+    setDragStartHeight(panelHeight);
+    e.preventDefault();
   };
+  
+  // Handle drag move
+  const handleDragMove = (e: React.TouchEvent | React.MouseEvent) => {
+    if (!isDragging) return;
+    
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    const deltaY = dragStartY - clientY; // Positive when dragging up
+    const newHeight = Math.max(80, Math.min(window.innerHeight * 0.9, dragStartHeight + deltaY));
+    
+    setPanelHeight(newHeight);
+    e.preventDefault();
+  };
+  
+  // Handle drag end with snap positions
+  const handleDragEnd = () => {
+    setIsDragging(false);
+    
+    const screenHeight = window.innerHeight;
+    let snapHeight;
+    
+    if (panelHeight < 150) {
+      snapHeight = 80; // Collapsed
+    } else if (panelHeight < screenHeight * 0.6) {
+      snapHeight = 320; // Medium
+    } else {
+      snapHeight = screenHeight * 0.85; // Full
+    }
+    
+    // Smooth animate to snap position
+    const startHeight = panelHeight;
+    const startTime = Date.now();
+    const duration = 200;
+    
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easeOut = 1 - Math.pow(1 - progress, 3);
+      
+      const currentHeight = startHeight + (snapHeight - startHeight) * easeOut;
+      setPanelHeight(currentHeight);
+      
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+    
+    animate();
+  };
+  
+  // Global drag event listeners
+  useEffect(() => {
+    if (!isDragging) return;
+    
+    const handleMouseMove = (e: MouseEvent) => handleDragMove(e);
+    const handleTouchMove = (e: TouchEvent) => handleDragMove(e);
+    const handleMouseUp = () => handleDragEnd();
+    const handleTouchEnd = () => handleDragEnd();
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('touchend', handleTouchEnd);
+    
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isDragging, dragStartY, dragStartHeight, panelHeight]);
 
   // Bottom Navigation
   const BottomNav = () => (
@@ -723,31 +796,28 @@ export default function BasicSearch() {
             </Button>
           </div>
 
-          {/* Ultra-Fast CSS-Only Slide Panel */}
+          {/* Smooth Drag-Based Slide Panel */}
           <div 
-            className={`fixed left-0 right-0 bg-white z-30 shadow-2xl overflow-hidden transition-all duration-300 ease-out ${
-              panelState === 'min' ? 'h-24' : 
-              panelState === 'mid' ? 'h-80' : 
-              'h-[85vh]'
-            }`}
+            className="fixed left-0 right-0 bg-white z-30 shadow-2xl overflow-hidden"
             style={{ 
               bottom: 0,
+              height: `${panelHeight}px`,
               borderRadius: '16px 16px 0 0',
-              borderTop: '1px solid #e5e7eb'
+              borderTop: '1px solid #e5e7eb',
+              transition: isDragging ? 'none' : 'height 0.2s ease-out'
             }}
           >
-            {/* Simple Click Header */}
+            {/* Draggable Header */}
             <div className="flex flex-col h-full">
               <div 
-                className="flex-shrink-0 bg-white cursor-pointer select-none rounded-t-2xl"
-                onClick={handlePanelClick}
+                className="flex-shrink-0 bg-white cursor-grab active:cursor-grabbing select-none rounded-t-2xl"
+                onMouseDown={handleDragStart}
+                onTouchStart={handleDragStart}
+                style={{ touchAction: 'none' }}
               >
-                {/* Click Handle with State Indicator */}
+                {/* Drag Handle */}
                 <div className="flex justify-center pt-2 pb-1">
                   <div className="w-8 h-1 bg-gray-300 rounded-full hover:bg-gray-400 transition-colors"></div>
-                </div>
-                <div className="text-center text-xs text-gray-500 pb-1">
-                  State: {panelState} | Click to toggle
                 </div>
 
                 {/* Ultra-Compact Header */}
@@ -828,12 +898,13 @@ export default function BasicSearch() {
                 </div>
               </div>
 
-              {/* Scrollable Results - Simplified & Smooth */}
+              {/* Scrollable Results - Optimized for Smooth Scrolling */}
               <div
                 className="flex-1 overflow-y-auto bg-gray-50"
                 style={{
                   WebkitOverflowScrolling: 'touch',
-                  touchAction: 'auto'
+                  touchAction: 'pan-y', // Only allow vertical scrolling
+                  overscrollBehavior: 'contain' // Prevent overscroll bounce
                 }}
                 onScroll={handleScroll}
               >
