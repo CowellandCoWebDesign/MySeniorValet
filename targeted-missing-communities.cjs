@@ -1,176 +1,240 @@
-const axios = require('axios');
+/**
+ * Targeted Missing Communities Addition
+ * Add specific missing counties and cities to complete California coverage
+ */
 
-// Targeted addition of specific communities that were missed due to filtering bug
-async function addMissingCommunities() {
-  console.log('🎯 TARGETED ADDITION: Adding specific communities missed by restrictive filtering...');
+const { Pool, neonConfig } = require('@neondatabase/serverless');
+const ws = require('ws');
+const fs = require('fs');
+const csv = require('csv-parser');
+
+// Configure WebSocket for Neon
+neonConfig.webSocketConstructor = ws;
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+// Target missing counties (high priority)
+const targetCounties = [
+  'BUTTE', 'TULARE', 'SONOMA', 'VENTURA', 'SANTA BARBARA', 
+  'STANISLAUS', 'MONTEREY', 'PLACER', 'MERCED', 'MADERA',
+  'KINGS', 'IMPERIAL', 'HUMBOLDT', 'SOLANO', 'YOLO'
+];
+
+// Target missing cities (high priority)
+const targetCities = [
+  'CHICO', 'VISALIA', 'SANTA ROSA', 'VENTURA', 'OXNARD',
+  'SANTA BARBARA', 'MODESTO', 'SALINAS', 'ROSEVILLE',
+  'MERCED', 'MADERA', 'HANFORD', 'EUREKA', 'FAIRFIELD', 'DAVIS'
+];
+
+/**
+ * Add targeted missing communities
+ */
+async function addTargetedMissingCommunities() {
+  console.log('🎯 Adding Targeted Missing California Communities');
+  console.log('=' * 50);
   
-  const baseUrl = 'http://localhost:5000';
-  
-  // Specific communities we know exist but are missing
-  const missingCommunities = [
-    {
-      name: "Especially You Assisted Living",
-      address: "12 Henderson St, Eureka, CA 95501",
-      city: "Eureka",
-      state: "CA",
-      county: "Humboldt",
-      zipCode: "95501",
-      description: "Assisted living facility in Eureka, Humboldt County. Rating: 5.0/5 with 7 reviews.",
-      careTypes: ["Assisted Living"],
-      googleRating: 5.0,
-      googleReviewCount: 7
-    },
-    {
-      name: "Alder Bay Assisted Living", 
-      address: "1355 Myrtle Avenue, Eureka, CA 95501",
-      city: "Eureka",
-      state: "CA", 
-      county: "Humboldt",
-      zipCode: "95501",
-      description: "Assisted living facility in Eureka, Humboldt County. Rating: 4.0/5 with 5 reviews.",
-      careTypes: ["Assisted Living"],
-      googleRating: 4.0,
-      googleReviewCount: 5
-    },
-    {
-      name: "Silvercrest Residence",
-      address: "2141 Tydd St, Eureka, CA 95501", 
-      city: "Eureka",
-      state: "CA",
-      county: "Humboldt", 
-      zipCode: "95501",
-      description: "Senior living residence in Eureka, Humboldt County. Rating: 4.6/5 with 8 reviews.",
-      careTypes: ["Independent Living", "Assisted Living"],
-      googleRating: 4.6,
-      googleReviewCount: 8
-    },
-    {
-      name: "Frye's Care Home",
-      address: "2240 Fern St, Eureka, CA 95503",
-      city: "Eureka", 
-      state: "CA",
-      county: "Humboldt",
-      zipCode: "95503", 
-      description: "Memory care and assisted living facility in Eureka, Humboldt County. Rating: 3.5/5 with 8 reviews.",
-      careTypes: ["Memory Care", "Assisted Living"],
-      googleRating: 3.5,
-      googleReviewCount: 8
-    },
-    {
-      name: "Humboldt House Lodge Assisted Living",
-      address: "4041 F St, Eureka, CA 95503",
-      city: "Eureka",
-      state: "CA", 
-      county: "Humboldt",
-      zipCode: "95503",
-      description: "Assisted living facility in Eureka, Humboldt County.",
-      careTypes: ["Assisted Living"],
-      googleRating: null,
-      googleReviewCount: 0
-    },
-    {
-      name: "Eureka Central Residence", 
-      address: "333 E St, Eureka, CA 95501",
-      city: "Eureka",
-      state: "CA",
-      county: "Humboldt", 
-      zipCode: "95501",
-      description: "Senior living residence in downtown Eureka, Humboldt County. Rating: 3.6/5 with 5 reviews.",
-      careTypes: ["Independent Living"],
-      googleRating: 3.6,
-      googleReviewCount: 5
-    }
-  ];
-  
-  let addedCount = 0;
-  let duplicateCount = 0;
-  
-  for (const community of missingCommunities) {
-    try {
-      console.log(`\n🔍 Processing: ${community.name}...`);
-      
-      // Check if community already exists
-      const checkResponse = await axios.get(`${baseUrl}/api/communities`, {
-        params: { city: community.city },
-        timeout: 10000
-      });
-      
-      const existingCommunities = checkResponse.data || [];
-      const alreadyExists = existingCommunities.some(existing => 
-        existing.name.toLowerCase().includes(community.name.toLowerCase().substring(0, 10)) ||
-        community.name.toLowerCase().includes(existing.name.toLowerCase().substring(0, 10))
+  try {
+    // Load government facility data
+    const csvFile = 'california_facilities_20250710_061653.csv';
+    const allFacilities = [];
+    
+    await new Promise((resolve, reject) => {
+      fs.createReadStream(csvFile)
+        .pipe(csv())
+        .on('data', (row) => {
+          if (row.name && row.city && row.county) {
+            allFacilities.push({
+              name: row.name.trim(),
+              address: row.address || '',
+              city: row.city.trim(),
+              county: row.county.trim(),
+              state: 'CA',
+              zipCode: row.zip || '',
+              phone: row.phone || '',
+              latitude: parseFloat(row.latitude) || null,
+              longitude: parseFloat(row.longitude) || null,
+              dataSource: row.data_source || 'California CDSS',
+              facilityType: row.facility_type || '',
+              capacity: parseInt(row.capacity) || null
+            });
+          }
+        })
+        .on('end', resolve)
+        .on('error', reject);
+    });
+    
+    console.log(`✅ Loaded ${allFacilities.length} government facilities`);
+    
+    // Get existing facilities
+    const existingQuery = `SELECT name, city FROM communities WHERE state = 'CA'`;
+    const existingResult = await pool.query(existingQuery);
+    const existingSet = new Set(
+      existingResult.rows.map(row => `${row.name}|${row.city}`.toLowerCase())
+    );
+    
+    console.log(`📊 Found ${existingResult.rows.length} existing California facilities`);
+    
+    // Filter for target counties and cities
+    const targetFacilities = allFacilities.filter(facility => {
+      const countyMatch = targetCounties.some(county => 
+        facility.county.toUpperCase().includes(county)
+      );
+      const cityMatch = targetCities.some(city => 
+        facility.city.toUpperCase().includes(city)
       );
       
-      if (alreadyExists) {
-        console.log(`  ⚠️ Already exists: ${community.name}`);
-        duplicateCount++;
-        continue;
-      }
+      const key = `${facility.name}|${facility.city}`.toLowerCase();
+      const isNew = !existingSet.has(key);
       
-      // Add the community directly via admin endpoint
-      const addResponse = await axios.post(`${baseUrl}/api/admin/communities`, {
-        name: community.name,
-        address: community.address,
-        city: community.city,
-        state: community.state,
-        zipCode: community.zipCode,
-        phone: null,
-        website: null,
-        description: community.description,
-        careTypes: community.careTypes,
-        amenities: [],
-        pricing: null,
-        availability: 'Contact for Availability',
-        photos: [],
-        reviews: [],
-        isVerified: true,
-        googleRating: community.googleRating,
-        googleReviewCount: community.googleReviewCount,
-        verificationDate: new Date().toISOString(),
-        lastUpdated: new Date().toISOString()
-      }, {
-        timeout: 10000,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (addResponse.status === 200 || addResponse.status === 201) {
-        console.log(`  ✅ Successfully added: ${community.name}`);
-        addedCount++;
-      } else {
-        console.log(`  ❌ Failed to add: ${community.name} (Status: ${addResponse.status})`);
-      }
-      
-      // Rate limiting
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-    } catch (error) {
-      console.error(`  ❌ Error adding ${community.name}:`, error.message);
-    }
-  }
-  
-  console.log(`\n📊 SUMMARY:`);
-  console.log(`✅ Communities added: ${addedCount}`);
-  console.log(`⚠️ Already existed: ${duplicateCount}`);
-  console.log(`📈 Total processed: ${missingCommunities.length}`);
-  
-  // Get final count
-  try {
-    const finalResponse = await axios.get(`${baseUrl}/api/communities`, {
-      timeout: 15000
+      return (countyMatch || cityMatch) && isNew;
     });
-    console.log(`📊 Total communities in database: ${finalResponse.data.length}`);
     
-    // Check Eureka specifically
-    const eurekaResponse = await axios.get(`${baseUrl}/api/communities?city=Eureka`, {
-      timeout: 10000
+    console.log(`🎯 Found ${targetFacilities.length} targeted facilities to add`);
+    
+    if (targetFacilities.length === 0) {
+      console.log('✅ All targeted facilities already exist in database');
+      return;
+    }
+    
+    // Group by county for organized addition
+    const facilitiesByCounty = {};
+    targetFacilities.forEach(facility => {
+      const county = facility.county.toUpperCase();
+      if (!facilitiesByCounty[county]) {
+        facilitiesByCounty[county] = [];
+      }
+      facilitiesByCounty[county].push(facility);
     });
-    console.log(`📍 Total Eureka communities: ${eurekaResponse.data.length}`);
+    
+    console.log('\n📍 Targeted Facilities by County:');
+    Object.entries(facilitiesByCounty).forEach(([county, facilities]) => {
+      console.log(`   ${county}: ${facilities.length} facilities`);
+    });
+    
+    // Add facilities county by county
+    let totalAdded = 0;
+    
+    for (const [county, facilities] of Object.entries(facilitiesByCounty)) {
+      console.log(`\n🏠 Adding ${facilities.length} facilities in ${county} County...`);
+      
+      for (const facility of facilities) {
+        try {
+          // Determine care types based on facility type
+          let careTypes = ['Assisted Living'];
+          if (facility.facilityType.includes('SKILLED NURSING')) {
+            careTypes = ['Skilled Nursing', 'Assisted Living'];
+          } else if (facility.facilityType.includes('INTERMEDIATE')) {
+            careTypes = ['Intermediate Care', 'Assisted Living'];
+          } else if (facility.capacity && facility.capacity <= 6) {
+            careTypes = ['Residential Care'];
+          }
+          
+          const insertQuery = `
+            INSERT INTO communities (
+              name, address, city, state, zip_code, phone, county,
+              care_types, amenities, services, medical_restrictions,
+              latitude, longitude, discovery_source, discovery_date, is_verified
+            ) VALUES (
+              $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
+            )
+          `;
+          
+          const values = [
+            facility.name,
+            facility.address,
+            facility.city,
+            facility.state,
+            facility.zipCode,
+            facility.phone,
+            facility.county,
+            careTypes,
+            [], // amenities
+            [], // services
+            [], // medical_restrictions
+            facility.latitude,
+            facility.longitude,
+            facility.dataSource,
+            new Date().toISOString(),
+            true // is_verified (government data)
+          ];
+          
+          await pool.query(insertQuery, values);
+          totalAdded++;
+          
+          console.log(`   ✅ Added: ${facility.name} in ${facility.city}`);
+          
+        } catch (error) {
+          console.error(`   ❌ Error adding ${facility.name}:`, error.message);
+        }
+      }
+      
+      console.log(`✅ Completed ${county} County: ${facilities.length} facilities processed`);
+    }
+    
+    console.log('\n' + '=' * 50);
+    console.log('🎯 Targeted Addition Complete!');
+    console.log(`✅ Successfully added: ${totalAdded} new facilities`);
+    
+    // Show updated California coverage
+    const updatedQuery = `
+      SELECT 
+        COUNT(*) as total,
+        COUNT(DISTINCT city) as cities,
+        COUNT(DISTINCT county) as counties
+      FROM communities 
+      WHERE state = 'CA'
+    `;
+    
+    const updatedResult = await pool.query(updatedQuery);
+    const finalStats = updatedResult.rows[0];
+    
+    console.log('\n📊 Updated California Coverage:');
+    console.log(`   Total Communities: ${finalStats.total}`);
+    console.log(`   Unique Cities: ${finalStats.cities}`);
+    console.log(`   Unique Counties: ${finalStats.counties}`);
+    
+    // Show new counties added
+    const newCountiesQuery = `
+      SELECT county, COUNT(*) as count
+      FROM communities 
+      WHERE state = 'CA' AND county IS NOT NULL AND county != ''
+      GROUP BY county 
+      ORDER BY count DESC
+    `;
+    
+    const newCountiesResult = await pool.query(newCountiesQuery);
+    
+    console.log('\n🏛️ California Counties Now Covered:');
+    newCountiesResult.rows.forEach(row => {
+      console.log(`   ${row.county}: ${row.count} communities`);
+    });
+    
+    // Show key cities added
+    const targetCitiesQuery = `
+      SELECT city, COUNT(*) as count
+      FROM communities 
+      WHERE state = 'CA' AND city IN (${targetCities.map(c => `'${c}'`).join(',')})
+      GROUP BY city
+      ORDER BY count DESC
+    `;
+    
+    const targetCitiesResult = await pool.query(targetCitiesQuery);
+    
+    console.log('\n🏙️ Key Target Cities Now Covered:');
+    targetCitiesResult.rows.forEach(row => {
+      console.log(`   ${row.city}: ${row.count} communities`);
+    });
     
   } catch (error) {
-    console.error('Error getting final count:', error.message);
+    console.error('❌ Targeted addition failed:', error);
+  } finally {
+    await pool.end();
   }
 }
 
-addMissingCommunities().catch(console.error);
+// Run targeted addition
+if (require.main === module) {
+  addTargetedMissingCommunities().catch(console.error);
+}
+
+module.exports = { addTargetedMissingCommunities };
