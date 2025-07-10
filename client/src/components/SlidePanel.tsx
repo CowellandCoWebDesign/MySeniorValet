@@ -10,8 +10,6 @@ export default function SlidePanel({
   isLoading = false
 }) {
   const [panelHeight, setPanelHeight] = useState(120);
-  const [isAtTop, setIsAtTop] = useState(false);
-  const [snapLevel, setSnapLevel] = useState<'collapsed' | 'medium' | 'full'>('collapsed');
   const dragRef = useRef(null);
   const startYRef = useRef(0);
   const startHeightRef = useRef(120);
@@ -19,7 +17,6 @@ export default function SlidePanel({
 
   const screenHeight =
     typeof window !== "undefined" ? window.innerHeight : 800;
-  const topPosition = 80; // Height of navbar
 
   const sortedCommunities = useMemo(() => {
     return [...communities].sort((a, b) => {
@@ -40,24 +37,10 @@ export default function SlidePanel({
     });
   }, [communities, sortBy]);
 
-  // Debug snap state
-  useEffect(() => {
-    console.log("SNAP LEVEL:", snapLevel);
-  }, [snapLevel]);
-
   const handleDragStart = (e) => {
-    // Only allow dragging down when at top position
-    if (isAtTop) {
-      // Check if we're starting to drag down from the top
-      startYRef.current =
-        "touches" in e ? e.touches[0].clientY : e.clientY;
-      startHeightRef.current = panelHeight;
-    } else {
-      startYRef.current =
-        "touches" in e ? e.touches[0].clientY : e.clientY;
-      startHeightRef.current = panelHeight;
-    }
-    
+    startYRef.current =
+      "touches" in e ? e.touches[0].clientY : e.clientY;
+    startHeightRef.current = panelHeight;
     document.addEventListener("mousemove", handleDrag);
     document.addEventListener("touchmove", handleDrag, { passive: false });
     document.addEventListener("mouseup", handleDragEnd);
@@ -69,54 +52,22 @@ export default function SlidePanel({
     const currentY =
       "touches" in e ? e.touches[0].clientY : e.clientY;
     const deltaY = startYRef.current - currentY;
-    
-    // Calculate new height based on drag direction and current state
-    let newHeight;
-    if (isAtTop) {
-      // When at top, only allow dragging down
-      if (deltaY < 0) {
-        // Dragging down from top
-        newHeight = Math.max(
-          120,
-          Math.min(screenHeight - topPosition, startHeightRef.current + deltaY)
-        );
-      } else {
-        // Trying to drag up from top - stay at top
-        newHeight = screenHeight - topPosition;
-      }
-    } else {
-      // Normal drag behavior
-      newHeight = Math.max(
-        120,
-        Math.min(screenHeight - topPosition, startHeightRef.current + deltaY)
-      );
-    }
-    
+    const newHeight = Math.max(
+      120,
+      Math.min(screenHeight * 0.9, startHeightRef.current + deltaY)
+    );
     cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(() => setPanelHeight(newHeight));
     e.preventDefault();
   };
 
   const handleDragEnd = () => {
-    const maxHeight = screenHeight - topPosition;
-    
-    let snap = 120;
-    let level: 'collapsed' | 'medium' | 'full' = 'collapsed';
-
-    if (panelHeight < 180) {
-      snap = 120;
-      level = 'collapsed';
-      setIsAtTop(false);
-    } else if (panelHeight < screenHeight * 0.6) {
-      snap = 350;
-      level = 'medium';
-      setIsAtTop(false);
-    } else {
-      snap = maxHeight;
-      level = 'full';
-      setIsAtTop(true);
-    }
-    
+    const snap =
+      panelHeight < 180
+        ? 120
+        : panelHeight < screenHeight * 0.6
+        ? 350
+        : screenHeight * 0.85;
     const start = panelHeight;
     const duration = 200;
     const startTime = Date.now();
@@ -125,12 +76,7 @@ export default function SlidePanel({
       const eased = 1 - Math.pow(1 - progress, 3);
       const height = start + (snap - start) * eased;
       setPanelHeight(height);
-      if (progress < 1) {
-        rafRef.current = requestAnimationFrame(animate);
-      } else {
-        // Animation complete, set the snap level
-        setSnapLevel(level);
-      }
+      if (progress < 1) rafRef.current = requestAnimationFrame(animate);
     };
     animate();
     document.removeEventListener("mousemove", handleDrag);
@@ -206,9 +152,7 @@ export default function SlidePanel({
 
   return (
     <div
-      className={`fixed left-0 right-0 bg-white z-40 border-t border-gray-200 shadow-2xl overflow-hidden ${
-        isAtTop ? 'top-20 rounded-none' : 'bottom-0 rounded-t-2xl'
-      }`}
+      className="fixed left-0 right-0 bottom-0 bg-white z-40 rounded-t-2xl border-t border-gray-200 shadow-2xl overflow-hidden"
       style={{ height: panelHeight }}
     >
       <div className="flex flex-col h-full">
@@ -281,21 +225,19 @@ export default function SlidePanel({
           </div>
         </div>
 
-        <div className="flex-1 bg-gray-50 overflow-hidden">
-          <div className="h-full w-full">
-            <AutoSizer>
-              {({ height, width }) => (
-                <List
-                  height={height}
-                  width={width}
-                  itemCount={isLoading ? 10 : sortedCommunities.length}
-                  itemSize={310}
-                >
-                  {Row}
-                </List>
-              )}
-            </AutoSizer>
-          </div>
+        <div className="flex-1 overflow-hidden bg-gray-50">
+          <AutoSizer>
+            {({ height, width }) => (
+              <List
+                height={height}
+                width={width}
+                itemCount={isLoading ? 10 : sortedCommunities.length}
+                itemSize={310}
+              >
+                {Row}
+              </List>
+            )}
+          </AutoSizer>
         </div>
       </div>
     </div>
