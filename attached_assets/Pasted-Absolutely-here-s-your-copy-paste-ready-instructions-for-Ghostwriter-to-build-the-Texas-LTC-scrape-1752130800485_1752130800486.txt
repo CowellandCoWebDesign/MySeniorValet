@@ -1,0 +1,147 @@
+Absolutely — here’s your copy-paste-ready instructions for Ghostwriter to build the Texas LTC scraper, including Home and Community Support Services Agencies (HCSSA):
+
+
+---
+
+🚀 TrueView Scraper: Texas LTC Provider Database (Includes HCSSA)
+
+We need to scrape the Texas Health & Human Services Long-Term Care (LTC) Provider Search to capture all licensed senior care providers, including:
+
+Assisted Living Facilities (ALF)
+
+Nursing Homes (NF)
+
+Intermediate Care Facilities (ICF/IID)
+
+Home & Community Support Services Agencies (HCSSA)
+
+Adult Day Care / Respite / Waiver-based programs (CLASS, HCS, etc.)
+
+
+
+---
+
+✅ GOAL:
+
+Scrape all facility and agency-level listings from:
+
+🔗 https://apps.hhs.texas.gov/ltcsearch/
+
+Output one CSV file: texas_ltc_facilities.csv
+
+
+---
+
+🧠 For Every Listing, Extract:
+
+ProviderID
+
+Name
+
+Facility/Agency Type (e.g. “Assisted Living Facility”, “HCSSA”, etc.)
+
+Address
+
+Phone
+
+Capacity (if shown)
+
+License Status
+
+Last Inspection Date
+
+Enforcement Info (if available)
+
+Source URL
+
+
+These entries will be mixed between residential and home-based providers, so the 'Type' field is critical.
+
+
+---
+
+🧾 Paste this into texas_ltc_scraper.py:
+
+import requests
+from bs4 import BeautifulSoup
+import csv
+import time
+
+BASE_SEARCH_URL = "https://apps.hhs.texas.gov/ltcsearch/"
+SEARCH_STEP_URL = BASE_SEARCH_URL + "search"
+DETAIL_BASE_URL = BASE_SEARCH_URL + "details?ProviderID="
+
+HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; TrueViewBot/1.0)"}
+
+def get_provider_ids(page=1):
+    resp = requests.get(SEARCH_STEP_URL, params={'page': page}, headers=HEADERS)
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    ids = [tag['data-id'] for tag in soup.select("a.provider-link[data-id]")]
+    return ids
+
+def parse_provider_details(provider_id):
+    resp = requests.get(DETAIL_BASE_URL + provider_id, headers=HEADERS)
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    data = {
+        'ProviderID': provider_id,
+        'Name': soup.select_one("h1.name").text.strip() if soup.select_one("h1.name") else "",
+        'Type': soup.select_one("span.type").text.strip() if soup.select_one("span.type") else "",
+        'Address': soup.select_one("div.address").text.strip() if soup.select_one("div.address") else "",
+        'Phone': soup.select_one("span.phone").text.strip() if soup.select_one("span.phone") else "",
+        'Capacity': soup.select_one("span.capacity").text.strip() if soup.select_one("span.capacity") else "",
+        'LicenseStatus': soup.select_one("span.status").text.strip() if soup.select_one("span.status") else "",
+        'InspectionDate': soup.select_one("span.last-inspection").text.strip() if soup.select_one("span.last-inspection") else "",
+        'Enforcement': soup.select_one("div.enforcement-records").text.strip() if soup.select_one("div.enforcement-records") else "",
+        'SourceURL': resp.url
+    }
+    return data
+
+def scrape_texas_ltc(max_pages=50):
+    out = []
+    for page in range(1, max_pages + 1):
+        print(f"Scraping page {page}...")
+        try:
+            ids = get_provider_ids(page)
+        except Exception as e:
+            print(f"Failed to fetch page {page}: {e}")
+            continue
+        for pid in ids:
+            try:
+                rec = parse_provider_details(pid)
+                out.append(rec)
+                time.sleep(1)
+            except Exception as e:
+                print(f"Error {pid}: {e}")
+        time.sleep(2)
+
+    with open("texas_ltc_facilities.csv", "w", newline='', encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=out[0].keys())
+        writer.writeheader()
+        writer.writerows(out)
+    print(f"Saved {len(out)} facilities and agencies.")
+
+if __name__ == "__main__":
+    scrape_texas_ltc(max_pages=50)
+
+
+---
+
+🛠️ To Run:
+
+pip install requests beautifulsoup4
+python texas_ltc_scraper.py
+
+
+---
+
+🧩 Notes:
+
+This includes HCSSA agencies — no need to separate them; they’ll be identified in the 'Type' field.
+
+Adjust max_pages as needed (50 is a conservative crawl).
+
+Future phases can push this into PostgreSQL or TrueView’s API.
+
+
+Let me know once the CSV is done — I’ll help map it into the TrueView national database.
+
