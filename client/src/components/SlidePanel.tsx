@@ -9,10 +9,10 @@ export default function SlidePanel({
   setSortBy,
   isLoading = false
 }) {
-  const [panelHeight, setPanelHeight] = useState(120);
+  const [panelHeight, setPanelHeight] = useState(140);
   const dragRef = useRef(null);
   const startYRef = useRef(0);
-  const startHeightRef = useRef(120);
+  const startHeightRef = useRef(140);
   const rafRef = useRef(0);
 
   const screenHeight =
@@ -37,48 +37,79 @@ export default function SlidePanel({
     });
   }, [communities, sortBy]);
 
+  // Cleanup effect
+  useEffect(() => {
+    return () => {
+      // Clean up any remaining RAF calls
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, []);
+
   const handleDragStart = (e) => {
-    startYRef.current =
-      "touches" in e ? e.touches[0].clientY : e.clientY;
+    // Store initial position and height
+    startYRef.current = "touches" in e ? e.touches[0].clientY : e.clientY;
     startHeightRef.current = panelHeight;
-    document.addEventListener("mousemove", handleDrag);
+    
+    // Add event listeners for drag and end
+    document.addEventListener("mousemove", handleDrag, { passive: false });
     document.addEventListener("touchmove", handleDrag, { passive: false });
-    document.addEventListener("mouseup", handleDragEnd);
-    document.addEventListener("touchend", handleDragEnd);
+    document.addEventListener("mouseup", handleDragEnd, { passive: false });
+    document.addEventListener("touchend", handleDragEnd, { passive: false });
+    
+    // Prevent default behavior
     e.preventDefault();
+    e.stopPropagation();
   };
 
   const handleDrag = (e) => {
-    const currentY =
-      "touches" in e ? e.touches[0].clientY : e.clientY;
+    const currentY = "touches" in e ? e.touches[0].clientY : e.clientY;
     const deltaY = startYRef.current - currentY;
     const newHeight = Math.max(
-      120,
-      Math.min(screenHeight * 0.9, startHeightRef.current + deltaY)
+      140, // Minimum height
+      Math.min(screenHeight * 0.9, startHeightRef.current + deltaY) // Maximum height
     );
+    
+    // Use RAF for smooth updates
     cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(() => setPanelHeight(newHeight));
+    rafRef.current = requestAnimationFrame(() => {
+      setPanelHeight(newHeight);
+    });
+    
+    // Prevent default behavior and stop propagation
     e.preventDefault();
+    e.stopPropagation();
   };
 
   const handleDragEnd = () => {
-    const snap =
-      panelHeight < 180
-        ? 120
-        : panelHeight < screenHeight * 0.6
-        ? 350
-        : screenHeight * 0.85;
+    // Improved snapping logic with better thresholds
+    let snap;
+    if (panelHeight < 220) {
+      snap = 140; // Collapsed state
+    } else if (panelHeight < screenHeight * 0.45) {
+      snap = Math.floor(screenHeight * 0.4); // Medium state
+    } else {
+      snap = Math.floor(screenHeight * 0.85); // Expanded state
+    }
+    
     const start = panelHeight;
-    const duration = 200;
+    const duration = 300; // Slightly longer animation
     const startTime = Date.now();
+    
     const animate = () => {
       const progress = Math.min((Date.now() - startTime) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
+      const eased = 1 - Math.pow(1 - progress, 3); // Ease out cubic
       const height = start + (snap - start) * eased;
       setPanelHeight(height);
-      if (progress < 1) rafRef.current = requestAnimationFrame(animate);
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(animate);
+      }
     };
+    
     animate();
+    
+    // Clean up event listeners
     document.removeEventListener("mousemove", handleDrag);
     document.removeEventListener("touchmove", handleDrag);
     document.removeEventListener("mouseup", handleDragEnd);
@@ -158,15 +189,15 @@ export default function SlidePanel({
       <div className="flex flex-col h-full">
         <div
           ref={dragRef}
-          className="cursor-grab active:cursor-grabbing select-none bg-white rounded-t-2xl"
+          className="cursor-grab active:cursor-grabbing select-none bg-white rounded-t-2xl touch-none"
           onMouseDown={handleDragStart}
           onTouchStart={handleDragStart}
           style={{ touchAction: "none" }}
         >
-          <div className="flex justify-center pt-3 pb-2">
-            <div className="w-10 h-1 bg-gray-300 rounded-full"></div>
+          <div className="flex justify-center pt-4 pb-3">
+            <div className="w-12 h-1.5 bg-gray-400 rounded-full hover:bg-gray-500 transition-colors duration-200"></div>
           </div>
-          <div className="px-4 pb-2">
+          <div className="px-4 pb-2 -mt-1">
             <div className="flex flex-wrap gap-2 overflow-x-auto text-xs text-gray-600">
               <button
                 onClick={() => setSortBy("priceAsc")}
