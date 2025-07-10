@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, Star, Heart, List, Map, Bell, Calendar, Mail, Phone, ExternalLink, Users, CheckCircle, AlertTriangle, Activity, UserCheck, Stethoscope, Clock, ImageIcon, ChevronDown, SortAsc, ArrowLeft, Home, Plus, Minus } from "lucide-react";
+import { Search, MapPin, Star, Heart, List, Map, Bell, Calendar, Mail, Phone, ExternalLink, Users, CheckCircle, AlertTriangle, Activity, UserCheck, Stethoscope, Clock, ImageIcon, ChevronDown, SortAsc, ArrowLeft, Home, Plus, Minus, Filter, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import { Icon } from 'leaflet';
@@ -67,6 +67,12 @@ export default function BasicSearch() {
   const [sortBy, setSortBy] = useState('recommended');
   const [showSortOptions, setShowSortOptions] = useState(false);
   
+  // Filter states
+  const [selectedCareTypes, setSelectedCareTypes] = useState<string[]>([]);
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 10000 });
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+  const [showFilters, setShowFilters] = useState(false);
+  
   // Sort options with better organization
   const sortOptions = [
     { value: 'recommended', label: 'Recommended', description: 'Best matches for your search' },
@@ -94,6 +100,28 @@ export default function BasicSearch() {
 
   // Extract communities array from search response (now returns direct array, not paginated)
   const communities = Array.isArray(communitiesResponse) ? communitiesResponse : [];
+  
+  // Filter options
+  const careTypeOptions = [
+    'Independent Living',
+    'Assisted Living', 
+    'Memory Care',
+    'Skilled Nursing',
+    'Continuing Care'
+  ];
+  
+  const amenityOptions = [
+    'Pet Friendly',
+    'Outdoor Space',
+    'Fitness Center',
+    'Swimming Pool',
+    'Library',
+    'Beauty Salon',
+    'Transportation',
+    'Dining Room',
+    'Activities',
+    'WiFi'
+  ];
 
   // Enhanced sorting function with sponsored listing priority
   const sortCommunities = (communities: any[], sortBy: string) => {
@@ -135,7 +163,7 @@ export default function BasicSearch() {
     });
   };
 
-  // Filter communities based on search query and map bounds
+  // Filter communities based on search query, filters, and map bounds
   const filteredCommunities = communities?.filter((community: any) => {
     // Search query filter
     const searchMatch = !searchQuery || 
@@ -143,6 +171,27 @@ export default function BasicSearch() {
       community.city?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       community.careTypes?.some((type: string) => 
         type.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
+    // Care type filter
+    const careTypeMatch = selectedCareTypes.length === 0 || 
+      selectedCareTypes.some(careType => 
+        community.careTypes?.some((ct: string) => 
+          ct.toLowerCase().includes(careType.toLowerCase())
+        )
+      );
+
+    // Price range filter
+    const priceMatch = !community.priceRange || 
+      (community.priceRange.min >= priceRange.min && 
+       community.priceRange.max <= priceRange.max);
+
+    // Amenities filter
+    const amenityMatch = selectedAmenities.length === 0 ||
+      selectedAmenities.every(amenity =>
+        community.amenities?.some((a: string) => 
+          a.toLowerCase().includes(amenity.toLowerCase())
+        )
       );
 
     // Map bounds filter (if bounds are available)
@@ -153,7 +202,7 @@ export default function BasicSearch() {
       community.longitude <= mapBounds.getEast()
     );
 
-    return searchMatch && boundsMatch;
+    return searchMatch && careTypeMatch && priceMatch && amenityMatch && boundsMatch;
   }) || [];
 
   // Apply sorting to filtered communities
@@ -166,14 +215,8 @@ export default function BasicSearch() {
     const lat = parseFloat(community.latitude);
     const lng = parseFloat(community.longitude);
     
-    // Add small buffer to bounds for better UX
-    const buffer = 0.01;
-    return (
-      lat >= (mapBounds.getSouth() - buffer) &&
-      lat <= (mapBounds.getNorth() + buffer) &&
-      lng >= (mapBounds.getWest() - buffer) &&
-      lng <= (mapBounds.getEast() + buffer)
-    );
+    // Check if community is within map bounds
+    return mapBounds.contains([lat, lng]);
   });
 
   // Apply sorting to visible communities
@@ -478,18 +521,140 @@ export default function BasicSearch() {
 
         {/* Filter Pills - Refined */}
         <div className="px-4 pb-2.5 flex space-x-2 overflow-x-auto scrollbar-hide">
-          <Button variant="outline" className="border-blue-500 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-full px-3 py-1 h-7 text-xs font-medium whitespace-nowrap flex items-center">
-            <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mr-1.5"></div>
-            Assisted Living
+          <Button 
+            variant="outline" 
+            onClick={() => setShowFilters(!showFilters)}
+            className={`${showFilters ? 'border-blue-500 text-blue-600 bg-blue-50' : 'border-gray-300 text-gray-600'} hover:bg-gray-50 rounded-full px-3 py-1 h-7 text-xs font-medium whitespace-nowrap flex items-center`}
+          >
+            <Filter className="w-3 h-3 mr-1.5" />
+            Filters {(selectedCareTypes.length + selectedAmenities.length) > 0 && 
+              <span className="ml-1 bg-blue-600 text-white rounded-full px-1.5 text-[10px]">
+                {selectedCareTypes.length + selectedAmenities.length}
+              </span>
+            }
           </Button>
-          <Button variant="outline" className="border-blue-500 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-full px-3 py-1 h-7 text-xs font-medium whitespace-nowrap flex items-center">
-            <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mr-1.5"></div>
-            $2K - $6K
-          </Button>
-          <Button variant="outline" className="border-gray-300 text-gray-600 hover:bg-gray-50 rounded-full px-3 py-1 h-7 text-xs font-medium whitespace-nowrap">
-            + Filters
-          </Button>
+          
+          {selectedCareTypes.map(careType => (
+            <Button 
+              key={careType}
+              variant="outline" 
+              onClick={() => setSelectedCareTypes(selectedCareTypes.filter(ct => ct !== careType))}
+              className="border-blue-500 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-full px-3 py-1 h-7 text-xs font-medium whitespace-nowrap flex items-center"
+            >
+              <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mr-1.5"></div>
+              {careType}
+              <X className="w-3 h-3 ml-1" />
+            </Button>
+          ))}
+          
+          {priceRange.min > 0 || priceRange.max < 10000 ? (
+            <Button 
+              variant="outline" 
+              onClick={() => setPriceRange({ min: 0, max: 10000 })}
+              className="border-blue-500 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-full px-3 py-1 h-7 text-xs font-medium whitespace-nowrap flex items-center"
+            >
+              <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mr-1.5"></div>
+              ${priceRange.min/1000}K - ${priceRange.max/1000}K
+              <X className="w-3 h-3 ml-1" />
+            </Button>
+          ) : null}
+          
+          {selectedAmenities.length > 0 && (
+            <Button 
+              variant="outline" 
+              onClick={() => setSelectedAmenities([])}
+              className="border-blue-500 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-full px-3 py-1 h-7 text-xs font-medium whitespace-nowrap flex items-center"
+            >
+              <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mr-1.5"></div>
+              {selectedAmenities.length} Amenities
+              <X className="w-3 h-3 ml-1" />
+            </Button>
+          )}
         </div>
+        
+        {/* Expanded Filter Panel */}
+        {showFilters && (
+          <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
+            {/* Care Types */}
+            <div className="mb-4">
+              <h3 className="text-xs font-semibold text-gray-700 mb-2">CARE TYPES</h3>
+              <div className="flex flex-wrap gap-2">
+                {careTypeOptions.map(careType => (
+                  <Button
+                    key={careType}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (selectedCareTypes.includes(careType)) {
+                        setSelectedCareTypes(selectedCareTypes.filter(ct => ct !== careType));
+                      } else {
+                        setSelectedCareTypes([...selectedCareTypes, careType]);
+                      }
+                    }}
+                    className={`rounded-full text-xs h-7 ${
+                      selectedCareTypes.includes(careType)
+                        ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
+                        : 'bg-white text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    {careType}
+                  </Button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Price Range */}
+            <div className="mb-4">
+              <h3 className="text-xs font-semibold text-gray-700 mb-2">PRICE RANGE</h3>
+              <div className="flex items-center space-x-2">
+                <Input
+                  type="number"
+                  placeholder="Min"
+                  value={priceRange.min || ''}
+                  onChange={(e) => setPriceRange({ ...priceRange, min: parseInt(e.target.value) || 0 })}
+                  className="w-24 h-8 text-xs"
+                />
+                <span className="text-gray-500">to</span>
+                <Input
+                  type="number"
+                  placeholder="Max"
+                  value={priceRange.max === 10000 ? '' : priceRange.max}
+                  onChange={(e) => setPriceRange({ ...priceRange, max: parseInt(e.target.value) || 10000 })}
+                  className="w-24 h-8 text-xs"
+                />
+                <span className="text-xs text-gray-600">/month</span>
+              </div>
+            </div>
+            
+            {/* Amenities */}
+            <div>
+              <h3 className="text-xs font-semibold text-gray-700 mb-2">AMENITIES</h3>
+              <div className="flex flex-wrap gap-2">
+                {amenityOptions.map(amenity => (
+                  <Button
+                    key={amenity}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (selectedAmenities.includes(amenity)) {
+                        setSelectedAmenities(selectedAmenities.filter(a => a !== amenity));
+                      } else {
+                        setSelectedAmenities([...selectedAmenities, amenity]);
+                      }
+                    }}
+                    className={`rounded-full text-xs h-7 ${
+                      selectedAmenities.includes(amenity)
+                        ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
+                        : 'bg-white text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    {amenity}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Map/List View */}
