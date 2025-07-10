@@ -20,6 +20,8 @@ import { Link, useLocation } from "wouter";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import { Icon, LatLngBounds } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { EnhancedMap } from '@/components/enhanced-map';
+import { useMapOptimization } from '@/hooks/useMapOptimization';
 
 // Custom marker icon for communities
 const communityIcon = new Icon({
@@ -69,6 +71,13 @@ export default function SimpleSearch() {
   const handleBoundsChange = useCallback((bounds: LatLngBounds) => {
     setMapBounds(bounds);
   }, []);
+
+  // Enhanced map optimization (optional - can be enabled for performance testing)
+  const mapOptimization = useMapOptimization(communitiesResponse || [], {
+    enableClustering: true,
+    maxMarkersBeforeClustering: 100,
+    enableVirtualization: viewMode === 'map'
+  });
 
   // Parse URL parameters
   useEffect(() => {
@@ -225,13 +234,16 @@ export default function SimpleSearch() {
       {/* Map/List View */}
       {viewMode === 'map' ? (
         <div className="h-96 relative">
-          {/* Interactive Leaflet Map */}
-          <MapContainer
+          {/* Enhanced Leaflet Map with Performance Optimizations */}
+          <EnhancedMap
+            communities={searchFilteredCommunities}
+            onBoundsChange={handleBoundsChange}
+            showBoundsTracker={true}
+            height="100%"
+            className="z-10"
             center={[40.315, -122.32]} // Redding, CA as center of Northern California
             zoom={7}
-            style={{ height: '100%', width: '100%' }}
-            className="z-10"
-          >
+          />
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
