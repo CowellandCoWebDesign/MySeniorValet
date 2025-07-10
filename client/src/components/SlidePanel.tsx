@@ -281,19 +281,21 @@ export default function SlidePanel({
           </div>
         </div>
 
-        <div className="flex-1 overflow-hidden bg-gray-50">
-          <AutoSizer>
-            {({ height, width }) => (
-              <List
-                height={height}
-                width={width}
-                itemCount={isLoading ? 10 : sortedCommunities.length}
-                itemSize={310}
-              >
-                {Row}
-              </List>
-            )}
-          </AutoSizer>
+        <div className="flex-1 bg-gray-50 overflow-hidden">
+          <div className="h-full w-full">
+            <AutoSizer>
+              {({ height, width }) => (
+                <List
+                  height={height}
+                  width={width}
+                  itemCount={isLoading ? 10 : sortedCommunities.length}
+                  itemSize={310}
+                >
+                  {Row}
+                </List>
+              )}
+            </AutoSizer>
+          </div>
         </div>
       </div>
     </div>
