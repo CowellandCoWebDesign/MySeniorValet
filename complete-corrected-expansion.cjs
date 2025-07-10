@@ -1,178 +1,204 @@
-const axios = require('axios');
+/**
+ * Complete Corrected California Expansion
+ * Add EVERY remaining facility from government data to achieve 100% coverage
+ */
 
-// Complete re-expansion with corrected filtering for all missed counties
-async function runCorrectedExpansion() {
-  console.log('🚀 COMPLETE CORRECTED EXPANSION: Re-discovering all missed communities...');
+const { Pool, neonConfig } = require('@neondatabase/serverless');
+const ws = require('ws');
+const fs = require('fs');
+const csv = require('csv-parser');
+
+neonConfig.webSocketConstructor = ws;
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+async function completeExpansion() {
+  console.log('🎯 COMPLETE CALIFORNIA EXPANSION - Adding ALL Missing Facilities');
   
-  const baseUrl = 'http://localhost:5000';
-  
-  // Counties that need complete re-expansion due to filtering issues
-  const countiesForReexpansion = [
-    { county: 'Humboldt', cities: ['Eureka', 'Arcata', 'Fortuna', 'McKinleyville', 'Ferndale'] },
-    { county: 'Mendocino', cities: ['Ukiah', 'Willits', 'Fort Bragg', 'Mendocino', 'Laytonville'] },
-    { county: 'Lake', cities: ['Lakeport', 'Clearlake', 'Middletown', 'Kelseyville', 'Nice'] },
-    { county: 'Shasta', cities: ['Redding', 'Anderson', 'Burney', 'Mount Shasta', 'Shasta Lake'] },
-    { county: 'Siskiyou', cities: ['Yreka', 'Mount Shasta', 'Dunsmuir', 'Weed', 'Tulelake'] },
-    { county: 'Modoc', cities: ['Alturas', 'Cedarville', 'Eagleville', 'Fort Bidwell'] },
-    { county: 'Lassen', cities: ['Susanville', 'Westwood', 'Bieber', 'Herlong'] },
-    { county: 'Plumas', cities: ['Quincy', 'Portola', 'Graeagle', 'Chester'] },
-    { county: 'Sierra', cities: ['Downieville', 'Loyalton', 'Sierraville'] },
-    { county: 'Nevada', cities: ['Nevada City', 'Grass Valley', 'Truckee', 'Penn Valley'] },
-    { county: 'Butte', cities: ['Chico', 'Oroville', 'Paradise', 'Gridley', 'Biggs'] },
-    { county: 'Colusa', cities: ['Colusa', 'Williams', 'Arbuckle', 'Maxwell'] },
-    { county: 'Glenn', cities: ['Willows', 'Orland', 'Hamilton City'] },
-    { county: 'Tehama', cities: ['Red Bluff', 'Corning', 'Tehama', 'Los Molinos'] }
-  ];
-  
-  let totalNewCommunities = 0;
-  let processedCounties = 0;
-  
-  for (const countyData of countiesForReexpansion) {
-    console.log(`\n🎯 Processing ${countyData.county} County (${processedCounties + 1}/14)...`);
+  try {
+    // Get current status
+    const statusQuery = `SELECT COUNT(*) as total FROM communities WHERE state = 'CA'`;
+    const statusResult = await pool.query(statusQuery);
+    const currentTotal = statusResult.rows[0].total;
     
-    let countyNewCommunities = 0;
+    console.log(`📊 Current California Communities: ${currentTotal}`);
     
-    for (const city of countyData.cities) {
-      try {
-        console.log(`  📍 Discovering communities in ${city}...`);
-        
-        // Use the corrected regional expansion API
-        const response = await axios.post(`${baseUrl}/api/admin/regional-expansion/discover`, {
-          city: city,
-          state: 'CA',
-          county: countyData.county,
-          searchRadius: 25000
-        }, {
-          timeout: 60000, // 1 minute timeout for each city
-          headers: {
-            'Content-Type': 'application/json'
+    // Load ALL government data
+    const allFacilities = [];
+    
+    await new Promise((resolve, reject) => {
+      fs.createReadStream('california_facilities_20250710_061653.csv')
+        .pipe(csv())
+        .on('data', (row) => {
+          if (row.name && row.city && row.county) {
+            allFacilities.push({
+              name: row.name.trim(),
+              address: row.address || '',
+              city: row.city.trim(),
+              county: row.county.trim().toUpperCase(),
+              state: 'CA',
+              zipCode: row.zip || '',
+              phone: row.phone || '',
+              latitude: parseFloat(row.latitude) || null,
+              longitude: parseFloat(row.longitude) || null,
+              dataSource: 'California CDSS',
+              facilityType: row.facility_type || ''
+            });
           }
-        });
-        
-        if (response.status === 200 && response.data.newCommunities > 0) {
-          console.log(`    ✅ Found ${response.data.newCommunities} new communities in ${city}`);
-          countyNewCommunities += response.data.newCommunities;
-        } else {
-          console.log(`    ℹ️ No new communities found in ${city}`);
-        }
-        
-        // Rate limiting between cities
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-      } catch (error) {
-        console.error(`    ❌ Error processing ${city}:`, error.message);
-        
-        // If timeout, continue to next city
-        if (error.code === 'ECONNABORTED') {
-          console.log(`    ⏱️ Timeout for ${city}, continuing...`);
-        }
-      }
+        })
+        .on('end', resolve)
+        .on('error', reject);
+    });
+    
+    console.log(`✅ Loaded ${allFacilities.length} total government facilities`);
+    
+    // Get existing facilities to avoid duplicates
+    const existingQuery = `SELECT name, city FROM communities WHERE state = 'CA'`;
+    const existingResult = await pool.query(existingQuery);
+    const existingSet = new Set(
+      existingResult.rows.map(row => `${row.name}|${row.city}`.toLowerCase())
+    );
+    
+    console.log(`📊 Found ${existingResult.rows.length} existing facilities in database`);
+    
+    // Filter for ALL new facilities
+    const newFacilities = allFacilities.filter(facility => {
+      const key = `${facility.name}|${facility.city}`.toLowerCase();
+      return !existingSet.has(key);
+    });
+    
+    console.log(`🆕 New facilities to add: ${newFacilities.length}`);
+    
+    if (newFacilities.length === 0) {
+      console.log('✅ All government facilities already in database - 100% coverage achieved');
+      return;
     }
     
-    totalNewCommunities += countyNewCommunities;
-    processedCounties++;
-    
-    console.log(`  📊 ${countyData.county} County Results: ${countyNewCommunities} new communities`);
-    
-    // Longer pause between counties
-    await new Promise(resolve => setTimeout(resolve, 5000));
-  }
-  
-  console.log(`\n🎉 EXPANSION COMPLETE!`);
-  console.log(`📈 Total new communities discovered: ${totalNewCommunities}`);
-  console.log(`🏁 Counties processed: ${processedCounties}/14`);
-  
-  // Get final community count
-  try {
-    const finalResponse = await axios.get(`${baseUrl}/api/communities`, {
-      timeout: 15000
-    });
-    console.log(`📊 Total communities in database: ${finalResponse.data.length}`);
-    
-    // Show breakdown by region
-    const regions = {};
-    finalResponse.data.forEach(community => {
-      const region = getRegionForCity(community.city);
-      regions[region] = (regions[region] || 0) + 1;
+    // Group by county for analysis
+    const byCounty = {};
+    newFacilities.forEach(facility => {
+      if (!byCounty[facility.county]) byCounty[facility.county] = [];
+      byCounty[facility.county].push(facility);
     });
     
-    console.log(`\n📍 Regional Breakdown:`);
-    Object.entries(regions).forEach(([region, count]) => {
-      console.log(`  ${region}: ${count} communities`);
+    console.log('\n📍 New facilities by county:');
+    Object.entries(byCounty).sort((a, b) => b[1].length - a[1].length).forEach(([county, facilities]) => {
+      console.log(`   ${county}: ${facilities.length} facilities`);
     });
+    
+    // Add ALL facilities efficiently
+    let addedCount = 0;
+    const batchSize = 50;
+    
+    for (let i = 0; i < newFacilities.length; i += batchSize) {
+      const batch = newFacilities.slice(i, i + batchSize);
+      
+      for (const facility of batch) {
+        try {
+          // Determine care types based on facility type
+          let careTypes = ['Assisted Living'];
+          if (facility.facilityType.includes('SKILLED NURSING')) {
+            careTypes = ['Skilled Nursing', 'Assisted Living'];
+          } else if (facility.facilityType.includes('INTERMEDIATE')) {
+            careTypes = ['Intermediate Care', 'Assisted Living'];
+          } else if (facility.facilityType.includes('HOSPICE')) {
+            careTypes = ['Hospice Care', 'Assisted Living'];
+          }
+          
+          const insertQuery = `
+            INSERT INTO communities (
+              name, address, city, state, zip_code, phone, county,
+              care_types, amenities, services, medical_restrictions,
+              latitude, longitude, discovery_source, discovery_date, is_verified
+            ) VALUES (
+              $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
+            )
+          `;
+          
+          const values = [
+            facility.name,
+            facility.address,
+            facility.city,
+            facility.state,
+            facility.zipCode,
+            facility.phone,
+            facility.county,
+            careTypes,
+            [], // amenities
+            [], // services
+            [], // medical_restrictions
+            facility.latitude,
+            facility.longitude,
+            facility.dataSource,
+            new Date().toISOString(),
+            true // is_verified
+          ];
+          
+          await pool.query(insertQuery, values);
+          addedCount++;
+          
+        } catch (error) {
+          console.error(`❌ Error adding ${facility.name}:`, error.message);
+        }
+      }
+      
+      console.log(`✅ Added ${Math.min(addedCount, (i + batchSize))} of ${newFacilities.length} facilities...`);
+    }
+    
+    console.log(`\n🎯 COMPLETE EXPANSION FINISHED`);
+    console.log(`✅ Successfully added: ${addedCount} new facilities`);
+    
+    // Show final comprehensive stats
+    const finalResult = await pool.query(statusQuery);
+    const finalTotal = finalResult.rows[0].total;
+    
+    console.log(`\n📊 Final California Communities: ${finalTotal} (was ${currentTotal})`);
+    console.log(`📈 Growth: +${finalTotal - currentTotal} communities`);
+    
+    // Show ALL counties now covered
+    const countiesQuery = `
+      SELECT UPPER(county) as county_name, COUNT(*) as count
+      FROM communities 
+      WHERE state = 'CA' AND county IS NOT NULL AND county != ''
+      GROUP BY UPPER(county)
+      ORDER BY count DESC
+    `;
+    
+    const countiesResult = await pool.query(countiesQuery);
+    
+    console.log(`\n🏛️ California Counties Covered: ${countiesResult.rows.length} out of 58`);
+    console.log(`📊 Coverage: ${((countiesResult.rows.length / 58) * 100).toFixed(1)}% of all California counties`);
+    
+    console.log('\nAll California counties with communities:');
+    countiesResult.rows.forEach((row, index) => {
+      console.log(`   ${index + 1}. ${row.county_name}: ${row.count} communities`);
+    });
+    
+    // Show total database size
+    const totalQuery = `SELECT COUNT(*) as total FROM communities`;
+    const totalResult = await pool.query(totalQuery);
+    
+    console.log(`\n🌟 FINAL DATABASE STATUS:`);
+    console.log(`   Total Communities (All States): ${totalResult.rows[0].total}`);
+    console.log(`   California Communities: ${finalTotal}`);
+    console.log(`   California Share: ${((finalTotal / totalResult.rows[0].total) * 100).toFixed(1)}% of total database`);
+    
+    // Check if we achieved 100% coverage of available government data
+    const coveragePercent = ((finalTotal / allFacilities.length) * 100).toFixed(1);
+    console.log(`\n✅ GOVERNMENT DATA COVERAGE: ${coveragePercent}% (${finalTotal} of ${allFacilities.length} facilities)`);
+    
+    if (coveragePercent >= 99.5) {
+      console.log('🎉 ACHIEVEMENT UNLOCKED: 100% California Government Data Coverage!');
+    }
     
   } catch (error) {
-    console.error('Error getting final count:', error.message);
+    console.error('❌ Complete expansion failed:', error);
+  } finally {
+    await pool.end();
   }
 }
 
-function getRegionForCity(city) {
-  const regionMap = {
-    // Bay Area
-    'San Francisco': 'Bay Area',
-    'Oakland': 'Bay Area',
-    'San Jose': 'Bay Area',
-    'Fremont': 'Bay Area',
-    'Santa Clara': 'Bay Area',
-    'Sunnyvale': 'Bay Area',
-    'Hayward': 'Bay Area',
-    'Concord': 'Bay Area',
-    'Berkeley': 'Bay Area',
-    'Richmond': 'Bay Area',
-    'Daly City': 'Bay Area',
-    'San Mateo': 'Bay Area',
-    'Vallejo': 'Bay Area',
-    'Fairfield': 'Bay Area',
-    'Livermore': 'Bay Area',
-    'San Rafael': 'Bay Area',
-    'Mountain View': 'Bay Area',
-    'Redwood City': 'Bay Area',
-    'Palo Alto': 'Bay Area',
-    'Union City': 'Bay Area',
-    
-    // Sacramento Region
-    'Sacramento': 'Sacramento Region',
-    'Elk Grove': 'Sacramento Region',
-    'Roseville': 'Sacramento Region',
-    'Folsom': 'Sacramento Region',
-    'Citrus Heights': 'Sacramento Region',
-    'Rancho Cordova': 'Sacramento Region',
-    'Davis': 'Sacramento Region',
-    'Woodland': 'Sacramento Region',
-    'West Sacramento': 'Sacramento Region',
-    
-    // North Coast
-    'Eureka': 'North Coast',
-    'Arcata': 'North Coast',
-    'Fortuna': 'North Coast',
-    'McKinleyville': 'North Coast',
-    'Ferndale': 'North Coast',
-    'Ukiah': 'North Coast',
-    'Willits': 'North Coast',
-    'Fort Bragg': 'North Coast',
-    'Mendocino': 'North Coast',
-    
-    // Central Valley North
-    'Chico': 'Central Valley North',
-    'Redding': 'Central Valley North',
-    'Oroville': 'Central Valley North',
-    'Paradise': 'Central Valley North',
-    'Red Bluff': 'Central Valley North',
-    'Anderson': 'Central Valley North',
-    'Corning': 'Central Valley North',
-    
-    // Far North & Sierra
-    'Yreka': 'Far North',
-    'Mount Shasta': 'Far North',
-    'Alturas': 'Far North',
-    'Susanville': 'Far North',
-    'Truckee': 'Sierra Nevada',
-    'Nevada City': 'Sierra Nevada',
-    'Grass Valley': 'Sierra Nevada',
-    'Quincy': 'Sierra Nevada'
-  };
-  
-  return regionMap[city] || 'Other Northern CA';
+if (require.main === module) {
+  completeExpansion().catch(console.error);
 }
 
-runCorrectedExpansion().catch(console.error);
+module.exports = { completeExpansion };

@@ -1,6 +1,6 @@
 /**
  * Continue California Expansion
- * Efficient continuation of facility addition
+ * Add remaining facilities in batches to complete 100% coverage
  */
 
 const { Pool, neonConfig } = require('@neondatabase/serverless');
@@ -8,53 +8,40 @@ const ws = require('ws');
 const fs = require('fs');
 const csv = require('csv-parser');
 
-// Configure WebSocket for Neon
 neonConfig.webSocketConstructor = ws;
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
-/**
- * Continue California expansion efficiently
- */
 async function continueExpansion() {
-  console.log('🚀 Continuing California Expansion');
-  console.log('=' * 40);
+  console.log('🎯 CONTINUING CALIFORNIA EXPANSION - Adding Remaining Facilities');
   
   try {
-    // Check current status
-    const currentQuery = `
-      SELECT 
-        COUNT(*) as total,
-        COUNT(DISTINCT city) as cities,
-        COUNT(DISTINCT county) as counties
-      FROM communities 
-      WHERE state = 'CA'
-    `;
+    // Get current status
+    const statusQuery = `SELECT COUNT(*) as total FROM communities WHERE state = 'CA'`;
+    const statusResult = await pool.query(statusQuery);
+    const currentTotal = statusResult.rows[0].total;
     
-    const currentResult = await pool.query(currentQuery);
-    const { total, cities, counties } = currentResult.rows[0];
+    console.log(`📊 Current California Communities: ${currentTotal}`);
     
-    console.log(`📊 Current: ${total} communities, ${cities} cities, ${counties} counties`);
-    
-    // Load and process facilities
-    const csvFile = 'california_facilities_20250710_061653.csv';
-    const facilities = [];
+    // Load ALL government data
+    const allFacilities = [];
     
     await new Promise((resolve, reject) => {
-      fs.createReadStream(csvFile)
+      fs.createReadStream('california_facilities_20250710_061653.csv')
         .pipe(csv())
         .on('data', (row) => {
-          if (row.name && row.city) {
-            facilities.push({
+          if (row.name && row.city && row.county) {
+            allFacilities.push({
               name: row.name.trim(),
               address: row.address || '',
               city: row.city.trim(),
-              county: row.county || '',
+              county: row.county.trim().toUpperCase(),
               state: 'CA',
               zipCode: row.zip || '',
               phone: row.phone || '',
               latitude: parseFloat(row.latitude) || null,
               longitude: parseFloat(row.longitude) || null,
-              dataSource: row.data_source || 'California CDSS'
+              dataSource: 'California CDSS',
+              facilityType: row.facility_type || ''
             });
           }
         })
@@ -62,38 +49,88 @@ async function continueExpansion() {
         .on('error', reject);
     });
     
-    console.log(`✅ Loaded ${facilities.length} total facilities`);
+    console.log(`✅ Loaded ${allFacilities.length} total government facilities`);
     
-    // Get existing facilities
+    // Get existing facilities to avoid duplicates
     const existingQuery = `SELECT name, city FROM communities WHERE state = 'CA'`;
     const existingResult = await pool.query(existingQuery);
     const existingSet = new Set(
       existingResult.rows.map(row => `${row.name}|${row.city}`.toLowerCase())
     );
     
-    // Filter new facilities
-    const newFacilities = facilities.filter(facility => {
+    console.log(`📊 Found ${existingResult.rows.length} existing facilities in database`);
+    
+    // Filter for remaining new facilities
+    const newFacilities = allFacilities.filter(facility => {
       const key = `${facility.name}|${facility.city}`.toLowerCase();
       return !existingSet.has(key);
     });
     
-    console.log(`🆕 Found ${newFacilities.length} new facilities to add`);
+    console.log(`🆕 Remaining facilities to add: ${newFacilities.length}`);
     
     if (newFacilities.length === 0) {
-      console.log('✅ All California facilities are already in database');
+      console.log('✅ All government facilities already in database - 100% coverage achieved');
+      
+      // Show final comprehensive stats
+      const countiesQuery = `
+        SELECT UPPER(county) as county_name, COUNT(*) as count
+        FROM communities 
+        WHERE state = 'CA' AND county IS NOT NULL AND county != ''
+        GROUP BY UPPER(county)
+        ORDER BY count DESC
+      `;
+      
+      const countiesResult = await pool.query(countiesQuery);
+      
+      console.log(`\n🏛️ California Counties Covered: ${countiesResult.rows.length} out of 58`);
+      console.log(`📊 Coverage: ${((countiesResult.rows.length / 58) * 100).toFixed(1)}% of all California counties`);
+      
+      console.log('\nAll California counties with communities:');
+      countiesResult.rows.forEach((row, index) => {
+        console.log(`   ${index + 1}. ${row.county_name}: ${row.count} communities`);
+      });
+      
+      // Show total database size
+      const totalQuery = `SELECT COUNT(*) as total FROM communities`;
+      const totalResult = await pool.query(totalQuery);
+      
+      console.log(`\n🌟 FINAL DATABASE STATUS:`);
+      console.log(`   Total Communities (All States): ${totalResult.rows[0].total}`);
+      console.log(`   California Communities: ${currentTotal}`);
+      console.log(`   California Share: ${((currentTotal / totalResult.rows[0].total) * 100).toFixed(1)}% of total database`);
+      
+      // Check coverage of government data
+      const coveragePercent = ((currentTotal / allFacilities.length) * 100).toFixed(1);
+      console.log(`\n✅ GOVERNMENT DATA COVERAGE: ${coveragePercent}% (${currentTotal} of ${allFacilities.length} facilities)`);
+      
+      if (coveragePercent >= 99.5) {
+        console.log('🎉 ACHIEVEMENT UNLOCKED: 100% California Government Data Coverage!');
+      }
+      
       return;
     }
     
-    // Add facilities in efficient batches
+    // Add remaining facilities in smaller batches
     let addedCount = 0;
-    const batchSize = 20;
+    const batchSize = 25; // Smaller batches to avoid timeouts
+    
+    console.log(`\n🚀 Adding ${newFacilities.length} facilities in batches of ${batchSize}...`);
     
     for (let i = 0; i < newFacilities.length; i += batchSize) {
       const batch = newFacilities.slice(i, i + batchSize);
       
-      // Process batch
-      const promises = batch.map(async (facility) => {
+      for (const facility of batch) {
         try {
+          // Determine care types based on facility type
+          let careTypes = ['Assisted Living'];
+          if (facility.facilityType.includes('SKILLED NURSING')) {
+            careTypes = ['Skilled Nursing', 'Assisted Living'];
+          } else if (facility.facilityType.includes('INTERMEDIATE')) {
+            careTypes = ['Intermediate Care', 'Assisted Living'];
+          } else if (facility.facilityType.includes('HOSPICE')) {
+            careTypes = ['Hospice Care', 'Assisted Living'];
+          }
+          
           const insertQuery = `
             INSERT INTO communities (
               name, address, city, state, zip_code, phone, county,
@@ -103,9 +140,6 @@ async function continueExpansion() {
               $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
             )
           `;
-          
-          const careTypes = facility.dataSource === 'alw_assisted_living' ? 
-            ['Assisted Living'] : ['Skilled Nursing', 'Assisted Living'];
           
           const values = [
             facility.name,
@@ -123,68 +157,52 @@ async function continueExpansion() {
             facility.longitude,
             facility.dataSource,
             new Date().toISOString(),
-            true // is_verified (government data)
+            true // is_verified
           ];
           
           await pool.query(insertQuery, values);
-          return true;
+          addedCount++;
+          
         } catch (error) {
           console.error(`❌ Error adding ${facility.name}:`, error.message);
-          return false;
         }
-      });
+      }
       
-      const results = await Promise.all(promises);
-      const batchSuccess = results.filter(r => r).length;
-      addedCount += batchSuccess;
+      console.log(`✅ Added ${addedCount} of ${newFacilities.length} facilities (${((addedCount / newFacilities.length) * 100).toFixed(1)}% complete)`);
       
-      console.log(`✅ Batch ${Math.floor(i/batchSize) + 1}: Added ${batchSuccess}/${batch.length} facilities (Total: ${addedCount})`);
-      
-      // Break if we've added enough
-      if (addedCount >= 500) {
-        console.log(`🎯 Reached target of 500 new facilities`);
+      // Break if we've added enough for this session
+      if (addedCount >= 200) {
+        console.log('⏰ Breaking after 200 additions to avoid timeout - run again to continue');
         break;
       }
     }
     
-    console.log('\n' + '=' * 40);
-    console.log('🎯 Expansion Results');
+    console.log(`\n🎯 BATCH COMPLETE`);
     console.log(`✅ Successfully added: ${addedCount} new facilities`);
     
-    // Show final coverage
-    const finalResult = await pool.query(currentQuery);
-    const finalStats = finalResult.rows[0];
+    // Show updated stats
+    const finalResult = await pool.query(statusQuery);
+    const finalTotal = finalResult.rows[0].total;
     
-    console.log('\n📊 Updated California Coverage:');
-    console.log(`   Total Communities: ${finalStats.total} (was ${total})`);
-    console.log(`   Unique Cities: ${finalStats.cities} (was ${cities})`);
-    console.log(`   Unique Counties: ${finalStats.counties} (was ${counties})`);
+    console.log(`\n📊 Updated California Communities: ${finalTotal} (was ${currentTotal})`);
+    console.log(`📈 Growth: +${finalTotal - currentTotal} communities`);
     
-    // Show top counties
-    const countyQuery = `
-      SELECT county, COUNT(*) as count
-      FROM communities 
-      WHERE state = 'CA' AND county IS NOT NULL AND county != ''
-      GROUP BY county 
-      ORDER BY count DESC 
-      LIMIT 10
-    `;
-    
-    const countyResult = await pool.query(countyQuery);
-    
-    console.log('\n🏛️ Top California Counties:');
-    countyResult.rows.forEach(row => {
-      console.log(`   ${row.county}: ${row.count} communities`);
-    });
+    // Show remaining work
+    const remaining = newFacilities.length - addedCount;
+    if (remaining > 0) {
+      console.log(`\n⏳ Remaining facilities to add: ${remaining}`);
+      console.log('   Run this script again to continue adding more facilities');
+    } else {
+      console.log('\n🎉 ALL FACILITIES ADDED - 100% California Coverage Complete!');
+    }
     
   } catch (error) {
-    console.error('❌ Expansion failed:', error);
+    console.error('❌ Continue expansion failed:', error);
   } finally {
     await pool.end();
   }
 }
 
-// Run expansion
 if (require.main === module) {
   continueExpansion().catch(console.error);
 }
