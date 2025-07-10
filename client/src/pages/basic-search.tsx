@@ -267,13 +267,27 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
         type.toLowerCase().includes(searchQuery.toLowerCase())
       );
 
-    // Care type filter
+    // Care type filter - enhanced for affordable housing
     const careTypeMatch = selectedCareTypes.length === 0 || 
-      selectedCareTypes.some(careType => 
-        community.careTypes?.some((ct: string) => 
+      selectedCareTypes.some(careType => {
+        // Special handling for affordable housing
+        if (careType === 'Affordable Housing') {
+          return community.type === 'Affordable Senior' || 
+                 community.care_types?.some((ct: string) => 
+                   ct.toLowerCase().includes('low income') || 
+                   ct.toLowerCase().includes('section 202') || 
+                   ct.toLowerCase().includes('section 811') ||
+                   ct.toLowerCase().includes('affordable')
+                 );
+        }
+        
+        // Regular care type matching
+        return community.careTypes?.some((ct: string) => 
           ct.toLowerCase().includes(careType.toLowerCase())
-        )
-      );
+        ) || community.care_types?.some((ct: string) => 
+          ct.toLowerCase().includes(careType.toLowerCase())
+        );
+      });
 
     // Price range filter
     const priceMatch = !community.priceRange || 
@@ -592,7 +606,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
               </Link>
             </div>
             <div className="text-gray-600 font-medium text-xs">
-              {communities?.length || 0} communities
+              {filteredCommunities?.length || 0} communities
             </div>
           </div>
         </div>
@@ -769,8 +783,8 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
       {viewMode === 'map' ? (
         <div className="flex-1 relative" style={{ height: 'calc(100vh - 160px)' }}>
           <MapContainer
-            center={[40.315, -122.32]} // Northern California center
-            zoom={7}
+            center={selectedCareTypes.includes('Affordable Housing') ? [37.7749, -122.4194] : [40.315, -122.32]} // SF center for affordable housing, Northern CA for others
+            zoom={selectedCareTypes.includes('Affordable Housing') ? 5 : 7}
             style={{ height: '100%', width: '100%' }}
             className="z-10"
             zoomControl={false} // Disable default zoom control
