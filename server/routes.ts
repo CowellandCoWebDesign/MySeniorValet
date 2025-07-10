@@ -234,7 +234,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       prohibitedFilters.includes(key.toLowerCase())
     );
 
-    const hasUnsupportedFilters = allKeys.some(key => 
+    // Only check for unsupported filters if they are not in the allowed list
+    // Allow multiple instances of the same parameter (like careType)
+    const uniqueKeys = [...new Set(allKeys)];
+    const hasUnsupportedFilters = uniqueKeys.some(key => 
       !allowedFilters.includes(key)
     );
 
@@ -247,7 +250,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     if (hasUnsupportedFilters) {
-      const unsupported = allKeys.filter(key => !allowedFilters.includes(key));
+      const unsupported = uniqueKeys.filter(key => !allowedFilters.includes(key));
+      console.log('Unsupported filters detected:', unsupported);
+      console.log('All keys:', allKeys);
       return res.status(400).json({
         error: 'Unsupported filter keys',
         message: `The following filters are not supported: ${unsupported.join(', ')}`,

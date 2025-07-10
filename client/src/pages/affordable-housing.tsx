@@ -12,7 +12,16 @@ export default function AffordableHousing() {
 
   // Fetch affordable housing facilities
   const { data: facilities, isLoading, error } = useQuery({
-    queryKey: ["/api/communities/affordable-housing", selectedState],
+    queryKey: ["/api/communities/search", "affordable-housing", selectedState],
+    queryFn: async () => {
+      let url = "/api/communities/search?careType=Affordable%20Housing&limit=100";
+      if (selectedState !== "all") {
+        url += `&location=${selectedState}`;
+      }
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Failed to fetch affordable housing facilities");
+      return response.json();
+    },
   });
 
   const states = ["all", "CA", "TX", "HI"];
