@@ -33,6 +33,7 @@ import { CommunityCard } from "@/components/community-card";
 import { useAuth, useLogout } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 const mockFavoriteCommunities = [
   {

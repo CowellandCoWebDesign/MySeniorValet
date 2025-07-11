@@ -404,7 +404,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Remove community from favorites
-  app.delete("/api/favorites/:communityId", requireAuth, async (req: any, res) => {
+  app.delete("/api/favorites/:communityId", requireSimpleAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const communityId = parseInt(req.params.communityId);
@@ -427,7 +427,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get user search history
-  app.get("/api/search-history", requireAuth, async (req: any, res) => {
+  app.get("/api/search-history", requireSimpleAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const searchHistory = await storage.getSearchHistory(userId);
@@ -439,7 +439,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Save search to history
-  app.post("/api/search-history", requireAuth, async (req: any, res) => {
+  app.post("/api/search-history", requireSimpleAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const { query, filters, results } = req.body;
@@ -459,7 +459,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get user tours
-  app.get("/api/tours", requireAuth, async (req: any, res) => {
+  app.get("/api/tours", requireSimpleAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const tours = await storage.getToursByUser(userId);
@@ -471,7 +471,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Schedule a tour
-  app.post("/api/tours", requireAuth, async (req: any, res) => {
+  app.post("/api/tours", requireSimpleAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const { communityId, tourDate, tourTime, notes } = req.body;
@@ -497,7 +497,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update tour
-  app.put("/api/tours/:tourId", requireAuth, async (req: any, res) => {
+  app.put("/api/tours/:tourId", requireSimpleAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const tourId = parseInt(req.params.tourId);
@@ -520,7 +520,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Cancel tour
-  app.delete("/api/tours/:tourId", requireAuth, async (req: any, res) => {
+  app.delete("/api/tours/:tourId", requireSimpleAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const tourId = parseInt(req.params.tourId);
@@ -543,6 +543,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error cancelling tour:", error);
       res.status(500).json({ message: "Failed to cancel tour" });
+    }
+  });
+
+  // Get user notes (from favorites)
+  app.get("/api/notes", requireSimpleAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const favorites = await storage.getUserFavorites(userId);
+      
+      // Filter favorites that have notes
+      const notesData = favorites
+        .filter(fav => fav.notes && fav.notes.trim().length > 0)
+        .map(fav => ({
+          id: fav.id,
+          communityId: fav.communityId,
+          communityName: fav.community?.name || 'Unknown Community',
+          notes: fav.notes,
+          createdAt: fav.createdAt
+        }));
+      
+      res.json(notesData);
+    } catch (error: any) {
+      console.error("Error fetching notes:", error);
+      res.status(500).json({ message: "Failed to fetch notes" });
     }
   });
 
