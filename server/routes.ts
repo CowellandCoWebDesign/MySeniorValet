@@ -7,6 +7,7 @@ import {
   insertReviewSchema, 
   loginSchema, 
   signupSchema,
+  createTourSchema,
   communities,
   userFavorites,
   userSavedSearches,
@@ -458,7 +459,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get user tours
+  // Get user tours (enhanced for comprehensive tracking)
   app.get("/api/tours", requireSimpleAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
@@ -470,33 +471,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Schedule a tour
-  app.post("/api/tours", requireSimpleAuth, async (req: any, res) => {
+  // Get specific tour by ID
+  app.get("/api/tours/:tourId", requireSimpleAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
-      const { communityId, tourDate, tourTime, notes } = req.body;
+      const tourId = parseInt(req.params.tourId);
       
-      if (!communityId || !tourDate || !tourTime) {
-        return res.status(400).json({ message: "Community ID, tour date, and tour time are required" });
+      const tours = await storage.getToursByUser(userId);
+      const tour = tours.find(t => t.id === tourId);
+      
+      if (!tour) {
+        return res.status(404).json({ message: "Tour not found" });
       }
 
-      const tour = await storage.createTour({
-        userId,
-        communityId,
-        tourDate: new Date(tourDate),
-        tourTime,
-        notes,
-        status: 'scheduled',
-      });
-      
       res.json(tour);
     } catch (error: any) {
-      console.error("Error scheduling tour:", error);
-      res.status(500).json({ message: "Failed to schedule tour" });
+      console.error("Error fetching tour:", error);
+      res.status(500).json({ message: "Failed to fetch tour" });
     }
   });
 
-  // Update tour
+  // Create comprehensive tour (scheduling or tracking)
+  app.post("/api/tours", requireSimpleAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const tourData = { ...req.body, userId };
+      
+      if (!tourData.communityId || !tourData.tourDate) {
+        return res.status(400).json({ message: "Community ID and tour date are required" });
+      }
+
+      const tour = await storage.createTour(tourData);
+      res.json(tour);
+    } catch (error: any) {
+      console.error("Error creating tour:", error);
+      res.status(500).json({ message: "Failed to create tour" });
+    }
+  });
+
+  // Update tour with comprehensive tracking data
   app.put("/api/tours/:tourId", requireSimpleAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
@@ -504,8 +517,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updates = req.body;
       
       // Verify tour belongs to user
-      const existingTour = await storage.getToursByUser(userId);
-      const tour = existingTour.find(t => t.id === tourId);
+      const existingTours = await storage.getToursByUser(userId);
+      const tour = existingTours.find(t => t.id === tourId);
       
       if (!tour) {
         return res.status(404).json({ message: "Tour not found" });

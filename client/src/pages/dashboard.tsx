@@ -26,7 +26,10 @@ import {
   Filter,
   Grid,
   List,
-  SortAsc
+  SortAsc,
+  Camera,
+  Plus,
+  Edit
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { CommunityCard } from "@/components/community-card";
@@ -365,22 +368,109 @@ export default function Dashboard() {
 
           {/* VISITS TAB */}
           <TabsContent value="visits" className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Scheduled Visits</h2>
-              <p className="text-gray-600">Manage your community tours and appointments</p>
-            </div>
-
-            <Card className="text-center py-12">
-              <CardContent>
-                <Calendar className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No visits scheduled</h3>
-                <p className="text-gray-600 mb-6">Schedule tours with your favorite communities</p>
-                <Button className="bg-blue-600 hover:bg-blue-700">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Tours & Visits</h2>
+                <p className="text-gray-600">Manage your community visits with comprehensive tour tracking</p>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Link href="/tour-tracker">
+                  <Button className="bg-green-600 hover:bg-green-700">
+                    <Plus className="h-4 w-4 mr-2" />
+                    New Tour Tracker
+                  </Button>
+                </Link>
+                <Button variant="outline">
                   <Calendar className="h-4 w-4 mr-2" />
                   Schedule Visit
                 </Button>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+
+            {tours.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {tours.map((tour) => (
+                  <Card key={tour.id} className="hover:shadow-md transition-shadow">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-lg">{tour.communityName}</CardTitle>
+                        <Badge variant={tour.status === 'completed' ? 'default' : 'secondary'}>
+                          {tour.status}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Calendar className="h-4 w-4 mr-2" />
+                          {new Date(tour.tourDate).toLocaleDateString()}
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Clock className="h-4 w-4 mr-2" />
+                          {tour.tourTime}
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <MapPin className="h-4 w-4 mr-2" />
+                          {tour.address}
+                        </div>
+                        {tour.tourPhotos && tour.tourPhotos.length > 0 && (
+                          <div className="flex items-center text-sm text-gray-600">
+                            <Camera className="h-4 w-4 mr-2" />
+                            {tour.tourPhotos.length} photos
+                          </div>
+                        )}
+                        {tour.overallRating && (
+                          <div className="flex items-center text-sm text-gray-600">
+                            <Star className="h-4 w-4 mr-2" />
+                            {tour.overallRating}/5 stars
+                          </div>
+                        )}
+                        {tour.notes && (
+                          <div className="text-sm text-gray-600">
+                            <span className="font-medium">Notes:</span> {tour.notes}
+                          </div>
+                        )}
+                      </div>
+                      <div className="mt-4 pt-3 border-t flex space-x-2">
+                        <Link href={`/edit-tour/${tour.id}`} className="flex-1">
+                          <Button variant="outline" size="sm" className="w-full">
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit
+                          </Button>
+                        </Link>
+                        <Button variant="outline" size="sm" className="flex-1">
+                          <Phone className="h-4 w-4 mr-2" />
+                          Contact
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card className="text-center py-12">
+                <CardContent>
+                  <Camera className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No tours tracked yet</h3>
+                  <p className="text-gray-600 mb-6">Start tracking your community visits with photos, notes, and pricing details</p>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <Link href="/tour-tracker">
+                      <Button className="bg-green-600 hover:bg-green-700">
+                        <Camera className="h-4 w-4 mr-2" />
+                        Start Tour Tracker
+                      </Button>
+                    </Link>
+                    <Link href="/search">
+                      <Button variant="outline">
+                        <Search className="h-4 w-4 mr-2" />
+                        Find Communities
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           {/* NOTES TAB */}

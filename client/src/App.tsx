@@ -32,6 +32,7 @@ import Accessibility from "@/pages/accessibility";
 import Login from "@/pages/login";
 import Signup from "@/pages/signup";
 import Dashboard from "@/pages/dashboard";
+import TourTracker from "@/pages/tour-tracker";
 import SupportResources from "@/pages/support-resources";
 import VeteransHousing from "@/pages/veterans-housing";
 import AffordableHousing from "@/pages/affordable-housing";
@@ -60,6 +61,9 @@ function Router() {
       <Route path="/expansion-monitor" component={ExpansionMonitor} />
       <Route path="/api-costs" component={ApiCostDashboard} />
       <Route path="/dashboard" component={Dashboard} />
+      <Route path="/tour-tracker" component={TourTracker} />
+      <Route path="/tour-tracker/:communityId" component={TourTracker} />
+      <Route path="/edit-tour/:tourId" component={TourTracker} />
       <Route path="/support" component={SupportResources} />
       <Route path="/veterans" component={VeteransHousing} />
       <Route path="/hud-vash" component={HudVashMap} />

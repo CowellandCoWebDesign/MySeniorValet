@@ -431,7 +431,7 @@ export const messageTemplates = pgTable("message_templates", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// Tours/Visits Scheduling
+// Tours/Visits Scheduling and Tracking
 export const tours = pgTable("tours", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id).notNull(),
@@ -448,7 +448,115 @@ export const tours = pgTable("tours", {
   contactPreference: text("contact_preference", { enum: ["email", "phone", "text"] }).default("email"),
   reminderSent: boolean("reminder_sent").default(false),
   feedbackSubmitted: boolean("feedback_submitted").default(false),
-  notes: text("notes"), // Internal notes for community staff
+  
+  // Tour Notes and Experience
+  tourNotes: text("tour_notes"), // Personal notes taken during the tour
+  staffNotes: text("staff_notes"), // Internal notes for community staff
+  overallImpression: text("overall_impression", {
+    enum: ["very_positive", "positive", "neutral", "negative", "very_negative"]
+  }),
+  
+  // Pricing Information Collected During Tour
+  pricingInfo: json("pricing_info").$type<{
+    quotedPrice?: {
+      min: number;
+      max: number;
+      unit: string;
+      careLevel?: string;
+      includedServices?: string[];
+    };
+    moveInCosts?: {
+      securityDeposit?: number;
+      firstMonthRent?: number;
+      lastMonthRent?: number;
+      applicationFee?: number;
+      adminFee?: number;
+      petDeposit?: number;
+      other?: Array<{
+        name: string;
+        amount: number;
+        required: boolean;
+      }>;
+      totalEstimate?: number;
+    };
+    specialDeals?: Array<{
+      title: string;
+      description: string;
+      value: number;
+      type: "discount" | "waived_fee" | "free_months" | "other";
+      conditions?: string;
+      validUntil?: string;
+    }>;
+    rentIncrease?: {
+      frequency: "annual" | "biannual" | "as_needed";
+      averagePercentage?: number;
+      nextPlannedIncrease?: string;
+      historicalIncreases?: Array<{
+        date: string;
+        percentage: number;
+        amount: number;
+      }>;
+    };
+  }>(),
+  
+  // Units and Availability
+  unitsViewed: json("units_viewed").$type<Array<{
+    unitNumber?: string;
+    unitType: string;
+    floorPlan?: string;
+    squareFootage?: number;
+    price: number;
+    availability: string;
+    impressions: string;
+    photos?: string[];
+    features?: string[];
+    condition?: "excellent" | "good" | "fair" | "needs_improvement";
+  }>>().default([]),
+  
+  // Highlights and Key Observations
+  highlights: json("highlights").$type<{
+    positives?: string[];
+    concerns?: string[];
+    standoutFeatures?: string[];
+    comparisonNotes?: string;
+  }>(),
+  
+  // Staff and Service Quality
+  staffInteraction: json("staff_interaction").$type<{
+    tourGuide?: string;
+    professionalism?: number; // 1-5 scale
+    knowledgeLevel?: number; // 1-5 scale
+    responsiveness?: number; // 1-5 scale
+    followUpCommitment?: string;
+    additionalContacts?: Array<{
+      name: string;
+      role: string;
+      contact: string;
+    }>;
+  }>(),
+  
+  // Photos from Tour
+  tourPhotos: json("tour_photos").$type<Array<{
+    url: string;
+    caption?: string;
+    category: "unit" | "common_area" | "amenity" | "exterior" | "dining" | "activity" | "staff" | "document" | "other";
+    timestamp: string;
+    notes?: string;
+  }>>().default([]),
+  
+  // Follow-up and Next Steps
+  followUpActions: json("follow_up_actions").$type<Array<{
+    action: string;
+    dueDate?: string;
+    completed: boolean;
+    notes?: string;
+  }>>().default([]),
+  
+  // Overall Rating and Recommendation
+  overallRating: integer("overall_rating"), // 1-5 scale
+  wouldRecommend: boolean("would_recommend"),
+  likelihood: integer("likelihood_to_move_in"), // 1-10 scale
+  
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -1196,6 +1304,94 @@ export const insertTourSchema = createInsertSchema(tours).omit({
   feedbackSubmitted: true,
 });
 
+// Enhanced tour creation schema for the comprehensive tour tracker
+export const createTourSchema = insertTourSchema.extend({
+  tourPhotos: z.array(z.object({
+    url: z.string(),
+    caption: z.string().optional(),
+    category: z.enum(["unit", "common_area", "amenity", "exterior", "dining", "activity", "staff", "document", "other"]),
+    timestamp: z.string(),
+    notes: z.string().optional(),
+  })).optional(),
+  pricingInfo: z.object({
+    quotedPrice: z.object({
+      min: z.number(),
+      max: z.number(),
+      unit: z.string(),
+      careLevel: z.string().optional(),
+      includedServices: z.array(z.string()).optional(),
+    }).optional(),
+    moveInCosts: z.object({
+      securityDeposit: z.number().optional(),
+      firstMonthRent: z.number().optional(),
+      lastMonthRent: z.number().optional(),
+      applicationFee: z.number().optional(),
+      adminFee: z.number().optional(),
+      petDeposit: z.number().optional(),
+      other: z.array(z.object({
+        name: z.string(),
+        amount: z.number(),
+        required: z.boolean(),
+      })).optional(),
+      totalEstimate: z.number().optional(),
+    }).optional(),
+    specialDeals: z.array(z.object({
+      title: z.string(),
+      description: z.string(),
+      value: z.number(),
+      type: z.enum(["discount", "waived_fee", "free_months", "other"]),
+      conditions: z.string().optional(),
+      validUntil: z.string().optional(),
+    })).optional(),
+    rentIncrease: z.object({
+      frequency: z.enum(["annual", "biannual", "as_needed"]),
+      averagePercentage: z.number().optional(),
+      nextPlannedIncrease: z.string().optional(),
+      historicalIncreases: z.array(z.object({
+        date: z.string(),
+        percentage: z.number(),
+        amount: z.number(),
+      })).optional(),
+    }).optional(),
+  }).optional(),
+  unitsViewed: z.array(z.object({
+    unitNumber: z.string().optional(),
+    unitType: z.string(),
+    floorPlan: z.string().optional(),
+    squareFootage: z.number().optional(),
+    price: z.number(),
+    availability: z.string(),
+    impressions: z.string(),
+    photos: z.array(z.string()).optional(),
+    features: z.array(z.string()).optional(),
+    condition: z.enum(["excellent", "good", "fair", "needs_improvement"]).optional(),
+  })).optional(),
+  highlights: z.object({
+    positives: z.array(z.string()).optional(),
+    concerns: z.array(z.string()).optional(),
+    standoutFeatures: z.array(z.string()).optional(),
+    comparisonNotes: z.string().optional(),
+  }).optional(),
+  staffInteraction: z.object({
+    tourGuide: z.string().optional(),
+    professionalism: z.number().min(1).max(5).optional(),
+    knowledgeLevel: z.number().min(1).max(5).optional(),
+    responsiveness: z.number().min(1).max(5).optional(),
+    followUpCommitment: z.string().optional(),
+    additionalContacts: z.array(z.object({
+      name: z.string(),
+      role: z.string(),
+      contact: z.string(),
+    })).optional(),
+  }).optional(),
+  followUpActions: z.array(z.object({
+    action: z.string(),
+    dueDate: z.string().optional(),
+    completed: z.boolean(),
+    notes: z.string().optional(),
+  })).optional(),
+});
+
 export const insertUserFavoriteSchema = createInsertSchema(userFavorites).omit({
   id: true,
   addedAt: true,
@@ -1273,6 +1469,7 @@ export type Message = typeof messages.$inferSelect;
 export type InsertMessageTemplate = z.infer<typeof insertMessageTemplateSchema>;
 export type MessageTemplate = typeof messageTemplates.$inferSelect;
 export type InsertTour = z.infer<typeof insertTourSchema>;
+export type CreateTour = z.infer<typeof createTourSchema>;
 export type Tour = typeof tours.$inferSelect;
 export type InsertUserFavorite = z.infer<typeof insertUserFavoriteSchema>;
 export type UserFavorite = typeof userFavorites.$inferSelect;
