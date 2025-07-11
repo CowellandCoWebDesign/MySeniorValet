@@ -314,59 +314,191 @@ export function CommunityCard({ community }: CommunityCardProps) {
           )}
         </div>
 
-        {/* 1. AVAILABILITY & FLOOR PLANS - Top Priority */}
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-          <div className="flex items-center space-x-2 mb-2">
-            <CheckCircle className="h-5 w-5 text-green-600" />
-            <span className="font-bold text-green-900">Current Availability</span>
+        {/* 1. CONTACT INFORMATION - Most Important */}
+        <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-4">
+          <div className="flex items-center space-x-2 mb-3">
+            <Phone className="h-5 w-5 text-blue-600" />
+            <span className="font-bold text-blue-900 text-lg">Contact Information</span>
           </div>
-          <div className="text-lg font-semibold text-green-800">{community.availabilityStatus}</div>
-          {community.availableUnits && (
-            <div className="text-sm text-green-700">{community.availableUnits} units currently available</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {community.phone && (
+              <div className="flex items-center space-x-2">
+                <Phone className="h-4 w-4 text-blue-600" />
+                <a href={`tel:${community.phone}`} className="text-blue-700 hover:text-blue-900 font-medium">
+                  {community.phone}
+                </a>
+              </div>
+            )}
+            {community.email && (
+              <div className="flex items-center space-x-2">
+                <ExternalLink className="h-4 w-4 text-blue-600" />
+                <a href={`mailto:${community.email}`} className="text-blue-700 hover:text-blue-900 font-medium">
+                  {community.email}
+                </a>
+              </div>
+            )}
+          </div>
+          {community.website && (
+            <div className="mt-2">
+              <a href={community.website} target="_blank" rel="noopener noreferrer" className="text-blue-700 hover:text-blue-900 font-medium text-sm">
+                Visit Website →
+              </a>
+            </div>
           )}
         </div>
 
-        {/* 2. PRICING - Second Priority */}
-        <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-4">
+        {/* 2. PRICING WITH CARE LEVEL ESTIMATES - Second Priority */}
+        <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 mb-4">
           <div className="flex items-start justify-between mb-2">
             <div className="flex items-center space-x-2">
-              <DollarSign className="h-6 w-6 text-blue-600" />
-              <span className="font-bold text-blue-900 text-lg">Typical Monthly Cost</span>
+              <DollarSign className="h-6 w-6 text-green-600" />
+              <span className="font-bold text-green-900 text-lg">Monthly Cost Estimates</span>
             </div>
-            <Badge className="bg-orange-500 text-white text-xs">
-              Pending Verification
+            <Badge className="bg-green-600 text-white text-xs">
+              By Care Level
             </Badge>
           </div>
           
           {pricing ? (
             <div>
-              <div className="text-3xl font-bold text-blue-900 mb-1">
+              <div className="text-2xl font-bold text-green-900 mb-2">
                 {pricing.range}
               </div>
-              <div className="text-sm text-blue-700 mb-2">per month (typical range)</div>
-              <div className="bg-white border border-blue-200 rounded p-2">
-                <div className="text-xs text-blue-600">
-                  <div className="font-medium mb-1">Typical move-in costs vary by facility</div>
-                  <div>• Contact for current pricing and fees</div>
-                </div>
+              <div className="text-sm text-green-700 mb-3">Estimated monthly range</div>
+              
+              {/* Care Level Estimates */}
+              <div className="space-y-2">
+                {community.careTypes.map((careType, index) => {
+                  const baseMin = community.priceRange?.min || 3000;
+                  const baseMax = community.priceRange?.max || 6000;
+                  const multiplier = careType === 'Independent Living' ? 0.8 : 
+                                   careType === 'Assisted Living' ? 1.0 : 
+                                   careType === 'Memory Care' ? 1.3 : 1.5;
+                  const estimatedMin = Math.round(baseMin * multiplier);
+                  const estimatedMax = Math.round(baseMax * multiplier);
+                  
+                  return (
+                    <div key={index} className="bg-white border border-green-200 rounded p-2">
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium text-green-900">{careType}</span>
+                        <span className="text-green-700 font-bold">
+                          ${estimatedMin.toLocaleString()} - ${estimatedMax.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-              <div className="text-xs text-orange-600 mt-2">
-                Exact pricing and current specials pending community verification
+              
+              <div className="text-xs text-green-600 mt-2">
+                * Estimates based on typical care level costs. Contact for exact pricing.
               </div>
             </div>
           ) : (
             <div>
-              <div className="text-xl font-semibold text-blue-900 mb-2">Contact for Current Pricing</div>
-              <div className="bg-white border border-blue-200 rounded p-2">
-                <div className="text-xs text-blue-600">
-                  <div>• Move-in costs vary by facility</div>
+              <div className="text-xl font-semibold text-green-900 mb-2">Contact for Current Pricing</div>
+              <div className="bg-white border border-green-200 rounded p-2">
+                <div className="text-xs text-green-600">
+                  <div>• Monthly costs vary by care level needed</div>
+                  <div>• Move-in costs and fees vary by facility</div>
                 </div>
               </div>
             </div>
           )}
         </div>
 
-        {/* 3. SPECIAL OFFERS - Third Priority */}
+        {/* 3. AVAILABILITY STATUS - Third Priority */}
+        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4">
+          <div className="flex items-center space-x-2 mb-2">
+            <CheckCircle className="h-5 w-5 text-purple-600" />
+            <span className="font-bold text-purple-900">Current Availability</span>
+          </div>
+          <div className="text-lg font-semibold text-purple-800">{community.availabilityStatus}</div>
+          {community.availableUnits && (
+            <div className="text-sm text-purple-700">{community.availableUnits} units currently available</div>
+          )}
+          {community.totalUnits && (
+            <div className="text-sm text-purple-600">Total units: {community.totalUnits}</div>
+          )}
+        </div>
+
+        {/* 4. COMPREHENSIVE REVIEW INFORMATION */}
+        <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4 mb-4">
+          <div className="flex items-center space-x-2 mb-3">
+            <Star className="h-5 w-5 text-yellow-600" />
+            <span className="font-bold text-yellow-900 text-lg">Reviews & Ratings</span>
+          </div>
+          
+          {/* Google Reviews */}
+          {community.googleRating && (
+            <div className="bg-white border border-yellow-200 rounded p-3 mb-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center space-x-2">
+                  <div className="text-lg font-bold text-yellow-900">Google Reviews</div>
+                  <div className="flex items-center space-x-1">
+                    <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                    <span className="font-bold text-yellow-900">{parseFloat(community.googleRating).toFixed(1)}</span>
+                  </div>
+                </div>
+                <div className="text-sm text-yellow-700">
+                  {community.googleReviewCount} reviews
+                </div>
+              </div>
+              
+              {/* Recent Review Snippets */}
+              {community.googleReviewSnippets && community.googleReviewSnippets.length > 0 && (
+                <div className="space-y-2">
+                  {community.googleReviewSnippets.slice(0, 2).map((snippet: any, index: number) => (
+                    <div key={index} className="bg-yellow-25 border-l-4 border-yellow-400 pl-3 py-1">
+                      <div className="text-sm text-yellow-800 italic">"{snippet.text}"</div>
+                      <div className="text-xs text-yellow-600 mt-1">- {snippet.author}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          
+          {/* Multiple Review Sources */}
+          <div className="grid grid-cols-2 gap-3">
+            {community.yelpReviews && community.yelpReviews.length > 0 && (
+              <div className="bg-white border border-yellow-200 rounded p-2">
+                <div className="text-sm font-medium text-yellow-900 mb-1">Yelp Reviews</div>
+                <div className="text-xs text-yellow-700">{community.yelpReviews.length} reviews available</div>
+              </div>
+            )}
+            
+            {community.careComReviews && community.careComReviews.length > 0 && (
+              <div className="bg-white border border-yellow-200 rounded p-2">
+                <div className="text-sm font-medium text-yellow-900 mb-1">Care.com Reviews</div>
+                <div className="text-xs text-yellow-700">{community.careComReviews.length} reviews available</div>
+              </div>
+            )}
+            
+            {community.seniorAdvisorReviews && community.seniorAdvisorReviews.length > 0 && (
+              <div className="bg-white border border-yellow-200 rounded p-2">
+                <div className="text-sm font-medium text-yellow-900 mb-1">Senior Advisor Reviews</div>
+                <div className="text-xs text-yellow-700">{community.seniorAdvisorReviews.length} reviews available</div>
+              </div>
+            )}
+            
+            {community.aplaceformomReviews && community.aplaceformomReviews.length > 0 && (
+              <div className="bg-white border border-yellow-200 rounded p-2">
+                <div className="text-sm font-medium text-yellow-900 mb-1">A Place for Mom Reviews</div>
+                <div className="text-xs text-yellow-700">{community.aplaceformomReviews.length} reviews available</div>
+              </div>
+            )}
+          </div>
+          
+          {/* Review Summary */}
+          <div className="mt-3 p-2 bg-white border border-yellow-200 rounded">
+            <div className="text-xs text-yellow-600">
+              Reviews from trusted sources help families make informed decisions about senior living communities.
+            </div>
+          </div>
+        </div>
+
+        {/* 5. SPECIAL OFFERS - Fifth Priority */}
         {specialOffers.length > 0 && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
             <div className="flex items-center space-x-2 mb-3">
@@ -385,7 +517,124 @@ export function CommunityCard({ community }: CommunityCardProps) {
           </div>
         )}
 
-        {/* CARE LEVELS & SERVICES - Full Width */}
+        {/* 6. COMPREHENSIVE AMENITIES & FACILITIES */}
+        <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-4">
+          <div className="flex items-center space-x-2 mb-3">
+            <Activity className="h-5 w-5 text-indigo-600" />
+            <span className="font-bold text-indigo-900 text-lg">Amenities & Facilities</span>
+          </div>
+          
+          {/* Main Amenities Grid */}
+          {community.amenities && community.amenities.length > 0 && (
+            <div className="mb-4">
+              <div className="text-sm font-medium text-indigo-800 mb-2">Main Amenities</div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {community.amenities.slice(0, 6).map((amenity, index) => (
+                  <div key={index} className="bg-white border border-indigo-200 rounded p-2 flex items-center space-x-2">
+                    <CheckCircle className="h-4 w-4 text-indigo-600" />
+                    <span className="text-sm text-indigo-900">{amenity}</span>
+                  </div>
+                ))}
+              </div>
+              {community.amenities.length > 6 && (
+                <div className="text-center mt-2">
+                  <Badge variant="secondary" className="bg-indigo-100 text-indigo-800">
+                    +{community.amenities.length - 6} more amenities
+                  </Badge>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Specialized Services */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Healthcare Services */}
+            {community.healthcareServices && community.healthcareServices.length > 0 && (
+              <div className="bg-white border border-indigo-200 rounded p-3">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Stethoscope className="h-4 w-4 text-indigo-600" />
+                  <span className="text-sm font-medium text-indigo-900">Healthcare Services</span>
+                </div>
+                <div className="space-y-1">
+                  {community.healthcareServices.slice(0, 3).map((service, index) => (
+                    <div key={index} className="text-xs text-indigo-700 flex items-center space-x-1">
+                      <span className="w-1 h-1 bg-indigo-400 rounded-full"></span>
+                      <span>{service}</span>
+                    </div>
+                  ))}
+                  {community.healthcareServices.length > 3 && (
+                    <div className="text-xs text-indigo-600">+{community.healthcareServices.length - 3} more</div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Dining Services */}
+            {community.diningServices && community.diningServices.length > 0 && (
+              <div className="bg-white border border-indigo-200 rounded p-3">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Utensils className="h-4 w-4 text-indigo-600" />
+                  <span className="text-sm font-medium text-indigo-900">Dining Services</span>
+                </div>
+                <div className="space-y-1">
+                  {community.diningServices.slice(0, 3).map((service, index) => (
+                    <div key={index} className="text-xs text-indigo-700 flex items-center space-x-1">
+                      <span className="w-1 h-1 bg-indigo-400 rounded-full"></span>
+                      <span>{service}</span>
+                    </div>
+                  ))}
+                  {community.diningServices.length > 3 && (
+                    <div className="text-xs text-indigo-600">+{community.diningServices.length - 3} more</div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Transportation Services */}
+            {community.transportationServices && community.transportationServices.length > 0 && (
+              <div className="bg-white border border-indigo-200 rounded p-3">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Car className="h-4 w-4 text-indigo-600" />
+                  <span className="text-sm font-medium text-indigo-900">Transportation</span>
+                </div>
+                <div className="space-y-1">
+                  {community.transportationServices.slice(0, 3).map((service, index) => (
+                    <div key={index} className="text-xs text-indigo-700 flex items-center space-x-1">
+                      <span className="w-1 h-1 bg-indigo-400 rounded-full"></span>
+                      <span>{service}</span>
+                    </div>
+                  ))}
+                  {community.transportationServices.length > 3 && (
+                    <div className="text-xs text-indigo-600">+{community.transportationServices.length - 3} more</div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Fitness Services */}
+            {community.fitnessServices && community.fitnessServices.length > 0 && (
+              <div className="bg-white border border-indigo-200 rounded p-3">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Activity className="h-4 w-4 text-indigo-600" />
+                  <span className="text-sm font-medium text-indigo-900">Fitness & Wellness</span>
+                </div>
+                <div className="space-y-1">
+                  {community.fitnessServices.slice(0, 3).map((service, index) => (
+                    <div key={index} className="text-xs text-indigo-700 flex items-center space-x-1">
+                      <span className="w-1 h-1 bg-indigo-400 rounded-full"></span>
+                      <span>{service}</span>
+                    </div>
+                  ))}
+                  {community.fitnessServices.length > 3 && (
+                    <div className="text-xs text-indigo-600">+{community.fitnessServices.length - 3} more</div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 7. CARE LEVELS & SERVICES - Full Width */}
         <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4">
           <div className="flex items-center space-x-2 mb-3">
             <UserCheck className="h-5 w-5 text-purple-600" />
