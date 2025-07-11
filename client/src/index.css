@@ -41,6 +41,40 @@
   }
 }
 
+/* Map Clustering Styles */
+.marker-cluster-small {
+  background-color: rgba(37, 99, 235, 0.8);
+  border: 2px solid rgba(37, 99, 235, 0.9);
+}
+
+.marker-cluster-medium {
+  background-color: rgba(37, 99, 235, 0.9);
+  border: 2px solid rgba(37, 99, 235, 1);
+}
+
+.marker-cluster-large {
+  background-color: rgba(37, 99, 235, 1);
+  border: 2px solid rgba(37, 99, 235, 1);
+}
+
+.marker-cluster {
+  border-radius: 50%;
+  text-align: center;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.marker-cluster div {
+  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 :root {
   --background: hsl(220, 30%, 98%);
   --foreground: hsl(222, 84%, 4.9%);

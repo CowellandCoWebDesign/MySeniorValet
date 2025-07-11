@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Search, MapPin, Star, Heart, List, Map, Bell, Calendar, Mail, Phone, ExternalLink, Users, CheckCircle, AlertTriangle, Activity, UserCheck, Stethoscope, Clock, ImageIcon, ChevronDown, SortAsc, ArrowLeft, Home, Plus, Minus, Filter, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import MarkerClusterGroup from 'react-leaflet-cluster';
 import { Icon } from 'leaflet';
 import { Link } from "wouter";
 import SlidePanel from "@/components/SlidePanel";
@@ -793,24 +794,56 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             {/* Map bounds tracker */}
             <MapBoundsUpdater onBoundsChange={setMapBounds} />
             
-            {/* Community Markers - House Style with State */}
-            {sortedCommunities
-              .filter((community: any) => community.latitude && community.longitude)
-              .map((community: any) => {
-                // Determine marker state (for demo purposes, using community ID for variety)
-                const isViewed = community.id % 3 === 0; // Every 3rd community is "viewed"
-                const isFavorited = community.id % 7 === 0; // Every 7th community is "favorited"
+            {/* Community Markers with Clustering */}
+            <MarkerClusterGroup
+              chunkedLoading
+              maxClusterRadius={60}
+              spiderfyOnMaxZoom={true}
+              showCoverageOnHover={false}
+              zoomToBoundsOnClick={true}
+              spiderfyDistanceMultiplier={1.5}
+              iconCreateFunction={(cluster) => {
+                const childCount = cluster.getChildCount();
+                let c = ' marker-cluster-';
+                if (childCount < 10) {
+                  c += 'small';
+                } else if (childCount < 100) {
+                  c += 'medium';
+                } else {
+                  c += 'large';
+                }
                 
-                return (
-                  <Marker
-                    key={community.id}
-                    position={[community.latitude, community.longitude]}
-                    icon={createCareTypeIcon(community.careTypes || ['Independent Living'], isViewed, isFavorited)}
-                    eventHandlers={{
-                      click: () => window.location.href = `/community/${community.id}`,
-                    }}
-                  >
-                    <Popup>
+                return new Icon({
+                  iconUrl: 'data:image/svg+xml;base64,' + btoa(`
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" width="60" height="60">
+                      <circle cx="30" cy="30" r="25" fill="#2563eb" stroke="#ffffff" stroke-width="3" opacity="0.9"/>
+                      <text x="30" y="35" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white" text-anchor="middle">${childCount}</text>
+                    </svg>
+                  `),
+                  iconSize: [60, 60],
+                  iconAnchor: [30, 30],
+                  popupAnchor: [0, -30],
+                  className: 'marker-cluster' + c
+                });
+              }}
+            >
+              {sortedCommunities
+                .filter((community: any) => community.latitude && community.longitude)
+                .map((community: any) => {
+                  // Determine marker state (for demo purposes, using community ID for variety)
+                  const isViewed = community.id % 3 === 0; // Every 3rd community is "viewed"
+                  const isFavorited = community.id % 7 === 0; // Every 7th community is "favorited"
+                  
+                  return (
+                    <Marker
+                      key={community.id}
+                      position={[community.latitude, community.longitude]}
+                      icon={createCareTypeIcon(community.careTypes || ['Independent Living'], isViewed, isFavorited)}
+                      eventHandlers={{
+                        click: () => window.location.href = `/community/${community.id}`,
+                      }}
+                    >
+                      <Popup>
                       <div className="p-3 min-w-[220px]">
                         <div className="flex items-start justify-between mb-2">
                           <h3 className="font-bold text-sm text-gray-900 pr-2 leading-tight">{community.name}</h3>
@@ -872,6 +905,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                   </Marker>
                 );
               })}
+            </MarkerClusterGroup>
           </MapContainer>
 
           {/* Map Controls */}

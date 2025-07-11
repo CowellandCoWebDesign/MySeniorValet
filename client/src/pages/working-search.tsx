@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import MarkerClusterGroup from 'react-leaflet-cluster';
 import { Icon } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -185,18 +186,39 @@ export default function WorkingSearch() {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             
-            {/* Community Markers - Show all communities with coordinates */}
-            {filteredCommunities
-              .filter((community: any) => community.latitude && community.longitude)
-              .map((community: any) => (
-                <Marker
-                  key={community.id}
-                  position={[community.latitude, community.longitude]}
-                  icon={communityIcon}
-                  eventHandlers={{
-                    click: () => window.location.href = `/community/${community.id}`,
-                  }}
-                >
+            {/* Community Markers with Clustering */}
+            <MarkerClusterGroup
+              chunkedLoading
+              maxClusterRadius={60}
+              spiderfyOnMaxZoom={true}
+              showCoverageOnHover={false}
+              zoomToBoundsOnClick={true}
+              iconCreateFunction={(cluster) => {
+                const childCount = cluster.getChildCount();
+                return new Icon({
+                  iconUrl: 'data:image/svg+xml;base64,' + btoa(`
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="50" height="50">
+                      <circle cx="25" cy="25" r="20" fill="#2563eb" stroke="#ffffff" stroke-width="2" opacity="0.9"/>
+                      <text x="25" y="30" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white" text-anchor="middle">${childCount}</text>
+                    </svg>
+                  `),
+                  iconSize: [50, 50],
+                  iconAnchor: [25, 25],
+                  popupAnchor: [0, -25],
+                });
+              }}
+            >
+              {filteredCommunities
+                .filter((community: any) => community.latitude && community.longitude)
+                .map((community: any) => (
+                  <Marker
+                    key={community.id}
+                    position={[community.latitude, community.longitude]}
+                    icon={communityIcon}
+                    eventHandlers={{
+                      click: () => window.location.href = `/community/${community.id}`,
+                    }}
+                  >
                   <Popup className="community-popup">
                     <div className="p-2 min-w-[200px]">
                       <h3 className="font-semibold text-gray-900 mb-1 text-sm">{community.name}</h3>
@@ -227,6 +249,7 @@ export default function WorkingSearch() {
                   </Popup>
                 </Marker>
               ))}
+            </MarkerClusterGroup>
           </MapContainer>
 
           {/* Map Controls Overlay */}

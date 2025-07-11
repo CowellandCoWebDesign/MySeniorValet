@@ -13,6 +13,7 @@ import { Footer } from '@/components/footer';
 import { CommunityCard } from '@/components/community-card';
 import { CommunityCardSkeleton } from '@/components/community-card-skeleton';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import MarkerClusterGroup from 'react-leaflet-cluster';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -370,8 +371,33 @@ export default function Explore() {
                       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
-                    {mappableCommunities.map(community => (
-                      <Marker
+                    <MarkerClusterGroup
+                      chunkedLoading
+                      maxClusterRadius={50}
+                      spiderfyOnMaxZoom={true}
+                      showCoverageOnHover={false}
+                      zoomToBoundsOnClick={true}
+                      iconCreateFunction={(cluster) => {
+                        const childCount = cluster.getChildCount();
+                        let c = ' marker-cluster-';
+                        if (childCount < 10) {
+                          c += 'small';
+                        } else if (childCount < 100) {
+                          c += 'medium';
+                        } else {
+                          c += 'large';
+                        }
+                        
+                        return new L.DivIcon({
+                          html: `<div class="marker-cluster${c}"><span>${childCount}</span></div>`,
+                          className: 'marker-cluster',
+                          iconSize: new L.Point(40, 40),
+                          iconAnchor: [20, 20],
+                        });
+                      }}
+                    >
+                      {mappableCommunities.map(community => (
+                        <Marker
                         key={community.id}
                         position={[community.latitude!, community.longitude!]}
                         icon={createCustomIcon(community.careTypes[0] || 'default')}
@@ -401,6 +427,7 @@ export default function Explore() {
                         </Popup>
                       </Marker>
                     ))}
+                    </MarkerClusterGroup>
                   </MapContainer>
                 ) : (
                   <div className="flex items-center justify-center h-full bg-gray-50 rounded-b-lg">
