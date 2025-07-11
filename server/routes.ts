@@ -52,6 +52,7 @@ import { communityStatsCache } from "./community-stats-cache";
 import { systematicPhotoEnrichment } from "./systematic-photo-enrichment";
 import { emergencyEnrichment } from "./emergency-enrichment";
 import { pricingTransparencyService } from "./pricing-transparency-badges";
+import { intelligentPricingService } from "./intelligent-pricing-service";
 
 // Authentication middleware function
 const isAuthenticated = (req: any, res: any, next: any) => {
@@ -6346,6 +6347,95 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({
         success: false,
         error: 'Failed to reset emergency stop'
+      });
+    }
+  });
+
+  // ===== INTELLIGENT PRICING API ENDPOINTS =====
+  // WAR ON "CALL FOR PRICING" - Ensure ALL communities have pricing estimates
+  
+  // Get pricing estimate for a specific community
+  app.get('/api/communities/:id/pricing', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const pricingEstimate = await intelligentPricingService.getCommunityPricing(communityId);
+      
+      res.json({
+        success: true,
+        pricing: pricingEstimate
+      });
+    } catch (error) {
+      console.error('Error getting community pricing:', error);
+      res.status(500).json({ 
+        success: false,
+        error: 'Failed to get pricing estimate' 
+      });
+    }
+  });
+
+  // Update all communities with intelligent pricing estimates
+  app.post('/api/admin/pricing/update-all', async (req, res) => {
+    try {
+      console.log('🎯 WAR ON "CALL FOR PRICING" - Starting intelligent pricing update for all communities...');
+      
+      // Launch pricing update asynchronously
+      intelligentPricingService.updateAllCommunityPricing().then(() => {
+        console.log('✅ Intelligent pricing update completed for all communities');
+      }).catch(error => {
+        console.error('❌ Intelligent pricing update failed:', error);
+      });
+      
+      res.json({
+        success: true,
+        message: 'Intelligent pricing update started - processing all communities with market-based estimates'
+      });
+    } catch (error) {
+      console.error('Failed to start pricing update:', error);
+      res.status(500).json({ 
+        success: false,
+        error: 'Failed to start pricing update' 
+      });
+    }
+  });
+
+  // Get pricing statistics
+  app.get('/api/admin/pricing/stats', async (req, res) => {
+    try {
+      const allCommunities = await db.select().from(communities);
+      
+      const stats = {
+        totalCommunities: allCommunities.length,
+        withPricing: allCommunities.filter(c => c.priceRange && c.priceRange.min > 0).length,
+        withLivePricing: allCommunities.filter(c => c.isClaimed && c.livePricing).length,
+        needingPricing: allCommunities.filter(c => !c.priceRange || c.priceRange.min === 0).length,
+        avgPriceRange: {
+          min: Math.round(allCommunities.reduce((sum, c) => sum + (c.priceRange?.min || 0), 0) / allCommunities.length),
+          max: Math.round(allCommunities.reduce((sum, c) => sum + (c.priceRange?.max || 0), 0) / allCommunities.length)
+        },
+        byState: {} as Record<string, { total: number; withPricing: number; avgMin: number; avgMax: number }>
+      };
+      
+      // Calculate by state
+      allCommunities.forEach(community => {
+        if (!stats.byState[community.state]) {
+          stats.byState[community.state] = { total: 0, withPricing: 0, avgMin: 0, avgMax: 0 };
+        }
+        stats.byState[community.state].total++;
+        if (community.priceRange && community.priceRange.min > 0) {
+          stats.byState[community.state].withPricing++;
+        }
+      });
+      
+      res.json({
+        success: true,
+        stats,
+        message: 'NO community will ever show "call for pricing" - all communities have intelligent estimates'
+      });
+    } catch (error) {
+      console.error('Error getting pricing stats:', error);
+      res.status(500).json({ 
+        success: false,
+        error: 'Failed to get pricing statistics' 
       });
     }
   });

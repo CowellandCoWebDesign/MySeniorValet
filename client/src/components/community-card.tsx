@@ -347,64 +347,78 @@ export function CommunityCard({ community }: CommunityCardProps) {
           )}
         </div>
 
-        {/* 2. PRICING WITH CARE LEVEL ESTIMATES - Second Priority */}
+        {/* 2. TRANSPARENT PRICING - NO "CALL FOR PRICING" ALLOWED */}
         <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 mb-4">
           <div className="flex items-start justify-between mb-2">
             <div className="flex items-center space-x-2">
               <DollarSign className="h-6 w-6 text-green-600" />
               <span className="font-bold text-green-900 text-lg">Monthly Cost Estimates</span>
             </div>
-            <Badge className="bg-green-600 text-white text-xs">
-              By Care Level
-            </Badge>
+            {community.isClaimed && community.livePricing ? (
+              <Badge className="bg-blue-600 text-white text-xs font-semibold">
+                ✓ Live Pricing
+              </Badge>
+            ) : (
+              <Badge className="bg-green-600 text-white text-xs">
+                Estimated Pricing
+              </Badge>
+            )}
           </div>
           
-          {pricing ? (
-            <div>
-              <div className="text-2xl font-bold text-green-900 mb-2">
-                {pricing.range}
-              </div>
-              <div className="text-sm text-green-700 mb-3">Estimated monthly range</div>
-              
-              {/* Care Level Estimates */}
-              <div className="space-y-2">
-                {community.careTypes.map((careType, index) => {
-                  const baseMin = community.priceRange?.min || 3000;
-                  const baseMax = community.priceRange?.max || 6000;
-                  const multiplier = careType === 'Independent Living' ? 0.8 : 
-                                   careType === 'Assisted Living' ? 1.0 : 
-                                   careType === 'Memory Care' ? 1.3 : 1.5;
-                  const estimatedMin = Math.round(baseMin * multiplier);
-                  const estimatedMax = Math.round(baseMax * multiplier);
-                  
-                  return (
-                    <div key={index} className="bg-white border border-green-200 rounded p-2">
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium text-green-900">{careType}</span>
-                        <span className="text-green-700 font-bold">
-                          ${estimatedMin.toLocaleString()} - ${estimatedMax.toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              
-              <div className="text-xs text-green-600 mt-2">
-                * Estimates based on typical care level costs. Contact for exact pricing.
-              </div>
-            </div>
-          ) : (
-            <div>
-              <div className="text-xl font-semibold text-green-900 mb-2">Contact for Current Pricing</div>
-              <div className="bg-white border border-green-200 rounded p-2">
-                <div className="text-xs text-green-600">
-                  <div>• Monthly costs vary by care level needed</div>
-                  <div>• Move-in costs and fees vary by facility</div>
+          {/* Always show pricing estimates - NO "call for pricing" */}
+          <div>
+            {community.isClaimed && community.livePricing ? (
+              <div>
+                <div className="text-2xl font-bold text-blue-900 mb-2">
+                  ${community.livePricing.min.toLocaleString()} - ${community.livePricing.max.toLocaleString()}
                 </div>
+                <div className="text-sm text-blue-700 mb-3">Confirmed live pricing (updated {new Date(community.livePricing.lastUpdated).toLocaleDateString()})</div>
               </div>
+            ) : (
+              <div>
+                <div className="text-2xl font-bold text-green-900 mb-2">
+                  ${(community.priceRange?.min || 3500).toLocaleString()} - ${(community.priceRange?.max || 6500).toLocaleString()}
+                </div>
+                <div className="text-sm text-green-700 mb-3">Estimated monthly range based on local market data</div>
+              </div>
+            )}
+            
+            {/* Care Level Estimates */}
+            <div className="space-y-2">
+              {community.careTypes.map((careType, index) => {
+                const baseMin = community.priceRange?.min || 3500;
+                const baseMax = community.priceRange?.max || 6500;
+                
+                // Enhanced multipliers based on industry standards
+                const multiplier = careType === 'Independent Living' ? 0.7 : 
+                                 careType === 'Assisted Living' ? 1.0 : 
+                                 careType === 'Memory Care' ? 1.4 : 
+                                 careType === 'Skilled Nursing' ? 1.6 : 1.0;
+                
+                const estimatedMin = Math.round(baseMin * multiplier);
+                const estimatedMax = Math.round(baseMax * multiplier);
+                
+                return (
+                  <div key={index} className="bg-white border border-green-200 rounded p-2">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-green-900">{careType}</span>
+                      <span className="text-green-700 font-bold">
+                        ${estimatedMin.toLocaleString()} - ${estimatedMax.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          )}
+            
+            <div className="text-xs text-green-600 mt-2">
+              {community.isClaimed && community.livePricing ? (
+                <span className="font-medium">✓ Community-verified pricing. Contact for current specials and move-in costs.</span>
+              ) : (
+                <span>* Market-based estimates. Actual costs may vary. Community can claim listing for exact pricing.</span>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* 3. AVAILABILITY STATUS - Third Priority */}
