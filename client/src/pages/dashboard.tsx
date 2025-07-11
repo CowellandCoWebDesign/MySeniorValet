@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,16 +28,11 @@ import {
   List,
   SortAsc
 } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { CommunityCard } from "@/components/community-card";
-
-// Mock data for demonstration - replace with real user data
-const mockUser = {
-  name: "Sarah Johnson",
-  email: "sarah.johnson@email.com",
-  memberSince: "March 2024",
-  profileImage: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face"
-};
+import { useAuth, useLogout } from "@/hooks/useAuth";
+import { useQuery } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 
 const mockFavoriteCommunities = [
   {
@@ -84,18 +79,88 @@ const mockSearchAlerts = [
 export default function Dashboard() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'recent' | 'name' | 'availability'>('recent');
+  const { user, isLoading, isAuthenticated } = useAuth();
+  const logout = useLogout();
+  const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
-  const sortedFavorites = [...mockFavoriteCommunities].sort((a, b) => {
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to access your dashboard.",
+        variant: "destructive",
+      });
+      setLocation("/login");
+    }
+  }, [isLoading, isAuthenticated, setLocation, toast]);
+
+  // Fetch user favorites
+  const { data: favorites = [] } = useQuery({
+    queryKey: ["/api/favorites"],
+    enabled: isAuthenticated,
+    retry: false,
+  });
+
+  // Fetch user search history
+  const { data: searchHistory = [] } = useQuery({
+    queryKey: ["/api/search-history"],
+    enabled: isAuthenticated,
+    retry: false,
+  });
+
+  // Fetch user tours
+  const { data: tours = [] } = useQuery({
+    queryKey: ["/api/tours"],
+    enabled: isAuthenticated,
+    retry: false,
+  });
+
+  const handleLogout = async () => {
+    try {
+      await logout.mutateAsync();
+      toast({
+        title: "Logged out successfully",
+        description: "You have been logged out of your account.",
+      });
+    } catch (error) {
+      toast({
+        title: "Logout failed",
+        description: "There was an error logging out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const sortedFavorites = [...favorites].sort((a, b) => {
     switch (sortBy) {
       case 'name':
-        return a.name.localeCompare(b.name);
+        return a.community?.name?.localeCompare(b.community?.name || '') || 0;
       case 'availability':
-        return a.availabilityStatus.localeCompare(b.availabilityStatus);
+        return (a.community?.availabilityStatus || '').localeCompare(b.community?.availabilityStatus || '');
       case 'recent':
       default:
-        return new Date(b.savedDate).getTime() - new Date(a.savedDate).getTime();
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     }
   });
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  // Show error state if not authenticated
+  if (!isAuthenticated) {
+    return null; // Redirect will handle this
+  }
+
+  const userDisplayName = user ? `${user.firstName} ${user.lastName}` : 'User';
+  const userInitials = user ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}` : 'U';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -118,14 +183,20 @@ export default function Dashboard() {
                 <Bell className="h-4 w-4" />
               </Button>
               <div className="flex items-center space-x-3">
-                <img 
-                  src={mockUser.profileImage} 
-                  alt={mockUser.name}
-                  className="h-8 w-8 rounded-full border-2 border-blue-200"
-                />
+                <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium">
+                  {userInitials}
+                </div>
                 <span className="hidden md:block text-sm font-medium text-gray-700">
-                  {mockUser.name}
+                  {userDisplayName}
                 </span>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={handleLogout}
+                  disabled={logout.isPending}
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
               </div>
             </div>
           </div>
@@ -138,13 +209,13 @@ export default function Dashboard() {
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl font-bold mb-2">Welcome back, {mockUser.name.split(' ')[0]}!</h1>
+                <h1 className="text-3xl font-bold mb-2">Welcome back, {user?.firstName || 'User'}!</h1>
                 <p className="text-blue-100">Your personalized senior living community dashboard</p>
               </div>
               <div className="hidden md:block">
                 <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4">
                   <div className="text-center">
-                    <div className="text-2xl font-bold">{mockFavoriteCommunities.length}</div>
+                    <div className="text-2xl font-bold">{favorites.length}</div>
                     <div className="text-sm text-blue-100">Saved Communities</div>
                   </div>
                 </div>
@@ -218,9 +289,9 @@ export default function Dashboard() {
 
             {sortedFavorites.length > 0 ? (
               <div className={viewMode === 'grid' ? 'grid grid-cols-1 lg:grid-cols-2 gap-6' : 'space-y-4'}>
-                {sortedFavorites.map((community) => (
-                  <div key={community.id} className="relative">
-                    <CommunityCard community={community as any} />
+                {sortedFavorites.map((favorite) => (
+                  <div key={favorite.id} className="relative">
+                    <CommunityCard community={favorite.community as any} />
                     <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg">
                       <Heart className="h-4 w-4 text-red-500 fill-red-500" />
                     </div>
@@ -348,15 +419,18 @@ export default function Dashboard() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center space-x-4">
-                    <img 
-                      src={mockUser.profileImage} 
-                      alt={mockUser.name}
-                      className="h-16 w-16 rounded-full border-4 border-blue-200"
-                    />
+                    <div className="h-16 w-16 rounded-full bg-blue-600 flex items-center justify-center text-white text-xl font-bold border-4 border-blue-200">
+                      {userInitials}
+                    </div>
                     <div>
-                      <h3 className="font-semibold">{mockUser.name}</h3>
-                      <p className="text-gray-600">{mockUser.email}</p>
-                      <p className="text-sm text-gray-500">Member since {mockUser.memberSince}</p>
+                      <h3 className="font-semibold">{userDisplayName}</h3>
+                      <p className="text-gray-600">{user?.email}</p>
+                      <p className="text-sm text-gray-500">
+                        Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { 
+                          year: 'numeric', 
+                          month: 'long' 
+                        }) : 'Recently'}
+                      </p>
                     </div>
                   </div>
                   <Button variant="outline" className="w-full">

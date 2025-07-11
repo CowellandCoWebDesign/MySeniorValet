@@ -354,6 +354,187 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ===============================
+  // USER DASHBOARD ROUTES
+  // ===============================
+
+  // Get user favorites
+  app.get("/api/favorites", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const favorites = await storage.getUserFavorites(userId);
+      res.json(favorites);
+    } catch (error: any) {
+      console.error("Error fetching favorites:", error);
+      res.status(500).json({ message: "Failed to fetch favorites" });
+    }
+  });
+
+  // Add community to favorites
+  app.post("/api/favorites", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { communityId } = req.body;
+      
+      if (!communityId) {
+        return res.status(400).json({ message: "Community ID is required" });
+      }
+
+      const favorite = await storage.addToFavorites({
+        userId,
+        communityId,
+      });
+      
+      res.json(favorite);
+    } catch (error: any) {
+      console.error("Error adding favorite:", error);
+      res.status(500).json({ message: "Failed to add favorite" });
+    }
+  });
+
+  // Remove community from favorites
+  app.delete("/api/favorites/:communityId", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const communityId = parseInt(req.params.communityId);
+      
+      if (!communityId) {
+        return res.status(400).json({ message: "Community ID is required" });
+      }
+
+      const removed = await storage.removeFromFavorites(userId, communityId);
+      
+      if (removed) {
+        res.json({ success: true });
+      } else {
+        res.status(404).json({ message: "Favorite not found" });
+      }
+    } catch (error: any) {
+      console.error("Error removing favorite:", error);
+      res.status(500).json({ message: "Failed to remove favorite" });
+    }
+  });
+
+  // Get user search history
+  app.get("/api/search-history", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const searchHistory = await storage.getSearchHistory(userId);
+      res.json(searchHistory);
+    } catch (error: any) {
+      console.error("Error fetching search history:", error);
+      res.status(500).json({ message: "Failed to fetch search history" });
+    }
+  });
+
+  // Save search to history
+  app.post("/api/search-history", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { query, filters, results } = req.body;
+      
+      const searchEntry = await storage.saveSearch({
+        userId,
+        query,
+        filters,
+        resultCount: results || 0,
+      });
+      
+      res.json(searchEntry);
+    } catch (error: any) {
+      console.error("Error saving search:", error);
+      res.status(500).json({ message: "Failed to save search" });
+    }
+  });
+
+  // Get user tours
+  app.get("/api/tours", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const tours = await storage.getToursByUser(userId);
+      res.json(tours);
+    } catch (error: any) {
+      console.error("Error fetching tours:", error);
+      res.status(500).json({ message: "Failed to fetch tours" });
+    }
+  });
+
+  // Schedule a tour
+  app.post("/api/tours", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { communityId, tourDate, tourTime, notes } = req.body;
+      
+      if (!communityId || !tourDate || !tourTime) {
+        return res.status(400).json({ message: "Community ID, tour date, and tour time are required" });
+      }
+
+      const tour = await storage.createTour({
+        userId,
+        communityId,
+        tourDate: new Date(tourDate),
+        tourTime,
+        notes,
+        status: 'scheduled',
+      });
+      
+      res.json(tour);
+    } catch (error: any) {
+      console.error("Error scheduling tour:", error);
+      res.status(500).json({ message: "Failed to schedule tour" });
+    }
+  });
+
+  // Update tour
+  app.put("/api/tours/:tourId", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const tourId = parseInt(req.params.tourId);
+      const updates = req.body;
+      
+      // Verify tour belongs to user
+      const existingTour = await storage.getToursByUser(userId);
+      const tour = existingTour.find(t => t.id === tourId);
+      
+      if (!tour) {
+        return res.status(404).json({ message: "Tour not found" });
+      }
+
+      const updatedTour = await storage.updateTour(tourId, updates);
+      res.json(updatedTour);
+    } catch (error: any) {
+      console.error("Error updating tour:", error);
+      res.status(500).json({ message: "Failed to update tour" });
+    }
+  });
+
+  // Cancel tour
+  app.delete("/api/tours/:tourId", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const tourId = parseInt(req.params.tourId);
+      
+      // Verify tour belongs to user
+      const existingTours = await storage.getToursByUser(userId);
+      const tour = existingTours.find(t => t.id === tourId);
+      
+      if (!tour) {
+        return res.status(404).json({ message: "Tour not found" });
+      }
+
+      const cancelled = await storage.cancelTour(tourId);
+      
+      if (cancelled) {
+        res.json({ success: true });
+      } else {
+        res.status(500).json({ message: "Failed to cancel tour" });
+      }
+    } catch (error: any) {
+      console.error("Error cancelling tour:", error);
+      res.status(500).json({ message: "Failed to cancel tour" });
+    }
+  });
+
   // User favorites routes
   app.get('/api/user/favorites', requireAuth, async (req: any, res) => {
     try {

@@ -275,19 +275,91 @@ export class MemStorage implements IStorage {
   async addFavorite(): Promise<any> { throw new Error("Not implemented"); }
   async removeFavorite(): Promise<boolean> { throw new Error("Not implemented"); }
   async isFavorited(): Promise<boolean> { return false; }
-  async getSearchHistory(): Promise<any[]> { return []; }
-  async saveSearch(): Promise<any> { throw new Error("Not implemented"); }
-  async deleteSearchHistory(): Promise<boolean> { throw new Error("Not implemented"); }
+  async getSearchHistory(userId: number): Promise<SearchHistoryEntry[]> {
+    return await db
+      .select()
+      .from(searchHistory)
+      .where(eq(searchHistory.userId, userId))
+      .orderBy(sql`${searchHistory.createdAt} DESC`)
+      .limit(20);
+  }
+  async saveSearch(insertSearch: InsertSearchHistory): Promise<SearchHistoryEntry> {
+    const [search] = await db
+      .insert(searchHistory)
+      .values(insertSearch)
+      .returning();
+    return search;
+  }
+  async deleteSearchHistory(userId: number, searchId: number): Promise<boolean> {
+    const result = await db
+      .delete(searchHistory)
+      .where(and(
+        eq(searchHistory.userId, userId),
+        eq(searchHistory.id, searchId)
+      ));
+    return (result.rowCount || 0) > 0;
+  }
   async getMessagesByUser(): Promise<any[]> { return []; }
   async getConversation(): Promise<any[]> { return []; }
   async sendMessage(): Promise<any> { throw new Error("Not implemented"); }
   async markMessageRead(): Promise<void> { throw new Error("Not implemented"); }
   async markMessageStarred(): Promise<void> { throw new Error("Not implemented"); }
-  async getToursByUser(): Promise<any[]> { return []; }
+  async getToursByUser(userId: number): Promise<Tour[]> {
+    return await db
+      .select({
+        id: tours.id,
+        userId: tours.userId,
+        communityId: tours.communityId,
+        tourDate: tours.tourDate,
+        tourTime: tours.tourTime,
+        status: tours.status,
+        notes: tours.notes,
+        createdAt: tours.createdAt,
+        updatedAt: tours.updatedAt,
+        community: {
+          id: communities.id,
+          name: communities.name,
+          address: communities.address,
+          city: communities.city,
+          state: communities.state,
+          phone: communities.phone,
+          website: communities.website,
+          photos: communities.photos,
+          rating: communities.rating,
+          reviewCount: communities.reviewCount,
+          careTypes: communities.careTypes,
+          priceRange: communities.priceRange,
+        }
+      })
+      .from(tours)
+      .leftJoin(communities, eq(tours.communityId, communities.id))
+      .where(eq(tours.userId, userId))
+      .orderBy(tours.tourDate);
+  }
   async getToursByCommunity(): Promise<any[]> { return []; }
-  async createTour(): Promise<any> { throw new Error("Not implemented"); }
-  async updateTour(): Promise<any> { throw new Error("Not implemented"); }
-  async cancelTour(): Promise<boolean> { throw new Error("Not implemented"); }
+  async createTour(insertTour: InsertTour): Promise<Tour> {
+    const [tour] = await db
+      .insert(tours)
+      .values(insertTour)
+      .returning();
+    return tour;
+  }
+  async updateTour(id: number, updates: Partial<InsertTour>): Promise<Tour | undefined> {
+    const [tour] = await db
+      .update(tours)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(tours.id, id))
+      .returning();
+    return tour;
+  }
+  async cancelTour(id: number): Promise<boolean> {
+    const [tour] = await db
+      .update(tours)
+      .set({ status: 'cancelled', updatedAt: new Date() })
+      .where(eq(tours.id, id))
+      .returning();
+    return !!tour;
+  }
 
   async getCommunity(id: number): Promise<Community | undefined> {
     return this.communities.get(id);
@@ -972,9 +1044,35 @@ export class DatabaseStorage implements IStorage {
 
   async getUserFavorites(userId: number): Promise<Favorite[]> {
     return await db
-      .select()
+      .select({
+        id: favorites.id,
+        userId: favorites.userId,
+        communityId: favorites.communityId,
+        createdAt: favorites.createdAt,
+        community: {
+          id: communities.id,
+          name: communities.name,
+          address: communities.address,
+          city: communities.city,
+          state: communities.state,
+          zipCode: communities.zipCode,
+          phone: communities.phone,
+          website: communities.website,
+          priceRange: communities.priceRange,
+          photos: communities.photos,
+          rating: communities.rating,
+          reviewCount: communities.reviewCount,
+          careTypes: communities.careTypes,
+          amenities: communities.amenities,
+          availabilityStatus: communities.availabilityStatus,
+          latitude: communities.latitude,
+          longitude: communities.longitude,
+        }
+      })
       .from(favorites)
-      .where(eq(favorites.userId, userId));
+      .leftJoin(communities, eq(favorites.communityId, communities.id))
+      .where(eq(favorites.userId, userId))
+      .orderBy(sql`${favorites.createdAt} DESC`);
   }
 
   async removeFromFavorites(userId: number, communityId: number): Promise<boolean> {
