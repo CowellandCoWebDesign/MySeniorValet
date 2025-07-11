@@ -148,8 +148,13 @@ export default function TrueViewHome() {
                 <span className="text-xl font-bold text-white drop-shadow-lg">TrueView</span>
               </div>
             </div>
-            <div className="text-white font-medium">
-              Sign In
+            <div className="flex items-center space-x-4">
+              <Link href="/login" className="text-white hover:text-blue-200 transition-colors">
+                Sign In
+              </Link>
+              <Link href="/signup" className="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors">
+                Sign Up
+              </Link>
             </div>
           </div>
         </div>

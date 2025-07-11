@@ -161,7 +161,28 @@ export default function LoginPage() {
               </form>
             </Form>
 
-            <div className="mt-6 text-center">
+            <div className="mt-6 text-center space-y-4">
+              {/* Demo Account Section */}
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-sm text-blue-800 font-medium mb-2">Try the Dashboard</p>
+                <p className="text-xs text-blue-600 mb-3">Use these demo credentials to explore the dashboard features:</p>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-mono text-blue-700">demo@trueview.com</span>
+                    <button 
+                      onClick={() => {
+                        form.setValue('email', 'demo@trueview.com');
+                        form.setValue('password', 'demo123');
+                      }}
+                      className="text-blue-600 hover:text-blue-800 underline"
+                    >
+                      Use Demo
+                    </button>
+                  </div>
+                  <div className="text-xs font-mono text-blue-700">Password: demo123</div>
+                </div>
+              </div>
+              
               <p className="text-sm text-gray-600">
                 Don't have an account?{" "}
                 <Link href="/signup">
