@@ -10,7 +10,7 @@ const SECURITY_CONFIG = {
     windowMs: 15 * 60 * 1000, // 15 minutes
     maxRequests: 300, // per window - increased for normal browsing
     apiMaxRequests: 200, // for API endpoints - increased for communities data
-    authMaxRequests: 5, // for auth endpoints
+    authMaxRequests: 50, // for auth endpoints - increased for demo testing
   },
   headers: {
     contentSecurityPolicy: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https:; font-src 'self' data:;",
