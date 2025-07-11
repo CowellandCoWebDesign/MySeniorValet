@@ -292,11 +292,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register/Signup
   app.post("/api/auth/signup", async (req, res) => {
     try {
-      const data = signupSchema.parse(req.body);
-      const { user, sessionId } = await authService.signup(data);
+      // Simple validation for current database schema
+      const { email, password } = req.body;
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password are required" });
+      }
+      
+      const data = { email, password };
+      const { user, token } = await simpleAuthService.signup(data);
       
       // Set secure HTTP-only cookie
-      res.cookie('sessionId', sessionId, {
+      res.cookie('authToken', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
@@ -304,7 +310,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Return user data (without password)
-      const { password, ...userWithoutPassword } = user;
+      const { password: _, ...userWithoutPassword } = user;
       res.json({ user: userWithoutPassword });
     } catch (error: any) {
       res.status(400).json({ message: error.message });

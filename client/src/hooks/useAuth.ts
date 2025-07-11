@@ -3,12 +3,13 @@ import { apiRequest } from "@/lib/queryClient";
 
 export interface User {
   id: number;
-  email: string;
-  firstName: string;
-  lastName: string;
+  username: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
   phone?: string;
   relationshipToCare?: string;
-  createdAt: string;
+  createdAt?: string;
 }
 
 export function useAuth() {
@@ -30,10 +31,8 @@ export function useLogin() {
 
   return useMutation({
     mutationFn: async (data: { email: string; password: string }) => {
-      return apiRequest("/api/auth/login", {
-        method: "POST",
-        body: data,
-      });
+      const response = await apiRequest("POST", "/api/auth/login", data);
+      return response.json();
     },
     onSuccess: (data) => {
       queryClient.setQueryData(["/api/auth/user"], data.user);
@@ -55,10 +54,8 @@ export function useSignup() {
       phone?: string;
       relationshipToCare?: string;
     }) => {
-      return apiRequest("/api/auth/signup", {
-        method: "POST",
-        body: data,
-      });
+      const response = await apiRequest("POST", "/api/auth/signup", data);
+      return response.json();
     },
     onSuccess: (data) => {
       queryClient.setQueryData(["/api/auth/user"], data.user);
@@ -72,9 +69,8 @@ export function useLogout() {
 
   return useMutation({
     mutationFn: async () => {
-      return apiRequest("/api/auth/logout", {
-        method: "POST",
-      });
+      const response = await apiRequest("POST", "/api/auth/logout");
+      return response.json();
     },
     onSuccess: () => {
       queryClient.setQueryData(["/api/auth/user"], null);
