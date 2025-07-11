@@ -45,6 +45,7 @@ import { licensingScraper } from "./licensing-scraper";
 import { googleReviewsAI } from "./google-reviews-ai";
 import { googlePlacesIntegration } from "./google-places-integration";
 import { authService, requireAuth } from "./auth";
+import { simpleAuthService, requireSimpleAuth } from "./simple-auth";
 import { regionalExpansionEngine } from "./regional-expansion";
 import { comprehensivePhotoEnrichment } from "./comprehensive-photo-enrichment";
 import { apiCostProtection } from "./api-cost-protection";
@@ -313,11 +314,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Login
   app.post("/api/auth/login", async (req, res) => {
     try {
-      const data = loginSchema.parse(req.body);
-      const { user, sessionId } = await authService.login(data);
+      // Simple validation for current database schema
+      const { email, password } = req.body;
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password are required" });
+      }
+      
+      const data = { email, password };
+      const { user, token } = await simpleAuthService.login(data);
       
       // Set secure HTTP-only cookie
-      res.cookie('sessionId', sessionId, {
+      res.cookie('authToken', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
@@ -325,7 +332,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Return user data (without password)
-      const { password, ...userWithoutPassword } = user;
+      const { password: _, ...userWithoutPassword } = user;
       res.json({ user: userWithoutPassword });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -333,7 +340,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get current user
-  app.get("/api/auth/user", requireAuth, async (req: any, res) => {
+  app.get("/api/auth/user", requireSimpleAuth, async (req: any, res) => {
     try {
       const { password, ...userWithoutPassword } = req.user;
       res.json(userWithoutPassword);
@@ -343,11 +350,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Logout
-  app.post("/api/auth/logout", requireAuth, async (req: any, res) => {
+  app.post("/api/auth/logout", requireSimpleAuth, async (req: any, res) => {
     try {
-      const sessionId = req.sessionId;
-      await authService.logout(sessionId);
-      res.clearCookie('sessionId');
+      res.clearCookie('authToken');
       res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ message: "Logout failed" });
@@ -359,7 +364,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ===============================
 
   // Get user favorites
-  app.get("/api/favorites", requireAuth, async (req: any, res) => {
+  app.get("/api/favorites", requireSimpleAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const favorites = await storage.getUserFavorites(userId);
@@ -371,7 +376,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Add community to favorites
-  app.post("/api/favorites", requireAuth, async (req: any, res) => {
+  app.post("/api/favorites", requireSimpleAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const { communityId } = req.body;

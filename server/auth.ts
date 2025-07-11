@@ -107,7 +107,7 @@ export class AuthService {
   }
 
   async login(data: LoginForm): Promise<{ user: User; sessionId: string }> {
-    // Find user by email
+    // Find user by email (treating it as username in our simplified schema)
     const user = await storage.getUserByEmail(data.email);
     if (!user) {
       throw new Error('Invalid email or password');

@@ -492,6 +492,23 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    // Since our current database only has username, we'll treat email as username
+    // Use raw SQL query to avoid schema mismatch issues
+    const result = await db.execute(
+      sql`SELECT id, username, password FROM users WHERE username = ${email}`
+    );
+    const userRow = result.rows[0];
+    if (userRow) {
+      return {
+        id: userRow.id as number,
+        username: userRow.username as string,
+        password: userRow.password as string
+      } as User;
+    }
+    return undefined;
+  }
+
   async createUser(insertUser: InsertUser): Promise<User> {
     const [user] = await db
       .insert(users)
