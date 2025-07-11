@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { FamilyShareButton } from './family-share-button';
 import { Star, Shield, AlertTriangle, DollarSign, MapPin, Heart, Share, Users, Calendar, CheckCircle, ExternalLink, Clock, Home, Wifi, Car, Utensils, Activity, Phone, Camera, Video, UserCheck, Stethoscope, Bed, ShowerHead, ChevronDown, ChevronUp, ImageIcon, ShieldCheck } from "lucide-react";
 import { Link } from "wouter";
 import type { Community } from "@shared/schema";
@@ -851,24 +852,36 @@ export function CommunityCard({ community }: CommunityCardProps) {
         )}
 
         {/* ACTION BUTTONS */}
-        <div className="flex space-x-3">
-          <Button className="flex-1 bg-blue-600 hover:bg-blue-700 py-3 text-lg font-semibold">
-            View Full Details & More Reviews
-          </Button>
-          {community.phone && (
-            <Button 
-              variant="outline" 
-              className="px-6 py-3 border-2"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                window.open(`tel:${community.phone}`, '_self');
-              }}
-            >
-              <Phone className="h-4 w-4 mr-2" />
-              Call Now
+        <div className="space-y-3">
+          <div className="flex space-x-3">
+            <Button className="flex-1 bg-blue-600 hover:bg-blue-700 py-3 text-lg font-semibold">
+              View Full Details & More Reviews
             </Button>
-          )}
+            {community.phone && (
+              <Button 
+                variant="outline" 
+                className="px-6 py-3 border-2"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  window.open(`tel:${community.phone}`, '_self');
+                }}
+              >
+                <Phone className="h-4 w-4 mr-2" />
+                Call Now
+              </Button>
+            )}
+          </div>
+          
+          {/* Family Share Button */}
+          <div className="flex justify-center">
+            <FamilyShareButton 
+              community={community} 
+              variant="outline" 
+              size="default"
+              className="px-8 py-2 border-2 border-purple-200 hover:border-purple-300 hover:bg-purple-50 text-purple-700 hover:text-purple-800"
+            />
+          </div>
         </div>
       </CardContent>
     </Card>

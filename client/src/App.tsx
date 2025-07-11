@@ -36,6 +36,7 @@ import SupportResources from "@/pages/support-resources";
 import VeteransHousing from "@/pages/veterans-housing";
 import AffordableHousing from "@/pages/affordable-housing";
 import HudVashMap from "@/pages/hud-vash-map";
+import FamilyCollaboration from "@/pages/family-collaboration";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -63,6 +64,7 @@ function Router() {
       <Route path="/veterans" component={VeteransHousing} />
       <Route path="/hud-vash" component={HudVashMap} />
       <Route path="/affordable-housing" component={() => <BasicSearch initialFilters={['Affordable Housing']} />} />
+      <Route path="/family-collaboration" component={FamilyCollaboration} />
       <Route path="/login" component={Login} />
       <Route path="/signup" component={Signup} />
       <Route path="/privacy" component={Privacy} />

@@ -1053,6 +1053,113 @@ export default function TrueViewHome() {
         </div>
       </section>
 
+      {/* Family Collaboration Section */}
+      <section className="px-4 py-8 bg-gradient-to-br from-purple-50 to-blue-50">
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <div className="bg-purple-100 rounded-full p-3">
+              <Users className="h-8 w-8 text-purple-600" />
+            </div>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Keep Your Family In The Loop
+          </h2>
+          <p className="text-gray-600 text-sm max-w-md mx-auto">
+            Finding the right senior living community is a family decision. Share discoveries instantly with one click.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          {/* Feature 1: One-Click Sharing */}
+          <Card className="border-0 shadow-sm bg-white">
+            <CardContent className="p-6">
+              <div className="flex items-start space-x-4">
+                <div className="bg-blue-100 rounded-lg p-3">
+                  <Users className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2">One-Click Family Sharing</h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Send detailed community information, photos, and pricing to multiple family members instantly.
+                  </p>
+                  <div className="text-xs text-blue-600 font-medium">
+                    Works with email, text, WhatsApp, and more
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Feature 2: Smart Formatting */}
+          <Card className="border-0 shadow-sm bg-white">
+            <CardContent className="p-6">
+              <div className="flex items-start space-x-4">
+                <div className="bg-green-100 rounded-lg p-3">
+                  <Info className="h-6 w-6 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Smart Information Formatting</h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Automatically formats community details, pricing, care types, and reviews for easy sharing.
+                  </p>
+                  <div className="text-xs text-green-600 font-medium">
+                    Professional email templates included
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Feature 3: Personal Notes */}
+          <Card className="border-0 shadow-sm bg-white">
+            <CardContent className="p-6">
+              <div className="flex items-start space-x-4">
+                <div className="bg-purple-100 rounded-lg p-3">
+                  <span className="text-purple-600 font-bold text-lg">💬</span>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Add Personal Notes</h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Include your thoughts, questions, or observations with each community you share.
+                  </p>
+                  <div className="text-xs text-purple-600 font-medium">
+                    Keep everyone on the same page
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Feature 4: Direct Links */}
+          <Card className="border-0 shadow-sm bg-white">
+            <CardContent className="p-6">
+              <div className="flex items-start space-x-4">
+                <div className="bg-orange-100 rounded-lg p-3">
+                  <span className="text-orange-600 font-bold text-lg">🔗</span>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Direct Share Links</h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Generate special family links that bring relatives directly to the community details.
+                  </p>
+                  <div className="text-xs text-orange-600 font-medium">
+                    No account required for family members
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="text-center mt-8">
+          <Link href="/family-collaboration">
+            <Button className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 font-semibold">
+              Learn More About Family Collaboration
+            </Button>
+          </Link>
+        </div>
+      </section>
+
       {/* Bottom spacing */}
       <div className="h-8"></div>
     </div>
