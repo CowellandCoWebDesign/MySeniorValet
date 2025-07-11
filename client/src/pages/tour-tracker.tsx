@@ -45,6 +45,7 @@ import {
   X
 } from "lucide-react";
 import { format } from "date-fns";
+import ActivitiesCalendar from "@/components/activities-calendar";
 
 interface TourTrackerProps {
   tourId?: string;
@@ -128,6 +129,7 @@ export default function TourTracker({ tourId, communityId }: TourTrackerProps) {
       communityId: parseInt(routeCommunityId || "0"),
       tourDate: new Date(),
       tourType: "in_person",
+      tourExperienceType: "standard",
       status: "completed",
       attendeeCount: 1,
       tourNotes: "",
@@ -334,8 +336,9 @@ export default function TourTracker({ tourId, communityId }: TourTrackerProps) {
 
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="activities">Activities</TabsTrigger>
               <TabsTrigger value="photos">Photos</TabsTrigger>
               <TabsTrigger value="units">Units</TabsTrigger>
               <TabsTrigger value="pricing">Pricing</TabsTrigger>
@@ -380,6 +383,97 @@ export default function TourTracker({ tourId, communityId }: TourTrackerProps) {
                           </SelectContent>
                         </Select>
                       </div>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="tourExperienceType">Tour Experience Type</Label>
+                      <Select
+                        value={form.watch("tourExperienceType")}
+                        onValueChange={(value) => form.setValue("tourExperienceType", value as any)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select experience type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="standard">Standard Tour</SelectItem>
+                          <SelectItem value="meal_tour">Meal Tour</SelectItem>
+                          <SelectItem value="event_tour">Event Tour</SelectItem>
+                          <SelectItem value="unit_focused">Unit Focused</SelectItem>
+                          <SelectItem value="open_house">Open House</SelectItem>
+                          <SelectItem value="activity_focused">Activity Focused</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Choose the type of tour experience that best fits your visit
+                      </p>
+                    </div>
+
+                    {form.watch("tourExperienceType") === "meal_tour" && (
+                      <div>
+                        <Label htmlFor="mealType">Meal Type</Label>
+                        <Select
+                          value={form.watch("mealType")}
+                          onValueChange={(value) => form.setValue("mealType", value as any)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select meal type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="breakfast">Breakfast</SelectItem>
+                            <SelectItem value="lunch">Lunch</SelectItem>
+                            <SelectItem value="dinner">Dinner</SelectItem>
+                            <SelectItem value="snack_time">Snack Time</SelectItem>
+                            <SelectItem value="happy_hour">Happy Hour</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+
+                    {form.watch("tourExperienceType") === "event_tour" && (
+                      <div>
+                        <Label htmlFor="eventType">Event Type</Label>
+                        <Select
+                          value={form.watch("eventType")}
+                          onValueChange={(value) => form.setValue("eventType", value as any)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select event type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="live_entertainment">Live Entertainment</SelectItem>
+                            <SelectItem value="happy_hour">Happy Hour</SelectItem>
+                            <SelectItem value="bingo">Bingo</SelectItem>
+                            <SelectItem value="fundraiser">Fundraiser</SelectItem>
+                            <SelectItem value="holiday_celebration">Holiday Celebration</SelectItem>
+                            <SelectItem value="exercise_class">Exercise Class</SelectItem>
+                            <SelectItem value="art_activity">Art Activity</SelectItem>
+                            <SelectItem value="music_therapy">Music Therapy</SelectItem>
+                            <SelectItem value="social_hour">Social Hour</SelectItem>
+                            <SelectItem value="educational_seminar">Educational Seminar</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+
+                    <div>
+                      <Label htmlFor="activityLevel">Community Activity Level</Label>
+                      <Select
+                        value={form.watch("activityLevel")}
+                        onValueChange={(value) => form.setValue("activityLevel", value as any)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select activity level" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="high">High Activity - Lots going on</SelectItem>
+                          <SelectItem value="medium">Medium Activity - Some activities</SelectItem>
+                          <SelectItem value="low">Low Activity - Quiet time</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-sm text-gray-500 mt-1">
+                        How busy was the community during your visit?
+                      </p>
                     </div>
                     
                     <div>
@@ -460,6 +554,83 @@ export default function TourTracker({ tourId, communityId }: TourTrackerProps) {
                           <SelectItem value="very_negative">Very Negative</SelectItem>
                         </SelectContent>
                       </Select>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* Activities Tab */}
+            <TabsContent value="activities" className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                  <ActivitiesCalendar 
+                    communityId={community?.id || 0}
+                    onTourTimeSelected={(date, time, activityLevel, suggestedExperience) => {
+                      // Auto-populate form fields based on selected activity
+                      form.setValue("tourDate", `${date}T${time}`);
+                      form.setValue("activityLevel", activityLevel as any);
+                      form.setValue("tourExperienceType", suggestedExperience as any);
+                      
+                      // Switch to overview tab to show updated form
+                      setCurrentTab("overview");
+                    }}
+                  />
+                </div>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Tour Experience Types</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-4">
+                      <div className="border rounded-lg p-4">
+                        <h4 className="font-medium text-gray-900 mb-2">Meal Tours</h4>
+                        <p className="text-sm text-gray-600 mb-2">
+                          Experience dining during breakfast, lunch, or dinner service
+                        </p>
+                        <div className="text-xs text-gray-500">
+                          ✓ Meet residents during social dining time<br/>
+                          ✓ Sample the food quality and service<br/>
+                          ✓ Observe community atmosphere during meals
+                        </div>
+                      </div>
+                      
+                      <div className="border rounded-lg p-4">
+                        <h4 className="font-medium text-gray-900 mb-2">Event Tours</h4>
+                        <p className="text-sm text-gray-600 mb-2">
+                          Visit during live entertainment, bingo, or special events
+                        </p>
+                        <div className="text-xs text-gray-500">
+                          ✓ See the community's vibrant social life<br/>
+                          ✓ Meet active, engaged residents<br/>
+                          ✓ Experience the energy and programming
+                        </div>
+                      </div>
+                      
+                      <div className="border rounded-lg p-4">
+                        <h4 className="font-medium text-gray-900 mb-2">Unit-Focused Tours</h4>
+                        <p className="text-sm text-gray-600 mb-2">
+                          Quiet time tours focusing on available units and facilities
+                        </p>
+                        <div className="text-xs text-gray-500">
+                          ✓ Detailed unit inspection without distractions<br/>
+                          ✓ In-depth facility tour and amenity review<br/>
+                          ✓ Quality time with staff for questions
+                        </div>
+                      </div>
+                      
+                      <div className="border rounded-lg p-4">
+                        <h4 className="font-medium text-gray-900 mb-2">Activity-Focused Tours</h4>
+                        <p className="text-sm text-gray-600 mb-2">
+                          Experience specific activities like exercise classes or therapy
+                        </p>
+                        <div className="text-xs text-gray-500">
+                          ✓ Observe care quality and resident engagement<br/>
+                          ✓ Meet therapy and activity staff<br/>
+                          ✓ Understand daily programming and schedules
+                        </div>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

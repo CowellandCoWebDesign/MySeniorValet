@@ -440,9 +440,21 @@ export const tours = pgTable("tours", {
   tourType: text("tour_type", { 
     enum: ["in_person", "virtual", "group", "private"] 
   }).default("in_person"),
+  tourExperienceType: text("tour_experience_type", {
+    enum: ["standard", "meal_tour", "event_tour", "unit_focused", "open_house", "activity_focused"]
+  }).default("standard"),
+  mealType: text("meal_type", {
+    enum: ["breakfast", "lunch", "dinner", "snack_time", "happy_hour"]
+  }),
+  eventType: text("event_type", {
+    enum: ["live_entertainment", "happy_hour", "bingo", "fundraiser", "holiday_celebration", "exercise_class", "art_activity", "music_therapy", "social_hour", "educational_seminar", "other"]
+  }),
   status: text("status", {
     enum: ["scheduled", "confirmed", "completed", "cancelled", "rescheduled", "no_show"]
   }).default("scheduled"),
+  activityLevel: text("activity_level", {
+    enum: ["high", "medium", "low"]
+  }), // Based on community calendar activity
   attendeeCount: integer("attendee_count").default(1),
   specialRequests: text("special_requests"),
   contactPreference: text("contact_preference", { enum: ["email", "phone", "text"] }).default("email"),
@@ -1685,3 +1697,38 @@ export type SupportResource = typeof supportResources.$inferSelect;
 export type InsertSupportResource = typeof supportResources.$inferInsert;
 export type UserSupportResourceInteraction = typeof userSupportResourceInteractions.$inferSelect;
 export type InsertUserSupportResourceInteraction = typeof userSupportResourceInteractions.$inferInsert;
+
+// Community Activities Calendar
+export const communityActivities = pgTable("community_activities", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  activityName: text("activity_name").notNull(),
+  activityType: text("activity_type", {
+    enum: ["meal", "entertainment", "exercise", "social", "educational", "religious", "outdoor", "crafts", "games", "music", "therapy", "special_event", "holiday", "other"]
+  }).notNull(),
+  description: text("description"),
+  date: timestamp("date").notNull(),
+  startTime: text("start_time"),
+  endTime: text("end_time"),
+  location: text("location"), // Where in the community
+  capacity: integer("capacity"),
+  currentAttendees: integer("current_attendees").default(0),
+  isRecurring: boolean("is_recurring").default(false),
+  recurringPattern: text("recurring_pattern"), // "daily", "weekly", "monthly", "custom"
+  leadStaff: text("lead_staff"),
+  cost: decimal("cost", { precision: 10, scale: 2 }).default("0.00"),
+  requiresRegistration: boolean("requires_registration").default(false),
+  activityLevel: text("activity_level", {
+    enum: ["low", "medium", "high"]
+  }).default("medium"),
+  targetAudience: text("target_audience"), // "all_residents", "memory_care", "independent_living", "assisted_living"
+  specialNotes: text("special_notes"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Community Activities schema and types
+export const insertCommunityActivitySchema = createInsertSchema(communityActivities);
+export type CommunityActivity = typeof communityActivities.$inferSelect;
+export type InsertCommunityActivity = typeof communityActivities.$inferInsert;
