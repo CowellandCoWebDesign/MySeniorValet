@@ -147,6 +147,14 @@ export const imageLimiter = new TokenBucketRateLimiter(
   isDev ? 600 : 300     // max requests per minute: 600 in dev, 300 in prod (more for images)
 );
 
+// Authentication limiter - very permissive for login/auth endpoints
+export const authLimiter = new TokenBucketRateLimiter(
+  isDev ? 5000 : 1000,  // tokens: 5000 in dev, 1000 in prod (very permissive for auth)
+  isDev ? 500 : 100,    // refill rate: 500/sec in dev, 100/sec in prod
+  60000, 
+  isDev ? 2000 : 500    // max requests per minute: 2000 in dev, 500 in prod
+);
+
 // Rate limiting middleware
 export function createRateLimitMiddleware(limiter: TokenBucketRateLimiter) {
   return (req: any, res: any, next: any) => {

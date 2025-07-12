@@ -36,6 +36,7 @@ import {
   searchLimiter, 
   apiLimiter, 
   imageLimiter,
+  authLimiter,
   createRateLimitMiddleware 
 } from "./infrastructure/rateLimiter";
 import { monitor } from "./infrastructure/monitoring";
@@ -277,8 +278,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Security rate limiting for different endpoint types
   const { createRateLimit } = await import("./security");
   
-  // Strict rate limiting for authentication endpoints
-  app.use('/api/auth', createRateLimit(5)); // 5 requests per 15 minutes
+  // Permissive rate limiting for authentication endpoints (using new authLimiter)
+  app.use('/api/auth', createRateLimitMiddleware(authLimiter)); // Very permissive for auth
   
   // Moderate rate limiting for API endpoints
   app.use('/api', createRateLimit(50)); // 50 requests per 15 minutes
