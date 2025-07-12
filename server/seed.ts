@@ -1,142 +1,25 @@
 import { db } from "./db";
 import { communities, users, reviews, type InsertCommunity, type InsertUser, type InsertReview } from "@shared/schema";
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { sql } from 'drizzle-orm';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export async function seedDatabase() {
   try {
     // Check if data already exists
     const existingCommunities = await db.select().from(communities);
     
-    // Load communities from JSON file
-    const communitiesJsonPath = path.join(__dirname, 'seed-data', 'communities.json');
-    
-    if (!fs.existsSync(communitiesJsonPath)) {
-      console.log("No communities.json file found, using default seeding...");
-      return await seedDefaultData();
-    }
-    
-    const communitiesData = JSON.parse(fs.readFileSync(communitiesJsonPath, 'utf8'));
-    
-    // If database has different count than JSON, reseed
-    if (existingCommunities.length !== communitiesData.length) {
-      console.log(`Database has ${existingCommunities.length} communities, JSON has ${communitiesData.length}. Reseeding...`);
-      
-      // Clear existing data and reset ID sequence
-      await db.delete(communities);
-      
-      // Reset the ID sequence to start from 1
-      try {
-        await db.execute(sql`ALTER SEQUENCE communities_id_seq RESTART WITH 1`);
-        console.log("Reset ID sequence");
-      } catch (error) {
-        console.log("Could not reset ID sequence:", error.message);
-      }
-      
-      console.log("Cleared existing communities from database");
-      
-      // Insert new data in batches
-      console.log("Seeding database with updated communities data...");
-      
-      const batchSize = 100;
-      for (let i = 0; i < communitiesData.length; i += batchSize) {
-        const batch = communitiesData.slice(i, i + batchSize);
-        const insertData = batch.map(community => {
-          // Validate and fix coordinate precision
-          let lat = null;
-          let lng = null;
-          
-          if (community.latitude) {
-            const latVal = parseFloat(community.latitude);
-            if (!isNaN(latVal) && latVal >= -90 && latVal <= 90) {
-              lat = Math.round(latVal * 1000000) / 1000000; // 6 decimal places
-            }
-          }
-          
-          if (community.longitude) {
-            const lngVal = parseFloat(community.longitude);
-            if (!isNaN(lngVal) && lngVal >= -180 && lngVal <= 180) {
-              lng = Math.round(lngVal * 1000000) / 1000000; // 6 decimal places
-            }
-          }
-          
-          // Map invalid facility types to valid ones
-          const validFacilityTypes = ["Senior Living", "HUD-VASH", "Affordable Senior", "VA CLC", "Veterans Housing"];
-          let facilityType = community.facilityType;
-          
-          if (!validFacilityTypes.includes(facilityType)) {
-            // Map common invalid types to valid ones
-            const facilityTypeMap = {
-              "Personal Care": "Senior Living",
-              "Memory Care Community": "Senior Living",
-              "Assisted Living": "Senior Living",
-              "Skilled Nursing": "Senior Living",
-              "Independent Living": "Senior Living",
-              "Nursing Home": "Senior Living",
-              "Memory Care": "Senior Living",
-              "Adult Day Care": "Senior Living",
-              "Respite Care": "Senior Living",
-              "Rehabilitation": "Senior Living"
-            };
-            facilityType = facilityTypeMap[facilityType] || "Senior Living";
-          }
-          
-          // Remove ID to let database auto-generate
-          const { id, ...communityWithoutId } = community;
-          
-          // Convert timestamp strings to Date objects
-          const processedCommunity = {
-            ...communityWithoutId,
-            reviewSources: typeof community.reviewSources === 'string' 
-              ? JSON.parse(community.reviewSources) 
-              : community.reviewSources,
-            latitude: lat,
-            longitude: lng,
-            facilityType: facilityType
-          };
-          
-          // Process timestamp fields
-          const timestampFields = ['createdAt', 'updatedAt', 'lastPriceUpdate', 'lastAvailabilityUpdate', 'lastInspection', 'discoveryDate', 'lastEnrichmentDate', 'pricingLastUpdated'];
-          
-          timestampFields.forEach(field => {
-            if (processedCommunity[field]) {
-              try {
-                processedCommunity[field] = new Date(processedCommunity[field]);
-              } catch (error) {
-                // If timestamp conversion fails, set to null
-                processedCommunity[field] = null;
-              }
-            }
-          });
-          
-          return processedCommunity;
-        });
-        
-        await db.insert(communities).values(insertData);
-        console.log(`Seeded batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(communitiesData.length / batchSize)}`);
-      }
-      
-      console.log(`✅ Database seeded with ${communitiesData.length} communities`);
+    // If we have communities but none are from San Francisco, add SF communities
+    const sfCommunities = existingCommunities.filter(c => c.city.toLowerCase() === 'san francisco');
+    if (existingCommunities.length > 0 && sfCommunities.length < 15) {
+      console.log("Adding San Francisco communities to existing database...");
+      await addSanFranciscoCommunities();
       return;
     }
     
-    console.log("Database already seeded with", existingCommunities.length, "communities");
-    return;
-    
-  } catch (error) {
-    console.error("Error seeding database:", error);
-    // Fall back to default seeding
-    await seedDefaultData();
-  }
-}
+    if (existingCommunities.length > 0) {
+      console.log("Database already seeded with", existingCommunities.length, "communities");
+      return;
+    }
 
-async function seedDefaultData() {
-  try {
-    console.log("Seeding database with default data...");
+    console.log("Seeding database with sample data...");
 
     // First seed users
     const sampleUsers: InsertUser[] = [

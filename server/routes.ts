@@ -55,7 +55,6 @@ import { systematicPhotoEnrichment } from "./systematic-photo-enrichment";
 import { emergencyEnrichment } from "./emergency-enrichment";
 import { pricingTransparencyService } from "./pricing-transparency-badges";
 import { intelligentPricingService } from "./intelligent-pricing-service";
-import { adminProtection, requireAdminKey, createProtectedRoute, logAdminOperation } from "./admin-protection";
 
 // Authentication middleware function
 const isAuthenticated = (req: any, res: any, next: any) => {
@@ -72,9 +71,6 @@ import path from 'path';
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize community stats cache on startup
   await communityStatsCache.initialize();
-  
-  // Apply admin protection middleware globally
-  app.use(adminProtection);
   
   // Create a separate router for admin routes without heavy middleware interference
   const adminRouter = express.Router();
@@ -1406,7 +1402,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Delete community
-  app.delete("/api/communities/:id", ...createProtectedRoute(async (req, res) => {
+  app.delete("/api/communities/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -1422,7 +1418,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       res.status(500).json({ message: "Failed to delete community" });
     }
-  }));
+  });
 
   // Get inspections for a community
   app.get("/api/communities/:id/inspections", async (req, res) => {
@@ -2121,8 +2117,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // State Licensing Database Integration Endpoints
   
-  // Scrape all state licensing databases AND general senior living - PROTECTED
-  app.post('/api/admin/scrape-licensing', ...createProtectedRoute(async (req, res) => {
+  // Scrape all state licensing databases AND general senior living
+  app.post('/api/admin/scrape-licensing', async (req, res) => {
     try {
       console.log('Starting comprehensive senior living data collection (licensed + unlicensed)...');
       
@@ -2148,7 +2144,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         details: error instanceof Error ? error.message : 'Unknown error'
       });
     }
-  }));
+  });
 
   // Scrape specific state licensing database
   app.post('/api/admin/scrape-licensing/:state', async (req, res) => {
@@ -2315,8 +2311,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Manual database seeding endpoint - PROTECTED
-  app.post("/api/seed", ...createProtectedRoute(async (req, res) => {
+  // Manual database seeding endpoint
+  app.post("/api/seed", async (req, res) => {
     try {
       const { seedDatabase } = await import("./seed");
       await seedDatabase();
@@ -2325,7 +2321,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Seeding error:", error);
       res.status(500).json({ error: "Failed to seed database" });
     }
-  }));
+  });
 
   // San Francisco expansion endpoint
   app.post("/api/expand-sf-communities", async (req, res) => {

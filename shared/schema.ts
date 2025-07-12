@@ -254,8 +254,8 @@ export const communities = pgTable("communities", {
   }>>().default([]),
   imageUrl: text("image_url"),
   imageGallery: text("image_gallery").array().default([]),
-  latitude: decimal("latitude", { precision: 12, scale: 8 }),
-  longitude: decimal("longitude", { precision: 12, scale: 8 }),
+  latitude: decimal("latitude", { precision: 10, scale: 8 }),
+  longitude: decimal("longitude", { precision: 11, scale: 8 }),
   licenseNumber: text("license_number"),
   licenseStatus: text("license_status"), // 'Licensed', 'Under Review', 'Expired'
   lastInspection: timestamp("last_inspection"),
@@ -760,8 +760,8 @@ export const pendingCommunities = pgTable("pending_communities", {
   careTypes: text("care_types").array().default([]),
   
   // Coordinates
-  latitude: numeric("latitude", { precision: 12, scale: 8 }),
-  longitude: numeric("longitude", { precision: 12, scale: 8 }),
+  latitude: numeric("latitude", { precision: 10, scale: 8 }),
+  longitude: numeric("longitude", { precision: 11, scale: 8 }),
   
   // Approval Status
   status: text("status", {
