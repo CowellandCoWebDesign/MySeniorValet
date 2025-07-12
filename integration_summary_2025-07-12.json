@@ -1,0 +1,29 @@
+{
+  "integration_date": "2025-07-12T02:49:12.888Z",
+  "new_facilities": 879,
+  "total_facilities": 879,
+  "states_added": [
+    "Mississippi",
+    "Louisiana",
+    "Tennessee"
+  ],
+  "breakdown": {
+    "mississippi": 280,
+    "louisiana": 247,
+    "tennessee": 352
+  },
+  "coverage": {
+    "mississippi": {
+      "counties": 82,
+      "cities": 173
+    },
+    "louisiana": {
+      "parishes": 64,
+      "cities": 141
+    },
+    "tennessee": {
+      "counties": 95,
+      "cities": 207
+    }
+  }
+}
