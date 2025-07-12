@@ -30,22 +30,22 @@ export default function TrueViewHome() {
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
-  // Location-specific queries for horizontal sections
-  const { data: reddingCommunities, isLoading: reddingLoading } = useQuery({
-    queryKey: ["/api/communities/by-location/Redding"],
+  // Location-specific queries for horizontal sections - using cities from current database
+  const { data: memphisCommunities, isLoading: memphisLoading } = useQuery({
+    queryKey: ["/api/communities/by-location/Memphis"],
     retry: false,
     staleTime: 10 * 60 * 1000, // Cache for 10 minutes
   });
 
-  const { data: sacramentoCommunities, isLoading: sacramentoLoading } = useQuery({
-    queryKey: ["/api/communities/by-location/Sacramento"],
+  const { data: atlantaCommunities, isLoading: atlantaLoading } = useQuery({
+    queryKey: ["/api/communities/by-location/Atlanta"],
     retry: false,
     staleTime: 10 * 60 * 1000, // Cache for 10 minutes
   });
 
-  // Coastal communities - search for actual coastal cities
-  const { data: coastalCommunities, isLoading: coastalLoading } = useQuery({
-    queryKey: ["/api/communities/coastal"],
+  // Nashville communities - popular Tennessee city
+  const { data: nashvilleCommunities, isLoading: nashvilleLoading } = useQuery({
+    queryKey: ["/api/communities/by-location/Nashville"],
     retry: false,
     staleTime: 10 * 60 * 1000, // Cache for 10 minutes
   });
@@ -63,28 +63,28 @@ export default function TrueViewHome() {
     const lowerQuery = query.toLowerCase();
     const allSuggestions = new Set<string>();
 
-    // Add popular California cities from different regions
+    // Add popular cities from current database states
     const popularCities = [
-      "San Francisco, CA",
-      "Los Angeles, CA",
-      "San Diego, CA", 
-      "Sacramento, CA",
-      "San Jose, CA",
-      "Oakland, CA",
-      "Fresno, CA",
-      "Long Beach, CA",
-      "Santa Ana, CA",
-      "Redding, CA",
-      "Santa Rosa, CA",
-      "Stockton, CA",
-      "Fremont, CA",
-      "Berkeley, CA",
-      "Richmond, CA",
-      "Eureka, CA",
-      "Arcata, CA",
-      "Napa, CA",
-      "Petaluma, CA",
-      "Vallejo, CA"
+      "Memphis, TN",
+      "Nashville, TN",
+      "Atlanta, GA",
+      "Birmingham, AL",
+      "Jackson, MS",
+      "New Orleans, LA",
+      "Miami, FL",
+      "Tampa, FL",
+      "Jacksonville, FL",
+      "Clarksville, TN",
+      "Hattiesburg, MS",
+      "Baton Rouge, LA",
+      "Pensacola, FL",
+      "Tallahassee, FL",
+      "Savannah, GA",
+      "Mobile, AL",
+      "Montgomery, AL",
+      "Shreveport, LA",
+      "Biloxi, MS",
+      "Knoxville, TN"
     ];
 
     popularCities.forEach(city => {
@@ -557,11 +557,11 @@ export default function TrueViewHome() {
             </div>
           </div>
           
-          <p className="text-gray-600 text-sm mb-4">{reddingCommunities?.length || 0} quality communities • Updated 30 minutes ago</p>
+          <p className="text-gray-600 text-sm mb-4">{memphisCommunities?.length || 0} quality communities • Updated 30 minutes ago</p>
         
         <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
-          {/* Show ALL Redding communities from dedicated endpoint */}
-          {reddingLoading ? (
+          {/* Show ALL Memphis communities from dedicated endpoint */}
+          {memphisLoading ? (
             // Loading skeleton cards
             Array.from({ length: 4 }).map((_, index) => (
               <Card key={index} className="overflow-hidden flex-shrink-0 w-48 border border-gray-200 animate-pulse">
@@ -575,7 +575,7 @@ export default function TrueViewHome() {
               </Card>
             ))
           ) : (
-            (reddingCommunities || []).map((community: any, index) => (
+            (memphisCommunities || []).map((community: any, index) => (
               <Link key={community.id} href={`/community/${community.id}`}>
                 <Card className="overflow-hidden flex-shrink-0 w-48 animate-float border border-gray-200 hover:border-gray-300 transition-colors" style={{animationDelay: `${index * 0.2}s`}}>
                   <div className="relative">
@@ -815,11 +815,11 @@ export default function TrueViewHome() {
             </div>
           </div>
           
-          <p className="text-gray-600 text-sm mb-4">{coastalCommunities?.length || 0} coastal communities • Ocean views and coastal charm</p>
+          <p className="text-gray-600 text-sm mb-4">{nashvilleCommunities?.length || 0} Nashville communities • Music City charm</p>
         
           <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
             {/* Show coastal communities from dedicated endpoint */}
-            {coastalLoading ? (
+            {nashvilleLoading ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
                 <Card key={index} className="overflow-hidden flex-shrink-0 w-48 border border-gray-200 animate-pulse">
@@ -833,7 +833,7 @@ export default function TrueViewHome() {
                 </Card>
               ))
             ) : (
-              (coastalCommunities || []).map((community: any, index) => (
+              (nashvilleCommunities || []).map((community: any, index) => (
                 <Link key={community.id} href={`/community/${community.id}`}>
               <Card className="overflow-hidden flex-shrink-0 w-48 animate-float coastal-card" style={{animationDelay: `${index * 0.2}s`}}>
                 <div className="relative">
