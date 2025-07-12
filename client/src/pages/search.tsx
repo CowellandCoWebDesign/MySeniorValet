@@ -566,8 +566,6 @@ export default function Search() {
         )}
       </main>
       
-      <Footer />
-      
       {/* Bottom Navigation */}
       <BottomNavigation 
         activeTab={activeTab} 

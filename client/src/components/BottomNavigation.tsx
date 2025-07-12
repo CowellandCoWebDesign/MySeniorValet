@@ -28,7 +28,7 @@ export default function BottomNavigation({
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-lg">
       <div className="grid grid-cols-5 h-16">
         {tabs.map((tab) => {
           const Icon = tab.icon;
