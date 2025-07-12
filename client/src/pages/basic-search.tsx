@@ -7,8 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import { Icon } from 'leaflet';
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import SlidePanel from "@/components/SlidePanel";
+import BottomNavigation from "@/components/BottomNavigation";
 import 'leaflet/dist/leaflet.css';
 
 // Care type icons and colors mapping
@@ -119,6 +120,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [sortBy, setSortBy] = useState('recommended');
   const [showSortOptions, setShowSortOptions] = useState(false);
+  const [, navigate] = useLocation();
   
   // Parse URL parameters for filters
   const urlParams = new URLSearchParams(window.location.search);
@@ -154,6 +156,30 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
   ];
 
   const [mapBounds, setMapBounds] = useState<any>(null);
+
+  // Handle tab change for bottom navigation
+  const handleTabChange = (tabId: string) => {
+    console.log('Bottom navigation tab clicked:', tabId);
+    setActiveTab(tabId);
+    
+    switch (tabId) {
+      case 'search':
+        navigate('/search');
+        break;
+      case 'updates':
+        navigate('/dashboard?tab=updates');
+        break;
+      case 'saved':
+        navigate('/dashboard?tab=saved');
+        break;
+      case 'tours':
+        navigate('/dashboard?tab=tours');
+        break;
+      case 'inbox':
+        navigate('/dashboard?tab=inbox');
+        break;
+    }
+  };
 
   const { data: communitiesResponse, isLoading, error } = useQuery({
     queryKey: ["/api/communities/search", { 
@@ -1028,42 +1054,11 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
 
 
 
-      <BottomNav />
-    </div>
-  );
-}
-
-// Bottom Navigation Component
-const BottomNav = () => {
-  const [activeTab, setActiveTab] = useState('search');
-
-  return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
-      <div className="flex justify-around items-center py-2">
-        {[
-          { id: 'search', label: 'Search', icon: Search },
-          { id: 'updates', label: 'Updates', icon: Bell },
-          { id: 'saved', label: 'Saved', icon: Heart },
-          { id: 'tours', label: 'Tours', icon: Calendar },
-          { id: 'inbox', label: 'Inbox', icon: Mail },
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
-          
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-col items-center py-1 px-2 min-w-0 flex-1 ${
-                isActive ? 'text-blue-600' : 'text-gray-600'
-              }`}
-            >
-              <Icon className="w-5 h-5" />
-              <span className="text-xs mt-0.5 truncate">{tab.label}</span>
-            </button>
-          );
-        })}
-      </div>
+      <BottomNavigation 
+        activeTab={activeTab} 
+        onTabChange={handleTabChange}
+        updateCount={0}
+      />
     </div>
   );
 };
