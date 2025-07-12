@@ -22,7 +22,7 @@ export default function BottomNavigation({
   const tabs = [
     { id: 'search', label: 'Search', icon: Search },
     { id: 'updates', label: 'Updates', icon: Bell, badge: updateCount },
-    { id: 'saved', label: 'Saved Communities', icon: Heart },
+    { id: 'saved', label: 'Saved', icon: Heart },
     { id: 'tours', label: 'Tours', icon: Calendar },
     { id: 'inbox', label: 'Inbox', icon: Mail },
   ];
@@ -41,21 +41,25 @@ export default function BottomNavigation({
                 console.log('Bottom nav button clicked:', tab.id);
                 onTabChange(tab.id);
               }}
-              className={`flex flex-col items-center justify-center space-y-1 transition-colors ${
+              className={`flex flex-col items-center justify-center space-y-1 px-1 py-2 transition-all duration-200 ease-in-out hover:bg-gray-50 active:bg-gray-100 active:scale-95 transform ${
                 isActive 
-                  ? 'text-blue-600' 
+                  ? 'text-blue-600 bg-blue-50' 
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               <div className="relative">
-                <Icon className={`w-5 h-5 ${isActive ? 'fill-current' : ''}`} />
+                <Icon className={`w-5 h-5 transition-transform duration-200 ${
+                  isActive ? 'fill-current scale-110' : 'hover:scale-105'
+                }`} />
                 {tab.badge && (
-                  <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 min-w-[18px] h-[18px] flex items-center justify-center">
+                  <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 min-w-[18px] h-[18px] flex items-center justify-center animate-pulse">
                     {tab.badge}
                   </Badge>
                 )}
               </div>
-              <span className={`text-xs ${isActive ? 'font-semibold' : ''}`}>
+              <span className={`text-xs leading-tight text-center max-w-full truncate ${
+                isActive ? 'font-semibold' : 'font-normal'
+              }`}>
                 {tab.label}
               </span>
             </button>
