@@ -87,6 +87,11 @@ export default function Dashboard() {
   const logout = useLogout();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  
+  // Get tab from URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const tabParam = urlParams.get('tab');
+  const [activeTab, setActiveTab] = useState(tabParam || 'favorites');
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -229,8 +234,8 @@ export default function Dashboard() {
         </div>
 
         {/* DASHBOARD TABS */}
-        <Tabs defaultValue="favorites" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-5">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5 lg:grid-cols-6">
             <TabsTrigger value="favorites" className="flex items-center space-x-2">
               <Heart className="h-4 w-4" />
               <span className="hidden sm:inline">Favorites</span>
@@ -239,9 +244,13 @@ export default function Dashboard() {
               <Bell className="h-4 w-4" />
               <span className="hidden sm:inline">Alerts</span>
             </TabsTrigger>
-            <TabsTrigger value="visits" className="flex items-center space-x-2">
+            <TabsTrigger value="tours" className="flex items-center space-x-2">
               <Calendar className="h-4 w-4" />
-              <span className="hidden sm:inline">Visits</span>
+              <span className="hidden sm:inline">Tours</span>
+            </TabsTrigger>
+            <TabsTrigger value="inbox" className="flex items-center space-x-2">
+              <Mail className="h-4 w-4" />
+              <span className="hidden sm:inline">Inbox</span>
             </TabsTrigger>
             <TabsTrigger value="notes" className="flex items-center space-x-2">
               <FileText className="h-4 w-4" />
@@ -366,8 +375,8 @@ export default function Dashboard() {
             </div>
           </TabsContent>
 
-          {/* VISITS TAB */}
-          <TabsContent value="visits" className="space-y-6">
+          {/* TOURS TAB */}
+          <TabsContent value="tours" className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">Tours & Visits</h2>
@@ -471,6 +480,28 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          {/* INBOX TAB */}
+          <TabsContent value="inbox" className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Inbox</h2>
+              <p className="text-gray-600">Messages and notifications from communities</p>
+            </div>
+
+            <Card className="text-center py-12">
+              <CardContent>
+                <Mail className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">No messages yet</h3>
+                <p className="text-gray-600 mb-6">Communities you contact will send updates and responses here</p>
+                <Link href="/search">
+                  <Button className="bg-blue-600 hover:bg-blue-700">
+                    <Search className="h-4 w-4 mr-2" />
+                    Explore Communities
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* NOTES TAB */}

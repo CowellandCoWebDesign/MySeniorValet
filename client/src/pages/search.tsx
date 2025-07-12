@@ -63,7 +63,7 @@ export default function Search() {
         setLocation('/updates');
         break;
       case 'saved':
-        setLocation('/dashboard?tab=saved');
+        setLocation('/dashboard?tab=favorites');
         break;
       case 'tours':
         setLocation('/dashboard?tab=tours');
