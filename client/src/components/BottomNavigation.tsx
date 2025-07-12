@@ -28,7 +28,7 @@ export default function BottomNavigation({
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
       <div className="grid grid-cols-5 h-16">
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -37,7 +37,10 @@ export default function BottomNavigation({
           return (
             <button
               key={tab.id}
-              onClick={() => onTabChange(tab.id)}
+              onClick={() => {
+                console.log('Bottom nav button clicked:', tab.id);
+                onTabChange(tab.id);
+              }}
               className={`flex flex-col items-center justify-center space-y-1 transition-colors ${
                 isActive 
                   ? 'text-blue-600' 

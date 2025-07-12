@@ -54,24 +54,31 @@ export default function Search() {
   
   // Handle bottom navigation
   const handleTabChange = (tab: string) => {
+    console.log('Bottom navigation clicked:', tab);
     setActiveTab(tab);
     switch (tab) {
       case 'search':
         // Already on search page
+        console.log('Staying on search page');
         break;
       case 'updates':
+        console.log('Navigating to updates');
         setLocation('/updates');
         break;
       case 'saved':
+        console.log('Navigating to dashboard favorites');
         setLocation('/dashboard?tab=favorites');
         break;
       case 'tours':
+        console.log('Navigating to dashboard tours');
         setLocation('/dashboard?tab=tours');
         break;
       case 'inbox':
+        console.log('Navigating to dashboard inbox');
         setLocation('/dashboard?tab=inbox');
         break;
       default:
+        console.log('Unknown tab:', tab);
         break;
     }
   };
