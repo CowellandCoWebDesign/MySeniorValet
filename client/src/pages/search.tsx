@@ -7,6 +7,7 @@ import { CommunityCard } from "@/components/community-card";
 import { CommunityCardSkeleton } from "@/components/community-card-skeleton";
 import { MapView } from "@/components/map-view";
 import { Breadcrumb } from "@/components/breadcrumb";
+import BottomNavigation from "@/components/BottomNavigation";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -47,6 +48,33 @@ export default function Search() {
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
+  
+  // Bottom navigation state
+  const [activeTab, setActiveTab] = useState('search');
+  
+  // Handle bottom navigation
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    switch (tab) {
+      case 'search':
+        // Already on search page
+        break;
+      case 'updates':
+        setLocation('/updates');
+        break;
+      case 'saved':
+        setLocation('/dashboard?tab=saved');
+        break;
+      case 'tours':
+        setLocation('/dashboard?tab=tours');
+        break;
+      case 'inbox':
+        setLocation('/dashboard?tab=inbox');
+        break;
+      default:
+        break;
+    }
+  };
 
   // Load search history from localStorage
   useEffect(() => {
@@ -171,7 +199,7 @@ export default function Search() {
     <div className="min-h-screen bg-gray-50">
       <Header />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20">
         {/* Breadcrumb */}
         <Breadcrumb 
           items={[
@@ -532,6 +560,13 @@ export default function Search() {
       </main>
       
       <Footer />
+      
+      {/* Bottom Navigation */}
+      <BottomNavigation 
+        activeTab={activeTab} 
+        onTabChange={handleTabChange}
+        updateCount={0}
+      />
     </div>
   );
 }
