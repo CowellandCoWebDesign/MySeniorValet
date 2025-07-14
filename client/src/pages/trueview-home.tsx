@@ -392,7 +392,24 @@ export default function TrueViewHome() {
                       )}
                     </div>
                     
-                    {/* California Regional Badges - Below Pricing */}
+
+                    
+                    <div className="text-sm text-gray-700 mb-1">
+                      {community.careTypes?.length > 0 ? 
+                        `${community.careTypes[0]} • California Living` : 
+                        'Assisted Living • Golden State Care'
+                      }
+                    </div>
+                    
+                    <div className="text-sm font-medium text-gray-900 mb-2 line-clamp-1">
+                      {community.name}
+                    </div>
+                    
+                    <div className="text-xs text-gray-600 line-clamp-1 mb-2">
+                      {community.address || 'California Community'}, {community.city}, CA {community.zipCode}
+                    </div>
+                    
+                    {/* California Regional Badges - Bottom of Card */}
                     <div className="mb-2">
                       {index % 4 === 0 && (
                         <Badge className="bg-amber-600/90 text-white text-xs px-2 py-1 font-medium">
@@ -414,21 +431,6 @@ export default function TrueViewHome() {
                           Bay Area
                         </Badge>
                       )}
-                    </div>
-                    
-                    <div className="text-sm text-gray-700 mb-1">
-                      {community.careTypes?.length > 0 ? 
-                        `${community.careTypes[0]} • California Living` : 
-                        'Assisted Living • Golden State Care'
-                      }
-                    </div>
-                    
-                    <div className="text-sm font-medium text-gray-900 mb-2 line-clamp-1">
-                      {community.name}
-                    </div>
-                    
-                    <div className="text-xs text-gray-600 line-clamp-1 mb-2">
-                      {community.address || 'California Community'}, {community.city}, CA {community.zipCode}
                     </div>
                     
                     {/* Enhanced Features Row */}
