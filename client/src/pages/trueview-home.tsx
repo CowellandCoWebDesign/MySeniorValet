@@ -280,30 +280,29 @@ export default function TrueViewHome() {
         </div>
       </section>
 
-      {/* Trending Section */}
+      {/* California Communities Section */}
       <section className="px-4 py-12 relative overflow-hidden">
-        {/* Background Golden Gate Bridge Image */}
+        {/* Background with California Golden State styling */}
         <div className="absolute inset-0 z-0">
-          <img 
-            src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-            alt="Golden Gate Bridge background"
-            className="w-full h-full object-cover opacity-60"
-          />
-          <div className="absolute inset-0 bg-white/50"></div>
+          <div className="w-full h-full bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-amber-100/30 via-orange-100/20 to-yellow-100/30"></div>
         </div>
         
         <div className="relative z-10">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Explore Communities Across California
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-900">
+              California Communities
             </h2>
-            <p className="text-gray-600 text-sm">
-              Discover highly-rated communities in different areas - find your perfect match
-            </p>
+            <div className="text-right">
+              <div className="text-sm font-semibold text-gray-900">$3,500 - $6,200</div>
+              <div className="text-xs text-amber-600">Golden State living</div>
+            </div>
           </div>
+          
+          <p className="text-gray-600 text-sm mb-4">{californiaCommunities?.length || 0} communities • Silicon Valley, LA Metro, San Diego</p>
         
         <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
-          {trendingLoading ? (
+          {californiaLoading ? (
             // Loading skeleton cards
             Array.from({ length: 4 }).map((_, index) => (
               <Card key={index} className="overflow-hidden flex-shrink-0 w-48 border border-gray-200 animate-pulse">
@@ -317,62 +316,77 @@ export default function TrueViewHome() {
               </Card>
             ))
           ) : (
-            featuredCommunities.map((community: any, index) => (
-              <Link key={`featured-${community.id}-${index}`} href={`/community/${community.id}`}>
-              <Card className="overflow-hidden flex-shrink-0 w-48 animate-float border border-gray-200 hover:border-gray-300 transition-colors" style={{animationDelay: `${index * 0.2}s`}}>
-                <div className="relative">
-                  <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
-                    <Home className="w-12 h-12 text-gray-400" />
-                  </div>
-                  
-                  {/* Heart Icon */}
-                  <div className="absolute top-3 right-3">
-                    <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
-                      <Heart className="w-4 h-4 text-gray-600" />
+            (californiaCommunities || []).map((community: any, index) => (
+              <Link key={`california-top-${community.id}-${index}`} href={`/community/${community.id}`}>
+                <Card className="overflow-hidden flex-shrink-0 w-48 animate-float california-card" style={{animationDelay: `${index * 0.2}s`}}>
+                  <div className="relative">
+                    <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
+                      <Home className="w-12 h-12 text-gray-400" />
                     </div>
-                  </div>
-                  
-                  {/* Featured/Sponsored Badge */}
-                  {index % 3 === 0 && (
-                    <Badge className="absolute top-3 left-3 gradient-primary text-white text-xs px-2 py-1 font-medium animate-pulse">
-                      Featured
-                    </Badge>
-                  )}
-                  {index % 3 === 1 && (
-                    <Badge className="absolute top-3 left-3 gradient-secondary text-white text-xs px-2 py-1 font-medium animate-pulse">
-                      Sponsored
-                    </Badge>
-                  )}
-                </div>
-                
-                <CardContent className="p-3">
-                  <div className="text-xl font-bold text-gray-900 mb-1">
-                    {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : '$4,500'}
-                  </div>
-                  
-                  <div className="text-sm text-gray-700 mb-1">
-                    {community.careTypes?.length > 0 ? 
-                      `${community.careTypes[0]} • ${community.careTypes.length > 1 ? community.careTypes[1] : 'Full care'}` : 
-                      'Assisted Living • Memory Care'
-                    }
-                  </div>
-                  
-                  <div className="text-sm font-medium text-gray-900 mb-2 line-clamp-1">
-                    {community.name}
-                  </div>
-                  
-                  <div className="text-xs text-gray-600 line-clamp-1">
-                    {community.address || `${Math.floor(Math.random() * 9999)} Community Dr`}, {community.city}, {community.state} {community.zipCode}
-                  </div>
-                  
-                  {community.googleRating && (
-                    <div className="flex items-center mt-2 text-xs text-gray-500">
-                      <span>MLS ID #25-{3000 + community.id}</span>
+                    
+                    {/* Heart Icon */}
+                    <div className="absolute top-3 right-3">
+                      <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
+                        <Heart className="w-4 h-4 text-gray-600" />
+                      </div>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
-            </Link>
+                    
+                    {/* California Regional Badges */}
+                    {index % 4 === 0 && (
+                      <Badge className="absolute top-3 left-3 bg-amber-600 text-white text-xs px-2 py-1 font-medium">
+                        Silicon Valley
+                      </Badge>
+                    )}
+                    {index % 4 === 1 && (
+                      <Badge className="absolute top-3 left-3 bg-orange-600 text-white text-xs px-2 py-1 font-medium">
+                        LA Metro
+                      </Badge>
+                    )}
+                    {index % 4 === 2 && (
+                      <Badge className="absolute top-3 left-3 bg-yellow-600 text-white text-xs px-2 py-1 font-medium">
+                        San Diego
+                      </Badge>
+                    )}
+                    {index % 4 === 3 && (
+                      <Badge className="absolute top-3 left-3 bg-red-600 text-white text-xs px-2 py-1 font-medium">
+                        Bay Area
+                      </Badge>
+                    )}
+                    
+                    {/* Price Badge */}
+                    <Badge className="absolute bottom-3 left-3 bg-green-600 text-white text-xs px-2 py-1 font-medium">
+                      {community.monthlyRent ? `$${(community.monthlyRent / 1000).toFixed(1)}K+` : '$4K+'}
+                    </Badge>
+                  </div>
+                  
+                  <CardContent className="p-3">
+                    <div className="text-xl font-bold text-gray-900 mb-1">
+                      {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : '$4,200'}
+                    </div>
+                    
+                    <div className="text-sm text-gray-700 mb-1">
+                      {community.careTypes?.length > 0 ? 
+                        `${community.careTypes[0]} • California Living` : 
+                        'Assisted Living • Golden State Care'
+                      }
+                    </div>
+                    
+                    <div className="text-sm font-medium text-gray-900 mb-2 line-clamp-1">
+                      {community.name}
+                    </div>
+                    
+                    <div className="text-xs text-gray-600 line-clamp-1">
+                      {community.address || 'California Community'}, {community.city}, CA {community.zipCode}
+                    </div>
+                    
+                    {community.googleRating && (
+                      <div className="flex items-center mt-2 text-xs text-gray-500">
+                        <span>CA License #{20000 + community.id}</span>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </Link>
             ))
           )}
         </div>
@@ -478,106 +492,7 @@ export default function TrueViewHome() {
 
 
 
-      {/* California Communities Section */}
-      <section className="px-4 py-8 bg-gradient-to-br from-amber-50 to-orange-50">
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-900">
-              California Communities
-            </h2>
-            <div className="text-right">
-              <div className="text-sm font-semibold text-gray-900">$2,800 - $5,200</div>
-              <div className="text-xs text-amber-600">Golden State living</div>
-            </div>
-          </div>
-          
-          <p className="text-gray-600 text-sm mb-4">{californiaCommunities?.length || 0} communities statewide • From Silicon Valley to San Diego</p>
-        </div>
-        
-        <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
-          {/* Show California communities */}
-          {californiaLoading ? (
-            // Loading skeleton cards
-            Array.from({ length: 4 }).map((_, index) => (
-              <Card key={index} className="overflow-hidden flex-shrink-0 w-48 border border-gray-200 animate-pulse">
-                <div className="aspect-[4/3] bg-gray-200"></div>
-                <CardContent className="p-3">
-                  <div className="h-6 bg-gray-200 rounded mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded mb-1"></div>
-                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                  <div className="h-3 bg-gray-200 rounded"></div>
-                </CardContent>
-              </Card>
-            ))
-          ) : (
-            (californiaCommunities || []).map((community: any, index) => (
-              <Link key={`california-${community.id}-${index}`} href={`/community/${community.id}`}>
-                <Card className="overflow-hidden flex-shrink-0 w-48 animate-float california-card" style={{animationDelay: `${index * 0.2}s`}}>
-                  <div className="relative">
-                    <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
-                      <Home className="w-12 h-12 text-gray-400" />
-                    </div>
-                    
-                    {/* Heart Icon */}
-                    <div className="absolute top-3 right-3">
-                      <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
-                        <Heart className="w-4 h-4 text-gray-600" />
-                      </div>
-                    </div>
-                    
-                    {/* California Badge */}
-                    {index % 3 === 0 && (
-                      <Badge className="absolute top-3 left-3 bg-amber-600 text-white text-xs px-2 py-1 font-medium">
-                        Silicon Valley
-                      </Badge>
-                    )}
-                    {index % 3 === 1 && (
-                      <Badge className="absolute top-3 left-3 bg-orange-600 text-white text-xs px-2 py-1 font-medium">
-                        LA Metro
-                      </Badge>
-                    )}
-                    {index % 3 === 2 && (
-                      <Badge className="absolute top-3 left-3 bg-red-600 text-white text-xs px-2 py-1 font-medium">
-                        San Diego
-                      </Badge>
-                    )}
-                    
-                    {/* Price Badge */}
-                    <Badge className="absolute bottom-3 left-3 bg-green-600 text-white text-xs px-2 py-1 font-medium">
-                      $3K+
-                    </Badge>
-                  </div>
-                  
-                  <CardContent className="p-3">
-                    <div className="text-xl font-bold text-gray-900 mb-1">
-                      {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : '$3,400'}
-                    </div>
-                    
-                    <div className="text-sm text-gray-700 mb-1">
-                      {community.careTypes?.length > 0 ? 
-                        `${community.careTypes[0]} • California` : 
-                        'Assisted Living • Golden State'
-                      }
-                    </div>
-                    
-                    <div className="text-sm font-medium text-gray-900 mb-2 line-clamp-1">
-                      {community.name}
-                    </div>
-                    
-                    <div className="text-xs text-gray-600 line-clamp-1">
-                      {community.address || 'California Community'}, {community.city}, CA
-                    </div>
-                    
-                    <div className="flex items-center mt-2 text-xs text-gray-500">
-                      <span>🌟 California Living</span>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))
-          )}
-        </div>
-      </section>
+
 
 
 
