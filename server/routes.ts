@@ -921,6 +921,106 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get trending communities for homepage - fast-loading diverse selection (must be before :id route)
+  app.get('/api/communities/trending', async (req, res) => {
+    try {
+      const startTime = Date.now();
+      // Use optimized database query instead of loading all communities
+      const trendingCommunities = await storage.getTrendingCommunities(100);
+      
+      // Add some randomness for variety while keeping the quality high
+      const shuffledCommunities = trendingCommunities
+        .map(community => ({
+          ...community,
+          trendingScore: Math.random() * 100, // Add some randomness for variety
+        }))
+        .sort((a, b) => b.trendingScore - a.trendingScore)
+        .slice(0, 60); // Return top 60 for multiple sections
+      
+      console.log(`Trending communities loaded in ${Date.now() - startTime}ms`);
+      res.json(shuffledCommunities);
+    } catch (error) {
+      console.error('Error fetching trending communities:', error);
+      // Return empty array instead of error to prevent UI breakage
+      res.json([]);
+    }
+  });
+
+  // Get coastal communities for horizontal sections (must be before :id route)
+  app.get('/api/communities/coastal', async (req, res) => {
+    try {
+      const startTime = Date.now();
+      const limit = parseInt(req.query.limit as string) || 20;
+      
+      // Search for communities in actual coastal cities - use more reliable method
+      const coastalCities = ['Santa Monica', 'Monterey', 'San Francisco', 'Santa Barbara', 'Carmel'];
+      const allCoastalCommunities = [];
+      
+      for (const city of coastalCities) {
+        try {
+          const searchResults = await storage.searchCommunities({
+            location: city,
+            limit: 5, // Get 5 from each city to avoid overwhelming
+            offset: 0
+          });
+          if (searchResults && searchResults.length > 0) {
+            allCoastalCommunities.push(...searchResults);
+          }
+        } catch (cityError) {
+          console.log(`No communities found in ${city}, continuing...`);
+        }
+      }
+      
+      // Fallback to trending communities if coastal search fails
+      if (allCoastalCommunities.length === 0) {
+        try {
+          const fallbackResults = await storage.getTrendingCommunities(limit);
+          console.log(`Coastal communities loaded (fallback) in ${Date.now() - startTime}ms`);
+          res.json(fallbackResults);
+        } catch (fallbackError) {
+          console.error('Fallback also failed:', fallbackError);
+          res.json([]);
+        }
+        return;
+      }
+      
+      // Limit to requested amount and shuffle for variety
+      const shuffledResults = allCoastalCommunities
+        .sort(() => Math.random() - 0.5)
+        .slice(0, limit);
+      
+      console.log(`Coastal communities loaded in ${Date.now() - startTime}ms`);
+      res.json(shuffledResults);
+    } catch (error) {
+      console.error('Error fetching coastal communities:', error);
+      // Return empty array instead of error to prevent UI breakage
+      res.json([]);
+    }
+  });
+
+  // Get communities by location for horizontal sections (must be before :id route)
+  app.get('/api/communities/by-location/:location', async (req, res) => {
+    try {
+      const startTime = Date.now();
+      const location = req.params.location;
+      const limit = parseInt(req.query.limit as string) || 20;
+      
+      // Use the same search logic as the main search
+      const searchResults = await storage.searchCommunities({
+        location: location,
+        limit: limit,
+        offset: 0
+      });
+      
+      console.log(`Location communities (${location}) loaded in ${Date.now() - startTime}ms`);
+      res.json(searchResults);
+    } catch (error) {
+      console.error('Error fetching location communities:', error);
+      // Return empty array instead of error to prevent UI breakage
+      res.json([]);
+    }
+  });
+
   // Get community details with transparency badges
   app.get('/api/communities/:id', async (req, res) => {
     try {
@@ -1094,105 +1194,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get trending communities for homepage - fast-loading diverse selection
-  app.get('/api/communities/trending', async (req, res) => {
-    try {
-      const startTime = Date.now();
-      // Use optimized database query instead of loading all communities
-      const trendingCommunities = await storage.getTrendingCommunities(100);
-      
-      // Add some randomness for variety while keeping the quality high
-      const shuffledCommunities = trendingCommunities
-        .map(community => ({
-          ...community,
-          trendingScore: Math.random() * 100, // Add some randomness for variety
-        }))
-        .sort((a, b) => b.trendingScore - a.trendingScore)
-        .slice(0, 60); // Return top 60 for multiple sections
-      
-      console.log(`Trending communities loaded in ${Date.now() - startTime}ms`);
-      res.json(shuffledCommunities);
-    } catch (error) {
-      console.error('Error fetching trending communities:', error);
-      // Return empty array instead of error to prevent UI breakage
-      res.json([]);
-    }
-  });
 
-  // Get coastal communities for horizontal sections (must be before :id routes)
-  app.get('/api/communities/coastal', async (req, res) => {
-    try {
-      const startTime = Date.now();
-      const limit = parseInt(req.query.limit as string) || 20;
-      
-      // Search for communities in actual coastal cities - use more reliable method
-      const coastalCities = ['Santa Monica', 'Monterey', 'San Francisco', 'Santa Barbara', 'Carmel'];
-      const allCoastalCommunities = [];
-      
-      for (const city of coastalCities) {
-        try {
-          const searchResults = await storage.searchCommunities({
-            location: city,
-            limit: 5, // Get 5 from each city to avoid overwhelming
-            offset: 0
-          });
-          if (searchResults && searchResults.length > 0) {
-            allCoastalCommunities.push(...searchResults);
-          }
-        } catch (cityError) {
-          console.log(`No communities found in ${city}, continuing...`);
-        }
-      }
-      
-      // Fallback to trending communities if coastal search fails
-      if (allCoastalCommunities.length === 0) {
-        try {
-          const fallbackResults = await storage.getTrendingCommunities(limit);
-          console.log(`Coastal communities loaded (fallback) in ${Date.now() - startTime}ms`);
-          res.json(fallbackResults);
-        } catch (fallbackError) {
-          console.error('Fallback also failed:', fallbackError);
-          res.json([]);
-        }
-        return;
-      }
-      
-      // Limit to requested amount and shuffle for variety
-      const shuffledResults = allCoastalCommunities
-        .sort(() => Math.random() - 0.5)
-        .slice(0, limit);
-      
-      console.log(`Coastal communities loaded in ${Date.now() - startTime}ms`);
-      res.json(shuffledResults);
-    } catch (error) {
-      console.error('Error fetching coastal communities:', error);
-      // Return empty array instead of error to prevent UI breakage
-      res.json([]);
-    }
-  });
-
-  // Get communities by location for horizontal sections
-  app.get('/api/communities/by-location/:location', async (req, res) => {
-    try {
-      const startTime = Date.now();
-      const location = req.params.location;
-      const limit = parseInt(req.query.limit as string) || 20;
-      
-      // Use the same search logic as the main search
-      const searchResults = await storage.searchCommunities({
-        location: location,
-        limit: limit,
-        offset: 0
-      });
-      
-      console.log(`Location communities (${location}) loaded in ${Date.now() - startTime}ms`);
-      res.json(searchResults);
-    } catch (error) {
-      console.error('Error fetching location communities:', error);
-      // Return empty array instead of error to prevent UI breakage
-      res.json([]);
-    }
-  });
 
   // Get affordable housing facilities (HUD Section 202/811)
   app.get('/api/communities/affordable-housing', async (req, res) => {
