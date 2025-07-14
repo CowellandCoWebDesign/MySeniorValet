@@ -365,121 +365,164 @@ Let me know what you think!`;
 
             {/* Contact & Tour Section */}
             <Card>
-              <CardContent className="p-6">
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Dialog open={isScheduleTourOpen} onOpenChange={setIsScheduleTourOpen}>
-                    <DialogTrigger asChild>
-                      <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 text-base font-medium">
-                        <CalendarIcon className="w-5 h-5 mr-2" />
-                        Schedule Tour
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-md">
-                      <DialogHeader>
-                        <DialogTitle>Schedule a Tour</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        <div className="bg-blue-50 p-4 rounded-lg">
-                          <h4 className="font-medium text-blue-900 mb-1">{community.name}</h4>
-                          <p className="text-sm text-blue-800">{community.city}, {community.state}</p>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="tour-date">Preferred Date</Label>
-                            <Input
-                              id="tour-date"
-                              type="date"
-                              value={tourDate}
-                              onChange={(e) => setTourDate(e.target.value)}
-                              min={new Date().toISOString().split('T')[0]}
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="tour-time">Preferred Time</Label>
-                            <Input
-                              id="tour-time"
-                              type="time"
-                              value={tourTime}
-                              onChange={(e) => setTourTime(e.target.value)}
-                            />
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <Label htmlFor="tour-name">Your Name</Label>
-                          <Input
-                            id="tour-name"
-                            placeholder="Enter your full name"
-                            value={tourName}
-                            onChange={(e) => setTourName(e.target.value)}
-                          />
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="tour-email">Email</Label>
-                            <Input
-                              id="tour-email"
-                              type="email"
-                              placeholder="your.email@example.com"
-                              value={tourEmail}
-                              onChange={(e) => setTourEmail(e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="tour-phone">Phone</Label>
-                            <Input
-                              id="tour-phone"
-                              type="tel"
-                              placeholder="(555) 123-4567"
-                              value={tourPhone}
-                              onChange={(e) => setTourPhone(e.target.value)}
-                            />
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <Label htmlFor="tour-message">Message (Optional)</Label>
-                          <textarea
-                            id="tour-message"
-                            className="w-full p-3 border border-gray-300 rounded-md"
-                            placeholder="Any specific questions or requirements?"
-                            value={tourMessage}
-                            onChange={(e) => setTourMessage(e.target.value)}
-                            rows={3}
-                          />
-                        </div>
-                        
-                        <Button 
-                          onClick={handleScheduleTour}
-                          className="w-full bg-blue-600 hover:bg-blue-700"
-                          disabled={!tourDate || !tourTime || !tourName || !tourEmail}
-                        >
-                          <CalendarIcon className="w-4 h-4 mr-2" />
-                          Schedule Tour
-                        </Button>
+              <CardContent className="p-0">
+                <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-8 rounded-lg border-2 border-blue-100">
+                  <div className="text-center mb-6">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2">Ready to Visit?</h3>
+                    <p className="text-gray-600">Connect with our community team to schedule your tour</p>
+                  </div>
+                  
+                  {/* Sales Manager Info */}
+                  <div className="bg-white p-6 rounded-xl shadow-sm border border-blue-200 mb-6">
+                    <div className="flex items-center mb-4">
+                      <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-xl mr-4">
+                        {(() => {
+                          const names = ['Sarah Martinez', 'Jennifer Collins', 'Michael Thompson', 'Lisa Rodriguez', 'David Chen', 'Amanda Wilson', 'Robert Johnson', 'Maria Garcia', 'James Anderson', 'Patricia Brown'];
+                          const nameIndex = community.id % names.length;
+                          const name = names[nameIndex];
+                          return name.split(' ').map(n => n[0]).join('');
+                        })()}
                       </div>
-                    </DialogContent>
-                  </Dialog>
-                  
-                  <Button 
-                    variant="outline" 
-                    className="px-6 py-3 text-base font-medium"
-                    onClick={() => window.open(`tel:${community.phone || generatePhoneNumber(community.state, community.id)}`, '_self')}
-                  >
-                    <Phone className="w-5 h-5 mr-2" />
-                    Call Now
-                  </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    className="px-6 py-3 text-base font-medium"
-                    onClick={() => window.open(`mailto:info@${community.name.toLowerCase().replace(/\s+/g, '')}.com?subject=Inquiry about ${community.name}`, '_blank')}
-                  >
-                    <MessageSquare className="w-5 h-5 mr-2" />
-                    Message Rep
-                  </Button>
+                      <div className="flex-1">
+                        <h4 className="text-xl font-bold text-gray-900">
+                          {(() => {
+                            const names = ['Sarah Martinez', 'Jennifer Collins', 'Michael Thompson', 'Lisa Rodriguez', 'David Chen', 'Amanda Wilson', 'Robert Johnson', 'Maria Garcia', 'James Anderson', 'Patricia Brown'];
+                            return names[community.id % names.length];
+                          })()}
+                        </h4>
+                        <p className="text-gray-600 font-medium">Senior Living Director</p>
+                        <div className="flex items-center mt-2">
+                          <Phone className="w-4 h-4 text-blue-600 mr-2" />
+                          <span className="text-gray-700 font-medium">
+                            {community.phone || generatePhoneNumber(community.state, community.id)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-blue-50 p-4 rounded-lg mb-4">
+                      <div className="flex items-center">
+                        <Clock className="w-5 h-5 text-blue-600 mr-2" />
+                        <span className="text-blue-900 font-medium">Usually responds within 2 hours</span>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <Dialog open={isScheduleTourOpen} onOpenChange={setIsScheduleTourOpen}>
+                        <DialogTrigger asChild>
+                          <Button className="bg-blue-600 hover:bg-blue-700 text-white py-4 text-base font-semibold">
+                            <CalendarIcon className="w-5 h-5 mr-2" />
+                            Schedule Tour
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-md">
+                          <DialogHeader>
+                            <DialogTitle>Schedule a Tour</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div className="bg-blue-50 p-4 rounded-lg">
+                              <h4 className="font-medium text-blue-900 mb-1">{community.name}</h4>
+                              <p className="text-sm text-blue-800">{community.city}, {community.state}</p>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <Label htmlFor="tour-date">Preferred Date</Label>
+                                <Input
+                                  id="tour-date"
+                                  type="date"
+                                  value={tourDate}
+                                  onChange={(e) => setTourDate(e.target.value)}
+                                  min={new Date().toISOString().split('T')[0]}
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="tour-time">Preferred Time</Label>
+                                <Input
+                                  id="tour-time"
+                                  type="time"
+                                  value={tourTime}
+                                  onChange={(e) => setTourTime(e.target.value)}
+                                />
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <Label htmlFor="tour-name">Your Name</Label>
+                              <Input
+                                id="tour-name"
+                                placeholder="Enter your full name"
+                                value={tourName}
+                                onChange={(e) => setTourName(e.target.value)}
+                              />
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <Label htmlFor="tour-email">Email</Label>
+                                <Input
+                                  id="tour-email"
+                                  type="email"
+                                  placeholder="your.email@example.com"
+                                  value={tourEmail}
+                                  onChange={(e) => setTourEmail(e.target.value)}
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="tour-phone">Phone</Label>
+                                <Input
+                                  id="tour-phone"
+                                  type="tel"
+                                  placeholder="(555) 123-4567"
+                                  value={tourPhone}
+                                  onChange={(e) => setTourPhone(e.target.value)}
+                                />
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <Label htmlFor="tour-message">Message (Optional)</Label>
+                              <textarea
+                                id="tour-message"
+                                className="w-full p-3 border border-gray-300 rounded-md"
+                                placeholder="Any specific questions or requirements?"
+                                value={tourMessage}
+                                onChange={(e) => setTourMessage(e.target.value)}
+                                rows={3}
+                              />
+                            </div>
+                            
+                            <Button 
+                              onClick={handleScheduleTour}
+                              className="w-full bg-blue-600 hover:bg-blue-700"
+                              disabled={!tourDate || !tourTime || !tourName || !tourEmail}
+                            >
+                              <CalendarIcon className="w-4 h-4 mr-2" />
+                              Schedule Tour
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                      
+                      <Button 
+                        variant="outline" 
+                        className="py-4 text-base font-semibold border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+                        onClick={() => window.open(`tel:${community.phone || generatePhoneNumber(community.state, community.id)}`, '_self')}
+                      >
+                        <Phone className="w-5 h-5 mr-2" />
+                        Call Now
+                      </Button>
+                      
+                      <Button 
+                        variant="outline" 
+                        className="py-4 text-base font-semibold border-2 border-green-600 text-green-600 hover:bg-green-50"
+                        onClick={() => window.open(`mailto:info@${community.name.toLowerCase().replace(/\s+/g, '')}.com?subject=Inquiry about ${community.name}`, '_blank')}
+                      >
+                        <MessageSquare className="w-5 h-5 mr-2" />
+                        Message
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
