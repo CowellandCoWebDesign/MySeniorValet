@@ -116,8 +116,12 @@ function MapBoundsUpdater({ onBoundsChange }: { onBoundsChange: (bounds: any) =>
 }
 
 export default function BasicSearch({ initialFilters = [] }: { initialFilters?: string[] }) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  // Parse URL parameters for initial search query
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlSearchQuery = urlParams.get('q');
+  
+  const [searchQuery, setSearchQuery] = useState(urlSearchQuery || "");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(urlSearchQuery || "");
   const [activeTab, setActiveTab] = useState('search');
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [sortBy, setSortBy] = useState('recommended');
@@ -133,8 +137,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
     return () => clearTimeout(timer);
   }, [searchQuery]);
   
-  // Parse URL parameters for filters
-  const urlParams = new URLSearchParams(window.location.search);
+  // Parse URL parameters for filters  
   const urlCareType = urlParams.get('careType');
   const urlFilters = urlParams.get('filters');
   const urlFiltersArray = [];
@@ -1001,6 +1004,13 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             sortBy={sortBy}
             setSortBy={setSortBy}
             isLoading={isLoading}
+            initialHeight={
+              (debouncedSearchQuery || urlSearchQuery) && visibleCommunities.length > 0
+                ? typeof window !== 'undefined' 
+                  ? window.innerHeight * 0.6  // 60% of screen height when there are search results
+                  : 500
+                : 120  // Default collapsed height
+            }
           />
         </div>
       ) : (

@@ -7,14 +7,15 @@ export default function SlidePanel({
   communities = [],
   sortBy,
   setSortBy,
-  isLoading = false
+  isLoading = false,
+  initialHeight = 120
 }) {
-  const [panelHeight, setPanelHeight] = useState(120);
+  const [panelHeight, setPanelHeight] = useState(initialHeight);
   const [isDragging, setIsDragging] = useState(false);
   const dragRef = useRef(null);
   const startYRef = useRef(0);
-  const startHeightRef = useRef(120);
-  const currentHeightRef = useRef(120); // Track current height to avoid closure issues
+  const startHeightRef = useRef(initialHeight);
+  const currentHeightRef = useRef(initialHeight); // Track current height to avoid closure issues
   const rafRef = useRef(0);
 
   const screenHeight =
