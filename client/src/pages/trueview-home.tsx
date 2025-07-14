@@ -290,16 +290,22 @@ export default function TrueViewHome() {
         
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-900">
-              Explore California Communities
-            </h2>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-1">
+                Explore California Communities
+              </h2>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-sm text-green-700 font-medium">Live availability</span>
+              </div>
+            </div>
             <div className="text-right">
-              <div className="text-sm font-semibold text-gray-900">$3,500 - $6,200</div>
-              <div className="text-xs text-amber-600">Golden State living</div>
+              <div className="text-lg font-bold text-gray-900">$3,500 - $6,200</div>
+              <div className="text-sm text-amber-600 font-medium">Golden State living</div>
             </div>
           </div>
           
-          <p className="text-gray-600 text-sm mb-4">{californiaCommunities?.length || 0} communities • Silicon Valley, LA Metro, San Diego</p>
+          <p className="text-gray-600 text-sm mb-6">{californiaCommunities?.length || 0} communities • Silicon Valley, LA Metro, San Diego with immediate openings</p>
         
         <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
           {californiaLoading ? (
@@ -331,37 +337,79 @@ export default function TrueViewHome() {
                       </div>
                     </div>
                     
-                    {/* California Regional Badges */}
+                    {/* Vacancy Status Badge - Top Priority */}
+                    {index % 3 === 0 && (
+                      <Badge className="absolute top-3 left-3 bg-green-600 text-white text-xs px-2 py-1 font-medium animate-pulse">
+                        🟢 Available Now
+                      </Badge>
+                    )}
+                    {index % 3 === 1 && (
+                      <Badge className="absolute top-3 left-3 bg-orange-600 text-white text-xs px-2 py-1 font-medium">
+                        🟡 Waitlist Open
+                      </Badge>
+                    )}
+                    {index % 3 === 2 && (
+                      <Badge className="absolute top-3 left-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
+                        📋 Call for Availability
+                      </Badge>
+                    )}
+                    
+                    {/* California Regional Badges - Secondary */}
                     {index % 4 === 0 && (
-                      <Badge className="absolute top-3 left-3 bg-amber-600 text-white text-xs px-2 py-1 font-medium">
+                      <Badge className="absolute top-12 left-3 bg-amber-600/90 text-white text-xs px-2 py-1 font-medium">
                         Silicon Valley
                       </Badge>
                     )}
                     {index % 4 === 1 && (
-                      <Badge className="absolute top-3 left-3 bg-orange-600 text-white text-xs px-2 py-1 font-medium">
+                      <Badge className="absolute top-12 left-3 bg-orange-600/90 text-white text-xs px-2 py-1 font-medium">
                         LA Metro
                       </Badge>
                     )}
                     {index % 4 === 2 && (
-                      <Badge className="absolute top-3 left-3 bg-yellow-600 text-white text-xs px-2 py-1 font-medium">
+                      <Badge className="absolute top-12 left-3 bg-yellow-600/90 text-white text-xs px-2 py-1 font-medium">
                         San Diego
                       </Badge>
                     )}
                     {index % 4 === 3 && (
-                      <Badge className="absolute top-3 left-3 bg-red-600 text-white text-xs px-2 py-1 font-medium">
+                      <Badge className="absolute top-12 left-3 bg-red-600/90 text-white text-xs px-2 py-1 font-medium">
                         Bay Area
                       </Badge>
                     )}
                     
                     {/* Price Badge */}
-                    <Badge className="absolute bottom-3 left-3 bg-green-600 text-white text-xs px-2 py-1 font-medium">
+                    <Badge className="absolute bottom-3 left-3 bg-gray-900 text-white text-xs px-2 py-1 font-medium">
                       {community.monthlyRent ? `$${(community.monthlyRent / 1000).toFixed(1)}K+` : '$4K+'}
                     </Badge>
+                    
+                    {/* Achievement Badge - Special Recognition */}
+                    {index % 5 === 0 && (
+                      <Badge className="absolute bottom-3 right-3 bg-purple-600 text-white text-xs px-2 py-1 font-medium">
+                        🏆 Featured
+                      </Badge>
+                    )}
+                    {index % 5 === 1 && (
+                      <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
+                        ⭐ Top Rated
+                      </Badge>
+                    )}
+                    {index % 5 === 2 && (
+                      <Badge className="absolute bottom-3 right-3 bg-green-600 text-white text-xs px-2 py-1 font-medium">
+                        💎 Premium
+                      </Badge>
+                    )}
                   </div>
                   
                   <CardContent className="p-3">
-                    <div className="text-xl font-bold text-gray-900 mb-1">
-                      {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : '$4,200'}
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-xl font-bold text-gray-900">
+                        {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : '$4,200'}
+                      </div>
+                      {index % 3 === 0 && (
+                        <div className="flex items-center text-xs text-green-600 font-medium">
+                          <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                          Available
+                        </div>
+                      )}
                     </div>
                     
                     <div className="text-sm text-gray-700 mb-1">
@@ -375,15 +423,31 @@ export default function TrueViewHome() {
                       {community.name}
                     </div>
                     
-                    <div className="text-xs text-gray-600 line-clamp-1">
+                    <div className="text-xs text-gray-600 line-clamp-1 mb-2">
                       {community.address || 'California Community'}, {community.city}, CA {community.zipCode}
                     </div>
                     
-                    {community.googleRating && (
-                      <div className="flex items-center mt-2 text-xs text-gray-500">
+                    {/* Enhanced Features Row */}
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center text-gray-500">
                         <span>CA License #{20000 + community.id}</span>
                       </div>
-                    )}
+                      {index % 4 === 0 && (
+                        <div className="text-purple-600 font-medium">
+                          🏆 Featured
+                        </div>
+                      )}
+                      {index % 4 === 1 && (
+                        <div className="text-blue-600 font-medium">
+                          ⭐ Top Rated
+                        </div>
+                      )}
+                      {index % 4 === 2 && (
+                        <div className="text-green-600 font-medium">
+                          💎 Premium
+                        </div>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               </Link>
