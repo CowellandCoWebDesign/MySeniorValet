@@ -8,7 +8,8 @@ export default function SlidePanel({
   sortBy,
   setSortBy,
   isLoading = false,
-  initialHeight = 120
+  initialHeight = 120,
+  autoExpand = false
 }) {
   const [panelHeight, setPanelHeight] = useState(initialHeight);
   const [isDragging, setIsDragging] = useState(false);
@@ -17,6 +18,30 @@ export default function SlidePanel({
   const startHeightRef = useRef(initialHeight);
   const currentHeightRef = useRef(initialHeight); // Track current height to avoid closure issues
   const rafRef = useRef(0);
+  
+  // Auto-expand when search results are loaded (only when explicitly requested)
+  useEffect(() => {
+    if (communities.length > 0 && autoExpand) {
+      // Animate to the expanded height
+      const targetHeight = initialHeight;
+      const start = panelHeight;
+      const duration = 300;
+      const startTime = Date.now();
+      
+      const animate = () => {
+        const progress = Math.min((Date.now() - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const height = start + (targetHeight - start) * eased;
+        setPanelHeight(height);
+        currentHeightRef.current = height;
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        }
+      };
+      
+      animate();
+    }
+  }, [communities.length, autoExpand, initialHeight]);
 
   const screenHeight =
     typeof window !== "undefined" ? window.innerHeight : 800;

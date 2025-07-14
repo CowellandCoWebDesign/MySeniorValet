@@ -1011,6 +1011,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                   : 500
                 : 120  // Default collapsed height
             }
+            autoExpand={!!(debouncedSearchQuery || urlSearchQuery) && visibleCommunities.length > 0}
           />
         </div>
       ) : (
