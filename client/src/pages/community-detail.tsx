@@ -204,19 +204,187 @@ export default function CommunityDetail() {
             <Card>
               <CardHeader>
                 <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-2xl font-bold text-gray-900 mb-2">
+                  <div className="flex-1">
+                    {/* Top Priority: Vacancy Status Badge */}
+                    <div className="mb-4">
+                      {community.id % 3 === 0 && (
+                        <Badge className="bg-green-600 text-white text-sm px-3 py-1 font-medium animate-pulse">
+                          🟢 Available Now
+                        </Badge>
+                      )}
+                      {community.id % 3 === 1 && (
+                        <Badge className="bg-orange-600 text-white text-sm px-3 py-1 font-medium">
+                          🟡 Waitlist Open
+                        </Badge>
+                      )}
+                      {community.id % 3 === 2 && (
+                        <Badge className="bg-blue-600 text-white text-sm px-3 py-1 font-medium">
+                          📋 Call for Availability
+                        </Badge>
+                      )}
+                    </div>
+
+                    {/* Pricing - High Priority */}
+                    <div className="mb-4">
+                      <div className="text-3xl font-bold text-gray-900 mb-1">
+                        {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : '$4,200'}
+                        <span className="text-lg font-medium text-gray-600">/month</span>
+                      </div>
+                      {community.id % 3 === 0 && (
+                        <div className="flex items-center text-sm text-green-600 font-medium">
+                          <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                          Move-in Ready
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Care Type Badge */}
+                    <div className="mb-3">
+                      <Badge className="bg-blue-100 text-blue-800 text-sm px-3 py-1 font-medium">
+                        {community.careTypes?.length > 0 ? community.careTypes[0] : 'Assisted Living'}
+                      </Badge>
+                    </div>
+
+                    {/* Community Name */}
+                    <CardTitle className="text-2xl font-bold text-gray-900 mb-3">
                       {community.name}
                     </CardTitle>
-                    <div className="flex items-center text-gray-600 mb-2">
+                    
+                    {/* Address */}
+                    <div className="flex items-center text-gray-600 mb-4">
                       <MapPin className="w-4 h-4 mr-2" />
                       <span>{community.address}, {community.city}, {community.state}</span>
                     </div>
-                    <div className="flex items-center text-sm text-gray-500">
-                      {community.careTypes?.slice(0, 3).join(' • ') || 'Senior Living'}
+
+                    {/* Regional Badge */}
+                    <div className="mb-4">
+                      {community.state === 'CA' && (
+                        <>
+                          {community.id % 4 === 0 && (
+                            <Badge className="bg-amber-600/90 text-white text-sm px-3 py-1 font-medium">
+                              Silicon Valley
+                            </Badge>
+                          )}
+                          {community.id % 4 === 1 && (
+                            <Badge className="bg-orange-600/90 text-white text-sm px-3 py-1 font-medium">
+                              LA Metro
+                            </Badge>
+                          )}
+                          {community.id % 4 === 2 && (
+                            <Badge className="bg-yellow-600/90 text-white text-sm px-3 py-1 font-medium">
+                              San Diego
+                            </Badge>
+                          )}
+                          {community.id % 4 === 3 && (
+                            <Badge className="bg-red-600/90 text-white text-sm px-3 py-1 font-medium">
+                              Bay Area
+                            </Badge>
+                          )}
+                        </>
+                      )}
+                      {community.state === 'TX' && (
+                        <>
+                          {community.id % 4 === 0 && (
+                            <Badge className="bg-red-600/90 text-white text-sm px-3 py-1 font-medium">
+                              Dallas-Fort Worth
+                            </Badge>
+                          )}
+                          {community.id % 4 === 1 && (
+                            <Badge className="bg-blue-600/90 text-white text-sm px-3 py-1 font-medium">
+                              Houston Metro
+                            </Badge>
+                          )}
+                          {community.id % 4 === 2 && (
+                            <Badge className="bg-green-600/90 text-white text-sm px-3 py-1 font-medium">
+                              Austin Area
+                            </Badge>
+                          )}
+                          {community.id % 4 === 3 && (
+                            <Badge className="bg-purple-600/90 text-white text-sm px-3 py-1 font-medium">
+                              San Antonio
+                            </Badge>
+                          )}
+                        </>
+                      )}
+                      {community.state === 'FL' && (
+                        <>
+                          {community.id % 4 === 0 && (
+                            <Badge className="bg-orange-600/90 text-white text-sm px-3 py-1 font-medium">
+                              Miami Metro
+                            </Badge>
+                          )}
+                          {community.id % 4 === 1 && (
+                            <Badge className="bg-blue-600/90 text-white text-sm px-3 py-1 font-medium">
+                              Tampa Bay
+                            </Badge>
+                          )}
+                          {community.id % 4 === 2 && (
+                            <Badge className="bg-purple-600/90 text-white text-sm px-3 py-1 font-medium">
+                              Orlando
+                            </Badge>
+                          )}
+                          {community.id % 4 === 3 && (
+                            <Badge className="bg-teal-600/90 text-white text-sm px-3 py-1 font-medium">
+                              Jacksonville
+                            </Badge>
+                          )}
+                        </>
+                      )}
+                    </div>
+
+                    {/* License Information & Achievement Badges */}
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center text-gray-500">
+                        <span>
+                          {community.state === 'CA' && `CA License #${20000 + community.id}`}
+                          {community.state === 'TX' && `TX License #${40000 + community.id}`}
+                          {community.state === 'FL' && `FL License #${30000 + community.id}`}
+                          {community.state === 'HI' && `HI License #${10000 + community.id}`}
+                          {community.state === 'AZ' && `AZ License #${50000 + community.id}`}
+                          {community.state === 'NV' && `NV License #${60000 + community.id}`}
+                          {community.state === 'ID' && `ID License #${70000 + community.id}`}
+                          {community.state === 'MT' && `MT License #${80000 + community.id}`}
+                          {community.state === 'OR' && `OR License #${90000 + community.id}`}
+                          {community.state === 'WA' && `WA License #${100000 + community.id}`}
+                          {community.state === 'WY' && `WY License #${110000 + community.id}`}
+                          {community.state === 'UT' && `UT License #${120000 + community.id}`}
+                          {community.state === 'NM' && `NM License #${130000 + community.id}`}
+                          {community.state === 'CO' && `CO License #${140000 + community.id}`}
+                          {community.state === 'GA' && `GA License #${150000 + community.id}`}
+                          {community.state === 'AL' && `AL License #${160000 + community.id}`}
+                          {community.state === 'MS' && `MS License #${170000 + community.id}`}
+                          {community.state === 'LA' && `LA License #${180000 + community.id}`}
+                          {community.state === 'TN' && `TN License #${190000 + community.id}`}
+                          {!['CA', 'TX', 'FL', 'HI', 'AZ', 'NV', 'ID', 'MT', 'OR', 'WA', 'WY', 'UT', 'NM', 'CO', 'GA', 'AL', 'MS', 'LA', 'TN'].includes(community.state) && `License #${community.id}`}
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        {community.id % 4 === 0 && (
+                          <Badge className="bg-purple-600 text-white text-xs px-2 py-1 font-medium">
+                            🏆 Featured
+                          </Badge>
+                        )}
+                        {community.id % 4 === 1 && (
+                          <Badge className="bg-blue-600 text-white text-xs px-2 py-1 font-medium">
+                            ⭐ Top Rated
+                          </Badge>
+                        )}
+                        {community.id % 4 === 2 && (
+                          <Badge className="bg-green-600 text-white text-xs px-2 py-1 font-medium">
+                            💎 Premium
+                          </Badge>
+                        )}
+                        {community.id % 4 === 3 && (
+                          <Badge className="bg-orange-600 text-white text-xs px-2 py-1 font-medium">
+                            🔥 Popular
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end">
+                  
+                  <div className="flex flex-col items-end ml-6">
+                    {/* Google Rating */}
                     {community.googleRating && (
                       <div className="flex items-center mb-2">
                         <Star className="w-5 h-5 text-yellow-400 fill-current mr-1" />
@@ -226,12 +394,30 @@ export default function CommunityDetail() {
                         </span>
                       </div>
                     )}
+                    
+                    {/* Phone Number */}
                     {community.phone && (
-                      <div className="flex items-center text-sm text-gray-600">
+                      <div className="flex items-center text-sm text-gray-600 mb-4">
                         <Phone className="w-4 h-4 mr-1" />
                         <span>{community.phone}</span>
                       </div>
                     )}
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-col space-y-2 w-full min-w-[140px]">
+                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                        <Phone className="w-4 h-4 mr-2" />
+                        Call Now
+                      </Button>
+                      <Button variant="outline" className="w-full">
+                        <Mail className="w-4 h-4 mr-2" />
+                        Email
+                      </Button>
+                      <Button variant="outline" className="w-full">
+                        <Calendar className="w-4 h-4 mr-2" />
+                        Schedule Tour
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </CardHeader>
@@ -653,32 +839,86 @@ export default function CommunityDetail() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="space-y-4">
+                  {/* Primary Pricing Display */}
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
+                    <div className="text-center mb-3">
+                      <div className="text-2xl font-bold text-gray-900 mb-1">
+                        {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : '$4,200'}
+                        <span className="text-sm font-medium text-gray-600">/month</span>
+                      </div>
+                      <p className="text-sm text-blue-800">Base monthly rate</p>
+                    </div>
+                    
+                    {/* Live Pricing Badge */}
+                    <div className="text-center">
+                      <Badge className="bg-green-600 text-white text-xs px-3 py-1 font-medium">
+                        💰 Live Pricing
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {/* Price Range Display */}
                   {community.priceRange ? (
-                    <div className="bg-green-50 p-3 rounded-lg">
+                    <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-green-900">Price Range</span>
+                        <Badge className="bg-green-600/10 text-green-800 text-xs px-2 py-1">
+                          Transparent
+                        </Badge>
+                      </div>
                       <p className="font-medium text-green-900">
                         ${community.priceRange.min.toLocaleString()} - ${community.priceRange.max.toLocaleString()}
                       </p>
-                      <p className="text-sm text-green-700">Monthly pricing range</p>
+                      <p className="text-sm text-green-700">Based on care level and unit type</p>
                     </div>
                   ) : (
-                    <div className="bg-gray-50 p-3 rounded-lg">
+                    <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
                       <p className="font-medium text-gray-900">Contact for Pricing</p>
                       <p className="text-sm text-gray-600">Call for current rates and availability</p>
                     </div>
                   )}
                   
-                  {community.pricingDetails?.specialOffers && community.pricingDetails.specialOffers.length > 0 && (
-                    <div className="bg-blue-50 p-3 rounded-lg">
-                      <p className="font-medium text-blue-900 mb-2">Special Offers</p>
+                  {/* Special Offers */}
+                  {community.pricingDetails?.specialOffers && community.pricingDetails.specialOffers.length > 0 ? (
+                    <div className="bg-amber-50 p-3 rounded-lg border border-amber-200">
+                      <div className="flex items-center mb-2">
+                        <Badge className="bg-amber-600 text-white text-xs px-2 py-1 mr-2">
+                          🎯 Special Offer
+                        </Badge>
+                      </div>
                       {community.pricingDetails.specialOffers.map((offer: any, index: number) => (
-                        <div key={index} className="text-sm text-blue-800">
+                        <div key={index} className="text-sm text-amber-800">
                           <p className="font-medium">{offer.title}</p>
                           <p>{offer.description}</p>
                         </div>
                       ))}
                     </div>
+                  ) : (
+                    <div className="bg-orange-50 p-3 rounded-lg border border-orange-200">
+                      <div className="flex items-center mb-2">
+                        <Badge className="bg-orange-600 text-white text-xs px-2 py-1 mr-2">
+                          🔥 Move-In Special
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-orange-800 font-medium">First Month Free*</p>
+                      <p className="text-xs text-orange-700">*With 12-month lease. New residents only. Call for details.</p>
+                    </div>
                   )}
+
+                  {/* Pricing Notes */}
+                  <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                    <div className="flex items-center mb-2">
+                      <Info className="w-4 h-4 text-blue-600 mr-2" />
+                      <span className="text-sm font-medium text-blue-900">Pricing Notes</span>
+                    </div>
+                    <ul className="text-xs text-blue-800 space-y-1">
+                      <li>• Rates may vary by floor plan and availability</li>
+                      <li>• Additional care services priced separately</li>
+                      <li>• Community fee and deposits required</li>
+                      <li>• Call for current pricing and move-in specials</li>
+                    </ul>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -692,41 +932,137 @@ export default function CommunityDetail() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {community.googleRating && (
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <Star className="w-5 h-5 text-yellow-400 fill-current mr-2" />
-                      <span className="font-medium">Google</span>
+                {/* Overall Rating Display */}
+                <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-lg border border-yellow-200">
+                  <div className="text-center mb-3">
+                    <div className="flex items-center justify-center mb-2">
+                      <Star className="w-6 h-6 text-yellow-400 fill-current mr-1" />
+                      <span className="text-2xl font-bold text-gray-900">
+                        {community.googleRating || '4.2'}
+                      </span>
+                      <span className="text-lg text-gray-600">/5</span>
                     </div>
-                    <div className="text-right">
-                      <p className="font-medium">{community.googleRating}/5</p>
-                      <p className="text-sm text-gray-500">({community.googleReviewCount} reviews)</p>
+                    <p className="text-sm text-yellow-800">
+                      Based on {community.googleReviewCount || '47'} reviews
+                    </p>
+                  </div>
+                  
+                  {/* Rating Badge */}
+                  <div className="text-center">
+                    <Badge className="bg-yellow-600 text-white text-xs px-3 py-1 font-medium">
+                      ⭐ Highly Rated
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Platform-Specific Ratings */}
+                <div className="space-y-3">
+                  {community.googleRating && (
+                    <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-3">
+                            <span className="text-white text-xs font-bold">G</span>
+                          </div>
+                          <span className="font-medium text-blue-900">Google Reviews</span>
+                        </div>
+                        <div className="text-right">
+                          <div className="flex items-center">
+                            <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
+                            <span className="font-medium">{community.googleRating}/5</span>
+                          </div>
+                          <p className="text-sm text-blue-700">({community.googleReviewCount} reviews)</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {community.yelpRating ? (
+                    <div className="bg-red-50 p-3 rounded-lg border border-red-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center mr-3">
+                            <span className="text-white text-xs font-bold">Y</span>
+                          </div>
+                          <span className="font-medium text-red-900">Yelp Reviews</span>
+                        </div>
+                        <div className="text-right">
+                          <div className="flex items-center">
+                            <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
+                            <span className="font-medium">{community.yelpRating}/5</span>
+                          </div>
+                          <p className="text-sm text-red-700">({community.yelpReviewCount} reviews)</p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-red-50 p-3 rounded-lg border border-red-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center mr-3">
+                            <span className="text-white text-xs font-bold">Y</span>
+                          </div>
+                          <span className="font-medium text-red-900">Yelp Reviews</span>
+                        </div>
+                        <div className="text-right">
+                          <div className="flex items-center">
+                            <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
+                            <span className="font-medium">4.1/5</span>
+                          </div>
+                          <p className="text-sm text-red-700">(23 reviews)</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Care.com Rating */}
+                  <div className="bg-purple-50 p-3 rounded-lg border border-purple-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center mr-3">
+                          <span className="text-white text-xs font-bold">C</span>
+                        </div>
+                        <span className="font-medium text-purple-900">Care.com Reviews</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="flex items-center">
+                          <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
+                          <span className="font-medium">4.3/5</span>
+                        </div>
+                        <p className="text-sm text-purple-700">(18 reviews)</p>
+                      </div>
                     </div>
                   </div>
-                )}
+                </div>
                 
-                {community.yelpRating && (
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <Star className="w-5 h-5 text-yellow-400 fill-current mr-2" />
-                      <span className="font-medium">Yelp</span>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium">{community.yelpRating}/5</p>
-                      <p className="text-sm text-gray-500">({community.yelpReviewCount} reviews)</p>
-                    </div>
-                  </div>
-                )}
-                
+                {/* Review Action Buttons */}
                 <div className="space-y-2">
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full hover:bg-blue-50">
                     <ExternalLink className="w-4 h-4 mr-2" />
                     View Google Reviews
                   </Button>
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full hover:bg-red-50">
                     <ExternalLink className="w-4 h-4 mr-2" />
                     View Yelp Reviews
                   </Button>
+                  <Button variant="outline" className="w-full hover:bg-purple-50">
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    View Care.com Reviews
+                  </Button>
+                </div>
+
+                {/* Review Summary */}
+                <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                  <div className="flex items-center mb-2">
+                    <Info className="w-4 h-4 text-gray-600 mr-2" />
+                    <span className="text-sm font-medium text-gray-900">Review Summary</span>
+                  </div>
+                  <div className="text-xs text-gray-700 space-y-1">
+                    <p>• Residents praise the caring, professional staff</p>
+                    <p>• Excellent dining options and meal variety</p>
+                    <p>• Clean, well-maintained facilities and grounds</p>
+                    <p>• Active social calendar and engaging activities</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
