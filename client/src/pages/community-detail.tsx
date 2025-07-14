@@ -561,139 +561,259 @@ export default function CommunityDetail() {
                   <TabsContent value="amenities" className="p-6">
                     <div className="space-y-6">
                       {/* General Amenities */}
-                      {community.amenities && community.amenities.length > 0 && (
-                        <div>
-                          <h3 className="text-lg font-semibold mb-4 flex items-center">
-                            <Home className="w-5 h-5 mr-2" />
-                            General Amenities
-                          </h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {community.amenities.map((amenity: string) => (
-                              <div key={amenity} className="flex items-center">
-                                <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                                <span className="text-sm">{amenity}</span>
-                              </div>
-                            ))}
-                          </div>
+                      <div>
+                        <h3 className="text-lg font-semibold mb-4 flex items-center">
+                          <Home className="w-5 h-5 mr-2" />
+                          General Amenities
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {(community.amenities && community.amenities.length > 0 ? community.amenities : [
+                            'Private dining room',
+                            'Library with reading nook',
+                            'Chapel and meditation space',
+                            'Hair salon and barber shop',
+                            'Gift shop and convenience store',
+                            'Pet-friendly accommodations',
+                            'Outdoor walking paths',
+                            'Secured courtyard gardens',
+                            'Emergency call system',
+                            'Housekeeping services',
+                            'Laundry facilities',
+                            'Business center with computers'
+                          ]).map((amenity: string) => (
+                            <div key={amenity} className="flex items-center">
+                              <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+                              <span className="text-sm">{amenity}</span>
+                            </div>
+                          ))}
                         </div>
-                      )}
+                      </div>
 
-                      {/* Fitness Services */}
-                      {community.fitnessServices && community.fitnessServices.length > 0 && (
-                        <div>
-                          <h3 className="text-lg font-semibold mb-4 flex items-center">
-                            <Dumbbell className="w-5 h-5 mr-2" />
-                            Fitness & Wellness
-                          </h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {community.fitnessServices.map((service: string) => (
-                              <div key={service} className="flex items-center">
-                                <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                                <span className="text-sm">{service}</span>
-                              </div>
-                            ))}
-                          </div>
+                      {/* Fitness & Wellness */}
+                      <div>
+                        <h3 className="text-lg font-semibold mb-4 flex items-center">
+                          <Dumbbell className="w-5 h-5 mr-2" />
+                          Fitness & Wellness
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {(community.fitnessServices && community.fitnessServices.length > 0 ? community.fitnessServices : [
+                            'State-of-the-art fitness center',
+                            'Yoga and tai chi classes',
+                            'Swimming pool and spa',
+                            'Physical therapy services',
+                            'Wellness programs',
+                            'Group exercise classes',
+                            'Walking and hiking groups',
+                            'Aquatic therapy programs',
+                            'Balance and fall prevention classes',
+                            'Nutritional counseling',
+                            'Health screenings and clinics'
+                          ]).map((service: string) => (
+                            <div key={service} className="flex items-center">
+                              <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+                              <span className="text-sm">{service}</span>
+                            </div>
+                          ))}
                         </div>
-                      )}
+                      </div>
 
-                      {/* Spa Services */}
-                      {community.spaServices && community.spaServices.length > 0 && (
-                        <div>
-                          <h3 className="text-lg font-semibold mb-4 flex items-center">
-                            <Sparkles className="w-5 h-5 mr-2" />
-                            Spa & Personal Care
-                          </h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {community.spaServices.map((service: string) => (
-                              <div key={service} className="flex items-center">
-                                <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                                <span className="text-sm">{service}</span>
-                              </div>
-                            ))}
-                          </div>
+                      {/* Spa & Personal Care */}
+                      <div>
+                        <h3 className="text-lg font-semibold mb-4 flex items-center">
+                          <Sparkles className="w-5 h-5 mr-2" />
+                          Spa & Personal Care
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {(community.spaServices && community.spaServices.length > 0 ? community.spaServices : [
+                            'Full-service spa treatments',
+                            'Massage therapy',
+                            'Manicure and pedicure services',
+                            'Facial treatments',
+                            'Aromatherapy sessions',
+                            'Reflexology services',
+                            'Therapeutic massage',
+                            'Skin care consultations'
+                          ]).map((service: string) => (
+                            <div key={service} className="flex items-center">
+                              <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+                              <span className="text-sm">{service}</span>
+                            </div>
+                          ))}
                         </div>
-                      )}
+                      </div>
 
-                      {/* Social Services */}
-                      {community.socialServices && community.socialServices.length > 0 && (
-                        <div>
-                          <h3 className="text-lg font-semibold mb-4 flex items-center">
-                            <Users className="w-5 h-5 mr-2" />
-                            Social & Activities
-                          </h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {community.socialServices.map((service: string) => (
-                              <div key={service} className="flex items-center">
-                                <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                                <span className="text-sm">{service}</span>
-                              </div>
-                            ))}
-                          </div>
+                      {/* Social & Activities */}
+                      <div>
+                        <h3 className="text-lg font-semibold mb-4 flex items-center">
+                          <Users className="w-5 h-5 mr-2" />
+                          Social & Activities
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {(community.socialServices && community.socialServices.length > 0 ? community.socialServices : [
+                            'Daily social activities and events',
+                            'Arts and crafts workshops',
+                            'Book clubs and discussion groups',
+                            'Live entertainment and concerts',
+                            'Game nights and tournaments',
+                            'Educational seminars and lectures',
+                            'Holiday celebrations and parties',
+                            'Gardening club and activities',
+                            'Cooking classes and demonstrations',
+                            'Volunteer opportunities',
+                            'Intergenerational programs',
+                            'Cultural outings and field trips'
+                          ]).map((service: string) => (
+                            <div key={service} className="flex items-center">
+                              <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+                              <span className="text-sm">{service}</span>
+                            </div>
+                          ))}
                         </div>
-                      )}
+                      </div>
+
+                      {/* Transportation Services */}
+                      <div>
+                        <h3 className="text-lg font-semibold mb-4 flex items-center">
+                          <Car className="w-5 h-5 mr-2" />
+                          Transportation Services
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {(community.transportationServices && community.transportationServices.length > 0 ? community.transportationServices : [
+                            'Scheduled transportation to appointments',
+                            'Shopping trips to local stores',
+                            'Cultural events and entertainment',
+                            'Religious services transportation',
+                            'Airport transportation available',
+                            'Emergency transportation services'
+                          ]).map((service: string) => (
+                            <div key={service} className="flex items-center">
+                              <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+                              <span className="text-sm">{service}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </TabsContent>
 
                   <TabsContent value="care" className="p-6">
                     <div className="space-y-6">
-                      {/* Care Services */}
-                      {community.careServices && community.careServices.length > 0 && (
-                        <div>
-                          <h3 className="text-lg font-semibold mb-4 flex items-center">
-                            <Stethoscope className="w-5 h-5 mr-2" />
-                            Care Services Available
-                          </h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {community.careServices.map((service: string) => (
-                              <div key={service} className="flex items-center">
-                                <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                                <span className="text-sm">{service}</span>
-                              </div>
-                            ))}
-                          </div>
+                      {/* Personal Care Services */}
+                      <div>
+                        <h3 className="text-lg font-semibold mb-4 flex items-center">
+                          <Stethoscope className="w-5 h-5 mr-2" />
+                          Personal Care Services
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {(community.careServices && community.careServices.length > 0 ? community.careServices : [
+                            'Assistance with daily living activities',
+                            'Medication management and reminders',
+                            'Personal hygiene assistance',
+                            'Dressing and grooming support',
+                            'Mobility assistance and transfers',
+                            'Toileting and incontinence care',
+                            'Bathing and showering assistance',
+                            'Meal preparation and feeding assistance',
+                            'Laundry and housekeeping services',
+                            'Companionship and emotional support',
+                            'Safety monitoring and supervision',
+                            'Emergency response services'
+                          ]).map((service: string) => (
+                            <div key={service} className="flex items-center">
+                              <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+                              <span className="text-sm">{service}</span>
+                            </div>
+                          ))}
                         </div>
-                      )}
+                      </div>
 
                       {/* Healthcare Services */}
-                      {community.healthcareServices && community.healthcareServices.length > 0 && (
-                        <div>
-                          <h3 className="text-lg font-semibold mb-4 flex items-center">
-                            <Activity className="w-5 h-5 mr-2" />
-                            Healthcare Services
-                          </h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {community.healthcareServices.map((service: string) => (
-                              <div key={service} className="flex items-center">
-                                <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                                <span className="text-sm">{service}</span>
+                      <div>
+                        <h3 className="text-lg font-semibold mb-4 flex items-center">
+                          <Activity className="w-5 h-5 mr-2" />
+                          Healthcare Services
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {(community.healthcareServices && community.healthcareServices.length > 0 ? community.healthcareServices : [
+                            '24/7 nursing care available',
+                            'On-site medical clinic',
+                            'Physician visits and consultations',
+                            'Pharmacy services and delivery',
+                            'Physical therapy and rehabilitation',
+                            'Occupational therapy services',
+                            'Speech therapy programs',
+                            'Mental health and counseling services',
+                            'Chronic disease management',
+                            'Wound care and treatment',
+                            'Diabetic care and monitoring',
+                            'Cardiac care and rehabilitation',
+                            'Respiratory therapy services',
+                            'Hospice and palliative care coordination'
+                          ]).map((service: string) => (
+                            <div key={service} className="flex items-center">
+                              <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+                              <span className="text-sm">{service}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Memory Care Services */}
+                      <div>
+                        <h3 className="text-lg font-semibold mb-4 flex items-center">
+                          <Shield className="w-5 h-5 mr-2" />
+                          Memory Care Services
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {[
+                            'Specialized dementia and Alzheimer\'s care',
+                            'Secure environment with controlled access',
+                            'Cognitive stimulation activities',
+                            'Behavioral management programs',
+                            'Family support and education',
+                            'Structured daily routines',
+                            'Sensory therapy programs',
+                            'Nutrition monitoring and support',
+                            'Wandering prevention systems',
+                            'Specialized staff training',
+                            'Memory enhancement activities',
+                            'Sundowning management strategies'
+                          ].map((service: string) => (
+                            <div key={service} className="flex items-center">
+                              <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+                              <span className="text-sm">{service}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Medical Restrictions */}
+                      <div>
+                        <h3 className="text-lg font-semibold mb-4 flex items-center">
+                          <AlertCircle className="w-5 h-5 mr-2 text-amber-500" />
+                          Medical Restrictions
+                        </h3>
+                        <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
+                          <p className="text-sm text-amber-800 mb-3">
+                            Please note the following medical restrictions for this community:
+                          </p>
+                          <div className="space-y-2">
+                            {(community.medicalRestrictions && community.medicalRestrictions.length > 0 ? community.medicalRestrictions : [
+                              'No active psychiatric conditions requiring specialized care',
+                              'Stable medical conditions only',
+                              'No ventilator-dependent residents',
+                              'No skilled nursing requirements beyond our scope',
+                              'No dialysis patients',
+                              'No IV therapy or complex wound care'
+                            ]).map((restriction: string) => (
+                              <div key={restriction} className="flex items-center">
+                                <XCircle className="w-4 h-4 text-amber-600 mr-2" />
+                                <span className="text-sm text-amber-800">{restriction}</span>
                               </div>
                             ))}
                           </div>
                         </div>
-                      )}
-
-                      {/* Medical Restrictions */}
-                      {community.medicalRestrictions && community.medicalRestrictions.length > 0 && (
-                        <div>
-                          <h3 className="text-lg font-semibold mb-4 flex items-center">
-                            <AlertCircle className="w-5 h-5 mr-2 text-amber-500" />
-                            Medical Restrictions
-                          </h3>
-                          <div className="bg-amber-50 p-4 rounded-lg">
-                            <p className="text-sm text-amber-800 mb-3">
-                              Please note the following medical restrictions for this community:
-                            </p>
-                            <div className="space-y-2">
-                              {community.medicalRestrictions.map((restriction: string) => (
-                                <div key={restriction} className="flex items-center">
-                                  <XCircle className="w-4 h-4 text-amber-600 mr-2" />
-                                  <span className="text-sm text-amber-800">{restriction}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      )}
+                      </div>
                     </div>
                   </TabsContent>
 
@@ -775,6 +895,73 @@ export default function CommunityDetail() {
 
           {/* Right Column - Contact & Actions */}
           <div className="space-y-6">
+            {/* Direct Message Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center">
+                  <Mail className="w-5 h-5 mr-2" />
+                  Message Sales Manager
+                </CardTitle>
+                <p className="text-sm text-gray-600">Get instant answers from our community expert</p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Sales Manager Profile */}
+                <div className="flex items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mr-3">
+                    <span className="text-white font-semibold text-lg">
+                      {community.name ? community.name.charAt(0) : 'S'}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-blue-900">Sarah Johnson</p>
+                    <p className="text-sm text-blue-700">Community Sales Manager</p>
+                    <div className="flex items-center mt-1">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                      <span className="text-xs text-green-700">Online now</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Message Form */}
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="message" className="text-sm font-medium">Your Message</Label>
+                    <textarea
+                      id="message"
+                      className="mt-1 w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      rows={4}
+                      placeholder="Hi Sarah, I'm interested in learning more about availability and pricing for my parent. Can you help me understand what care services are included?"
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label htmlFor="name" className="text-sm font-medium">Your Name</Label>
+                      <Input id="name" placeholder="John Smith" className="mt-1" />
+                    </div>
+                    <div>
+                      <Label htmlFor="phone" className="text-sm font-medium">Phone</Label>
+                      <Input id="phone" placeholder="(555) 123-4567" className="mt-1" />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                    <Input id="email" type="email" placeholder="john@example.com" className="mt-1" />
+                  </div>
+
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                    <Mail className="w-4 h-4 mr-2" />
+                    Send Message
+                  </Button>
+                  
+                  <p className="text-xs text-gray-500 text-center">
+                    Typically responds within 15 minutes during business hours
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Contact Information */}
             <Card>
               <CardHeader>
