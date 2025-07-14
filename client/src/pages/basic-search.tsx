@@ -117,11 +117,21 @@ function MapBoundsUpdater({ onBoundsChange }: { onBoundsChange: (bounds: any) =>
 
 export default function BasicSearch({ initialFilters = [] }: { initialFilters?: string[] }) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState('search');
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [sortBy, setSortBy] = useState('recommended');
   const [showSortOptions, setShowSortOptions] = useState(false);
   const [, navigate] = useLocation();
+  
+  // Debounce search query to prevent excessive API calls
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500); // 500ms delay
+    
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
   
   // Parse URL parameters for filters
   const urlParams = new URLSearchParams(window.location.search);
@@ -185,15 +195,15 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
   const { data: communitiesResponse, isLoading, error } = useQuery({
     queryKey: ["/api/communities/search", { 
       limit: 10000, 
-      location: searchQuery,
+      location: debouncedSearchQuery,
       careTypes: selectedCareTypes 
     }],
     queryFn: async () => {
       let url = "/api/communities/search?limit=10000";
       
-      // Add location parameter if search query exists
-      if (searchQuery) {
-        url += `&location=${encodeURIComponent(searchQuery)}`;
+      // Add location parameter if debounced search query exists
+      if (debouncedSearchQuery) {
+        url += `&location=${encodeURIComponent(debouncedSearchQuery)}`;
       }
       
       // Add care type parameters to trigger HUD inclusion
