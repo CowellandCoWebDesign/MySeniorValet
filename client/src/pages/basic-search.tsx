@@ -1007,8 +1007,8 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             initialHeight={
               (debouncedSearchQuery || urlSearchQuery) && visibleCommunities.length > 0
                 ? typeof window !== 'undefined' 
-                  ? window.innerHeight * 0.6  // 60% of screen height when there are search results
-                  : 500
+                  ? window.innerHeight * 0.85  // 85% of screen height when there are search results
+                  : 600
                 : 120  // Default collapsed height
             }
             autoExpand={!!(debouncedSearchQuery || urlSearchQuery) && visibleCommunities.length > 0}
