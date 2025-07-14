@@ -269,7 +269,7 @@ export default function TrueViewHome() {
                   <span>Loading verified communities...</span>
                 ) : (
                   <span>
-                    Search <strong className="text-white">{communityStats?.count || '1,702'} verified communities</strong> with transparent listing information
+                    Search <strong className="text-white">{communityStats?.count || '1,702'} verified Senior Living Communities</strong> with transparent listing information
                     <br className="hidden sm:block" />
                     <span className="block sm:inline sm:ml-1">— no sales pressure, no surprise calls</span>
                   </span>
