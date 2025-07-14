@@ -3,7 +3,7 @@ import { useParams, useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Phone, Calendar, Heart, MessageSquare, Star, DollarSign, MapPin, Info, 
          Mail, Globe, Users, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
-         Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon } from 'lucide-react';
+         Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,12 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { MapIcon } from "lucide-react";
+import { 
+  getAmenitiesByCategory, 
+  getCareServicesByCategory, 
+  hasAmenity, 
+  hasCareService 
+} from "@/lib/amenities-checklists";
 
 export default function CommunityDetail() {
   const { id } = useParams<{ id: string }>();
@@ -203,7 +209,9 @@ export default function CommunityDetail() {
                               '• Independent Living',
                               '• Assisted Living',
                               '• Memory Care'
-                            ]}
+                            ].map((type, index) => (
+                              <li key={index}>{type}</li>
+                            ))}
                           </ul>
                         </div>
                         <div className="bg-gray-50 p-4 rounded-lg">
@@ -216,28 +224,92 @@ export default function CommunityDetail() {
                           </ul>
                         </div>
                       </div>
+                      
+                      {/* Amenities & Services Summary */}
+                      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mt-6">
+                        <h4 className="font-medium text-blue-900 mb-3">Amenities & Services Summary</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {(() => {
+                            const amenitiesData = Object.values(getAmenitiesByCategory()).flat();
+                            const servicesData = Object.values(getCareServicesByCategory()).flat();
+                            
+                            const availableAmenities = amenitiesData.filter(amenity => hasAmenity(community, amenity.id)).length;
+                            const availableServices = servicesData.filter(service => hasCareService(community, service.id)).length;
+                            
+                            return (
+                              <>
+                                <div className="bg-white p-3 rounded-lg">
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-sm text-gray-700">Amenities Available</span>
+                                    <span className="text-sm font-medium text-blue-600">
+                                      {availableAmenities} of {amenitiesData.length}
+                                    </span>
+                                  </div>
+                                  <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                                    <div 
+                                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                      style={{ width: `${(availableAmenities / amenitiesData.length) * 100}%` }}
+                                    ></div>
+                                  </div>
+                                </div>
+                                
+                                <div className="bg-white p-3 rounded-lg">
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-sm text-gray-700">Care Services Available</span>
+                                    <span className="text-sm font-medium text-blue-600">
+                                      {availableServices} of {servicesData.length}
+                                    </span>
+                                  </div>
+                                  <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                                    <div 
+                                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                      style={{ width: `${(availableServices / servicesData.length) * 100}%` }}
+                                    ></div>
+                                  </div>
+                                </div>
+                              </>
+                            );
+                          })()}
+                        </div>
+                        <p className="text-xs text-blue-700 mt-3">
+                          Check the Amenities and Care Services tabs for detailed availability information
+                        </p>
+                      </div>
                     </div>
                   </TabsContent>
                   <TabsContent value="amenities" className="space-y-4">
                     <div>
                       <h3 className="text-lg font-semibold mb-3">Amenities & Features</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {community.amenities?.map((amenity, index) => (
-                          <div key={index} className="flex items-center p-3 bg-gray-50 rounded-lg">
-                            <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                            <span className="text-sm">{amenity}</span>
-                          </div>
-                        )) || [
-                          'Fitness Center',
-                          'Library',
-                          'Dining Room',
-                          'Beauty/Barber Shop',
-                          'Activity Room',
-                          'Garden Areas'
-                        ].map((amenity, index) => (
-                          <div key={index} className="flex items-center p-3 bg-gray-50 rounded-lg">
-                            <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                            <span className="text-sm">{amenity}</span>
+                      <div className="space-y-6">
+                        {Object.entries(getAmenitiesByCategory()).map(([category, amenities]) => (
+                          <div key={category}>
+                            <h4 className="font-medium text-gray-900 mb-3 pb-2 border-b border-gray-200">
+                              {category}
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {amenities.map((amenity) => {
+                                const isAvailable = hasAmenity(community, amenity.id);
+                                return (
+                                  <div 
+                                    key={amenity.id} 
+                                    className={`flex items-center p-3 rounded-lg border transition-colors ${
+                                      isAvailable 
+                                        ? 'bg-green-50 border-green-200' 
+                                        : 'bg-gray-50 border-gray-200'
+                                    }`}
+                                  >
+                                    {isAvailable ? (
+                                      <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
+                                    ) : (
+                                      <X className="w-4 h-4 text-gray-400 mr-3 flex-shrink-0" />
+                                    )}
+                                    <span className={`text-sm ${isAvailable ? 'text-green-900' : 'text-gray-600'}`}>
+                                      {amenity.name}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -246,23 +318,36 @@ export default function CommunityDetail() {
                   <TabsContent value="care" className="space-y-4">
                     <div>
                       <h3 className="text-lg font-semibold mb-3">Care Services</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {community.services?.map((service, index) => (
-                          <div key={index} className="flex items-center p-3 bg-gray-50 rounded-lg">
-                            <CheckCircle className="w-4 h-4 text-blue-500 mr-2" />
-                            <span className="text-sm">{service}</span>
-                          </div>
-                        )) || [
-                          'Personal Care Assistance',
-                          'Medication Management',
-                          'Wellness Programs',
-                          'Physical Therapy',
-                          'Occupational Therapy',
-                          'Speech Therapy'
-                        ].map((service, index) => (
-                          <div key={index} className="flex items-center p-3 bg-gray-50 rounded-lg">
-                            <CheckCircle className="w-4 h-4 text-blue-500 mr-2" />
-                            <span className="text-sm">{service}</span>
+                      <div className="space-y-6">
+                        {Object.entries(getCareServicesByCategory()).map(([category, services]) => (
+                          <div key={category}>
+                            <h4 className="font-medium text-gray-900 mb-3 pb-2 border-b border-gray-200">
+                              {category}
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {services.map((service) => {
+                                const isAvailable = hasCareService(community, service.id);
+                                return (
+                                  <div 
+                                    key={service.id} 
+                                    className={`flex items-center p-3 rounded-lg border transition-colors ${
+                                      isAvailable 
+                                        ? 'bg-blue-50 border-blue-200' 
+                                        : 'bg-gray-50 border-gray-200'
+                                    }`}
+                                  >
+                                    {isAvailable ? (
+                                      <CheckCircle className="w-4 h-4 text-blue-600 mr-3 flex-shrink-0" />
+                                    ) : (
+                                      <X className="w-4 h-4 text-gray-400 mr-3 flex-shrink-0" />
+                                    )}
+                                    <span className={`text-sm ${isAvailable ? 'text-blue-900' : 'text-gray-600'}`}>
+                                      {service.name}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
                           </div>
                         ))}
                       </div>

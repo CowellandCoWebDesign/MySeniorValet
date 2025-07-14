@@ -57,6 +57,7 @@ function Router() {
       <Route path="/old-search" component={TrueViewSearch} />
       <Route path="/explore" component={Explore} />
       <Route path="/community/:id" component={CommunityDetail} />
+      <Route path="/communities/:id" component={CommunityDetail} />
       <Route path="/claim/:communityId" component={Claim} />
       <Route path="/admin" component={AdminCreative} />
       <Route path="/expansion-monitor" component={ExpansionMonitor} />
