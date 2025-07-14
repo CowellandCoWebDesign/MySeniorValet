@@ -3,7 +3,8 @@ import { useParams, useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Phone, Calendar, Heart, MessageSquare, Star, DollarSign, MapPin, Info, 
          Mail, Globe, Users, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
-         Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X } from 'lucide-react';
+         Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X, 
+         Clock, HelpCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +17,11 @@ import {
   getAmenitiesByCategory, 
   getCareServicesByCategory, 
   hasAmenity, 
-  hasCareService 
+  hasCareService,
+  getAmenityStatus,
+  getCareServiceStatus,
+  getStatusStyling,
+  type AmenityStatus
 } from "@/lib/amenities-checklists";
 
 export default function CommunityDetail() {
@@ -233,38 +238,90 @@ export default function CommunityDetail() {
                             const amenitiesData = Object.values(getAmenitiesByCategory()).flat();
                             const servicesData = Object.values(getCareServicesByCategory()).flat();
                             
-                            const availableAmenities = amenitiesData.filter(amenity => hasAmenity(community, amenity.id)).length;
-                            const availableServices = servicesData.filter(service => hasCareService(community, service.id)).length;
+                            // Count by status
+                            const amenityStats = {
+                              confirmed: amenitiesData.filter(amenity => getAmenityStatus(community, amenity.id) === 'confirmed').length,
+                              reported: amenitiesData.filter(amenity => getAmenityStatus(community, amenity.id) === 'reported').length,
+                              notOffered: amenitiesData.filter(amenity => getAmenityStatus(community, amenity.id) === 'not-offered').length,
+                              pending: amenitiesData.filter(amenity => getAmenityStatus(community, amenity.id) === 'pending').length
+                            };
+                            
+                            const serviceStats = {
+                              confirmed: servicesData.filter(service => getCareServiceStatus(community, service.id) === 'confirmed').length,
+                              reported: servicesData.filter(service => getCareServiceStatus(community, service.id) === 'reported').length,
+                              notOffered: servicesData.filter(service => getCareServiceStatus(community, service.id) === 'not-offered').length,
+                              pending: servicesData.filter(service => getCareServiceStatus(community, service.id) === 'pending').length
+                            };
                             
                             return (
                               <>
                                 <div className="bg-white p-3 rounded-lg">
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-sm text-gray-700">Amenities Available</span>
+                                  <div className="flex items-center justify-between mb-2">
+                                    <span className="text-sm text-gray-700">Amenities Status</span>
                                     <span className="text-sm font-medium text-blue-600">
-                                      {availableAmenities} of {amenitiesData.length}
+                                      {amenityStats.confirmed + amenityStats.reported} of {amenitiesData.length}
                                     </span>
                                   </div>
-                                  <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                                    <div 
-                                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                                      style={{ width: `${(availableAmenities / amenitiesData.length) * 100}%` }}
-                                    ></div>
+                                  <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                    <div className="h-2 rounded-full flex">
+                                      <div 
+                                        className="bg-green-600 h-2 rounded-l-full transition-all duration-300"
+                                        style={{ width: `${(amenityStats.confirmed / amenitiesData.length) * 100}%` }}
+                                      ></div>
+                                      <div 
+                                        className="bg-yellow-500 h-2 transition-all duration-300"
+                                        style={{ width: `${(amenityStats.reported / amenitiesData.length) * 100}%` }}
+                                      ></div>
+                                      <div 
+                                        className="bg-red-500 h-2 transition-all duration-300"
+                                        style={{ width: `${(amenityStats.notOffered / amenitiesData.length) * 100}%` }}
+                                      ></div>
+                                      <div 
+                                        className="bg-gray-400 h-2 rounded-r-full transition-all duration-300"
+                                        style={{ width: `${(amenityStats.pending / amenitiesData.length) * 100}%` }}
+                                      ></div>
+                                    </div>
+                                  </div>
+                                  <div className="flex justify-between text-xs text-gray-600">
+                                    <span>✓ {amenityStats.confirmed}</span>
+                                    <span>⏰ {amenityStats.reported}</span>
+                                    <span>✗ {amenityStats.notOffered}</span>
+                                    <span>❓ {amenityStats.pending}</span>
                                   </div>
                                 </div>
                                 
                                 <div className="bg-white p-3 rounded-lg">
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-sm text-gray-700">Care Services Available</span>
+                                  <div className="flex items-center justify-between mb-2">
+                                    <span className="text-sm text-gray-700">Care Services Status</span>
                                     <span className="text-sm font-medium text-blue-600">
-                                      {availableServices} of {servicesData.length}
+                                      {serviceStats.confirmed + serviceStats.reported} of {servicesData.length}
                                     </span>
                                   </div>
-                                  <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                                    <div 
-                                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                                      style={{ width: `${(availableServices / servicesData.length) * 100}%` }}
-                                    ></div>
+                                  <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                    <div className="h-2 rounded-full flex">
+                                      <div 
+                                        className="bg-green-600 h-2 rounded-l-full transition-all duration-300"
+                                        style={{ width: `${(serviceStats.confirmed / servicesData.length) * 100}%` }}
+                                      ></div>
+                                      <div 
+                                        className="bg-yellow-500 h-2 transition-all duration-300"
+                                        style={{ width: `${(serviceStats.reported / servicesData.length) * 100}%` }}
+                                      ></div>
+                                      <div 
+                                        className="bg-red-500 h-2 transition-all duration-300"
+                                        style={{ width: `${(serviceStats.notOffered / servicesData.length) * 100}%` }}
+                                      ></div>
+                                      <div 
+                                        className="bg-gray-400 h-2 rounded-r-full transition-all duration-300"
+                                        style={{ width: `${(serviceStats.pending / servicesData.length) * 100}%` }}
+                                      ></div>
+                                    </div>
+                                  </div>
+                                  <div className="flex justify-between text-xs text-gray-600">
+                                    <span>✓ {serviceStats.confirmed}</span>
+                                    <span>⏰ {serviceStats.reported}</span>
+                                    <span>✗ {serviceStats.notOffered}</span>
+                                    <span>❓ {serviceStats.pending}</span>
                                   </div>
                                 </div>
                               </>
@@ -272,7 +329,7 @@ export default function CommunityDetail() {
                           })()}
                         </div>
                         <p className="text-xs text-blue-700 mt-3">
-                          Check the Amenities and Care Services tabs for detailed availability information
+                          Check the Amenities and Care Services tabs for detailed status information
                         </p>
                       </div>
                     </div>
@@ -280,6 +337,30 @@ export default function CommunityDetail() {
                   <TabsContent value="amenities" className="space-y-4">
                     <div>
                       <h3 className="text-lg font-semibold mb-3">Amenities & Features</h3>
+                      
+                      {/* Status Legend */}
+                      <div className="bg-white p-4 rounded-lg border border-gray-200 mb-6">
+                        <h4 className="font-medium text-gray-900 mb-3">Status Legend</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          <div className="flex items-center">
+                            <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
+                            <span className="text-sm text-green-900">Verified</span>
+                          </div>
+                          <div className="flex items-center">
+                            <Clock className="w-4 h-4 text-yellow-600 mr-2" />
+                            <span className="text-sm text-yellow-900">Reported</span>
+                          </div>
+                          <div className="flex items-center">
+                            <X className="w-4 h-4 text-red-600 mr-2" />
+                            <span className="text-sm text-red-900">Not Offered</span>
+                          </div>
+                          <div className="flex items-center">
+                            <HelpCircle className="w-4 h-4 text-gray-400 mr-2" />
+                            <span className="text-sm text-gray-600">Pending Response</span>
+                          </div>
+                        </div>
+                      </div>
+                      
                       <div className="space-y-6">
                         {Object.entries(getAmenitiesByCategory()).map(([category, amenities]) => (
                           <div key={category}>
@@ -288,24 +369,29 @@ export default function CommunityDetail() {
                             </h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                               {amenities.map((amenity) => {
-                                const isAvailable = hasAmenity(community, amenity.id);
+                                const status = getAmenityStatus(community, amenity.id);
+                                const styling = getStatusStyling(status);
+                                
+                                const IconComponent = 
+                                  styling.icon === 'check' ? CheckCircle :
+                                  styling.icon === 'clock' ? Clock :
+                                  styling.icon === 'x' ? X :
+                                  HelpCircle;
+                                
                                 return (
                                   <div 
                                     key={amenity.id} 
-                                    className={`flex items-center p-3 rounded-lg border transition-colors ${
-                                      isAvailable 
-                                        ? 'bg-green-50 border-green-200' 
-                                        : 'bg-gray-50 border-gray-200'
-                                    }`}
+                                    className={`flex items-center p-3 rounded-lg border transition-colors ${styling.bgColor} ${styling.borderColor}`}
                                   >
-                                    {isAvailable ? (
-                                      <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
-                                    ) : (
-                                      <X className="w-4 h-4 text-gray-400 mr-3 flex-shrink-0" />
-                                    )}
-                                    <span className={`text-sm ${isAvailable ? 'text-green-900' : 'text-gray-600'}`}>
-                                      {amenity.name}
-                                    </span>
+                                    <IconComponent className={`w-4 h-4 ${styling.iconColor} mr-3 flex-shrink-0`} />
+                                    <div className="flex-1">
+                                      <span className={`text-sm ${styling.textColor}`}>
+                                        {amenity.name}
+                                      </span>
+                                      <div className={`text-xs mt-1 ${styling.textColor} opacity-75`}>
+                                        {styling.label}
+                                      </div>
+                                    </div>
                                   </div>
                                 );
                               })}
@@ -318,6 +404,30 @@ export default function CommunityDetail() {
                   <TabsContent value="care" className="space-y-4">
                     <div>
                       <h3 className="text-lg font-semibold mb-3">Care Services</h3>
+                      
+                      {/* Status Legend */}
+                      <div className="bg-white p-4 rounded-lg border border-gray-200 mb-6">
+                        <h4 className="font-medium text-gray-900 mb-3">Status Legend</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          <div className="flex items-center">
+                            <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
+                            <span className="text-sm text-green-900">Verified</span>
+                          </div>
+                          <div className="flex items-center">
+                            <Clock className="w-4 h-4 text-yellow-600 mr-2" />
+                            <span className="text-sm text-yellow-900">Reported</span>
+                          </div>
+                          <div className="flex items-center">
+                            <X className="w-4 h-4 text-red-600 mr-2" />
+                            <span className="text-sm text-red-900">Not Offered</span>
+                          </div>
+                          <div className="flex items-center">
+                            <HelpCircle className="w-4 h-4 text-gray-400 mr-2" />
+                            <span className="text-sm text-gray-600">Pending Response</span>
+                          </div>
+                        </div>
+                      </div>
+                      
                       <div className="space-y-6">
                         {Object.entries(getCareServicesByCategory()).map(([category, services]) => (
                           <div key={category}>
@@ -326,24 +436,29 @@ export default function CommunityDetail() {
                             </h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                               {services.map((service) => {
-                                const isAvailable = hasCareService(community, service.id);
+                                const status = getCareServiceStatus(community, service.id);
+                                const styling = getStatusStyling(status);
+                                
+                                const IconComponent = 
+                                  styling.icon === 'check' ? CheckCircle :
+                                  styling.icon === 'clock' ? Clock :
+                                  styling.icon === 'x' ? X :
+                                  HelpCircle;
+                                
                                 return (
                                   <div 
                                     key={service.id} 
-                                    className={`flex items-center p-3 rounded-lg border transition-colors ${
-                                      isAvailable 
-                                        ? 'bg-blue-50 border-blue-200' 
-                                        : 'bg-gray-50 border-gray-200'
-                                    }`}
+                                    className={`flex items-center p-3 rounded-lg border transition-colors ${styling.bgColor} ${styling.borderColor}`}
                                   >
-                                    {isAvailable ? (
-                                      <CheckCircle className="w-4 h-4 text-blue-600 mr-3 flex-shrink-0" />
-                                    ) : (
-                                      <X className="w-4 h-4 text-gray-400 mr-3 flex-shrink-0" />
-                                    )}
-                                    <span className={`text-sm ${isAvailable ? 'text-blue-900' : 'text-gray-600'}`}>
-                                      {service.name}
-                                    </span>
+                                    <IconComponent className={`w-4 h-4 ${styling.iconColor} mr-3 flex-shrink-0`} />
+                                    <div className="flex-1">
+                                      <span className={`text-sm ${styling.textColor}`}>
+                                        {service.name}
+                                      </span>
+                                      <div className={`text-xs mt-1 ${styling.textColor} opacity-75`}>
+                                        {styling.label}
+                                      </div>
+                                    </div>
                                   </div>
                                 );
                               })}

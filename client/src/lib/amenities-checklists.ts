@@ -140,24 +140,116 @@ export const STANDARD_CARE_SERVICES = [
   { id: 'counseling-services', name: 'Counseling Services', category: 'Social & Wellness Programs' },
 ];
 
-// Function to determine if a community has a specific amenity/service
-export function hasAmenity(community: any, amenityId: string): boolean {
-  if (!community.amenities) return false;
+// Status levels for amenities and care services
+export type AmenityStatus = 'confirmed' | 'reported' | 'not-offered' | 'pending';
+
+// Function to determine amenity status with color coding
+export function getAmenityStatus(community: any, amenityId: string): AmenityStatus {
+  if (!community.amenities) return 'pending';
   
-  // Check if amenity exists in community's amenities array
-  return community.amenities.some((amenity: string) => 
-    amenity.toLowerCase().includes(getAmenityKeywords(amenityId))
+  const keywords = getAmenityKeywords(amenityId);
+  const hasAmenity = community.amenities.some((amenity: string) => 
+    amenity.toLowerCase().includes(keywords)
   );
+  
+  // For now, if amenity is present, it's confirmed
+  // In the future, this can be enhanced with verification levels
+  if (hasAmenity) {
+    // Check if it's a premium/verified amenity (communities with claimed status)
+    if (community.isClaimed) {
+      return 'confirmed';
+    }
+    return 'reported';
+  }
+  
+  // Check if explicitly marked as not offered
+  const notOfferedKeywords = ['no ' + keywords, 'not available', 'unavailable'];
+  const isNotOffered = community.amenities.some((amenity: string) => 
+    notOfferedKeywords.some(keyword => amenity.toLowerCase().includes(keyword))
+  );
+  
+  return isNotOffered ? 'not-offered' : 'pending';
+}
+
+export function getCareServiceStatus(community: any, serviceId: string): AmenityStatus {
+  if (!community.services && !community.careServices) return 'pending';
+  
+  const keywords = getServiceKeywords(serviceId);
+  const allServices = [...(community.services || []), ...(community.careServices || [])];
+  
+  const hasService = allServices.some((service: string) => 
+    service.toLowerCase().includes(keywords)
+  );
+  
+  if (hasService) {
+    // Check if it's a premium/verified service (communities with claimed status)
+    if (community.isClaimed) {
+      return 'confirmed';
+    }
+    return 'reported';
+  }
+  
+  // Check if explicitly marked as not offered
+  const notOfferedKeywords = ['no ' + keywords, 'not available', 'unavailable'];
+  const isNotOffered = allServices.some((service: string) => 
+    notOfferedKeywords.some(keyword => service.toLowerCase().includes(keyword))
+  );
+  
+  return isNotOffered ? 'not-offered' : 'pending';
+}
+
+// Legacy functions for backward compatibility
+export function hasAmenity(community: any, amenityId: string): boolean {
+  const status = getAmenityStatus(community, amenityId);
+  return status === 'confirmed' || status === 'reported';
 }
 
 export function hasCareService(community: any, serviceId: string): boolean {
-  if (!community.services && !community.careServices) return false;
-  
-  // Check both services and careServices arrays
-  const allServices = [...(community.services || []), ...(community.careServices || [])];
-  return allServices.some((service: string) => 
-    service.toLowerCase().includes(getServiceKeywords(serviceId))
-  );
+  const status = getCareServiceStatus(community, serviceId);
+  return status === 'confirmed' || status === 'reported';
+}
+
+// Function to get status styling
+export function getStatusStyling(status: AmenityStatus) {
+  switch (status) {
+    case 'confirmed':
+      return {
+        bgColor: 'bg-green-50',
+        borderColor: 'border-green-200',
+        iconColor: 'text-green-600',
+        textColor: 'text-green-900',
+        icon: 'check',
+        label: 'Verified'
+      };
+    case 'reported':
+      return {
+        bgColor: 'bg-yellow-50',
+        borderColor: 'border-yellow-200',
+        iconColor: 'text-yellow-600',
+        textColor: 'text-yellow-900',
+        icon: 'clock',
+        label: 'Reported'
+      };
+    case 'not-offered':
+      return {
+        bgColor: 'bg-red-50',
+        borderColor: 'border-red-200',
+        iconColor: 'text-red-600',
+        textColor: 'text-red-900',
+        icon: 'x',
+        label: 'Not Offered'
+      };
+    case 'pending':
+    default:
+      return {
+        bgColor: 'bg-gray-50',
+        borderColor: 'border-gray-200',
+        iconColor: 'text-gray-400',
+        textColor: 'text-gray-600',
+        icon: 'help-circle',
+        label: 'Pending Response'
+      };
+  }
 }
 
 // Helper functions to get keywords for matching
