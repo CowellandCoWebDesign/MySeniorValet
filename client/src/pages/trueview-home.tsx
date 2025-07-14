@@ -354,27 +354,7 @@ export default function TrueViewHome() {
                       </Badge>
                     )}
                     
-                    {/* California Regional Badges - Secondary */}
-                    {index % 4 === 0 && (
-                      <Badge className="absolute top-12 left-3 bg-amber-600/90 text-white text-xs px-2 py-1 font-medium">
-                        Silicon Valley
-                      </Badge>
-                    )}
-                    {index % 4 === 1 && (
-                      <Badge className="absolute top-12 left-3 bg-orange-600/90 text-white text-xs px-2 py-1 font-medium">
-                        LA Metro
-                      </Badge>
-                    )}
-                    {index % 4 === 2 && (
-                      <Badge className="absolute top-12 left-3 bg-yellow-600/90 text-white text-xs px-2 py-1 font-medium">
-                        San Diego
-                      </Badge>
-                    )}
-                    {index % 4 === 3 && (
-                      <Badge className="absolute top-12 left-3 bg-red-600/90 text-white text-xs px-2 py-1 font-medium">
-                        Bay Area
-                      </Badge>
-                    )}
+
                     
                     {/* Price Badge */}
                     <Badge className="absolute bottom-3 left-3 bg-gray-900 text-white text-xs px-2 py-1 font-medium">
@@ -409,6 +389,30 @@ export default function TrueViewHome() {
                           <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
                           Available
                         </div>
+                      )}
+                    </div>
+                    
+                    {/* California Regional Badges - Below Pricing */}
+                    <div className="mb-2">
+                      {index % 4 === 0 && (
+                        <Badge className="bg-amber-600/90 text-white text-xs px-2 py-1 font-medium">
+                          Silicon Valley
+                        </Badge>
+                      )}
+                      {index % 4 === 1 && (
+                        <Badge className="bg-orange-600/90 text-white text-xs px-2 py-1 font-medium">
+                          LA Metro
+                        </Badge>
+                      )}
+                      {index % 4 === 2 && (
+                        <Badge className="bg-yellow-600/90 text-white text-xs px-2 py-1 font-medium">
+                          San Diego
+                        </Badge>
+                      )}
+                      {index % 4 === 3 && (
+                        <Badge className="bg-red-600/90 text-white text-xs px-2 py-1 font-medium">
+                          Bay Area
+                        </Badge>
                       )}
                     </div>
                     
