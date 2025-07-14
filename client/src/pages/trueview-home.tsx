@@ -561,152 +561,6 @@ export default function TrueViewHome() {
         </Button>
       </section>
 
-
-
-
-
-
-
-      {/* Care Level Guide */}
-      <section className="px-4 py-8 bg-gradient-to-br from-green-50 to-blue-50">
-        {/* Healthcare Hero Image */}
-        <div className="mb-6 relative">
-          <div className="aspect-[16/9] bg-gradient-to-r from-blue-50 to-green-50 rounded-lg overflow-hidden">
-            <img 
-              src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80"
-              alt="Healthcare professional assisting senior in comfortable care environment"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-              <div className="text-center text-white px-4">
-                <h2 className="text-2xl font-bold mb-2">Understanding care levels</h2>
-                <p className="text-sm opacity-90">Find the right level of care based on needs and independence</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="space-y-4">
-          {/* Skilled Nursing */}
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 text-sm mb-1">Skilled Nursing</h3>
-                  <p className="text-xs text-gray-600 mb-2">24/7 medical care, rehabilitation, complex medical needs</p>
-                  <div className="text-sm font-semibold text-blue-600">$8,000 - $12,000/month</div>
-                </div>
-                <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                  <Heart className="w-6 h-6 text-red-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Memory Care */}
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 text-sm mb-1">Memory Care</h3>
-                  <p className="text-xs text-gray-600 mb-2">Specialized dementia/Alzheimer's care, secure environment</p>
-                  <div className="text-sm font-semibold text-blue-600">$6,500 - $9,500/month</div>
-                </div>
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <span className="text-purple-600 font-bold text-lg">🧠</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Assisted Living */}
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 text-sm mb-1">Assisted Living</h3>
-                  <p className="text-xs text-gray-600 mb-2">Personal care assistance, medication management, meals</p>
-                  <div className="text-sm font-semibold text-blue-600">$4,200 - $7,000/month</div>
-                </div>
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <span className="text-green-600 font-bold text-lg">🤝</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Independent Living with Services */}
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 text-sm mb-1">Independent Living with Services</h3>
-                  <p className="text-xs text-gray-600 mb-2">Independent apartments plus care services, housekeeping</p>
-                  <div className="text-sm font-semibold text-blue-600">$3,500 - $5,500/month</div>
-                </div>
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Home className="w-6 h-6 text-blue-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Independent Living */}
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 text-sm mb-1">Independent Living</h3>
-                  <p className="text-xs text-gray-600 mb-2">Active senior communities, social activities, dining</p>
-                  <div className="text-sm font-semibold text-blue-600">$2,800 - $4,500/month</div>
-                </div>
-                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <span className="text-orange-600 font-bold text-lg">🏃</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Senior Apartments */}
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 text-sm mb-1">Senior Apartments</h3>
-                  <p className="text-xs text-gray-600 mb-2">Age-restricted housing, minimal services, independent living</p>
-                  <div className="text-sm font-semibold text-blue-600">$1,800 - $3,200/month</div>
-                </div>
-                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <span className="text-gray-600 font-bold text-lg">🏠</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* HUD/VASH + In-Home Services */}
-          <Card className="border-0 shadow-sm bg-green-50">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 text-sm mb-1">HUD/VASH + In-Home Services</h3>
-                  <p className="text-xs text-gray-600 mb-2">Subsidized housing with IHSS or SLS home care support</p>
-                  <div className="text-sm font-semibold text-green-600">$800 - $1,500/month + services</div>
-                </div>
-                <div className="w-12 h-12 bg-green-200 rounded-lg flex items-center justify-center">
-                  <span className="text-green-700 font-bold text-lg">🏡</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-        
-        <div className="mt-6">
-          <Button className="w-full gradient-tertiary hover:opacity-90 text-white border-0">
-            Find communities by care level
-          </Button>
-        </div>
-      </section>
-
       {/* California Communities Section */}
       <section className="px-4 py-8 relative overflow-hidden">
         {/* Background with California Golden State styling */}
@@ -879,6 +733,148 @@ export default function TrueViewHome() {
           </div>
         </div>
       </section>
+
+      {/* Care Level Guide */}
+      <section className="px-4 py-8 bg-gradient-to-br from-green-50 to-blue-50">
+        {/* Healthcare Hero Image */}
+        <div className="mb-6 relative">
+          <div className="aspect-[16/9] bg-gradient-to-r from-blue-50 to-green-50 rounded-lg overflow-hidden">
+            <img 
+              src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80"
+              alt="Healthcare professional assisting senior in comfortable care environment"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+              <div className="text-center text-white px-4">
+                <h2 className="text-2xl font-bold mb-2">Understanding care levels</h2>
+                <p className="text-sm opacity-90">Find the right level of care based on needs and independence</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="space-y-4">
+          {/* Skilled Nursing */}
+          <Card className="border-0 shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900 text-sm mb-1">Skilled Nursing</h3>
+                  <p className="text-xs text-gray-600 mb-2">24/7 medical care, rehabilitation, complex medical needs</p>
+                  <div className="text-sm font-semibold text-blue-600">$8,000 - $12,000/month</div>
+                </div>
+                <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                  <Heart className="w-6 h-6 text-red-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Memory Care */}
+          <Card className="border-0 shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900 text-sm mb-1">Memory Care</h3>
+                  <p className="text-xs text-gray-600 mb-2">Specialized dementia/Alzheimer's care, secure environment</p>
+                  <div className="text-sm font-semibold text-blue-600">$6,500 - $9,500/month</div>
+                </div>
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <span className="text-purple-600 font-bold text-lg">🧠</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Assisted Living */}
+          <Card className="border-0 shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900 text-sm mb-1">Assisted Living</h3>
+                  <p className="text-xs text-gray-600 mb-2">Personal care assistance, medication management, meals</p>
+                  <div className="text-sm font-semibold text-blue-600">$4,200 - $7,000/month</div>
+                </div>
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                  <span className="text-green-600 font-bold text-lg">🤝</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Independent Living with Services */}
+          <Card className="border-0 shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900 text-sm mb-1">Independent Living with Services</h3>
+                  <p className="text-xs text-gray-600 mb-2">Independent apartments plus care services, housekeeping</p>
+                  <div className="text-sm font-semibold text-blue-600">$3,500 - $5,500/month</div>
+                </div>
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Home className="w-6 h-6 text-blue-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Independent Living */}
+          <Card className="border-0 shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900 text-sm mb-1">Independent Living</h3>
+                  <p className="text-xs text-gray-600 mb-2">Active senior communities, social activities, dining</p>
+                  <div className="text-sm font-semibold text-blue-600">$2,800 - $4,500/month</div>
+                </div>
+                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                  <span className="text-orange-600 font-bold text-lg">🏃</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Senior Apartments */}
+          <Card className="border-0 shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900 text-sm mb-1">Senior Apartments</h3>
+                  <p className="text-xs text-gray-600 mb-2">Age-restricted housing, minimal services, independent living</p>
+                  <div className="text-sm font-semibold text-blue-600">$1,800 - $3,200/month</div>
+                </div>
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <span className="text-gray-600 font-bold text-lg">🏠</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* HUD/VASH + In-Home Services */}
+          <Card className="border-0 shadow-sm bg-green-50">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900 text-sm mb-1">HUD/VASH + In-Home Services</h3>
+                  <p className="text-xs text-gray-600 mb-2">Subsidized housing with IHSS or SLS home care support</p>
+                  <div className="text-sm font-semibold text-green-600">$800 - $1,500/month + services</div>
+                </div>
+                <div className="w-12 h-12 bg-green-200 rounded-lg flex items-center justify-center">
+                  <span className="text-green-700 font-bold text-lg">🏡</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="mt-6">
+          <Button className="w-full gradient-tertiary hover:opacity-90 text-white border-0">
+            Find communities by care level
+          </Button>
+        </div>
+      </section>
+
+
 
       {/* Affordable Housing Section */}
       <section className="px-4 py-8 bg-gradient-to-br from-blue-50 to-indigo-50">
