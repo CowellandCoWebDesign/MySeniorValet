@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Phone, Calendar, Heart, MessageSquare, Star, DollarSign, MapPin, Info, 
          Mail, Globe, Users, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
          Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X, 
-         Clock, HelpCircle } from 'lucide-react';
+         Clock, HelpCircle, Share2, Copy, Send, Facebook, Twitter, Linkedin } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { MapIcon } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
 import { 
   getAmenitiesByCategory, 
   getCareServicesByCategory, 
@@ -28,6 +30,8 @@ export default function CommunityDetail() {
   const { id } = useParams<{ id: string }>();
   const [, navigate] = useLocation();
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const { toast } = useToast();
 
   const { data: community, isLoading, error } = useQuery({
     queryKey: [`/api/communities/${id}`],
@@ -44,6 +48,77 @@ export default function CommunityDetail() {
 
   const handleFavorite = () => {
     setIsFavorite(!isFavorite);
+  };
+
+  const handleCopyLink = async () => {
+    const url = `${window.location.origin}/communities/${community.id}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast({
+        title: "Link copied!",
+        description: "Community link has been copied to clipboard",
+      });
+    } catch (err) {
+      console.error('Failed to copy link:', err);
+      toast({
+        title: "Copy failed",
+        description: "Could not copy link to clipboard",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSocialShare = (platform: string) => {
+    const url = `${window.location.origin}/communities/${community.id}`;
+    const title = `Check out ${community.name} - Senior Living Community`;
+    const description = `${community.name} in ${community.city}, ${community.state}. View pricing, amenities, and care services.`;
+    
+    let shareUrl = '';
+    switch (platform) {
+      case 'facebook':
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+        break;
+      case 'twitter':
+        shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
+        break;
+      case 'linkedin':
+        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+        break;
+      case 'email':
+        shareUrl = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(`${description}\n\nView details: ${url}`)}`;
+        break;
+    }
+    
+    if (shareUrl) {
+      window.open(shareUrl, '_blank', 'width=600,height=400');
+    }
+  };
+
+  const handleFamilyShare = () => {
+    const url = `${window.location.origin}/communities/${community.id}`;
+    const subject = `Senior Living Option: ${community.name}`;
+    const body = `Hi family,
+
+I found this senior living community that might be a good option:
+
+${community.name}
+${community.address}
+${community.city}, ${community.state} ${community.zipcode}
+
+${community.phone ? `Phone: ${community.phone}` : ''}
+${community.pricing ? `Pricing: ${community.pricing}` : ''}
+
+View full details: ${url}
+
+Let me know what you think!`;
+
+    const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoLink;
+    
+    toast({
+      title: "Email ready!",
+      description: "Family collaboration email has been prepared",
+    });
   };
 
   return (
@@ -92,13 +167,98 @@ export default function CommunityDetail() {
                     </div>
                   )}
                   
-                  {/* Favorite Button */}
-                  <button
-                    onClick={handleFavorite}
-                    className="absolute top-4 right-4 p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-shadow"
-                  >
-                    <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600'}`} />
-                  </button>
+                  {/* Action Buttons */}
+                  <div className="absolute top-4 right-4 flex space-x-2">
+                    <button
+                      onClick={handleFavorite}
+                      className="p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-shadow"
+                    >
+                      <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600'}`} />
+                    </button>
+                    
+                    <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
+                      <DialogTrigger asChild>
+                        <button className="p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-shadow">
+                          <Share2 className="w-5 h-5 text-gray-600" />
+                        </button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Share Community</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          {/* Quick Copy Link */}
+                          <div className="bg-gray-50 p-4 rounded-lg">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="font-medium text-sm">Quick Share</p>
+                                <p className="text-xs text-gray-600">Copy link to share</p>
+                              </div>
+                              <Button onClick={handleCopyLink} variant="outline" size="sm">
+                                <Copy className="w-4 h-4 mr-2" />
+                                Copy Link
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          {/* Social Media Sharing */}
+                          <div>
+                            <h4 className="font-medium mb-3">Share on Social Media</h4>
+                            <div className="grid grid-cols-2 gap-2">
+                              <Button
+                                onClick={() => handleSocialShare('facebook')}
+                                variant="outline"
+                                className="flex items-center justify-center"
+                              >
+                                <Facebook className="w-4 h-4 mr-2" />
+                                Facebook
+                              </Button>
+                              <Button
+                                onClick={() => handleSocialShare('twitter')}
+                                variant="outline"
+                                className="flex items-center justify-center"
+                              >
+                                <Twitter className="w-4 h-4 mr-2" />
+                                Twitter
+                              </Button>
+                              <Button
+                                onClick={() => handleSocialShare('linkedin')}
+                                variant="outline"
+                                className="flex items-center justify-center"
+                              >
+                                <Linkedin className="w-4 h-4 mr-2" />
+                                LinkedIn
+                              </Button>
+                              <Button
+                                onClick={() => handleSocialShare('email')}
+                                variant="outline"
+                                className="flex items-center justify-center"
+                              >
+                                <Mail className="w-4 h-4 mr-2" />
+                                Email
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          {/* Family Collaboration */}
+                          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                            <h4 className="font-medium text-blue-900 mb-2">Family Collaboration</h4>
+                            <p className="text-sm text-blue-800 mb-3">
+                              Share this community with family members for collaborative decision-making
+                            </p>
+                            <Button
+                              onClick={handleFamilyShare}
+                              className="w-full bg-blue-600 hover:bg-blue-700"
+                              size="sm"
+                            >
+                              <Send className="w-4 h-4 mr-2" />
+                              Share with Family
+                            </Button>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -657,6 +817,15 @@ export default function CommunityDetail() {
                   <Button variant="outline" className="w-full">
                     <Phone className="w-4 h-4 mr-2" />
                     Call Direct Line
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => setIsShareDialogOpen(true)}
+                  >
+                    <Share2 className="w-4 h-4 mr-2" />
+                    Share Community
                   </Button>
                 </div>
               </CardContent>
