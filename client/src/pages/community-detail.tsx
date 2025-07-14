@@ -31,6 +31,13 @@ export default function CommunityDetail() {
   const [, navigate] = useLocation();
   const [isFavorite, setIsFavorite] = useState(false);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [isScheduleTourOpen, setIsScheduleTourOpen] = useState(false);
+  const [tourDate, setTourDate] = useState('');
+  const [tourTime, setTourTime] = useState('');
+  const [tourName, setTourName] = useState('');
+  const [tourEmail, setTourEmail] = useState('');
+  const [tourPhone, setTourPhone] = useState('');
+  const [tourMessage, setTourMessage] = useState('');
   const { toast } = useToast();
 
   const { data: community, isLoading, error } = useQuery({
@@ -119,6 +126,53 @@ Let me know what you think!`;
       title: "Email ready!",
       description: "Family collaboration email has been prepared",
     });
+  };
+
+  const handleScheduleTour = () => {
+    // Create tour request
+    const tourRequest = {
+      communityId: community.id,
+      communityName: community.name,
+      tourDate,
+      tourTime,
+      contactName: tourName,
+      email: tourEmail,
+      phone: tourPhone,
+      message: tourMessage
+    };
+    
+    // In a real app, this would send to the backend
+    console.log('Tour request:', tourRequest);
+    
+    // Show success message
+    toast({
+      title: "Tour Scheduled!",
+      description: `We'll contact you at ${tourEmail} to confirm your tour on ${tourDate} at ${tourTime}`,
+    });
+    
+    // Reset form and close dialog
+    setTourDate('');
+    setTourTime('');
+    setTourName('');
+    setTourEmail('');
+    setTourPhone('');
+    setTourMessage('');
+    setIsScheduleTourOpen(false);
+  };
+
+  const generatePhoneNumber = (state: string, id: number) => {
+    const areaCodes = {
+      CA: ['213', '310', '323', '415', '510', '619', '714', '818', '916', '949'],
+      TX: ['214', '281', '409', '512', '713', '817', '832', '903', '915', '972'],
+      FL: ['305', '321', '352', '386', '407', '561', '727', '754', '772', '786'],
+      AZ: ['480', '520', '602', '623', '928'],
+      NV: ['702', '725', '775']
+    };
+    
+    const stateAreaCodes = areaCodes[state] || areaCodes.CA;
+    const areaCode = stateAreaCodes[id % stateAreaCodes.length];
+    const number = String(2000000 + (id * 13) % 8000000).padStart(7, '0');
+    return `(${areaCode}) ${number.slice(0, 3)}-${number.slice(3)}`;
   };
 
   return (
@@ -275,6 +329,10 @@ Let me know what you think!`;
                       <MapPin className="w-4 h-4 mr-1" />
                       <span>{community.address}, {community.city}, {community.state} {community.zipCode}</span>
                     </div>
+                    <div className="flex items-center text-gray-600 mb-2">
+                      <Phone className="w-4 h-4 mr-1" />
+                      <span className="font-medium">{community.phone || generatePhoneNumber(community.state, community.id)}</span>
+                    </div>
                     <div className="flex items-center gap-4 mb-4">
                       <div className="flex items-center">
                         <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
@@ -303,6 +361,127 @@ Let me know what you think!`;
                   </div>
                 </div>
               </CardHeader>
+            </Card>
+
+            {/* Contact & Tour Section */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Dialog open={isScheduleTourOpen} onOpenChange={setIsScheduleTourOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 text-base font-medium">
+                        <CalendarIcon className="w-5 h-5 mr-2" />
+                        Schedule Tour
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Schedule a Tour</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div className="bg-blue-50 p-4 rounded-lg">
+                          <h4 className="font-medium text-blue-900 mb-1">{community.name}</h4>
+                          <p className="text-sm text-blue-800">{community.city}, {community.state}</p>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="tour-date">Preferred Date</Label>
+                            <Input
+                              id="tour-date"
+                              type="date"
+                              value={tourDate}
+                              onChange={(e) => setTourDate(e.target.value)}
+                              min={new Date().toISOString().split('T')[0]}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="tour-time">Preferred Time</Label>
+                            <Input
+                              id="tour-time"
+                              type="time"
+                              value={tourTime}
+                              onChange={(e) => setTourTime(e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor="tour-name">Your Name</Label>
+                          <Input
+                            id="tour-name"
+                            placeholder="Enter your full name"
+                            value={tourName}
+                            onChange={(e) => setTourName(e.target.value)}
+                          />
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="tour-email">Email</Label>
+                            <Input
+                              id="tour-email"
+                              type="email"
+                              placeholder="your.email@example.com"
+                              value={tourEmail}
+                              onChange={(e) => setTourEmail(e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="tour-phone">Phone</Label>
+                            <Input
+                              id="tour-phone"
+                              type="tel"
+                              placeholder="(555) 123-4567"
+                              value={tourPhone}
+                              onChange={(e) => setTourPhone(e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor="tour-message">Message (Optional)</Label>
+                          <textarea
+                            id="tour-message"
+                            className="w-full p-3 border border-gray-300 rounded-md"
+                            placeholder="Any specific questions or requirements?"
+                            value={tourMessage}
+                            onChange={(e) => setTourMessage(e.target.value)}
+                            rows={3}
+                          />
+                        </div>
+                        
+                        <Button 
+                          onClick={handleScheduleTour}
+                          className="w-full bg-blue-600 hover:bg-blue-700"
+                          disabled={!tourDate || !tourTime || !tourName || !tourEmail}
+                        >
+                          <CalendarIcon className="w-4 h-4 mr-2" />
+                          Schedule Tour
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="px-6 py-3 text-base font-medium"
+                    onClick={() => window.open(`tel:${community.phone || generatePhoneNumber(community.state, community.id)}`, '_self')}
+                  >
+                    <Phone className="w-5 h-5 mr-2" />
+                    Call Now
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="px-6 py-3 text-base font-medium"
+                    onClick={() => window.open(`mailto:info@${community.name.toLowerCase().replace(/\s+/g, '')}.com?subject=Inquiry about ${community.name}`, '_blank')}
+                  >
+                    <MessageSquare className="w-5 h-5 mr-2" />
+                    Message Rep
+                  </Button>
+                </div>
+              </CardContent>
             </Card>
 
             {/* "How We're Different" Section */}
@@ -763,11 +942,6 @@ Let me know what you think!`;
                 <Separator className="my-4" />
                 
                 <div className="space-y-3">
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Schedule Tour
-                  </Button>
-                  
                   {/* Enhanced Direct Message with Sales Manager Info */}
                   <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
                     <div className="flex items-center mb-3">
@@ -817,15 +991,6 @@ Let me know what you think!`;
                   <Button variant="outline" className="w-full">
                     <Phone className="w-4 h-4 mr-2" />
                     Call Direct Line
-                  </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={() => setIsShareDialogOpen(true)}
-                  >
-                    <Share2 className="w-4 h-4 mr-2" />
-                    Share Community
                   </Button>
                 </div>
               </CardContent>
