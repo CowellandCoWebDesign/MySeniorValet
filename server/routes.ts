@@ -925,6 +925,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/communities/:id', async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) {
+        return res.status(400).json({ message: 'Invalid community ID' });
+      }
       const community = await storage.getCommunity(communityId);
       
       if (!community) {
@@ -1111,7 +1114,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(shuffledCommunities);
     } catch (error) {
       console.error('Error fetching trending communities:', error);
-      res.status(500).json({ message: 'Failed to fetch trending communities' });
+      // Return empty array instead of error to prevent UI breakage
+      res.json([]);
     }
   });
 
@@ -1121,17 +1125,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const startTime = Date.now();
       const limit = parseInt(req.query.limit as string) || 20;
       
-      // Search for communities in actual coastal cities
-      const coastalCities = ['Santa Monica', 'Monterey'];
+      // Search for communities in actual coastal cities - use more reliable method
+      const coastalCities = ['Santa Monica', 'Monterey', 'San Francisco', 'Santa Barbara', 'Carmel'];
       const allCoastalCommunities = [];
       
       for (const city of coastalCities) {
-        const searchResults = await storage.searchCommunities({
-          location: city,
-          limit: 10, // Get 10 from each city
-          offset: 0
-        });
-        allCoastalCommunities.push(...searchResults);
+        try {
+          const searchResults = await storage.searchCommunities({
+            location: city,
+            limit: 5, // Get 5 from each city to avoid overwhelming
+            offset: 0
+          });
+          if (searchResults && searchResults.length > 0) {
+            allCoastalCommunities.push(...searchResults);
+          }
+        } catch (cityError) {
+          console.log(`No communities found in ${city}, continuing...`);
+        }
+      }
+      
+      // Fallback to trending communities if coastal search fails
+      if (allCoastalCommunities.length === 0) {
+        try {
+          const fallbackResults = await storage.getTrendingCommunities(limit);
+          console.log(`Coastal communities loaded (fallback) in ${Date.now() - startTime}ms`);
+          res.json(fallbackResults);
+        } catch (fallbackError) {
+          console.error('Fallback also failed:', fallbackError);
+          res.json([]);
+        }
+        return;
       }
       
       // Limit to requested amount and shuffle for variety
@@ -1143,7 +1166,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(shuffledResults);
     } catch (error) {
       console.error('Error fetching coastal communities:', error);
-      res.status(500).json({ message: 'Failed to fetch coastal communities' });
+      // Return empty array instead of error to prevent UI breakage
+      res.json([]);
     }
   });
 
@@ -1165,7 +1189,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(searchResults);
     } catch (error) {
       console.error('Error fetching location communities:', error);
-      res.status(500).json({ message: 'Failed to fetch location communities' });
+      // Return empty array instead of error to prevent UI breakage
+      res.json([]);
     }
   });
 

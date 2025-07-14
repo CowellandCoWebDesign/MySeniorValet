@@ -475,64 +475,7 @@ export default function TrueViewHome() {
         </Button>
       </section>
 
-      {/* Affordable Housing Section */}
-      <section className="px-4 py-8 bg-gradient-to-br from-blue-50 to-indigo-50">
-        <div className="mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
-            HUD Affordable Housing Options
-          </h2>
-          <p className="text-gray-600 text-sm">
-            Government-subsidized housing for seniors and disabled adults
-          </p>
-        </div>
-        
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-4">
-          <div className="flex items-start space-x-4">
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-              <Building2 className="w-6 h-6 text-blue-600" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Section 202 & 811 Housing</h3>
-              <p className="text-sm text-gray-600 mb-3">
-                HUD provides affordable housing for elderly residents (62+) and adults with disabilities. 
-                Rent is typically 30% of your adjusted monthly income.
-              </p>
-              <div className="text-sm text-gray-700 space-y-1 mb-4">
-                <div className="flex items-center gap-2">
-                  <Home className="w-4 h-4 text-gray-400" />
-                  <span><strong>66+ facilities</strong> available in California</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <DollarSign className="w-4 h-4 text-gray-400" />
-                  <span>Income-based rent (30% of income)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-gray-400" />
-                  <span>For seniors 62+ and disabled adults</span>
-                </div>
-              </div>
-              <Link href="/search?careType=Affordable%20Housing">
-                <Button className="gradient-primary hover:opacity-90 text-white">
-                  View Affordable Housing Options
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-        
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-          <div className="flex items-center space-x-2 mb-2">
-            <Info className="w-5 h-5 text-green-600" />
-            <span className="text-sm font-semibold text-green-800">Also Check Veterans Housing</span>
-          </div>
-          <p className="text-xs text-green-700 mb-2">
-            If you're a veteran, explore HUD-VASH housing which combines rental assistance with VA supportive services.
-          </p>
-          <Link href="/hud-vash" className="text-xs text-green-600 hover:text-green-700 underline font-medium">
-            Learn about Veterans Housing →
-          </Link>
-        </div>
-      </section>
+
 
       {/* Saved Searches with Carousel */}
       <section className="px-4 py-8 relative overflow-hidden">
@@ -896,6 +839,65 @@ export default function TrueViewHome() {
         )}
       </div>
       </div>
+      </section>
+
+      {/* Affordable Housing Section */}
+      <section className="px-4 py-8 bg-gradient-to-br from-blue-50 to-indigo-50">
+        <div className="mb-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-2">
+            HUD Affordable Housing Options
+          </h2>
+          <p className="text-gray-600 text-sm">
+            Government-subsidized housing for seniors and disabled adults
+          </p>
+        </div>
+        
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-4">
+          <div className="flex items-start space-x-4">
+            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <Building2 className="w-6 h-6 text-blue-600" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Section 202 & 811 Housing</h3>
+              <p className="text-sm text-gray-600 mb-3">
+                HUD provides affordable housing for elderly residents (62+) and adults with disabilities. 
+                Rent is typically 30% of your adjusted monthly income.
+              </p>
+              <div className="text-sm text-gray-700 space-y-1 mb-4">
+                <div className="flex items-center gap-2">
+                  <Home className="w-4 h-4 text-gray-400" />
+                  <span><strong>66+ facilities</strong> available in California</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <DollarSign className="w-4 h-4 text-gray-400" />
+                  <span>Income-based rent (30% of income)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-gray-400" />
+                  <span>For seniors 62+ and disabled adults</span>
+                </div>
+              </div>
+              <Link href="/search?careType=Affordable%20Housing">
+                <Button className="gradient-primary hover:opacity-90 text-white">
+                  View Affordable Housing Options
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="flex items-center space-x-2 mb-2">
+            <Info className="w-5 h-5 text-green-600" />
+            <span className="text-sm font-semibold text-green-800">Also Check Veterans Housing</span>
+          </div>
+          <p className="text-xs text-green-700 mb-2">
+            If you're a veteran, explore HUD-VASH housing which combines rental assistance with VA supportive services.
+          </p>
+          <Link href="/hud-vash" className="text-xs text-green-600 hover:text-green-700 underline font-medium">
+            Learn about Veterans Housing →
+          </Link>
+        </div>
       </section>
 
       {/* Reviews Comparison Section */}
