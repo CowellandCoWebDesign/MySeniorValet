@@ -672,9 +672,10 @@ export class DatabaseStorage implements IStorage {
         return this.buildCityOnlySearch(locationLower, distance);
       
       default:
-        // Fallback: broad search across all location fields
+        // Fallback: broad search across all location fields AND community name
         const searchTerm = `%${locationLower}%`;
         return or(
+          ilike(communities.name, searchTerm),
           ilike(communities.city, searchTerm),
           ilike(communities.state, searchTerm),
           ilike(communities.zipCode, searchTerm),
@@ -834,13 +835,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   private buildCityOnlySearch(location: string, distance?: number) {
-    const cityPattern = `%${location}%`;
+    const searchPattern = `%${location}%`;
     
     if (distance) {
       // For distance searches from a city, search broadly
       return or(
-        ilike(communities.city, cityPattern),
-        ilike(communities.county, cityPattern),
+        ilike(communities.name, searchPattern),
+        ilike(communities.city, searchPattern),
+        ilike(communities.county, searchPattern),
         // If it's a major city, include regional search
         ...(location.includes('los angeles') ? [eq(communities.state, 'CA')] : []),
         ...(location.includes('san francisco') ? [ilike(communities.zipCode, '94%')] : []),
@@ -848,7 +850,11 @@ export class DatabaseStorage implements IStorage {
       );
     }
 
-    return ilike(communities.city, cityPattern);
+    // Search both community name and city for single term searches
+    return or(
+      ilike(communities.name, searchPattern),
+      ilike(communities.city, searchPattern)
+    );
   }
 
   async createCommunity(insertCommunity: InsertCommunity): Promise<Community> {
