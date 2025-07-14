@@ -223,6 +223,22 @@ export class PricingTransparencyService {
   }
   
   /**
+   * Enrich communities with transparency badges and scores
+   */
+  async enrichCommunitiesWithBadges(communities: any[]): Promise<any[]> {
+    return communities.map(community => {
+      const transparencyBadges = this.evaluateCommunityBadges(community);
+      const transparencyScore = this.getTransparencyScore(community);
+      
+      return {
+        ...community,
+        transparencyBadges,
+        transparencyScore
+      };
+    });
+  }
+  
+  /**
    * Get all communities with their transparency badges
    */
   async enrichCommunitiesWithBadges(communities: any[]): Promise<any[]> {
