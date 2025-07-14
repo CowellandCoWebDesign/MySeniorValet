@@ -10,6 +10,7 @@ import { Icon } from 'leaflet';
 import { Link, useLocation } from "wouter";
 import SlidePanel from "@/components/SlidePanel";
 import BottomNavigation from "@/components/BottomNavigation";
+import { TransparencyBadgeList } from "@/components/TransparencyBadge";
 import 'leaflet/dist/leaflet.css';
 
 // Care type icons and colors mapping
@@ -1031,6 +1032,18 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
               <div className="text-sm text-gray-500 mb-3">
                 {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
               </div>
+              
+              {/* Transparency Badges */}
+              {community.transparencyBadges && community.transparencyBadges.length > 0 && (
+                <div className="mb-3">
+                  <TransparencyBadgeList 
+                    badges={community.transparencyBadges} 
+                    transparencyScore={community.transparencyScore}
+                    showScore={true}
+                    maxBadges={2}
+                  />
+                </div>
+              )}
               
               <div className="flex items-center justify-between">
                 <div className="text-lg font-bold text-blue-600">

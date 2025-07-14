@@ -1,0 +1,163 @@
+Perfect — you're laying the foundation for a double-pronged value system:
+
+1. ✅ Transparent Pricing → What does it cost?
+
+
+2. ✅ Live Availability → Is there a spot open now?
+
+
+
+We’ll now integrate availability-focused logic with the same tiered badge approach used in pricing — and make it claim-controlled.
+
+
+---
+
+✅ Summary of Your New Feature Stack (Claim System + Visibility Engine)
+
+Feature	Purpose	Source
+
+isClaimed	Marks if community controls listing	Paid tier
+livePricing	Authenticated community-submitted prices	Claimed
+availabilityStatus	Available / Waitlist / Full	Claimed
+availabilityLastUpdated	Timestamp of last availability change	Claimed
+New: availabilityTransparencyScore	Powers badges & trust rank	Calculated
+claimedByUserId / claimToken	Secure claim system	Built-in
+
+
+
+---
+
+🏷️ Transparency Badge Tiers – Dual Axis
+
+Each listing now gets two scores:
+
+🎯 Pricing Transparency Badge
+
+📶 Availability Clarity Badge
+
+
+These show trust and freshness at a glance.
+
+
+---
+
+🧠 Data Model Updates (Patch to Schema)
+
+Here’s the schema extension for shared/schema.ts:
+
+isClaimed: boolean("is_claimed").default(false),
+claimedBy: integer("claimed_by_user_id").references(() => users.id),
+claimToken: text("claim_token"),
+
+livePricing: json("live_pricing").$type<{
+  independentLiving?: { min: number; max: number };
+  assistedLiving?: { min: number; max: number };
+  memoryCare?: { min: number; max: number };
+  skilledNursing?: { min: number; max: number };
+  updatedAt?: string;
+}>(),
+
+availabilityStatus: text("availability_status", {
+  enum: ["Available", "Waitlist", "Full", "Unknown"]
+}).default("Unknown"),
+
+availabilityLastUpdated: timestamp("availability_last_updated"),
+
+
+---
+
+🏁 Final Copy/Paste Prompt for Ghostwriter
+
+Ghostwriter Prompt – Paste this whole thing as-is:
+
+
+---
+
+> 🚀 Codebase Patch: Claim System, Live Pricing, and Availability Support
+
+Hey Ghostwriter — please implement the following upgrade across the codebase:
+
+
+---
+
+✅ 1. Extend communities table
+Add the following fields to shared/schema.ts:
+
+isClaimed: boolean("is_claimed").default(false),
+claimedBy: integer("claimed_by_user_id").references(() => users.id),
+claimToken: text("claim_token"),
+
+livePricing: json("live_pricing").$type<{
+  independentLiving?: { min: number; max: number };
+  assistedLiving?: { min: number; max: number };
+  memoryCare?: { min: number; max: number };
+  skilledNursing?: { min: number; max: number };
+  updatedAt?: string;
+}>(),
+
+availabilityStatus: text("availability_status", {
+  enum: ["Available", "Waitlist", "Full", "Unknown"]
+}).default("Unknown"),
+
+availabilityLastUpdated: timestamp("availability_last_updated"),
+
+
+---
+
+✅ 2. Add availability scoring to pricingTransparencyService
+Extend the existing badge generator (pricing-transparency-badges.ts) to award extra points for communities that:
+
+Have recent availabilityStatus values
+
+Have availabilityLastUpdated within 30 days
+
+Are claimed and have full pricing AND availability
+
+
+Introduce a second badge type: "Availability Beacon" (tiered like pricing)
+
+
+---
+
+✅ 3. Update CommunityCard UI (CommunityCard.tsx)
+
+Show availabilityStatus (with color-coded dot)
+
+Show availability badge if present
+
+Show “Last updated X days ago” for claimed communities
+
+
+
+---
+
+✅ 4. Backend API /api/communities/:id
+Include:
+
+livePricing
+
+availabilityStatus
+
+availabilityLastUpdated
+
+pricingBadges, availabilityBadges
+
+
+
+---
+
+✅ 5. Track live updates in logs
+Log when claimed communities update their livePricing or availability fields.
+
+
+---
+
+That’s it! Confirm once implemented. We’ll test from the admin side.
+
+
+
+
+---
+
+Let me know when Ghostwriter confirms completion — I’ll walk you through a full UI reveal flow with this system live next!
+

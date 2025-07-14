@@ -198,17 +198,30 @@ export const communities = pgTable("communities", {
       validUntil?: string;
     }>;
   }>().default({}),
-  // Pricing system fields
+  // Claim system fields
   isClaimed: boolean("is_claimed").default(false),
+  claimedBy: integer("claimed_by_user_id").references(() => users.id),
+  claimToken: text("claim_token"),
+  claimVerified: boolean("claim_verified").default(false),
+  claimDate: timestamp("claim_date"),
+  
+  // Live pricing system (claimed communities only)
   livePricing: json("live_pricing").$type<{
-    min: number;
-    max: number;
-    lastUpdated: string;
+    independentLiving?: { min: number; max: number };
+    assistedLiving?: { min: number; max: number };
+    memoryCare?: { min: number; max: number };
+    skilledNursing?: { min: number; max: number };
+    updatedAt?: string;
     updatedBy?: string;
   }>(),
   pricingType: text("pricing_type", { enum: ["estimated", "live"] }).default("estimated"),
   pricingLastUpdated: timestamp("pricing_last_updated").defaultNow(),
-  availabilityStatus: text("availability_status", { enum: ["Available Now", "Waitlist", "Full", "Contact for Availability"] }).default("Contact for Availability"),
+  
+  // Availability tracking (claimed communities only)
+  availabilityStatus: text("availability_status", { 
+    enum: ["Available", "Waitlist", "Full", "Unknown"] 
+  }).default("Unknown"),
+  availabilityLastUpdated: timestamp("availability_last_updated"),
   availableUnits: integer("available_units"),
   totalUnits: integer("total_units"),
   unitTypes: json("unit_types").$type<Array<{

@@ -921,6 +921,153 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get community details with transparency badges
+  app.get('/api/communities/:id', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const community = await storage.getCommunity(communityId);
+      
+      if (!community) {
+        return res.status(404).json({ message: 'Community not found' });
+      }
+      
+      // Enhance with transparency badges
+      const [enrichedCommunity] = await pricingTransparencyService.enrichCommunitiesWithBadges([community]);
+      
+      res.json(enrichedCommunity);
+    } catch (error) {
+      console.error('Community detail error:', error);
+      res.status(500).json({ message: 'Failed to fetch community details' });
+    }
+  });
+
+  // Claim a community
+  app.post('/api/communities/:id/claim', requireSimpleAuth, async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const userId = req.user.id;
+      const { businessEmail, title, verificationMessage } = req.body;
+      
+      // Check if community exists
+      const community = await storage.getCommunity(communityId);
+      if (!community) {
+        return res.status(404).json({ message: 'Community not found' });
+      }
+      
+      // Check if already claimed
+      if (community.isClaimed) {
+        return res.status(400).json({ message: 'Community is already claimed' });
+      }
+      
+      // Generate claim token
+      const claimToken = Math.random().toString(36).substring(2, 15);
+      
+      // Create claim record
+      const claimData = {
+        communityId,
+        userId,
+        businessEmail,
+        title,
+        verificationMessage,
+        claimToken,
+        status: 'pending' as const
+      };
+      
+      await storage.createClaim(claimData);
+      
+      res.json({ 
+        message: 'Claim submitted successfully', 
+        claimToken,
+        status: 'pending' 
+      });
+    } catch (error) {
+      console.error('Claim error:', error);
+      res.status(500).json({ message: 'Failed to submit claim' });
+    }
+  });
+
+  // Update live pricing (claimed communities only)
+  app.post('/api/communities/:id/update-pricing', requireSimpleAuth, async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const userId = req.user.id;
+      const { pricingData } = req.body;
+      
+      // Check if community exists and is claimed by user
+      const community = await storage.getCommunity(communityId);
+      if (!community) {
+        return res.status(404).json({ message: 'Community not found' });
+      }
+      
+      if (!community.isClaimed || community.claimedBy !== userId) {
+        return res.status(403).json({ message: 'Not authorized to update pricing' });
+      }
+      
+      // Update live pricing
+      await storage.updateCommunityPricing(communityId, {
+        livePricing: pricingData,
+        pricingType: 'live',
+        pricingLastUpdated: new Date()
+      });
+      
+      res.json({ message: 'Pricing updated successfully' });
+    } catch (error) {
+      console.error('Pricing update error:', error);
+      res.status(500).json({ message: 'Failed to update pricing' });
+    }
+  });
+
+  // Update availability (claimed communities only)
+  app.post('/api/communities/:id/update-availability', requireSimpleAuth, async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const userId = req.user.id;
+      const { availabilityStatus, availableUnits } = req.body;
+      
+      // Check if community exists and is claimed by user
+      const community = await storage.getCommunity(communityId);
+      if (!community) {
+        return res.status(404).json({ message: 'Community not found' });
+      }
+      
+      if (!community.isClaimed || community.claimedBy !== userId) {
+        return res.status(403).json({ message: 'Not authorized to update availability' });
+      }
+      
+      // Update availability
+      await storage.updateCommunityAvailability(communityId, {
+        availabilityStatus,
+        availableUnits,
+        availabilityLastUpdated: new Date()
+      });
+      
+      res.json({ message: 'Availability updated successfully' });
+    } catch (error) {
+      console.error('Availability update error:', error);
+      res.status(500).json({ message: 'Failed to update availability' });
+    }
+  });
+
+  // Get transparency badges for a community
+  app.get('/api/communities/:id/badges', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const community = await storage.getCommunity(communityId);
+      
+      if (!community) {
+        return res.status(404).json({ message: 'Community not found' });
+      }
+      
+      const badges = pricingTransparencyService.evaluateCommunityBadges(community);
+      const transparencyScore = pricingTransparencyService.getTransparencyScore(community);
+      
+      res.json({ badges, transparencyScore });
+    } catch (error) {
+      console.error('Badges error:', error);
+      res.status(500).json({ message: 'Failed to fetch badges' });
+    }
+  });
+
   // Refresh community count cache
   app.post('/api/communities/refresh-cache', async (req, res) => {
     try {

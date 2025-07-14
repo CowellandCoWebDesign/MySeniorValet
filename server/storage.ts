@@ -103,6 +103,11 @@ export interface IStorage {
   getLeads(params: { status?: string; priority?: string; page?: number; limit?: number }): Promise<Lead[]>;
   updateLead(id: number, updates: Partial<InsertLead>): Promise<Lead | undefined>;
   addLeadActivity(activity: InsertLeadActivity): Promise<LeadActivity>;
+
+  // Claim system methods
+  createClaim(claim: any): Promise<any>;
+  updateCommunityPricing(communityId: number, pricingData: any): Promise<void>;
+  updateCommunityAvailability(communityId: number, availabilityData: any): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -1304,6 +1309,29 @@ export class DatabaseStorage implements IStorage {
       .values(activity)
       .returning();
     return newActivity;
+  }
+
+  // Claim system methods
+  async createClaim(claim: any): Promise<any> {
+    const [newClaim] = await db
+      .insert(communityClaims)
+      .values(claim)
+      .returning();
+    return newClaim;
+  }
+
+  async updateCommunityPricing(communityId: number, pricingData: any): Promise<void> {
+    await db
+      .update(communities)
+      .set(pricingData)
+      .where(eq(communities.id, communityId));
+  }
+
+  async updateCommunityAvailability(communityId: number, availabilityData: any): Promise<void> {
+    await db
+      .update(communities)
+      .set(availabilityData)
+      .where(eq(communities.id, communityId));
   }
 }
 
