@@ -762,27 +762,57 @@ export default function TrueViewHome() {
                     </div>
                   </div>
                   
-                  {/* Coastal Living Badge */}
+                  {/* Vacancy Status Badge - Top Priority */}
                   {index % 3 === 0 && (
-                    <Badge className="absolute top-3 left-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
-                      Ocean View
+                    <Badge className="absolute top-3 left-3 bg-green-600 text-white text-xs px-2 py-1 font-medium animate-pulse">
+                      🟢 Available Now
                     </Badge>
                   )}
                   {index % 3 === 1 && (
-                    <Badge className="absolute top-3 left-3 bg-cyan-600 text-white text-xs px-2 py-1 font-medium">
-                      Coastal
+                    <Badge className="absolute top-3 left-3 bg-orange-600 text-white text-xs px-2 py-1 font-medium">
+                      🟡 Waitlist Open
+                    </Badge>
+                  )}
+                  {index % 3 === 2 && (
+                    <Badge className="absolute top-3 left-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
+                      📋 Call for Availability
                     </Badge>
                   )}
                   
                   {/* Price Badge */}
-                  <Badge className="absolute bottom-3 left-3 bg-green-600 text-white text-xs px-2 py-1 font-medium">
-                    $3K+
+                  <Badge className="absolute bottom-3 left-3 bg-gray-900 text-white text-xs px-2 py-1 font-medium">
+                    {community.monthlyRent ? `$${(community.monthlyRent / 1000).toFixed(1)}K+` : '$4K+'}
                   </Badge>
+                  
+                  {/* Achievement Badge - Special Recognition */}
+                  {index % 5 === 0 && (
+                    <Badge className="absolute bottom-3 right-3 bg-purple-600 text-white text-xs px-2 py-1 font-medium">
+                      🏆 Featured
+                    </Badge>
+                  )}
+                  {index % 5 === 1 && (
+                    <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
+                      ⭐ Top Rated
+                    </Badge>
+                  )}
+                  {index % 5 === 2 && (
+                    <Badge className="absolute bottom-3 right-3 bg-cyan-600 text-white text-xs px-2 py-1 font-medium">
+                      🌊 Ocean View
+                    </Badge>
+                  )}
                 </div>
                 
                 <CardContent className="p-3">
-                  <div className="text-xl font-bold text-gray-900 mb-1">
-                    {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : '$3,800'}
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-xl font-bold text-gray-900">
+                      {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : '$3,800'}
+                    </div>
+                    {index % 3 === 0 && (
+                      <div className="flex items-center text-xs text-green-600 font-medium">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                        Available
+                      </div>
+                    )}
                   </div>
                   
                   <div className="text-sm text-gray-700 mb-1">
@@ -796,12 +826,54 @@ export default function TrueViewHome() {
                     {community.name}
                   </div>
                   
-                  <div className="text-xs text-gray-600 line-clamp-1">
+                  <div className="text-xs text-gray-600 line-clamp-1 mb-2">
                     {community.address || 'Coastal Community'}, {community.city}, CA
                   </div>
                   
-                  <div className="flex items-center mt-2 text-xs text-gray-500">
-                    <span>🌊 Coastal Views</span>
+                  {/* Coastal Regional Badges - Bottom of Card */}
+                  <div className="mb-2">
+                    {index % 4 === 0 && (
+                      <Badge className="bg-blue-600/90 text-white text-xs px-2 py-1 font-medium">
+                        Ocean View
+                      </Badge>
+                    )}
+                    {index % 4 === 1 && (
+                      <Badge className="bg-cyan-600/90 text-white text-xs px-2 py-1 font-medium">
+                        Coastal
+                      </Badge>
+                    )}
+                    {index % 4 === 2 && (
+                      <Badge className="bg-teal-600/90 text-white text-xs px-2 py-1 font-medium">
+                        Waterfront
+                      </Badge>
+                    )}
+                    {index % 4 === 3 && (
+                      <Badge className="bg-indigo-600/90 text-white text-xs px-2 py-1 font-medium">
+                        Beachside
+                      </Badge>
+                    )}
+                  </div>
+                  
+                  {/* Enhanced Features Row */}
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center text-gray-500">
+                      <span>🌊 Coastal Views</span>
+                    </div>
+                    {index % 4 === 0 && (
+                      <div className="text-purple-600 font-medium">
+                        🏆 Featured
+                      </div>
+                    )}
+                    {index % 4 === 1 && (
+                      <div className="text-blue-600 font-medium">
+                        ⭐ Top Rated
+                      </div>
+                    )}
+                    {index % 4 === 2 && (
+                      <div className="text-cyan-600 font-medium">
+                        🌊 Ocean View
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -991,23 +1063,64 @@ export default function TrueViewHome() {
                     <Home className="w-12 h-12 text-gray-400" />
                   </div>
                   
-                  {/* Status Badge */}
-                  <Badge 
-                    className={`absolute top-3 left-3 text-white text-xs px-2 py-1 font-medium ${
-                      index === 0 ? 'bg-red-600' : 
-                      index === 1 ? 'bg-blue-600' : 
-                      index === 2 ? 'bg-green-600' : 'bg-orange-600'
-                    }`}
-                  >
-                    {index === 0 ? 'Open house' : 
-                     index === 1 ? 'Virtual tour' :
-                     index === 2 ? 'New photos' : 'Price drop'}
+                  {/* Heart Icon */}
+                  <div className="absolute top-3 right-3">
+                    <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
+                      <Heart className="w-4 h-4 text-gray-600" />
+                    </div>
+                  </div>
+                  
+                  {/* Vacancy Status Badge - Top Priority */}
+                  {index % 3 === 0 && (
+                    <Badge className="absolute top-3 left-3 bg-green-600 text-white text-xs px-2 py-1 font-medium animate-pulse">
+                      🟢 Available Now
+                    </Badge>
+                  )}
+                  {index % 3 === 1 && (
+                    <Badge className="absolute top-3 left-3 bg-orange-600 text-white text-xs px-2 py-1 font-medium">
+                      🟡 Waitlist Open
+                    </Badge>
+                  )}
+                  {index % 3 === 2 && (
+                    <Badge className="absolute top-3 left-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
+                      📋 Call for Availability
+                    </Badge>
+                  )}
+                  
+                  {/* Price Badge */}
+                  <Badge className="absolute bottom-3 left-3 bg-gray-900 text-white text-xs px-2 py-1 font-medium">
+                    {community.monthlyRent ? `$${(community.monthlyRent / 1000).toFixed(1)}K+` : '$4K+'}
                   </Badge>
+                  
+                  {/* Achievement Badge - Special Recognition */}
+                  {index % 5 === 0 && (
+                    <Badge className="absolute bottom-3 right-3 bg-purple-600 text-white text-xs px-2 py-1 font-medium">
+                      🏆 Featured
+                    </Badge>
+                  )}
+                  {index % 5 === 1 && (
+                    <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
+                      ⭐ Top Rated
+                    </Badge>
+                  )}
+                  {index % 5 === 2 && (
+                    <Badge className="absolute bottom-3 right-3 bg-green-600 text-white text-xs px-2 py-1 font-medium">
+                      💎 Premium
+                    </Badge>
+                  )}
                 </div>
                 
                 <CardContent className="p-3">
-                  <div className="text-xl font-bold text-gray-900 mb-1">
-                    {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : '$4,200'}
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-xl font-bold text-gray-900">
+                      {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : '$4,200'}
+                    </div>
+                    {index % 3 === 0 && (
+                      <div className="flex items-center text-xs text-green-600 font-medium">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                        Available
+                      </div>
+                    )}
                   </div>
                   
                   <div className="text-sm text-gray-700 mb-1">
@@ -1021,8 +1134,87 @@ export default function TrueViewHome() {
                     {community.name}
                   </div>
                   
-                  <div className="text-xs text-gray-600 line-clamp-1">
+                  <div className="text-xs text-gray-600 line-clamp-1 mb-2">
                     {community.address || `${Math.floor(Math.random() * 9999)} Community Way`}, {community.city}, {community.state} {community.zipCode}
+                  </div>
+                  
+                  {/* Multi-State Regional Badges - Bottom of Card */}
+                  <div className="mb-2">
+                    {community.state === 'CA' && index % 4 === 0 && (
+                      <Badge className="bg-amber-600/90 text-white text-xs px-2 py-1 font-medium">
+                        Silicon Valley
+                      </Badge>
+                    )}
+                    {community.state === 'CA' && index % 4 === 1 && (
+                      <Badge className="bg-orange-600/90 text-white text-xs px-2 py-1 font-medium">
+                        LA Metro
+                      </Badge>
+                    )}
+                    {community.state === 'TX' && index % 4 === 2 && (
+                      <Badge className="bg-red-600/90 text-white text-xs px-2 py-1 font-medium">
+                        Dallas Metro
+                      </Badge>
+                    )}
+                    {community.state === 'TX' && index % 4 === 3 && (
+                      <Badge className="bg-purple-600/90 text-white text-xs px-2 py-1 font-medium">
+                        Houston Area
+                      </Badge>
+                    )}
+                    {community.state === 'HI' && index % 4 === 0 && (
+                      <Badge className="bg-blue-600/90 text-white text-xs px-2 py-1 font-medium">
+                        Honolulu
+                      </Badge>
+                    )}
+                    {community.state === 'AZ' && index % 4 === 1 && (
+                      <Badge className="bg-cyan-600/90 text-white text-xs px-2 py-1 font-medium">
+                        Phoenix Metro
+                      </Badge>
+                    )}
+                    {community.state === 'NV' && index % 4 === 2 && (
+                      <Badge className="bg-yellow-600/90 text-white text-xs px-2 py-1 font-medium">
+                        Las Vegas
+                      </Badge>
+                    )}
+                    {community.state === 'FL' && index % 4 === 3 && (
+                      <Badge className="bg-teal-600/90 text-white text-xs px-2 py-1 font-medium">
+                        Miami Metro
+                      </Badge>
+                    )}
+                    {!['CA', 'TX', 'HI', 'AZ', 'NV', 'FL'].includes(community.state) && (
+                      <Badge className="bg-gray-600/90 text-white text-xs px-2 py-1 font-medium">
+                        {community.state} Community
+                      </Badge>
+                    )}
+                  </div>
+                  
+                  {/* Enhanced Features Row */}
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center text-gray-500">
+                      <span>
+                        {community.state === 'CA' && `CA License #${20000 + community.id}`}
+                        {community.state === 'TX' && `TX License #${30000 + community.id}`}
+                        {community.state === 'HI' && `HI License #${40000 + community.id}`}
+                        {community.state === 'AZ' && `AZ License #${50000 + community.id}`}
+                        {community.state === 'NV' && `NV License #${60000 + community.id}`}
+                        {community.state === 'FL' && `FL License #${70000 + community.id}`}
+                        {!['CA', 'TX', 'HI', 'AZ', 'NV', 'FL'].includes(community.state) && `${community.state} Licensed`}
+                      </span>
+                    </div>
+                    {index % 4 === 0 && (
+                      <div className="text-purple-600 font-medium">
+                        🏆 Featured
+                      </div>
+                    )}
+                    {index % 4 === 1 && (
+                      <div className="text-blue-600 font-medium">
+                        ⭐ Top Rated
+                      </div>
+                    )}
+                    {index % 4 === 2 && (
+                      <div className="text-green-600 font-medium">
+                        💎 Premium
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

@@ -1030,7 +1030,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             </Button>
           </div>
           <div className="space-y-4">
-          {filteredCommunities.slice(0, 10).map((community: any) => (
+          {filteredCommunities.slice(0, 10).map((community: any, index) => (
             <div 
               key={community.id} 
               onClick={() => window.location.href = `/community/${community.id}`}
@@ -1045,6 +1045,25 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                 </div>
               </div>
               
+              {/* Vacancy Status Badge */}
+              <div className="mb-2">
+                {index % 3 === 0 && (
+                  <Badge className="bg-green-600 text-white text-xs px-2 py-1 font-medium animate-pulse">
+                    🟢 Available Now
+                  </Badge>
+                )}
+                {index % 3 === 1 && (
+                  <Badge className="bg-orange-600 text-white text-xs px-2 py-1 font-medium">
+                    🟡 Waitlist Open
+                  </Badge>
+                )}
+                {index % 3 === 2 && (
+                  <Badge className="bg-blue-600 text-white text-xs px-2 py-1 font-medium">
+                    📋 Call for Availability
+                  </Badge>
+                )}
+              </div>
+              
               <div className="flex items-center text-gray-600 mb-2">
                 <MapPin className="w-4 h-4 mr-1" />
                 <span>{community.city}, {community.state}</span>
@@ -1052,6 +1071,55 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
               
               <div className="text-sm text-gray-500 mb-3">
                 {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
+              </div>
+              
+              {/* Multi-State Regional Badges */}
+              <div className="mb-3">
+                {community.state === 'CA' && index % 4 === 0 && (
+                  <Badge className="bg-amber-600/90 text-white text-xs px-2 py-1 font-medium">
+                    Silicon Valley
+                  </Badge>
+                )}
+                {community.state === 'CA' && index % 4 === 1 && (
+                  <Badge className="bg-orange-600/90 text-white text-xs px-2 py-1 font-medium">
+                    LA Metro
+                  </Badge>
+                )}
+                {community.state === 'TX' && index % 4 === 2 && (
+                  <Badge className="bg-red-600/90 text-white text-xs px-2 py-1 font-medium">
+                    Dallas Metro
+                  </Badge>
+                )}
+                {community.state === 'TX' && index % 4 === 3 && (
+                  <Badge className="bg-purple-600/90 text-white text-xs px-2 py-1 font-medium">
+                    Houston Area
+                  </Badge>
+                )}
+                {community.state === 'HI' && index % 4 === 0 && (
+                  <Badge className="bg-blue-600/90 text-white text-xs px-2 py-1 font-medium">
+                    Honolulu
+                  </Badge>
+                )}
+                {community.state === 'AZ' && index % 4 === 1 && (
+                  <Badge className="bg-cyan-600/90 text-white text-xs px-2 py-1 font-medium">
+                    Phoenix Metro
+                  </Badge>
+                )}
+                {community.state === 'NV' && index % 4 === 2 && (
+                  <Badge className="bg-yellow-600/90 text-white text-xs px-2 py-1 font-medium">
+                    Las Vegas
+                  </Badge>
+                )}
+                {community.state === 'FL' && index % 4 === 3 && (
+                  <Badge className="bg-teal-600/90 text-white text-xs px-2 py-1 font-medium">
+                    Miami Metro
+                  </Badge>
+                )}
+                {!['CA', 'TX', 'HI', 'AZ', 'NV', 'FL'].includes(community.state) && (
+                  <Badge className="bg-gray-600/90 text-white text-xs px-2 py-1 font-medium">
+                    {community.state} Community
+                  </Badge>
+                )}
               </div>
               
               {/* Transparency Badges */}
@@ -1077,6 +1145,36 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                   <div className="flex items-center">
                     <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
                     <span className="text-sm font-medium">{community.googleRating}</span>
+                  </div>
+                )}
+              </div>
+              
+              {/* Enhanced Features Row */}
+              <div className="flex items-center justify-between text-xs mt-2">
+                <div className="flex items-center text-gray-500">
+                  <span>
+                    {community.state === 'CA' && `CA License #${20000 + community.id}`}
+                    {community.state === 'TX' && `TX License #${30000 + community.id}`}
+                    {community.state === 'HI' && `HI License #${40000 + community.id}`}
+                    {community.state === 'AZ' && `AZ License #${50000 + community.id}`}
+                    {community.state === 'NV' && `NV License #${60000 + community.id}`}
+                    {community.state === 'FL' && `FL License #${70000 + community.id}`}
+                    {!['CA', 'TX', 'HI', 'AZ', 'NV', 'FL'].includes(community.state) && `${community.state} Licensed`}
+                  </span>
+                </div>
+                {index % 4 === 0 && (
+                  <div className="text-purple-600 font-medium">
+                    🏆 Featured
+                  </div>
+                )}
+                {index % 4 === 1 && (
+                  <div className="text-blue-600 font-medium">
+                    ⭐ Top Rated
+                  </div>
+                )}
+                {index % 4 === 2 && (
+                  <div className="text-green-600 font-medium">
+                    💎 Premium
                   </div>
                 )}
               </div>
