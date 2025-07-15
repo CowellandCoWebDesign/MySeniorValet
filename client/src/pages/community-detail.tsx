@@ -28,7 +28,7 @@ import {
 
 export default function CommunityDetail() {
   const { id } = useParams<{ id: string }>();
-  const [, navigate] = useLocation();
+  const [, setLocation] = useLocation();
   const [isFavorite, setIsFavorite] = useState(false);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isScheduleTourOpen, setIsScheduleTourOpen] = useState(false);
@@ -181,7 +181,14 @@ Let me know what you think!`;
       <div className="bg-white border-b border-gray-200 p-4">
         <Button 
           variant="ghost" 
-          onClick={() => navigate(-1)}
+          onClick={() => {
+            // Try to go back in history, fallback to search page
+            if (window.history.length > 1) {
+              window.history.back();
+            } else {
+              setLocation('/search');
+            }
+          }}
           className="mb-2"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
