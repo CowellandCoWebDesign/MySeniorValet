@@ -97,324 +97,6 @@ const createCareTypeIcon = (careTypes: string[], isViewed: boolean = false, isFa
   });
 };
 
-// Swipeable Card Stack Component
-function SwipeableCardStack({ communities }: { communities: any[] }) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [startX, setStartX] = useState(0);
-  const [currentX, setCurrentX] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setStartX(e.touches[0].clientX);
-    setIsDragging(true);
-  };
-  
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging) return;
-    setCurrentX(e.touches[0].clientX - startX);
-  };
-  
-  const handleTouchEnd = () => {
-    if (!isDragging) return;
-    setIsDragging(false);
-    
-    const threshold = 100;
-    if (currentX > threshold && currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    } else if (currentX < -threshold && currentIndex < communities.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    }
-    
-    setCurrentX(0);
-  };
-  
-  const handleMouseStart = (e: React.MouseEvent) => {
-    setStartX(e.clientX);
-    setIsDragging(true);
-  };
-  
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    setCurrentX(e.clientX - startX);
-  };
-  
-  const handleMouseEnd = () => {
-    if (!isDragging) return;
-    setIsDragging(false);
-    
-    const threshold = 100;
-    if (currentX > threshold && currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    } else if (currentX < -threshold && currentIndex < communities.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    }
-    
-    setCurrentX(0);
-  };
-  
-  const nextCard = () => {
-    if (currentIndex < communities.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    }
-  };
-  
-  const prevCard = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    }
-  };
-  
-  if (!communities || communities.length === 0) {
-    return <div className="text-center text-gray-500 py-8">No communities found</div>;
-  }
-  
-  return (
-    <div className="relative w-full max-w-md mx-auto">
-      {/* Card Counter */}
-      <div className="text-center mb-4">
-        <span className="text-sm text-gray-600">
-          {currentIndex + 1} of {communities.length} communities
-        </span>
-      </div>
-      
-      {/* Stack Container */}
-      <div className="relative h-[600px] overflow-hidden">
-        {communities.map((community, index) => {
-          const isActive = index === currentIndex;
-          const offset = (index - currentIndex) * 10;
-          const scale = isActive ? 1 : 0.95;
-          const zIndex = communities.length - Math.abs(index - currentIndex);
-          
-          return (
-            <div
-              key={community.id}
-              className={`absolute inset-0 transition-all duration-300 ease-out ${
-                isActive ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
-              }`}
-              style={{
-                transform: `translateX(${isActive ? currentX : offset}px) scale(${scale})`,
-                zIndex: zIndex,
-                opacity: Math.abs(index - currentIndex) > 2 ? 0 : 1
-              }}
-              onTouchStart={isActive ? handleTouchStart : undefined}
-              onTouchMove={isActive ? handleTouchMove : undefined}
-              onTouchEnd={isActive ? handleTouchEnd : undefined}
-              onMouseDown={isActive ? handleMouseStart : undefined}
-              onMouseMove={isActive ? handleMouseMove : undefined}
-              onMouseUp={isActive ? handleMouseEnd : undefined}
-              onMouseLeave={isActive ? handleMouseEnd : undefined}
-            >
-              <div 
-                onClick={() => window.location.href = `/community/${community.id}`}
-                className="bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden h-full flex flex-col"
-              >
-                {/* Image Area with Badges */}
-                <div className="relative h-48 bg-gray-200 flex items-center justify-center">
-                  <Home className="w-16 h-16 text-gray-400" />
-                  
-                  {/* Heart Icon */}
-                  <div className="absolute top-3 right-3 z-10">
-                    <div className="w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
-                      <Heart className="w-5 h-5 text-gray-600" />
-                    </div>
-                  </div>
-                  
-                  {/* Availability Badge - Top Left */}
-                  {index % 3 === 0 && (
-                    <Badge className="absolute top-3 left-3 bg-green-600 text-white text-sm px-3 py-1 font-medium animate-pulse z-10">
-                      🟢 Available Now
-                    </Badge>
-                  )}
-                  {index % 3 === 1 && (
-                    <Badge className="absolute top-3 left-3 bg-orange-600 text-white text-sm px-3 py-1 font-medium z-10">
-                      🟡 Waitlist Open
-                    </Badge>
-                  )}
-                  {index % 3 === 2 && (
-                    <Badge className="absolute top-3 left-3 bg-blue-600 text-white text-sm px-3 py-1 font-medium z-10">
-                      📋 Call for Availability
-                    </Badge>
-                  )}
-                  
-                  {/* Price Badge - Bottom Left */}
-                  <Badge className="absolute bottom-3 left-3 bg-gray-900 text-white text-sm px-3 py-1 font-medium z-10">
-                    {community.monthlyRent ? `$${(community.monthlyRent / 1000).toFixed(1)}K+` : '$4K+'}
-                    {!community.claimed && (
-                      <span className="text-xs text-gray-300 ml-1 font-normal">est.</span>
-                    )}
-                  </Badge>
-                  
-                  {/* Achievement Badge - Bottom Right */}
-                  {index % 5 === 0 && (
-                    <Badge className="absolute bottom-3 right-3 bg-purple-600 text-white text-sm px-3 py-1 font-medium z-10">
-                      🏆 Featured
-                    </Badge>
-                  )}
-                  {index % 5 === 1 && (
-                    <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-sm px-3 py-1 font-medium z-10">
-                      ⭐ Top Rated
-                    </Badge>
-                  )}
-                  {index % 5 === 2 && (
-                    <Badge className="absolute bottom-3 right-3 bg-cyan-600 text-white text-sm px-3 py-1 font-medium z-10">
-                      🌊 Premium
-                    </Badge>
-                  )}
-                  {index % 5 === 3 && (
-                    <Badge className="absolute bottom-3 right-3 bg-teal-600 text-white text-sm px-3 py-1 font-medium z-10">
-                      ⚡ Trending
-                    </Badge>
-                  )}
-                  {index % 5 === 4 && (
-                    <Badge className="absolute bottom-3 right-3 bg-green-600 text-white text-sm px-3 py-1 font-medium z-10">
-                      💎 Exclusive
-                    </Badge>
-                  )}
-                </div>
-                
-                {/* Card Content */}
-                <div className="p-6 flex-1 flex flex-col">
-                  {/* Availability Status */}
-                  {index % 3 === 0 && (
-                    <div className="flex items-center text-sm text-green-600 font-medium mb-3">
-                      <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                      Available Now
-                    </div>
-                  )}
-                  
-                  {/* Pricing Display */}
-                  <div className="text-2xl font-bold text-gray-900 mb-3">
-                    {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : '$3,800'}
-                    {!community.claimed && (
-                      <span className="text-sm text-gray-500 ml-2 font-normal">est.</span>
-                    )}
-                  </div>
-                  
-                  {/* Community Name */}
-                  <div className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-                    {community.name}
-                  </div>
-                  
-                  {/* Address */}
-                  <div className="text-sm text-gray-600 mb-4 line-clamp-2">
-                    {community.address || 'Senior Living Community'}, {community.city}, {community.state || 'CA'}
-                  </div>
-                  
-                  {/* Care Type */}
-                  <div className="text-sm text-gray-700 mb-4">
-                    {community.careTypes?.length > 0 ? 
-                      `${community.careTypes[0]} • Senior Living` : 
-                      'Assisted Living • Senior Care'
-                    }
-                  </div>
-                  
-                  {/* Multi-State Regional Badges */}
-                  <div className="mb-4">
-                    {community.state === 'CA' && index % 4 === 0 && (
-                      <Badge className="bg-amber-600/90 text-white text-sm px-3 py-1 font-medium">
-                        Silicon Valley
-                      </Badge>
-                    )}
-                    {community.state === 'CA' && index % 4 === 1 && (
-                      <Badge className="bg-orange-600/90 text-white text-sm px-3 py-1 font-medium">
-                        LA Metro
-                      </Badge>
-                    )}
-                    {community.state === 'TX' && index % 4 === 2 && (
-                      <Badge className="bg-red-600/90 text-white text-sm px-3 py-1 font-medium">
-                        Dallas Metro
-                      </Badge>
-                    )}
-                    {community.state === 'TX' && index % 4 === 3 && (
-                      <Badge className="bg-purple-600/90 text-white text-sm px-3 py-1 font-medium">
-                        Houston Area
-                      </Badge>
-                    )}
-                    {community.state === 'HI' && index % 4 === 0 && (
-                      <Badge className="bg-blue-600/90 text-white text-sm px-3 py-1 font-medium">
-                        Honolulu
-                      </Badge>
-                    )}
-                    {community.state === 'AZ' && index % 4 === 1 && (
-                      <Badge className="bg-cyan-600/90 text-white text-sm px-3 py-1 font-medium">
-                        Phoenix Metro
-                      </Badge>
-                    )}
-                    {community.state === 'NV' && index % 4 === 2 && (
-                      <Badge className="bg-yellow-600/90 text-white text-sm px-3 py-1 font-medium">
-                        Las Vegas
-                      </Badge>
-                    )}
-                    {community.state === 'FL' && index % 4 === 3 && (
-                      <Badge className="bg-teal-600/90 text-white text-sm px-3 py-1 font-medium">
-                        Miami Metro
-                      </Badge>
-                    )}
-                    {!['CA', 'TX', 'HI', 'AZ', 'NV', 'FL'].includes(community.state) && (
-                      <Badge className="bg-gray-600/90 text-white text-sm px-3 py-1 font-medium">
-                        {community.state} Community
-                      </Badge>
-                    )}
-                  </div>
-                  
-                  {/* Rating */}
-                  {community.googleRating && (
-                    <div className="flex items-center text-sm text-gray-600 mt-auto">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
-                      <span>{community.googleRating}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      
-      {/* Navigation Controls */}
-      <div className="flex items-center justify-between mt-6">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={prevCard}
-          disabled={currentIndex === 0}
-          className="flex items-center gap-2"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Previous
-        </Button>
-        
-        <div className="flex gap-2">
-          {communities.slice(0, 5).map((_, index) => (
-            <div
-              key={index}
-              className={`w-2 h-2 rounded-full transition-colors ${
-                index === currentIndex ? 'bg-blue-600' : 'bg-gray-300'
-              }`}
-            />
-          ))}
-        </div>
-        
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={nextCard}
-          disabled={currentIndex === communities.length - 1}
-          className="flex items-center gap-2"
-        >
-          Next
-          <ArrowLeft className="w-4 h-4 rotate-180" />
-        </Button>
-      </div>
-      
-      {/* Swipe Instruction */}
-      <div className="text-center mt-4 text-xs text-gray-500">
-        Swipe left or right to browse communities
-      </div>
-    </div>
-  );
-}
-
 // Component to handle map bounds updates
 function MapBoundsUpdater({ onBoundsChange }: { onBoundsChange: (bounds: any) => void }) {
   const map = useMapEvents({
@@ -442,7 +124,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
   const [searchQuery, setSearchQuery] = useState(urlSearchQuery || "");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(urlSearchQuery || "");
   const [activeTab, setActiveTab] = useState('search');
-  const [viewMode, setViewMode] = useState<'map' | 'list'>('list');
+  const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [sortBy, setSortBy] = useState('recommended');
   const [showSortOptions, setShowSortOptions] = useState(false);
   const [, navigate] = useLocation();
@@ -1501,7 +1183,187 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
               Map
             </Button>
           </div>
-          <SwipeableCardStack communities={filteredCommunities} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {filteredCommunities.map((community: any, index) => (
+            <div 
+              key={community.id} 
+              onClick={() => window.location.href = `/community/${community.id}`}
+              className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group"
+            >
+              {/* Image Area with Badges */}
+              <div className="relative">
+                <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
+                  <Home className="w-12 h-12 text-gray-400" />
+                </div>
+                
+                {/* Heart Icon */}
+                <div className="absolute top-2 right-2 z-10">
+                  <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Heart className="w-4 h-4 text-gray-600" />
+                  </div>
+                </div>
+                
+                {/* Availability Badge - Top Left */}
+                {index % 3 === 0 && (
+                  <Badge className="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 font-medium animate-pulse z-10">
+                    🟢 Available Now
+                  </Badge>
+                )}
+                {index % 3 === 1 && (
+                  <Badge className="absolute top-2 left-2 bg-orange-600 text-white text-xs px-2 py-1 font-medium z-10">
+                    🟡 Waitlist Open
+                  </Badge>
+                )}
+                {index % 3 === 2 && (
+                  <Badge className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 font-medium z-10">
+                    📋 Call for Availability
+                  </Badge>
+                )}
+                
+                {/* Price Badge - Bottom Left */}
+                <Badge className="absolute bottom-2 left-2 bg-gray-900 text-white text-xs px-2 py-1 font-medium z-10">
+                  {community.monthlyRent ? `$${(community.monthlyRent / 1000).toFixed(1)}K+` : '$4K+'}
+                  {!community.claimed && (
+                    <span className="text-xs text-gray-300 ml-1 font-normal">est.</span>
+                  )}
+                </Badge>
+                
+                {/* Achievement Badge - Bottom Right */}
+                {index % 5 === 0 && (
+                  <Badge className="absolute bottom-2 right-2 bg-purple-600 text-white text-xs px-2 py-1 font-medium z-10">
+                    🏆 Featured
+                  </Badge>
+                )}
+                {index % 5 === 1 && (
+                  <Badge className="absolute bottom-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 font-medium z-10">
+                    ⭐ Top Rated
+                  </Badge>
+                )}
+                {index % 5 === 2 && (
+                  <Badge className="absolute bottom-2 right-2 bg-cyan-600 text-white text-xs px-2 py-1 font-medium z-10">
+                    🌊 Premium
+                  </Badge>
+                )}
+                {index % 5 === 3 && (
+                  <Badge className="absolute bottom-2 right-2 bg-teal-600 text-white text-xs px-2 py-1 font-medium z-10">
+                    ⚡ Trending
+                  </Badge>
+                )}
+                {index % 5 === 4 && (
+                  <Badge className="absolute bottom-2 right-2 bg-green-600 text-white text-xs px-2 py-1 font-medium z-10">
+                    💎 Exclusive
+                  </Badge>
+                )}
+              </div>
+              
+              {/* Card Content */}
+              <div className="p-4">
+                {/* Availability Status - Above Price */}
+                {index % 3 === 0 && (
+                  <div className="flex items-center text-xs text-green-600 font-medium mb-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                    Available
+                  </div>
+                )}
+                
+                {/* Pricing Display */}
+                <div className="text-xl font-bold text-gray-900 mb-2">
+                  {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : '$3,800'}
+                  {!community.claimed && (
+                    <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
+                  )}
+                </div>
+                
+                {/* Care Type */}
+                <div className="text-sm text-gray-700 mb-1">
+                  {community.careTypes?.length > 0 ? 
+                    `${community.careTypes[0]} • Senior Living` : 
+                    'Assisted Living • Senior Care'
+                  }
+                </div>
+                
+                {/* Community Name */}
+                <div className="text-sm font-medium text-gray-900 mb-2 line-clamp-1">
+                  {community.name}
+                </div>
+                
+                {/* Address */}
+                <div className="text-xs text-gray-600 line-clamp-1 mb-3">
+                  {community.address || 'Senior Living Community'}, {community.city}, {community.state || 'CA'}
+                </div>
+                
+                {/* Multi-State Regional Badges */}
+                <div className="mb-3">
+                  {community.state === 'CA' && index % 4 === 0 && (
+                    <Badge className="bg-amber-600/90 text-white text-xs px-2 py-1 font-medium">
+                      Silicon Valley
+                    </Badge>
+                  )}
+                  {community.state === 'CA' && index % 4 === 1 && (
+                    <Badge className="bg-orange-600/90 text-white text-xs px-2 py-1 font-medium">
+                      LA Metro
+                    </Badge>
+                  )}
+                  {community.state === 'TX' && index % 4 === 2 && (
+                    <Badge className="bg-red-600/90 text-white text-xs px-2 py-1 font-medium">
+                      Dallas Metro
+                    </Badge>
+                  )}
+                  {community.state === 'TX' && index % 4 === 3 && (
+                    <Badge className="bg-purple-600/90 text-white text-xs px-2 py-1 font-medium">
+                      Houston Area
+                    </Badge>
+                  )}
+                  {community.state === 'HI' && index % 4 === 0 && (
+                    <Badge className="bg-blue-600/90 text-white text-xs px-2 py-1 font-medium">
+                      Honolulu
+                    </Badge>
+                  )}
+                  {community.state === 'AZ' && index % 4 === 1 && (
+                    <Badge className="bg-cyan-600/90 text-white text-xs px-2 py-1 font-medium">
+                      Phoenix Metro
+                    </Badge>
+                  )}
+                  {community.state === 'NV' && index % 4 === 2 && (
+                    <Badge className="bg-yellow-600/90 text-white text-xs px-2 py-1 font-medium">
+                      Las Vegas
+                    </Badge>
+                  )}
+                  {community.state === 'FL' && index % 4 === 3 && (
+                    <Badge className="bg-teal-600/90 text-white text-xs px-2 py-1 font-medium">
+                      Miami Metro
+                    </Badge>
+                  )}
+                  {!['CA', 'TX', 'HI', 'AZ', 'NV', 'FL'].includes(community.state) && (
+                    <Badge className="bg-gray-600/90 text-white text-xs px-2 py-1 font-medium">
+                      {community.state} Community
+                    </Badge>
+                  )}
+                </div>
+                
+                {/* Transparency Badges */}
+                {community.transparencyBadges && community.transparencyBadges.length > 0 && (
+                  <div className="mb-3">
+                    <TransparencyBadgeList 
+                      badges={community.transparencyBadges} 
+                      transparencyScore={community.transparencyScore}
+                      showScore={true}
+                      maxBadges={2}
+                    />
+                  </div>
+                )}
+                
+                {/* Rating */}
+                {community.googleRating && (
+                  <div className="flex items-center text-xs text-gray-600">
+                    <Star className="w-3 h-3 text-yellow-400 fill-current mr-1" />
+                    <span>{community.googleRating}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+          </div>
         </div>
       )}
 
