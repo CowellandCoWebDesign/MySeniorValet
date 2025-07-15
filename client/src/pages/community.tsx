@@ -11,7 +11,6 @@ import { Link } from "wouter";
 import type { Community } from "@shared/schema";
 import { FlagListingDialog } from "@/components/flag-listing-dialog";
 import { PhotoCarousel } from "@/components/photo-carousel";
-import { getComingSoonImage } from "@/lib/comingSoonPhotos";
 
 export default function CommunityPage() {
   const [, params] = useRoute("/community/:id");
@@ -291,28 +290,11 @@ export default function CommunityPage() {
                 </div>
               </div>
             ) : (
-              <div className="relative h-96">
-                <img
-                  src={getComingSoonImage(community.id)}
-                  alt={`${community.name} - Coming Soon`}
-                  className="w-full h-full object-cover"
-                />
-                
-                {/* Coming Soon Overlay */}
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                  <div className="text-center text-white">
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 border border-white/20">
-                      <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-xl">
-                        <div className="w-12 h-12 text-white flex items-center justify-center text-2xl">
-                          📸
-                        </div>
-                      </div>
-                      <p className="text-2xl font-bold mb-3 tracking-wide">PHOTOS COMING SOON</p>
-                      <p className="text-lg text-gray-200 mb-2">More photos available soon</p>
-                      <p className="text-sm text-gray-300">We're working to add photos for this community</p>
-                    </div>
-                  </div>
-                </div>
+              <div className="h-96 bg-gray-100 flex items-center justify-center">
+                <div className="text-center text-gray-500">
+                  <Camera className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                  <p className="text-lg font-medium mb-2">Photos Coming Soon</p>
+                  <p className="text-sm">We're working to add photos for this community</p>
                   
                   {/* Availability Overlay for No Photos */}
                   <div className={`absolute bottom-0 left-0 right-0 ${availability.color} px-6 py-4`}>

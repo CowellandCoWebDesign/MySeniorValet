@@ -8,7 +8,6 @@ import { Link } from "wouter";
 import type { Community } from "@shared/schema";
 import { PhotoCarousel } from "@/components/photo-carousel";
 import { processPhotoUrls } from "@/lib/photoUtils";
-import { getComingSoonImage } from "@/lib/comingSoonPhotos";
 
 interface CommunityCardProps {
   community: Community;
@@ -166,12 +165,6 @@ export function CommunityCard({ community }: CommunityCardProps) {
 
   const allPhotos = getAllPhotos();
   const hasPhotos = allPhotos.length > 0;
-  
-  // Debug logging
-  console.log(`Community ${community.id} (${community.name}): hasPhotos=${hasPhotos}, allPhotos.length=${allPhotos.length}`);
-  if (!hasPhotos) {
-    console.log(`No photos for ${community.name}, will show coming soon image: ${getComingSoonImage(community.id)}`);
-  }
 
   const handleCardClick = (e: React.MouseEvent) => {
     // Don't navigate if clicking on buttons or links
@@ -186,7 +179,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
       className="overflow-hidden hover:shadow-xl transition-all duration-300 border-l-4 border-l-blue-500 cursor-pointer group"
       onClick={handleCardClick}
     >
-        {/* ENHANCED PHOTO CAROUSEL OR COMING SOON */}
+        {/* ENHANCED PHOTO CAROUSEL */}
         {hasPhotos ? (
           <div className="relative">
             <PhotoCarousel 
@@ -251,26 +244,10 @@ export function CommunityCard({ community }: CommunityCardProps) {
           </div>
         </div>
       ) : (
-        <div className="relative h-48">
-          <img
-            src={getComingSoonImage(community.id)}
-            alt={`${community.name} - Coming Soon`}
-            className="w-full h-full object-cover"
-            onLoad={() => console.log(`✅ Image loaded successfully for ${community.name}`)}
-            onError={(e) => console.error(`❌ Image failed to load for ${community.name}:`, e.target.src)}
-          />
-          
-          {/* Coming Soon Overlay */}
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <div className="text-center text-white">
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
-                <div className="w-12 h-12 mx-auto mb-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
-                  <ImageIcon className="w-6 h-6 text-white" />
-                </div>
-                <p className="text-sm font-bold mb-1 tracking-wide">PHOTOS COMING SOON</p>
-                <p className="text-xs text-gray-200">More photos available soon</p>
-              </div>
-            </div>
+        <div className="relative h-48 bg-gray-100 flex items-center justify-center">
+          <div className="text-center text-gray-500">
+            <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
+            <p className="text-sm">Photos coming soon</p>
           </div>
           
           {/* AVAILABILITY OVERLAY FOR NO PHOTOS */}
@@ -283,6 +260,27 @@ export function CommunityCard({ community }: CommunityCardProps) {
               )}
             </div>
           </div>
+        </div>
+      )}
+      
+      {/* Fallback availability status if no photos */}
+      {(!community.photos || community.photos.length === 0) && (
+        <div className={`${availability.color} px-4 py-3 flex items-center justify-between`}>
+          <div className="flex items-center space-x-3">
+            {availability.icon}
+            <div>
+              <span className="font-bold text-lg">{community.availabilityStatus}</span>
+              {community.availableUnits && (
+                <span className="text-sm opacity-90 ml-2">• {community.availableUnits} units available</span>
+              )}
+            </div>
+          </div>
+          {availability.urgency === "high" && (
+            <Badge variant="secondary" className="bg-white text-green-800 font-semibold">
+              <Clock className="h-3 w-3 mr-1" />
+              Act Fast
+            </Badge>
+          )}
         </div>
       )}
 

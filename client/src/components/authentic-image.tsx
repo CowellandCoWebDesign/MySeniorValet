@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getComingSoonImage } from "@/lib/comingSoonPhotos";
 
 interface AuthenticPhoto {
   photoReference: string;
@@ -76,30 +75,13 @@ export function AuthenticImage({
 
   if (isError || imageError || !imageUrl) {
     return (
-      <div className="relative">
-        <img
-          src={getComingSoonImage(communityId)}
-          alt={`${alt} - Coming Soon`}
-          className={`${className} object-cover`}
-          style={{ width, height }}
-          onLoad={() => setImageLoaded(true)}
-        />
-        
-        {/* Coming Soon Overlay */}
-        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-          <div className="text-center text-white">
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
-                <div className="w-8 h-8 text-white flex items-center justify-center text-xl">
-                  📸
-                </div>
-              </div>
-              <p className="text-lg font-bold mb-2 tracking-wide">PHOTOS COMING SOON</p>
-              <p className="text-sm text-gray-200">We're working to add more photos</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <img
+        src={fallback}
+        alt={alt}
+        className={className}
+        style={{ width, height }}
+        onLoad={() => setImageLoaded(true)}
+      />
     );
   }
 
