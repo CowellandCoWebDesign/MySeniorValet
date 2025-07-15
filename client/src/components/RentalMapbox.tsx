@@ -87,36 +87,52 @@ export default function RentalMapboxClean({
 
   // Filter communities with valid coordinates
   const validCommunities = useMemo(() => {
-    const filtered = communities.filter(community => 
-      community.latitude && 
-      community.longitude &&
-      community.latitude !== "0" && 
-      community.longitude !== "0" &&
-      !isNaN(parseFloat(community.latitude)) &&
-      !isNaN(parseFloat(community.longitude))
-    );
-    
-    console.log('Clean Mapbox - Total communities:', communities.length);
-    console.log('Clean Mapbox - Valid communities:', filtered.length);
-    
-    return filtered;
+    try {
+      const filtered = communities.filter(community => {
+        if (!community.latitude || !community.longitude) return false;
+        
+        const lat = parseFloat(community.latitude);
+        const lng = parseFloat(community.longitude);
+        
+        // Check for valid ranges and not zero
+        return !isNaN(lat) && !isNaN(lng) && 
+               lat !== 0 && lng !== 0 &&
+               lat >= -90 && lat <= 90 &&
+               lng >= -180 && lng <= 180;
+      });
+      
+      console.log('Clean Mapbox - Total communities:', communities.length);
+      console.log('Clean Mapbox - Valid communities:', filtered.length);
+      
+      return filtered;
+    } catch (error) {
+      console.error('Error filtering communities:', error);
+      return [];
+    }
   }, [communities]);
 
   // Calculate center based on valid communities
   useEffect(() => {
     if (validCommunities.length > 0) {
-      const latitudes = validCommunities.map(c => parseFloat(c.latitude));
-      const longitudes = validCommunities.map(c => parseFloat(c.longitude));
-      
-      const centerLat = latitudes.reduce((sum, lat) => sum + lat, 0) / latitudes.length;
-      const centerLng = longitudes.reduce((sum, lng) => sum + lng, 0) / longitudes.length;
-      
-      setViewState(prev => ({
-        ...prev,
-        latitude: centerLat,
-        longitude: centerLng,
-        zoom: validCommunities.length === 1 ? 14 : 10
-      }));
+      try {
+        const latitudes = validCommunities.map(c => parseFloat(c.latitude));
+        const longitudes = validCommunities.map(c => parseFloat(c.longitude));
+        
+        const centerLat = latitudes.reduce((sum, lat) => sum + lat, 0) / latitudes.length;
+        const centerLng = longitudes.reduce((sum, lng) => sum + lng, 0) / longitudes.length;
+        
+        // Validate calculated center
+        if (!isNaN(centerLat) && !isNaN(centerLng)) {
+          setViewState(prev => ({
+            ...prev,
+            latitude: centerLat,
+            longitude: centerLng,
+            zoom: validCommunities.length === 1 ? 14 : 10
+          }));
+        }
+      } catch (error) {
+        console.error('Error calculating map center:', error);
+      }
     }
   }, [validCommunities]);
 
@@ -172,20 +188,32 @@ export default function RentalMapboxClean({
           <ScaleControl position="bottom-left" />
 
           {/* Community Markers */}
-          {validCommunities.map((community) => (
-            <Marker
-              key={community.id}
-              longitude={parseFloat(community.longitude)}
-              latitude={parseFloat(community.latitude)}
-              anchor="bottom"
-            >
-              <CustomMarker
-                community={community}
-                isSelected={selectedCommunity?.id === community.id}
-                onClick={() => handleMarkerClick(community)}
-              />
-            </Marker>
-          ))}
+          {validCommunities.map((community) => {
+            try {
+              const lat = parseFloat(community.latitude);
+              const lng = parseFloat(community.longitude);
+              
+              if (isNaN(lat) || isNaN(lng)) return null;
+              
+              return (
+                <Marker
+                  key={community.id}
+                  longitude={lng}
+                  latitude={lat}
+                  anchor="bottom"
+                >
+                  <CustomMarker
+                    community={community}
+                    isSelected={selectedCommunity?.id === community.id}
+                    onClick={() => handleMarkerClick(community)}
+                  />
+                </Marker>
+              );
+            } catch (error) {
+              console.error('Error rendering marker for community:', community.id, error);
+              return null;
+            }
+          })}
         </Map>
       </div>
 
