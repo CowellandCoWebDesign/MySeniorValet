@@ -885,7 +885,7 @@ export default function TrueViewHome() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {/* Feature 1: One-Click Sharing */}
           <Card className="border-0 shadow-sm bg-white">
             <CardContent className="p-6">
@@ -960,6 +960,26 @@ export default function TrueViewHome() {
                   </p>
                   <div className="text-xs text-orange-600 font-medium">
                     No account required for family members
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Feature 5: Tour Tracker */}
+          <Card className="border-0 shadow-sm bg-white md:col-span-2 lg:col-span-1">
+            <CardContent className="p-6">
+              <div className="flex items-start space-x-4">
+                <div className="bg-indigo-100 rounded-lg p-3">
+                  <MapPin className="h-6 w-6 text-indigo-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Tour Tracker</h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    One tour for all family members. Track visit notes, photos, and impressions that everyone can see.
+                  </p>
+                  <div className="text-xs text-indigo-600 font-medium">
+                    Shared tour insights and findings
                   </div>
                 </div>
               </div>
