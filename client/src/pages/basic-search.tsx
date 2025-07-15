@@ -571,7 +571,11 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
           </div>
         </div>
 
-        <BottomNav />
+        <BottomNavigation 
+          activeTab={activeTab} 
+          onTabChange={handleTabChange}
+          updateCount={5}
+        />
       </div>
     );
   }
@@ -623,7 +627,11 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             ))}
           </div>
         </div>
-        <BottomNav />
+        <BottomNavigation 
+          activeTab={activeTab} 
+          onTabChange={handleTabChange}
+          updateCount={5}
+        />
       </div>
     );
   }
@@ -646,7 +654,11 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             </Button>
           </div>
         </div>
-        <BottomNav />
+        <BottomNavigation 
+          activeTab={activeTab} 
+          onTabChange={handleTabChange}
+          updateCount={5}
+        />
       </div>
     );
   }
@@ -1174,7 +1186,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
           <BottomNavigation 
             activeTab={activeTab} 
             onTabChange={handleTabChange}
-            updateCount={0}
+            updateCount={5}
           />
         </div>
       </div>

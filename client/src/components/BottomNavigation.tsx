@@ -51,7 +51,7 @@ export default function BottomNavigation({
                 <Icon className={`w-5 h-5 transition-transform duration-200 ${
                   isActive ? 'fill-current scale-110' : 'hover:scale-105'
                 }`} />
-                {tab.badge && (
+                {tab.badge && tab.badge > 0 && (
                   <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 min-w-[18px] h-[18px] flex items-center justify-center animate-pulse">
                     {tab.badge}
                   </Badge>
