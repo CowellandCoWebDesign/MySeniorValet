@@ -9,7 +9,7 @@ import { Link, useLocation } from "wouter";
 import SlidePanel from "@/components/SlidePanel";
 import BottomNavigation from "@/components/BottomNavigation";
 import { TransparencyBadgeList } from "@/components/TransparencyBadge";
-import MapboxMap from "@/components/MapboxMap";
+// Map imports removed - ready for fresh implementation
 
 // Care type icons and colors mapping
 const careTypeConfig = {
@@ -77,19 +77,41 @@ const createCareTypeIcon = (careTypes: string[], isViewed: boolean = false, isFa
     <path d="M16 8c0-2.21-1.79-4-4-4S8 5.79 8 8c0 1.5.83 2.8 2.05 3.48L12 14l1.95-2.52C15.17 10.8 16 9.5 16 8z" fill="white" stroke="#991b1b" stroke-width="0.5"/>
   ` : '';
   
-  return `data:image/svg+xml;base64,${btoa(`
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
-      <!-- Background circle -->
-      <circle cx="12" cy="12" r="10" fill="${fillColor}" stroke="${strokeColor}" stroke-width="2"/>
-      <!-- Icon -->
-      ${iconPath}
-      <!-- Heart for favorited -->
-      ${heartIcon}
-    </svg>
-  `)}`;
+  return new Icon({
+    iconUrl: 'data:image/svg+xml;base64,' + btoa(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
+        <!-- Background circle -->
+        <circle cx="12" cy="12" r="10" fill="${fillColor}" stroke="${strokeColor}" stroke-width="2"/>
+        <!-- Icon -->
+        ${iconPath}
+        <!-- Heart for favorited -->
+        ${heartIcon}
+      </svg>
+    `),
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+    popupAnchor: [0, -16],
+  });
 };
 
-// Component to handle map bounds updates - removed for clean implementation
+// Component to handle map bounds updates
+function MapBoundsUpdater({ onBoundsChange }: { onBoundsChange: (bounds: any) => void }) {
+  const map = useMapEvents({
+    moveend: () => {
+      onBoundsChange(map.getBounds());
+    },
+    zoomend: () => {
+      onBoundsChange(map.getBounds());
+    },
+  });
+
+  // Set initial bounds
+  useEffect(() => {
+    onBoundsChange(map.getBounds());
+  }, [map, onBoundsChange]);
+
+  return null;
+}
 
 export default function BasicSearch({ initialFilters = [] }: { initialFilters?: string[] }) {
   // Parse URL parameters for initial search query
@@ -101,7 +123,6 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
   const [activeTab, setActiveTab] = useState('search');
   const [sortBy, setSortBy] = useState('recommended');
   const [showSortOptions, setShowSortOptions] = useState(false);
-  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [slidePanelHeight, setSlidePanelHeight] = useState(160);
   const [, navigate] = useLocation();
   
@@ -690,10 +711,9 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
         </div>
 
         {/* Filter Pills - Mobile-Friendly */}
-        <div className="px-4 pb-2.5 flex items-center justify-between">
-          <div className="flex space-x-2 overflow-x-auto scrollbar-hide">
-            {/* Mobile Filter Drawer Trigger */}
-            <Sheet>
+        <div className="px-4 pb-2.5 flex space-x-2 overflow-x-auto scrollbar-hide">
+          {/* Mobile Filter Drawer Trigger */}
+          <Sheet>
             <SheetTrigger asChild>
               <Button 
                 variant="outline" 
@@ -863,29 +883,6 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
               <X className="w-3 h-3 ml-1" />
             </Button>
           )}
-          </div>
-          
-          {/* Map/List Toggle */}
-          <div className="flex items-center space-x-1 bg-gray-100 rounded-full p-1">
-            <Button
-              variant={viewMode === 'list' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('list')}
-              className="h-7 px-3 text-xs rounded-full"
-            >
-              <List className="w-3 h-3 mr-1" />
-              List
-            </Button>
-            <Button
-              variant={viewMode === 'map' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('map')}
-              className="h-7 px-3 text-xs rounded-full"
-            >
-              <Map className="w-3 h-3 mr-1" />
-              Map
-            </Button>
-          </div>
         </div>
         
         {/* Expanded Filter Panel */}
@@ -981,29 +978,24 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
         )}
       </div>
 
-      {/* Map/List View */}
+      {/* Map View - Removed for fresh implementation */}
       <div className="flex-1 relative" style={{ height: 'calc(100vh - 160px)' }}>
-        {/* Map Loading State */}
-        {isLoading && (
-          <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="text-sm text-gray-600 mt-2">Loading communities...</p>
+          {/* Map Loading State */}
+          {isLoading && (
+            <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="text-sm text-gray-600 mt-2">Loading communities...</p>
+              </div>
             </div>
-          </div>
-        )}
-        
-        {viewMode === 'map' ? (
-          <div className="w-full h-full">
-            <MapboxMap communities={sortedCommunities} />
-          </div>
-        ) : (
+          )}
+          
           <div className="w-full h-full bg-gray-100 flex items-center justify-center">
             <div className="text-center">
-              <h2 className="text-2xl font-semibold text-gray-700 mb-4">Search Results</h2>
-              <p className="text-gray-600 mb-6">Showing {sortedCommunities.length} communities</p>
+              <h2 className="text-2xl font-semibold text-gray-700 mb-4">Map View Coming Soon</h2>
+              <p className="text-gray-600 mb-6">Map functionality temporarily disabled for fresh implementation</p>
               <div className="bg-white rounded-lg shadow p-6 max-w-md">
-                <h3 className="text-lg font-medium mb-2">List View</h3>
+                <h3 className="text-lg font-medium mb-2">Search Results</h3>
                 <p className="text-gray-600">{sortedCommunities.length} communities found</p>
                 <div className="mt-4 space-y-2 max-h-48 overflow-y-auto">
                   {sortedCommunities.slice(0, 5).map(community => (
@@ -1021,21 +1013,19 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
               </div>
             </div>
           </div>
-        )}
 
-        {/* Save Search Button - Enhanced */}
-        <div className="absolute bottom-32 right-4 z-20">
-          <Button 
-            className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg px-3 py-2 rounded-full text-sm font-medium"
-            onClick={() => alert('Search saved!')}
-          >
-            <Search className="w-4 h-4 mr-1.5" />
-            Save
-          </Button>
-        </div>
+          {/* Save Search Button - Enhanced */}
+          <div className="absolute bottom-32 right-4 z-20">
+            <Button 
+              className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg px-3 py-2 rounded-full text-sm font-medium"
+              onClick={() => alert('Search saved!')}
+            >
+              <Search className="w-4 h-4 mr-1.5" />
+              Save
+            </Button>
+          </div>
 
-        {/* Optimized Slide Panel with Virtualization - Only show in list view */}
-        {viewMode === 'list' && (
+          {/* Optimized Slide Panel with Virtualization */}
           <SlidePanel
             communities={visibleCommunities}
             sortBy={sortBy}
@@ -1044,15 +1034,13 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             initialHeight={slidePanelHeight}
             autoExpand={!!(debouncedSearchQuery || urlSearchQuery) && visibleCommunities.length > 0}
           />
-        )}
-        
-        {/* Bottom Navigation */}
-        <BottomNavigation 
-          activeTab={activeTab} 
-          onTabChange={handleTabChange}
-          updateCount={5}
-        />
-      </div>
+          {/* Bottom Navigation */}
+          <BottomNavigation 
+            activeTab={activeTab} 
+            onTabChange={handleTabChange}
+            updateCount={5}
+          />
+        </div>
       </div>
     );
 };
