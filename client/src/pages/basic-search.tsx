@@ -181,6 +181,29 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
 
   const [mapBounds, setMapBounds] = useState<any>(null);
 
+  // Scroll behavior for bottom navigation
+  const [showBottomNav, setShowBottomNav] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scrolling down
+        setShowBottomNav(false);
+      } else {
+        // Scrolling up
+        setShowBottomNav(true);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
+
   // Handle tab change for bottom navigation
   const handleTabChange = (tabId: string) => {
     console.log('Bottom navigation tab clicked:', tabId);
@@ -1171,7 +1194,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
         </div>
       ) : (
         <div className="px-4 py-4">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 sticky top-0 bg-white z-40 py-2 -mx-4 px-4">
             <div className="text-lg font-semibold text-gray-900">
               {filteredCommunities.length} Results
             </div>
@@ -1187,7 +1210,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
           <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">
           {filteredCommunities.map((community: any, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
-              <Card className="overflow-hidden flex-shrink-0 w-56 h-[30rem] hover:shadow-xl transition-shadow duration-300">
+              <Card className="overflow-hidden flex-shrink-0 w-48 h-[24rem] hover:shadow-xl transition-shadow duration-300">
                 <div className="relative">
                   <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
                     <Home className="w-12 h-12 text-gray-400" />
@@ -1379,6 +1402,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
         activeTab={activeTab} 
         onTabChange={handleTabChange}
         updateCount={0}
+        isVisible={showBottomNav}
       />
     </div>
   );
