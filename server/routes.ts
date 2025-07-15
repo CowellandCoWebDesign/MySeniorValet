@@ -921,6 +921,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Fast search suggestions endpoint
+  app.get('/api/search/suggestions', async (req, res) => {
+    try {
+      const query = req.query.q as string;
+      
+      if (!query || query.length < 2) {
+        return res.json([]);
+      }
+      
+      const lowerQuery = query.toLowerCase();
+      
+      // Get distinct cities, states, and community names from database
+      const suggestions = await db.execute(sql`
+        SELECT DISTINCT 
+          city || ', ' || state AS suggestion,
+          'location' AS type,
+          COUNT(*) as count
+        FROM communities 
+        WHERE LOWER(city || ', ' || state) LIKE ${`%${lowerQuery}%`}
+        GROUP BY city, state
+        
+        UNION ALL
+        
+        SELECT DISTINCT 
+          name AS suggestion,
+          'community' AS type,
+          1 as count
+        FROM communities 
+        WHERE LOWER(name) LIKE ${`%${lowerQuery}%`}
+        
+        UNION ALL
+        
+        SELECT DISTINCT 
+          unnest(care_types) AS suggestion,
+          'care_type' AS type,
+          1 as count
+        FROM communities 
+        WHERE EXISTS (
+          SELECT 1 FROM unnest(care_types) AS ct 
+          WHERE LOWER(ct) LIKE ${`%${lowerQuery}%`}
+        )
+        
+        ORDER BY count DESC, suggestion
+        LIMIT 6
+      `);
+      
+      res.json(suggestions);
+    } catch (error) {
+      console.error('Search suggestions error:', error);
+      res.json([]);
+    }
+  });
+
   // Get trending communities for homepage - fast-loading diverse selection (must be before :id route)
   app.get('/api/communities/trending', async (req, res) => {
     try {
