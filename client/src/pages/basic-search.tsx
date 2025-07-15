@@ -189,13 +189,13 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
     
     switch (tabId) {
       case 'search':
-        navigate('/search');
+        // Stay in search page
         break;
       case 'updates':
-        navigate('/dashboard?tab=updates');
+        // Stay in search page but switch to updates tab
         break;
       case 'saved':
-        navigate('/dashboard?tab=saved');
+        // Stay in search page but switch to saved tab
         break;
       case 'tours':
         navigate('/dashboard?tab=tours');
@@ -433,8 +433,17 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
       <div className="min-h-screen bg-white pb-16">
         {/* Header */}
         <div className="sticky top-0 bg-white z-30 border-b border-gray-200">
-          <div className="px-4 py-6">
-            <h1 className="text-3xl font-bold text-gray-900">Updates</h1>
+          <div className="px-4 py-4">
+            <div className="flex items-center justify-between">
+              <h1 className="text-3xl font-bold text-gray-900">Updates</h1>
+              <Button 
+                onClick={() => setActiveTab('search')}
+                variant="outline" 
+                size="sm"
+              >
+                Back to Search
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -442,7 +451,14 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
         <div className="bg-gray-50 px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-gray-900">Saved searches</h2>
-            <button className="text-blue-600 font-medium">Mark all as viewed</button>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="text-blue-600 font-medium hover:bg-blue-50"
+              onClick={() => alert('All notifications marked as viewed!')}
+            >
+              Mark all as viewed
+            </Button>
           </div>
 
           {/* Search Alert with Badge */}
@@ -463,7 +479,11 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             {/* Sample Community Cards */}
             <div className="space-y-3">
               {filteredCommunities.slice(0, 3).map((community: any, index) => (
-                <div key={community.id} className="relative bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <div 
+                  key={community.id} 
+                  onClick={() => window.location.href = `/community/${community.id}`}
+                  className="relative bg-white rounded-lg border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                >
                   {index === 0 && (
                     <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
                       New listing
