@@ -50,6 +50,7 @@ const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || 'pk.eyJ1IjoidHJ
 console.log('MAPBOX_TOKEN:', MAPBOX_TOKEN ? 'Token loaded successfully' : 'Token not found');
 console.log('Environment variables:', { VITE_MAPBOX_ACCESS_TOKEN: import.meta.env.VITE_MAPBOX_ACCESS_TOKEN });
 console.log('Actual token value:', MAPBOX_TOKEN?.substring(0, 20) + '...');
+console.log('Token type:', MAPBOX_TOKEN?.startsWith('sk.') ? 'SECRET TOKEN' : MAPBOX_TOKEN?.startsWith('pk.') ? 'PUBLIC TOKEN' : 'UNKNOWN');
 
 // Custom marker styles for different community types
 const getMarkerColor = (community: Community) => {
@@ -124,7 +125,7 @@ export default function RentalMapbox({
   className = '' 
 }: RentalMapboxProps) {
   // Error handling for missing token
-  if (!MAPBOX_TOKEN || MAPBOX_TOKEN === 'pk.eyJ1IjoidHJ1ZXZpZXciLCJhIjoiY2x6cjJ4cDUxMDFkbTJqczV1ZDJhZ2NiNCJ9.example') {
+  if (!MAPBOX_TOKEN || MAPBOX_TOKEN === 'pk.eyJ1IjoidHJ1ZXZpZXciLCJhIjoiY2x6cjJ4cDUxMDFkbTJqczV1ZDJhZ2NiNCJ9.example' || MAPBOX_TOKEN.startsWith('pk.eyJ1IjoidHJ1ZXZpZXciLCJhIjoiY2x6cjJ4cDUxMDFkbTJqczV1ZDJhZ2NiNCJ9.example')) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-gray-100">
         <div className="text-center p-8">
