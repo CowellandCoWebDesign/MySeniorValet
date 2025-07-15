@@ -1265,51 +1265,66 @@ export class DatabaseStorage implements IStorage {
     const searchTerm = query.toLowerCase().trim();
     
     try {
-      // Simple query to get matching locations
-      const results = await db
-        .select({
-          city: communities.city,
-          state: communities.state,
-          zipCode: communities.zipCode
-        })
-        .from(communities)
-        .where(
-          or(
-            ilike(communities.city, `%${searchTerm}%`),
-            ilike(communities.state, `%${searchTerm}%`),
-            like(communities.zipCode, `${searchTerm}%`)
-          )
-        )
-        .limit(50);
-
-      // Use a Set to track unique suggestions
-      const uniqueSuggestions = new Set<string>();
+      // Use raw SQL for better performance with proper indexing
+      const suggestions = new Set<string>();
       
-      // Process results and add unique city/state combinations
-      results.forEach(row => {
+      // Get city suggestions (prioritized)
+      const cityResults = await db.execute(
+        sql`
+          SELECT DISTINCT city, state 
+          FROM communities 
+          WHERE LOWER(city) LIKE ${`${searchTerm}%`} 
+          ORDER BY city 
+          LIMIT 5
+        `
+      );
+      
+      // Add city, state combinations
+      cityResults.forEach((row: any) => {
         if (row.city && row.state) {
-          const cityLower = row.city.toLowerCase();
-          const stateLower = row.state.toLowerCase();
-          
-          // Add city, state if it matches
-          if (cityLower.includes(searchTerm) || stateLower.includes(searchTerm)) {
-            uniqueSuggestions.add(`${row.city}, ${row.state}`);
-          }
-        }
-        
-        // Add state if it matches
-        if (row.state && row.state.toLowerCase().includes(searchTerm)) {
-          uniqueSuggestions.add(row.state);
-        }
-        
-        // Add zip code if it matches
-        if (row.zipCode && row.zipCode.startsWith(searchTerm)) {
-          uniqueSuggestions.add(row.zipCode);
+          suggestions.add(`${row.city}, ${row.state}`);
         }
       });
+      
+      // Get state suggestions if needed
+      if (suggestions.size < 6) {
+        const stateResults = await db.execute(
+          sql`
+            SELECT DISTINCT state 
+            FROM communities 
+            WHERE LOWER(state) LIKE ${`${searchTerm}%`} 
+            ORDER BY state 
+            LIMIT 3
+          `
+        );
+        
+        stateResults.forEach((row: any) => {
+          if (row.state) {
+            suggestions.add(row.state);
+          }
+        });
+      }
+      
+      // Get ZIP code suggestions if needed
+      if (suggestions.size < 8 && /^\d/.test(searchTerm)) {
+        const zipResults = await db.execute(
+          sql`
+            SELECT DISTINCT zip_code, city, state 
+            FROM communities 
+            WHERE zip_code LIKE ${`${searchTerm}%`} 
+            ORDER BY zip_code 
+            LIMIT 3
+          `
+        );
+        
+        zipResults.forEach((row: any) => {
+          if (row.zip_code) {
+            suggestions.add(row.zip_code);
+          }
+        });
+      }
 
-      // Convert Set to Array and limit results
-      return Array.from(uniqueSuggestions).slice(0, 8);
+      return Array.from(suggestions).slice(0, 8);
     } catch (error) {
       console.error('Error getting search suggestions:', error);
       return [];

@@ -847,9 +847,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Test endpoint to verify middleware issues
-  app.get('/api/test-suggestions', async (req, res) => {
-    res.json(['Test 1', 'Test 2', 'Test 3']);
+  // Search analytics endpoint
+  app.get('/api/admin/search-analytics', async (req, res) => {
+    try {
+      // Get popular search terms from user activity
+      const popularTerms = await db.execute(
+        sql`
+          SELECT 
+            activity_data->>'query' as query,
+            COUNT(*) as search_count,
+            AVG((activity_data->>'resultCount')::int) as avg_results
+          FROM user_activities 
+          WHERE activity_type = 'search_suggestion' 
+            AND activity_data->>'query' IS NOT NULL
+            AND created_at >= NOW() - INTERVAL '7 days'
+          GROUP BY activity_data->>'query'
+          ORDER BY search_count DESC
+          LIMIT 20
+        `
+      );
+
+      // Get search patterns by hour
+      const searchPatterns = await db.execute(
+        sql`
+          SELECT 
+            EXTRACT(HOUR FROM created_at) as hour,
+            COUNT(*) as search_count
+          FROM user_activities 
+          WHERE activity_type = 'search_suggestion'
+            AND created_at >= NOW() - INTERVAL '24 hours'
+          GROUP BY EXTRACT(HOUR FROM created_at)
+          ORDER BY hour
+        `
+      );
+
+      res.json({
+        popularTerms: popularTerms || [],
+        searchPatterns: searchPatterns || []
+      });
+    } catch (error) {
+      console.error('Search analytics error:', error);
+      res.status(500).json({ error: 'Failed to fetch search analytics' });
+    }
   });
 
   // Predictive search suggestions endpoint  
@@ -861,7 +900,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json([]);
       }
 
-      // Check cache first
+      // Check cache first with longer TTL for better performance
       const cacheKey = `search_suggestions:${query.toLowerCase()}`;
       try {
         const cached = await cache.get(cacheKey);
@@ -875,9 +914,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get suggestions from storage
       const suggestions = await storage.getSearchSuggestions(query);
       
-      // Try to cache but don't fail if cache is unavailable
+      // Track search analytics (fire and forget)
+      setImmediate(async () => {
+        try {
+          const userId = req.user?.id || null;
+          await storage.trackUserActivity({
+            userId,
+            activityType: 'search_suggestion',
+            activityData: { query, resultCount: suggestions.length }
+          });
+        } catch (error) {
+          // Ignore analytics errors
+        }
+      });
+      
+      // Cache for 15 minutes with error handling
       try {
-        await cache.set(cacheKey, suggestions, 600);
+        await cache.set(cacheKey, suggestions, 900);
       } catch (cacheError) {
         // Continue without caching
       }
