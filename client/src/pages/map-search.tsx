@@ -422,7 +422,11 @@ export default function MapSearch() {
                           {/* Pricing */}
                           <div className="bg-blue-50 p-2 rounded mb-2">
                             <p className="text-sm font-medium text-blue-900">
-                              {community.priceRange || 'Contact for pricing'}
+                              {typeof community.priceRange === 'string' 
+                                ? community.priceRange 
+                                : community.priceRange?.min && community.priceRange?.max
+                                ? `$${community.priceRange.min} - $${community.priceRange.max}`
+                                : 'Contact for pricing'}
                             </p>
                             {community.availability && (
                               <p className="text-xs text-blue-700">
