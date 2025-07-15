@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { Search, Filter, List, MapIcon, SlidersHorizontal, X } from 'lucide-react';
+import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { Separator } from '@/components/ui/separator';
 import Map from '@/components/Map';
+import { useQuery } from '@tanstack/react-query';
 
 interface Community {
   id: number;
@@ -57,6 +58,38 @@ export default function MapSearch() {
   const [mapCenter, setMapCenter] = useState<[number, number]>([37.7749, -122.4194]);
   const [mapZoom, setMapZoom] = useState(12);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
+  const [mapBounds, setMapBounds] = useState<any>(null);
+  
+  // Fetch communities within map bounds for list view
+  const { data: mapCommunities = [], isLoading: isLoadingCommunities } = useQuery({
+    queryKey: ['communities-map-bounds', mapBounds, filters],
+    queryFn: async () => {
+      if (!mapBounds) return [];
+      
+      const sw = mapBounds.getSouthWest();
+      const ne = mapBounds.getNorthEast();
+      
+      const params = new URLSearchParams({
+        swLat: sw.lat.toString(),
+        swLng: sw.lng.toString(),
+        neLat: ne.lat.toString(),
+        neLng: ne.lng.toString(),
+        limit: '50',
+        ...(filters.careType !== 'All Types' && { careType: filters.careType }),
+        ...(filters.minRating > 0 && { minRating: filters.minRating.toString() }),
+      });
+      
+      const response = await fetch(`/api/communities/search/spatial?${params}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch communities');
+      }
+      
+      return response.json();
+    },
+    enabled: !!mapBounds && viewMode === 'list',
+    staleTime: 30000, // Cache for 30 seconds
+  });
 
   // Handle initial search query from URL
   useEffect(() => {
@@ -320,16 +353,120 @@ export default function MapSearch() {
             height="calc(100vh - 200px)"
             searchFilters={filters}
             onCommunityClick={handleCommunityClick}
+            onBoundsChange={setMapBounds}
           />
         ) : (
           <div className="p-4">
-            <div className="text-center py-8">
-              <List className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-              <p className="text-gray-600">List view coming soon!</p>
-              <p className="text-sm text-gray-500 mt-2">
-                Switch to map view to see communities in your area
+            {/* List View Header */}
+            <div className="mb-4">
+              <h2 className="text-lg font-semibold mb-2">Communities in Current Area</h2>
+              <p className="text-sm text-gray-600">
+                {isLoadingCommunities ? 'Loading...' : `${mapCommunities.length} communities found`}
               </p>
             </div>
+            
+            {/* Communities List */}
+            {isLoadingCommunities ? (
+              <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="bg-gray-100 rounded-lg p-4 animate-pulse">
+                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-2 w-3/4"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                  </div>
+                ))}
+              </div>
+            ) : mapCommunities.length === 0 ? (
+              <div className="text-center py-8">
+                <List className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-600">No communities found in current area</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  Try adjusting your search location or filters
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {mapCommunities.map((community) => (
+                  <Card key={community.id} className="hover:shadow-lg transition-shadow cursor-pointer">
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-lg mb-1">{community.name}</h3>
+                          <p className="text-sm text-gray-600 flex items-center gap-1 mb-2">
+                            <MapPin className="w-4 h-4" />
+                            {community.address}, {community.city}, {community.state} {community.zipCode}
+                          </p>
+                          
+                          {/* Rating */}
+                          {community.rating > 0 && (
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="flex items-center gap-1">
+                                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                <span className="font-medium">{community.rating}</span>
+                              </div>
+                              <span className="text-sm text-gray-600">
+                                ({community.reviewCount} reviews)
+                              </span>
+                            </div>
+                          )}
+                          
+                          {/* Care Types */}
+                          <div className="flex flex-wrap gap-1 mb-2">
+                            {community.careTypes?.map((type, index) => (
+                              <Badge key={index} variant="secondary" className="text-xs">
+                                {type}
+                              </Badge>
+                            ))}
+                          </div>
+                          
+                          {/* Pricing */}
+                          <div className="bg-blue-50 p-2 rounded mb-2">
+                            <p className="text-sm font-medium text-blue-900">
+                              {community.priceRange || 'Contact for pricing'}
+                            </p>
+                            {community.availability && (
+                              <p className="text-xs text-blue-700">
+                                {community.availability}
+                              </p>
+                            )}
+                          </div>
+                          
+                          {/* Actions */}
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              className="flex-1"
+                              onClick={() => handleCommunityClick(community)}
+                            >
+                              <ExternalLink className="w-4 h-4 mr-1" />
+                              View Details
+                            </Button>
+                            
+                            {community.phone && (
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => window.open(`tel:${community.phone}`)}
+                              >
+                                <Phone className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-gray-400 hover:text-red-500 ml-4"
+                        >
+                          <Heart className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -61,6 +61,7 @@ interface MapProps {
     amenities?: string[];
   };
   onCommunityClick?: (community: Community) => void;
+  onBoundsChange?: (bounds: any) => void;
   height?: string;
   center?: [number, number];
   zoom?: number;
@@ -93,12 +94,18 @@ function MapBoundsHandler({ onBoundsChange }: { onBoundsChange: (bounds: LatLngB
 export default function Map({ 
   searchFilters = {}, 
   onCommunityClick, 
+  onBoundsChange,
   height = "500px",
   center = [37.7749, -122.4194], // Default to San Francisco
   zoom = 12
 }: MapProps) {
   const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
+  
+  const handleBoundsChange = (bounds: LatLngBounds) => {
+    setMapBounds(bounds);
+    onBoundsChange?.(bounds);
+  };
 
   // Fetch communities within map bounds using PostGIS spatial search
   const { data: communities = [], isLoading, error } = useQuery({
@@ -152,19 +159,21 @@ export default function Map({
   };
 
   return (
-    <div className="w-full" style={{ height }}>
-      <MapContainer
-        center={center}
-        zoom={zoom}
-        style={{ height: '100%', width: '100%' }}
-        className="rounded-lg"
-      >
+    <div className="w-full flex" style={{ height }}>
+      {/* Map Container */}
+      <div className="flex-1 relative">
+        <MapContainer
+          center={center}
+          zoom={zoom}
+          style={{ height: '100%', width: '100%' }}
+          className="rounded-lg"
+        >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         
-        <MapBoundsHandler onBoundsChange={setMapBounds} />
+        <MapBoundsHandler onBoundsChange={handleBoundsChange} />
         
         {communities.map((community: Community) => (
           <Marker
@@ -287,6 +296,7 @@ export default function Map({
           </span>
         </div>
       )}
+      </div>
     </div>
   );
 }
