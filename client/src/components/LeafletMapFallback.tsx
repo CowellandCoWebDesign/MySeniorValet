@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -104,37 +103,35 @@ export default function LeafletMapFallback({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         />
         
-        <MarkerClusterGroup chunkedLoading>
-          {validCommunities.map((community) => (
-            <Marker
-              key={community.id}
-              position={[parseFloat(community.latitude), parseFloat(community.longitude)]}
-              icon={createMarker(community)}
-              eventHandlers={{
-                click: () => onCommunityClick(community.id)
-              }}
-            >
-              <Popup>
-                <div className="p-2 max-w-xs">
-                  <h3 className="font-semibold text-sm mb-1">{community.name}</h3>
-                  <p className="text-xs text-gray-600 mb-1">
-                    {community.address}, {community.city}, {community.state}
+        {validCommunities.map((community) => (
+          <Marker
+            key={community.id}
+            position={[parseFloat(community.latitude), parseFloat(community.longitude)]}
+            icon={createMarker(community)}
+            eventHandlers={{
+              click: () => onCommunityClick(community.id)
+            }}
+          >
+            <Popup>
+              <div className="p-2 max-w-xs">
+                <h3 className="font-semibold text-sm mb-1">{community.name}</h3>
+                <p className="text-xs text-gray-600 mb-1">
+                  {community.address}, {community.city}, {community.state}
+                </p>
+                {community.care_types && (
+                  <p className="text-xs text-blue-600 mb-1">
+                    {community.care_types.join(', ')}
                   </p>
-                  {community.care_types && (
-                    <p className="text-xs text-blue-600 mb-1">
-                      {community.care_types.join(', ')}
-                    </p>
-                  )}
-                  {community.starting_price && (
-                    <p className="text-xs font-semibold text-green-600">
-                      Starting from ${community.starting_price.toLocaleString()}
-                    </p>
-                  )}
-                </div>
-              </Popup>
-            </Marker>
-          ))}
-        </MarkerClusterGroup>
+                )}
+                {community.starting_price && (
+                  <p className="text-xs font-semibold text-green-600">
+                    Starting from ${community.starting_price.toLocaleString()}
+                  </p>
+                )}
+              </div>
+            </Popup>
+          </Marker>
+        ))}
       </MapContainer>
     </div>
   );
