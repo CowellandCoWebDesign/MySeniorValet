@@ -298,16 +298,19 @@ export default function SlidePanel({
       style={{ height: panelHeight }}
     >
       <div className="flex flex-col h-full">
-        {/* Drag Handle */}
+        {/* Drag Handle - Expanded touch area */}
         <div
           ref={dragRef}
-          className="cursor-grab active:cursor-grabbing select-none bg-white rounded-t-2xl"
+          className="cursor-grab active:cursor-grabbing select-none bg-white rounded-t-2xl px-4 py-4"
           onMouseDown={handleDragStart}
           onTouchStart={handleDragStart}
           style={{ touchAction: "none" }}
         >
-          <div className="flex justify-center pt-3 pb-2">
-            <div className={`w-10 h-1 rounded-full ${isDragging ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
+          <div className="flex justify-center items-center">
+            <div className={`w-12 h-1.5 rounded-full ${isDragging ? 'bg-blue-500' : 'bg-gray-400'}`}></div>
+          </div>
+          <div className="text-center mt-1 text-xs text-gray-500">
+            Drag to resize
           </div>
         </div>
 
@@ -365,7 +368,12 @@ export default function SlidePanel({
                 🔤 Name
               </button>
           </div>
-          <div className="mt-2 text-sm font-semibold text-gray-900">
+          <div 
+            className="mt-2 text-sm font-semibold text-gray-900 cursor-grab active:cursor-grabbing select-none py-1"
+            onMouseDown={handleDragStart}
+            onTouchStart={handleDragStart}
+            style={{ touchAction: "none" }}
+          >
             {sortedCommunities.length} communities in view
           </div>
         </div>
