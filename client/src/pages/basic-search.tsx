@@ -664,7 +664,9 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
   }
 
   return (
-    <div className="min-h-screen bg-white pb-16">
+    <div className={`min-h-screen bg-white transition-all duration-300 ${
+      showBottomNav ? 'pb-16' : 'pb-4'
+    }`}>
       {/* Navigation Bar */}
       <div className="sticky top-0 bg-white z-40 border-b border-gray-200 shadow-sm">
         <div className="px-3 py-2">
@@ -1194,7 +1196,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
         </div>
       ) : (
         <div className="px-4 py-4">
-          <div className="flex items-center justify-between mb-4 sticky top-0 bg-white z-40 py-2 -mx-4 px-4">
+          <div className="flex items-center justify-between mb-4 sticky top-12 bg-white z-40 py-4 -mx-4 px-4 border-b border-gray-100 shadow-sm">
             <div className="text-lg font-semibold text-gray-900">
               {filteredCommunities.length} Results
             </div>
@@ -1207,7 +1209,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
               Map
             </Button>
           </div>
-          <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">
+          <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide pt-2">
           {filteredCommunities.map((community: any, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
               <Card className="overflow-hidden flex-shrink-0 w-48 h-[24rem] hover:shadow-xl transition-shadow duration-300">
