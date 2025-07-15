@@ -214,33 +214,34 @@ export default function TrueViewHome() {
                 </div>
               </div>
               
-              {/* Suggestions Dropdown */}
-              {showSuggestions && suggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 bg-white rounded-b-2xl shadow-2xl border border-gray-200 border-t-0 overflow-hidden z-[99999] max-h-60 overflow-y-auto">
-                  {suggestions.map((suggestion, index) => (
-                    <button
-                      key={index}
-                      type="button"
-                      onClick={() => handleSuggestionClick(suggestion)}
-                      className="w-full px-4 sm:px-6 py-3 text-left hover:bg-blue-50 active:bg-blue-100 border-b border-gray-100 last:border-b-0 flex items-center space-x-3 transition-colors text-sm sm:text-base"
-                    >
-                      {/* Icon based on suggestion type */}
-                      {suggestion.includes(', CA') || suggestion.includes(', AZ') || suggestion.includes(', TX') ? (
-                        <MapPin className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                      ) : suggestion.includes('Living') || suggestion.includes('Care') || suggestion.includes('Nursing') ? (
-                        <Heart className="w-4 h-4 text-red-500 flex-shrink-0" />
-                      ) : (
-                        <Search className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                      )}
-                      <span className="text-gray-800 font-medium">{suggestion}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
             </form>
             
+            {/* Suggestions Dropdown - Outside form to avoid z-index conflicts */}
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute top-full left-0 right-0 bg-white rounded-b-2xl shadow-2xl border border-gray-200 border-t-0 overflow-hidden max-h-60 overflow-y-auto" style={{ zIndex: 100000 }}>
+                {suggestions.map((suggestion, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() => handleSuggestionClick(suggestion)}
+                    className="w-full px-4 sm:px-6 py-3 text-left hover:bg-blue-50 active:bg-blue-100 border-b border-gray-100 last:border-b-0 flex items-center space-x-3 transition-colors text-sm sm:text-base"
+                  >
+                    {/* Icon based on suggestion type */}
+                    {suggestion.includes(', CA') || suggestion.includes(', AZ') || suggestion.includes(', TX') ? (
+                      <MapPin className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                    ) : suggestion.includes('Living') || suggestion.includes('Care') || suggestion.includes('Nursing') ? (
+                      <Heart className="w-4 h-4 text-red-500 flex-shrink-0" />
+                    ) : (
+                      <Search className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                    )}
+                    <span className="text-gray-800 font-medium">{suggestion}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            
             {/* Dynamic Community Count Text */}
-            <div className="text-center mt-12 animate-fade-in-up animation-delay-900">
+            <div className="text-center mt-12 animate-fade-in-up animation-delay-900" style={{ zIndex: 1 }}>
               <p className="text-white/80 text-sm sm:text-base drop-shadow-md">
                 {isLoading ? (
                   <span>Loading verified communities...</span>
