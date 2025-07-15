@@ -75,13 +75,25 @@ export function AuthenticImage({
 
   if (isError || imageError || !imageUrl) {
     return (
-      <img
-        src={fallback}
-        alt={alt}
-        className={className}
+      <div 
+        className={`relative bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center ${className}`}
         style={{ width, height }}
-        onLoad={() => setImageLoaded(true)}
-      />
+      >
+        <div className="text-center text-white">
+          <div className="relative">
+            <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 text-white flex items-center justify-center">
+                📸
+              </div>
+            </div>
+            <div className="absolute -top-1 -right-1 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center">
+              <span className="text-sm font-bold text-gray-900">⭐</span>
+            </div>
+          </div>
+          <p className="text-xl font-bold mb-2 tracking-wide">WATCH THIS SPACE</p>
+          <p className="text-sm text-gray-300">Photos coming soon</p>
+        </div>
+      </div>
     );
   }
 

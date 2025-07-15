@@ -244,10 +244,18 @@ export function CommunityCard({ community }: CommunityCardProps) {
           </div>
         </div>
       ) : (
-        <div className="relative h-48 bg-gray-100 flex items-center justify-center">
-          <div className="text-center text-gray-500">
-            <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">Photos coming soon</p>
+        <div className="relative h-48 bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+          <div className="text-center text-white">
+            <div className="relative">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+                <ImageIcon className="w-8 h-8 text-white" />
+              </div>
+              <div className="absolute -top-1 -right-1 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
+                <span className="text-xs font-bold text-gray-900">⭐</span>
+              </div>
+            </div>
+            <p className="text-lg font-semibold mb-1 tracking-wide">WATCH THIS SPACE</p>
+            <p className="text-sm text-gray-300">Photos coming soon</p>
           </div>
           
           {/* AVAILABILITY OVERLAY FOR NO PHOTOS */}

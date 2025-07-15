@@ -290,11 +290,21 @@ export default function CommunityPage() {
                 </div>
               </div>
             ) : (
-              <div className="h-96 bg-gray-100 flex items-center justify-center">
-                <div className="text-center text-gray-500">
-                  <Camera className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                  <p className="text-lg font-medium mb-2">Photos Coming Soon</p>
-                  <p className="text-sm">We're working to add photos for this community</p>
+              <div className="h-96 bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+                <div className="text-center text-white">
+                  <div className="relative">
+                    <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-xl">
+                      <div className="w-12 h-12 text-white flex items-center justify-center text-2xl">
+                        📸
+                      </div>
+                    </div>
+                    <div className="absolute -top-2 -right-2 w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center">
+                      <span className="text-lg font-bold text-gray-900">⭐</span>
+                    </div>
+                  </div>
+                  <p className="text-2xl font-bold mb-3 tracking-wide">WATCH THIS SPACE</p>
+                  <p className="text-lg text-gray-300 mb-2">Photos Coming Soon</p>
+                  <p className="text-sm text-gray-400">We're working to add photos for this community</p>
                   
                   {/* Availability Overlay for No Photos */}
                   <div className={`absolute bottom-0 left-0 right-0 ${availability.color} px-6 py-4`}>
