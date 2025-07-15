@@ -930,7 +930,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json([]);
       }
       
-      const lowerQuery = query.toLowerCase();
+      const lowerQuery = `%${query.toLowerCase()}%`;
       
       // Get distinct cities, states, and community names from database
       const suggestions = await db.execute(sql`
@@ -939,7 +939,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           'location' AS type,
           COUNT(*) as count
         FROM communities 
-        WHERE LOWER(city || ', ' || state) LIKE ${`%${lowerQuery}%`}
+        WHERE LOWER(city || ', ' || state) LIKE ${lowerQuery}
         GROUP BY city, state
         
         UNION ALL
@@ -949,19 +949,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           'community' AS type,
           1 as count
         FROM communities 
-        WHERE LOWER(name) LIKE ${`%${lowerQuery}%`}
-        
-        UNION ALL
-        
-        SELECT DISTINCT 
-          unnest(care_types) AS suggestion,
-          'care_type' AS type,
-          1 as count
-        FROM communities 
-        WHERE EXISTS (
-          SELECT 1 FROM unnest(care_types) AS ct 
-          WHERE LOWER(ct) LIKE ${`%${lowerQuery}%`}
-        )
+        WHERE LOWER(name) LIKE ${lowerQuery}
         
         ORDER BY count DESC, suggestion
         LIMIT 6
