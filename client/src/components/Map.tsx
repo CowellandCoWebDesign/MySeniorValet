@@ -73,19 +73,33 @@ function MapBoundsHandler({ onBoundsChange }: { onBoundsChange: (bounds: LatLngB
   
   useEffect(() => {
     const handleBoundsChange = () => {
-      onBoundsChange(map.getBounds());
+      try {
+        if (map && map.getBounds) {
+          onBoundsChange(map.getBounds());
+        }
+      } catch (error) {
+        console.warn('Error getting map bounds:', error);
+      }
     };
     
-    map.on('moveend', handleBoundsChange);
-    map.on('zoomend', handleBoundsChange);
-    
-    // Initial bounds - call immediately after map is ready
-    setTimeout(() => handleBoundsChange(), 100);
-    
-    return () => {
-      map.off('moveend', handleBoundsChange);
-      map.off('zoomend', handleBoundsChange);
-    };
+    if (map) {
+      map.on('moveend', handleBoundsChange);
+      map.on('zoomend', handleBoundsChange);
+      
+      // Initial bounds with delay to ensure map is ready
+      setTimeout(() => {
+        handleBoundsChange();
+      }, 100);
+      
+      return () => {
+        try {
+          map.off('moveend', handleBoundsChange);
+          map.off('zoomend', handleBoundsChange);
+        } catch (error) {
+          console.warn('Error removing map event listeners:', error);
+        }
+      };
+    }
   }, [map, onBoundsChange]);
   
   return null;

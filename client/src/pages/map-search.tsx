@@ -66,29 +66,35 @@ export default function MapSearch() {
     queryFn: async () => {
       if (!mapBounds) return [];
       
-      const sw = mapBounds.getSouthWest();
-      const ne = mapBounds.getNorthEast();
-      
-      const params = new URLSearchParams({
-        swLat: sw.lat.toString(),
-        swLng: sw.lng.toString(),
-        neLat: ne.lat.toString(),
-        neLng: ne.lng.toString(),
-        limit: '50',
-        ...(filters.careType !== 'All Types' && { careType: filters.careType }),
-        ...(filters.minRating > 0 && { minRating: filters.minRating.toString() }),
-      });
-      
-      const response = await fetch(`/api/communities/search/spatial?${params}`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch communities');
+      try {
+        const sw = mapBounds.getSouthWest();
+        const ne = mapBounds.getNorthEast();
+        
+        const params = new URLSearchParams({
+          swLat: sw.lat.toString(),
+          swLng: sw.lng.toString(),
+          neLat: ne.lat.toString(),
+          neLng: ne.lng.toString(),
+          limit: '50',
+          ...(filters.careType !== 'All Types' && { careType: filters.careType }),
+          ...(filters.minRating > 0 && { minRating: filters.minRating.toString() }),
+        });
+        
+        const response = await fetch(`/api/communities/search/spatial?${params}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch communities');
+        }
+        
+        return response.json();
+      } catch (error) {
+        console.warn('Error fetching communities:', error);
+        return [];
       }
-      
-      return response.json();
     },
     enabled: !!mapBounds && viewMode === 'list',
     staleTime: 30000, // Cache for 30 seconds
+    retry: 1, // Only retry once on failure
   });
 
   // Handle initial search query from URL
@@ -361,7 +367,8 @@ export default function MapSearch() {
             <div className="mb-4">
               <h2 className="text-lg font-semibold mb-2">Communities in Current Area</h2>
               <p className="text-sm text-gray-600">
-                {isLoadingCommunities ? 'Loading...' : `${mapCommunities.length} communities found`}
+                {!mapBounds ? 'Move the map to view communities in this area' : 
+                 isLoadingCommunities ? 'Loading...' : `${mapCommunities.length} communities found`}
               </p>
             </div>
             
@@ -375,6 +382,14 @@ export default function MapSearch() {
                     <div className="h-4 bg-gray-200 rounded w-1/2"></div>
                   </div>
                 ))}
+              </div>
+            ) : !mapBounds ? (
+              <div className="text-center py-8">
+                <MapIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-600">Switch to map view first</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  Move around the map to set the area, then switch back to list view
+                </p>
               </div>
             ) : mapCommunities.length === 0 ? (
               <div className="text-center py-8">
