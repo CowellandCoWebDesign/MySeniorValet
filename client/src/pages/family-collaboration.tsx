@@ -285,7 +285,12 @@ export default function FamilyCollaborationPage() {
             }
           </p>
           <div className="flex justify-center space-x-4">
-            {isAuthenticated ? (
+            {isLoading ? (
+              <div className="flex items-center space-x-2">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                <span className="text-gray-600">Loading...</span>
+              </div>
+            ) : isAuthenticated ? (
               <>
                 <RouterLink href="/dashboard">
                   <Button size="lg" className="bg-blue-600 hover:bg-blue-700 font-semibold px-8 py-4 text-lg">
@@ -301,12 +306,14 @@ export default function FamilyCollaborationPage() {
               </>
             ) : (
               <>
-                <RouterLink href="/login">
-                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 font-semibold px-8 py-4 text-lg">
-                    <LogIn className="mr-2 h-5 w-5" />
-                    Try It Now
-                  </Button>
-                </RouterLink>
+                <Button 
+                  size="lg" 
+                  className="bg-blue-600 hover:bg-blue-700 font-semibold px-8 py-4 text-lg"
+                  onClick={() => window.location.href = '/login'}
+                >
+                  <LogIn className="mr-2 h-5 w-5" />
+                  Try It Now
+                </Button>
                 <RouterLink href="/search">
                   <Button size="lg" variant="outline" className="font-semibold px-8 py-4 text-lg">
                     Start Searching
