@@ -52,6 +52,12 @@ export default function TrueViewHome() {
   });
 
   const featuredCommunities = trendingCommunities?.slice(0, 8) || [];
+  
+  // Combine coastal and featured communities for the top section
+  const premiumCommunities = [
+    ...(coastalCommunities || []).slice(0, 4),
+    ...(featuredCommunities || []).slice(0, 4)
+  ];
 
   // Generate location suggestions based on available community data
   const generateSuggestions = (query: string) => {
@@ -296,24 +302,29 @@ export default function TrueViewHome() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-1">
-                Coastal Living Communities
+                Featured & Coastal Communities
               </h2>
               <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                <span className="text-sm text-purple-700 font-medium">Premium communities</span>
                 <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                 <span className="text-sm text-blue-700 font-medium">Ocean views available</span>
               </div>
             </div>
             <div className="text-right">
               <div className="text-lg font-bold text-gray-900">$3,200 - $4,800</div>
-              <div className="text-sm text-blue-600 font-medium">Coastal living</div>
+              <div className="text-sm text-purple-600 font-medium">Featured & coastal</div>
             </div>
           </div>
           
-          <p className="text-gray-600 text-sm mb-6">{coastalCommunities?.length || 0} coastal communities • Ocean views and coastal charm</p>
+          <p className="text-gray-600 text-sm mb-6">
+            {((coastalCommunities?.length || 0) + (featuredCommunities?.length || 0))} premium communities • 
+            Featured selections and coastal charm
+          </p>
         
           <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
-            {/* Show coastal communities from dedicated endpoint */}
-            {coastalLoading ? (
+            {/* Show combined premium communities (coastal + featured) */}
+            {(coastalLoading || trendingLoading) ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
                 <Card key={index} className="overflow-hidden flex-shrink-0 w-48 border border-gray-200 animate-pulse">
@@ -327,8 +338,8 @@ export default function TrueViewHome() {
                 </Card>
               ))
             ) : (
-              (coastalCommunities || []).map((community: any, index) => (
-                <Link key={`coastal-top-${community.id}-${index}`} href={`/community/${community.id}`}>
+              premiumCommunities.map((community: any, index) => (
+                <Link key={`premium-${community.id}-${index}`} href={`/community/${community.id}`}>
               <Card className="overflow-hidden flex-shrink-0 w-48 animate-float coastal-card" style={{animationDelay: `${index * 0.2}s`}}>
                 <div className="relative">
                   <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
@@ -397,8 +408,8 @@ export default function TrueViewHome() {
                   
                   <div className="text-sm text-gray-700 mb-1">
                     {community.careTypes?.length > 0 ? 
-                      `${community.careTypes[0]} • Coastal Living` : 
-                      'Assisted Living • Ocean Views'
+                      `${community.careTypes[0]} • ${index < 4 ? 'Coastal Living' : 'Featured Community'}` : 
+                      `Assisted Living • ${index < 4 ? 'Ocean Views' : 'Premium Care'}`
                     }
                   </div>
                   
@@ -407,29 +418,29 @@ export default function TrueViewHome() {
                   </div>
                   
                   <div className="text-xs text-gray-600 line-clamp-1 mb-2">
-                    {community.address || 'Coastal Community'}, {community.city}, CA
+                    {community.address || (index < 4 ? 'Coastal Community' : 'Featured Community')}, {community.city}, {community.state || 'CA'}
                   </div>
                   
-                  {/* Coastal Regional Badges - Bottom of Card */}
+                  {/* Premium Regional Badges - Bottom of Card */}
                   <div className="mb-3">
                     {index % 4 === 0 && (
-                      <Badge className="bg-blue-600/90 text-white text-xs px-2 py-1 font-medium">
-                        Ocean View
+                      <Badge className={`text-white text-xs px-2 py-1 font-medium ${index < 4 ? 'bg-blue-600/90' : 'bg-purple-600/90'}`}>
+                        {index < 4 ? 'Ocean View' : 'Featured'}
                       </Badge>
                     )}
                     {index % 4 === 1 && (
-                      <Badge className="bg-cyan-600/90 text-white text-xs px-2 py-1 font-medium">
-                        Coastal
+                      <Badge className={`text-white text-xs px-2 py-1 font-medium ${index < 4 ? 'bg-cyan-600/90' : 'bg-indigo-600/90'}`}>
+                        {index < 4 ? 'Coastal' : 'Premium'}
                       </Badge>
                     )}
                     {index % 4 === 2 && (
-                      <Badge className="bg-teal-600/90 text-white text-xs px-2 py-1 font-medium">
-                        Waterfront
+                      <Badge className={`text-white text-xs px-2 py-1 font-medium ${index < 4 ? 'bg-teal-600/90' : 'bg-violet-600/90'}`}>
+                        {index < 4 ? 'Waterfront' : 'Top Rated'}
                       </Badge>
                     )}
                     {index % 4 === 3 && (
-                      <Badge className="bg-indigo-600/90 text-white text-xs px-2 py-1 font-medium">
-                        Beachside
+                      <Badge className={`text-white text-xs px-2 py-1 font-medium ${index < 4 ? 'bg-indigo-600/90' : 'bg-pink-600/90'}`}>
+                        {index < 4 ? 'Beachside' : 'Exclusive'}
                       </Badge>
                     )}
                   </div>
@@ -437,11 +448,11 @@ export default function TrueViewHome() {
                   {/* Enhanced Features Row */}
                   <div className="flex items-center justify-between text-xs mt-1">
                     <div className="flex items-center text-gray-500">
-                      <span>🌊 Coastal Views</span>
+                      <span>{index < 4 ? '🌊 Coastal Views' : '🏆 Featured'}</span>
                     </div>
                     {index % 4 === 0 && (
                       <div className="text-purple-600 font-medium">
-                        🏆 Featured
+                        {index < 4 ? '🌊 Ocean View' : '🏆 Featured'}
                       </div>
                     )}
                     {index % 4 === 1 && (
@@ -451,7 +462,7 @@ export default function TrueViewHome() {
                     )}
                     {index % 4 === 2 && (
                       <div className="text-cyan-600 font-medium">
-                        🌊 Ocean View
+                        {index < 4 ? '🌊 Waterfront' : '🏆 Premium'}
                       </div>
                     )}
                   </div>
