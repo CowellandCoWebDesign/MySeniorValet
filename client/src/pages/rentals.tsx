@@ -66,9 +66,9 @@ export default function Rentals() {
     sortBy: 'price'
   });
 
-  // Fetch communities data
+  // Fetch communities data - get all communities for map view
   const { data: communities = [], isLoading, error } = useQuery({
-    queryKey: ['/api/communities/search', { limit: 200 }],
+    queryKey: ['/api/communities/search', { limit: 10000 }], // Increased to get all communities
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
 
