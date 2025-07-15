@@ -40,10 +40,23 @@ export default function CommunityDetail() {
   const [tourMessage, setTourMessage] = useState('');
   const { toast } = useToast();
 
+  // Validate ID and redirect if invalid
+  React.useEffect(() => {
+    if (!id || id === '-1' || isNaN(Number(id))) {
+      console.warn('Invalid community ID:', id);
+      setLocation('/search');
+      return;
+    }
+  }, [id, setLocation]);
+
   const { data: community, isLoading, error } = useQuery({
     queryKey: [`/api/communities/${id}`],
-    enabled: !!id,
+    enabled: !!id && id !== '-1' && !isNaN(Number(id)),
   });
+
+  if (!id || id === '-1' || isNaN(Number(id))) {
+    return <div className="flex justify-center items-center h-64">Invalid community ID</div>;
+  }
 
   if (isLoading) return <div className="flex justify-center items-center h-64">Loading...</div>;
   if (error) return <div className="text-red-500">Error loading community</div>;
