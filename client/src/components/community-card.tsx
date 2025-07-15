@@ -277,27 +277,6 @@ export function CommunityCard({ community }: CommunityCardProps) {
           </div>
         </div>
       )}
-      
-      {/* Fallback availability status if no photos */}
-      {(!community.photos || community.photos.length === 0) && (
-        <div className={`${availability.color} px-4 py-3 flex items-center justify-between`}>
-          <div className="flex items-center space-x-3">
-            {availability.icon}
-            <div>
-              <span className="font-bold text-lg">{community.availabilityStatus}</span>
-              {community.availableUnits && (
-                <span className="text-sm opacity-90 ml-2">• {community.availableUnits} units available</span>
-              )}
-            </div>
-          </div>
-          {availability.urgency === "high" && (
-            <Badge variant="secondary" className="bg-white text-green-800 font-semibold">
-              <Clock className="h-3 w-3 mr-1" />
-              Act Fast
-            </Badge>
-          )}
-        </div>
-      )}
 
       <CardContent className="p-6">
         {/* Header: Name, Rating & Location */}
