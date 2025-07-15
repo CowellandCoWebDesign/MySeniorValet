@@ -44,7 +44,11 @@ interface ViewState {
   bearing: number;
 }
 
-const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || 'pk.eyJ1IjoidHJ1ZXZpZXciLCJhIjoiY2x6cjJ4cDUxMDFkbTJqczV1ZDJhZ2NiNCJ9.example';
+
+// Debug logging
+console.log('MAPBOX_TOKEN:', MAPBOX_TOKEN ? 'Token loaded successfully' : 'Token not found');
+console.log('Environment variables:', { VITE_MAPBOX_ACCESS_TOKEN: import.meta.env.VITE_MAPBOX_ACCESS_TOKEN });
 
 // Custom marker styles for different community types
 const getMarkerColor = (community: Community) => {
