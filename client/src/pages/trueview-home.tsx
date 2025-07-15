@@ -20,7 +20,7 @@ export default function TrueViewHome() {
 
   // Predictive search suggestions
   const { data: searchSuggestions } = useQuery({
-    queryKey: ["/api/search/suggestions", searchQuery],
+    queryKey: [`/api/search/suggestions?q=${searchQuery}`],
     enabled: searchQuery.length >= 2,
     retry: false,
     staleTime: 10 * 60 * 1000, // Cache for 10 minutes
