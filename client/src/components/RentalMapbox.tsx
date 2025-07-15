@@ -134,8 +134,10 @@ export default function RentalMapbox({
 
   // Debug logging for token
   useEffect(() => {
+    console.log('Mapbox Token:', mapboxToken);
     console.log('MAPBOX_TOKEN:', mapboxToken ? 'Token loaded successfully' : 'Token not found');
     console.log('Token type:', mapboxToken?.startsWith('pk.') ? 'PUBLIC TOKEN' : 'SECRET TOKEN');
+    console.log('Full env check:', import.meta.env.VITE_MAPBOX_TOKEN);
   }, [mapboxToken]);
 
   // Filter communities with valid coordinates
@@ -246,7 +248,7 @@ export default function RentalMapbox({
         {...viewState}
         onMove={evt => setViewState(evt.viewState)}
         mapStyle={mapStyle}
-        mapboxAccessToken={mapboxToken}
+        mapboxAccessToken="pk.eyJ1IjoibXlzZW5pb3J2YWxldCIsImEiOiJjbWQ0b3VkNW8waTA4MmtxNzhndDEyZ2FrIn0.Ht8p3b3XATDjugyf4FHiAQ"
         style={{ width: '100%', height: '100%' }}
         dragPan={true}
         dragRotate={true}
