@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Map from 'react-map-gl/mapbox';
+import Map, { Marker } from 'react-map-gl/mapbox';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import type { Community } from '@shared/schema';
 
@@ -50,6 +50,8 @@ export default function RentalMapboxReplit({
   }, [validCommunities.length]);
 
   console.log('RentalMapboxReplit rendering with', validCommunities.length, 'communities');
+  console.log('Sample communities:', communities.slice(0, 2));
+  console.log('Valid communities:', validCommunities.slice(0, 2));
 
   return (
     <div className={className} style={{ height: '100%', width: '100%' }}>
@@ -60,23 +62,48 @@ export default function RentalMapboxReplit({
         mapStyle="mapbox://styles/mapbox/streets-v12"
         mapboxAccessToken={MAPBOX_TOKEN}
       >
-        {/* Note: Markers would go here when we have community data */}
-        {/* For now, just show a centered marker as example */}
+        {/* Render actual community markers when we have data */}
+        {validCommunities.map(community => {
+          const lat = parseFloat(String(community.latitude));
+          const lng = parseFloat(String(community.longitude));
+          
+          return (
+            <Marker
+              key={community.id}
+              longitude={lng}
+              latitude={lat}
+              onClick={() => onCommunityClick(community.id)}
+            >
+              <div
+                style={{
+                  width: 20,
+                  height: 20,
+                  backgroundColor: selectedCommunity?.id === community.id ? '#ef4444' : '#3b82f6',
+                  borderRadius: '50%',
+                  border: '2px solid white',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                }}
+                title={`${community.name} - ${community.city}, ${community.state}`}
+              />
+            </Marker>
+          );
+        })}
+        
+        {/* Show example marker when no communities */}
         {validCommunities.length === 0 && (
-          <div
-            style={{
-              position: 'absolute',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: 20,
-              height: 20,
-              backgroundColor: '#10b981',
-              borderRadius: '50%',
-              border: '2px solid white',
-              zIndex: 1
-            }}
-          />
+          <Marker longitude={viewState.longitude} latitude={viewState.latitude}>
+            <div
+              style={{
+                width: 20,
+                height: 20,
+                backgroundColor: '#10b981',
+                borderRadius: '50%',
+                border: '2px solid white',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+              }}
+            />
+          </Marker>
         )}
       </Map>
       

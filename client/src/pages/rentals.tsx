@@ -22,6 +22,9 @@ export default function RentalsClean() {
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
 
+  // Debug logging
+  console.log('Rentals page - communities:', communities?.length, 'loading:', isLoading, 'error:', error);
+
   // Filter communities based on search
   const filteredCommunities = communities.filter((community: Community) => {
     if (!searchQuery) return true;
