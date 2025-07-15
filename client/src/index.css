@@ -492,3 +492,27 @@
   animation-delay: 900ms;
   opacity: 0;
 }
+
+/* Leaflet CSS fixes */
+.leaflet-control-attribution {
+  font-size: 10px !important;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 8px !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.custom-popup .leaflet-popup-content-wrapper {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.custom-popup .leaflet-popup-tip {
+  background: white;
+}

@@ -37,6 +37,7 @@ import AffordableHousing from "@/pages/affordable-housing";
 // HudVashMap removed
 import FamilyCollaboration from "@/pages/family-collaboration";
 import CommunityDetail from "@/pages/community-detail";
+import MapSearch from "@/pages/map-search";
 // Rentals page removed - consolidated to use BasicSearch
 // MapboxTest removed
 // Map test pages removed
@@ -54,6 +55,7 @@ function Router() {
     <Switch>
       <Route path="/" component={TrueViewHome} />
       <Route path="/search" component={BasicSearch} />
+      <Route path="/map" component={MapSearch} />
       {/* Rentals route removed - redirect to search */}
       {/* MapboxTest route removed */}
       {/* Map test routes removed */}

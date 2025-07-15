@@ -161,6 +161,22 @@ export default function TrueViewHome() {
             </div>
           </div>
           
+          {/* Quick Actions */}
+          <div className="flex items-center gap-3 mb-6 animate-fade-in-up animation-delay-500">
+            <Link href="/search">
+              <Button className="bg-white text-gray-900 hover:bg-gray-100 border border-gray-300 px-4 py-2 rounded-lg font-medium transition-all">
+                <Search className="w-4 h-4 mr-2" />
+                Search
+              </Button>
+            </Link>
+            <Link href="/map">
+              <Button className="bg-white text-gray-900 hover:bg-gray-100 border border-gray-300 px-4 py-2 rounded-lg font-medium transition-all">
+                <MapPin className="w-4 h-4 mr-2" />
+                Map View
+              </Button>
+            </Link>
+          </div>
+
           {/* Search Bar */}
           <div className="w-full max-w-lg mb-4 relative animate-fade-in-up animation-delay-600" style={{ zIndex: 99999 }}>
             <form onSubmit={(e) => {
