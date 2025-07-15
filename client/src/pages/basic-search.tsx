@@ -206,12 +206,14 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
 
   const { data: communitiesResponse, isLoading, error } = useQuery({
     queryKey: ["/api/communities/search", { 
-      limit: 50, // Reasonable limit for mobile interface
+      limit: viewMode === 'map' ? 200 : 50, // More communities for map view, optimized for list view
       location: debouncedSearchQuery,
       careTypes: selectedCareTypes 
     }],
     queryFn: async () => {
-      let url = "/api/communities/search?limit=50"; // Use proper pagination
+      // Dynamic limit based on view mode
+      const limit = viewMode === 'map' ? 200 : 50;
+      let url = `/api/communities/search?limit=${limit}`;
       
       // Add location parameter if debounced search query exists
       if (debouncedSearchQuery) {
@@ -657,7 +659,18 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
               </Link>
             </div>
             <div className="text-gray-600 font-medium text-xs">
-              {filteredCommunities?.length || 0} communities
+              {viewMode === 'map' ? (
+                <>
+                  {visibleCommunities?.length || 0} shown
+                  {(filteredCommunities?.length || 0) > (visibleCommunities?.length || 0) && (
+                    <span className="text-blue-600 ml-1">
+                      • {filteredCommunities?.length || 0} total
+                    </span>
+                  )}
+                </>
+              ) : (
+                <>{filteredCommunities?.length || 0} communities</>
+              )}
             </div>
           </div>
         </div>
@@ -949,6 +962,16 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
       {/* Map/List View */}
       {viewMode === 'map' ? (
         <div className="flex-1 relative" style={{ height: 'calc(100vh - 160px)' }}>
+          {/* Map Loading State */}
+          {isLoading && (
+            <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="text-sm text-gray-600 mt-2">Loading communities...</p>
+              </div>
+            </div>
+          )}
+          
           <MapContainer
             center={selectedCareTypes.includes('Affordable Housing') ? [37.7749, -122.4194] : [40.315, -122.32]} // SF center for affordable housing, Northern CA for others
             zoom={selectedCareTypes.includes('Affordable Housing') ? 5 : 7}
@@ -1161,7 +1184,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             </Button>
           </div>
           <div className="space-y-4">
-          {filteredCommunities.slice(0, 10).map((community: any, index) => (
+          {filteredCommunities.map((community: any, index) => (
             <div 
               key={community.id} 
               onClick={() => window.location.href = `/community/${community.id}`}
