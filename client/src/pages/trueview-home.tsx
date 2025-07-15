@@ -162,7 +162,7 @@ export default function TrueViewHome() {
           </div>
           
           {/* Search Bar */}
-          <div className="w-full max-w-lg mb-12 md:mb-20 relative animate-fade-in-up animation-delay-600" style={{ zIndex: 99999 }}>
+          <div className="w-full max-w-lg mb-6 relative animate-fade-in-up animation-delay-600" style={{ zIndex: 99999 }}>
             <form onSubmit={(e) => {
               e.preventDefault();
               const query = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
@@ -216,9 +216,9 @@ export default function TrueViewHome() {
               
             </form>
             
-            {/* Suggestions Dropdown - Outside form to avoid z-index conflicts */}
+            {/* Suggestions Dropdown - Connected directly to search box */}
             {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 bg-white rounded-b-2xl shadow-2xl border border-gray-200 border-t-0 overflow-hidden max-h-60 overflow-y-auto" style={{ zIndex: 100000 }}>
+              <div className="absolute top-full left-0 right-0 bg-white rounded-b-2xl shadow-2xl border border-gray-200 border-t-0 overflow-hidden max-h-60 overflow-y-auto" style={{ zIndex: 999999 }}>
                 {suggestions.map((suggestion, index) => (
                   <button
                     key={index}
@@ -239,21 +239,21 @@ export default function TrueViewHome() {
                 ))}
               </div>
             )}
-            
-            {/* Dynamic Community Count Text */}
-            <div className="text-center mt-12 animate-fade-in-up animation-delay-900" style={{ zIndex: 1 }}>
-              <p className="text-white/80 text-sm sm:text-base drop-shadow-md">
-                {isLoading ? (
-                  <span>Loading verified communities...</span>
-                ) : (
-                  <span>
-                    Search <strong className="text-white">{communityStats?.count || '1,702'} verified Senior Living Communities</strong> with transparent listing information
-                    <br className="hidden sm:block" />
-                    <span className="block sm:inline sm:ml-1">— no sales pressure, no surprise calls</span>
-                  </span>
-                )}
-              </p>
-            </div>
+          </div>
+          
+          {/* Dynamic Community Count Text - Moved outside search container */}
+          <div className="text-center mb-12 md:mb-20 animate-fade-in-up animation-delay-900" style={{ zIndex: 1 }}>
+            <p className="text-white/80 text-sm sm:text-base drop-shadow-md">
+              {isLoading ? (
+                <span>Loading verified communities...</span>
+              ) : (
+                <span>
+                  Search <strong className="text-white">{communityStats?.count || '1,702'} verified Senior Living Communities</strong> with transparent listing information
+                  <br className="hidden sm:block" />
+                  <span className="block sm:inline sm:ml-1">— no sales pressure, no surprise calls</span>
+                </span>
+              )}
+            </p>
           </div>
         </div>
       </section>
