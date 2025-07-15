@@ -73,12 +73,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize community stats cache on startup
   await communityStatsCache.initialize();
 
-  // Environment configuration endpoint
-  app.get('/api/config', (req, res) => {
-    res.json({
-      MAPBOX_ACCESS_TOKEN: process.env.MAPBOX_ACCESS_TOKEN || process.env.VITE_MAPBOX_ACCESS_TOKEN,
-    });
-  });
+  // REMOVED: /api/config endpoint - Mapbox token now handled client-side
   
   // Create a separate router for admin routes without heavy middleware interference
   const adminRouter = express.Router();

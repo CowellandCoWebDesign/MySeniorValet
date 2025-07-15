@@ -116,8 +116,9 @@ export default function RentalMapbox({
   selectedCommunity, 
   className = '' 
 }: RentalMapboxProps) {
-  // ALL HOOKS MUST BE AT THE TOP - Rules of Hooks
-  const [mapboxToken, setMapboxToken] = useState<string>('');
+  // Direct environment variable access - no server fetch needed
+  const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
+  
   const [viewState, setViewState] = useState<ViewState>({
     longitude: -122.4194,
     latitude: 37.7749,
@@ -131,27 +132,11 @@ export default function RentalMapbox({
   const [mapStyle, setMapStyle] = useState('mapbox://styles/mapbox/streets-v12');
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Fetch token from server
+  // Debug logging for token
   useEffect(() => {
-    const fetchConfig = async () => {
-      try {
-        const response = await fetch('/api/config');
-        const config = await response.json();
-        const token = config.MAPBOX_ACCESS_TOKEN;
-        setMapboxToken(token);
-        
-        // Debug logging
-        console.log('MAPBOX_TOKEN:', token ? 'Token loaded successfully' : 'Token not found');
-        console.log('Environment variables:', { VITE_MAPBOX_ACCESS_TOKEN: import.meta.env.VITE_MAPBOX_ACCESS_TOKEN });
-        console.log('Actual token value:', token?.substring(0, 20) + '...');
-        console.log('Token type:', token?.startsWith('sk.') ? 'SECRET TOKEN' : token?.startsWith('pk.') ? 'PUBLIC TOKEN' : 'UNKNOWN');
-      } catch (error) {
-        console.error('Failed to fetch config:', error);
-      }
-    };
-    
-    fetchConfig();
-  }, []);
+    console.log('MAPBOX_TOKEN:', mapboxToken ? 'Token loaded successfully' : 'Token not found');
+    console.log('Token type:', mapboxToken?.startsWith('pk.') ? 'PUBLIC TOKEN' : 'SECRET TOKEN');
+  }, [mapboxToken]);
 
   // Filter communities with valid coordinates
   const validCommunities = useMemo(() => {
