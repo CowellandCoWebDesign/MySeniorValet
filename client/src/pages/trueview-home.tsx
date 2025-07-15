@@ -162,7 +162,7 @@ export default function TrueViewHome() {
           </div>
           
           {/* Search Bar */}
-          <div className="w-full max-w-lg mb-8 md:mb-16 relative animate-fade-in-up animation-delay-600">
+          <div className="w-full max-w-lg mb-8 md:mb-16 relative animate-fade-in-up animation-delay-600" style={{ zIndex: 9999 }}>
             <form onSubmit={(e) => {
               e.preventDefault();
               const query = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
@@ -207,7 +207,7 @@ export default function TrueViewHome() {
               
               {/* Suggestions Dropdown */}
               {showSuggestions && suggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-50">
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-[9999]">
                   {suggestions.map((suggestion, index) => (
                     <button
                       key={index}
