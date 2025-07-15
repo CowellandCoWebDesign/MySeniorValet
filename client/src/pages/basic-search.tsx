@@ -124,9 +124,9 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
   const [searchQuery, setSearchQuery] = useState(urlSearchQuery || "");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(urlSearchQuery || "");
   const [activeTab, setActiveTab] = useState('search');
-  const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [sortBy, setSortBy] = useState('recommended');
   const [showSortOptions, setShowSortOptions] = useState(false);
+  const [slidePanelHeight, setSlidePanelHeight] = useState(120);
   const [, navigate] = useLocation();
   
   // Debounce search query to prevent excessive API calls - reduced to 300ms for better UX
@@ -137,6 +137,16 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
     
     return () => clearTimeout(timer);
   }, [searchQuery]);
+
+  // Auto-expand slide panel when search results are loaded
+  useEffect(() => {
+    if ((debouncedSearchQuery || urlSearchQuery) && visibleCommunities.length > 0) {
+      const maxHeight = typeof window !== 'undefined' ? window.innerHeight * 0.85 : 600;
+      setSlidePanelHeight(maxHeight);
+    } else {
+      setSlidePanelHeight(120); // Default collapsed height
+    }
+  }, [debouncedSearchQuery, urlSearchQuery, visibleCommunities.length]);
   
   // Parse URL parameters for filters  
   const urlCareType = urlParams.get('careType');
@@ -659,17 +669,11 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
               </Link>
             </div>
             <div className="text-gray-600 font-medium text-xs">
-              {viewMode === 'map' ? (
-                <>
-                  {visibleCommunities?.length || 0} shown
-                  {(filteredCommunities?.length || 0) > (visibleCommunities?.length || 0) && (
-                    <span className="text-blue-600 ml-1">
-                      • {filteredCommunities?.length || 0} total
-                    </span>
-                  )}
-                </>
-              ) : (
-                <>{filteredCommunities?.length || 0} communities</>
+              {visibleCommunities?.length || 0} shown
+              {(filteredCommunities?.length || 0) > (visibleCommunities?.length || 0) && (
+                <span className="text-blue-600 ml-1">
+                  • {filteredCommunities?.length || 0} total
+                </span>
               )}
             </div>
           </div>
@@ -959,9 +963,8 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
         )}
       </div>
 
-      {/* Map/List View */}
-      {viewMode === 'map' ? (
-        <div className="flex-1 relative" style={{ height: 'calc(100vh - 160px)' }}>
+      {/* Map View */}
+      <div className="flex-1 relative" style={{ height: 'calc(100vh - 160px)' }}>
           {/* Map Loading State */}
           {isLoading && (
             <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
@@ -1108,7 +1111,11 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
               variant="outline" 
               size="sm" 
               className="bg-white shadow-md"
-              onClick={() => setViewMode('list')}
+              onClick={() => {
+                // Open slide panel to maximum height for list view
+                const maxHeight = typeof window !== 'undefined' ? window.innerHeight * 0.85 : 600;
+                setSlidePanelHeight(maxHeight);
+              }}
             >
               <List className="w-4 h-4 mr-1" />
               List
@@ -1158,213 +1165,16 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             sortBy={sortBy}
             setSortBy={setSortBy}
             isLoading={isLoading}
-            initialHeight={
-              (debouncedSearchQuery || urlSearchQuery) && visibleCommunities.length > 0
-                ? typeof window !== 'undefined' 
-                  ? window.innerHeight * 0.85  // 85% of screen height when there are search results
-                  : 600
-                : 120  // Default collapsed height
-            }
+            initialHeight={slidePanelHeight}
             autoExpand={!!(debouncedSearchQuery || urlSearchQuery) && visibleCommunities.length > 0}
           />
+          {/* Bottom Navigation */}
+          <BottomNavigation 
+            activeTab={activeTab} 
+            onTabChange={handleTabChange}
+            updateCount={0}
+          />
         </div>
-      ) : (
-        <div className="px-4 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="text-lg font-semibold text-gray-900">
-              {filteredCommunities.length} Results
-            </div>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setViewMode('map')}
-            >
-              <Map className="w-4 h-4 mr-1" />
-              Map
-            </Button>
-          </div>
-          <div className="space-y-4">
-          {filteredCommunities.map((community: any, index) => (
-            <div 
-              key={community.id} 
-              onClick={() => window.location.href = `/community/${community.id}`}
-              className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:scale-[1.01] transition-transform duration-200 ease-in-out cursor-pointer overflow-hidden"
-            >
-              <div className="relative">
-                <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
-                  {community.photos?.[0] ? (
-                    <img
-                      src={community.photos[0]}
-                      alt={community.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 text-gray-400">🏠</div>
-                  )}
-                </div>
-                
-                {/* Heart Icon */}
-                <div className="absolute top-3 right-3">
-                  <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
-                    <Heart className="w-4 h-4 text-gray-600" />
-                  </div>
-                </div>
-              
-                {/* Vacancy Status Badge */}
-                {index % 3 === 0 && (
-                  <div className="absolute top-3 left-3 bg-green-600 text-white text-xs px-2 py-1 font-medium animate-pulse rounded">
-                    🟢 Available Now
-                  </div>
-                )}
-                {index % 3 === 1 && (
-                  <div className="absolute top-3 left-3 bg-orange-600 text-white text-xs px-2 py-1 font-medium rounded">
-                    🟡 Waitlist Open
-                  </div>
-                )}
-                {index % 3 === 2 && (
-                  <div className="absolute top-3 left-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium rounded">
-                    📋 Call for Availability
-                  </div>
-                )}
-                
-                {/* Price Badge */}
-                <div className="absolute bottom-3 left-3 bg-gray-900 text-white text-xs px-2 py-1 font-medium rounded">
-                  {community.monthlyRent ? `$${(community.monthlyRent / 1000).toFixed(1)}K+` : 
-                   community.priceRange ? `$${(community.priceRange.min / 1000).toFixed(1)}K+` : '$4K+'}
-                  {!community.claimed && (
-                    <span className="text-xs text-gray-300 ml-1 font-normal">est.</span>
-                  )}
-                </div>
-              </div>
-              
-              <div className="p-4">
-                <h4 className="font-semibold text-gray-900 text-lg mb-1 truncate">
-                  {community.name}
-                </h4>
-                <p className="text-sm text-gray-600 truncate mb-2">
-                  {community.address || 'Community Address'}, {community.city}, {community.state} {community.zipCode}
-                </p>
-              
-                {/* Regional Badges */}
-                <div className="mb-2">
-                  {community.state === 'CA' && index % 4 === 0 && (
-                    <Badge className="bg-amber-600/90 text-white text-xs px-2 py-1 font-medium">
-                      Silicon Valley
-                    </Badge>
-                  )}
-                  {community.state === 'CA' && index % 4 === 1 && (
-                    <Badge className="bg-orange-600/90 text-white text-xs px-2 py-1 font-medium">
-                      LA Metro
-                    </Badge>
-                  )}
-                  {community.state === 'TX' && index % 4 === 2 && (
-                    <Badge className="bg-red-600/90 text-white text-xs px-2 py-1 font-medium">
-                      Dallas Metro
-                    </Badge>
-                  )}
-                  {community.state === 'TX' && index % 4 === 3 && (
-                    <Badge className="bg-purple-600/90 text-white text-xs px-2 py-1 font-medium">
-                      Houston Area
-                    </Badge>
-                  )}
-                  {community.state === 'HI' && index % 4 === 0 && (
-                    <Badge className="bg-blue-600/90 text-white text-xs px-2 py-1 font-medium">
-                      Honolulu
-                    </Badge>
-                  )}
-                  {community.state === 'AZ' && index % 4 === 1 && (
-                    <Badge className="bg-cyan-600/90 text-white text-xs px-2 py-1 font-medium">
-                      Phoenix Metro
-                    </Badge>
-                  )}
-                  {community.state === 'NV' && index % 4 === 2 && (
-                    <Badge className="bg-yellow-600/90 text-white text-xs px-2 py-1 font-medium">
-                      Las Vegas
-                    </Badge>
-                  )}
-                  {community.state === 'FL' && index % 4 === 3 && (
-                    <Badge className="bg-teal-600/90 text-white text-xs px-2 py-1 font-medium">
-                      Miami Metro
-                    </Badge>
-                  )}
-                  {!['CA', 'TX', 'HI', 'AZ', 'NV', 'FL'].includes(community.state) && (
-                    <Badge className="bg-gray-600/90 text-white text-xs px-2 py-1 font-medium">
-                      {community.state} Community
-                    </Badge>
-                  )}
-                </div>
-              
-              {/* Transparency Badges */}
-              {community.transparencyBadges && community.transparencyBadges.length > 0 && (
-                <div className="mb-3">
-                  <TransparencyBadgeList 
-                    badges={community.transparencyBadges} 
-                    transparencyScore={community.transparencyScore}
-                    showScore={true}
-                    maxBadges={2}
-                  />
-                </div>
-              )}
-              
-              <div className="flex items-center justify-between">
-                <div className="text-lg font-bold text-blue-600">
-                  {community.monthlyRent 
-                    ? `$${community.monthlyRent.toLocaleString()}/mo` 
-                    : 'Contact for pricing'
-                  }
-                  {community.monthlyRent && !community.claimed && (
-                    <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
-                  )}
-                </div>
-                {community.googleRating && (
-                  <div className="flex items-center">
-                    <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
-                    <span className="text-sm font-medium">{community.googleRating}</span>
-                  </div>
-                )}
-              </div>
-              
-              {/* Enhanced Features Row */}
-              <div className="flex items-center justify-between text-xs mt-2">
-                <div className="flex items-center text-gray-500">
-                  <span>
-                    {community.state === 'CA' && `CA License #${20000 + community.id}`}
-                    {community.state === 'TX' && `TX License #${30000 + community.id}`}
-                    {community.state === 'HI' && `HI License #${40000 + community.id}`}
-                    {community.state === 'AZ' && `AZ License #${50000 + community.id}`}
-                    {community.state === 'NV' && `NV License #${60000 + community.id}`}
-                    {community.state === 'FL' && `FL License #${70000 + community.id}`}
-                    {!['CA', 'TX', 'HI', 'AZ', 'NV', 'FL'].includes(community.state) && `${community.state} Licensed`}
-                  </span>
-                </div>
-                {index % 4 === 0 && (
-                  <div className="text-purple-600 font-medium">
-                    🏆 Featured
-                  </div>
-                )}
-                {index % 4 === 1 && (
-                  <div className="text-blue-600 font-medium">
-                    ⭐ Top Rated
-                  </div>
-                )}
-                {index % 4 === 2 && (
-                  <div className="text-green-600 font-medium">
-                    💎 Premium
-                  </div>
-                )}
-              </div>
-              </div>
-            </div>
-          ))}
-          </div>
-        </div>
-      )}
-
-      <BottomNavigation 
-        activeTab={activeTab} 
-        onTabChange={handleTabChange}
-        updateCount={0}
-      />
-    </div>
-  );
+      </div>
+    );
 };
