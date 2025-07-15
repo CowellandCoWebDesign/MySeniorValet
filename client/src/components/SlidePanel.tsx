@@ -294,7 +294,7 @@ export default function SlidePanel({
 
   return (
     <div
-      className={`fixed left-0 right-0 bottom-0 bg-white z-40 rounded-t-2xl border-t border-gray-200 shadow-2xl overflow-hidden ${isDragging ? 'transition-none' : 'transition-all duration-200'}`}
+      className={`fixed left-0 right-0 bottom-16 bg-white z-40 rounded-t-2xl border-t border-gray-200 shadow-2xl overflow-hidden ${isDragging ? 'transition-none' : 'transition-all duration-200'}`}
       style={{ height: panelHeight }}
     >
       <div className="flex flex-col h-full">
