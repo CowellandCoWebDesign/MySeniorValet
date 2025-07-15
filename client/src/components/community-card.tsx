@@ -169,6 +169,9 @@ export function CommunityCard({ community }: CommunityCardProps) {
   
   // Debug logging
   console.log(`Community ${community.id} (${community.name}): hasPhotos=${hasPhotos}, allPhotos.length=${allPhotos.length}`);
+  if (!hasPhotos) {
+    console.log(`No photos for ${community.name}, will show coming soon image: ${getComingSoonImage(community.id)}`);
+  }
 
   const handleCardClick = (e: React.MouseEvent) => {
     // Don't navigate if clicking on buttons or links
@@ -253,6 +256,8 @@ export function CommunityCard({ community }: CommunityCardProps) {
             src={getComingSoonImage(community.id)}
             alt={`${community.name} - Coming Soon`}
             className="w-full h-full object-cover"
+            onLoad={() => console.log(`✅ Image loaded successfully for ${community.name}`)}
+            onError={(e) => console.error(`❌ Image failed to load for ${community.name}:`, e.target.src)}
           />
           
           {/* Coming Soon Overlay */}
