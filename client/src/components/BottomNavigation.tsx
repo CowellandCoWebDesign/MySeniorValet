@@ -12,14 +12,12 @@ interface BottomNavigationProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
   updateCount?: number;
-  isVisible?: boolean;
 }
 
 export default function BottomNavigation({ 
   activeTab, 
   onTabChange, 
-  updateCount = 350,
-  isVisible = true 
+  updateCount = 350 
 }: BottomNavigationProps) {
   const tabs = [
     { id: 'search', label: 'Search', icon: Search },
@@ -30,9 +28,7 @@ export default function BottomNavigation({
   ];
 
   return (
-    <div className={`fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-lg transition-transform duration-300 ${
-      isVisible ? 'translate-y-0' : 'translate-y-full'
-    }`}>
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-lg">
       <div className="grid grid-cols-5 h-16">
         {tabs.map((tab) => {
           const Icon = tab.icon;
