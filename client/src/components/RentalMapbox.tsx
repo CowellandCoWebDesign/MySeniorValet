@@ -248,7 +248,7 @@ export default function RentalMapbox({
         {...viewState}
         onMove={evt => setViewState(evt.viewState)}
         mapStyle={mapStyle}
-        mapboxAccessToken="pk.eyJ1IjoibXlzZW5pb3J2YWxldCIsImEiOiJjbWQ0b3VkNW8waTA4MmtxNzhndDEyZ2FrIn0.Ht8p3b3XATDjugyf4FHiAQ"
+        mapboxAccessToken={mapboxToken || "pk.eyJ1IjoibXlzZW5pb3J2YWxldCIsImEiOiJjbWQ0b3VkNW8waTA4MmtxNzhndDEyZ2FrIn0.Ht8p3b3XATDjugyf4FHiAQ"}
         style={{ width: '100%', height: '100%' }}
         dragPan={true}
         dragRotate={true}

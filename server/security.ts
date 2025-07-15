@@ -13,7 +13,7 @@ const SECURITY_CONFIG = {
     authMaxRequests: 50, // for auth endpoints - increased for demo testing
   },
   headers: {
-    contentSecurityPolicy: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https:; font-src 'self' data:;",
+    contentSecurityPolicy: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://api.mapbox.com; img-src 'self' data: https: blob:; connect-src 'self' https: https://api.mapbox.com https://events.mapbox.com; font-src 'self' data:;",
     hsts: 'max-age=31536000; includeSubDomains; preload',
   }
 };
