@@ -138,15 +138,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Auto-expand slide panel when search results are loaded
-  useEffect(() => {
-    if ((debouncedSearchQuery || urlSearchQuery) && visibleCommunities.length > 0) {
-      const maxHeight = typeof window !== 'undefined' ? window.innerHeight * 0.85 : 600;
-      setSlidePanelHeight(maxHeight);
-    } else {
-      setSlidePanelHeight(120); // Default collapsed height
-    }
-  }, [debouncedSearchQuery, urlSearchQuery, visibleCommunities.length]);
+
   
   // Parse URL parameters for filters  
   const urlCareType = urlParams.get('careType');
@@ -216,13 +208,13 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
 
   const { data: communitiesResponse, isLoading, error } = useQuery({
     queryKey: ["/api/communities/search", { 
-      limit: viewMode === 'map' ? 200 : 50, // More communities for map view, optimized for list view
+      limit: 200, // More communities for map view
       location: debouncedSearchQuery,
       careTypes: selectedCareTypes 
     }],
     queryFn: async () => {
-      // Dynamic limit based on view mode
-      const limit = viewMode === 'map' ? 200 : 50;
+      // Dynamic limit for map view
+      const limit = 200;
       let url = `/api/communities/search?limit=${limit}`;
       
       // Add location parameter if debounced search query exists
@@ -386,6 +378,16 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
 
   // Apply sorting to visible communities
   const visibleCommunities = sortCommunities(boundsFilteredCommunities, sortBy);
+
+  // Auto-expand slide panel when search results are loaded
+  useEffect(() => {
+    if ((debouncedSearchQuery || urlSearchQuery) && visibleCommunities.length > 0) {
+      const maxHeight = typeof window !== 'undefined' ? window.innerHeight * 0.85 : 600;
+      setSlidePanelHeight(maxHeight);
+    } else {
+      setSlidePanelHeight(120); // Default collapsed height
+    }
+  }, [debouncedSearchQuery, urlSearchQuery, visibleCommunities.length]);
 
   // Close sort dropdown when clicking outside
   useEffect(() => {
