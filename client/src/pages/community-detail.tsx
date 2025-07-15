@@ -26,9 +26,12 @@ import {
   type AmenityStatus
 } from "@/lib/amenities-checklists";
 
-// Hero Photo Carousel Component
+// Hero Photo Carousel Component with Touch Support
 const HeroPhotoCarousel = ({ photos, communityName }: { photos: string[], communityName: string }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
   
   const nextPhoto = () => {
     setCurrentIndex((prev) => (prev + 1) % photos.length);
@@ -38,12 +41,75 @@ const HeroPhotoCarousel = ({ photos, communityName }: { photos: string[], commun
     setCurrentIndex((prev) => (prev - 1 + photos.length) % photos.length);
   };
   
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+    setIsDragging(true);
+  };
+  
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+  
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+    
+    if (isLeftSwipe && photos.length > 1) {
+      nextPhoto();
+    }
+    if (isRightSwipe && photos.length > 1) {
+      prevPhoto();
+    }
+    
+    setIsDragging(false);
+  };
+  
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setTouchStart(e.clientX);
+    setIsDragging(true);
+  };
+  
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    setTouchEnd(e.clientX);
+  };
+  
+  const handleMouseUp = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+    
+    if (isLeftSwipe && photos.length > 1) {
+      nextPhoto();
+    }
+    if (isRightSwipe && photos.length > 1) {
+      prevPhoto();
+    }
+    
+    setIsDragging(false);
+  };
+  
   return (
-    <div className="relative w-full h-full group">
+    <div 
+      className="relative w-full h-full group cursor-grab active:cursor-grabbing"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+    >
       <img
         src={photos[currentIndex]}
         alt={`${communityName} - View ${currentIndex + 1}`}
-        className="w-full h-full object-cover"
+        className="w-full h-full object-cover select-none"
+        draggable={false}
       />
       
       {/* Navigation arrows - only show if more than 1 photo */}
@@ -51,19 +117,19 @@ const HeroPhotoCarousel = ({ photos, communityName }: { photos: string[], commun
         <>
           <button
             onClick={prevPhoto}
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10"
           >
             <ChevronLeft className="w-6 h-6 text-gray-700" />
           </button>
           <button
             onClick={nextPhoto}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10"
           >
             <ChevronRight className="w-6 h-6 text-gray-700" />
           </button>
           
           {/* Photo indicator dots */}
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
             {photos.map((_, index) => (
               <button
                 key={index}
@@ -76,8 +142,13 @@ const HeroPhotoCarousel = ({ photos, communityName }: { photos: string[], commun
           </div>
           
           {/* Photo counter */}
-          <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+          <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm z-10">
             {currentIndex + 1} / {photos.length}
+          </div>
+          
+          {/* Swipe instruction on mobile */}
+          <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-xs opacity-70 md:hidden">
+            Swipe to browse photos
           </div>
         </>
       )}
@@ -977,49 +1048,7 @@ Let me know what you think!`;
               </CardContent>
             </Card>
 
-            {/* "How We're Different" Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center">
-                  <Award className="w-5 h-5 mr-2" />
-                  How We're Different
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                    <div className="flex items-center mb-2">
-                      <Shield className="w-5 h-5 text-blue-600 mr-2" />
-                      <span className="font-medium text-blue-900">Certified Excellence</span>
-                    </div>
-                    <p className="text-sm text-blue-800">State-licensed facility with 5-star safety rating</p>
-                  </div>
-                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                    <div className="flex items-center mb-2">
-                      <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
-                      <span className="font-medium text-green-900">24/7 Care Available</span>
-                    </div>
-                    <p className="text-sm text-green-800">Round-the-clock professional nursing staff</p>
-                  </div>
-                  <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                    <div className="flex items-center mb-2">
-                      <Users className="w-5 h-5 text-purple-600 mr-2" />
-                      <span className="font-medium text-purple-900">Family-Centered</span>
-                    </div>
-                    <p className="text-sm text-purple-800">Regular family events and open visitation</p>
-                  </div>
-                  <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-                    <div className="flex items-center mb-2">
-                      <Sparkles className="w-5 h-5 text-orange-600 mr-2" />
-                      <span className="font-medium text-orange-900">Resort-Style Living</span>
-                    </div>
-                    <p className="text-sm text-orange-800">Luxury amenities and gourmet dining</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Available Units Section */}
+            {/* Available Units Section - Moved to align with pricing & availability focus */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center">
@@ -1213,6 +1242,48 @@ Let me know what you think!`;
                     </div>
                   </div>
                 ))}
+              </CardContent>
+            </Card>
+
+            {/* "How We're Different" Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center">
+                  <Award className="w-5 h-5 mr-2" />
+                  How We're Different
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <div className="flex items-center mb-2">
+                      <Shield className="w-5 h-5 text-blue-600 mr-2" />
+                      <span className="font-medium text-blue-900">Certified Excellence</span>
+                    </div>
+                    <p className="text-sm text-blue-800">State-licensed facility with 5-star safety rating</p>
+                  </div>
+                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                    <div className="flex items-center mb-2">
+                      <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
+                      <span className="font-medium text-green-900">24/7 Care Available</span>
+                    </div>
+                    <p className="text-sm text-green-800">Round-the-clock professional nursing staff</p>
+                  </div>
+                  <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                    <div className="flex items-center mb-2">
+                      <Users className="w-5 h-5 text-purple-600 mr-2" />
+                      <span className="font-medium text-purple-900">Family-Centered</span>
+                    </div>
+                    <p className="text-sm text-purple-800">Regular family events and open visitation</p>
+                  </div>
+                  <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                    <div className="flex items-center mb-2">
+                      <Sparkles className="w-5 h-5 text-orange-600 mr-2" />
+                      <span className="font-medium text-orange-900">Resort-Style Living</span>
+                    </div>
+                    <p className="text-sm text-orange-800">Luxury amenities and gourmet dining</p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 

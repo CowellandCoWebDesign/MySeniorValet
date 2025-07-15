@@ -257,6 +257,10 @@ The application is configured for multiple deployment environments:
 
 **BEAUTIFUL COMMUNITY PHOTO CAROUSEL IMPLEMENTATION**: Replaced inconsistent grid photo layouts with beautiful hero photo carousel component featuring smooth navigation arrows, photo indicator dots, photo counter, and responsive design. Community detail pages now display stunning single-photo carousel view instead of confusing 1-4 photo grid layouts. Enhanced user experience with hover-activated controls and seamless photo transitions (July 15, 2025)
 
+**ENHANCED CAROUSEL WITH SWIPE/SLIDE FUNCTIONALITY**: Added comprehensive touch and mouse drag support to photo carousel including touch start/move/end events, mouse drag functionality, swipe detection (50px threshold), mobile swipe instructions, and proper cursor states (grab/grabbing). Users can now slide through photos naturally on both mobile and desktop devices with smooth gesture navigation (July 15, 2025)
+
+**AVAILABLE UNITS SECTION REPOSITIONING**: Moved available units section to appear directly under the "Ready to Visit?" contact section to align with MySeniorValet's pricing and availability focus mission. This repositioning emphasizes the importance of transparent pricing and unit availability information in the user decision-making process (July 15, 2025)
+
 **SEARCH ROUTE CONSOLIDATION**: Consolidated duplicate search routes - both /search and /rentals now use BasicSearch component to eliminate confusion. Removed separate rentals.tsx file and unified search experience across all routes. All 8,053 communities are properly accessible through the main search interface (July 15, 2025)
 
 **HOMEPAGE SEARCH ROUTING FIX**: Fixed homepage search form, input handlers, and suggestion clicks to properly redirect to /search instead of /rentals. Removed /rentals route entirely from application. All search functionality now consistently routes to the unified BasicSearch component providing seamless search experience across all 8,053 communities (July 15, 2025)
