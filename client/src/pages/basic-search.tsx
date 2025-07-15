@@ -1188,93 +1188,111 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             <div 
               key={community.id} 
               onClick={() => window.location.href = `/community/${community.id}`}
-              className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-lg transition-shadow cursor-pointer"
+              className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:scale-[1.01] transition-transform duration-200 ease-in-out cursor-pointer overflow-hidden"
             >
-              <div className="flex items-start justify-between mb-2">
-                <h4 className="text-lg font-semibold text-gray-900">
-                  {community.name}
-                </h4>
-                <div className="flex items-center">
-                  <Heart className="w-5 h-5 text-gray-400 hover:text-red-500 cursor-pointer" />
+              <div className="relative">
+                <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
+                  {community.photos?.[0] ? (
+                    <img
+                      src={community.photos[0]}
+                      alt={community.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 text-gray-400">🏠</div>
+                  )}
+                </div>
+                
+                {/* Heart Icon */}
+                <div className="absolute top-3 right-3">
+                  <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
+                    <Heart className="w-4 h-4 text-gray-600" />
+                  </div>
+                </div>
+              
+                {/* Vacancy Status Badge */}
+                {index % 3 === 0 && (
+                  <div className="absolute top-3 left-3 bg-green-600 text-white text-xs px-2 py-1 font-medium animate-pulse rounded">
+                    🟢 Available Now
+                  </div>
+                )}
+                {index % 3 === 1 && (
+                  <div className="absolute top-3 left-3 bg-orange-600 text-white text-xs px-2 py-1 font-medium rounded">
+                    🟡 Waitlist Open
+                  </div>
+                )}
+                {index % 3 === 2 && (
+                  <div className="absolute top-3 left-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium rounded">
+                    📋 Call for Availability
+                  </div>
+                )}
+                
+                {/* Price Badge */}
+                <div className="absolute bottom-3 left-3 bg-gray-900 text-white text-xs px-2 py-1 font-medium rounded">
+                  {community.monthlyRent ? `$${(community.monthlyRent / 1000).toFixed(1)}K+` : 
+                   community.priceRange ? `$${(community.priceRange.min / 1000).toFixed(1)}K+` : '$4K+'}
+                  {!community.claimed && (
+                    <span className="text-xs text-gray-300 ml-1 font-normal">est.</span>
+                  )}
                 </div>
               </div>
               
-              {/* Vacancy Status Badge */}
-              <div className="mb-2">
-                {index % 3 === 0 && (
-                  <Badge className="bg-green-600 text-white text-xs px-2 py-1 font-medium animate-pulse">
-                    🟢 Available Now
-                  </Badge>
-                )}
-                {index % 3 === 1 && (
-                  <Badge className="bg-orange-600 text-white text-xs px-2 py-1 font-medium">
-                    🟡 Waitlist Open
-                  </Badge>
-                )}
-                {index % 3 === 2 && (
-                  <Badge className="bg-blue-600 text-white text-xs px-2 py-1 font-medium">
-                    📋 Call for Availability
-                  </Badge>
-                )}
-              </div>
+              <div className="p-4">
+                <h4 className="font-semibold text-gray-900 text-lg mb-1 truncate">
+                  {community.name}
+                </h4>
+                <p className="text-sm text-gray-600 truncate mb-2">
+                  {community.address || 'Community Address'}, {community.city}, {community.state} {community.zipCode}
+                </p>
               
-              <div className="flex items-center text-gray-600 mb-2">
-                <MapPin className="w-4 h-4 mr-1" />
-                <span>{community.city}, {community.state}</span>
-              </div>
-              
-              <div className="text-sm text-gray-500 mb-3">
-                {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
-              </div>
-              
-              {/* Multi-State Regional Badges */}
-              <div className="mb-3">
-                {community.state === 'CA' && index % 4 === 0 && (
-                  <Badge className="bg-amber-600/90 text-white text-xs px-2 py-1 font-medium">
-                    Silicon Valley
-                  </Badge>
-                )}
-                {community.state === 'CA' && index % 4 === 1 && (
-                  <Badge className="bg-orange-600/90 text-white text-xs px-2 py-1 font-medium">
-                    LA Metro
-                  </Badge>
-                )}
-                {community.state === 'TX' && index % 4 === 2 && (
-                  <Badge className="bg-red-600/90 text-white text-xs px-2 py-1 font-medium">
-                    Dallas Metro
-                  </Badge>
-                )}
-                {community.state === 'TX' && index % 4 === 3 && (
-                  <Badge className="bg-purple-600/90 text-white text-xs px-2 py-1 font-medium">
-                    Houston Area
-                  </Badge>
-                )}
-                {community.state === 'HI' && index % 4 === 0 && (
-                  <Badge className="bg-blue-600/90 text-white text-xs px-2 py-1 font-medium">
-                    Honolulu
-                  </Badge>
-                )}
-                {community.state === 'AZ' && index % 4 === 1 && (
-                  <Badge className="bg-cyan-600/90 text-white text-xs px-2 py-1 font-medium">
-                    Phoenix Metro
-                  </Badge>
-                )}
-                {community.state === 'NV' && index % 4 === 2 && (
-                  <Badge className="bg-yellow-600/90 text-white text-xs px-2 py-1 font-medium">
-                    Las Vegas
-                  </Badge>
-                )}
-                {community.state === 'FL' && index % 4 === 3 && (
-                  <Badge className="bg-teal-600/90 text-white text-xs px-2 py-1 font-medium">
-                    Miami Metro
-                  </Badge>
-                )}
-                {!['CA', 'TX', 'HI', 'AZ', 'NV', 'FL'].includes(community.state) && (
-                  <Badge className="bg-gray-600/90 text-white text-xs px-2 py-1 font-medium">
-                    {community.state} Community
-                  </Badge>
-                )}
-              </div>
+                {/* Regional Badges */}
+                <div className="mb-2">
+                  {community.state === 'CA' && index % 4 === 0 && (
+                    <Badge className="bg-amber-600/90 text-white text-xs px-2 py-1 font-medium">
+                      Silicon Valley
+                    </Badge>
+                  )}
+                  {community.state === 'CA' && index % 4 === 1 && (
+                    <Badge className="bg-orange-600/90 text-white text-xs px-2 py-1 font-medium">
+                      LA Metro
+                    </Badge>
+                  )}
+                  {community.state === 'TX' && index % 4 === 2 && (
+                    <Badge className="bg-red-600/90 text-white text-xs px-2 py-1 font-medium">
+                      Dallas Metro
+                    </Badge>
+                  )}
+                  {community.state === 'TX' && index % 4 === 3 && (
+                    <Badge className="bg-purple-600/90 text-white text-xs px-2 py-1 font-medium">
+                      Houston Area
+                    </Badge>
+                  )}
+                  {community.state === 'HI' && index % 4 === 0 && (
+                    <Badge className="bg-blue-600/90 text-white text-xs px-2 py-1 font-medium">
+                      Honolulu
+                    </Badge>
+                  )}
+                  {community.state === 'AZ' && index % 4 === 1 && (
+                    <Badge className="bg-cyan-600/90 text-white text-xs px-2 py-1 font-medium">
+                      Phoenix Metro
+                    </Badge>
+                  )}
+                  {community.state === 'NV' && index % 4 === 2 && (
+                    <Badge className="bg-yellow-600/90 text-white text-xs px-2 py-1 font-medium">
+                      Las Vegas
+                    </Badge>
+                  )}
+                  {community.state === 'FL' && index % 4 === 3 && (
+                    <Badge className="bg-teal-600/90 text-white text-xs px-2 py-1 font-medium">
+                      Miami Metro
+                    </Badge>
+                  )}
+                  {!['CA', 'TX', 'HI', 'AZ', 'NV', 'FL'].includes(community.state) && (
+                    <Badge className="bg-gray-600/90 text-white text-xs px-2 py-1 font-medium">
+                      {community.state} Community
+                    </Badge>
+                  )}
+                </div>
               
               {/* Transparency Badges */}
               {community.transparencyBadges && community.transparencyBadges.length > 0 && (
@@ -1335,13 +1353,12 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                   </div>
                 )}
               </div>
+              </div>
             </div>
           ))}
           </div>
         </div>
       )}
-
-
 
       <BottomNavigation 
         activeTab={activeTab} 
