@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { Users, Share2, Mail, MessageSquare, Heart, Star, Calendar, Clock, CheckCircle, ArrowRight, Smartphone, Copy, Link, Send } from 'lucide-react';
+import { Users, Share2, Mail, MessageSquare, Heart, Star, Calendar, Clock, CheckCircle, ArrowRight, Smartphone, Copy, Link, Send, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { FamilyShareButton } from '@/components/family-share-button';
+import { useAuth } from '@/hooks/useAuth';
+import { Link as RouterLink } from 'wouter';
 
 // Mock community data for demonstration
 const sampleCommunity = {
@@ -25,6 +27,7 @@ const sampleCommunity = {
 
 export default function FamilyCollaborationPage() {
   const [activeDemo, setActiveDemo] = useState<'quick' | 'email' | 'link' | null>(null);
+  const { user, isAuthenticated, isLoading } = useAuth();
 
   const features = [
     {
@@ -276,17 +279,48 @@ export default function FamilyCollaborationPage() {
             Ready to Get Your Family Involved?
           </h2>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Start your senior living search today and use our family sharing features to keep everyone informed and engaged in the decision-making process.
+            {isAuthenticated 
+              ? `Welcome back, ${user?.firstName || 'User'}! Use your dashboard to start sharing communities with your family.`
+              : "Start your senior living search today and use our family sharing features to keep everyone informed and engaged in the decision-making process."
+            }
           </p>
           <div className="flex justify-center space-x-4">
-            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 font-semibold px-8 py-4 text-lg">
-              Start Your Search
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-            <Button size="lg" variant="outline" className="font-semibold px-8 py-4 text-lg">
-              Learn More
-            </Button>
+            {isAuthenticated ? (
+              <>
+                <RouterLink href="/dashboard">
+                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 font-semibold px-8 py-4 text-lg">
+                    Go to Dashboard
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </RouterLink>
+                <RouterLink href="/search">
+                  <Button size="lg" variant="outline" className="font-semibold px-8 py-4 text-lg">
+                    Start Searching
+                  </Button>
+                </RouterLink>
+              </>
+            ) : (
+              <>
+                <RouterLink href="/login">
+                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 font-semibold px-8 py-4 text-lg">
+                    <LogIn className="mr-2 h-5 w-5" />
+                    Try It Now
+                  </Button>
+                </RouterLink>
+                <RouterLink href="/search">
+                  <Button size="lg" variant="outline" className="font-semibold px-8 py-4 text-lg">
+                    Start Searching
+                  </Button>
+                </RouterLink>
+              </>
+            )}
           </div>
+          
+          {isLoading && (
+            <div className="mt-4">
+              <p className="text-gray-500">Loading...</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
