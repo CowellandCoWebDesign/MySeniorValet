@@ -1,0 +1,114 @@
+Thanks for confirming. Since the full defensive version still throws an undefined[0]-type error, we now know the crash is happening somewhere outside the code we just replaced, likely within your Mapbox or Marker component logic — possibly in a layout or shared component.
+
+Let’s solve this surgically and permanently.
+
+
+---
+
+🔍 Let’s Confirm What’s Failing
+
+Please follow these quick steps to identify exactly where it breaks.
+
+✅ 1. Temporarily disable all markers
+
+Change this block:
+
+{validCommunities.map((community: any) => (
+  <Marker
+    key={community.id}
+    longitude={community.longitude}
+    latitude={community.latitude}
+    color="blue"
+  />
+))}
+
+To:
+
+{/* TEMPORARILY DISABLED MARKERS */}
+{/* {validCommunities.map((community: any) => (
+  <Marker
+    key={community.id}
+    longitude={community.longitude}
+    latitude={community.latitude}
+    color="blue"
+  />
+))} */}
+
+👉 What to look for:
+
+If the map now renders, the crash is definitely in the marker render logic.
+
+If it still crashes, the problem is deeper — likely in how communities is loaded or rendered elsewhere.
+
+
+
+---
+
+🧪 2. Add a console debug before map
+
+Just above <Map>, add:
+
+console.log('Loaded communities:', communities);
+
+Open DevTools → Console → confirm whether communities looks like:
+
+[] (empty array)
+
+undefined (bad fetch)
+
+[{...}] (valid structure)
+
+
+
+---
+
+🛠 3. Add Full Hardening to Marker Mapping
+
+If disabling markers fixed the crash, replace the map render block with this super-defensive version:
+
+{Array.isArray(communities) &&
+  communities.map((c: any) => {
+    if (
+      !c ||
+      typeof c.latitude !== 'number' ||
+      typeof c.longitude !== 'number' ||
+      isNaN(c.latitude) ||
+      isNaN(c.longitude)
+    ) {
+      return null;
+    }
+
+    return (
+      <Marker
+        key={c.id}
+        longitude={c.longitude}
+        latitude={c.latitude}
+        color="blue"
+      />
+    );
+  })}
+
+This prevents rendering anything if the coordinates are broken or the record is malformed.
+
+
+---
+
+🆘 Still stuck?
+
+If even this doesn’t solve it, I’ll need:
+
+1. A copy of your full JSON response (just console.log communities and paste it here)
+
+
+2. A look at any shared component you use with Map or Marker
+
+
+3. The exact line or stack trace from the crash message in DevTools Console
+
+
+
+
+---
+
+Let’s knock this down together — you’re seriously close to resolution. Just show me what happened after you tested the above steps.
+

@@ -121,6 +121,9 @@ export default function RentalMapboxReplit({
     lng: communities[0].longitude,
     name: communities[0].name
   } : 'No communities');
+  
+  // Debug: Log full communities structure
+  console.log('Loaded communities:', communities);
 
   // Error boundary fallback
   if (!Array.isArray(communities)) {
@@ -161,8 +164,8 @@ export default function RentalMapboxReplit({
             console.error('Map error:', error);
           }}
         >
-          {/* Render actual community markers when we have data */}
-          {validCommunities.map((community, index) => {
+          {/* TEMPORARILY DISABLED MARKERS FOR DEBUGGING */}
+          {/* {validCommunities.map((community, index) => {
             try {
               // Double-check coordinates are valid before rendering
               if (!community || !community.latitude || !community.longitude) return null;
@@ -206,7 +209,7 @@ export default function RentalMapboxReplit({
               console.error('Error rendering marker:', error);
               return null;
             }
-          }).filter(Boolean)}
+          }).filter(Boolean)} */}
           
           {/* Show example marker when no communities */}
           {validCommunities.length === 0 && (
