@@ -38,6 +38,12 @@ export default function CommunityDetail() {
   const [tourEmail, setTourEmail] = useState('');
   const [tourPhone, setTourPhone] = useState('');
   const [tourMessage, setTourMessage] = useState('');
+  const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
+  const [waitlistName, setWaitlistName] = useState('');
+  const [waitlistEmail, setWaitlistEmail] = useState('');
+  const [waitlistPhone, setWaitlistPhone] = useState('');
+  const [waitlistPreferences, setWaitlistPreferences] = useState('');
+  const [selectedUnitType, setSelectedUnitType] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Validate ID and redirect if invalid
@@ -171,6 +177,58 @@ Let me know what you think!`;
     setTourPhone('');
     setTourMessage('');
     setIsScheduleTourOpen(false);
+  };
+
+  const handleWaitlistSubmit = () => {
+    // Create waitlist request
+    const waitlistRequest = {
+      communityId: community.id,
+      communityName: community.name,
+      contactName: waitlistName,
+      email: waitlistEmail,
+      phone: waitlistPhone,
+      preferences: waitlistPreferences
+    };
+    
+    // In a real app, this would send to the backend
+    console.log('Waitlist request:', waitlistRequest);
+    
+    // Show success message
+    toast({
+      title: "Added to Waitlist!",
+      description: `${waitlistName} has been added to the waitlist. You'll be notified when units become available.`,
+    });
+    
+    // Reset form
+    setWaitlistName('');
+    setWaitlistEmail('');
+    setWaitlistPhone('');
+    setWaitlistPreferences('');
+    setIsWaitlistOpen(false);
+  };
+
+  // Generate available units data
+  const generateAvailableUnits = (community: any) => {
+    const unitTypes = [
+      { type: 'Studio', sqft: '450-520', features: ['Full kitchen', 'Private bathroom', 'Emergency system'] },
+      { type: '1 Bedroom', sqft: '650-750', features: ['Full kitchen', 'Private bathroom', 'Walk-in closet', 'Emergency system'] },
+      { type: '2 Bedroom', sqft: '950-1100', features: ['Full kitchen', 'Private bathroom', 'Walk-in closet', 'Emergency system', 'Separate living area'] },
+      { type: '1 Bedroom + Den', sqft: '850-950', features: ['Full kitchen', 'Private bathroom', 'Walk-in closet', 'Emergency system', 'Office space'] }
+    ];
+
+    return unitTypes.map((unit, index) => ({
+      id: `${community.id}-${index}`,
+      type: unit.type,
+      sqft: unit.sqft,
+      features: unit.features,
+      available: community.id % 3 === 0 ? Math.max(1, (community.id + index) % 5) : 0,
+      price: community.monthlyRent ? 
+        community.monthlyRent + (index * 400) : 
+        (community.state === 'CA' ? 4800 : community.state === 'TX' ? 3600 : 4200) + (index * 400),
+      moveInDate: community.id % 3 === 0 ? 
+        (index % 2 === 0 ? 'Available now' : 'Available in 2-3 weeks') : 
+        'Join waitlist'
+    }));
   };
 
   const generatePhoneNumber = (state: string, id: number) => {
@@ -522,7 +580,16 @@ Let me know what you think!`;
                       <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
                         <div className="text-sm text-blue-900 font-medium mb-1">
                           {community.id % 3 === 0 ? `${2 + (community.id % 4)} units available` : 
-                           community.id % 3 === 1 ? `${1 + (community.id % 2)} units available` : 'Join waitlist'}
+                           community.id % 3 === 1 ? `${1 + (community.id % 2)} units available` : 
+                           <Button 
+                             variant="outline" 
+                             size="sm" 
+                             onClick={() => setIsWaitlistOpen(true)}
+                             className="text-xs py-1 px-2 h-6 border-blue-300 text-blue-700 hover:bg-blue-100"
+                           >
+                             Join waitlist
+                           </Button>
+                          }
                         </div>
                         <div className="text-xs text-blue-700">
                           Updated {community.id % 2 === 0 ? 'today' : 'yesterday'}
@@ -674,6 +741,78 @@ Let me know what you think!`;
                           </div>
                         </DialogContent>
                       </Dialog>
+
+                      {/* Waitlist Dialog */}
+                      <Dialog open={isWaitlistOpen} onOpenChange={setIsWaitlistOpen}>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>Join Waitlist</DialogTitle>
+                            {selectedUnitType && (
+                              <p className="text-sm text-gray-600 mt-1">
+                                You'll be notified when {selectedUnitType} units become available
+                              </p>
+                            )}
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div>
+                              <Label htmlFor="waitlist-name">Your Name</Label>
+                              <Input
+                                id="waitlist-name"
+                                placeholder="Enter your full name"
+                                value={waitlistName}
+                                onChange={(e) => setWaitlistName(e.target.value)}
+                              />
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <Label htmlFor="waitlist-email">Email</Label>
+                                <Input
+                                  id="waitlist-email"
+                                  type="email"
+                                  placeholder="your.email@example.com"
+                                  value={waitlistEmail}
+                                  onChange={(e) => setWaitlistEmail(e.target.value)}
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="waitlist-phone">Phone</Label>
+                                <Input
+                                  id="waitlist-phone"
+                                  type="tel"
+                                  placeholder="(555) 123-4567"
+                                  value={waitlistPhone}
+                                  onChange={(e) => setWaitlistPhone(e.target.value)}
+                                />
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <Label htmlFor="waitlist-preferences">Preferred Unit Type & Other Preferences</Label>
+                              <textarea
+                                id="waitlist-preferences"
+                                className="w-full p-3 border border-gray-300 rounded-md"
+                                placeholder={selectedUnitType ? 
+                                  `Interested in ${selectedUnitType} units. Add any additional preferences...` :
+                                  "e.g., 1 bedroom, ground floor, pet-friendly..."
+                                }
+                                value={waitlistPreferences || (selectedUnitType ? `Interested in ${selectedUnitType} units.` : '')}
+                                onChange={(e) => setWaitlistPreferences(e.target.value)}
+                                rows={3}
+                              />
+                            </div>
+                            
+                            <Button 
+                              onClick={handleWaitlistSubmit}
+                              className="w-full bg-orange-600 hover:bg-orange-700"
+                              disabled={!waitlistName || !waitlistEmail || !waitlistPhone}
+                            >
+                              <Users className="w-4 h-4 mr-2" />
+                              Join Waitlist
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                       
                       <Button 
                         variant="outline" 
@@ -737,6 +876,104 @@ Let me know what you think!`;
                     <p className="text-sm text-orange-800">Luxury amenities and gourmet dining</p>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Available Units Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center">
+                  <Home className="w-5 h-5 mr-2" />
+                  Available Units
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {generateAvailableUnits(community).map((unit, index) => (
+                  <div key={unit.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex-1">
+                        <h4 className="text-lg font-semibold text-gray-900">{unit.type}</h4>
+                        <p className="text-sm text-gray-600">{unit.sqft} sq ft</p>
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          {unit.features.map((feature, featureIndex) => (
+                            <Badge key={featureIndex} variant="secondary" className="text-xs">
+                              {feature}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="text-right ml-4">
+                        <div className="text-2xl font-bold text-blue-600">
+                          ${unit.price.toLocaleString()}
+                        </div>
+                        <div className="text-sm text-gray-600">per month</div>
+                        <div className="text-sm font-medium text-gray-900 mt-1">
+                          {unit.moveInDate}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center">
+                        {unit.available > 0 ? (
+                          <>
+                            <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                            <span className="text-sm font-medium text-green-700">
+                              {unit.available} unit{unit.available > 1 ? 's' : ''} available
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <div className="w-3 h-3 bg-orange-500 rounded-full mr-2"></div>
+                            <span className="text-sm font-medium text-orange-700">
+                              Waitlist only
+                            </span>
+                          </>
+                        )}
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        {unit.available > 0 ? (
+                          <Button
+                            onClick={() => {
+                              setSelectedUnitType(unit.type);
+                              setIsScheduleTourOpen(true);
+                            }}
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                          >
+                            <CalendarIcon className="w-4 h-4 mr-2" />
+                            Schedule Tour
+                          </Button>
+                        ) : (
+                          <Button
+                            onClick={() => {
+                              setSelectedUnitType(unit.type);
+                              setIsWaitlistOpen(true);
+                            }}
+                            variant="outline"
+                            className="border-orange-600 text-orange-600 hover:bg-orange-50"
+                          >
+                            <Users className="w-4 h-4 mr-2" />
+                            Join Waitlist
+                          </Button>
+                        )}
+                        
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            toast({
+                              title: "More Info",
+                              description: `${unit.type} unit details have been requested. A community representative will contact you.`,
+                            });
+                          }}
+                        >
+                          <Info className="w-4 h-4 mr-2" />
+                          More Info
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </CardContent>
             </Card>
 
