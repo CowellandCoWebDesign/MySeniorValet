@@ -44,14 +44,6 @@ interface ViewState {
   bearing: number;
 }
 
-const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || 'pk.eyJ1IjoidHJ1ZXZpZXciLCJhIjoiY2x6cjJ4cDUxMDFkbTJqczV1ZDJhZ2NiNCJ9.example';
-
-// Debug logging
-console.log('MAPBOX_TOKEN:', MAPBOX_TOKEN ? 'Token loaded successfully' : 'Token not found');
-console.log('Environment variables:', { VITE_MAPBOX_ACCESS_TOKEN: import.meta.env.VITE_MAPBOX_ACCESS_TOKEN });
-console.log('Actual token value:', MAPBOX_TOKEN?.substring(0, 20) + '...');
-console.log('Token type:', MAPBOX_TOKEN?.startsWith('sk.') ? 'SECRET TOKEN' : MAPBOX_TOKEN?.startsWith('pk.') ? 'PUBLIC TOKEN' : 'UNKNOWN');
-
 // Custom marker styles for different community types
 const getMarkerColor = (community: Community) => {
   if (community.careTypes?.includes('Memory Care')) return '#dc2626'; // Red for Memory Care
@@ -124,22 +116,8 @@ export default function RentalMapbox({
   selectedCommunity, 
   className = '' 
 }: RentalMapboxProps) {
-  // Error handling for missing token
-  if (!MAPBOX_TOKEN || MAPBOX_TOKEN === 'pk.eyJ1IjoidHJ1ZXZpZXciLCJhIjoiY2x6cjJ4cDUxMDFkbTJqczV1ZDJhZ2NiNCJ9.example' || MAPBOX_TOKEN.startsWith('pk.eyJ1IjoidHJ1ZXZpZXciLCJhIjoiY2x6cjJ4cDUxMDFkbTJqczV1ZDJhZ2NiNCJ9.example')) {
-    return (
-      <div className="w-full h-full flex items-center justify-center bg-gray-100">
-        <div className="text-center p-8">
-          <div className="text-red-500 mb-4">
-            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Mapbox Configuration Required</h3>
-          <p className="text-gray-600">Please configure your Mapbox access token to enable the interactive map.</p>
-        </div>
-      </div>
-    );
-  }
+  // ALL HOOKS MUST BE AT THE TOP - Rules of Hooks
+  const [mapboxToken, setMapboxToken] = useState<string>('');
   const [viewState, setViewState] = useState<ViewState>({
     longitude: -122.4194,
     latitude: 37.7749,
@@ -152,6 +130,28 @@ export default function RentalMapbox({
   const [showPopup, setShowPopup] = useState(false);
   const [mapStyle, setMapStyle] = useState('mapbox://styles/mapbox/streets-v12');
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Fetch token from server
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const response = await fetch('/api/config');
+        const config = await response.json();
+        const token = config.MAPBOX_ACCESS_TOKEN;
+        setMapboxToken(token);
+        
+        // Debug logging
+        console.log('MAPBOX_TOKEN:', token ? 'Token loaded successfully' : 'Token not found');
+        console.log('Environment variables:', { VITE_MAPBOX_ACCESS_TOKEN: import.meta.env.VITE_MAPBOX_ACCESS_TOKEN });
+        console.log('Actual token value:', token?.substring(0, 20) + '...');
+        console.log('Token type:', token?.startsWith('sk.') ? 'SECRET TOKEN' : token?.startsWith('pk.') ? 'PUBLIC TOKEN' : 'UNKNOWN');
+      } catch (error) {
+        console.error('Failed to fetch config:', error);
+      }
+    };
+    
+    fetchConfig();
+  }, []);
 
   // Filter communities with valid coordinates
   const validCommunities = useMemo(() => {
@@ -206,6 +206,23 @@ export default function RentalMapbox({
     setSelectedMarker(null);
   }, []);
 
+  // Error handling for missing token - moved after ALL hooks
+  if (!mapboxToken) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-gray-100">
+        <div className="text-center p-8">
+          <div className="text-red-500 mb-4">
+            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Mapbox Configuration Required</h3>
+          <p className="text-gray-600">Please configure your Mapbox access token to enable the interactive map.</p>
+        </div>
+      </div>
+    );
+  }
+
   // Map style options
   const mapStyles = [
     { id: 'mapbox://styles/mapbox/streets-v12', name: 'Streets', icon: '🗺️' },
@@ -214,25 +231,13 @@ export default function RentalMapbox({
     { id: 'mapbox://styles/mapbox/dark-v11', name: 'Dark', icon: '🌙' }
   ];
 
-  if (!MAPBOX_TOKEN) {
-    return (
-      <div className={`${className} bg-gray-100 flex items-center justify-center`}>
-        <div className="text-center p-8">
-          <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">Map Loading</h3>
-          <p className="text-gray-500">Mapbox access token required</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className={`relative ${className} ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}>
       <Map
         {...viewState}
         onMove={evt => setViewState(evt.viewState)}
         mapStyle={mapStyle}
-        mapboxAccessToken={MAPBOX_TOKEN}
+        mapboxAccessToken={mapboxToken}
         style={{ width: '100%', height: '100%' }}
         dragPan={true}
         dragRotate={true}
