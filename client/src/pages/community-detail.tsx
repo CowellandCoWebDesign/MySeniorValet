@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Phone, Calendar, Heart, MessageSquare, Star, DollarSign, MapPin, Info, 
+import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSign, MapPin, Info, 
          Mail, Globe, Users, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
          Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X, 
          Clock, HelpCircle, Share2, Copy, Send, Facebook, Twitter, Linkedin } from 'lucide-react';
@@ -190,23 +190,31 @@ Let me know what you think!`;
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Back Button */}
+      {/* Navigation Bar */}
       <div className="bg-white border-b border-gray-200 p-4">
-        <Button 
-          variant="ghost" 
-          onClick={() => {
-            // Try to go back in history, fallback to search page
-            if (window.history.length > 1) {
-              window.history.back();
-            } else {
-              setLocation('/search');
-            }
-          }}
-          className="mb-2"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Search
-        </Button>
+        <div className="flex space-x-3">
+          <Button 
+            variant="ghost" 
+            onClick={() => {
+              // Try to go back in history, fallback to search page
+              if (window.history.length > 1) {
+                window.history.back();
+              } else {
+                setLocation('/search');
+              }
+            }}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Search
+          </Button>
+          <Button 
+            variant="ghost" 
+            onClick={() => setLocation('/')}
+          >
+            <Home className="w-4 h-4 mr-2" />
+            Home
+          </Button>
+        </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6">

@@ -245,6 +245,7 @@ The application is configured for multiple deployment environments:
 **BACK BUTTON NAVIGATION FIX**: Fixed back button functionality in community detail pages using proper browser history navigation with fallback to search page, ensuring reliable navigation for users returning from community profiles (July 14, 2025)
 **COMMUNITY ID VALIDATION**: Added comprehensive ID validation to prevent invalid community IDs (such as -1) from causing errors, with automatic redirection to search page for invalid IDs and proper error handling (July 14, 2025)
 **SALES TITLE UPDATE**: Updated sales representative title from "Senior Living Director" to "Director of Sales" in community profile contact section for more professional and accurate representation (July 15, 2025)
+**HOMEPAGE NAVIGATION BUTTON**: Added homepage button to community detail page navigation bar for easy access to homepage from any community profile, positioned alongside the existing back button (July 15, 2025)
 
 ## ⚠️ CRITICAL API COST PROTECTION IMPLEMENTED (January 5, 2025)
 **Issue Identified**: Previous runaway API costs of $300+ from uncontrolled photo enrichment
