@@ -150,8 +150,8 @@ export default function TrueViewHome() {
         
         <div className="relative z-10 flex flex-col items-center justify-center hero-content min-h-screen px-6 py-16 mobile-keyboard-safe">
           {/* Centered Headlines */}
-          <div className="text-center mb-8 md:mb-10">
-            <div className="space-y-4 mb-6">
+          <div className="text-center mb-6 md:mb-8">
+            <div className="space-y-3 mb-4">
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight drop-shadow-lg animate-fade-in-up">
                 Your Personal Senior Living Concierge
               </h1>
@@ -164,7 +164,7 @@ export default function TrueViewHome() {
 
 
           {/* Search Bar */}
-          <div className="w-full max-w-lg mb-4 relative animate-fade-in-up animation-delay-600" style={{ zIndex: 99999 }}>
+          <div className="w-full max-w-md mb-3 relative animate-fade-in-up animation-delay-600" style={{ zIndex: 99999 }}>
             <form onSubmit={(e) => {
               e.preventDefault();
               const query = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
@@ -205,11 +205,11 @@ export default function TrueViewHome() {
                       // Delay hiding suggestions to allow click events
                       setTimeout(() => setShowSuggestions(false), 200);
                     }}
-                    className="flex-1 px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 placeholder-gray-500"
+                    className="flex-1 px-4 sm:px-5 py-2.5 sm:py-3 text-sm sm:text-base border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 placeholder-gray-500"
                   />
                   <button
                     type="submit"
-                    className="bg-gray-700 hover:bg-gray-800 text-white p-2 sm:p-3 m-1 rounded-xl transition-colors flex items-center justify-center"
+                    className="bg-gray-700 hover:bg-gray-800 text-white p-2 sm:p-2.5 m-1 rounded-xl transition-colors flex items-center justify-center"
                   >
                     <Search className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
@@ -244,17 +244,17 @@ export default function TrueViewHome() {
           </div>
 
           {/* Beautiful Map View Button */}
-          <div className="mb-6 animate-fade-in-up animation-delay-700">
+          <div className="mb-4 animate-fade-in-up animation-delay-700">
             <Link href={`/map${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}>
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 border-0">
-                <MapPin className="w-5 h-5 mr-3" />
+              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-xl font-semibold text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 border-0">
+                <MapPin className="w-4 h-4 mr-2" />
                 Explore Map View
               </Button>
             </Link>
           </div>
           
           {/* Dynamic Community Count Text - Moved outside search container */}
-          <div className="text-center mb-8 md:mb-12 animate-fade-in-up animation-delay-900" style={{ zIndex: 1 }}>
+          <div className="text-center mb-6 md:mb-8 animate-fade-in-up animation-delay-900" style={{ zIndex: 1 }}>
             <p className="text-white/80 text-xs sm:text-sm drop-shadow-md">
               {isLoading ? (
                 <span>Loading verified communities...</span>
