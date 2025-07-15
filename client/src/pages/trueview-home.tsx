@@ -327,7 +327,7 @@ export default function TrueViewHome() {
             {(coastalLoading || trendingLoading) ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-48 border border-gray-200 animate-pulse">
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-52 border border-gray-200 animate-pulse">
                   <div className="aspect-[4/3] bg-gray-200"></div>
                   <CardContent className="p-3">
                     <div className="h-6 bg-gray-200 rounded mb-2"></div>
@@ -340,7 +340,7 @@ export default function TrueViewHome() {
             ) : (
               premiumCommunities.map((community: any, index) => (
                 <Link key={`premium-${community.id}-${index}`} href={`/community/${community.id}`}>
-              <Card className="overflow-hidden flex-shrink-0 w-48 animate-float coastal-card" style={{animationDelay: `${index * 0.2}s`}}>
+              <Card className="overflow-hidden flex-shrink-0 w-52 animate-float coastal-card" style={{animationDelay: `${index * 0.2}s`}}>
                 <div className="relative">
                   <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
                     <Home className="w-12 h-12 text-gray-400" />
@@ -378,20 +378,20 @@ export default function TrueViewHome() {
                     )}
                   </Badge>
                   
-                  {/* Achievement Badge - Bottom Right (smaller to avoid overlap) */}
+                  {/* Achievement Badge - Bottom Right */}
                   {index % 5 === 0 && (
-                    <Badge className="absolute bottom-2 right-2 bg-purple-600 text-white text-xs px-1.5 py-0.5 font-medium z-10">
-                      🏆
+                    <Badge className="absolute bottom-2 right-2 bg-purple-600 text-white text-xs px-2 py-1 font-medium z-10">
+                      🏆 Featured
                     </Badge>
                   )}
                   {index % 5 === 1 && (
-                    <Badge className="absolute bottom-2 right-2 bg-blue-600 text-white text-xs px-1.5 py-0.5 font-medium z-10">
-                      ⭐
+                    <Badge className="absolute bottom-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 font-medium z-10">
+                      ⭐ Top Rated
                     </Badge>
                   )}
                   {index % 5 === 2 && (
-                    <Badge className="absolute bottom-2 right-2 bg-cyan-600 text-white text-xs px-1.5 py-0.5 font-medium z-10">
-                      🌊
+                    <Badge className="absolute bottom-2 right-2 bg-cyan-600 text-white text-xs px-2 py-1 font-medium z-10">
+                      🌊 Ocean
                     </Badge>
                   )}
                 </div>
@@ -603,7 +603,7 @@ export default function TrueViewHome() {
             {californiaLoading ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-48 border border-gray-200 animate-pulse">
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-52 border border-gray-200 animate-pulse">
                   <div className="aspect-[4/3] bg-gray-200"></div>
                   <CardContent className="p-3">
                     <div className="h-6 bg-gray-200 rounded mb-2"></div>
@@ -616,7 +616,7 @@ export default function TrueViewHome() {
             ) : (
               (californiaCommunities || []).map((community: any, index) => (
                 <Link key={`california-${community.id}-${index}`} href={`/community/${community.id}`}>
-                  <Card className="overflow-hidden flex-shrink-0 w-48 animate-float california-card" style={{animationDelay: `${index * 0.2}s`}}>
+                  <Card className="overflow-hidden flex-shrink-0 w-52 animate-float california-card" style={{animationDelay: `${index * 0.2}s`}}>
                     <div className="relative">
                       <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
                         <Home className="w-12 h-12 text-gray-400" />
@@ -654,20 +654,20 @@ export default function TrueViewHome() {
                         )}
                       </Badge>
                       
-                      {/* Achievement Badge - Special Recognition (smaller to avoid overlap) */}
+                      {/* Achievement Badge - Special Recognition */}
                       {index % 5 === 0 && (
-                        <Badge className="absolute bottom-3 right-3 bg-purple-600 text-white text-xs px-1.5 py-0.5 font-medium">
-                          🏆
+                        <Badge className="absolute bottom-3 right-3 bg-purple-600 text-white text-xs px-2 py-1 font-medium">
+                          🏆 Featured
                         </Badge>
                       )}
                       {index % 5 === 1 && (
-                        <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-1.5 py-0.5 font-medium">
-                          ⭐
+                        <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
+                          ⭐ Top Rated
                         </Badge>
                       )}
                       {index % 5 === 2 && (
-                        <Badge className="absolute bottom-3 right-3 bg-green-600 text-white text-xs px-1.5 py-0.5 font-medium">
-                          💎
+                        <Badge className="absolute bottom-3 right-3 bg-green-600 text-white text-xs px-2 py-1 font-medium">
+                          💎 Premium
                         </Badge>
                       )}
                     </div>
