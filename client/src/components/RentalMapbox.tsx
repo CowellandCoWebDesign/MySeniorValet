@@ -8,6 +8,7 @@ import Map, {
 import { Badge } from '@/components/ui/badge';
 import { Home } from 'lucide-react';
 import type { Community } from '@shared/schema';
+import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 interface RentalMapboxProps {
@@ -55,6 +56,16 @@ export default function RentalMapboxSimple({
 }: RentalMapboxProps) {
   // Hardcoded working token
   const activeToken = "pk.eyJ1IjoibXlzZW5pb3J2YWxldCIsImEiOiJjbWQ0b3VkNW8waTA4MmtxNzhndDEyZ2FrIn0.Ht8p3b3XATDjugyf4FHiAQ";
+  
+  // Check browser compatibility first
+  const isMapboxSupported = useMemo(() => {
+    try {
+      return mapboxgl.supported();
+    } catch (error) {
+      console.error('Mapbox GL JS not supported:', error);
+      return false;
+    }
+  }, []);
   
   const [viewState, setViewState] = useState<ViewState>({
     longitude: -122.4194,
@@ -129,19 +140,34 @@ export default function RentalMapboxSimple({
     setMapError(null);
   }, []);
 
+  // Add timeout to force map to show after 3 seconds
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!mapLoaded && !mapError) {
+        console.log('Map load timeout, showing anyway');
+        setMapLoaded(true);
+      }
+    }, 3000);
+    
+    return () => clearTimeout(timeout);
+  }, [mapLoaded, mapError]);
+
   // Handle map error
   const handleMapError = useCallback((error: any) => {
     console.error('Mapbox error:', error);
     setMapError(error?.message || 'Map loading error');
   }, []);
 
-  // Loading state
-  if (!mapLoaded && !mapError) {
+  // Check browser support first
+  if (!isMapboxSupported) {
     return (
       <div className={`${className} flex items-center justify-center bg-gray-100`}>
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-          <p className="text-sm text-gray-600">Loading map...</p>
+        <div className="text-center p-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Browser Not Supported</h3>
+          <p className="text-gray-600 mb-4">Your browser does not support Mapbox GL JS. Please use a modern browser like Chrome, Firefox, or Safari.</p>
+          <div className="text-sm text-gray-500">
+            <p>Communities: {validCommunities.length} locations</p>
+          </div>
         </div>
       </div>
     );
@@ -167,6 +193,16 @@ export default function RentalMapboxSimple({
 
   return (
     <div className={`relative ${className}`}>
+      {/* Loading overlay */}
+      {!mapLoaded && !mapError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-20">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+            <p className="text-sm text-gray-600">Loading map...</p>
+          </div>
+        </div>
+      )}
+      
       {/* Map Container */}
       <div className="w-full h-full">
         <Map

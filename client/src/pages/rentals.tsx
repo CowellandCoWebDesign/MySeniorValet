@@ -6,11 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Search, MapPin, Filter } from 'lucide-react';
 import BottomNavigation from '@/components/BottomNavigation';
 import RentalMapbox from '@/components/RentalMapbox';
+import RentalMapFallback from '@/components/RentalMapFallback';
 import type { Community } from '@shared/schema';
 
 export default function RentalsClean() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
+  const [useMapFallback, setUseMapFallback] = useState(true); // Enable fallback for now
 
   // Fetch communities data
   const { data: communities = [], isLoading, error } = useQuery({
@@ -92,12 +94,21 @@ export default function RentalsClean() {
 
       {/* Map Content */}
       <div className="relative h-[calc(100vh-140px)]">
-        <RentalMapbox
-          communities={filteredCommunities}
-          onCommunityClick={handleCommunityClick}
-          selectedCommunity={selectedCommunity}
-          className="w-full h-full"
-        />
+        {useMapFallback ? (
+          <RentalMapFallback
+            communities={filteredCommunities}
+            onCommunityClick={handleCommunityClick}
+            selectedCommunity={selectedCommunity}
+            className="w-full h-full"
+          />
+        ) : (
+          <RentalMapbox
+            communities={filteredCommunities}
+            onCommunityClick={handleCommunityClick}
+            selectedCommunity={selectedCommunity}
+            className="w-full h-full"
+          />
+        )}
       </div>
 
       {/* Bottom Navigation */}
