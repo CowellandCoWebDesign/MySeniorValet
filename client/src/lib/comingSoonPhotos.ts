@@ -1,18 +1,16 @@
 // Coming Soon Photo Selection Library
 // Provides randomized selection of "coming soon" images for communities without photos
 
-import comingSoon1 from "@assets/coming-soon-1.jpg";
-import comingSoon2 from "@assets/coming-soon-2.jpg";
-import comingSoon3 from "@assets/coming-soon-3.jpg";
-import comingSoon4 from "@assets/coming-soon-4.jpg";
-import comingSoon5 from "@assets/coming-soon-5.jpg";
+// For now, use a single coming soon image and create variety through different overlays
+// This avoids import issues while still providing authentic coming soon imagery
 
+// Array of coming soon images for variety
 const comingSoonImages = [
-  comingSoon1,
-  comingSoon2,
-  comingSoon3,
-  comingSoon4,
-  comingSoon5,
+  "/assets/coming-soon-1.jpg",
+  "/assets/coming-soon-2.jpg", 
+  "/assets/coming-soon-3.jpg",
+  "/assets/coming-soon-4.jpg",
+  "/assets/coming-soon-5.jpg"
 ];
 
 // Get a consistent "coming soon" image for a community based on its ID
