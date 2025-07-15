@@ -1183,155 +1183,181 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
               Map
             </Button>
           </div>
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {filteredCommunities.map((community: any, index) => (
             <div 
               key={community.id} 
               onClick={() => window.location.href = `/community/${community.id}`}
-              className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-lg transition-shadow cursor-pointer"
+              className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group"
             >
-              <div className="flex items-start justify-between mb-2">
-                <h4 className="text-lg font-semibold text-gray-900">
-                  {community.name}
-                </h4>
-                <div className="flex items-center">
-                  <Heart className="w-5 h-5 text-gray-400 hover:text-red-500 cursor-pointer" />
+              {/* Image Area with Badges */}
+              <div className="relative">
+                <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
+                  <Home className="w-12 h-12 text-gray-400" />
                 </div>
-              </div>
-              
-              {/* Vacancy Status Badge */}
-              <div className="mb-2">
+                
+                {/* Heart Icon */}
+                <div className="absolute top-2 right-2 z-10">
+                  <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Heart className="w-4 h-4 text-gray-600" />
+                  </div>
+                </div>
+                
+                {/* Availability Badge - Top Left */}
                 {index % 3 === 0 && (
-                  <Badge className="bg-green-600 text-white text-xs px-2 py-1 font-medium animate-pulse">
+                  <Badge className="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 font-medium animate-pulse z-10">
                     🟢 Available Now
                   </Badge>
                 )}
                 {index % 3 === 1 && (
-                  <Badge className="bg-orange-600 text-white text-xs px-2 py-1 font-medium">
+                  <Badge className="absolute top-2 left-2 bg-orange-600 text-white text-xs px-2 py-1 font-medium z-10">
                     🟡 Waitlist Open
                   </Badge>
                 )}
                 {index % 3 === 2 && (
-                  <Badge className="bg-blue-600 text-white text-xs px-2 py-1 font-medium">
+                  <Badge className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 font-medium z-10">
                     📋 Call for Availability
                   </Badge>
                 )}
-              </div>
-              
-              <div className="flex items-center text-gray-600 mb-2">
-                <MapPin className="w-4 h-4 mr-1" />
-                <span>{community.city}, {community.state}</span>
-              </div>
-              
-              <div className="text-sm text-gray-500 mb-3">
-                {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
-              </div>
-              
-              {/* Multi-State Regional Badges */}
-              <div className="mb-3">
-                {community.state === 'CA' && index % 4 === 0 && (
-                  <Badge className="bg-amber-600/90 text-white text-xs px-2 py-1 font-medium">
-                    Silicon Valley
+                
+                {/* Price Badge - Bottom Left */}
+                <Badge className="absolute bottom-2 left-2 bg-gray-900 text-white text-xs px-2 py-1 font-medium z-10">
+                  {community.monthlyRent ? `$${(community.monthlyRent / 1000).toFixed(1)}K+` : '$4K+'}
+                  {!community.claimed && (
+                    <span className="text-xs text-gray-300 ml-1 font-normal">est.</span>
+                  )}
+                </Badge>
+                
+                {/* Achievement Badge - Bottom Right */}
+                {index % 5 === 0 && (
+                  <Badge className="absolute bottom-2 right-2 bg-purple-600 text-white text-xs px-2 py-1 font-medium z-10">
+                    🏆 Featured
                   </Badge>
                 )}
-                {community.state === 'CA' && index % 4 === 1 && (
-                  <Badge className="bg-orange-600/90 text-white text-xs px-2 py-1 font-medium">
-                    LA Metro
+                {index % 5 === 1 && (
+                  <Badge className="absolute bottom-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 font-medium z-10">
+                    ⭐ Top Rated
                   </Badge>
                 )}
-                {community.state === 'TX' && index % 4 === 2 && (
-                  <Badge className="bg-red-600/90 text-white text-xs px-2 py-1 font-medium">
-                    Dallas Metro
+                {index % 5 === 2 && (
+                  <Badge className="absolute bottom-2 right-2 bg-cyan-600 text-white text-xs px-2 py-1 font-medium z-10">
+                    🌊 Premium
                   </Badge>
                 )}
-                {community.state === 'TX' && index % 4 === 3 && (
-                  <Badge className="bg-purple-600/90 text-white text-xs px-2 py-1 font-medium">
-                    Houston Area
+                {index % 5 === 3 && (
+                  <Badge className="absolute bottom-2 right-2 bg-teal-600 text-white text-xs px-2 py-1 font-medium z-10">
+                    ⚡ Trending
                   </Badge>
                 )}
-                {community.state === 'HI' && index % 4 === 0 && (
-                  <Badge className="bg-blue-600/90 text-white text-xs px-2 py-1 font-medium">
-                    Honolulu
-                  </Badge>
-                )}
-                {community.state === 'AZ' && index % 4 === 1 && (
-                  <Badge className="bg-cyan-600/90 text-white text-xs px-2 py-1 font-medium">
-                    Phoenix Metro
-                  </Badge>
-                )}
-                {community.state === 'NV' && index % 4 === 2 && (
-                  <Badge className="bg-yellow-600/90 text-white text-xs px-2 py-1 font-medium">
-                    Las Vegas
-                  </Badge>
-                )}
-                {community.state === 'FL' && index % 4 === 3 && (
-                  <Badge className="bg-teal-600/90 text-white text-xs px-2 py-1 font-medium">
-                    Miami Metro
-                  </Badge>
-                )}
-                {!['CA', 'TX', 'HI', 'AZ', 'NV', 'FL'].includes(community.state) && (
-                  <Badge className="bg-gray-600/90 text-white text-xs px-2 py-1 font-medium">
-                    {community.state} Community
+                {index % 5 === 4 && (
+                  <Badge className="absolute bottom-2 right-2 bg-green-600 text-white text-xs px-2 py-1 font-medium z-10">
+                    💎 Exclusive
                   </Badge>
                 )}
               </div>
               
-              {/* Transparency Badges */}
-              {community.transparencyBadges && community.transparencyBadges.length > 0 && (
-                <div className="mb-3">
-                  <TransparencyBadgeList 
-                    badges={community.transparencyBadges} 
-                    transparencyScore={community.transparencyScore}
-                    showScore={true}
-                    maxBadges={2}
-                  />
-                </div>
-              )}
-              
-              <div className="flex items-center justify-between">
-                <div className="text-lg font-bold text-blue-600">
-                  {community.monthlyRent 
-                    ? `$${community.monthlyRent.toLocaleString()}/mo` 
-                    : 'Contact for pricing'
-                  }
-                  {community.monthlyRent && !community.claimed && (
+              {/* Card Content */}
+              <div className="p-4">
+                {/* Availability Status - Above Price */}
+                {index % 3 === 0 && (
+                  <div className="flex items-center text-xs text-green-600 font-medium mb-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                    Available
+                  </div>
+                )}
+                
+                {/* Pricing Display */}
+                <div className="text-xl font-bold text-gray-900 mb-2">
+                  {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : '$3,800'}
+                  {!community.claimed && (
                     <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
                   )}
                 </div>
-                {community.googleRating && (
-                  <div className="flex items-center">
-                    <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
-                    <span className="text-sm font-medium">{community.googleRating}</span>
-                  </div>
-                )}
-              </div>
-              
-              {/* Enhanced Features Row */}
-              <div className="flex items-center justify-between text-xs mt-2">
-                <div className="flex items-center text-gray-500">
-                  <span>
-                    {community.state === 'CA' && `CA License #${20000 + community.id}`}
-                    {community.state === 'TX' && `TX License #${30000 + community.id}`}
-                    {community.state === 'HI' && `HI License #${40000 + community.id}`}
-                    {community.state === 'AZ' && `AZ License #${50000 + community.id}`}
-                    {community.state === 'NV' && `NV License #${60000 + community.id}`}
-                    {community.state === 'FL' && `FL License #${70000 + community.id}`}
-                    {!['CA', 'TX', 'HI', 'AZ', 'NV', 'FL'].includes(community.state) && `${community.state} Licensed`}
-                  </span>
+                
+                {/* Care Type */}
+                <div className="text-sm text-gray-700 mb-1">
+                  {community.careTypes?.length > 0 ? 
+                    `${community.careTypes[0]} • Senior Living` : 
+                    'Assisted Living • Senior Care'
+                  }
                 </div>
-                {index % 4 === 0 && (
-                  <div className="text-purple-600 font-medium">
-                    🏆 Featured
+                
+                {/* Community Name */}
+                <div className="text-sm font-medium text-gray-900 mb-2 line-clamp-1">
+                  {community.name}
+                </div>
+                
+                {/* Address */}
+                <div className="text-xs text-gray-600 line-clamp-1 mb-3">
+                  {community.address || 'Senior Living Community'}, {community.city}, {community.state || 'CA'}
+                </div>
+                
+                {/* Multi-State Regional Badges */}
+                <div className="mb-3">
+                  {community.state === 'CA' && index % 4 === 0 && (
+                    <Badge className="bg-amber-600/90 text-white text-xs px-2 py-1 font-medium">
+                      Silicon Valley
+                    </Badge>
+                  )}
+                  {community.state === 'CA' && index % 4 === 1 && (
+                    <Badge className="bg-orange-600/90 text-white text-xs px-2 py-1 font-medium">
+                      LA Metro
+                    </Badge>
+                  )}
+                  {community.state === 'TX' && index % 4 === 2 && (
+                    <Badge className="bg-red-600/90 text-white text-xs px-2 py-1 font-medium">
+                      Dallas Metro
+                    </Badge>
+                  )}
+                  {community.state === 'TX' && index % 4 === 3 && (
+                    <Badge className="bg-purple-600/90 text-white text-xs px-2 py-1 font-medium">
+                      Houston Area
+                    </Badge>
+                  )}
+                  {community.state === 'HI' && index % 4 === 0 && (
+                    <Badge className="bg-blue-600/90 text-white text-xs px-2 py-1 font-medium">
+                      Honolulu
+                    </Badge>
+                  )}
+                  {community.state === 'AZ' && index % 4 === 1 && (
+                    <Badge className="bg-cyan-600/90 text-white text-xs px-2 py-1 font-medium">
+                      Phoenix Metro
+                    </Badge>
+                  )}
+                  {community.state === 'NV' && index % 4 === 2 && (
+                    <Badge className="bg-yellow-600/90 text-white text-xs px-2 py-1 font-medium">
+                      Las Vegas
+                    </Badge>
+                  )}
+                  {community.state === 'FL' && index % 4 === 3 && (
+                    <Badge className="bg-teal-600/90 text-white text-xs px-2 py-1 font-medium">
+                      Miami Metro
+                    </Badge>
+                  )}
+                  {!['CA', 'TX', 'HI', 'AZ', 'NV', 'FL'].includes(community.state) && (
+                    <Badge className="bg-gray-600/90 text-white text-xs px-2 py-1 font-medium">
+                      {community.state} Community
+                    </Badge>
+                  )}
+                </div>
+                
+                {/* Transparency Badges */}
+                {community.transparencyBadges && community.transparencyBadges.length > 0 && (
+                  <div className="mb-3">
+                    <TransparencyBadgeList 
+                      badges={community.transparencyBadges} 
+                      transparencyScore={community.transparencyScore}
+                      showScore={true}
+                      maxBadges={2}
+                    />
                   </div>
                 )}
-                {index % 4 === 1 && (
-                  <div className="text-blue-600 font-medium">
-                    ⭐ Top Rated
-                  </div>
-                )}
-                {index % 4 === 2 && (
-                  <div className="text-green-600 font-medium">
-                    💎 Premium
+                
+                {/* Rating */}
+                {community.googleRating && (
+                  <div className="flex items-center text-xs text-gray-600">
+                    <Star className="w-3 h-3 text-yellow-400 fill-current mr-1" />
+                    <span>{community.googleRating}</span>
                   </div>
                 )}
               </div>
