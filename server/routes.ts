@@ -225,7 +225,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const validateSearchFilters = (req: any, res: any, next: any) => {
     const allowedFilters = [
       'location', 'careType', 'budget', 'availability', 
-      'amenities', 'distance', 'minRating', 'limit', 'offset', 'hasPhotos'
+      'amenities', 'distance', 'minRating', 'limit', 'offset', 'hasPhotos',
+      // PostGIS spatial search parameters
+      'swLat', 'swLng', 'neLat', 'neLng'
     ];
     
     // Check for prohibited filter keys that could enable discrimination
@@ -770,6 +772,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Logged out successfully" });
     } catch (error: any) {
       res.status(500).json({ message: "Failed to logout" });
+    }
+  });
+
+  // PostGIS-enabled spatial search endpoint
+  app.get('/api/communities/search/spatial', async (req, res) => {
+    try {
+      console.log('PostGIS spatial search request received:', req.query);
+      
+      const {
+        swLat,
+        swLng,
+        neLat,
+        neLng,
+        limit = 300,
+        careType,
+        minRating,
+        amenities
+      } = req.query;
+
+      // Validate required bounding box parameters
+      if (!swLat || !swLng || !neLat || !neLng) {
+        return res.status(400).json({ 
+          error: 'Missing bounding box parameters. Required: swLat, swLng, neLat, neLng' 
+        });
+      }
+
+      const startTime = Date.now();
+      
+      // Build base spatial query
+      let query = db.select().from(communities);
+      const conditions = [];
+
+      // PostGIS spatial query - find communities within bounding box
+      // Convert geography to geometry for spatial operations
+      conditions.push(
+        sql`ST_Within(
+          ${communities.location}::geometry,
+          ST_MakeEnvelope(${parseFloat(swLng as string)}, ${parseFloat(swLat as string)}, ${parseFloat(neLng as string)}, ${parseFloat(neLat as string)}, 4326)
+        )`
+      );
+
+      // Additional filters
+      if (careType && careType !== 'All Types') {
+        conditions.push(sql`${careType} = ANY(${communities.careTypes})`);
+      }
+      
+      if (minRating) {
+        conditions.push(sql`${communities.rating} >= ${parseFloat(minRating as string)}`);
+      }
+
+      if (amenities && Array.isArray(amenities)) {
+        for (const amenity of amenities) {
+          conditions.push(sql`${amenity} = ANY(${communities.amenities})`);
+        }
+      }
+
+      // Apply all conditions
+      if (conditions.length > 0) {
+        query = query.where(sql`${sql.join(conditions, sql` AND `)}`);
+      }
+
+      // Add limit
+      query = query.limit(parseInt(limit as string));
+
+      // Execute query
+      const result = await query;
+      
+      console.log(`PostGIS spatial search returned ${result.length} communities in ${Date.now() - startTime}ms`);
+      
+      res.json(result);
+    } catch (error) {
+      console.error('PostGIS spatial search error:', error);
+      res.status(500).json({ 
+        error: 'PostGIS spatial search failed',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 

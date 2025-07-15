@@ -1,7 +1,14 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal, json, jsonb, date, varchar, real, numeric, index } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, decimal, json, jsonb, date, varchar, real, numeric, index, customType } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+
+// PostGIS geography point type for efficient spatial queries
+const geographyPoint = customType<{ data: { lat: number; lng: number } }>({
+  dataType() {
+    return 'geography(Point,4326)';
+  },
+});
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -269,6 +276,7 @@ export const communities = pgTable("communities", {
   imageGallery: text("image_gallery").array().default([]),
   latitude: decimal("latitude", { precision: 10, scale: 8 }),
   longitude: decimal("longitude", { precision: 11, scale: 8 }),
+  location: geographyPoint('location'), // PostGIS geography point for efficient spatial queries
   licenseNumber: text("license_number"),
   licenseStatus: text("license_status"), // 'Licensed', 'Under Review', 'Expired'
   lastInspection: timestamp("last_inspection"),
@@ -321,7 +329,19 @@ export const communities = pgTable("communities", {
   }>().default({}),
   acceptsHudVouchers: boolean("accepts_hud_vouchers").default(false),
   isVeteranFriendly: boolean("is_veteran_friendly").default(false),
-});
+}, (table) => [
+  // Performance indexes for fast search
+  index("communities_city_idx").on(table.city),
+  index("communities_state_idx").on(table.state),
+  index("communities_zip_code_idx").on(table.zipCode),
+  index("communities_care_types_idx").on(table.careTypes),
+  index("communities_location_composite_idx").on(table.city, table.state, table.zipCode),
+  index("communities_coordinates_idx").on(table.latitude, table.longitude),
+  index("communities_rating_idx").on(table.rating),
+  index("communities_trending_score_idx").on(table.trendingScore),
+  // PostGIS spatial index for efficient geo queries (created manually in SQL)
+  // index("communities_location_gist_idx").on(table.location).using("gist"),
+]);
 
 export const inspections = pgTable("inspections", {
   id: serial("id").primaryKey(),
