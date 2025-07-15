@@ -44,6 +44,7 @@ export default function CommunityDetail() {
   const [waitlistPhone, setWaitlistPhone] = useState('');
   const [waitlistPreferences, setWaitlistPreferences] = useState('');
   const [selectedUnitType, setSelectedUnitType] = useState<string | null>(null);
+  const [expandedUnits, setExpandedUnits] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
   // Validate ID and redirect if invalid
@@ -207,13 +208,59 @@ Let me know what you think!`;
     setIsWaitlistOpen(false);
   };
 
-  // Generate available units data
+  // Generate available units data with detailed amenities
   const generateAvailableUnits = (community: any) => {
+    const getUnitDetails = (unitType: string, unitIndex: number) => {
+      const viewOptions = ['Garden view', 'Courtyard view', 'City view', 'Mountain view', 'Pool view'];
+      const balconyOptions = ['Private balcony', 'Private patio', 'Shared patio access', 'No outdoor space'];
+      const kitchenOptions = ['Full kitchen', 'Kitchenette', 'Galley kitchen'];
+      const bathroomOptions = ['Walk-in shower', 'Tub with shower', 'Roll-in shower', 'Soaking tub', 'Tub cut-out', 'Shower with seat'];
+      const applianceOptions = ['Full-size refrigerator', 'Compact refrigerator', 'Mini fridge'];
+      const counterOptions = ['Granite counters', 'Quartz counters', 'Laminate counters'];
+      const stoveOptions = ['Full-size stove', 'Compact stove', 'Cooktop only', 'No stove (microwave only)'];
+      
+      const unitId = community.id + unitIndex;
+      
+      return {
+        view: viewOptions[unitId % viewOptions.length],
+        outdoor: balconyOptions[unitId % balconyOptions.length],
+        kitchen: kitchenOptions[unitId % kitchenOptions.length],
+        bathroom: bathroomOptions[unitId % bathroomOptions.length],
+        appliances: applianceOptions[unitId % applianceOptions.length],
+        counters: counterOptions[unitId % counterOptions.length],
+        stove: stoveOptions[unitId % stoveOptions.length],
+        flooring: unitId % 3 === 0 ? 'Hardwood flooring' : unitId % 3 === 1 ? 'Luxury vinyl plank' : 'Carpet with tile kitchen/bath',
+        storage: unitId % 2 === 0 ? 'Walk-in closet' : 'Standard closet',
+        lighting: unitId % 4 === 0 ? 'Abundant natural light' : 'Good natural light',
+        accessibility: unitId % 5 === 0 ? 'ADA compliant' : 'Standard accessibility'
+      };
+    };
+
     const unitTypes = [
-      { type: 'Studio', sqft: '450-520', features: ['Full kitchen', 'Private bathroom', 'Emergency system'] },
-      { type: '1 Bedroom', sqft: '650-750', features: ['Full kitchen', 'Private bathroom', 'Walk-in closet', 'Emergency system'] },
-      { type: '2 Bedroom', sqft: '950-1100', features: ['Full kitchen', 'Private bathroom', 'Walk-in closet', 'Emergency system', 'Separate living area'] },
-      { type: '1 Bedroom + Den', sqft: '850-950', features: ['Full kitchen', 'Private bathroom', 'Walk-in closet', 'Emergency system', 'Office space'] }
+      { 
+        type: 'Studio', 
+        sqft: '450-520', 
+        features: ['Full kitchen', 'Private bathroom', 'Emergency system'],
+        details: getUnitDetails('Studio', 0)
+      },
+      { 
+        type: '1 Bedroom', 
+        sqft: '650-750', 
+        features: ['Full kitchen', 'Private bathroom', 'Walk-in closet', 'Emergency system'],
+        details: getUnitDetails('1 Bedroom', 1)
+      },
+      { 
+        type: '2 Bedroom', 
+        sqft: '950-1100', 
+        features: ['Full kitchen', 'Private bathroom', 'Walk-in closet', 'Emergency system', 'Separate living area'],
+        details: getUnitDetails('2 Bedroom', 2)
+      },
+      { 
+        type: '1 Bedroom + Den', 
+        sqft: '850-950', 
+        features: ['Full kitchen', 'Private bathroom', 'Walk-in closet', 'Emergency system', 'Office space'],
+        details: getUnitDetails('1 Bedroom + Den', 3)
+      }
     ];
 
     // Calculate total available units based on header logic
@@ -248,6 +295,7 @@ Let me know what you think!`;
         type: unit.type,
         sqft: unit.sqft,
         features: unit.features,
+        details: unit.details,
         available: availableUnits,
         price: community.monthlyRent ? 
           community.monthlyRent + (index * 400) : 
@@ -949,6 +997,85 @@ Let me know what you think!`;
                       </div>
                     </div>
                     
+                    {/* Expanded Unit Details */}
+                    {expandedUnits.has(unit.id) && (
+                      <div className="mt-4 pt-4 border-t border-gray-200">
+                        <h5 className="font-semibold text-gray-900 mb-3">Unit Details</h5>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <div className="flex items-center">
+                              <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                              <span className="text-sm text-gray-700">
+                                <strong>View:</strong> {unit.details.view}
+                              </span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                              <span className="text-sm text-gray-700">
+                                <strong>Outdoor Space:</strong> {unit.details.outdoor}
+                              </span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                              <span className="text-sm text-gray-700">
+                                <strong>Kitchen:</strong> {unit.details.kitchen}
+                              </span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+                              <span className="text-sm text-gray-700">
+                                <strong>Bathroom:</strong> {unit.details.bathroom}
+                              </span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                              <span className="text-sm text-gray-700">
+                                <strong>Refrigerator:</strong> {unit.details.appliances}
+                              </span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="w-2 h-2 bg-amber-500 rounded-full mr-2"></span>
+                              <span className="text-sm text-gray-700">
+                                <strong>Stove/Cooktop:</strong> {unit.details.stove}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <div className="flex items-center">
+                              <span className="w-2 h-2 bg-indigo-500 rounded-full mr-2"></span>
+                              <span className="text-sm text-gray-700">
+                                <strong>Countertops:</strong> {unit.details.counters}
+                              </span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
+                              <span className="text-sm text-gray-700">
+                                <strong>Flooring:</strong> {unit.details.flooring}
+                              </span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="w-2 h-2 bg-teal-500 rounded-full mr-2"></span>
+                              <span className="text-sm text-gray-700">
+                                <strong>Storage:</strong> {unit.details.storage}
+                              </span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="w-2 h-2 bg-pink-500 rounded-full mr-2"></span>
+                              <span className="text-sm text-gray-700">
+                                <strong>Lighting:</strong> {unit.details.lighting}
+                              </span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="w-2 h-2 bg-cyan-500 rounded-full mr-2"></span>
+                              <span className="text-sm text-gray-700">
+                                <strong>Accessibility:</strong> {unit.details.accessibility}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
                     <div className="flex justify-between items-center">
                       <div className="flex items-center">
                         {unit.available > 0 ? (
@@ -997,14 +1124,17 @@ Let me know what you think!`;
                         <Button
                           variant="outline"
                           onClick={() => {
-                            toast({
-                              title: "More Info",
-                              description: `${unit.type} unit details have been requested. A community representative will contact you.`,
-                            });
+                            const newExpandedUnits = new Set(expandedUnits);
+                            if (newExpandedUnits.has(unit.id)) {
+                              newExpandedUnits.delete(unit.id);
+                            } else {
+                              newExpandedUnits.add(unit.id);
+                            }
+                            setExpandedUnits(newExpandedUnits);
                           }}
                         >
                           <Info className="w-4 h-4 mr-2" />
-                          More Info
+                          {expandedUnits.has(unit.id) ? 'Less Info' : 'More Info'}
                         </Button>
                       </div>
                     </div>
