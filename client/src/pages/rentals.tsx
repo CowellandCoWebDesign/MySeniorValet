@@ -7,6 +7,7 @@ import { Search, MapPin, Filter } from 'lucide-react';
 import BottomNavigation from '@/components/BottomNavigation';
 import RentalMapbox from '@/components/RentalMapbox';
 import RentalMapboxFixed from '@/components/RentalMapboxFixed';
+import RentalMapboxReplit from '@/components/RentalMapboxReplit';
 import RentalMapFallback from '@/components/RentalMapFallback';
 import type { Community } from '@shared/schema';
 
@@ -103,7 +104,7 @@ export default function RentalsClean() {
             className="w-full h-full"
           />
         ) : (
-          <RentalMapboxFixed
+          <RentalMapboxReplit
             communities={filteredCommunities}
             onCommunityClick={handleCommunityClick}
             selectedCommunity={selectedCommunity}
