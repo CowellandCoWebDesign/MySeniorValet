@@ -902,7 +902,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Parse query parameters with defaults
       const searchParams: any = {
-        limit: parseInt(req.query.limit as string) || 20,
+        limit: parseInt(req.query.limit as string) || 10000, // Return all results by default
         offset: parseInt(req.query.offset as string) || 0
       };
       
@@ -1010,7 +1010,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/communities/coastal', async (req, res) => {
     try {
       const startTime = Date.now();
-      const limit = parseInt(req.query.limit as string) || 20;
+      const limit = parseInt(req.query.limit as string) || 1000;
       
       // Search for communities in actual coastal cities - use more reliable method
       const coastalCities = ['Santa Monica', 'Monterey', 'San Francisco', 'Santa Barbara', 'Carmel'];
@@ -1063,7 +1063,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const startTime = Date.now();
       const location = req.params.location;
-      const limit = parseInt(req.query.limit as string) || 20;
+      const limit = parseInt(req.query.limit as string) || 1000;
       
       // Use the same search logic as the main search
       const searchResults = await storage.searchCommunities({
