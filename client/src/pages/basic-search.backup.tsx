@@ -2,18 +2,76 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, Star, Heart, List, Map, Bell, Calendar, Mail, Phone, ExternalLink, Users, CheckCircle, AlertTriangle, Activity, UserCheck, Stethoscope, Clock, ImageIcon, ChevronDown, SortAsc, ArrowLeft, Home, Plus, Minus } from "lucide-react";
+import { Search, MapPin, Star, Heart, List, Map, Bell, Calendar, Mail, Phone, ExternalLink, Users, CheckCircle, AlertTriangle, Activity, UserCheck, Stethoscope, Clock, ImageIcon, ChevronDown, SortAsc, ArrowLeft, Home, Plus, Minus, Filter, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
-import { Icon } from 'leaflet';
-import { Link } from "wouter";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Link, useLocation } from "wouter";
 import SlidePanel from "@/components/SlidePanel";
-import 'leaflet/dist/leaflet.css';
+import BottomNavigation from "@/components/BottomNavigation";
+import { TransparencyBadgeList } from "@/components/TransparencyBadge";
+// Map imports removed - ready for fresh implementation
 
-// Custom house-style marker icons for communities (Zillow-style)
-const createHouseIcon = (isViewed: boolean = false, isFavorited: boolean = false) => {
-  const fillColor = isFavorited ? '#dc2626' : isViewed ? '#fca5a5' : '#dc2626'; // Red for unviewed, light red for viewed, red for favorited
-  const strokeColor = '#991b1b';
+// Care type icons and colors mapping
+const careTypeConfig = {
+  'Independent Living': { 
+    color: '#10b981', // Green
+    icon: 'home',
+    description: 'Independent senior apartments'
+  },
+  'Assisted Living': { 
+    color: '#3b82f6', // Blue
+    icon: 'users',
+    description: 'Assistance with daily activities'
+  },
+  'Memory Care': { 
+    color: '#8b5cf6', // Purple
+    icon: 'brain',
+    description: 'Specialized dementia care'
+  },
+  'Skilled Nursing': { 
+    color: '#ef4444', // Red
+    icon: 'stethoscope',
+    description: '24/7 medical care'
+  },
+  'Continuing Care': { 
+    color: '#f59e0b', // Orange
+    icon: 'activity',
+    description: 'Multiple care levels'
+  },
+  'HUD': { 
+    color: '#059669', // Dark green
+    icon: 'shield',
+    description: 'HUD-VASH veterans housing'
+  },
+  'Affordable Housing': { 
+    color: '#0891b2', // Cyan
+    icon: 'dollar-sign',
+    description: 'Income-based housing'
+  }
+};
+
+// Create custom marker icons based on care type
+const createCareTypeIcon = (careTypes: string[], isViewed: boolean = false, isFavorited: boolean = false) => {
+  // Determine primary care type
+  const primaryCareType = careTypes?.find(type => careTypeConfig[type as keyof typeof careTypeConfig]) || 'Independent Living';
+  const config = careTypeConfig[primaryCareType as keyof typeof careTypeConfig] || careTypeConfig['Independent Living'];
+  
+  const fillColor = isFavorited ? '#dc2626' : isViewed ? '#fca5a5' : config.color;
+  const strokeColor = '#ffffff';
+  
+  // Icon paths for different care types
+  const iconPaths = {
+    'home': `<path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke="white" stroke-width="1.5" fill="none"/>`,
+    'users': `<path d="M12 14c2.206 0 4-1.794 4-4s-1.794-4-4-4-4 1.794-4 4 1.794 4 4 4z" fill="white"/><path d="M12 14c-5 0-8 3-8 6h16c0-3-3-6-8-6z" fill="white"/>`,
+    'brain': `<circle cx="12" cy="8" r="3" fill="white"/><path d="M9 16s0-2 3-2 3 2 3 2" stroke="white" stroke-width="1.5" fill="none"/>`,
+    'stethoscope': `<path d="M11 2a2 2 0 0 0-2 2v6.5a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5V4a2 2 0 0 0-4 0v6.5a2.5 2.5 0 0 0 5 0V4" stroke="white" stroke-width="1.5" fill="none"/>`,
+    'activity': `<polyline points="22,12 18,12 15,21 9,3 6,12 2,12" stroke="white" stroke-width="1.5" fill="none"/>`,
+    'shield': `<path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" fill="white" stroke="white"/>`,
+    'shield-check': `<path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" fill="white" stroke="white"/><polyline points="9,12 11,14 16,9" stroke="${fillColor}" stroke-width="1.5" fill="none"/>`,
+    'dollar-sign': `<line x1="12" y1="1" x2="12" y2="23" stroke="white" stroke-width="1.5"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="white" stroke-width="1.5" fill="none"/>`
+  };
+  
+  const iconPath = iconPaths[config.icon as keyof typeof iconPaths] || iconPaths.home;
   
   const heartIcon = isFavorited ? `
     <path d="M16 8c0-2.21-1.79-4-4-4S8 5.79 8 8c0 1.5.83 2.8 2.05 3.48L12 14l1.95-2.52C15.17 10.8 16 9.5 16 8z" fill="white" stroke="#991b1b" stroke-width="0.5"/>
@@ -21,23 +79,18 @@ const createHouseIcon = (isViewed: boolean = false, isFavorited: boolean = false
   
   return new Icon({
     iconUrl: 'data:image/svg+xml;base64,' + btoa(`
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28">
-        <!-- House body -->
-        <rect x="6" y="12" width="12" height="8" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1.5" rx="1"/>
-        <!-- House roof -->
-        <path d="M4 14 L12 6 L20 14 L18 14 L12 8 L6 14 Z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1.5"/>
-        <!-- Door -->
-        <rect x="10" y="16" width="4" height="4" fill="white" stroke="${strokeColor}" stroke-width="0.8"/>
-        <!-- Window -->
-        <rect x="7.5" y="14" width="2.5" height="2.5" fill="white" stroke="${strokeColor}" stroke-width="0.8"/>
-        <rect x="14" y="14" width="2.5" height="2.5" fill="white" stroke="${strokeColor}" stroke-width="0.8"/>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
+        <!-- Background circle -->
+        <circle cx="12" cy="12" r="10" fill="${fillColor}" stroke="${strokeColor}" stroke-width="2"/>
+        <!-- Icon -->
+        ${iconPath}
         <!-- Heart for favorited -->
         ${heartIcon}
       </svg>
     `),
-    iconSize: [28, 28],
-    iconAnchor: [14, 28],
-    popupAnchor: [0, -28],
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+    popupAnchor: [0, -16],
   });
 };
 
@@ -60,12 +113,58 @@ function MapBoundsUpdater({ onBoundsChange }: { onBoundsChange: (bounds: any) =>
   return null;
 }
 
-export default function BasicSearch() {
-  const [searchQuery, setSearchQuery] = useState("");
+export default function BasicSearch({ initialFilters = [] }: { initialFilters?: string[] }) {
+  // Parse URL parameters for initial search query
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlSearchQuery = urlParams.get('q');
+  
+  const [searchQuery, setSearchQuery] = useState(urlSearchQuery || "");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(urlSearchQuery || "");
   const [activeTab, setActiveTab] = useState('search');
-  const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [sortBy, setSortBy] = useState('recommended');
   const [showSortOptions, setShowSortOptions] = useState(false);
+  const [slidePanelHeight, setSlidePanelHeight] = useState(160);
+  const [, navigate] = useLocation();
+  
+  // Debounce search query to prevent excessive API calls - reduced to 300ms for better UX
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300); // 300ms delay as specified
+    
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+
+  
+  // Parse URL parameters for filters  
+  const urlCareType = urlParams.get('careType');
+  const urlFilters = urlParams.get('filters');
+  const urlFiltersArray = [];
+  
+  // Add care type from URL parameter
+  if (urlCareType) {
+    urlFiltersArray.push(urlCareType);
+  }
+  
+  // Add filters from URL parameter
+  if (urlFilters) {
+    urlFiltersArray.push(...urlFilters.split(','));
+  }
+  
+  // Filter states
+  const [selectedCareTypes, setSelectedCareTypes] = useState<string[]>([...initialFilters, ...urlFiltersArray]);
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 10000 });
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+  const [showFilters, setShowFilters] = useState(false);
+  
+  // Mobile filter drawer states
+  const [selectedAvailability, setSelectedAvailability] = useState<string[]>([]);
+  const [selectedBudget, setSelectedBudget] = useState<string[]>([]);
+  
+  // Filter chip options for mobile drawer
+  const availabilityOptions = ['Available Now', 'Available Soon', 'Waitlist Open'];
+  const budgetOptions = ['< $3k', '$3k-$5k', '$5k+'];
   
   // Sort options with better organization
   const sortOptions = [
@@ -80,10 +179,54 @@ export default function BasicSearch() {
 
   const [mapBounds, setMapBounds] = useState<any>(null);
 
+  // Handle tab change for bottom navigation
+  const handleTabChange = (tabId: string) => {
+    console.log('Bottom navigation tab clicked:', tabId);
+    setActiveTab(tabId);
+    
+    switch (tabId) {
+      case 'search':
+        // Stay in search page
+        break;
+      case 'updates':
+        // Stay in search page but switch to updates tab
+        break;
+      case 'saved':
+        // Stay in search page but switch to saved tab
+        break;
+      case 'tours':
+        navigate('/dashboard?tab=tours');
+        break;
+      case 'inbox':
+        navigate('/dashboard?tab=inbox');
+        break;
+    }
+  };
+
   const { data: communitiesResponse, isLoading, error } = useQuery({
-    queryKey: ["/api/communities/search", { limit: 2000 }],
+    queryKey: ["/api/communities/search", { 
+      limit: 200, // More communities for map view
+      location: debouncedSearchQuery,
+      careTypes: selectedCareTypes 
+    }],
     queryFn: async () => {
-      const response = await fetch("/api/communities/search?limit=2000");
+      // Dynamic limit for map view
+      const limit = 200;
+      let url = `/api/communities/search?limit=${limit}`;
+      
+      // Add location parameter if debounced search query exists
+      if (debouncedSearchQuery) {
+        url += `&location=${encodeURIComponent(debouncedSearchQuery)}`;
+      }
+      
+      // Add care type parameters to trigger HUD inclusion
+      if (selectedCareTypes.length > 0) {
+        selectedCareTypes.forEach(careType => {
+          url += `&careType=${encodeURIComponent(careType)}`;
+        });
+      }
+      
+      const response = await fetch(url);
       if (!response.ok) throw new Error("Failed to fetch communities");
       return response.json();
     },
@@ -94,17 +237,115 @@ export default function BasicSearch() {
 
   // Extract communities array from search response (now returns direct array, not paginated)
   const communities = Array.isArray(communitiesResponse) ? communitiesResponse : [];
+  
+  // Filter options
+  const careTypeOptions = [
+    'Independent Living',
+    'Assisted Living', 
+    'Memory Care',
+    'Skilled Nursing',
+    'Continuing Care',
+    'Veterans Housing',
+    'HUD/VASH',
+    'Affordable Housing'
+  ];
+  
+  const amenityOptions = [
+    'Pet Friendly',
+    'Outdoor Space',
+    'Fitness Center',
+    'Swimming Pool',
+    'Library',
+    'Beauty Salon',
+    'Transportation',
+    'Dining Room',
+    'Activities',
+    'WiFi'
+  ];
 
-  console.log('BasicSearch - communities:', communities?.length, 'loading:', isLoading, 'error:', error);
+  // Enhanced sorting function with sponsored listing priority
+  const sortCommunities = (communities: any[], sortBy: string) => {
+    if (!communities) return [];
+    
+    return [...communities].sort((a, b) => {
+      // First priority: Sponsored listings always appear first
+      const isASponsored = a.id % 8 === 0;
+      const isBSponsored = b.id % 8 === 0;
+      
+      if (isASponsored && !isBSponsored) return -1;
+      if (!isASponsored && isBSponsored) return 1;
+      
+      // If both are sponsored or both are not sponsored, apply regular sorting
+      switch (sortBy) {
+        case 'priceAsc':
+          const priceA = a.priceRange?.min || a.monthlyRent || 0;
+          const priceB = b.priceRange?.min || b.monthlyRent || 0;
+          return priceA - priceB;
+        case 'priceDesc':
+          const priceA2 = a.priceRange?.min || a.monthlyRent || 0;
+          const priceB2 = b.priceRange?.min || b.monthlyRent || 0;
+          return priceB2 - priceA2;
+        case 'rating':
+          return (b.googleRating || 0) - (a.googleRating || 0);
+        case 'nameAsc':
+          return a.name.localeCompare(b.name);
+        case 'newest':
+          return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+        case 'distance':
+          // For now, sort by random to simulate distance
+          return Math.random() - 0.5;
+        default: // recommended
+          // Prioritize communities with ratings and photos
+          const scoreA = (a.googleRating || 0) * 2 + (a.googlePhotos?.length || 0) * 0.1;
+          const scoreB = (b.googleRating || 0) * 2 + (b.googlePhotos?.length || 0) * 0.1;
+          return scoreB - scoreA;
+      }
+    });
+  };
 
-  // Get communities visible in current map bounds
-  const visibleCommunities = communities?.filter((community: any) => {
+  // Filter communities based on search query, filters, and map bounds
+  const filteredCommunities = communities?.filter((community: any) => {
     // Search query filter
     const searchMatch = !searchQuery || 
       community.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       community.city?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       community.careTypes?.some((type: string) => 
         type.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
+    // Care type filter - enhanced for affordable housing
+    const careTypeMatch = selectedCareTypes.length === 0 || 
+      selectedCareTypes.some(careType => {
+        // Special handling for affordable housing
+        if (careType === 'Affordable Housing') {
+          return community.type === 'Affordable Senior' || 
+                 community.care_types?.some((ct: string) => 
+                   ct.toLowerCase().includes('low income') || 
+                   ct.toLowerCase().includes('section 202') || 
+                   ct.toLowerCase().includes('section 811') ||
+                   ct.toLowerCase().includes('affordable')
+                 );
+        }
+        
+        // Regular care type matching
+        return community.careTypes?.some((ct: string) => 
+          ct.toLowerCase().includes(careType.toLowerCase())
+        ) || community.care_types?.some((ct: string) => 
+          ct.toLowerCase().includes(careType.toLowerCase())
+        );
+      });
+
+    // Price range filter
+    const priceMatch = !community.priceRange || 
+      (community.priceRange.min >= priceRange.min && 
+       community.priceRange.max <= priceRange.max);
+
+    // Amenities filter
+    const amenityMatch = selectedAmenities.length === 0 ||
+      selectedAmenities.every(amenity =>
+        community.amenities?.some((a: string) => 
+          a.toLowerCase().includes(amenity.toLowerCase())
+        )
       );
 
     // Map bounds filter (if bounds are available)
@@ -115,8 +356,35 @@ export default function BasicSearch() {
       community.longitude <= mapBounds.getEast()
     );
 
-    return searchMatch && boundsMatch;
+    return searchMatch && careTypeMatch && priceMatch && amenityMatch && boundsMatch;
   }) || [];
+
+  // Apply sorting to filtered communities
+  const sortedCommunities = sortCommunities(filteredCommunities, sortBy);
+
+  // Get communities visible in current map bounds
+  const boundsFilteredCommunities = filteredCommunities.filter((community: any) => {
+    if (!mapBounds || !community.latitude || !community.longitude) return false;
+    
+    const lat = parseFloat(community.latitude);
+    const lng = parseFloat(community.longitude);
+    
+    // Check if community is within map bounds
+    return mapBounds.contains([lat, lng]);
+  });
+
+  // Apply sorting to visible communities
+  const visibleCommunities = sortCommunities(boundsFilteredCommunities, sortBy);
+
+  // Auto-expand slide panel when search results are loaded
+  useEffect(() => {
+    if ((debouncedSearchQuery || urlSearchQuery) && visibleCommunities.length > 0) {
+      const maxHeight = typeof window !== 'undefined' ? window.innerHeight * 0.85 : 600;
+      setSlidePanelHeight(maxHeight);
+    } else {
+      setSlidePanelHeight(160); // Default collapsed height
+    }
+  }, [debouncedSearchQuery, urlSearchQuery, visibleCommunities.length]);
 
   // Close sort dropdown when clicking outside
   useEffect(() => {
@@ -130,43 +398,7 @@ export default function BasicSearch() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showSortOptions]);
 
-  // Bottom Navigation
-  const BottomNav = () => (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
-      <div className="flex justify-around items-center py-2">
-        {[
-          { id: 'search', label: 'Search', icon: Search },
-          { id: 'updates', label: 'Updates', icon: Bell, badge: communities?.length || 0 },
-          { id: 'saved', label: 'Saved', icon: Heart },
-          { id: 'tours', label: 'Tours', icon: Calendar },
-          { id: 'inbox', label: 'Inbox', icon: Mail },
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
-          
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-col items-center py-1 px-2 min-w-0 flex-1 ${
-                isActive ? 'text-blue-600' : 'text-gray-600'
-              }`}
-            >
-              <div className="relative">
-                <Icon className="w-5 h-5" />
-                {tab.badge && (
-                  <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 min-w-0 h-5">
-                    {tab.badge}
-                  </Badge>
-                )}
-              </div>
-              <span className="text-xs mt-0.5 truncate">{tab.label}</span>
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
+  // Note: BottomNav component is defined at the end of the file
 
   if (isLoading) {
     return (
@@ -198,8 +430,17 @@ export default function BasicSearch() {
       <div className="min-h-screen bg-white pb-16">
         {/* Header */}
         <div className="sticky top-0 bg-white z-30 border-b border-gray-200">
-          <div className="px-4 py-6">
-            <h1 className="text-3xl font-bold text-gray-900">Updates</h1>
+          <div className="px-4 py-4">
+            <div className="flex items-center justify-between">
+              <h1 className="text-3xl font-bold text-gray-900">Updates</h1>
+              <Button 
+                onClick={() => setActiveTab('search')}
+                variant="outline" 
+                size="sm"
+              >
+                Back to Search
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -207,7 +448,14 @@ export default function BasicSearch() {
         <div className="bg-gray-50 px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-gray-900">Saved searches</h2>
-            <button className="text-blue-600 font-medium">Mark all as viewed</button>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="text-blue-600 font-medium hover:bg-blue-50"
+              onClick={() => alert('All notifications marked as viewed!')}
+            >
+              Mark all as viewed
+            </Button>
           </div>
 
           {/* Search Alert with Badge */}
@@ -228,7 +476,11 @@ export default function BasicSearch() {
             {/* Sample Community Cards */}
             <div className="space-y-3">
               {filteredCommunities.slice(0, 3).map((community: any, index) => (
-                <div key={community.id} className="relative bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <div 
+                  key={community.id} 
+                  onClick={() => window.location.href = `/community/${community.id}`}
+                  className="relative bg-white rounded-lg border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                >
                   {index === 0 && (
                     <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
                       New listing
@@ -253,6 +505,9 @@ export default function BasicSearch() {
                         ? `$${community.monthlyRent.toLocaleString()}/mo` 
                         : 'Contact for pricing'
                       }
+                      {community.monthlyRent && !community.claimed && (
+                        <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
+                      )}
                     </div>
                     <div className="text-sm text-gray-600 mb-1">
                       {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
@@ -313,6 +568,9 @@ export default function BasicSearch() {
                         ? `$${community.monthlyRent.toLocaleString()}/mo` 
                         : 'Contact for pricing'
                       }
+                      {community.monthlyRent && !community.claimed && (
+                        <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
+                      )}
                     </div>
                     <div className="text-sm text-gray-600 mb-1">
                       {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
@@ -330,7 +588,11 @@ export default function BasicSearch() {
           </div>
         </div>
 
-        <BottomNav />
+        <BottomNavigation 
+          activeTab={activeTab} 
+          onTabChange={handleTabChange}
+          updateCount={5}
+        />
       </div>
     );
   }
@@ -382,7 +644,11 @@ export default function BasicSearch() {
             ))}
           </div>
         </div>
-        <BottomNav />
+        <BottomNavigation 
+          activeTab={activeTab} 
+          onTabChange={handleTabChange}
+          updateCount={5}
+        />
       </div>
     );
   }
@@ -405,7 +671,11 @@ export default function BasicSearch() {
             </Button>
           </div>
         </div>
-        <BottomNav />
+        <BottomNavigation 
+          activeTab={activeTab} 
+          onTabChange={handleTabChange}
+          updateCount={5}
+        />
       </div>
     );
   }
@@ -430,7 +700,12 @@ export default function BasicSearch() {
               </Link>
             </div>
             <div className="text-gray-600 font-medium text-xs">
-              {communities?.length || 0} communities
+              {visibleCommunities?.length || 0} shown
+              {(filteredCommunities?.length || 0) > (visibleCommunities?.length || 0) && (
+                <span className="text-blue-600 ml-1">
+                  • {filteredCommunities?.length || 0} total
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -443,7 +718,7 @@ export default function BasicSearch() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               type="text"
-              placeholder="Search communities, cities..."
+              placeholder="Try 'San Francisco' or 'Memory Care'"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9 pr-4 h-9 text-sm border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:border-blue-500"
@@ -451,28 +726,289 @@ export default function BasicSearch() {
           </div>
         </div>
 
-        {/* Filter Pills - Refined */}
+        {/* Filter Pills - Mobile-Friendly */}
         <div className="px-4 pb-2.5 flex space-x-2 overflow-x-auto scrollbar-hide">
-          <Button variant="outline" className="border-blue-500 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-full px-3 py-1 h-7 text-xs font-medium whitespace-nowrap flex items-center">
-            <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mr-1.5"></div>
-            Assisted Living
-          </Button>
-          <Button variant="outline" className="border-blue-500 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-full px-3 py-1 h-7 text-xs font-medium whitespace-nowrap flex items-center">
-            <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mr-1.5"></div>
-            $2K - $6K
-          </Button>
-          <Button variant="outline" className="border-gray-300 text-gray-600 hover:bg-gray-50 rounded-full px-3 py-1 h-7 text-xs font-medium whitespace-nowrap">
-            + Filters
-          </Button>
+          {/* Mobile Filter Drawer Trigger */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button 
+                variant="outline" 
+                className="border-gray-300 text-gray-600 hover:bg-gray-50 rounded-full px-3 py-1 h-7 text-xs font-medium whitespace-nowrap flex items-center"
+              >
+                <Filter className="w-3 h-3 mr-1.5" />
+                Filters {(selectedCareTypes.length + selectedAvailability.length + selectedBudget.length) > 0 && 
+                  <span className="ml-1 bg-blue-600 text-white rounded-full px-1.5 text-[10px]">
+                    {selectedCareTypes.length + selectedAvailability.length + selectedBudget.length}
+                  </span>
+                }
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="h-[80vh] overflow-y-auto">
+              <SheetHeader>
+                <SheetTitle>Filter Communities</SheetTitle>
+                <SheetDescription>
+                  Filter by care type, availability, and budget to find your perfect community.
+                </SheetDescription>
+              </SheetHeader>
+              
+              <div className="mt-6 space-y-6">
+                {/* Care Types Filter */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Care Types</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {careTypeOptions.map(careType => {
+                      const config = careTypeConfig[careType as keyof typeof careTypeConfig];
+                      const isSelected = selectedCareTypes.includes(careType);
+                      return (
+                        <Button
+                          key={careType}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            if (isSelected) {
+                              setSelectedCareTypes(selectedCareTypes.filter(ct => ct !== careType));
+                            } else {
+                              setSelectedCareTypes([...selectedCareTypes, careType]);
+                            }
+                          }}
+                          className={`rounded-full text-xs h-8 flex items-center ${
+                            isSelected
+                              ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
+                              : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          <div 
+                            className="w-2 h-2 rounded-full mr-2" 
+                            style={{ backgroundColor: config?.color || '#3b82f6' }}
+                          ></div>
+                          {careType}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+                
+                {/* Availability Filter */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Availability</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {availabilityOptions.map(availability => {
+                      const isSelected = selectedAvailability.includes(availability);
+                      return (
+                        <Button
+                          key={availability}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            if (isSelected) {
+                              setSelectedAvailability(selectedAvailability.filter(a => a !== availability));
+                            } else {
+                              setSelectedAvailability([...selectedAvailability, availability]);
+                            }
+                          }}
+                          className={`rounded-full text-xs h-8 flex items-center ${
+                            isSelected
+                              ? 'bg-green-600 text-white border-green-600 hover:bg-green-700'
+                              : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          {availability === 'Available Now' && <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>}
+                          {availability === 'Available Soon' && <div className="w-2 h-2 bg-orange-500 rounded-full mr-2"></div>}
+                          {availability === 'Waitlist Open' && <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>}
+                          {availability}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+                
+                {/* Budget Filter */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Budget</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {budgetOptions.map(budget => {
+                      const isSelected = selectedBudget.includes(budget);
+                      return (
+                        <Button
+                          key={budget}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            if (isSelected) {
+                              setSelectedBudget(selectedBudget.filter(b => b !== budget));
+                            } else {
+                              setSelectedBudget([...selectedBudget, budget]);
+                            }
+                          }}
+                          className={`rounded-full text-xs h-8 flex items-center ${
+                            isSelected
+                              ? 'bg-purple-600 text-white border-purple-600 hover:bg-purple-700'
+                              : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+                          {budget}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+          
+          {selectedCareTypes.map(careType => {
+            const config = careTypeConfig[careType as keyof typeof careTypeConfig];
+            return (
+              <Button 
+                key={careType}
+                variant="outline" 
+                onClick={() => setSelectedCareTypes(selectedCareTypes.filter(ct => ct !== careType))}
+                className="border-blue-500 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-full px-3 py-1 h-7 text-xs font-medium whitespace-nowrap flex items-center"
+              >
+                <div 
+                  className="w-1.5 h-1.5 rounded-full mr-1.5" 
+                  style={{ backgroundColor: config?.color || '#3b82f6' }}
+                ></div>
+                {careType}
+                <X className="w-3 h-3 ml-1" />
+              </Button>
+            );
+          })}
+          
+          {priceRange.min > 0 || priceRange.max < 10000 ? (
+            <Button 
+              variant="outline" 
+              onClick={() => setPriceRange({ min: 0, max: 10000 })}
+              className="border-blue-500 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-full px-3 py-1 h-7 text-xs font-medium whitespace-nowrap flex items-center"
+            >
+              <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mr-1.5"></div>
+              ${priceRange.min/1000}K - ${priceRange.max/1000}K
+              <X className="w-3 h-3 ml-1" />
+            </Button>
+          ) : null}
+          
+          {selectedAmenities.length > 0 && (
+            <Button 
+              variant="outline" 
+              onClick={() => setSelectedAmenities([])}
+              className="border-blue-500 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-full px-3 py-1 h-7 text-xs font-medium whitespace-nowrap flex items-center"
+            >
+              <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mr-1.5"></div>
+              {selectedAmenities.length} Amenities
+              <X className="w-3 h-3 ml-1" />
+            </Button>
+          )}
         </div>
+        
+        {/* Expanded Filter Panel */}
+        {showFilters && (
+          <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
+            {/* Care Types */}
+            <div className="mb-4">
+              <h3 className="text-xs font-semibold text-gray-700 mb-2">CARE TYPES</h3>
+              <div className="flex flex-wrap gap-2">
+                {careTypeOptions.map(careType => {
+                  const config = careTypeConfig[careType as keyof typeof careTypeConfig];
+                  const isSelected = selectedCareTypes.includes(careType);
+                  return (
+                    <Button
+                      key={careType}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (isSelected) {
+                          setSelectedCareTypes(selectedCareTypes.filter(ct => ct !== careType));
+                        } else {
+                          setSelectedCareTypes([...selectedCareTypes, careType]);
+                        }
+                      }}
+                      className={`rounded-full text-xs h-7 flex items-center ${
+                        isSelected
+                          ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
+                          : 'bg-white text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      <div 
+                        className="w-2 h-2 rounded-full mr-1.5" 
+                        style={{ backgroundColor: config?.color || '#3b82f6' }}
+                      ></div>
+                      {careType}
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+            
+            {/* Price Range */}
+            <div className="mb-4">
+              <h3 className="text-xs font-semibold text-gray-700 mb-2">PRICE RANGE</h3>
+              <div className="flex items-center space-x-2">
+                <Input
+                  type="number"
+                  placeholder="Min"
+                  value={priceRange.min || ''}
+                  onChange={(e) => setPriceRange({ ...priceRange, min: parseInt(e.target.value) || 0 })}
+                  className="w-24 h-8 text-xs"
+                />
+                <span className="text-gray-500">to</span>
+                <Input
+                  type="number"
+                  placeholder="Max"
+                  value={priceRange.max === 10000 ? '' : priceRange.max}
+                  onChange={(e) => setPriceRange({ ...priceRange, max: parseInt(e.target.value) || 10000 })}
+                  className="w-24 h-8 text-xs"
+                />
+                <span className="text-xs text-gray-600">/month</span>
+              </div>
+            </div>
+            
+            {/* Amenities */}
+            <div>
+              <h3 className="text-xs font-semibold text-gray-700 mb-2">AMENITIES</h3>
+              <div className="flex flex-wrap gap-2">
+                {amenityOptions.map(amenity => (
+                  <Button
+                    key={amenity}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (selectedAmenities.includes(amenity)) {
+                        setSelectedAmenities(selectedAmenities.filter(a => a !== amenity));
+                      } else {
+                        setSelectedAmenities([...selectedAmenities, amenity]);
+                      }
+                    }}
+                    className={`rounded-full text-xs h-7 ${
+                      selectedAmenities.includes(amenity)
+                        ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
+                        : 'bg-white text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    {amenity}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Map/List View */}
-      {viewMode === 'map' ? (
-        <div className="flex-1 relative" style={{ height: 'calc(100vh - 160px)' }}>
+      {/* Map View */}
+      <div className="flex-1 relative" style={{ height: 'calc(100vh - 160px)' }}>
+          {/* Map Loading State */}
+          {isLoading && (
+            <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="text-sm text-gray-600 mt-2">Loading communities...</p>
+              </div>
+            </div>
+          )}
+          
           <MapContainer
-            center={[40.315, -122.32]} // Northern California center
-            zoom={7}
+            center={selectedCareTypes.includes('Affordable Housing') ? [37.7749, -122.4194] : [40.315, -122.32]} // SF center for affordable housing, Northern CA for others
+            zoom={selectedCareTypes.includes('Affordable Housing') ? 5 : 7}
             style={{ height: '100%', width: '100%' }}
             className="z-10"
             zoomControl={false} // Disable default zoom control
@@ -486,24 +1022,56 @@ export default function BasicSearch() {
             {/* Map bounds tracker */}
             <MapBoundsUpdater onBoundsChange={setMapBounds} />
             
-            {/* Community Markers - House Style with State */}
-            {sortedCommunities
-              .filter((community: any) => community.latitude && community.longitude)
-              .map((community: any) => {
-                // Determine marker state (for demo purposes, using community ID for variety)
-                const isViewed = community.id % 3 === 0; // Every 3rd community is "viewed"
-                const isFavorited = community.id % 7 === 0; // Every 7th community is "favorited"
+            {/* Community Markers with Clustering */}
+            <MarkerClusterGroup
+              chunkedLoading
+              maxClusterRadius={60}
+              spiderfyOnMaxZoom={true}
+              showCoverageOnHover={false}
+              zoomToBoundsOnClick={true}
+              spiderfyDistanceMultiplier={1.5}
+              iconCreateFunction={(cluster) => {
+                const childCount = cluster.getChildCount();
+                let c = ' marker-cluster-';
+                if (childCount < 10) {
+                  c += 'small';
+                } else if (childCount < 100) {
+                  c += 'medium';
+                } else {
+                  c += 'large';
+                }
                 
-                return (
-                  <Marker
-                    key={community.id}
-                    position={[community.latitude, community.longitude]}
-                    icon={createHouseIcon(isViewed, isFavorited)}
-                    eventHandlers={{
-                      click: () => window.location.href = `/community/${community.id}`,
-                    }}
-                  >
-                    <Popup>
+                return new Icon({
+                  iconUrl: 'data:image/svg+xml;base64,' + btoa(`
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" width="60" height="60">
+                      <circle cx="30" cy="30" r="25" fill="#2563eb" stroke="#ffffff" stroke-width="3" opacity="0.9"/>
+                      <text x="30" y="35" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white" text-anchor="middle">${childCount}</text>
+                    </svg>
+                  `),
+                  iconSize: [60, 60],
+                  iconAnchor: [30, 30],
+                  popupAnchor: [0, -30],
+                  className: 'marker-cluster' + c
+                });
+              }}
+            >
+              {sortedCommunities
+                .filter((community: any) => community.latitude && community.longitude)
+                .map((community: any) => {
+                  // Determine marker state (for demo purposes, using community ID for variety)
+                  const isViewed = community.id % 3 === 0; // Every 3rd community is "viewed"
+                  const isFavorited = community.id % 7 === 0; // Every 7th community is "favorited"
+                  
+                  return (
+                    <Marker
+                      key={community.id}
+                      position={[community.latitude, community.longitude]}
+                      icon={createCareTypeIcon(community.careTypes || ['Independent Living'], isViewed, isFavorited)}
+                      eventHandlers={{
+                        click: () => window.location.href = `/community/${community.id}`,
+                      }}
+                    >
+                      <Popup>
                       <div className="p-3 min-w-[220px]">
                         <div className="flex items-start justify-between mb-2">
                           <h3 className="font-bold text-sm text-gray-900 pr-2 leading-tight">{community.name}</h3>
@@ -565,6 +1133,7 @@ export default function BasicSearch() {
                   </Marker>
                 );
               })}
+            </MarkerClusterGroup>
           </MapContainer>
 
           {/* Map Controls */}
@@ -573,7 +1142,11 @@ export default function BasicSearch() {
               variant="outline" 
               size="sm" 
               className="bg-white shadow-md"
-              onClick={() => setViewMode('list')}
+              onClick={() => {
+                // Open slide panel to maximum height for list view
+                const maxHeight = typeof window !== 'undefined' ? window.innerHeight * 0.85 : 600;
+                setSlidePanelHeight(maxHeight);
+              }}
             >
               <List className="w-4 h-4 mr-1" />
               List
@@ -623,146 +1196,16 @@ export default function BasicSearch() {
             sortBy={sortBy}
             setSortBy={setSortBy}
             isLoading={isLoading}
+            initialHeight={slidePanelHeight}
+            autoExpand={!!(debouncedSearchQuery || urlSearchQuery) && visibleCommunities.length > 0}
           />
-                                <div>
-                                  <div className="flex items-center text-xs text-gray-600 mb-1.5">
-                                    <CheckCircle className="w-3 h-3 mr-1 text-blue-500" />
-                                    <span className="font-medium">Estimated Availability</span>
-                                  </div>
-                                  <div className="flex flex-wrap gap-1">
-                                    <div className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs border border-blue-100 font-medium">
-                                      Studio (2-3 available)
-                                    </div>
-                                    <div className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs border border-blue-100 font-medium">
-                                      1BR (1-2 available)
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Price - Bottom Priority */}
-                            <div className="flex items-center justify-between">
-                              <div className="text-lg font-bold text-gray-900">
-                                {community.priceRange?.min && community.priceRange?.max 
-                                  ? `$${(community.priceRange.min / 1000).toFixed(1)}K - $${(community.priceRange.max / 1000).toFixed(1)}K`
-                                  : community.priceRange?.min 
-                                    ? `$${(community.priceRange.min / 1000).toFixed(1)}K+`
-                                    : '$4.2K - $8.5K'
-                                }
-                                <span className="text-sm text-gray-500 font-normal">/mo</span>
-                              </div>
-                              
-                              {/* Care Types as Tags */}
-                              <div className="flex gap-1">
-                                {community.careTypes?.slice(0, 2).map((careType) => (
-                                  <div key={careType} className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-medium">
-                                    {careType === 'Independent Living' ? 'Independent' : 
-                                     careType === 'Assisted Living' ? 'Assisted' :
-                                     careType === 'Memory Care' ? 'Memory' :
-                                     careType === 'Skilled Nursing' ? 'Skilled' : careType}
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                    
-                    {/* Load More Indicator */}
-                    {displayCount < visibleCommunities.length && (
-                      <div className="p-4 text-center">
-                        <div className="inline-flex items-center text-sm text-gray-500">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
-                          Loading more communities...
-                        </div>
-                        <p className="text-xs text-gray-400 mt-1">
-                          Showing {displayCount} of {visibleCommunities.length} in this area
-                        </p>
-                      </div>
-                    )}
-                    
-                    {/* End of Results */}
-                    {displayCount >= visibleCommunities.length && visibleCommunities.length > 20 && (
-                      <div className="p-4 text-center">
-                        <p className="text-sm text-gray-500 font-medium">All communities loaded</p>
-                        <p className="text-xs text-gray-400 mt-1">
-                          {visibleCommunities.length} communities in this map area
-                        </p>
-                      </div>
-                    )}
-                    
-                    <div className="h-20" /> {/* Spacer for bottom */}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+          {/* Bottom Navigation */}
+          <BottomNavigation 
+            activeTab={activeTab} 
+            onTabChange={handleTabChange}
+            updateCount={5}
+          />
         </div>
-      ) : (
-        <div className="px-4 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="text-lg font-semibold text-gray-900">
-              {filteredCommunities.length} Results
-            </div>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setViewMode('map')}
-            >
-              <Map className="w-4 h-4 mr-1" />
-              Map
-            </Button>
-          </div>
-          <div className="space-y-4">
-          {filteredCommunities.slice(0, 10).map((community: any) => (
-            <div 
-              key={community.id} 
-              onClick={() => window.location.href = `/community/${community.id}`}
-              className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-lg transition-shadow cursor-pointer"
-            >
-              <div className="flex items-start justify-between mb-2">
-                <h4 className="text-lg font-semibold text-gray-900">
-                  {community.name}
-                </h4>
-                <div className="flex items-center">
-                  <Heart className="w-5 h-5 text-gray-400 hover:text-red-500 cursor-pointer" />
-                </div>
-              </div>
-              
-              <div className="flex items-center text-gray-600 mb-2">
-                <MapPin className="w-4 h-4 mr-1" />
-                <span>{community.city}, {community.state}</span>
-              </div>
-              
-              <div className="text-sm text-gray-500 mb-3">
-                {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="text-lg font-bold text-blue-600">
-                  {community.monthlyRent 
-                    ? `$${community.monthlyRent.toLocaleString()}/mo` 
-                    : 'Contact for pricing'
-                  }
-                </div>
-                {community.googleRating && (
-                  <div className="flex items-center">
-                    <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
-                    <span className="text-sm font-medium">{community.googleRating}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-          </div>
-        </div>
-      )}
-
-
-
-      <BottomNav />
-    </div>
-  );
-}
+      </div>
+    );
+};

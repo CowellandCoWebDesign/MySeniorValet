@@ -5,14 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Search, MapPin, Star, Heart, List, Map, Bell, Calendar, Mail, Phone, ExternalLink, Users, CheckCircle, AlertTriangle, Activity, UserCheck, Stethoscope, Clock, ImageIcon, ChevronDown, SortAsc, ArrowLeft, Home, Plus, Minus, Filter, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
-import MarkerClusterGroup from 'react-leaflet-cluster';
-import { Icon } from 'leaflet';
 import { Link, useLocation } from "wouter";
 import SlidePanel from "@/components/SlidePanel";
 import BottomNavigation from "@/components/BottomNavigation";
 import { TransparencyBadgeList } from "@/components/TransparencyBadge";
-import 'leaflet/dist/leaflet.css';
+// Map imports removed - ready for fresh implementation
 
 // Care type icons and colors mapping
 const careTypeConfig = {
@@ -180,7 +177,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
     { value: 'distance', label: 'Distance', description: 'Closest to you first' }
   ];
 
-  const [mapBounds, setMapBounds] = useState<any>(null);
+  // Map bounds state removed - ready for fresh implementation
 
   // Handle tab change for bottom navigation
   const handleTabChange = (tabId: string) => {
@@ -352,12 +349,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
       );
 
     // Map bounds filter (if bounds are available)
-    const boundsMatch = !mapBounds || (
-      community.latitude >= mapBounds.getSouth() &&
-      community.latitude <= mapBounds.getNorth() &&
-      community.longitude >= mapBounds.getWest() &&
-      community.longitude <= mapBounds.getEast()
-    );
+    const boundsMatch = true; // Map bounds filtering removed
 
     return searchMatch && careTypeMatch && priceMatch && amenityMatch && boundsMatch;
   }) || [];
@@ -365,19 +357,8 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
   // Apply sorting to filtered communities
   const sortedCommunities = sortCommunities(filteredCommunities, sortBy);
 
-  // Get communities visible in current map bounds
-  const boundsFilteredCommunities = filteredCommunities.filter((community: any) => {
-    if (!mapBounds || !community.latitude || !community.longitude) return false;
-    
-    const lat = parseFloat(community.latitude);
-    const lng = parseFloat(community.longitude);
-    
-    // Check if community is within map bounds
-    return mapBounds.contains([lat, lng]);
-  });
-
-  // Apply sorting to visible communities
-  const visibleCommunities = sortCommunities(boundsFilteredCommunities, sortBy);
+  // Map bounds filtering removed - all communities are visible
+  const visibleCommunities = sortedCommunities;
 
   // Auto-expand slide panel when search results are loaded
   useEffect(() => {
@@ -997,7 +978,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
         )}
       </div>
 
-      {/* Map View */}
+      {/* Map View - Removed for fresh implementation */}
       <div className="flex-1 relative" style={{ height: 'calc(100vh - 160px)' }}>
           {/* Map Loading State */}
           {isLoading && (
@@ -1009,177 +990,28 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             </div>
           )}
           
-          <MapContainer
-            center={selectedCareTypes.includes('Affordable Housing') ? [37.7749, -122.4194] : [40.315, -122.32]} // SF center for affordable housing, Northern CA for others
-            zoom={selectedCareTypes.includes('Affordable Housing') ? 5 : 7}
-            style={{ height: '100%', width: '100%' }}
-            className="z-10"
-            zoomControl={false} // Disable default zoom control
-            attributionControl={false} // Disable default attribution control
-          >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            
-            {/* Map bounds tracker */}
-            <MapBoundsUpdater onBoundsChange={setMapBounds} />
-            
-            {/* Community Markers with Clustering */}
-            <MarkerClusterGroup
-              chunkedLoading
-              maxClusterRadius={60}
-              spiderfyOnMaxZoom={true}
-              showCoverageOnHover={false}
-              zoomToBoundsOnClick={true}
-              spiderfyDistanceMultiplier={1.5}
-              iconCreateFunction={(cluster) => {
-                const childCount = cluster.getChildCount();
-                let c = ' marker-cluster-';
-                if (childCount < 10) {
-                  c += 'small';
-                } else if (childCount < 100) {
-                  c += 'medium';
-                } else {
-                  c += 'large';
-                }
-                
-                return new Icon({
-                  iconUrl: 'data:image/svg+xml;base64,' + btoa(`
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" width="60" height="60">
-                      <circle cx="30" cy="30" r="25" fill="#2563eb" stroke="#ffffff" stroke-width="3" opacity="0.9"/>
-                      <text x="30" y="35" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white" text-anchor="middle">${childCount}</text>
-                    </svg>
-                  `),
-                  iconSize: [60, 60],
-                  iconAnchor: [30, 30],
-                  popupAnchor: [0, -30],
-                  className: 'marker-cluster' + c
-                });
-              }}
-            >
-              {sortedCommunities
-                .filter((community: any) => community.latitude && community.longitude)
-                .map((community: any) => {
-                  // Determine marker state (for demo purposes, using community ID for variety)
-                  const isViewed = community.id % 3 === 0; // Every 3rd community is "viewed"
-                  const isFavorited = community.id % 7 === 0; // Every 7th community is "favorited"
-                  
-                  return (
-                    <Marker
-                      key={community.id}
-                      position={[community.latitude, community.longitude]}
-                      icon={createCareTypeIcon(community.careTypes || ['Independent Living'], isViewed, isFavorited)}
-                      eventHandlers={{
-                        click: () => window.location.href = `/community/${community.id}`,
-                      }}
-                    >
-                      <Popup>
-                      <div className="p-3 min-w-[220px]">
-                        <div className="flex items-start justify-between mb-2">
-                          <h3 className="font-bold text-sm text-gray-900 pr-2 leading-tight">{community.name}</h3>
-                          {isFavorited && (
-                            <div className="flex-shrink-0">
-                              <Heart className="w-4 h-4 text-red-500 fill-current" />
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div className="flex items-center text-xs text-gray-600 mb-2">
-                          <MapPin className="w-3 h-3 mr-1" />
-                          {community.city}, {community.state}
-                        </div>
-                        
-                        {community.googleRating && (
-                          <div className="flex items-center mb-2">
-                            <Star className="w-3 h-3 text-yellow-400 fill-current mr-1" />
-                            <span className="text-xs text-gray-600">{community.googleRating} rating</span>
-                            {community.googleReviewCount && (
-                              <span className="text-xs text-gray-500 ml-1">({community.googleReviewCount})</span>
-                            )}
-                          </div>
-                        )}
-                        
-                        {community.careTypes && community.careTypes.length > 0 && (
-                          <div className="mb-2">
-                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                              {community.careTypes.slice(0, 2).join(' • ')}
-                            </span>
-                          </div>
-                        )}
-                        
-                        <div className="flex justify-between items-center mt-3">
-                          <div className="text-sm font-bold text-gray-900">
-                            {community.priceRange?.min 
-                              ? `$${Math.floor(community.priceRange.min/1000)}K+/mo` 
-                              : community.monthlyRent
-                              ? `$${community.monthlyRent.toLocaleString()}/mo`
-                              : 'Contact for pricing'
-                            }
-                          </div>
-                          <button
-                            onClick={() => window.location.href = `/community/${community.id}`}
-                            className="bg-blue-600 text-white text-xs py-1.5 px-3 rounded-lg hover:bg-blue-700 font-medium transition-colors"
-                          >
-                            View Details
-                          </button>
-                        </div>
-                        
-                        {isViewed && !isFavorited && (
-                          <div className="mt-2 text-xs text-gray-500 flex items-center">
-                            <CheckCircle className="w-3 h-3 mr-1" />
-                            Recently viewed
-                          </div>
-                        )}
-                      </div>
-                    </Popup>
-                  </Marker>
-                );
-              })}
-            </MarkerClusterGroup>
-          </MapContainer>
-
-          {/* Map Controls */}
-          <div className="absolute top-4 right-4 z-20 flex flex-col space-y-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="bg-white shadow-md"
-              onClick={() => {
-                // Open slide panel to maximum height for list view
-                const maxHeight = typeof window !== 'undefined' ? window.innerHeight * 0.85 : 600;
-                setSlidePanelHeight(maxHeight);
-              }}
-            >
-              <List className="w-4 h-4 mr-1" />
-              List
-            </Button>
-          </div>
-          
-          {/* Custom Zoom Controls - Positioned away from slide panel */}
-          <div className="absolute top-32 left-4 z-20 flex flex-col space-y-1">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="bg-white shadow-md w-8 h-8 p-0 flex items-center justify-center"
-              onClick={() => {
-                // Zoom in functionality would go here
-                console.log('Zoom in clicked');
-              }}
-            >
-              <Plus className="w-4 h-4" />
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="bg-white shadow-md w-8 h-8 p-0 flex items-center justify-center"
-              onClick={() => {
-                // Zoom out functionality would go here
-                console.log('Zoom out clicked');
-              }}
-            >
-              <Minus className="w-4 h-4" />
-            </Button>
+          <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+            <div className="text-center">
+              <h2 className="text-2xl font-semibold text-gray-700 mb-4">Map View Coming Soon</h2>
+              <p className="text-gray-600 mb-6">Map functionality temporarily disabled for fresh implementation</p>
+              <div className="bg-white rounded-lg shadow p-6 max-w-md">
+                <h3 className="text-lg font-medium mb-2">Search Results</h3>
+                <p className="text-gray-600">{sortedCommunities.length} communities found</p>
+                <div className="mt-4 space-y-2 max-h-48 overflow-y-auto">
+                  {sortedCommunities.slice(0, 5).map(community => (
+                    <div key={community.id} className="p-2 bg-gray-50 rounded text-sm">
+                      <div className="font-medium">{community.name}</div>
+                      <div className="text-gray-600">{community.city}, {community.state}</div>
+                    </div>
+                  ))}
+                  {sortedCommunities.length > 5 && (
+                    <div className="text-gray-500 text-sm">
+                      and {sortedCommunities.length - 5} more communities...
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Save Search Button - Enhanced */}

@@ -5,14 +5,12 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Search, MapPin, Filter } from 'lucide-react';
 import BottomNavigation from '@/components/BottomNavigation';
-import MapboxFixed from '@/components/MapboxFixed';
-import RentalMapFallback from '@/components/RentalMapFallback';
+// Map components removed - to be replaced with fresh Mapbox implementation
 import type { Community } from '@shared/schema';
 
 export default function RentalsClean() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
-  const [useMapFallback, setUseMapFallback] = useState(false);
 
   // Fetch communities data
   const { data: communities = [], isLoading, error } = useQuery({
@@ -100,23 +98,31 @@ export default function RentalsClean() {
         </div>
       </div>
 
-      {/* Map Content */}
+      {/* Map Content - Removed for fresh implementation */}
       <div className="relative h-[calc(100vh-140px)]">
-        {useMapFallback ? (
-          <RentalMapFallback
-            communities={filteredCommunities}
-            onCommunityClick={handleCommunityClick}
-            selectedCommunity={selectedCommunity}
-            className="w-full h-full"
-          />
-        ) : (
-          <MapboxFixed
-            communities={filteredCommunities}
-            onCommunityClick={handleCommunityClick}
-            selectedCommunity={selectedCommunity}
-            className="w-full h-full"
-          />
-        )}
+        <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-semibold text-gray-700 mb-4">Map View Coming Soon</h2>
+            <p className="text-gray-600 mb-6">Map functionality temporarily disabled for fresh implementation</p>
+            <div className="bg-white rounded-lg shadow p-6 max-w-md">
+              <h3 className="text-lg font-medium mb-2">Search Results</h3>
+              <p className="text-gray-600">{filteredCommunities.length} communities found</p>
+              <div className="mt-4 space-y-2 max-h-48 overflow-y-auto">
+                {filteredCommunities.slice(0, 5).map(community => (
+                  <div key={community.id} className="p-2 bg-gray-50 rounded text-sm">
+                    <div className="font-medium">{community.name}</div>
+                    <div className="text-gray-600">{community.city}, {community.state}</div>
+                  </div>
+                ))}
+                {filteredCommunities.length > 5 && (
+                  <div className="text-gray-500 text-sm">
+                    and {filteredCommunities.length - 5} more communities...
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Bottom Navigation */}

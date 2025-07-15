@@ -11,11 +11,9 @@ import Search from "@/pages/search";
 import TrueViewSearch from "@/pages/trueview-search";
 import EnhancedSearch from "@/pages/enhanced-search";
 import SearchWorking from "@/pages/search-working";
-import SimpleSearch from "@/pages/simple-search";
-import WorkingSearch from "@/pages/working-search";
 import BasicSearch from "@/pages/basic-search";
 import TestSearch from "@/pages/test-search";
-import Explore from "@/pages/explore";
+// Removed pages: SimpleSearch, WorkingSearch, Explore
 import Community from "@/pages/community";
 import CommunityPage from "@/pages/community";
 import TrueViewCommunity from "@/pages/trueview-community";
@@ -36,13 +34,12 @@ import TourTracker from "@/pages/tour-tracker";
 import SupportResources from "@/pages/support-resources";
 import VeteransHousing from "@/pages/veterans-housing";
 import AffordableHousing from "@/pages/affordable-housing";
-import HudVashMap from "@/pages/hud-vash-map";
+// HudVashMap removed
 import FamilyCollaboration from "@/pages/family-collaboration";
 import CommunityDetail from "@/pages/community-detail";
 import Rentals from "@/pages/rentals";
-import MapboxTest from "@/pages/mapbox-test";
-import TestMap from "@/pages/testmap";
-import SanityMap from "@/pages/sanity-map";
+// MapboxTest removed
+// Map test pages removed
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -58,12 +55,11 @@ function Router() {
       <Route path="/" component={TrueViewHome} />
       <Route path="/search" component={BasicSearch} />
       <Route path="/rentals" component={Rentals} />
-      <Route path="/mapbox-test" component={MapboxTest} />
-      <Route path="/testmap" component={TestMap} />
-      <Route path="/sanity-map" component={SanityMap} />
+      {/* MapboxTest route removed */}
+      {/* Map test routes removed */}
       <Route path="/test-search" component={TestSearch} />
       <Route path="/old-search" component={TrueViewSearch} />
-      <Route path="/explore" component={Explore} />
+      {/* Explore route removed */}
       <Route path="/community/:id" component={CommunityDetail} />
       <Route path="/communities/:id" component={CommunityDetail} />
       <Route path="/claim/:communityId" component={Claim} />
@@ -76,7 +72,7 @@ function Router() {
       <Route path="/edit-tour/:tourId" component={TourTracker} />
       <Route path="/support" component={SupportResources} />
       <Route path="/veterans" component={VeteransHousing} />
-      <Route path="/hud-vash" component={HudVashMap} />
+      {/* HudVashMap route removed */}
       <Route path="/affordable-housing" component={() => <BasicSearch initialFilters={['Affordable Housing']} />} />
       <Route path="/family-collaboration" component={FamilyCollaboration} />
       <Route path="/login" component={Login} />
