@@ -26,26 +26,58 @@ export default function RentalMapboxReplit({
 
   // Filter communities with valid coordinates
   const validCommunities = communities.filter(community => {
-    if (!community || !community.latitude || !community.longitude) return false;
-    const lat = parseFloat(String(community.latitude));
-    const lng = parseFloat(String(community.longitude));
-    return !isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0;
+    // More robust validation
+    if (!community || typeof community !== 'object') return false;
+    
+    const lat = community.latitude;
+    const lng = community.longitude;
+    
+    // Check if coordinates exist and are valid
+    if (!lat || !lng) return false;
+    
+    // Convert to numbers safely
+    const latNum = parseFloat(String(lat));
+    const lngNum = parseFloat(String(lng));
+    
+    // Validate the numbers
+    if (isNaN(latNum) || isNaN(lngNum)) return false;
+    if (latNum === 0 && lngNum === 0) return false;
+    
+    // Check reasonable bounds for coordinates
+    if (latNum < -90 || latNum > 90 || lngNum < -180 || lngNum > 180) return false;
+    
+    return true;
   });
 
   // Center map on communities
   useEffect(() => {
     if (validCommunities.length > 0) {
-      const lats = validCommunities.map(c => parseFloat(String(c.latitude)));
-      const lngs = validCommunities.map(c => parseFloat(String(c.longitude)));
-      
-      const centerLat = lats.reduce((sum, lat) => sum + lat, 0) / lats.length;
-      const centerLng = lngs.reduce((sum, lng) => sum + lng, 0) / lngs.length;
-      
-      setViewState({
-        latitude: centerLat,
-        longitude: centerLng,
-        zoom: validCommunities.length === 1 ? 14 : 10
-      });
+      try {
+        const lats = validCommunities
+          .map(c => parseFloat(String(c.latitude)))
+          .filter(lat => !isNaN(lat) && lat !== 0);
+        const lngs = validCommunities
+          .map(c => parseFloat(String(c.longitude)))
+          .filter(lng => !isNaN(lng) && lng !== 0);
+        
+        if (lats.length > 0 && lngs.length > 0) {
+          const centerLat = lats.reduce((sum, lat) => sum + lat, 0) / lats.length;
+          const centerLng = lngs.reduce((sum, lng) => sum + lng, 0) / lngs.length;
+          
+          // Validate the calculated center
+          if (!isNaN(centerLat) && !isNaN(centerLng) && 
+              centerLat >= -90 && centerLat <= 90 && 
+              centerLng >= -180 && centerLng <= 180) {
+            setViewState({
+              latitude: centerLat,
+              longitude: centerLng,
+              zoom: validCommunities.length === 1 ? 14 : 10
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error centering map:', error);
+      }
     }
   }, [validCommunities.length]);
 
@@ -61,15 +93,24 @@ export default function RentalMapboxReplit({
         style={{ width: '100%', height: '100%' }}
         mapStyle="mapbox://styles/mapbox/streets-v12"
         mapboxAccessToken={MAPBOX_TOKEN}
+        onError={(error) => {
+          console.error('Map error:', error);
+        }}
       >
         {/* Render actual community markers when we have data */}
         {validCommunities.map(community => {
+          // Double-check coordinates are valid before rendering
+          if (!community || !community.latitude || !community.longitude) return null;
+          
           const lat = parseFloat(String(community.latitude));
           const lng = parseFloat(String(community.longitude));
           
+          // Final validation before rendering
+          if (isNaN(lat) || isNaN(lng)) return null;
+          
           return (
             <Marker
-              key={community.id}
+              key={community.id || Math.random()}
               longitude={lng}
               latitude={lat}
               onClick={() => onCommunityClick(community.id)}
@@ -84,11 +125,11 @@ export default function RentalMapboxReplit({
                   cursor: 'pointer',
                   boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
                 }}
-                title={`${community.name} - ${community.city}, ${community.state}`}
+                title={`${community.name || 'Unknown'} - ${community.city || 'Unknown'}, ${community.state || 'Unknown'}`}
               />
             </Marker>
           );
-        })}
+        }).filter(Boolean)}
         
         {/* Show example marker when no communities */}
         {validCommunities.length === 0 && (
