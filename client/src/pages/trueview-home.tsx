@@ -327,7 +327,7 @@ export default function TrueViewHome() {
             {(coastalLoading || trendingLoading) ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-52 h-80 border border-gray-200 animate-pulse">
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-52 h-96 border border-gray-200 animate-pulse">
                   <div className="aspect-[4/3] bg-gray-200"></div>
                   <CardContent className="p-3">
                     <div className="h-6 bg-gray-200 rounded mb-2"></div>
@@ -340,7 +340,7 @@ export default function TrueViewHome() {
             ) : (
               premiumCommunities.map((community: any, index) => (
                 <Link key={`premium-${community.id}-${index}`} href={`/community/${community.id}`}>
-              <Card className="overflow-hidden flex-shrink-0 w-52 h-80 animate-float coastal-card" style={{animationDelay: `${index * 0.2}s`}}>
+              <Card className="overflow-hidden flex-shrink-0 w-52 h-96 animate-float coastal-card" style={{animationDelay: `${index * 0.2}s`}}>
                 <div className="relative">
                   <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
                     <Home className="w-12 h-12 text-gray-400" />
@@ -603,7 +603,7 @@ export default function TrueViewHome() {
             {californiaLoading ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-52 h-80 border border-gray-200 animate-pulse">
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-52 h-96 border border-gray-200 animate-pulse">
                   <div className="aspect-[4/3] bg-gray-200"></div>
                   <CardContent className="p-3">
                     <div className="h-6 bg-gray-200 rounded mb-2"></div>
@@ -616,7 +616,7 @@ export default function TrueViewHome() {
             ) : (
               (californiaCommunities || []).map((community: any, index) => (
                 <Link key={`california-${community.id}-${index}`} href={`/community/${community.id}`}>
-                  <Card className="overflow-hidden flex-shrink-0 w-52 h-80 animate-float california-card" style={{animationDelay: `${index * 0.2}s`}}>
+                  <Card className="overflow-hidden flex-shrink-0 w-52 h-96 animate-float california-card" style={{animationDelay: `${index * 0.2}s`}}>
                     <div className="relative">
                       <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
                         <Home className="w-12 h-12 text-gray-400" />
