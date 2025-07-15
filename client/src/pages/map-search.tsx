@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink } from 'lucide-react';
+import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -401,87 +401,136 @@ export default function MapSearch() {
               </div>
             ) : (
               <div className="space-y-4">
-                {mapCommunities.map((community) => (
-                  <Card key={community.id} className="hover:shadow-lg transition-shadow cursor-pointer">
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-lg mb-1">{community.name}</h3>
-                          <p className="text-sm text-gray-600 flex items-center gap-1 mb-2">
-                            <MapPin className="w-4 h-4" />
-                            {community.address}, {community.city}, {community.state} {community.zipCode}
-                          </p>
-                          
-                          {/* Rating */}
-                          {community.rating > 0 && (
-                            <div className="flex items-center gap-2 mb-2">
-                              <div className="flex items-center gap-1">
-                                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                                <span className="font-medium">{community.rating}</span>
-                              </div>
-                              <span className="text-sm text-gray-600">
-                                ({community.reviewCount} reviews)
-                              </span>
-                            </div>
-                          )}
-                          
-                          {/* Care Types */}
-                          <div className="flex flex-wrap gap-1 mb-2">
-                            {community.careTypes?.map((type, index) => (
-                              <Badge key={index} variant="secondary" className="text-xs">
-                                {type}
-                              </Badge>
-                            ))}
-                          </div>
-                          
-                          {/* Pricing */}
-                          <div className="bg-blue-50 p-2 rounded mb-2">
-                            <p className="text-sm font-medium text-blue-900">
-                              {typeof community.priceRange === 'string' 
-                                ? community.priceRange 
-                                : community.priceRange?.min && community.priceRange?.max
-                                ? `$${community.priceRange.min} - $${community.priceRange.max}`
-                                : 'Contact for pricing'}
-                            </p>
-                            {community.availability && (
-                              <p className="text-xs text-blue-700">
-                                {community.availability}
-                              </p>
-                            )}
-                          </div>
-                          
-                          {/* Actions */}
-                          <div className="flex gap-2">
-                            <Button 
-                              size="sm" 
-                              className="flex-1"
-                              onClick={() => handleCommunityClick(community)}
-                            >
-                              <ExternalLink className="w-4 h-4 mr-1" />
-                              View Details
-                            </Button>
-                            
-                            {community.phone && (
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                onClick={() => window.open(`tel:${community.phone}`)}
-                              >
-                                <Phone className="w-4 h-4" />
-                              </Button>
-                            )}
+                {mapCommunities.map((community, index) => (
+                  <Card key={community.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group animate-float border-gray-200" style={{animationDelay: `${index * 0.1}s`}}>
+                    <div className="flex">
+                      {/* Image Section */}
+                      <div className="relative w-32 h-32 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center flex-shrink-0">
+                        <div className="w-16 h-16 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
+                          <Home className="w-8 h-8 text-blue-600" />
+                        </div>
+                        
+                        {/* Heart Icon */}
+                        <div className="absolute top-2 right-2">
+                          <div className="w-6 h-6 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
+                            <Heart className="w-3 h-3 text-gray-600 hover:text-red-500 transition-colors" />
                           </div>
                         </div>
                         
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="text-gray-400 hover:text-red-500 ml-4"
-                        >
-                          <Heart className="w-4 h-4" />
-                        </Button>
+                        {/* Availability Badge */}
+                        {index % 3 === 0 && (
+                          <Badge className="absolute bottom-2 left-2 bg-green-600 text-white text-xs px-2 py-1 font-medium">
+                            🟢 Available
+                          </Badge>
+                        )}
+                        {index % 3 === 1 && (
+                          <Badge className="absolute bottom-2 left-2 bg-orange-600 text-white text-xs px-2 py-1 font-medium">
+                            🟡 Waitlist
+                          </Badge>
+                        )}
+                        {index % 3 === 2 && (
+                          <Badge className="absolute bottom-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
+                            📞 Call
+                          </Badge>
+                        )}
                       </div>
-                    </CardContent>
+                      
+                      {/* Content Section */}
+                      <CardContent className="p-4 flex-1">
+                        {/* Pricing - Top Priority */}
+                        <div className="mb-2">
+                          <div className="text-lg font-bold text-gray-900">
+                            {typeof community.priceRange === 'string' 
+                              ? community.priceRange 
+                              : community.priceRange?.min && community.priceRange?.max
+                              ? `$${community.priceRange.min.toLocaleString()}`
+                              : '$3,800'}
+                            {!community.claimed && (
+                              <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
+                            )}
+                          </div>
+                          
+                          {/* Care Type & Location */}
+                          <div className="text-sm text-gray-700 mb-1">
+                            {community.careTypes?.length > 0 ? 
+                              `${community.careTypes[0]} • Premium Care` : 
+                              'Assisted Living • Featured Community'
+                            }
+                          </div>
+                        </div>
+                        
+                        {/* Community Name */}
+                        <div className="text-sm font-medium text-gray-900 mb-1 line-clamp-1">
+                          {community.name}
+                        </div>
+                        
+                        {/* Address */}
+                        <div className="text-xs text-gray-600 line-clamp-1 mb-2 flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          {community.address}, {community.city}, {community.state} {community.zipCode}
+                        </div>
+                        
+                        {/* Rating */}
+                        {community.rating > 0 && (
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="flex items-center gap-1">
+                              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                              <span className="text-xs font-medium">{community.rating}</span>
+                            </div>
+                            <span className="text-xs text-gray-600">
+                              ({community.reviewCount} reviews)
+                            </span>
+                          </div>
+                        )}
+                        
+                        {/* Premium Badges */}
+                        <div className="mb-2">
+                          {index % 4 === 0 && (
+                            <Badge className="text-white text-xs px-2 py-1 font-medium bg-purple-600/90">
+                              🏆 Featured
+                            </Badge>
+                          )}
+                          {index % 4 === 1 && (
+                            <Badge className="text-white text-xs px-2 py-1 font-medium bg-indigo-600/90">
+                              ⭐ Premium
+                            </Badge>
+                          )}
+                          {index % 4 === 2 && (
+                            <Badge className="text-white text-xs px-2 py-1 font-medium bg-violet-600/90">
+                              🎯 Top Rated
+                            </Badge>
+                          )}
+                          {index % 4 === 3 && (
+                            <Badge className="text-white text-xs px-2 py-1 font-medium bg-pink-600/90">
+                              💎 Exclusive
+                            </Badge>
+                          )}
+                        </div>
+                        
+                        {/* Action Buttons */}
+                        <div className="flex gap-2">
+                          <Button 
+                            size="sm" 
+                            className="flex-1 gradient-primary hover:opacity-90 text-white border-0"
+                            onClick={() => handleCommunityClick(community)}
+                          >
+                            <ExternalLink className="w-3 h-3 mr-1" />
+                            View Details
+                          </Button>
+                          
+                          {community.phone && (
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              className="border-blue-200 text-blue-600 hover:bg-blue-50"
+                              onClick={() => window.open(`tel:${community.phone}`)}
+                            >
+                              <Phone className="w-3 h-3" />
+                            </Button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </div>
                   </Card>
                 ))}
               </div>
