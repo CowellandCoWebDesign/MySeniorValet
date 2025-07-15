@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import type { Community } from '@shared/schema';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import LeafletMapFallback from './LeafletMapFallback';
 
 interface RentalMapboxProps {
   communities: Community[];
@@ -209,8 +210,50 @@ export default function RentalMapbox({
     setSelectedMarker(null);
   }, []);
 
+  // Force use of hardcoded token for now
+  const activeToken = "pk.eyJ1IjoibXlzZW5pb3J2YWxldCIsImEiOiJjbWQ0b3VkNW8waTA4MmtxNzhndDEyZ2FrIn0.Ht8p3b3XATDjugyf4FHiAQ";
+  
+  // Check if browser supports Mapbox GL JS
+  const [mapboxSupported, setMapboxSupported] = useState(true);
+  const [mapboxError, setMapboxError] = useState<string | null>(null);
+  
+  useEffect(() => {
+    // Check for WebGL support
+    const canvas = document.createElement('canvas');
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    
+    if (!gl) {
+      setMapboxSupported(false);
+      setMapboxError('WebGL not supported');
+      return;
+    }
+    
+    // Check for other required features
+    if (!window.Worker || !window.Blob) {
+      setMapboxSupported(false);
+      setMapboxError('Required browser features not supported');
+      return;
+    }
+    
+    setMapboxSupported(true);
+    setMapboxError(null);
+  }, []);
+  
+  // Fallback to Leaflet if Mapbox isn't supported
+  if (!mapboxSupported) {
+    console.log('Mapbox not supported, using Leaflet fallback:', mapboxError);
+    return (
+      <LeafletMapFallback
+        communities={communities}
+        onCommunityClick={onCommunityClick}
+        selectedCommunity={selectedCommunity}
+        className={className}
+      />
+    );
+  }
+  
   // Error handling for missing token - moved after ALL hooks
-  if (!mapboxToken) {
+  if (!activeToken) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-gray-100">
         <div className="text-center p-8">
@@ -237,7 +280,7 @@ export default function RentalMapbox({
   // Debug map rendering
   console.log('RentalMapbox - Rendering map with:', {
     viewState,
-    mapboxToken: mapboxToken ? 'LOADED' : 'MISSING',
+    activeToken: activeToken ? 'LOADED' : 'MISSING',
     validCommunities: validCommunities.length,
     mapStyle
   });
@@ -248,7 +291,7 @@ export default function RentalMapbox({
         {...viewState}
         onMove={evt => setViewState(evt.viewState)}
         mapStyle={mapStyle}
-        mapboxAccessToken={mapboxToken || "pk.eyJ1IjoibXlzZW5pb3J2YWxldCIsImEiOiJjbWQ0b3VkNW8waTA4MmtxNzhndDEyZ2FrIn0.Ht8p3b3XATDjugyf4FHiAQ"}
+        mapboxAccessToken={activeToken}
         style={{ width: '100%', height: '100%' }}
         dragPan={true}
         dragRotate={true}
