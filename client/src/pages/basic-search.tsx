@@ -206,12 +206,12 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
 
   const { data: communitiesResponse, isLoading, error } = useQuery({
     queryKey: ["/api/communities/search", { 
-      limit: 10000, 
+      limit: 50, // Reasonable limit for mobile interface
       location: debouncedSearchQuery,
       careTypes: selectedCareTypes 
     }],
     queryFn: async () => {
-      let url = "/api/communities/search?limit=10000";
+      let url = "/api/communities/search?limit=50"; // Use proper pagination
       
       // Add location parameter if debounced search query exists
       if (debouncedSearchQuery) {
