@@ -27,7 +27,8 @@ export default function RentalsClean() {
       community.name?.toLowerCase().includes(searchLower) ||
       community.city?.toLowerCase().includes(searchLower) ||
       community.state?.toLowerCase().includes(searchLower) ||
-      community.careTypes?.some(type => type.toLowerCase().includes(searchLower))
+      community.careTypes?.some(type => type?.toLowerCase().includes(searchLower)) ||
+      community.care_types?.some(type => type?.toLowerCase().includes(searchLower))
     );
   });
 

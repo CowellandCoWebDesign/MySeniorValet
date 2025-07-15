@@ -5,14 +5,8 @@ import Map, {
   GeolocateControl, 
   ScaleControl
 } from 'react-map-gl/mapbox';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  MapPin, 
-  Star, 
-  Home,
-  Maximize2
-} from 'lucide-react';
+import { Home } from 'lucide-react';
 import type { Community } from '@shared/schema';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -31,8 +25,8 @@ interface ViewState {
   bearing: number;
 }
 
-// Custom marker component
-const CustomMarker = ({ 
+// Simple marker component
+const SimpleMarker = ({ 
   community, 
   isSelected, 
   onClick 
@@ -43,29 +37,17 @@ const CustomMarker = ({
 }) => (
   <div
     className={`
-      relative cursor-pointer transform transition-all duration-200 hover:scale-110
-      ${isSelected ? 'z-50' : 'z-10'}
+      w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold
+      border-2 border-white shadow-lg cursor-pointer
+      ${isSelected ? 'bg-red-500' : 'bg-blue-500'}
     `}
     onClick={onClick}
   >
-    <div className={`
-      w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold
-      border-2 border-white shadow-lg
-      ${isSelected ? 'bg-red-500 ring-4 ring-red-200' : 'bg-blue-500'}
-    `}>
-      <Home className="w-4 h-4" />
-    </div>
-    
-    {/* Price badge */}
-    {community.monthlyRent && (
-      <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-1 py-0.5 rounded font-medium">
-        ${Math.round(community.monthlyRent / 1000)}K
-      </div>
-    )}
+    <Home className="w-3 h-3" />
   </div>
 );
 
-export default function RentalMapboxClean({ 
+export default function RentalMapboxSimple({ 
   communities, 
   onCommunityClick, 
   selectedCommunity, 
@@ -82,46 +64,41 @@ export default function RentalMapboxClean({
     bearing: 0
   });
   
-  const [mapStyle, setMapStyle] = useState('mapbox://styles/mapbox/streets-v12');
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapError, setMapError] = useState<string | null>(null);
 
-  // Filter communities with valid coordinates
+  // Filter communities with valid coordinates - more defensive
   const validCommunities = useMemo(() => {
-    try {
-      const filtered = communities.filter(community => {
-        if (!community.latitude || !community.longitude) return false;
+    if (!Array.isArray(communities)) return [];
+    
+    return communities.filter(community => {
+      try {
+        if (!community || !community.latitude || !community.longitude) return false;
         
-        const lat = parseFloat(community.latitude);
-        const lng = parseFloat(community.longitude);
+        const lat = parseFloat(String(community.latitude));
+        const lng = parseFloat(String(community.longitude));
         
-        // Check for valid ranges and not zero
         return !isNaN(lat) && !isNaN(lng) && 
                lat !== 0 && lng !== 0 &&
                lat >= -90 && lat <= 90 &&
                lng >= -180 && lng <= 180;
-      });
-      
-      console.log('Clean Mapbox - Total communities:', communities.length);
-      console.log('Clean Mapbox - Valid communities:', filtered.length);
-      
-      return filtered;
-    } catch (error) {
-      console.error('Error filtering communities:', error);
-      return [];
-    }
+      } catch (error) {
+        console.error('Error checking community coordinates:', error);
+        return false;
+      }
+    });
   }, [communities]);
 
   // Calculate center based on valid communities
   useEffect(() => {
     if (validCommunities.length > 0) {
       try {
-        const latitudes = validCommunities.map(c => parseFloat(c.latitude));
-        const longitudes = validCommunities.map(c => parseFloat(c.longitude));
+        const latitudes = validCommunities.map(c => parseFloat(String(c.latitude)));
+        const longitudes = validCommunities.map(c => parseFloat(String(c.longitude)));
         
         const centerLat = latitudes.reduce((sum, lat) => sum + lat, 0) / latitudes.length;
         const centerLng = longitudes.reduce((sum, lng) => sum + lng, 0) / longitudes.length;
         
-        // Validate calculated center
         if (!isNaN(centerLat) && !isNaN(centerLng)) {
           setViewState(prev => ({
             ...prev,
@@ -138,42 +115,68 @@ export default function RentalMapboxClean({
 
   // Handle marker click
   const handleMarkerClick = useCallback((community: Community) => {
-    onCommunityClick(community.id);
+    try {
+      onCommunityClick(community.id);
+    } catch (error) {
+      console.error('Error handling marker click:', error);
+    }
   }, [onCommunityClick]);
 
-  // Map style options
-  const mapStyles = [
-    { id: 'mapbox://styles/mapbox/streets-v12', name: 'Streets', icon: '🗺️' },
-    { id: 'mapbox://styles/mapbox/satellite-v9', name: 'Satellite', icon: '🛰️' },
-    { id: 'mapbox://styles/mapbox/light-v11', name: 'Light', icon: '☀️' },
-    { id: 'mapbox://styles/mapbox/dark-v11', name: 'Dark', icon: '🌙' }
-  ];
+  // Handle map load
+  const handleMapLoad = useCallback(() => {
+    console.log('Mapbox loaded successfully');
+    setMapLoaded(true);
+    setMapError(null);
+  }, []);
+
+  // Handle map error
+  const handleMapError = useCallback((error: any) => {
+    console.error('Mapbox error:', error);
+    setMapError(error?.message || 'Map loading error');
+  }, []);
+
+  // Loading state
+  if (!mapLoaded && !mapError) {
+    return (
+      <div className={`${className} flex items-center justify-center bg-gray-100`}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+          <p className="text-sm text-gray-600">Loading map...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Error state
-  if (!activeToken) {
+  if (mapError) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-gray-100">
+      <div className={`${className} flex items-center justify-center bg-gray-100`}>
         <div className="text-center p-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Map Configuration Required</h3>
-          <p className="text-gray-600">Please configure your Mapbox access token.</p>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Map Error</h3>
+          <p className="text-gray-600 mb-4">{mapError}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`relative ${className} ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}>
+    <div className={`relative ${className}`}>
       {/* Map Container */}
       <div className="w-full h-full">
         <Map
           initialViewState={viewState}
-          mapStyle={mapStyle}
+          mapStyle="mapbox://styles/mapbox/streets-v12"
           mapboxAccessToken={activeToken}
           style={{ width: '100%', height: '100%' }}
           onMove={evt => setViewState(evt.viewState)}
-          onLoad={() => console.log('Mapbox loaded successfully')}
-          onRender={() => console.log('Mapbox rendering')}
-          onError={(error) => console.error('Mapbox error:', error)}
+          onLoad={handleMapLoad}
+          onError={handleMapError}
           interactive={true}
           dragPan={true}
           scrollZoom={true}
@@ -182,7 +185,7 @@ export default function RentalMapboxClean({
           minZoom={3}
           maxZoom={20}
         >
-          {/* Navigation Controls */}
+          {/* Controls */}
           <NavigationControl position="top-right" />
           <GeolocateControl position="top-right" />
           <ScaleControl position="bottom-left" />
@@ -190,8 +193,8 @@ export default function RentalMapboxClean({
           {/* Community Markers */}
           {validCommunities.map((community) => {
             try {
-              const lat = parseFloat(community.latitude);
-              const lng = parseFloat(community.longitude);
+              const lat = parseFloat(String(community.latitude));
+              const lng = parseFloat(String(community.longitude));
               
               if (isNaN(lat) || isNaN(lng)) return null;
               
@@ -202,7 +205,7 @@ export default function RentalMapboxClean({
                   latitude={lat}
                   anchor="bottom"
                 >
-                  <CustomMarker
+                  <SimpleMarker
                     community={community}
                     isSelected={selectedCommunity?.id === community.id}
                     onClick={() => handleMarkerClick(community)}
@@ -210,46 +213,15 @@ export default function RentalMapboxClean({
                 </Marker>
               );
             } catch (error) {
-              console.error('Error rendering marker for community:', community.id, error);
+              console.error('Error rendering marker:', error);
               return null;
             }
           })}
         </Map>
       </div>
 
-      {/* Map Controls Overlay */}
-      <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-        {/* Style Selector */}
-        <div className="bg-white rounded-lg shadow-lg p-2">
-          <div className="flex gap-1">
-            {mapStyles.map((style) => (
-              <Button
-                key={style.id}
-                variant={mapStyle === style.id ? "default" : "ghost"}
-                size="sm"
-                className="p-2 text-xs"
-                onClick={() => setMapStyle(style.id)}
-                title={style.name}
-              >
-                {style.icon}
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        {/* Fullscreen Toggle */}
-        <Button
-          variant="outline"
-          size="sm"
-          className="bg-white shadow-lg"
-          onClick={() => setIsFullscreen(!isFullscreen)}
-        >
-          <Maximize2 className="w-4 h-4" />
-        </Button>
-      </div>
-
       {/* Community Counter */}
-      <div className="absolute bottom-4 left-4 z-10 bg-white rounded-lg shadow-lg px-3 py-2">
+      <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg px-3 py-2">
         <div className="flex items-center gap-2 text-sm">
           <Home className="w-4 h-4 text-blue-600" />
           <span className="font-medium">{validCommunities.length}</span>
