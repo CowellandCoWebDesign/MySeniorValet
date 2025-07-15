@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSign, MapPin, Info, 
          Mail, Globe, Users, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
          Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X, 
-         Clock, HelpCircle, Share2, Copy, Send, Facebook, Twitter, Linkedin } from 'lucide-react';
+         Clock, HelpCircle, Share2, Copy, Send, Facebook, Twitter, Linkedin, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +25,65 @@ import {
   getStatusStyling,
   type AmenityStatus
 } from "@/lib/amenities-checklists";
+
+// Hero Photo Carousel Component
+const HeroPhotoCarousel = ({ photos, communityName }: { photos: string[], communityName: string }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  
+  const nextPhoto = () => {
+    setCurrentIndex((prev) => (prev + 1) % photos.length);
+  };
+  
+  const prevPhoto = () => {
+    setCurrentIndex((prev) => (prev - 1 + photos.length) % photos.length);
+  };
+  
+  return (
+    <div className="relative w-full h-full group">
+      <img
+        src={photos[currentIndex]}
+        alt={`${communityName} - View ${currentIndex + 1}`}
+        className="w-full h-full object-cover"
+      />
+      
+      {/* Navigation arrows - only show if more than 1 photo */}
+      {photos.length > 1 && (
+        <>
+          <button
+            onClick={prevPhoto}
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <ChevronLeft className="w-6 h-6 text-gray-700" />
+          </button>
+          <button
+            onClick={nextPhoto}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <ChevronRight className="w-6 h-6 text-gray-700" />
+          </button>
+          
+          {/* Photo indicator dots */}
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+            {photos.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`w-2 h-2 rounded-full transition-colors ${
+                  index === currentIndex ? 'bg-white' : 'bg-white/50'
+                }`}
+              />
+            ))}
+          </div>
+          
+          {/* Photo counter */}
+          <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+            {currentIndex + 1} / {photos.length}
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
 
 export default function CommunityDetail() {
   const { id } = useParams<{ id: string }>();
@@ -358,21 +417,15 @@ Let me know what you think!`;
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Photo Gallery */}
+            {/* Hero Photo Carousel */}
             <Card>
               <CardContent className="p-0">
                 <div className="relative h-64 sm:h-80 md:h-96 overflow-hidden rounded-lg">
                   {community.photos && community.photos.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 p-2">
-                      {community.photos.slice(0, 6).map((photo, index) => (
-                        <img
-                          key={index}
-                          src={photo}
-                          alt={`${community.name} - View ${index + 1}`}
-                          className="w-full h-32 sm:h-40 object-cover rounded-lg hover:scale-105 transition-transform duration-300"
-                        />
-                      ))}
-                    </div>
+                    <HeroPhotoCarousel 
+                      photos={community.photos} 
+                      communityName={community.name}
+                    />
                   ) : (
                     <div className="h-full bg-gray-200 flex items-center justify-center">
                       <div className="text-center">
@@ -1472,20 +1525,18 @@ Let me know what you think!`;
                   <TabsContent value="photos" className="space-y-4">
                     <div>
                       <h3 className="text-lg font-semibold mb-3">Photo Gallery</h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                        {community.photos?.map((photo, index) => (
-                          <img
-                            key={index}
-                            src={photo}
-                            alt={`${community.name} - View ${index + 1}`}
-                            className="w-full h-48 object-cover rounded-lg hover:scale-105 transition-transform duration-300"
+                      {community.photos && community.photos.length > 0 ? (
+                        <div className="relative h-64 sm:h-80 md:h-96 overflow-hidden rounded-lg">
+                          <HeroPhotoCarousel 
+                            photos={community.photos} 
+                            communityName={community.name}
                           />
-                        )) || (
-                          <div className="col-span-full bg-gray-100 p-8 rounded-lg text-center">
-                            <p className="text-gray-500">No photos available</p>
-                          </div>
-                        )}
-                      </div>
+                        </div>
+                      ) : (
+                        <div className="bg-gray-100 p-8 rounded-lg text-center">
+                          <p className="text-gray-500">No photos available</p>
+                        </div>
+                      )}
                     </div>
                   </TabsContent>
                 </Tabs>
