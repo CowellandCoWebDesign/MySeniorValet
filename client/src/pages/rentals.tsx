@@ -72,6 +72,10 @@ export default function Rentals() {
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
 
+  // Debug logging
+  console.log('Rentals page - communities loaded:', communities.length, 'communities');
+  console.log('Rentals page - isLoading:', isLoading, 'error:', error);
+
   // Filter communities based on search and filters
   const filteredCommunities = useMemo(() => {
     let filtered = communities.filter((community: Community) => {
