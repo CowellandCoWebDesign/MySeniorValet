@@ -680,7 +680,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                 <div className="w-6 h-6 gradient-primary rounded-md flex items-center justify-center">
                   <Home className="w-4 h-4 text-white" />
                 </div>
-                <span className="text-lg font-bold text-gray-900">TrueView</span>
+                <span className="text-lg font-bold text-gradient">MySeniorValet</span>
               </Link>
             </div>
             <div className="text-gray-600 font-medium text-xs">

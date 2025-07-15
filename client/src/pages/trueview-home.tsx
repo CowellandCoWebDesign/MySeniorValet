@@ -114,11 +114,11 @@ export default function TrueViewHome() {
                 <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
                   <Home className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-xl font-bold text-white drop-shadow-lg">TrueView</span>
+                <span className="text-xl font-bold text-white drop-shadow-lg">MySeniorValet</span>
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Link href="/login" className="text-white hover:text-blue-200 transition-colors">
+              <Link href="/login" className="text-white hover:text-amber-200 transition-colors">
                 Sign In
               </Link>
               <Link href="/signup" className="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors">
@@ -130,7 +130,7 @@ export default function TrueViewHome() {
       </header>
 
       {/* Hero Section with Search */}
-      <section className="relative hero-mobile-safe bg-gradient-to-br from-blue-50 to-indigo-100">
+      <section className="relative hero-mobile-safe bg-gradient-to-br from-slate-50 to-amber-50">
         <div className="absolute inset-0">
           {heroImages && heroImages.length > 0 ? (
             <img
@@ -153,10 +153,10 @@ export default function TrueViewHome() {
           <div className="text-center mb-12 md:mb-16">
             <div className="space-y-6 mb-8">
               <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white leading-tight drop-shadow-lg animate-fade-in-up">
-                Senior Living, Unlocked.
+                Your Personal Senior Living Concierge
               </h1>
               <p className="text-base sm:text-lg md:text-xl text-white opacity-90 drop-shadow-md px-4 animate-fade-in-up animation-delay-300">
-                Helping families find care — without the noise.
+                Trusted guidance for your family's most important decision.
               </p>
             </div>
           </div>

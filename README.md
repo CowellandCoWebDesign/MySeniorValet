@@ -1,10 +1,10 @@
-# TrueView - Senior Living Community Transparency Platform
+# MySeniorValet - Senior Living Community Transparency Platform
 
 © 2025 Scott Cowell. All rights reserved.
 
 ## Overview
 
-TrueView is a comprehensive senior living community search platform that prioritizes pricing transparency, real-time availability, and trusted reviews. The platform helps families make informed decisions by providing comprehensive community information including amenities, services, medical restrictions, and verified review sources.
+MySeniorValet is a comprehensive senior living community search platform that prioritizes pricing transparency, real-time availability, and trusted reviews. The platform helps families make informed decisions by providing comprehensive community information including amenities, services, medical restrictions, and verified review sources.
 
 ## Key Features
 

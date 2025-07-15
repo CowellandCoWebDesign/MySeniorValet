@@ -1,21 +1,21 @@
-# TrueView Terms of Service
+# MySeniorValet Terms of Service
 
 **Last Updated:** January 2025  
 **Effective Date:** January 1, 2025
 
 ## 1. Acceptance of Terms
 
-By accessing and using TrueView ("the Service"), you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to abide by these terms, please do not use this service.
+By accessing and using MySeniorValet ("the Service"), you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to abide by these terms, please do not use this service.
 
 ## 2. Service Description
 
-TrueView is an informational platform that provides:
+MySeniorValet is an informational platform that provides:
 - Search and discovery tools for senior living communities
 - Publicly available information about facilities and services
 - User reviews and community ratings
 - Educational resources about senior care options
 
-**Important:** TrueView is not a licensed placement agency and does not receive referral fees. We provide information only - all placement decisions are between you and the communities.
+**Important:** MySeniorValet is not a licensed placement agency and does not receive referral fees. We provide information only - all placement decisions are between you and the communities.
 
 ## 3. User Responsibilities
 
@@ -35,7 +35,7 @@ TrueView is an informational platform that provides:
 
 ## 4. Information Accuracy
 
-While we strive to provide accurate and up-to-date information, TrueView makes no warranties about the completeness, reliability, or accuracy of the information provided.
+While we strive to provide accurate and up-to-date information, MySeniorValet makes no warranties about the completeness, reliability, or accuracy of the information provided.
 
 - Community information is sourced from public records and user submissions
 - Availability, pricing, and services may change without notice
@@ -44,15 +44,15 @@ While we strive to provide accurate and up-to-date information, TrueView makes n
 
 ## 5. Intellectual Property
 
-The TrueView platform, including its design, features, and content, is protected by intellectual property laws.
+The MySeniorValet platform, including its design, features, and content, is protected by intellectual property laws.
 
-**Our Content:** TrueView owns or has rights to all platform content, including text, graphics, logos, and software. You may not reproduce or distribute this content without permission.
+**Our Content:** MySeniorValet owns or has rights to all platform content, including text, graphics, logos, and software. You may not reproduce or distribute this content without permission.
 
-**User Content:** By submitting content (reviews, comments, etc.), you grant TrueView a license to use, display, and distribute that content on our platform.
+**User Content:** By submitting content (reviews, comments, etc.), you grant MySeniorValet a license to use, display, and distribute that content on our platform.
 
 ## 6. Limitation of Liability
 
-TrueView provides information "as is" without warranties of any kind.
+MySeniorValet provides information "as is" without warranties of any kind.
 
 ### We are not liable for:
 - Decisions made based on information from our platform
@@ -66,10 +66,10 @@ TrueView provides information "as is" without warranties of any kind.
 ## 7. Founder Ownership & Platform Independence
 
 **Founder Ownership Statement:**
-TrueView is an independent platform solely founded, developed, and operated by Scott Cowell. The platform was created entirely on personal time, without the use of any company-owned systems, confidential materials, employee collaboration, or proprietary intellectual property.
+MySeniorValet is an independent platform solely founded, developed, and operated by Scott Cowell. The platform was created entirely on personal time, without the use of any company-owned systems, confidential materials, employee collaboration, or proprietary intellectual property.
 
 **Platform Independence:**
-TrueView is not affiliated with, endorsed by, or developed on behalf of any senior living brand, operator, management company, parent organization, or affiliated entity — including but not limited to Discovery Senior Living, Provincial Senior Living, Atria Senior Living, Brookdale Senior Living, Sunrise Senior Living, Holiday by Atria, or any national, regional, or local senior housing provider or partner.
+MySeniorValet is not affiliated with, endorsed by, or developed on behalf of any senior living brand, operator, management company, parent organization, or affiliated entity — including but not limited to Discovery Senior Living, Provincial Senior Living, Atria Senior Living, Brookdale Senior Living, Sunrise Senior Living, Holiday by Atria, or any national, regional, or local senior housing provider or partner.
 
 **Rights & Ownership:**
 No operator, employer, or entity outside of Scott Cowell holds any ownership, control, or development rights in the platform, unless such a relationship is explicitly established through a future written agreement. All rights — past, present, and future — are retained by Scott Cowell as the sole creator and founder.

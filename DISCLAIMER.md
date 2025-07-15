@@ -43,11 +43,11 @@ While we strive to provide accurate and current information, TrueView makes no r
 - Endorsed by any communities
 - Responsible for placement decisions
 
-TrueView operates independently from all senior living communities listed on our platform. We do not have financial relationships with these communities that would influence our information presentation.
+MySeniorValet operates independently from all senior living communities listed on our platform. We do not have financial relationships with these communities that would influence our information presentation.
 
 ## Third-Party Content
 
-TrueView aggregates information from various sources, including:
+MySeniorValet aggregates information from various sources, including:
 - Public records and government databases
 - User-submitted reviews and ratings
 - Community websites and marketing materials
@@ -57,7 +57,7 @@ TrueView aggregates information from various sources, including:
 
 ## User Responsibilities
 
-Users of TrueView are responsible for:
+Users of MySeniorValet are responsible for:
 - Conducting their own due diligence before making decisions
 - Verifying all information independently with communities
 - Consulting with appropriate professionals (medical, legal, financial)
@@ -65,11 +65,11 @@ Users of TrueView are responsible for:
 - Reading and understanding community contracts and policies
 - Ensuring suitability for specific care needs
 
-**Important:** The decision to move to or engage with any senior living community is yours alone. TrueView cannot and does not make recommendations about the suitability of any community for your specific needs.
+**Important:** The decision to move to or engage with any senior living community is yours alone. MySeniorValet cannot and does not make recommendations about the suitability of any community for your specific needs.
 
 ## Limitation of Liability
 
-TrueView, its officers, directors, employees, and agents shall not be liable for:
+MySeniorValet, its officers, directors, employees, and agents shall not be liable for:
 - Any decisions made based on information from our platform
 - The quality of care or services at any community
 - Financial losses related to community selection
@@ -77,11 +77,11 @@ TrueView, its officers, directors, employees, and agents shall not be liable for
 - Technical issues or service interruptions
 - Actions of third-party communities or service providers
 
-**Use of this platform is at your own risk. TrueView provides information "as is" without warranties of any kind.**
+**Use of this platform is at your own risk. MySeniorValet provides information "as is" without warranties of any kind.**
 
 ## Emergency Situations
 
-**Emergency Notice:** TrueView is not an emergency service. In case of medical emergencies, call 911 immediately. For urgent care needs, contact healthcare providers or emergency services directly.
+**Emergency Notice:** MySeniorValet is not an emergency service. In case of medical emergencies, call 911 immediately. For urgent care needs, contact healthcare providers or emergency services directly.
 
 ## Contact Information
 

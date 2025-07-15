@@ -1,10 +1,10 @@
-# TrueView - Senior Living Community Transparency Platform
+# MySeniorValet - Senior Living Community Transparency Platform
 
 © 2025 Scott Cowell. All rights reserved.
 
 ## Overview
 
-TrueView is a full-stack senior living community search platform that prioritizes pricing transparency, real-time availability, and trusted reviews. The platform helps families make informed decisions by providing comprehensive community information including amenities, services, medical restrictions, and verified review sources. Key features include interactive map visualization, detailed community profiles with availability tracking, and a claim system for community owners.
+MySeniorValet is a full-stack senior living community search platform that prioritizes pricing transparency, real-time availability, and trusted reviews. The platform helps families make informed decisions by providing comprehensive community information including amenities, services, medical restrictions, and verified review sources. Key features include interactive map visualization, detailed community profiles with availability tracking, and a claim system for community owners.
 
 ## System Architecture
 
@@ -250,6 +250,8 @@ The application is configured for multiple deployment environments:
 **COASTAL COMMUNITIES BADGE POSITIONING FIX**: Comprehensively fixed badge overlap issue in coastal communities section by adjusting photo badge positioning from 3px to 2px margins, adding z-index stacking (z-10), reducing badge padding for tighter fit, shortening "Ocean View" to "Ocean" text, and fixing card content badge spacing with increased margin (mb-3) and top margin (mt-1) between regional badges and enhanced features row, preventing all visual conflicts and overlapping (July 15, 2025)
 
 **COMPLETE MAP FUNCTIONALITY CLEANUP**: Successfully removed all map functionality from search portal per user request after multiple implementation failures. Uninstalled all map-related packages (react-map-gl, mapbox-gl, leaflet, react-leaflet), removed all map components and test pages, cleaned up CSS imports and styles, and replaced map area with "Map View Coming Soon" placeholder. Search functionality confirmed working with all 8,053 communities loading properly. System ready for fresh Mapbox implementation with default tokens when needed (July 15, 2025)
+
+**COMPLETE REBRANDING FROM TRUEVIEW TO MYSENIORVALET**: Successfully executed comprehensive rebranding from TrueView to MySeniorValet.com including updated package name, color scheme migration from TrueView blue (#007cba) to MySeniorValet professional palette (navy, gold, sage green), updated all branding elements across homepage, search, and community detail pages, revised hero messaging from "Senior Living, Unlocked" to "Your Personal Senior Living Concierge" with "Trusted guidance for your family's most important decision" tagline, updated all legal documents (Terms of Service, Disclaimer), and established new brand identity with gradient primary colors and text styling. All 8,053 communities preserved with fully functional search experience under new MySeniorValet branding (July 15, 2025)
 
 **SEARCH ROUTE CONSOLIDATION**: Consolidated duplicate search routes - both /search and /rentals now use BasicSearch component to eliminate confusion. Removed separate rentals.tsx file and unified search experience across all routes. All 8,053 communities are properly accessible through the main search interface (July 15, 2025)
 

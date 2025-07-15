@@ -346,10 +346,10 @@ Let me know what you think!`;
             onClick={() => setLocation('/')}
             className="flex items-center space-x-2"
           >
-            <div className="w-6 h-6 bg-blue-600 rounded-sm flex items-center justify-center">
+            <div className="w-6 h-6 gradient-primary rounded-sm flex items-center justify-center">
               <Home className="w-3 h-3 text-white" />
             </div>
-            <span className="font-semibold text-blue-600">TrueView</span>
+            <span className="font-semibold text-gradient">MySeniorValet</span>
           </Button>
         </div>
       </div>
