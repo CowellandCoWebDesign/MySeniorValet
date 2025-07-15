@@ -67,8 +67,10 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
   
-  // Seed the database on startup
-  await seedDatabase();
+  // Seed the database on startup (non-blocking)
+  seedDatabase().catch(error => {
+    console.error('Failed to seed database:', error);
+  });
 
   // Enhanced error handling middleware
   app.use((err: any, req: Request, res: Response, _next: NextFunction) => {

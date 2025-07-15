@@ -3,8 +3,18 @@ import { communities, users, reviews, type InsertCommunity, type InsertUser, typ
 
 export async function seedDatabase() {
   try {
+    console.log('Starting database seed...');
+    
+    // Add timeout to prevent hanging
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('Database seed timeout')), 15000); // 15 second timeout
+    });
+    
     // Check if data already exists
-    const existingCommunities = await db.select().from(communities);
+    const existingCommunities = await Promise.race([
+      db.select().from(communities),
+      timeoutPromise
+    ]);
     
     // If we have communities but none are from San Francisco, add SF communities
     const sfCommunities = existingCommunities.filter(c => c.city.toLowerCase() === 'san francisco');

@@ -70,8 +70,10 @@ import fs from 'fs';
 import path from 'path';
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Initialize community stats cache on startup
-  await communityStatsCache.initialize();
+  // Initialize community stats cache on startup (non-blocking)
+  communityStatsCache.initialize().catch(error => {
+    console.error('Failed to initialize community stats cache:', error);
+  });
 
   // REMOVED: /api/config endpoint - Mapbox token now handled client-side
   

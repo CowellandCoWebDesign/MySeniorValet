@@ -139,7 +139,24 @@ class CommunityStatsCache {
    */
   async initialize(): Promise<void> {
     console.log('Initializing community stats cache...');
-    await this.refreshCache();
+    
+    // Add timeout to prevent hanging
+    const timeoutPromise = new Promise<void>((_, reject) => {
+      setTimeout(() => reject(new Error('Cache initialization timeout')), 10000); // 10 second timeout
+    });
+    
+    try {
+      await Promise.race([this.refreshCache(), timeoutPromise]);
+    } catch (error) {
+      console.error('Cache initialization failed:', error);
+      // Set fallback stats
+      this.stats = {
+        totalCommunities: 0,
+        lastUpdated: new Date(),
+        byState: {},
+        byCareType: {}
+      };
+    }
   }
 }
 
