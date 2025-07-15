@@ -102,8 +102,7 @@ export default function TrueViewHome() {
       <header className="absolute top-0 left-0 right-0 z-50 bg-transparent">
         <div className="px-4 py-4">
           <div className="flex items-center justify-between">
-            {/* Left side - Menu button */}
-            <div className="flex items-center">
+            <div className="flex items-center space-x-3">
               <div className="p-2 bg-white/20 rounded-md backdrop-blur-sm">
                 <div className="flex flex-col space-y-1">
                   <div className="w-5 h-0.5 bg-white"></div>
@@ -111,17 +110,13 @@ export default function TrueViewHome() {
                   <div className="w-5 h-0.5 bg-white"></div>
                 </div>
               </div>
-            </div>
-            
-            {/* Center - Logo and Name */}
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
-                <Home className="w-6 h-6 text-white" />
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
+                  <Home className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-xl font-bold text-white drop-shadow-lg">MySeniorValet</span>
               </div>
-              <span className="text-xl font-bold text-white drop-shadow-lg">MySeniorValet</span>
             </div>
-            
-            {/* Right side - Sign In/Up buttons */}
             <div className="flex items-center space-x-4">
               <Link href="/login" className="text-white hover:text-amber-200 transition-colors">
                 Sign In
