@@ -8,7 +8,7 @@ export default function SlidePanel({
   sortBy,
   setSortBy,
   isLoading = false,
-  initialHeight = 120,
+  initialHeight = 160,
   autoExpand = false
 }) {
   const [panelHeight, setPanelHeight] = useState(initialHeight);
@@ -121,8 +121,8 @@ export default function SlidePanel({
     const currentHeight = currentHeightRef.current; // Use ref instead of state
     setIsDragging(false);
     const snap =
-      currentHeight < 180
-        ? 120
+      currentHeight < 200
+        ? 160
         : currentHeight < screenHeight * 0.6
         ? 350
         : screenHeight * 0.85;

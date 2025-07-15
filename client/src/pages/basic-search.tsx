@@ -126,7 +126,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
   const [activeTab, setActiveTab] = useState('search');
   const [sortBy, setSortBy] = useState('recommended');
   const [showSortOptions, setShowSortOptions] = useState(false);
-  const [slidePanelHeight, setSlidePanelHeight] = useState(120);
+  const [slidePanelHeight, setSlidePanelHeight] = useState(160);
   const [, navigate] = useLocation();
   
   // Debounce search query to prevent excessive API calls - reduced to 300ms for better UX
@@ -385,7 +385,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
       const maxHeight = typeof window !== 'undefined' ? window.innerHeight * 0.85 : 600;
       setSlidePanelHeight(maxHeight);
     } else {
-      setSlidePanelHeight(120); // Default collapsed height
+      setSlidePanelHeight(160); // Default collapsed height
     }
   }, [debouncedSearchQuery, urlSearchQuery, visibleCommunities.length]);
 
