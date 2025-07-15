@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { Search, Filter, List, MapIcon, SlidersHorizontal, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -40,7 +40,12 @@ interface SearchFilters {
 
 export default function MapSearch() {
   const [, setLocation] = useLocation();
-  const [searchQuery, setSearchQuery] = useState('');
+  
+  // Get search query from URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const initialQuery = urlParams.get('q') || '';
+  
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [filters, setFilters] = useState<SearchFilters>({
     careType: 'All Types',
@@ -52,6 +57,13 @@ export default function MapSearch() {
   const [mapCenter, setMapCenter] = useState<[number, number]>([37.7749, -122.4194]);
   const [mapZoom, setMapZoom] = useState(12);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
+
+  // Handle initial search query from URL
+  useEffect(() => {
+    if (initialQuery) {
+      handleLocationSearch(initialQuery);
+    }
+  }, [initialQuery]);
 
   const handleLocationSearch = (location: string) => {
     // Geocode location and update map center

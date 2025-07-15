@@ -161,21 +161,7 @@ export default function TrueViewHome() {
             </div>
           </div>
           
-          {/* Quick Actions */}
-          <div className="flex items-center gap-3 mb-6 animate-fade-in-up animation-delay-500">
-            <Link href="/search">
-              <Button className="bg-white text-gray-900 hover:bg-gray-100 border border-gray-300 px-4 py-2 rounded-lg font-medium transition-all">
-                <Search className="w-4 h-4 mr-2" />
-                Search
-              </Button>
-            </Link>
-            <Link href="/map">
-              <Button className="bg-white text-gray-900 hover:bg-gray-100 border border-gray-300 px-4 py-2 rounded-lg font-medium transition-all">
-                <MapPin className="w-4 h-4 mr-2" />
-                Map View
-              </Button>
-            </Link>
-          </div>
+
 
           {/* Search Bar */}
           <div className="w-full max-w-lg mb-4 relative animate-fade-in-up animation-delay-600" style={{ zIndex: 99999 }}>
@@ -255,6 +241,16 @@ export default function TrueViewHome() {
                 ))}
               </div>
             )}
+          </div>
+
+          {/* Beautiful Map View Button */}
+          <div className="mb-6 animate-fade-in-up animation-delay-700">
+            <Link href={`/map${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}>
+              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 border-0">
+                <MapPin className="w-5 h-5 mr-3" />
+                Explore Map View
+              </Button>
+            </Link>
           </div>
           
           {/* Dynamic Community Count Text - Moved outside search container */}
