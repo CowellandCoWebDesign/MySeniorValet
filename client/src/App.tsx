@@ -41,6 +41,7 @@ import FamilyCollaboration from "@/pages/family-collaboration";
 import CommunityDetail from "@/pages/community-detail";
 import Rentals from "@/pages/rentals";
 import MapboxTest from "@/pages/mapbox-test";
+import TestMap from "@/pages/testmap";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -57,6 +58,7 @@ function Router() {
       <Route path="/search" component={BasicSearch} />
       <Route path="/rentals" component={Rentals} />
       <Route path="/mapbox-test" component={MapboxTest} />
+      <Route path="/testmap" component={TestMap} />
       <Route path="/test-search" component={TestSearch} />
       <Route path="/old-search" component={TrueViewSearch} />
       <Route path="/explore" component={Explore} />
