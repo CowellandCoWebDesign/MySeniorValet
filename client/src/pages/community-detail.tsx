@@ -946,45 +946,7 @@ Let me know what you think!`;
               </CardContent>
             </Card>
 
-            {/* Contact Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Contact Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {community.phone && (
-                  <div className="flex items-center">
-                    <Phone className="w-5 h-5 text-gray-500 mr-3" />
-                    <div>
-                      <p className="font-medium">Phone</p>
-                      <p className="text-sm text-gray-600">{community.phone}</p>
-                    </div>
-                  </div>
-                )}
-                {community.email && (
-                  <div className="flex items-center">
-                    <Mail className="w-5 h-5 text-gray-500 mr-3" />
-                    <div>
-                      <p className="font-medium">Email</p>
-                      <p className="text-sm text-gray-600">{community.email}</p>
-                    </div>
-                  </div>
-                )}
-                {community.website && (
-                  <div className="flex items-center">
-                    <Globe className="w-5 h-5 text-gray-500 mr-3" />
-                    <div>
-                      <p className="font-medium">Website</p>
-                      <a href={community.website} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
-                        Visit Website
-                      </a>
-                    </div>
-                  </div>
-                )}
-                
 
-              </CardContent>
-            </Card>
 
             {/* Tour Tracker Section */}
             <Card>
