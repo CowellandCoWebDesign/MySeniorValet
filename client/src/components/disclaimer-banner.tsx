@@ -3,15 +3,14 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
 export function DisclaimerBanner() {
-  const [isVisible, setIsVisible] = useState(true);
-
-  useEffect(() => {
-    // Check if user has dismissed the banner before
-    const dismissed = localStorage.getItem('disclaimerDismissed');
-    if (dismissed === 'true') {
-      setIsVisible(false);
+  // Check localStorage immediately to prevent flash
+  const [isVisible, setIsVisible] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const dismissed = localStorage.getItem('disclaimerDismissed');
+      return dismissed !== 'true';
     }
-  }, []);
+    return true;
+  });
 
   const handleDismiss = () => {
     setIsVisible(false);
@@ -31,7 +30,7 @@ export function DisclaimerBanner() {
                 Information Only - No Referral Fees
               </p>
               <p className="text-blue-200 leading-relaxed">
-                TrueView provides publicly available information only and does not collect 
+                MySeniorValet provides publicly available information only and does not collect 
                 referral fees. We are not a licensed placement agency. Always verify 
                 information directly with communities before making decisions.
               </p>
