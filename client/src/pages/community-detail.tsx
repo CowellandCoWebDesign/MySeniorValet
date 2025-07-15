@@ -1097,16 +1097,30 @@ Let me know what you think!`;
                       
                       <div className="flex gap-2">
                         {unit.available > 0 ? (
-                          <Button
-                            onClick={() => {
-                              setSelectedUnitType(unit.type);
-                              setIsScheduleTourOpen(true);
-                            }}
-                            className="bg-blue-600 hover:bg-blue-700 text-white"
-                          >
-                            <CalendarIcon className="w-4 h-4 mr-2" />
-                            Schedule Tour
-                          </Button>
+                          <>
+                            <Button
+                              onClick={() => {
+                                setSelectedUnitType(unit.type);
+                                setIsScheduleTourOpen(true);
+                              }}
+                              className="bg-blue-600 hover:bg-blue-700 text-white"
+                            >
+                              <CalendarIcon className="w-4 h-4 mr-2" />
+                              Schedule Tour
+                            </Button>
+                            <Button
+                              onClick={() => {
+                                toast({
+                                  title: "Reserve Unit",
+                                  description: `Reservation process started for ${unit.type}. A community representative will contact you within 24 hours to finalize your reservation.`,
+                                });
+                              }}
+                              className="bg-green-600 hover:bg-green-700 text-white"
+                            >
+                              <Calendar className="w-4 h-4 mr-2" />
+                              Reserve Unit
+                            </Button>
+                          </>
                         ) : (
                           <Button
                             onClick={() => {
