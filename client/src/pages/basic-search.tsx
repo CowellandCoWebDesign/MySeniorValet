@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, MapPin, Star, Heart, List, Map, Bell, Calendar, Mail, Phone, ExternalLink, Users, CheckCircle, AlertTriangle, Activity, UserCheck, Stethoscope, Clock, ImageIcon, ChevronDown, SortAsc, ArrowLeft, Home, Plus, Minus, Filter, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import { Icon } from 'leaflet';
@@ -128,11 +129,11 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
   const [showSortOptions, setShowSortOptions] = useState(false);
   const [, navigate] = useLocation();
   
-  // Debounce search query to prevent excessive API calls
+  // Debounce search query to prevent excessive API calls - reduced to 300ms for better UX
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
-    }, 500); // 500ms delay
+    }, 300); // 300ms delay as specified
     
     return () => clearTimeout(timer);
   }, [searchQuery]);
@@ -157,6 +158,14 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
   const [priceRange, setPriceRange] = useState({ min: 0, max: 10000 });
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  
+  // Mobile filter drawer states
+  const [selectedAvailability, setSelectedAvailability] = useState<string[]>([]);
+  const [selectedBudget, setSelectedBudget] = useState<string[]>([]);
+  
+  // Filter chip options for mobile drawer
+  const availabilityOptions = ['Available Now', 'Available Soon', 'Waitlist Open'];
+  const budgetOptions = ['< $3k', '$3k-$5k', '$5k+'];
   
   // Sort options with better organization
   const sortOptions = [
@@ -669,20 +678,136 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
           </div>
         </div>
 
-        {/* Filter Pills - Refined */}
+        {/* Filter Pills - Mobile-Friendly */}
         <div className="px-4 pb-2.5 flex space-x-2 overflow-x-auto scrollbar-hide">
-          <Button 
-            variant="outline" 
-            onClick={() => setShowFilters(!showFilters)}
-            className={`${showFilters ? 'border-blue-500 text-blue-600 bg-blue-50' : 'border-gray-300 text-gray-600'} hover:bg-gray-50 rounded-full px-3 py-1 h-7 text-xs font-medium whitespace-nowrap flex items-center`}
-          >
-            <Filter className="w-3 h-3 mr-1.5" />
-            Filters {(selectedCareTypes.length + selectedAmenities.length) > 0 && 
-              <span className="ml-1 bg-blue-600 text-white rounded-full px-1.5 text-[10px]">
-                {selectedCareTypes.length + selectedAmenities.length}
-              </span>
-            }
-          </Button>
+          {/* Mobile Filter Drawer Trigger */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button 
+                variant="outline" 
+                className="border-gray-300 text-gray-600 hover:bg-gray-50 rounded-full px-3 py-1 h-7 text-xs font-medium whitespace-nowrap flex items-center"
+              >
+                <Filter className="w-3 h-3 mr-1.5" />
+                Filters {(selectedCareTypes.length + selectedAvailability.length + selectedBudget.length) > 0 && 
+                  <span className="ml-1 bg-blue-600 text-white rounded-full px-1.5 text-[10px]">
+                    {selectedCareTypes.length + selectedAvailability.length + selectedBudget.length}
+                  </span>
+                }
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="h-[80vh] overflow-y-auto">
+              <SheetHeader>
+                <SheetTitle>Filter Communities</SheetTitle>
+                <SheetDescription>
+                  Filter by care type, availability, and budget to find your perfect community.
+                </SheetDescription>
+              </SheetHeader>
+              
+              <div className="mt-6 space-y-6">
+                {/* Care Types Filter */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Care Types</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {careTypeOptions.map(careType => {
+                      const config = careTypeConfig[careType as keyof typeof careTypeConfig];
+                      const isSelected = selectedCareTypes.includes(careType);
+                      return (
+                        <Button
+                          key={careType}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            if (isSelected) {
+                              setSelectedCareTypes(selectedCareTypes.filter(ct => ct !== careType));
+                            } else {
+                              setSelectedCareTypes([...selectedCareTypes, careType]);
+                            }
+                          }}
+                          className={`rounded-full text-xs h-8 flex items-center ${
+                            isSelected
+                              ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
+                              : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          <div 
+                            className="w-2 h-2 rounded-full mr-2" 
+                            style={{ backgroundColor: config?.color || '#3b82f6' }}
+                          ></div>
+                          {careType}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+                
+                {/* Availability Filter */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Availability</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {availabilityOptions.map(availability => {
+                      const isSelected = selectedAvailability.includes(availability);
+                      return (
+                        <Button
+                          key={availability}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            if (isSelected) {
+                              setSelectedAvailability(selectedAvailability.filter(a => a !== availability));
+                            } else {
+                              setSelectedAvailability([...selectedAvailability, availability]);
+                            }
+                          }}
+                          className={`rounded-full text-xs h-8 flex items-center ${
+                            isSelected
+                              ? 'bg-green-600 text-white border-green-600 hover:bg-green-700'
+                              : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          {availability === 'Available Now' && <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>}
+                          {availability === 'Available Soon' && <div className="w-2 h-2 bg-orange-500 rounded-full mr-2"></div>}
+                          {availability === 'Waitlist Open' && <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>}
+                          {availability}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+                
+                {/* Budget Filter */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Budget</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {budgetOptions.map(budget => {
+                      const isSelected = selectedBudget.includes(budget);
+                      return (
+                        <Button
+                          key={budget}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            if (isSelected) {
+                              setSelectedBudget(selectedBudget.filter(b => b !== budget));
+                            } else {
+                              setSelectedBudget([...selectedBudget, budget]);
+                            }
+                          }}
+                          className={`rounded-full text-xs h-8 flex items-center ${
+                            isSelected
+                              ? 'bg-purple-600 text-white border-purple-600 hover:bg-purple-700'
+                              : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+                          {budget}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
           
           {selectedCareTypes.map(careType => {
             const config = careTypeConfig[careType as keyof typeof careTypeConfig];

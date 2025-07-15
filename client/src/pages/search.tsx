@@ -421,50 +421,58 @@ export default function Search() {
           </div>
         )}
 
-        {/* View Controls & Results Count */}
-        <div className="flex flex-col lg:flex-row gap-4 mb-6">
-          <div className="flex-1">
-            {isLoading ? (
-              <div className="text-gray-600">Loading communities...</div>
-            ) : error ? (
-              <div className="text-red-600">Error loading communities. Please try again.</div>
-            ) : (
-              <div className="text-gray-600">
-                {filteredCommunities.length} of {allCommunities?.length || 0} communities found
+        {/* Sticky Header with Sort and View Controls */}
+        <div className="sticky top-0 bg-white z-10 border-b border-gray-200 pb-4 mb-6">
+          <div className="flex flex-col lg:flex-row gap-4">
+            <div className="flex-1">
+              {isLoading ? (
+                <div className="text-gray-600">Loading communities...</div>
+              ) : error ? (
+                <div className="text-red-600">Error loading communities. Please try again.</div>
+              ) : (
+                <div className="text-gray-600">
+                  {filteredCommunities.length} of {allCommunities?.length || 0} communities found
+                </div>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-2">
+              {/* Sort Dropdown */}
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="relevance">Relevance</SelectItem>
+                  <SelectItem value="rating">Rating</SelectItem>
+                  <SelectItem value="name">Name</SelectItem>
+                  <SelectItem value="city">City</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              {/* View Toggle */}
+              <div className="flex gap-1">
+                <Button
+                  variant={viewMode === 'list' ? "default" : "outline"}
+                  onClick={() => setViewMode('list')}
+                  size="sm"
+                  className="flex items-center gap-1"
+                >
+                  <List className="h-3 w-3" />
+                  List
+                </Button>
+                <Button
+                  variant={viewMode === 'map' ? "default" : "outline"}
+                  onClick={() => setViewMode('map')}
+                  size="sm"
+                  className="flex items-center gap-1"
+                >
+                  <MapIcon className="h-3 w-3" />
+                  Map
+                </Button>
               </div>
-            )}
+            </div>
           </div>
-          
-          <div className="flex gap-2">
-            <Button
-              variant={viewMode === 'list' ? "default" : "outline"}
-              onClick={() => setViewMode('list')}
-              className="flex items-center gap-2"
-            >
-              <List className="h-4 w-4" />
-              List
-            </Button>
-            <Button
-              variant={viewMode === 'map' ? "default" : "outline"}
-              onClick={() => setViewMode('map')}
-              className="flex items-center gap-2"
-            >
-              <MapIcon className="h-4 w-4" />
-              Map
-            </Button>
-          </div>
-          
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="relevance">Relevance</SelectItem>
-              <SelectItem value="rating">Rating</SelectItem>
-              <SelectItem value="name">Name</SelectItem>
-              <SelectItem value="city">City</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
 
         {/* Results Content */}
@@ -546,7 +554,7 @@ export default function Search() {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                 {filteredCommunities.map((community) => (
                   <CommunityCard key={community.id} community={community} />
                 ))}
