@@ -38,39 +38,6 @@ export default function Search() {
     minRating: urlParams.get('minRating') || 'all',
     hasPhotos: urlParams.get('hasPhotos') === 'true',
   });
-
-  // Function to update URL parameters
-  const updateURLParams = (newFilters: SearchFilters) => {
-    const params = new URLSearchParams();
-    
-    if (newFilters.location && newFilters.location !== '') {
-      params.set('location', newFilters.location);
-    }
-    if (newFilters.careType && newFilters.careType !== 'all') {
-      params.set('careType', newFilters.careType);
-    }
-    if (newFilters.priceRange && newFilters.priceRange !== 'all') {
-      params.set('priceRange', newFilters.priceRange);
-    }
-    if (newFilters.availability && newFilters.availability !== 'all') {
-      params.set('availability', newFilters.availability);
-    }
-    if (newFilters.minRating && newFilters.minRating !== 'all') {
-      params.set('minRating', newFilters.minRating);
-    }
-    if (newFilters.hasPhotos) {
-      params.set('hasPhotos', 'true');
-    }
-    if (viewMode !== 'list') {
-      params.set('view', viewMode);
-    }
-    if (sortBy !== 'relevance') {
-      params.set('sortBy', sortBy);
-    }
-    
-    const newURL = `${window.location.pathname}?${params.toString()}`;
-    window.history.replaceState({}, '', newURL);
-  };
   
   const [viewMode, setViewMode] = useState<'list' | 'map'>((urlParams.get('view') as 'list' | 'map') || 'list');
   const [showFilters, setShowFilters] = useState(false);
@@ -84,11 +51,6 @@ export default function Search() {
   
   // Bottom navigation state
   const [activeTab, setActiveTab] = useState('search');
-
-  // Update URL parameters when filters change
-  useEffect(() => {
-    updateURLParams(filters);
-  }, [filters, viewMode, sortBy]);
   
   // Handle bottom navigation
   const handleTabChange = (tab: string) => {

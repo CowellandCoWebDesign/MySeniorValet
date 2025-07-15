@@ -616,7 +616,7 @@ export class DatabaseStorage implements IStorage {
     }
 
     if (params.location) {
-      const locationConditions = this.buildOptimizedLocationSearch(params.location);
+      const locationConditions = this.buildLocationSearchConditions(params.location, params.distance);
       if (locationConditions) {
         conditions.push(locationConditions);
       }
@@ -666,49 +666,285 @@ export class DatabaseStorage implements IStorage {
       query = query.where(and(...conditions));
     }
 
-    // Add pagination support for performance (default limit to prevent large result sets)
-    const limit = params.limit || 50; // Default to 50 results
-    const offset = params.offset || 0;
+    // Add pagination support for performance
+    if (params.limit) {
+      query = query.limit(params.limit);
+    }
     
-    query = query.limit(limit).offset(offset);
+    if (params.offset) {
+      query = query.offset(params.offset);
+    }
 
     const results = await query;
     console.log(`Search returned ${results.length} communities`);
     
-    // Cache search results for 5 minutes (longer for better performance)
-    await cache.set(cacheKey, results, 300);
+    // Cache search results for 2 minutes
+    await cache.set(cacheKey, results, 120);
     return results;
   }
 
-  // Optimized location search with indexed queries
-  private buildOptimizedLocationSearch(location: string) {
-    const searchTerm = location.toLowerCase().trim();
-    
-    // ZIP code search (exact match on indexed column)
-    if (/^\d{5}$/.test(searchTerm)) {
-      return eq(communities.zipCode, searchTerm);
+  // Enhanced location search logic that handles cities, states, ZIP codes, and counties
+  private buildLocationSearchConditions(location: string, distance?: number) {
+    const locationLower = location.toLowerCase().trim();
+    console.log('Building location conditions for:', locationLower, 'with distance:', distance);
+
+    // Detect location type and build appropriate conditions
+    const locationType = this.detectLocationType(locationLower);
+    console.log('Detected location type:', locationType);
+
+    switch (locationType) {
+      case 'city_state':
+        return this.buildCityStateSearch(locationLower, distance);
+      
+      case 'state_only':
+        return this.buildStateSearch(locationLower, distance);
+      
+      case 'zip_code':
+        return this.buildZipCodeSearch(locationLower, distance);
+      
+      case 'county':
+        return this.buildCountySearch(locationLower, distance);
+      
+      case 'city_only':
+        return this.buildCityOnlySearch(locationLower, distance);
+      
+      default:
+        // Fallback: broad search across all location fields AND community name
+        const searchTerm = `%${locationLower}%`;
+        return or(
+          ilike(communities.name, searchTerm),
+          ilike(communities.city, searchTerm),
+          ilike(communities.state, searchTerm),
+          ilike(communities.zipCode, searchTerm),
+          ilike(communities.county, searchTerm)
+        );
     }
+  }
+
+  private detectLocationType(location: string): string {
+    // ZIP code patterns
+    if (/^\d{5}$/.test(location) || /^\d{2}$/.test(location) || /^\d{3}$/.test(location)) {
+      return 'zip_code';
+    }
+
+    // County patterns
+    if (location.includes('county')) {
+      return 'county';
+    }
+
+    // State abbreviations and full names
+    const stateAbbrevs = ['ca', 'california', 'tx', 'texas', 'fl', 'florida', 'ny', 'new york', 'az', 'arizona', 'nv', 'nevada', 'hi', 'hawaii', 'id', 'idaho', 'mt', 'montana', 'or', 'oregon', 'wa', 'washington', 'wy', 'wyoming', 'ut', 'utah', 'nm', 'new mexico', 'co', 'colorado', 'ga', 'georgia', 'al', 'alabama', 'ms', 'mississippi', 'la', 'louisiana', 'tn', 'tennessee'];
+    if (stateAbbrevs.includes(location)) {
+      return 'state_only';
+    }
+
+    // City, State pattern
+    if (location.includes(',')) {
+      return 'city_state';
+    }
+
+    // Default to city only
+    return 'city_only';
+  }
+
+  private buildCityStateSearch(location: string, distance?: number) {
+    const [cityPart, statePart] = location.split(',').map(s => s.trim());
+    const normalizedState = statePart.toUpperCase();
     
-    // City, State format (exact match on indexed columns)
-    if (searchTerm.includes(',')) {
-      const [city, state] = searchTerm.split(',').map(s => s.trim());
+    if (distance) {
+      // For distance searches, expand geographical coverage
+      if (cityPart.includes('redding') || cityPart.includes('sacramento')) {
+        // Northern California regional search
+        return and(
+          eq(communities.state, 'CA'),
+          or(
+            ilike(communities.city, `%${cityPart}%`),
+            ilike(communities.region, '%northern%'),
+            ilike(communities.county, '%shasta%'),
+            ilike(communities.county, '%sacramento%'),
+            ilike(communities.county, '%butte%'),
+            ilike(communities.county, '%tehama%'),
+            ilike(communities.zipCode, '96%'),
+            ilike(communities.zipCode, '95%')
+          )
+        );
+      }
+      
+      // Default distance search for other cities
       return and(
-        ilike(communities.city, city),
-        ilike(communities.state, state)
+        ilike(communities.city, `%${cityPart}%`),
+        ilike(communities.state, `%${normalizedState}%`)
       );
     }
-    
-    // Simple location search using indexed patterns
+
+    // Try exact match first, then fallback to state-wide search if no exact match
     return or(
-      ilike(communities.city, searchTerm),
-      ilike(communities.state, searchTerm),
-      ilike(communities.name, `%${searchTerm}%`)
+      // Primary: exact city and state match
+      and(
+        ilike(communities.city, `%${cityPart}%`),
+        ilike(communities.state, `%${normalizedState}%`)
+      ),
+      // Fallback: if no exact city match, show other communities in the same state
+      and(
+        eq(communities.state, normalizedState),
+        // Prioritize communities with similar names or in major cities
+        or(
+          ilike(communities.city, `%${cityPart.substring(0, 3)}%`), // Partial city name match
+          ilike(communities.city, '%phoenix%'),    // Major AZ cities
+          ilike(communities.city, '%tucson%'),
+          ilike(communities.city, '%mesa%'),
+          ilike(communities.city, '%scottsdale%'),
+          ilike(communities.city, '%chandler%'),
+          ilike(communities.city, '%tempe%'),
+          ilike(communities.city, '%flagstaff%'),
+          ilike(communities.city, '%yuma%')
+        )
+      )
     );
   }
 
+  private buildStateSearch(location: string, distance?: number) {
+    // Normalize state input
+    const stateMap: Record<string, string> = {
+      'ca': 'CA',
+      'california': 'CA',
+      'tx': 'TX', 
+      'texas': 'TX',
+      'fl': 'FL',
+      'florida': 'FL',
+      'ny': 'NY',
+      'new york': 'NY',
+      'az': 'AZ',
+      'arizona': 'AZ',
+      'nv': 'NV',
+      'nevada': 'NV',
+      'hi': 'HI',
+      'hawaii': 'HI',
+      'id': 'ID',
+      'idaho': 'ID',
+      'mt': 'MT',
+      'montana': 'MT',
+      'or': 'OR',
+      'oregon': 'OR',
+      'wa': 'WA',
+      'washington': 'WA',
+      'wy': 'WY',
+      'wyoming': 'WY',
+      'ut': 'UT',
+      'utah': 'UT',
+      'nm': 'NM',
+      'new mexico': 'NM',
+      'co': 'CO',
+      'colorado': 'CO',
+      'ga': 'GA',
+      'georgia': 'GA',
+      'al': 'AL',
+      'alabama': 'AL',
+      'ms': 'MS',
+      'mississippi': 'MS',
+      'la': 'LA',
+      'louisiana': 'LA',
+      'tn': 'TN',
+      'tennessee': 'TN'
+    };
 
+    const stateCode = stateMap[location] || location.toUpperCase();
+    
+    if (distance) {
+      // For distance searches in states, include neighboring regions
+      if (stateCode === 'CA') {
+        return eq(communities.state, 'CA');
+      }
+    }
 
+    return eq(communities.state, stateCode);
+  }
 
+  private buildZipCodeSearch(location: string, distance?: number) {
+    console.log(`ZIP code search for: ${location}`);
+    
+    if (location.length === 5) {
+      // Full ZIP code search with intelligent geographic expansion
+      console.log(`Full ZIP code search for: ${location}`);
+      
+      // Use the comprehensive ZIP code service for geographic expansion
+      const expandedZips = zipCodeService.expandZipSearch(location);
+      console.log(`ZIP expansion: ${location} -> ${expandedZips.join(', ')}`);
+      
+      if (expandedZips.length > 1) {
+        // Multiple ZIP codes found - search all related ZIPs for geographic equivalence
+        return inArray(communities.zipCode, expandedZips);
+      } else if (expandedZips.length === 1) {
+        // Single ZIP code - exact match
+        return eq(communities.zipCode, expandedZips[0]);
+      } else {
+        // No ZIP codes found in mapping - try broader geographic search
+        console.log(`No ZIP mapping found for ${location}, trying broader search`);
+        const zipPrefix = location.substring(0, 4); // First 4 digits for geographic area
+        return or(
+          eq(communities.zipCode, location),
+          ilike(communities.zipCode, `${zipPrefix}%`)
+        );
+      }
+    }
+    
+    // Partial ZIP code search (2-3 digits)
+    const zipPattern = `${location}%`;
+    
+    if (distance) {
+      // For distance searches, expand to nearby ZIP patterns
+      const zipPrefix = location.substring(0, 2);
+      return or(
+        ilike(communities.zipCode, zipPattern),
+        ilike(communities.zipCode, `${zipPrefix}%`)
+      );
+    }
+
+    return ilike(communities.zipCode, zipPattern);
+  }
+
+  private buildCountySearch(location: string, distance?: number) {
+    // Extract county name (remove "county" suffix if present)
+    const countyName = location.replace(/\s+county.*$/i, '').trim();
+    const countyPattern = `%${countyName}%`;
+    
+    if (distance) {
+      // For distance searches, include neighboring counties
+      if (countyName.includes('shasta')) {
+        return or(
+          ilike(communities.county, countyPattern),
+          ilike(communities.county, '%butte%'),
+          ilike(communities.county, '%tehama%'),
+          ilike(communities.county, '%siskiyou%')
+        );
+      }
+    }
+
+    return ilike(communities.county, countyPattern);
+  }
+
+  private buildCityOnlySearch(location: string, distance?: number) {
+    const searchPattern = `%${location}%`;
+    
+    if (distance) {
+      // For distance searches from a city, search broadly
+      return or(
+        ilike(communities.name, searchPattern),
+        ilike(communities.city, searchPattern),
+        ilike(communities.county, searchPattern),
+        // If it's a major city, include regional search
+        ...(location.includes('los angeles') ? [eq(communities.state, 'CA')] : []),
+        ...(location.includes('san francisco') ? [ilike(communities.zipCode, '94%')] : []),
+        ...(location.includes('redding') ? [ilike(communities.zipCode, '96%')] : [])
+      );
+    }
+
+    // Search both community name and city for single term searches
+    return or(
+      ilike(communities.name, searchPattern),
+      ilike(communities.city, searchPattern)
+    );
+  }
 
   async createCommunity(insertCommunity: InsertCommunity): Promise<Community> {
     const [community] = await db
@@ -1263,66 +1499,51 @@ export class DatabaseStorage implements IStorage {
     const searchTerm = query.toLowerCase().trim();
     
     try {
-      // Use raw SQL for better performance with proper indexing
-      const suggestions = new Set<string>();
+      // Simple query to get matching locations
+      const results = await db
+        .select({
+          city: communities.city,
+          state: communities.state,
+          zipCode: communities.zipCode
+        })
+        .from(communities)
+        .where(
+          or(
+            ilike(communities.city, `%${searchTerm}%`),
+            ilike(communities.state, `%${searchTerm}%`),
+            like(communities.zipCode, `${searchTerm}%`)
+          )
+        )
+        .limit(50);
+
+      // Use a Set to track unique suggestions
+      const uniqueSuggestions = new Set<string>();
       
-      // Get city suggestions (prioritized)
-      const cityResults = await db.execute(
-        sql`
-          SELECT DISTINCT city, state 
-          FROM communities 
-          WHERE LOWER(city) LIKE ${`${searchTerm}%`} 
-          ORDER BY city 
-          LIMIT 5
-        `
-      );
-      
-      // Add city, state combinations
-      cityResults.forEach((row: any) => {
+      // Process results and add unique city/state combinations
+      results.forEach(row => {
         if (row.city && row.state) {
-          suggestions.add(`${row.city}, ${row.state}`);
+          const cityLower = row.city.toLowerCase();
+          const stateLower = row.state.toLowerCase();
+          
+          // Add city, state if it matches
+          if (cityLower.includes(searchTerm) || stateLower.includes(searchTerm)) {
+            uniqueSuggestions.add(`${row.city}, ${row.state}`);
+          }
+        }
+        
+        // Add state if it matches
+        if (row.state && row.state.toLowerCase().includes(searchTerm)) {
+          uniqueSuggestions.add(row.state);
+        }
+        
+        // Add zip code if it matches
+        if (row.zipCode && row.zipCode.startsWith(searchTerm)) {
+          uniqueSuggestions.add(row.zipCode);
         }
       });
-      
-      // Get state suggestions if needed
-      if (suggestions.size < 6) {
-        const stateResults = await db.execute(
-          sql`
-            SELECT DISTINCT state 
-            FROM communities 
-            WHERE LOWER(state) LIKE ${`${searchTerm}%`} 
-            ORDER BY state 
-            LIMIT 3
-          `
-        );
-        
-        stateResults.forEach((row: any) => {
-          if (row.state) {
-            suggestions.add(row.state);
-          }
-        });
-      }
-      
-      // Get ZIP code suggestions if needed
-      if (suggestions.size < 8 && /^\d/.test(searchTerm)) {
-        const zipResults = await db.execute(
-          sql`
-            SELECT DISTINCT zip_code, city, state 
-            FROM communities 
-            WHERE zip_code LIKE ${`${searchTerm}%`} 
-            ORDER BY zip_code 
-            LIMIT 3
-          `
-        );
-        
-        zipResults.forEach((row: any) => {
-          if (row.zip_code) {
-            suggestions.add(row.zip_code);
-          }
-        });
-      }
 
-      return Array.from(suggestions).slice(0, 8);
+      // Convert Set to Array and limit results
+      return Array.from(uniqueSuggestions).slice(0, 8);
     } catch (error) {
       console.error('Error getting search suggestions:', error);
       return [];
