@@ -664,10 +664,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
   }
 
   return (
-    <>
-    <div className={`min-h-screen bg-white transition-all duration-300 ${
-      showBottomNav ? 'pb-16' : 'pb-4'
-    }`}>
+    <div className="min-h-screen bg-white pb-16">
       {/* Navigation Bar */}
       <div className="sticky top-0 bg-white z-40 border-b border-gray-200 shadow-sm">
         <div className="px-3 py-2">
@@ -703,26 +700,25 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
         </div>
       </div>
 
-      {/* Header - Compact Search - Always Visible */}
-      <div className={`sticky bg-white z-30 border-b border-gray-200 shadow-sm transition-all duration-300 ${
-        isBottomNavVisible ? 'top-12' : 'top-0'
-      }`}>
-        <div className="px-4 py-3">
-          <div className="relative mb-3">
+      {/* Header - Compact Search */}
+      <div className="sticky top-12 bg-white z-30 border-b border-gray-200">
+        <div className="px-4 py-2.5">
+          <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               type="text"
               placeholder="Try 'San Francisco' or 'Memory Care'"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 h-10 text-sm border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:border-blue-500"
+              className="pl-9 pr-4 h-9 text-sm border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:border-blue-500"
             />
           </div>
+        </div>
 
-          {/* Filter Pills - Mobile-Friendly */}
-          <div className="flex space-x-2 overflow-x-auto scrollbar-hide">
-            {/* Mobile Filter Drawer Trigger */}
-            <Sheet>
+        {/* Filter Pills - Mobile-Friendly */}
+        <div className="px-4 pb-2.5 flex space-x-2 overflow-x-auto scrollbar-hide">
+          {/* Mobile Filter Drawer Trigger */}
+          <Sheet>
             <SheetTrigger asChild>
               <Button 
                 variant="outline" 
@@ -984,7 +980,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Map/List View */}
@@ -1198,9 +1194,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
         </div>
       ) : (
         <div className="px-4 py-4">
-          <div className={`flex items-center justify-between mb-4 sticky bg-white z-40 py-4 -mx-4 px-4 border-b border-gray-100 shadow-sm transition-all duration-300 ${
-            isBottomNavVisible ? 'top-[120px]' : 'top-[72px]'
-          }`}>
+          <div className="flex items-center justify-between mb-4 sticky top-0 bg-white z-40 py-2 -mx-4 px-4">
             <div className="text-lg font-semibold text-gray-900">
               {filteredCommunities.length} Results
             </div>
@@ -1213,7 +1207,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
               Map
             </Button>
           </div>
-          <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide pt-2">
+          <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">
           {filteredCommunities.map((community: any, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
               <Card className="overflow-hidden flex-shrink-0 w-48 h-[24rem] hover:shadow-xl transition-shadow duration-300">
@@ -1411,6 +1405,5 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
         isVisible={showBottomNav}
       />
     </div>
-    </>
   );
 };
