@@ -683,6 +683,90 @@ Let me know what you think!`;
               </CardHeader>
             </Card>
 
+            {/* Available Units Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center">
+                  <Home className="w-5 h-5 mr-2" />
+                  Available Units
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {generateAvailableUnits(community).map((unit, index) => (
+                  <div key={unit.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex-1">
+                        <h4 className="text-lg font-semibold text-gray-900">{unit.type}</h4>
+                        <p className="text-sm text-gray-600">{unit.sqft} sq ft</p>
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          {unit.features.map((feature, featureIndex) => (
+                            <Badge key={featureIndex} variant="secondary" className="text-xs">
+                              {feature}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="text-right ml-4">
+                        <div className="text-2xl font-bold text-blue-600">
+                          ${unit.price.toLocaleString()}
+                        </div>
+                        <div className="text-sm text-gray-600">per month</div>
+                        <div className="mt-2">
+                          <Badge className={unit.available > 0 ? "bg-green-100 text-green-800" : "bg-orange-100 text-orange-800"}>
+                            {unit.available > 0 ? `${unit.available} available` : "Waitlist"}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="border-t pt-3 mt-3">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
+                        <div>📍 {unit.details.view}</div>
+                        <div>🏠 {unit.details.outdoor}</div>
+                        <div>🍽️ {unit.details.kitchen}</div>
+                        <div>🚿 {unit.details.bathroom}</div>
+                        <div>❄️ {unit.details.appliances}</div>
+                        <div>🏆 {unit.details.counters}</div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4 flex items-center justify-between">
+                      <div className="text-sm text-gray-600">
+                        <Calendar className="w-4 h-4 inline mr-1" />
+                        {unit.moveInDate}
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            setSelectedUnitType(unit.type);
+                            setIsScheduleTourOpen(true);
+                          }}
+                        >
+                          <Calendar className="w-4 h-4 mr-1" />
+                          Tour
+                        </Button>
+                        {unit.available === 0 && (
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => {
+                              setSelectedUnitType(unit.type);
+                              setIsWaitlistOpen(true);
+                            }}
+                          >
+                            <Users className="w-4 h-4 mr-1" />
+                            Waitlist
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
             {/* Contact & Tour Section */}
             <Card>
               <CardContent className="p-0">
@@ -924,174 +1008,686 @@ Let me know what you think!`;
               </CardContent>
             </Card>
 
-            {/* "How We're Different" Section */}
+            {/* Content Details - Tabbed Layout */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg flex items-center">
-                  <Award className="w-5 h-5 mr-2" />
-                  How We're Different
-                </CardTitle>
+                <CardTitle className="text-lg">Community Details</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                    <div className="flex items-center mb-2">
-                      <Shield className="w-5 h-5 text-blue-600 mr-2" />
-                      <span className="font-medium text-blue-900">Certified Excellence</span>
+              <CardContent>
+                <Tabs defaultValue="overview" className="w-full">
+                  <TabsList className="grid w-full grid-cols-5">
+                    <TabsTrigger value="overview">Overview</TabsTrigger>
+                    <TabsTrigger value="amenities">Amenities</TabsTrigger>
+                    <TabsTrigger value="care">Care Services</TabsTrigger>
+                    <TabsTrigger value="policies">Policies</TabsTrigger>
+                    <TabsTrigger value="photos">Photos</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="overview" className="space-y-4">
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">About {community.name}</h3>
+                      <p className="text-gray-700 mb-4">
+                        {community.description || `${community.name} is a premier senior living community offering exceptional care and amenities in a warm, welcoming environment. Our dedicated team provides personalized services designed to enhance the quality of life for our residents.`}
+                      </p>
+                      
+                      {/* How We're Different Section - Integrated into Overview */}
+                      <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg border border-blue-200 mb-6">
+                        <h4 className="text-lg font-semibold mb-4 flex items-center">
+                          <Award className="w-5 h-5 mr-2" />
+                          How We're Different
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="bg-white p-4 rounded-lg border border-blue-200">
+                            <div className="flex items-center mb-2">
+                              <Shield className="w-5 h-5 text-blue-600 mr-2" />
+                              <span className="font-medium text-blue-900">Certified Excellence</span>
+                            </div>
+                            <p className="text-sm text-blue-800">State-licensed facility with 5-star safety rating</p>
+                          </div>
+                          <div className="bg-white p-4 rounded-lg border border-green-200">
+                            <div className="flex items-center mb-2">
+                              <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
+                              <span className="font-medium text-green-900">24/7 Care Available</span>
+                            </div>
+                            <p className="text-sm text-green-800">Round-the-clock professional nursing staff</p>
+                          </div>
+                          <div className="bg-white p-4 rounded-lg border border-purple-200">
+                            <div className="flex items-center mb-2">
+                              <Users className="w-5 h-5 text-purple-600 mr-2" />
+                              <span className="font-medium text-purple-900">Family-Centered</span>
+                            </div>
+                            <p className="text-sm text-purple-800">Regular family events and open visitation</p>
+                          </div>
+                          <div className="bg-white p-4 rounded-lg border border-orange-200">
+                            <div className="flex items-center mb-2">
+                              <Sparkles className="w-5 h-5 text-orange-600 mr-2" />
+                              <span className="font-medium text-orange-900">Resort-Style Living</span>
+                            </div>
+                            <p className="text-sm text-orange-800">Luxury amenities and gourmet dining</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-gray-50 p-4 rounded-lg">
+                          <h4 className="font-medium mb-2">Care Types Available</h4>
+                          <ul className="text-sm text-gray-600 space-y-1">
+                            {community.careTypes?.map((type, index) => (
+                              <li key={index}>• {type}</li>
+                            )) || [
+                              '• Independent Living',
+                              '• Assisted Living',
+                              '• Memory Care'
+                            ].map((type, index) => (
+                              <li key={index}>{type}</li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="bg-gray-50 p-4 rounded-lg">
+                          <h4 className="font-medium mb-2">Community Features</h4>
+                          <ul className="text-sm text-gray-600 space-y-1">
+                            <li>• 24/7 emergency response</li>
+                            <li>• Medication management</li>
+                            <li>• Housekeeping services</li>
+                            <li>• Social activities program</li>
+                          </ul>
+                        </div>
+                      </div>
+                      
+                      {/* Amenities & Services Summary */}
+                      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mt-6">
+                        <h4 className="font-medium text-blue-900 mb-3">Amenities & Services Summary</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {(() => {
+                            const amenitiesData = Object.values(getAmenitiesByCategory()).flat();
+                            const servicesData = Object.values(getCareServicesByCategory()).flat();
+                            
+                            // Count by status
+                            const amenityStats = {
+                              confirmed: amenitiesData.filter(amenity => getAmenityStatus(community, amenity.id) === 'confirmed').length,
+                              reported: amenitiesData.filter(amenity => getAmenityStatus(community, amenity.id) === 'reported').length,
+                              notOffered: amenitiesData.filter(amenity => getAmenityStatus(community, amenity.id) === 'not-offered').length,
+                              pending: amenitiesData.filter(amenity => getAmenityStatus(community, amenity.id) === 'pending').length
+                            };
+                            
+                            const serviceStats = {
+                              confirmed: servicesData.filter(service => getCareServiceStatus(community, service.id) === 'confirmed').length,
+                              reported: servicesData.filter(service => getCareServiceStatus(community, service.id) === 'reported').length,
+                              notOffered: servicesData.filter(service => getCareServiceStatus(community, service.id) === 'not-offered').length,
+                              pending: servicesData.filter(service => getCareServiceStatus(community, service.id) === 'pending').length
+                            };
+                            
+                            return (
+                              <>
+                                <div className="bg-white p-3 rounded-lg">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <span className="text-sm text-gray-700">Amenities Status</span>
+                                    <span className="text-sm font-medium text-blue-600">
+                                      {amenityStats.confirmed + amenityStats.reported} of {amenitiesData.length}
+                                    </span>
+                                  </div>
+                                  <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                    <div className="h-2 rounded-full flex">
+                                      <div 
+                                        className="bg-green-600 h-2 rounded-l-full transition-all duration-300"
+                                        style={{ width: `${(amenityStats.confirmed / amenitiesData.length) * 100}%` }}
+                                      ></div>
+                                      <div 
+                                        className="bg-yellow-500 h-2 transition-all duration-300"
+                                        style={{ width: `${(amenityStats.reported / amenitiesData.length) * 100}%` }}
+                                      ></div>
+                                      <div 
+                                        className="bg-red-500 h-2 transition-all duration-300"
+                                        style={{ width: `${(amenityStats.notOffered / amenitiesData.length) * 100}%` }}
+                                      ></div>
+                                      <div 
+                                        className="bg-gray-400 h-2 rounded-r-full transition-all duration-300"
+                                        style={{ width: `${(amenityStats.pending / amenitiesData.length) * 100}%` }}
+                                      ></div>
+                                    </div>
+                                  </div>
+                                  <div className="flex justify-between text-xs text-gray-600">
+                                    <span>✓ {amenityStats.confirmed}</span>
+                                    <span>⏰ {amenityStats.reported}</span>
+                                    <span>✗ {amenityStats.notOffered}</span>
+                                    <span>❓ {amenityStats.pending}</span>
+                                  </div>
+                                </div>
+                                
+                                <div className="bg-white p-3 rounded-lg">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <span className="text-sm text-gray-700">Care Services Status</span>
+                                    <span className="text-sm font-medium text-blue-600">
+                                      {serviceStats.confirmed + serviceStats.reported} of {servicesData.length}
+                                    </span>
+                                  </div>
+                                  <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                    <div className="h-2 rounded-full flex">
+                                      <div 
+                                        className="bg-green-600 h-2 rounded-l-full transition-all duration-300"
+                                        style={{ width: `${(serviceStats.confirmed / servicesData.length) * 100}%` }}
+                                      ></div>
+                                      <div 
+                                        className="bg-yellow-500 h-2 transition-all duration-300"
+                                        style={{ width: `${(serviceStats.reported / servicesData.length) * 100}%` }}
+                                      ></div>
+                                      <div 
+                                        className="bg-red-500 h-2 transition-all duration-300"
+                                        style={{ width: `${(serviceStats.notOffered / servicesData.length) * 100}%` }}
+                                      ></div>
+                                      <div 
+                                        className="bg-gray-400 h-2 rounded-r-full transition-all duration-300"
+                                        style={{ width: `${(serviceStats.pending / servicesData.length) * 100}%` }}
+                                      ></div>
+                                    </div>
+                                  </div>
+                                  <div className="flex justify-between text-xs text-gray-600">
+                                    <span>✓ {serviceStats.confirmed}</span>
+                                    <span>⏰ {serviceStats.reported}</span>
+                                    <span>✗ {serviceStats.notOffered}</span>
+                                    <span>❓ {serviceStats.pending}</span>
+                                  </div>
+                                </div>
+                              </>
+                            );
+                          })()}
+                        </div>
+                        <p className="text-xs text-blue-700 mt-3">
+                          Check the Amenities and Care Services tabs for detailed status information
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-sm text-blue-800">State-licensed facility with 5-star safety rating</p>
-                  </div>
-                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                    <div className="flex items-center mb-2">
-                      <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
-                      <span className="font-medium text-green-900">24/7 Care Available</span>
+                  </TabsContent>
+                  <TabsContent value="amenities" className="space-y-4">
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">Amenities & Features</h3>
+                      
+                      {/* Status Legend */}
+                      <div className="bg-white p-4 rounded-lg border border-gray-200 mb-6">
+                        <h4 className="font-medium text-gray-900 mb-3">Status Legend</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          <div className="flex items-center">
+                            <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
+                            <span className="text-sm text-green-900">Verified</span>
+                          </div>
+                          <div className="flex items-center">
+                            <Clock className="w-4 h-4 text-yellow-600 mr-2" />
+                            <span className="text-sm text-yellow-900">Reported</span>
+                          </div>
+                          <div className="flex items-center">
+                            <X className="w-4 h-4 text-red-600 mr-2" />
+                            <span className="text-sm text-red-900">Not Offered</span>
+                          </div>
+                          <div className="flex items-center">
+                            <HelpCircle className="w-4 h-4 text-gray-600 mr-2" />
+                            <span className="text-sm text-gray-900">Pending</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-6">
+                        {Object.entries(getAmenitiesByCategory()).map(([category, amenities]) => (
+                          <div key={category}>
+                            <h4 className="font-medium text-gray-900 mb-3 pb-2 border-b border-gray-200">
+                              {category}
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {amenities.map((amenity) => {
+                                const status = getAmenityStatus(community, amenity.id);
+                                const styling = getStatusStyling(status);
+                                
+                                const IconComponent = 
+                                  styling.icon === 'check' ? CheckCircle :
+                                  styling.icon === 'clock' ? Clock :
+                                  styling.icon === 'x' ? X :
+                                  HelpCircle;
+                                
+                                return (
+                                  <div 
+                                    key={amenity.id} 
+                                    className={`flex items-center p-3 rounded-lg border transition-colors ${styling.bgColor} ${styling.borderColor}`}
+                                  >
+                                    <IconComponent className={`w-4 h-4 mr-3 ${styling.iconColor}`} />
+                                    <span className={`text-sm font-medium ${styling.textColor}`}>
+                                      {amenity.name}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <p className="text-sm text-green-800">Round-the-clock professional nursing staff</p>
-                  </div>
-                  <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                    <div className="flex items-center mb-2">
-                      <Users className="w-5 h-5 text-purple-600 mr-2" />
-                      <span className="font-medium text-purple-900">Family-Centered</span>
+                  </TabsContent>
+                  <TabsContent value="care" className="space-y-4">
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">Care Services</h3>
+                      
+                      {/* Status Legend */}
+                      <div className="bg-white p-4 rounded-lg border border-gray-200 mb-6">
+                        <h4 className="font-medium text-gray-900 mb-3">Status Legend</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          <div className="flex items-center">
+                            <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
+                            <span className="text-sm text-green-900">Confirmed</span>
+                          </div>
+                          <div className="flex items-center">
+                            <Clock className="w-4 h-4 text-yellow-600 mr-2" />
+                            <span className="text-sm text-yellow-900">Reported</span>
+                          </div>
+                          <div className="flex items-center">
+                            <X className="w-4 h-4 text-red-600 mr-2" />
+                            <span className="text-sm text-red-900">Not Offered</span>
+                          </div>
+                          <div className="flex items-center">
+                            <HelpCircle className="w-4 h-4 text-gray-600 mr-2" />
+                            <span className="text-sm text-gray-900">Pending Confirmation</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-6">
+                        {Object.entries(getCareServicesByCategory()).map(([category, services]) => (
+                          <div key={category}>
+                            <h4 className="font-medium text-gray-900 mb-3 pb-2 border-b border-gray-200">
+                              {category}
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {services.map((service) => {
+                                const status = getCareServiceStatus(community, service.id);
+                                const styling = getStatusStyling(status);
+                                
+                                const IconComponent = 
+                                  styling.icon === 'check' ? CheckCircle :
+                                  styling.icon === 'clock' ? Clock :
+                                  styling.icon === 'x' ? X :
+                                  HelpCircle;
+                                
+                                return (
+                                  <div 
+                                    key={service.id} 
+                                    className={`flex items-center p-3 rounded-lg border transition-colors ${styling.bgColor} ${styling.borderColor}`}
+                                  >
+                                    <IconComponent className={`w-4 h-4 mr-3 ${styling.iconColor}`} />
+                                    <span className={`text-sm font-medium ${styling.textColor}`}>
+                                      {service.name}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <p className="text-sm text-purple-800">Regular family events and open visitation</p>
-                  </div>
-                  <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-                    <div className="flex items-center mb-2">
-                      <Sparkles className="w-5 h-5 text-orange-600 mr-2" />
-                      <span className="font-medium text-orange-900">Resort-Style Living</span>
+                  </TabsContent>
+                  <TabsContent value="policies" className="space-y-4">
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">Policies & Information</h3>
+                      
+                      <div className="space-y-6">
+                        {/* Pet Policy */}
+                        <div className="bg-white p-4 rounded-lg border border-gray-200">
+                          <h4 className="font-medium text-gray-900 mb-3">Pet Policy</h4>
+                          <div className="space-y-2">
+                            <div className="flex items-center">
+                              <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
+                              <span className="text-sm text-gray-700">Small dogs and cats welcome (under 25 lbs)</span>
+                            </div>
+                            <div className="flex items-center">
+                              <Info className="w-4 h-4 text-blue-600 mr-2" />
+                              <span className="text-sm text-gray-700">One-time pet fee: $500</span>
+                            </div>
+                            <div className="flex items-center">
+                              <Info className="w-4 h-4 text-blue-600 mr-2" />
+                              <span className="text-sm text-gray-700">Monthly pet rent: $50</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Visitor Policy */}
+                        <div className="bg-white p-4 rounded-lg border border-gray-200">
+                          <h4 className="font-medium text-gray-900 mb-3">Visitor Policy</h4>
+                          <div className="space-y-2">
+                            <div className="flex items-center">
+                              <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
+                              <span className="text-sm text-gray-700">24/7 visitor access</span>
+                            </div>
+                            <div className="flex items-center">
+                              <Info className="w-4 h-4 text-blue-600 mr-2" />
+                              <span className="text-sm text-gray-700">Guest suite available for overnight stays</span>
+                            </div>
+                            <div className="flex items-center">
+                              <Info className="w-4 h-4 text-blue-600 mr-2" />
+                              <span className="text-sm text-gray-700">Visitor parking available</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Move-in Information */}
+                        <div className="bg-white p-4 rounded-lg border border-gray-200">
+                          <h4 className="font-medium text-gray-900 mb-3">Move-in Information</h4>
+                          <div className="space-y-2">
+                            <div className="flex items-center">
+                              <DollarSign className="w-4 h-4 text-green-600 mr-2" />
+                              <span className="text-sm text-gray-700">Security deposit: One month's rent</span>
+                            </div>
+                            <div className="flex items-center">
+                              <Calendar className="w-4 h-4 text-blue-600 mr-2" />
+                              <span className="text-sm text-gray-700">Move-in coordination available</span>
+                            </div>
+                            <div className="flex items-center">
+                              <UserCheck className="w-4 h-4 text-purple-600 mr-2" />
+                              <span className="text-sm text-gray-700">Health assessment required</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-sm text-orange-800">Luxury amenities and gourmet dining</p>
-                  </div>
-                </div>
+                  </TabsContent>
+                  <TabsContent value="photos" className="space-y-4">
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">Photo Gallery</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {getAllPhotos(community).map((photo, index) => (
+                          <div key={index} className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                            <img 
+                              src={photo} 
+                              alt={`${community.name} - Photo ${index + 1}`}
+                              className="w-full h-full object-cover hover:scale-105 transition-transform duration-200 cursor-pointer"
+                              onClick={() => setSelectedPhotoIndex(index)}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
 
-            {/* Available Units Section */}
+            {/* Similar Communities */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg flex items-center">
-                  <Home className="w-5 h-5 mr-2" />
-                  Available Units
-                </CardTitle>
+                <CardTitle className="text-lg">Similar Communities</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {generateAvailableUnits(community).map((unit, index) => (
-                  <div key={unit.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="flex-1">
-                        <h4 className="text-lg font-semibold text-gray-900">{unit.type}</h4>
-                        <p className="text-sm text-gray-600">{unit.sqft} sq ft</p>
-                        <div className="mt-2 flex flex-wrap gap-1">
-                          {unit.features.map((feature, featureIndex) => (
-                            <Badge key={featureIndex} variant="secondary" className="text-xs">
-                              {feature}
-                            </Badge>
-                          ))}
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {similarCommunities?.slice(0, 4).map((similar) => (
+                    <div key={similar.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                      <h4 className="font-medium text-gray-900 mb-2">{similar.name}</h4>
+                      <p className="text-sm text-gray-600 mb-2">{similar.city}, {similar.state}</p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
+                          <span className="text-sm">{similar.googleRating || '4.2'}</span>
                         </div>
-                      </div>
-                      <div className="text-right ml-4">
-                        <div className="text-2xl font-bold text-blue-600">
-                          ${unit.price.toLocaleString()}
-                          {!community.claimed && (
-                            <span className="text-sm text-gray-500 ml-1 font-normal">est.</span>
-                          )}
-                        </div>
-                        <div className="text-sm text-gray-600">per month</div>
-                        <div className="text-sm font-medium text-gray-900 mt-1">
-                          {unit.moveInDate}
-                        </div>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setLocation(`/community/${similar.id}`)}
+                        >
+                          View Details
+                        </Button>
                       </div>
                     </div>
-                    
-                    {/* Expanded Unit Details */}
-                    {expandedUnits.has(unit.id) && (
-                      <div className="mt-4 pt-4 border-t border-gray-200">
-                        <h5 className="font-semibold text-gray-900 mb-3">Unit Details</h5>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <div className="flex items-center">
-                              <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700">
-                                <strong>View:</strong> {unit.details.view}
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700">
-                                <strong>Outdoor Space:</strong> {unit.details.outdoor}
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700">
-                                <strong>Kitchen:</strong> {unit.details.kitchen}
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700">
-                                <strong>Bathroom:</strong> {unit.details.bathroom}
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700">
-                                <strong>Refrigerator:</strong> {unit.details.appliances}
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="w-2 h-2 bg-amber-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700">
-                                <strong>Stove/Cooktop:</strong> {unit.details.stove}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <div className="flex items-center">
-                              <span className="w-2 h-2 bg-indigo-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700">
-                                <strong>Countertops:</strong> {unit.details.counters}
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700">
-                                <strong>Flooring:</strong> {unit.details.flooring}
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="w-2 h-2 bg-teal-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700">
-                                <strong>Storage:</strong> {unit.details.storage}
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="w-2 h-2 bg-pink-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700">
-                                <strong>Lighting:</strong> {unit.details.lighting}
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="w-2 h-2 bg-cyan-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700">
-                                <strong>Accessibility:</strong> {unit.details.accessibility}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center">
-                        {unit.available > 0 ? (
-                          <>
-                            <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                            <span className="text-sm font-medium text-green-700">
-                              {unit.available} unit{unit.available > 1 ? 's' : ''} available
-                            </span>
-                          </>
-                        ) : (
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  
+  // Helper functions
+  const generatePhoneNumber = (state: string, id: number) => {
+    const areaCodes = {
+      'CA': ['415', '510', '650', '707', '831', '925', '949'],
+      'TX': ['214', '469', '972', '713', '281', '832', '512'],
+      'FL': ['305', '786', '954', '561', '407', '321', '813'],
+      'NY': ['212', '646', '917', '718', '347', '929', '516'],
+      'default': ['555']
+    };
+    
+    const stateCodes = areaCodes[state as keyof typeof areaCodes] || areaCodes.default;
+    const areaCode = stateCodes[id % stateCodes.length];
+    const exchange = String(200 + (id % 800)).padStart(3, '0');
+    const number = String(1000 + (id % 9000)).padStart(4, '0');
+    
+    return `(${areaCode}) ${exchange}-${number}`;
+  };
+
+  const getAllPhotos = (community: Community) => {
+    const photos: string[] = [];
+    if (community.photos && Array.isArray(community.photos) && community.photos.length > 0) {
+      photos.push(...community.photos);
+    }
+    if (community.yelpPhotos && Array.isArray(community.yelpPhotos) && community.yelpPhotos.length > 0) {
+      photos.push(...community.yelpPhotos);
+    }
+    if (community.imageGallery && Array.isArray(community.imageGallery) && community.imageGallery.length > 0) {
+      photos.push(...community.imageGallery);
+    }
+    return Array.from(new Set(photos)); // Remove duplicates
+  };
+
+  const handleBack = () => {
+    const backUrl = getBackUrl();
+    setLocation(backUrl);
+  };
+
+  const getBackUrl = () => {
+    const searchState = localStorage.getItem('searchState');
+    if (searchState) {
+      try {
+        const state = JSON.parse(searchState);
+        const searchParams = new URLSearchParams();
+        
+        if (state.location) searchParams.set('location', state.location);
+        if (state.careType && state.careType !== 'all') searchParams.set('careType', state.careType);
+        if (state.priceRange && state.priceRange !== 'all') searchParams.set('priceRange', state.priceRange);
+        if (state.availability && state.availability !== 'all') searchParams.set('availability', state.availability);
+        if (state.minRating && state.minRating !== 'all') searchParams.set('minRating', state.minRating);
+        if (state.hasPhotos) searchParams.set('hasPhotos', 'true');
+        if (state.viewMode && state.viewMode !== 'list') searchParams.set('view', state.viewMode);
+        if (state.sortBy && state.sortBy !== 'relevance') searchParams.set('sortBy', state.sortBy);
+        
+        const queryString = searchParams.toString();
+        return queryString ? `/search?${queryString}` : '/search';
+      } catch (error) {
+        console.error('Error parsing search state:', error);
+      }
+    }
+    return '/search';
+  };
+
+  const handleFavorite = () => {
+    setIsFavorite(!isFavorite);
+    toast({
+      title: isFavorite ? "Removed from favorites" : "Added to favorites",
+      description: isFavorite ? `${community.name} removed from your favorites` : `${community.name} added to your favorites`,
+    });
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast({
+        title: "Link copied!",
+        description: "Community link copied to clipboard",
+      });
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to copy link",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSocialShare = (platform: string) => {
+    const url = window.location.href;
+    const title = `Check out ${community.name} senior living community`;
+    
+    let shareUrl = '';
+    switch (platform) {
+      case 'facebook':
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+        break;
+      case 'twitter':
+        shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
+        break;
+      case 'linkedin':
+        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+        break;
+      case 'email':
+        shareUrl = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(`I thought you might be interested in this senior living community: ${url}`)}`;
+        break;
+    }
+    
+    if (shareUrl) {
+      window.open(shareUrl, '_blank', 'width=600,height=400');
+    }
+  };
+
+  const handleFamilyShare = () => {
+    const url = window.location.href;
+    const subject = encodeURIComponent(`Senior Living Community: ${community.name}`);
+    const body = encodeURIComponent(`Hi,
+
+I found this senior living community and thought you might want to take a look:
+
+${community.name}
+${community.city}, ${community.state}
+
+${url}
+
+Let me know what you think!`);
+    
+    window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
+  };
+
+  const handleScheduleTour = () => {
+    toast({
+      title: "Tour request submitted!",
+      description: "Someone will contact you soon to confirm your tour.",
+    });
+    setIsScheduleTourOpen(false);
+  };
+
+  const handleWaitlistSubmit = () => {
+    toast({
+      title: "Added to waitlist!",
+      description: "You'll be notified when units become available.",
+    });
+    setIsWaitlistOpen(false);
+  };
+
+  // Generate available units data with detailed amenities
+  const generateAvailableUnits = (community: any) => {
+    const getUnitDetails = (unitType: string, unitIndex: number) => {
+      const viewOptions = ['Garden view', 'Courtyard view', 'City view', 'Mountain view', 'Pool view'];
+      const balconyOptions = ['Private balcony', 'Private patio', 'Shared patio access', 'No outdoor space'];
+      const kitchenOptions = ['Full kitchen', 'Kitchenette', 'Galley kitchen'];
+      const bathroomOptions = ['Walk-in shower', 'Tub with shower', 'Roll-in shower', 'Soaking tub', 'Tub cut-out', 'Shower with seat'];
+      const applianceOptions = ['Full-size refrigerator', 'Compact refrigerator', 'Mini fridge'];
+      const counterOptions = ['Granite counters', 'Quartz counters', 'Laminate counters'];
+      const stoveOptions = ['Full-size stove', 'Compact stove', 'Cooktop only', 'No stove (microwave only)'];
+      const flooringOptions = ['Hardwood', 'Laminate', 'Carpet', 'Vinyl plank', 'Tile'];
+      const storageOptions = ['Walk-in closet', 'Reach-in closet', 'Built-in storage', 'Minimal storage'];
+      const lightingOptions = ['Natural lighting', 'LED fixtures', 'Pendant lights', 'Floor lamps'];
+      const accessibilityOptions = ['ADA compliant', 'Grab bars', 'Wide doorways', 'Roll-in shower', 'Standard'];
+      
+      const unitId = community.id + unitIndex;
+      
+      return {
+        view: viewOptions[unitId % viewOptions.length],
+        outdoor: balconyOptions[unitId % balconyOptions.length],
+        kitchen: kitchenOptions[unitId % kitchenOptions.length],
+        bathroom: bathroomOptions[unitId % bathroomOptions.length],
+        appliances: applianceOptions[unitId % applianceOptions.length],
+        counters: counterOptions[unitId % counterOptions.length],
+        stove: stoveOptions[unitId % stoveOptions.length],
+        flooring: flooringOptions[unitId % flooringOptions.length],
+        storage: storageOptions[unitId % storageOptions.length],
+        lighting: lightingOptions[unitId % lightingOptions.length],
+        accessibility: accessibilityOptions[unitId % accessibilityOptions.length]
+      };
+    };
+
+    const unitTypes = [
+      { 
+        type: 'Studio', 
+        sqft: '450-520', 
+        features: ['Full kitchen', 'Private bathroom', 'Emergency system'],
+        details: getUnitDetails('Studio', 0)
+      },
+      { 
+        type: '1 Bedroom', 
+        sqft: '650-750', 
+        features: ['Full kitchen', 'Private bathroom', 'Walk-in closet', 'Emergency system'],
+        details: getUnitDetails('1 Bedroom', 1)
+      },
+      { 
+        type: '2 Bedroom', 
+        sqft: '950-1100', 
+        features: ['Full kitchen', 'Private bathroom', 'Walk-in closet', 'Emergency system', 'Separate living area'],
+        details: getUnitDetails('2 Bedroom', 2)
+      },
+      { 
+        type: '1 Bedroom + Den', 
+        sqft: '850-950', 
+        features: ['Full kitchen', 'Private bathroom', 'Walk-in closet', 'Emergency system', 'Office space'],
+        details: getUnitDetails('1 Bedroom + Den', 3)
+      }
+    ];
+
+    // Calculate total available units based on header logic
+    const totalUnitsAvailable = community.id % 3 === 0 ? 
+      2 + (community.id % 4) : 
+      community.id % 3 === 1 ? 
+        1 + (community.id % 2) : 
+        0;
+
+    // Distribute available units across different unit types
+    const unitsToShow = unitTypes.slice(0, 3); // Show 3 unit types
+    
+    return unitsToShow.map((unit, index) => {
+      let availableUnits = 0;
+      
+      // Distribute the total available units across different types
+      if (totalUnitsAvailable > 0) {
+        if (index === 0) {
+          // First unit type gets the most availability
+          availableUnits = Math.max(1, Math.ceil(totalUnitsAvailable / 2));
+        } else if (index === 1 && totalUnitsAvailable > 1) {
+          // Second unit type gets remaining units
+          availableUnits = Math.max(0, totalUnitsAvailable - Math.ceil(totalUnitsAvailable / 2));
+        } else if (index === 2 && totalUnitsAvailable > 2) {
+          // Third unit type occasionally has availability
+          availableUnits = community.id % 5 === 0 ? 1 : 0;
+        }
+      }
+
+      return {
+        id: `${community.id}-${index}`,
+        type: unit.type,
+        sqft: unit.sqft,
+        features: unit.features,
+        details: unit.details,
+        available: availableUnits,
+        price: community.monthlyRent ? 
+          community.monthlyRent + (index * 400) : 
+          (community.state === 'CA' ? 4800 : community.state === 'TX' ? 3600 : 4200) + (index * 400),
+        moveInDate: availableUnits > 0 ? 
+          (index % 2 === 0 ? 'Available now' : 'Available in 2-3 weeks') : 
+          'Join waitlist'
+      };
+    });
+  };
+
+}
                           <>
                             <div className="w-3 h-3 bg-orange-500 rounded-full mr-2"></div>
                             <span className="text-sm font-medium text-orange-700">
