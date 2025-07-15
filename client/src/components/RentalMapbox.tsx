@@ -155,20 +155,36 @@ export default function RentalMapbox({
 
   // Filter communities with valid coordinates
   const validCommunities = useMemo(() => {
-    return communities.filter(community => 
+    const filtered = communities.filter(community => 
       community.latitude && 
       community.longitude &&
       community.latitude !== 0 && 
       community.longitude !== 0
     );
+    
+    // Debug logging
+    console.log('RentalMapbox - Total communities:', communities.length);
+    console.log('RentalMapbox - Valid communities with coordinates:', filtered.length);
+    if (filtered.length > 0) {
+      console.log('RentalMapbox - Sample community coordinates:', {
+        name: filtered[0].name,
+        latitude: filtered[0].latitude,
+        longitude: filtered[0].longitude,
+        address: filtered[0].address,
+        city: filtered[0].city,
+        state: filtered[0].state
+      });
+    }
+    
+    return filtered;
   }, [communities]);
 
   // Calculate map bounds based on communities
   const mapBounds = useMemo(() => {
     if (validCommunities.length === 0) return null;
     
-    const lats = validCommunities.map(c => c.latitude!);
-    const lngs = validCommunities.map(c => c.longitude!);
+    const lats = validCommunities.map(c => parseFloat(c.latitude!));
+    const lngs = validCommunities.map(c => parseFloat(c.longitude!));
     
     return {
       north: Math.max(...lats),
@@ -231,6 +247,14 @@ export default function RentalMapbox({
     { id: 'mapbox://styles/mapbox/dark-v11', name: 'Dark', icon: '🌙' }
   ];
 
+  // Debug map rendering
+  console.log('RentalMapbox - Rendering map with:', {
+    viewState,
+    mapboxToken: mapboxToken ? 'LOADED' : 'MISSING',
+    validCommunities: validCommunities.length,
+    mapStyle
+  });
+
   return (
     <div className={`relative ${className} ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}>
       <Map
@@ -249,6 +273,9 @@ export default function RentalMapbox({
         minZoom={3}
         maxZoom={20}
         attributionControl={false}
+        onError={(error) => {
+          console.error('Mapbox error:', error);
+        }}
       >
         {/* Navigation Controls */}
         <NavigationControl position="top-right" />
@@ -259,8 +286,8 @@ export default function RentalMapbox({
         {validCommunities.map((community) => (
           <Marker
             key={community.id}
-            longitude={community.longitude!}
-            latitude={community.latitude!}
+            longitude={parseFloat(community.longitude!)}
+            latitude={parseFloat(community.latitude!)}
             anchor="bottom"
           >
             <CustomMarker
@@ -274,8 +301,8 @@ export default function RentalMapbox({
         {/* Popup */}
         {showPopup && selectedMarker && (
           <Popup
-            longitude={selectedMarker.longitude!}
-            latitude={selectedMarker.latitude!}
+            longitude={parseFloat(selectedMarker.longitude!)}
+            latitude={parseFloat(selectedMarker.latitude!)}
             anchor="bottom"
             onClose={handlePopupClose}
             closeButton={false}
