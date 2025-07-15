@@ -307,30 +307,41 @@ export default function RentalMapbox({
     viewState,
     activeToken: activeToken ? 'LOADED' : 'MISSING',
     validCommunities: validCommunities.length,
-    mapStyle
+    mapStyle,
+    containerDimensions: {
+      width: '100%',
+      height: '100%'
+    }
   });
 
   return (
     <div className={`relative ${className} ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}>
-      <Map
-        {...viewState}
-        onMove={evt => setViewState(evt.viewState)}
-        mapStyle={mapStyle}
-        mapboxAccessToken={activeToken}
-        style={{ width: '100%', height: '100%' }}
-        dragPan={true}
-        dragRotate={true}
-        scrollZoom={true}
-        touchZoom={true}
-        touchRotate={true}
-        keyboard={true}
-        doubleClickZoom={true}
-        minZoom={3}
-        onError={handleMapError}
-        attributionControl={false}
-        preserveDrawingBuffer={true}
-        maxZoom={20}
-      >
+      <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+        <Map
+          initialViewState={viewState}
+          mapStyle={mapStyle}
+          mapboxAccessToken={activeToken}
+          style={{ width: '100%', height: '100%' }}
+          dragPan={true}
+          dragRotate={true}
+          scrollZoom={true}
+          touchZoom={true}
+          touchRotate={true}
+          keyboard={true}
+          doubleClickZoom={true}
+          minZoom={3}
+          maxZoom={20}
+          onError={handleMapError}
+          attributionControl={false}
+          preserveDrawingBuffer={true}
+          onMove={evt => setViewState(evt.viewState)}
+          onLoad={() => {
+            console.log('Mapbox map loaded successfully');
+          }}
+          onRender={() => {
+            console.log('Mapbox map rendered');
+          }}
+        >
         {/* Navigation Controls */}
         <NavigationControl position="top-right" />
         <GeolocateControl position="top-right" />
@@ -456,45 +467,46 @@ export default function RentalMapbox({
             </Card>
           </Popup>
         )}
-      </Map>
+        </Map>
 
-      {/* Map Controls Overlay */}
-      <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-        {/* Style Selector */}
-        <div className="bg-white rounded-lg shadow-lg p-2">
-          <div className="flex gap-1">
-            {mapStyles.map((style) => (
-              <Button
-                key={style.id}
-                variant={mapStyle === style.id ? "default" : "ghost"}
-                size="sm"
-                className="p-2 text-xs"
-                onClick={() => setMapStyle(style.id)}
-                title={style.name}
-              >
-                {style.icon}
-              </Button>
-            ))}
+        {/* Map Controls Overlay */}
+        <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+          {/* Style Selector */}
+          <div className="bg-white rounded-lg shadow-lg p-2">
+            <div className="flex gap-1">
+              {mapStyles.map((style) => (
+                <Button
+                  key={style.id}
+                  variant={mapStyle === style.id ? "default" : "ghost"}
+                  size="sm"
+                  className="p-2 text-xs"
+                  onClick={() => setMapStyle(style.id)}
+                  title={style.name}
+                >
+                  {style.icon}
+                </Button>
+              ))}
+            </div>
           </div>
+
+          {/* Fullscreen Toggle */}
+          <Button
+            variant="outline"
+            size="sm"
+            className="bg-white shadow-lg"
+            onClick={() => setIsFullscreen(!isFullscreen)}
+          >
+            <Maximize2 className="w-4 h-4" />
+          </Button>
         </div>
 
-        {/* Fullscreen Toggle */}
-        <Button
-          variant="outline"
-          size="sm"
-          className="bg-white shadow-lg"
-          onClick={() => setIsFullscreen(!isFullscreen)}
-        >
-          <Maximize2 className="w-4 h-4" />
-        </Button>
-      </div>
-
-      {/* Community Counter */}
-      <div className="absolute bottom-4 left-4 z-10 bg-white rounded-lg shadow-lg px-3 py-2">
-        <div className="flex items-center gap-2 text-sm">
-          <Home className="w-4 h-4 text-blue-600" />
-          <span className="font-medium">{validCommunities.length}</span>
-          <span className="text-gray-600">communities</span>
+        {/* Community Counter */}
+        <div className="absolute bottom-4 left-4 z-10 bg-white rounded-lg shadow-lg px-3 py-2">
+          <div className="flex items-center gap-2 text-sm">
+            <Home className="w-4 h-4 text-blue-600" />
+            <span className="font-medium">{validCommunities.length}</span>
+            <span className="text-gray-600">communities</span>
+          </div>
         </div>
       </div>
     </div>
