@@ -344,10 +344,22 @@ Let me know what you think!`;
                       </Badge>
                     </div>
                     
-                    {/* Pricing Transparency Achievement Badges */}
-                    <div className="flex items-center gap-2 mb-4">
+                    {/* Achievement Badges */}
+                    <div className="flex items-center flex-wrap gap-2 mb-4">
                       {(() => {
                         const badges = [];
+                        
+                        // Featured Community Badge (top communities)
+                        if (community.id % 5 === 0) {
+                          badges.push({
+                            level: 'Featured',
+                            color: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+                            icon: '⭐',
+                            type: 'featured'
+                          });
+                        }
+                        
+                        // Pricing Transparency Badges
                         const hasBasicPricing = community.monthlyRent || community.id;
                         const hasLivePricing = community.id % 2 === 0;
                         const hasMultipleCareTypes = community.careTypes && community.careTypes.length > 1;
@@ -363,46 +375,75 @@ Let me know what you think!`;
                         if (hasRecentUpdates) totalPoints += 40;
                         if (hasSpecialRates) totalPoints += 150;
                         
-                        // Determine badge level
+                        // Determine pricing transparency badge level
                         if (totalPoints >= 250) {
                           badges.push({
                             level: 'Transparency Legend',
                             color: 'bg-purple-100 text-purple-800 border-purple-300',
                             icon: '👑',
-                            points: totalPoints
+                            type: 'pricing'
                           });
                         } else if (totalPoints >= 100) {
                           badges.push({
                             level: 'Price Master',
                             color: 'bg-orange-100 text-orange-800 border-orange-300',
                             icon: '🏆',
-                            points: totalPoints
+                            type: 'pricing'
                           });
                         } else if (totalPoints >= 50) {
                           badges.push({
                             level: 'Pricing Pro',
                             color: 'bg-blue-100 text-blue-800 border-blue-300',
                             icon: '💎',
-                            points: totalPoints
+                            type: 'pricing'
                           });
                         } else if (totalPoints >= 25) {
                           badges.push({
                             level: 'Transparency Champion',
                             color: 'bg-green-100 text-green-800 border-green-300',
                             icon: '🌟',
-                            points: totalPoints
+                            type: 'pricing'
                           });
                         } else if (totalPoints >= 10) {
                           badges.push({
                             level: 'Price Pioneer',
                             color: 'bg-gray-100 text-gray-800 border-gray-300',
                             icon: '🏅',
-                            points: totalPoints
+                            type: 'pricing'
+                          });
+                        }
+                        
+                        // Quality Achievement Badges
+                        if (parseFloat(community.googleRating || '4.2') >= 4.5) {
+                          badges.push({
+                            level: 'Excellence Award',
+                            color: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+                            icon: '🎖️',
+                            type: 'quality'
+                          });
+                        }
+                        
+                        // Special Recognition Badges
+                        if (community.id % 7 === 0) {
+                          badges.push({
+                            level: 'Community Choice',
+                            color: 'bg-pink-100 text-pink-800 border-pink-300',
+                            icon: '💖',
+                            type: 'recognition'
+                          });
+                        }
+                        
+                        if (community.id % 6 === 0) {
+                          badges.push({
+                            level: 'Verified',
+                            color: 'bg-cyan-100 text-cyan-800 border-cyan-300',
+                            icon: '✅',
+                            type: 'verification'
                           });
                         }
                         
                         return badges.map((badge, index) => (
-                          <div key={index} className={`px-3 py-1 rounded-full text-xs font-medium border ${badge.color} flex items-center`}>
+                          <div key={index} className={`px-3 py-1 rounded-full text-xs font-medium border ${badge.color} flex items-center flex-shrink-0`}>
                             <span className="mr-1">{badge.icon}</span>
                             {badge.level}
                           </div>
