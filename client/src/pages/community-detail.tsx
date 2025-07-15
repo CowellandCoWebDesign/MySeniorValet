@@ -635,6 +635,9 @@ Let me know what you think!`;
                           community.state === 'FL' ? (3800 + (community.id % 700)).toLocaleString() :
                           (4200 + (community.id % 600)).toLocaleString()
                         )}
+                        {!community.claimed && (
+                          <span className="text-sm text-gray-500 ml-2 font-normal">est.</span>
+                        )}
                       </div>
                       <div className="text-sm text-gray-600">per month starting rate</div>
                     </div>
@@ -989,6 +992,9 @@ Let me know what you think!`;
                       <div className="text-right ml-4">
                         <div className="text-2xl font-bold text-blue-600">
                           ${unit.price.toLocaleString()}
+                          {!community.claimed && (
+                            <span className="text-sm text-gray-500 ml-1 font-normal">est.</span>
+                          )}
                         </div>
                         <div className="text-sm text-gray-600">per month</div>
                         <div className="text-sm font-medium text-gray-900 mt-1">

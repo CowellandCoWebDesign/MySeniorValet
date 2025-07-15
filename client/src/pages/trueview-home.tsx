@@ -373,6 +373,9 @@ export default function TrueViewHome() {
                   {/* Price Badge */}
                   <Badge className="absolute bottom-2 left-2 bg-gray-900 text-white text-xs px-2 py-1 font-medium z-10">
                     {community.monthlyRent ? `$${(community.monthlyRent / 1000).toFixed(1)}K+` : '$4K+'}
+                    {!community.claimed && (
+                      <span className="text-xs text-gray-300 ml-1 font-normal">est.</span>
+                    )}
                   </Badge>
                   
                   {/* Achievement Badge - Special Recognition */}
@@ -397,6 +400,9 @@ export default function TrueViewHome() {
                   <div className="flex items-center justify-between mb-2">
                     <div className="text-xl font-bold text-gray-900">
                       {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : '$3,800'}
+                      {!community.claimed && (
+                        <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
+                      )}
                     </div>
                     {index % 3 === 0 && (
                       <div className="flex items-center text-xs text-green-600 font-medium">

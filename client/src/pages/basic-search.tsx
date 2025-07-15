@@ -465,6 +465,9 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                         ? `$${community.monthlyRent.toLocaleString()}/mo` 
                         : 'Contact for pricing'
                       }
+                      {community.monthlyRent && !community.claimed && (
+                        <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
+                      )}
                     </div>
                     <div className="text-sm text-gray-600 mb-1">
                       {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
@@ -525,6 +528,9 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                         ? `$${community.monthlyRent.toLocaleString()}/mo` 
                         : 'Contact for pricing'
                       }
+                      {community.monthlyRent && !community.claimed && (
+                        <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
+                      )}
                     </div>
                     <div className="text-sm text-gray-600 mb-1">
                       {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
@@ -1140,6 +1146,9 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                     ? `$${community.monthlyRent.toLocaleString()}/mo` 
                     : 'Contact for pricing'
                   }
+                  {community.monthlyRent && !community.claimed && (
+                    <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
+                  )}
                 </div>
                 {community.googleRating && (
                   <div className="flex items-center">

@@ -170,6 +170,9 @@ export default function SlidePanel({
             {c.priceRange
               ? `$${c.priceRange.min?.toLocaleString()} - $${c.priceRange.max?.toLocaleString()}/mo`
               : "Contact for pricing"}
+            {c.priceRange && !c.claimed && (
+              <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
+            )}
             {c.priceRange && (
               <span className={`ml-2 text-xs font-semibold ${c.isClaimed ? 'text-green-600' : 'text-yellow-600'}`}>
                 ({c.isClaimed ? 'Verified' : 'Estimated'})
