@@ -99,7 +99,7 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
               <Input
                 ref={inputRef}
                 type="text"
-                placeholder="City, State, ZIP Code, or County"
+                placeholder="Try 'San Francisco' or 'Memory Care'"
                 className="pl-10"
                 value={searchParams.location}
                 onChange={(e) => handleLocationInputChange(e.target.value)}

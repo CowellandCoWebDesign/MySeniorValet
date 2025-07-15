@@ -661,7 +661,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               type="text"
-              placeholder="Search communities, cities..."
+              placeholder="Try 'San Francisco' or 'Memory Care'"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9 pr-4 h-9 text-sm border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:border-blue-500"

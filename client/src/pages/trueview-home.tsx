@@ -230,7 +230,7 @@ export default function TrueViewHome() {
                 <div className="flex items-center">
                   <input
                     type="text"
-                    placeholder="Community name, city, care type"
+                    placeholder="Try 'San Francisco' or 'Memory Care'"
                     value={searchQuery}
                     onChange={(e) => handleSearchChange(e.target.value)}
                     onKeyDown={(e) => {

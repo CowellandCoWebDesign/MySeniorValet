@@ -227,7 +227,7 @@ export default function Search() {
           <div className="relative max-w-2xl">
             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 z-10" />
             <Input
-              placeholder="Search by location, community name, or ZIP code..."
+              placeholder="Try 'San Francisco' or 'Memory Care'"
               value={filters.location}
               onChange={(e) => {
                 const value = e.target.value;
