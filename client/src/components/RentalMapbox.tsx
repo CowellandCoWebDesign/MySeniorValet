@@ -7,7 +7,7 @@ import Map, {
   ScaleControl,
   Source,
   Layer
-} from 'react-map-gl';
+} from 'react-map-gl/mapbox';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -213,16 +213,69 @@ export default function RentalMapbox({
   // Force use of hardcoded token for now
   const activeToken = "pk.eyJ1IjoibXlzZW5pb3J2YWxldCIsImEiOiJjbWQ0b3VkNW8waTA4MmtxNzhndDEyZ2FrIn0.Ht8p3b3XATDjugyf4FHiAQ";
   
-  // Force Leaflet fallback for now to avoid Mapbox compatibility issues
-  console.log('Using Leaflet fallback due to Mapbox compatibility issues');
-  return (
-    <LeafletMapFallback
-      communities={communities}
-      onCommunityClick={onCommunityClick}
-      selectedCommunity={selectedCommunity}
-      className={className}
-    />
-  );
+  // Official Mapbox GL JS browser support check
+  const [mapboxSupported, setMapboxSupported] = useState(true);
+  const [mapboxError, setMapboxError] = useState<string | null>(null);
+  
+  useEffect(() => {
+    // Import and use the official mapbox-gl supported() method
+    const checkMapboxSupport = async () => {
+      try {
+        // Dynamic import to avoid SSR issues
+        const mapboxgl = await import('mapbox-gl');
+        
+        // Use the official supported() method
+        const isSupported = mapboxgl.supported();
+        
+        if (!isSupported) {
+          console.error('Mapbox GL JS not supported in this browser');
+          setMapboxSupported(false);
+          setMapboxError('Mapbox GL JS is not supported in this browser');
+          return;
+        }
+        
+        console.log('Mapbox GL JS browser support check passed');
+        setMapboxSupported(true);
+        setMapboxError(null);
+      } catch (error) {
+        console.error('Error checking Mapbox compatibility:', error);
+        setMapboxSupported(false);
+        setMapboxError(error instanceof Error ? error.message : 'Unknown error');
+      }
+    };
+    
+    checkMapboxSupport();
+  }, []);
+  
+  // Enhanced error handling with detailed logging
+  const handleMapError = useCallback((error: any) => {
+    console.error('Mapbox error details:', {
+      error,
+      type: error?.type,
+      message: error?.message,
+      stack: error?.stack,
+      originalEvent: error?.originalEvent
+    });
+    
+    // Try to provide more specific error information
+    if (error?.message?.includes('not supported')) {
+      setMapboxSupported(false);
+      setMapboxError('Browser compatibility issue: ' + error.message);
+    }
+  }, []);
+  
+  // Show fallback only if definitively unsupported
+  if (!mapboxSupported) {
+    console.log('Mapbox not supported, using Leaflet fallback:', mapboxError);
+    return (
+      <LeafletMapFallback
+        communities={communities}
+        onCommunityClick={onCommunityClick}
+        selectedCommunity={selectedCommunity}
+        className={className}
+      />
+    );
+  }
   
   // Error handling for missing token - moved after ALL hooks
   if (!activeToken) {
@@ -273,11 +326,10 @@ export default function RentalMapbox({
         keyboard={true}
         doubleClickZoom={true}
         minZoom={3}
-        maxZoom={20}
+        onError={handleMapError}
         attributionControl={false}
-        onError={(error) => {
-          console.error('Mapbox error:', error);
-        }}
+        preserveDrawingBuffer={true}
+        maxZoom={20}
       >
         {/* Navigation Controls */}
         <NavigationControl position="top-right" />
