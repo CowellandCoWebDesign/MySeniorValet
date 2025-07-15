@@ -246,7 +246,7 @@ The application is configured for multiple deployment environments:
 **COMMUNITY ID VALIDATION**: Added comprehensive ID validation to prevent invalid community IDs (such as -1) from causing errors, with automatic redirection to search page for invalid IDs and proper error handling (July 14, 2025)
 **SALES TITLE UPDATE**: Updated sales representative title from "Senior Living Director" to "Director of Sales" in community profile contact section for more professional and accurate representation (July 15, 2025)
 **HOMEPAGE NAVIGATION BUTTON**: Added TrueView-branded homepage button to community detail page navigation bar featuring the house icon logo matching homepage branding for consistent brand identity, positioned alongside the existing back button for easy homepage navigation (July 15, 2025)
-**COASTAL COMMUNITIES BADGE POSITIONING FIX**: Fixed slight badge overlap issue in coastal communities section photo area by adjusting badge positioning from 3px to 2px margins, providing better spacing and preventing visual conflicts between availability badges, price badges, achievement badges, and heart icons (July 15, 2025)
+**COASTAL COMMUNITIES BADGE POSITIONING FIX**: Fixed badge overlap issue in coastal communities section by adjusting photo badge positioning from 3px to 2px margins and fixing card content badge spacing with increased margin (mb-3) and top margin (mt-1) between regional badges and enhanced features row, preventing visual conflicts and overlapping (July 15, 2025)
 
 ## ⚠️ CRITICAL API COST PROTECTION IMPLEMENTED (January 5, 2025)
 **Issue Identified**: Previous runaway API costs of $300+ from uncontrolled photo enrichment

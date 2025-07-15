@@ -411,7 +411,7 @@ export default function TrueViewHome() {
                   </div>
                   
                   {/* Coastal Regional Badges - Bottom of Card */}
-                  <div className="mb-2">
+                  <div className="mb-3">
                     {index % 4 === 0 && (
                       <Badge className="bg-blue-600/90 text-white text-xs px-2 py-1 font-medium">
                         Ocean View
@@ -435,7 +435,7 @@ export default function TrueViewHome() {
                   </div>
                   
                   {/* Enhanced Features Row */}
-                  <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center justify-between text-xs mt-1">
                     <div className="flex items-center text-gray-500">
                       <span>🌊 Coastal Views</span>
                     </div>
