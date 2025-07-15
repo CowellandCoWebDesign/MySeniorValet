@@ -39,6 +39,7 @@ import AffordableHousing from "@/pages/affordable-housing";
 import HudVashMap from "@/pages/hud-vash-map";
 import FamilyCollaboration from "@/pages/family-collaboration";
 import CommunityDetail from "@/pages/community-detail";
+import Rentals from "@/pages/rentals";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -53,6 +54,7 @@ function Router() {
     <Switch>
       <Route path="/" component={TrueViewHome} />
       <Route path="/search" component={BasicSearch} />
+      <Route path="/rentals" component={Rentals} />
       <Route path="/test-search" component={TestSearch} />
       <Route path="/old-search" component={TrueViewSearch} />
       <Route path="/explore" component={Explore} />

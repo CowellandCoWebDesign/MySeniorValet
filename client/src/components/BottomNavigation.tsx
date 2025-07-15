@@ -5,6 +5,7 @@ import {
   Heart, 
   Calendar, 
   Mail,
+  Home,
   MoreHorizontal 
 } from "lucide-react";
 
@@ -21,10 +22,10 @@ export default function BottomNavigation({
 }: BottomNavigationProps) {
   const tabs = [
     { id: 'search', label: 'Search', icon: Search },
+    { id: 'rentals', label: 'Rentals', icon: Home },
     { id: 'updates', label: 'Updates', icon: Bell, badge: updateCount },
     { id: 'saved', label: 'Saved', icon: Heart },
     { id: 'tours', label: 'Tours', icon: Calendar },
-    { id: 'inbox', label: 'Inbox', icon: Mail },
   ];
 
   return (
