@@ -1034,15 +1034,17 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
           </Button>
         </div>
 
-        {/* Optimized Slide Panel with Virtualization */}
-        <SlidePanel
-          communities={visibleCommunities}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-          isLoading={isLoading}
-          initialHeight={slidePanelHeight}
-          autoExpand={!!(debouncedSearchQuery || urlSearchQuery) && visibleCommunities.length > 0}
-        />
+        {/* Optimized Slide Panel with Virtualization - Only show in list view */}
+        {viewMode === 'list' && (
+          <SlidePanel
+            communities={visibleCommunities}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            isLoading={isLoading}
+            initialHeight={slidePanelHeight}
+            autoExpand={!!(debouncedSearchQuery || urlSearchQuery) && visibleCommunities.length > 0}
+          />
+        )}
         
         {/* Bottom Navigation */}
         <BottomNavigation 
