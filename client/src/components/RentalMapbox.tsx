@@ -49,6 +49,7 @@ const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || 'pk.eyJ1IjoidHJ
 // Debug logging
 console.log('MAPBOX_TOKEN:', MAPBOX_TOKEN ? 'Token loaded successfully' : 'Token not found');
 console.log('Environment variables:', { VITE_MAPBOX_ACCESS_TOKEN: import.meta.env.VITE_MAPBOX_ACCESS_TOKEN });
+console.log('Actual token value:', MAPBOX_TOKEN?.substring(0, 20) + '...');
 
 // Custom marker styles for different community types
 const getMarkerColor = (community: Community) => {
