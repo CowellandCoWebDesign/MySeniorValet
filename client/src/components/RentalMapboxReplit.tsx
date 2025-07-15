@@ -46,8 +46,8 @@ export default function RentalMapboxReplit({
   className = '' 
 }: RentalMapboxReplitProps) {
   const [viewState, setViewState] = useState({
-    latitude: communities?.[0]?.latitude ?? 37.7749,
-    longitude: communities?.[0]?.longitude ?? -122.4194,
+    latitude: 37.7749,
+    longitude: -122.4194,
     zoom: 10
   });
 
@@ -156,8 +156,8 @@ export default function RentalMapboxReplit({
       <div className={className} style={{ height: '100%', width: '100%' }}>
         <Map
           initialViewState={{
-            latitude: communities?.[0]?.latitude ?? 37.7749,
-            longitude: communities?.[0]?.longitude ?? -122.4194,
+            latitude: validCommunities?.[0]?.latitude ?? 37.7749,
+            longitude: validCommunities?.[0]?.longitude ?? -122.4194,
             zoom: 6
           }}
           onMove={evt => setViewState(evt.viewState)}
