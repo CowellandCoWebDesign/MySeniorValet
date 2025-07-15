@@ -180,7 +180,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
       className="overflow-hidden hover:shadow-xl transition-all duration-300 border-l-4 border-l-blue-500 cursor-pointer group"
       onClick={handleCardClick}
     >
-        {/* ENHANCED PHOTO CAROUSEL */}
+        {/* ENHANCED PHOTO CAROUSEL OR COMING SOON */}
         {hasPhotos ? (
           <div className="relative">
             <PhotoCarousel 
