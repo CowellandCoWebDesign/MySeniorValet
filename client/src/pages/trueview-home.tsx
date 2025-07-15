@@ -148,21 +148,21 @@ export default function TrueViewHome() {
           <div className="absolute inset-0 bg-black bg-opacity-50"></div>
         </div>
         
-        <div className="relative z-10 flex flex-col items-center justify-center hero-content min-h-screen px-6 py-20 mobile-keyboard-safe">
+        <div className="relative z-10 flex flex-col items-center justify-center hero-content min-h-screen px-6 py-16 mobile-keyboard-safe">
           {/* Centered Headlines */}
-          <div className="text-center mb-12 md:mb-16">
-            <div className="space-y-6 mb-8">
-              <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white leading-tight drop-shadow-lg animate-fade-in-up">
+          <div className="text-center mb-8 md:mb-10">
+            <div className="space-y-4 mb-6">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight drop-shadow-lg animate-fade-in-up">
                 Your Personal Senior Living Concierge
               </h1>
-              <p className="text-base sm:text-lg md:text-xl text-white opacity-90 drop-shadow-md px-4 animate-fade-in-up animation-delay-300">
+              <p className="text-sm sm:text-base md:text-lg text-white opacity-90 drop-shadow-md px-4 animate-fade-in-up animation-delay-300">
                 Trusted guidance for your family's most important decision.
               </p>
             </div>
           </div>
           
           {/* Search Bar */}
-          <div className="w-full max-w-lg mb-6 relative animate-fade-in-up animation-delay-600" style={{ zIndex: 99999 }}>
+          <div className="w-full max-w-lg mb-4 relative animate-fade-in-up animation-delay-600" style={{ zIndex: 99999 }}>
             <form onSubmit={(e) => {
               e.preventDefault();
               const query = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
@@ -242,8 +242,8 @@ export default function TrueViewHome() {
           </div>
           
           {/* Dynamic Community Count Text - Moved outside search container */}
-          <div className="text-center mb-12 md:mb-20 animate-fade-in-up animation-delay-900" style={{ zIndex: 1 }}>
-            <p className="text-white/80 text-sm sm:text-base drop-shadow-md">
+          <div className="text-center mb-8 md:mb-12 animate-fade-in-up animation-delay-900" style={{ zIndex: 1 }}>
+            <p className="text-white/80 text-xs sm:text-sm drop-shadow-md">
               {isLoading ? (
                 <span>Loading verified communities...</span>
               ) : (
