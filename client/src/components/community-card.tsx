@@ -8,6 +8,7 @@ import { Link } from "wouter";
 import type { Community } from "@shared/schema";
 import { PhotoCarousel } from "@/components/photo-carousel";
 import { processPhotoUrls } from "@/lib/photoUtils";
+import { getComingSoonImage } from "@/lib/comingSoonPhotos";
 
 interface CommunityCardProps {
   community: Community;
@@ -244,18 +245,24 @@ export function CommunityCard({ community }: CommunityCardProps) {
           </div>
         </div>
       ) : (
-        <div className="relative h-48 bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
-          <div className="text-center text-white">
-            <div className="relative">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
-                <ImageIcon className="w-8 h-8 text-white" />
-              </div>
-              <div className="absolute -top-1 -right-1 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
-                <span className="text-xs font-bold text-gray-900">⭐</span>
+        <div className="relative h-48">
+          <img
+            src={getComingSoonImage(community.id)}
+            alt={`${community.name} - Coming Soon`}
+            className="w-full h-full object-cover"
+          />
+          
+          {/* Coming Soon Overlay */}
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <div className="text-center text-white">
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                <div className="w-12 h-12 mx-auto mb-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+                  <ImageIcon className="w-6 h-6 text-white" />
+                </div>
+                <p className="text-sm font-bold mb-1 tracking-wide">PHOTOS COMING SOON</p>
+                <p className="text-xs text-gray-200">More photos available soon</p>
               </div>
             </div>
-            <p className="text-lg font-semibold mb-1 tracking-wide">WATCH THIS SPACE</p>
-            <p className="text-sm text-gray-300">Photos coming soon</p>
           </div>
           
           {/* AVAILABILITY OVERLAY FOR NO PHOTOS */}

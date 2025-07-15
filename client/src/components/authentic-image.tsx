@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { getComingSoonImage } from "@/lib/comingSoonPhotos";
 
 interface AuthenticPhoto {
   photoReference: string;
@@ -75,23 +76,28 @@ export function AuthenticImage({
 
   if (isError || imageError || !imageUrl) {
     return (
-      <div 
-        className={`relative bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center ${className}`}
-        style={{ width, height }}
-      >
-        <div className="text-center text-white">
-          <div className="relative">
-            <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
-              <div className="w-10 h-10 text-white flex items-center justify-center">
-                📸
+      <div className="relative">
+        <img
+          src={getComingSoonImage(communityId)}
+          alt={`${alt} - Coming Soon`}
+          className={`${className} object-cover`}
+          style={{ width, height }}
+          onLoad={() => setImageLoaded(true)}
+        />
+        
+        {/* Coming Soon Overlay */}
+        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+          <div className="text-center text-white">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+                <div className="w-8 h-8 text-white flex items-center justify-center text-xl">
+                  📸
+                </div>
               </div>
-            </div>
-            <div className="absolute -top-1 -right-1 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center">
-              <span className="text-sm font-bold text-gray-900">⭐</span>
+              <p className="text-lg font-bold mb-2 tracking-wide">PHOTOS COMING SOON</p>
+              <p className="text-sm text-gray-200">We're working to add more photos</p>
             </div>
           </div>
-          <p className="text-xl font-bold mb-2 tracking-wide">WATCH THIS SPACE</p>
-          <p className="text-sm text-gray-300">Photos coming soon</p>
         </div>
       </div>
     );
