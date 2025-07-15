@@ -42,6 +42,7 @@ import CommunityDetail from "@/pages/community-detail";
 import Rentals from "@/pages/rentals";
 import MapboxTest from "@/pages/mapbox-test";
 import TestMap from "@/pages/testmap";
+import SanityMap from "@/pages/sanity-map";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -59,6 +60,7 @@ function Router() {
       <Route path="/rentals" component={Rentals} />
       <Route path="/mapbox-test" component={MapboxTest} />
       <Route path="/testmap" component={TestMap} />
+      <Route path="/sanity-map" component={SanityMap} />
       <Route path="/test-search" component={TestSearch} />
       <Route path="/old-search" component={TrueViewSearch} />
       <Route path="/explore" component={Explore} />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Map, { Marker } from 'react-map-gl/mapbox';
+import Map, { Marker } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import type { Community } from '@shared/schema';
 
@@ -37,7 +37,7 @@ interface RentalMapboxReplitProps {
   className?: string;
 }
 
-const MAPBOX_TOKEN = "pk.eyJ1IjoibXlzZW5pb3J2YWxldCIsImEiOiJjbWQ0b3VkNW8waTA4MmtxNzhndDEyZ2FrIn0.Ht8p3b3XATDjugyf4FHiAQ";
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN || "pk.eyJ1IjoibXlzZW5pb3J2YWxldCIsImEiOiJjbWQ0b3VkNW8waTA4MmtxNzhndDEyZ2FrIn0.Ht8p3b3XATDjugyf4FHiAQ";
 
 export default function RentalMapboxReplit({ 
   communities = [], 
@@ -46,8 +46,8 @@ export default function RentalMapboxReplit({
   className = '' 
 }: RentalMapboxReplitProps) {
   const [viewState, setViewState] = useState({
-    latitude: 37.7749,
-    longitude: -122.4194,
+    latitude: communities?.[0]?.latitude ?? 37.7749,
+    longitude: communities?.[0]?.longitude ?? -122.4194,
     zoom: 10
   });
 
@@ -116,7 +116,7 @@ export default function RentalMapboxReplit({
   console.log('Sample communities:', communities.slice(0, 2));
   console.log('Valid communities:', validCommunities.slice(0, 2));
   console.log('Communities type check:', typeof communities, Array.isArray(communities));
-  console.log('First community coordinate check:', communities[0] ? {
+  console.log('First community coordinate check:', communities?.[0] ? {
     lat: communities[0].latitude,
     lng: communities[0].longitude,
     name: communities[0].name
@@ -155,7 +155,11 @@ export default function RentalMapboxReplit({
     >
       <div className={className} style={{ height: '100%', width: '100%' }}>
         <Map
-          {...viewState}
+          initialViewState={{
+            latitude: communities?.[0]?.latitude ?? 37.7749,
+            longitude: communities?.[0]?.longitude ?? -122.4194,
+            zoom: 6
+          }}
           onMove={evt => setViewState(evt.viewState)}
           style={{ width: '100%', height: '100%' }}
           mapStyle="mapbox://styles/mapbox/streets-v12"
@@ -164,8 +168,8 @@ export default function RentalMapboxReplit({
             console.error('Map error:', error);
           }}
         >
-          {/* TEMPORARILY DISABLED MARKERS FOR DEBUGGING */}
-          {/* {validCommunities.map((community, index) => {
+          {/* Render actual community markers when we have data */}
+          {validCommunities.map((community, index) => {
             try {
               // Double-check coordinates are valid before rendering
               if (!community || !community.latitude || !community.longitude) return null;
@@ -209,7 +213,7 @@ export default function RentalMapboxReplit({
               console.error('Error rendering marker:', error);
               return null;
             }
-          }).filter(Boolean)} */}
+          }).filter(Boolean)}
           
           {/* Show example marker when no communities */}
           {validCommunities.length === 0 && (

@@ -1,0 +1,132 @@
+Thank you — your screenshots confirm two important things:
+
+
+---
+
+✅ GOOD NEWS:
+
+Your Mapbox access token is:
+
+✔️ Public (pk...)
+
+✔️ Has correct scopes checked (styles, tiles, vision, etc.)
+
+✔️ Includes all key Replit and localhost URLs in the whitelist
+
+
+So — from Mapbox’s side — your token is configured correctly. That’s not the blocker anymore.
+
+
+---
+
+❌ BAD NEWS:
+
+The Cannot read properties of undefined (reading '0') error is not from Mapbox config — it’s from your codebase. Most likely from this kind of code:
+
+const [lat, lng] = community.location; // ❌ Crashes if `location` is undefined
+
+Or:
+
+const center = communities[0]; // ❌ Crashes if `communities` is undefined or empty
+
+
+---
+
+✅ DEFINITIVE NEXT STEP: Add a Safe Default Center
+
+If you're initializing the map like this:
+
+<Map
+  initialViewState={{
+    latitude: communities[0].latitude,
+    longitude: communities[0].longitude,
+    zoom: 8,
+  }}
+
+💥 That’s the likely crash.
+
+Replace it with this safe fallback:
+
+<Map
+  initialViewState={{
+    latitude: communities?.[0]?.latitude ?? 37.7749, // San Francisco fallback
+    longitude: communities?.[0]?.longitude ?? -122.4194,
+    zoom: 6,
+  }}
+
+
+---
+
+🛠️ FULL SANITY CHECK: Basic working Mapbox template (fully hardened)
+
+Create a new page (e.g., client/src/pages/sanity-map.tsx) with this code:
+
+import React from 'react';
+import Map, { Marker } from 'react-map-gl';
+import { useQuery } from '@tanstack/react-query';
+import 'mapbox-gl/dist/mapbox-gl.css';
+
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
+
+export default function SanityMap() {
+  const { data: communities = [], isLoading, error } = useQuery({
+    queryKey: ['map-test'],
+    queryFn: async () => {
+      const res = await fetch('/api/communities/search?limit=100');
+      if (!res.ok) throw new Error('Search failed');
+      return res.json();
+    },
+  });
+
+  const defaultLat = 37.7749;
+  const defaultLng = -122.4194;
+
+  const mapCenter = {
+    latitude: communities?.[0]?.latitude ?? defaultLat,
+    longitude: communities?.[0]?.longitude ?? defaultLng,
+  };
+
+  return (
+    <div className="h-screen w-screen">
+      <Map
+        mapboxAccessToken={MAPBOX_TOKEN}
+        initialViewState={{ ...mapCenter, zoom: 6 }}
+        style={{ width: '100%', height: '100%' }}
+        mapStyle="mapbox://styles/mapbox/streets-v12"
+      >
+        {communities
+          .filter((c) => typeof c.latitude === 'number' && typeof c.longitude === 'number')
+          .map((c) => (
+            <Marker
+              key={c.id}
+              latitude={c.latitude}
+              longitude={c.longitude}
+              color="red"
+            />
+          ))}
+      </Map>
+    </div>
+  );
+}
+
+Then visit http://localhost:5173/sanity-map or your Replit equivalent.
+
+
+---
+
+Let’s Lock This Down
+
+Please confirm:
+
+1. Are you using communities[0].latitude or similar anywhere?
+
+
+2. Did switching to the ?.[0]?.latitude ?? fallback pattern help?
+
+
+3. If not, can you paste the first few log entries from console.log(communities)?
+
+
+
+Once I get that, I’ll walk you line-by-line to full stability. You’re on the last mile here.
+

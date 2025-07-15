@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Search, MapPin, Filter } from 'lucide-react';
 import BottomNavigation from '@/components/BottomNavigation';
-import WorkingMap from '@/components/WorkingMap';
+import RentalMapboxReplit from '@/components/RentalMapboxReplit';
 import RentalMapFallback from '@/components/RentalMapFallback';
 import type { Community } from '@shared/schema';
 
