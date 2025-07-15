@@ -93,7 +93,7 @@ export default function TrueViewHome() {
     setSearchQuery(suggestion);
     setShowSuggestions(false);
     const query = `?q=${encodeURIComponent(suggestion)}`;
-    window.location.href = `/rentals${query}`;
+    window.location.href = `/search${query}`;
   };
 
   return (
@@ -166,7 +166,7 @@ export default function TrueViewHome() {
             <form onSubmit={(e) => {
               e.preventDefault();
               const query = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
-              window.location.href = `/rentals${query}`;
+              window.location.href = `/search${query}`;
             }}>
               <div className={`relative bg-white ${showSuggestions && suggestions.length > 0 ? 'rounded-t-2xl' : 'rounded-2xl'} shadow-xl overflow-hidden`}>
                 <div className="flex items-center">
@@ -180,7 +180,7 @@ export default function TrueViewHome() {
                         e.preventDefault();
                         setShowSuggestions(false);
                         const query = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
-                        window.location.href = `/rentals${query}`;
+                        window.location.href = `/search${query}`;
                       } else if (e.key === 'Escape') {
                         setShowSuggestions(false);
                       }

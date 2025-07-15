@@ -54,7 +54,7 @@ function Router() {
     <Switch>
       <Route path="/" component={TrueViewHome} />
       <Route path="/search" component={BasicSearch} />
-      <Route path="/rentals" component={BasicSearch} />
+      {/* Rentals route removed - redirect to search */}
       {/* MapboxTest route removed */}
       {/* Map test routes removed */}
       <Route path="/test-search" component={TestSearch} />
