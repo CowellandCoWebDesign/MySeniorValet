@@ -733,7 +733,7 @@ export class DatabaseStorage implements IStorage {
     }
 
     // State abbreviations and full names
-    const stateAbbrevs = ['ca', 'california', 'tx', 'texas', 'fl', 'florida', 'ny', 'new york'];
+    const stateAbbrevs = ['ca', 'california', 'tx', 'texas', 'fl', 'florida', 'ny', 'new york', 'az', 'arizona', 'nv', 'nevada', 'hi', 'hawaii', 'id', 'idaho', 'mt', 'montana', 'or', 'oregon', 'wa', 'washington', 'wy', 'wyoming', 'ut', 'utah', 'nm', 'new mexico', 'co', 'colorado', 'ga', 'georgia', 'al', 'alabama', 'ms', 'mississippi', 'la', 'louisiana', 'tn', 'tennessee'];
     if (stateAbbrevs.includes(location)) {
       return 'state_only';
     }
@@ -749,6 +749,7 @@ export class DatabaseStorage implements IStorage {
 
   private buildCityStateSearch(location: string, distance?: number) {
     const [cityPart, statePart] = location.split(',').map(s => s.trim());
+    const normalizedState = statePart.toUpperCase();
     
     if (distance) {
       // For distance searches, expand geographical coverage
@@ -772,14 +773,33 @@ export class DatabaseStorage implements IStorage {
       // Default distance search for other cities
       return and(
         ilike(communities.city, `%${cityPart}%`),
-        ilike(communities.state, `%${statePart}%`)
+        ilike(communities.state, `%${normalizedState}%`)
       );
     }
 
-    // Exact city, state search
-    return and(
-      ilike(communities.city, `%${cityPart}%`),
-      ilike(communities.state, `%${statePart}%`)
+    // Try exact match first, then fallback to state-wide search if no exact match
+    return or(
+      // Primary: exact city and state match
+      and(
+        ilike(communities.city, `%${cityPart}%`),
+        ilike(communities.state, `%${normalizedState}%`)
+      ),
+      // Fallback: if no exact city match, show other communities in the same state
+      and(
+        eq(communities.state, normalizedState),
+        // Prioritize communities with similar names or in major cities
+        or(
+          ilike(communities.city, `%${cityPart.substring(0, 3)}%`), // Partial city name match
+          ilike(communities.city, '%phoenix%'),    // Major AZ cities
+          ilike(communities.city, '%tucson%'),
+          ilike(communities.city, '%mesa%'),
+          ilike(communities.city, '%scottsdale%'),
+          ilike(communities.city, '%chandler%'),
+          ilike(communities.city, '%tempe%'),
+          ilike(communities.city, '%flagstaff%'),
+          ilike(communities.city, '%yuma%')
+        )
+      )
     );
   }
 
@@ -793,7 +813,39 @@ export class DatabaseStorage implements IStorage {
       'fl': 'FL',
       'florida': 'FL',
       'ny': 'NY',
-      'new york': 'NY'
+      'new york': 'NY',
+      'az': 'AZ',
+      'arizona': 'AZ',
+      'nv': 'NV',
+      'nevada': 'NV',
+      'hi': 'HI',
+      'hawaii': 'HI',
+      'id': 'ID',
+      'idaho': 'ID',
+      'mt': 'MT',
+      'montana': 'MT',
+      'or': 'OR',
+      'oregon': 'OR',
+      'wa': 'WA',
+      'washington': 'WA',
+      'wy': 'WY',
+      'wyoming': 'WY',
+      'ut': 'UT',
+      'utah': 'UT',
+      'nm': 'NM',
+      'new mexico': 'NM',
+      'co': 'CO',
+      'colorado': 'CO',
+      'ga': 'GA',
+      'georgia': 'GA',
+      'al': 'AL',
+      'alabama': 'AL',
+      'ms': 'MS',
+      'mississippi': 'MS',
+      'la': 'LA',
+      'louisiana': 'LA',
+      'tn': 'TN',
+      'tennessee': 'TN'
     };
 
     const stateCode = stateMap[location] || location.toUpperCase();
