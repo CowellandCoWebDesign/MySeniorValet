@@ -244,6 +244,7 @@ The application is configured for multiple deployment environments:
 **COMPREHENSIVE ACHIEVEMENT BADGE SYSTEM**: Implemented complete achievement badge system in community header positioned under review ratings, featuring multiple badge categories: Featured (top communities), 5-tier pricing transparency system (Price Pioneer to Transparency Legend), Excellence Award (high ratings), Community Choice, and Verified status. All badges use flex-wrap layout with color-coded styling, achievement icons, and proper responsive design to prevent bleeding and maintain clean presentation (July 14, 2025)
 **BACK BUTTON NAVIGATION FIX**: Fixed back button functionality in community detail pages using proper browser history navigation with fallback to search page, ensuring reliable navigation for users returning from community profiles (July 14, 2025)
 **COMMUNITY ID VALIDATION**: Added comprehensive ID validation to prevent invalid community IDs (such as -1) from causing errors, with automatic redirection to search page for invalid IDs and proper error handling (July 14, 2025)
+**SALES TITLE UPDATE**: Updated sales representative title from "Senior Living Director" to "Director of Sales" in community profile contact section for more professional and accurate representation (July 15, 2025)
 
 ## ⚠️ CRITICAL API COST PROTECTION IMPLEMENTED (January 5, 2025)
 **Issue Identified**: Previous runaway API costs of $300+ from uncontrolled photo enrichment

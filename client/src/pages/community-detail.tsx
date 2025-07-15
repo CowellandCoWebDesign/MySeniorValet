@@ -550,7 +550,7 @@ Let me know what you think!`;
                             return names[community.id % names.length];
                           })()}
                         </h4>
-                        <p className="text-gray-600 font-medium">Senior Living Director</p>
+                        <p className="text-gray-600 font-medium">Director of Sales</p>
                         <div className="flex items-center mt-2">
                           <Phone className="w-4 h-4 text-blue-600 mr-2" />
                           <span className="text-gray-700 font-medium">
