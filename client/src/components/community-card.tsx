@@ -166,6 +166,9 @@ export function CommunityCard({ community }: CommunityCardProps) {
 
   const allPhotos = getAllPhotos();
   const hasPhotos = allPhotos.length > 0;
+  
+  // Debug logging
+  console.log(`Community ${community.id} (${community.name}): hasPhotos=${hasPhotos}, allPhotos.length=${allPhotos.length}`);
 
   const handleCardClick = (e: React.MouseEvent) => {
     // Don't navigate if clicking on buttons or links
