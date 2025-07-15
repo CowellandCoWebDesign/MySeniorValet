@@ -336,7 +336,7 @@ export default function TrueViewHome() {
                   </div>
                   
                   {/* Heart Icon */}
-                  <div className="absolute top-3 right-3">
+                  <div className="absolute top-2 right-2">
                     <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
                       <Heart className="w-4 h-4 text-gray-600" />
                     </div>
@@ -344,39 +344,39 @@ export default function TrueViewHome() {
                   
                   {/* Vacancy Status Badge - Top Priority */}
                   {index % 3 === 0 && (
-                    <Badge className="absolute top-3 left-3 bg-green-600 text-white text-xs px-2 py-1 font-medium animate-pulse">
+                    <Badge className="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 font-medium animate-pulse">
                       🟢 Available Now
                     </Badge>
                   )}
                   {index % 3 === 1 && (
-                    <Badge className="absolute top-3 left-3 bg-orange-600 text-white text-xs px-2 py-1 font-medium">
+                    <Badge className="absolute top-2 left-2 bg-orange-600 text-white text-xs px-2 py-1 font-medium">
                       🟡 Waitlist Open
                     </Badge>
                   )}
                   {index % 3 === 2 && (
-                    <Badge className="absolute top-3 left-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
+                    <Badge className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
                       📋 Call for Availability
                     </Badge>
                   )}
                   
                   {/* Price Badge */}
-                  <Badge className="absolute bottom-3 left-3 bg-gray-900 text-white text-xs px-2 py-1 font-medium">
+                  <Badge className="absolute bottom-2 left-2 bg-gray-900 text-white text-xs px-2 py-1 font-medium">
                     {community.monthlyRent ? `$${(community.monthlyRent / 1000).toFixed(1)}K+` : '$4K+'}
                   </Badge>
                   
                   {/* Achievement Badge - Special Recognition */}
                   {index % 5 === 0 && (
-                    <Badge className="absolute bottom-3 right-3 bg-purple-600 text-white text-xs px-2 py-1 font-medium">
+                    <Badge className="absolute bottom-2 right-2 bg-purple-600 text-white text-xs px-2 py-1 font-medium">
                       🏆 Featured
                     </Badge>
                   )}
                   {index % 5 === 1 && (
-                    <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
+                    <Badge className="absolute bottom-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
                       ⭐ Top Rated
                     </Badge>
                   )}
                   {index % 5 === 2 && (
-                    <Badge className="absolute bottom-3 right-3 bg-cyan-600 text-white text-xs px-2 py-1 font-medium">
+                    <Badge className="absolute bottom-2 right-2 bg-cyan-600 text-white text-xs px-2 py-1 font-medium">
                       🌊 Ocean View
                     </Badge>
                   )}
