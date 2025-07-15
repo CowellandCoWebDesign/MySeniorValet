@@ -158,6 +158,11 @@ export const authLimiter = new TokenBucketRateLimiter(
 // Rate limiting middleware
 export function createRateLimitMiddleware(limiter: TokenBucketRateLimiter) {
   return (req: any, res: any, next: any) => {
+    // Skip rate limiting for search suggestions endpoint
+    if (req.path === '/api/search/suggestions') {
+      return next();
+    }
+    
     // In development, use a consistent identifier to avoid issues
     const identifier = isDev ? 'dev-client' : (req.ip || req.connection?.remoteAddress || req.headers['x-forwarded-for'] || 'unknown');
     

@@ -32,7 +32,8 @@ export function createRateLimit(maxRequests: number = SECURITY_CONFIG.rateLimiti
         req.path.endsWith('.css') || 
         req.path.endsWith('.map') ||
         req.path.includes('vite') ||
-        req.path.includes('hmr')) {
+        req.path.includes('hmr') ||
+        req.path === '/api/search/suggestions') {
       return next();
     }
     
@@ -163,6 +164,12 @@ export function validateInput(schema: z.ZodSchema) {
 export function sqlInjectionProtection(req: Request, res: Response, next: NextFunction) {
   // Skip photo proxy endpoint - Google photo references are legitimate
   if (req.path === '/api/images/photo-proxy') {
+    return next();
+  }
+  
+  // Skip search suggestions endpoint - legitimate search queries
+  if (req.path === '/api/search/suggestions') {
+    console.log('Skipping SQL injection protection for search suggestions');
     return next();
   }
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,14 @@ export default function TrueViewHome() {
   const { data: communityStats, isLoading } = useQuery({
     queryKey: ["/api/communities/count"],
     retry: false,
+  });
+
+  // Predictive search suggestions
+  const { data: searchSuggestions } = useQuery({
+    queryKey: ["/api/search/suggestions", searchQuery],
+    enabled: searchQuery.length >= 2,
+    retry: false,
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
   });
 
   const { data: heroImages } = useQuery({
@@ -58,6 +66,17 @@ export default function TrueViewHome() {
     ...(coastalCommunities || []).slice(0, 4),
     ...(featuredCommunities || []).slice(0, 4)
   ];
+
+  // Update suggestions when search suggestions data changes
+  useEffect(() => {
+    if (searchSuggestions && searchQuery.length >= 2) {
+      setSuggestions(searchSuggestions);
+      setShowSuggestions(true);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  }, [searchSuggestions, searchQuery]);
 
   // Generate location suggestions based on available community data
   const generateSuggestions = (query: string) => {
@@ -124,7 +143,8 @@ export default function TrueViewHome() {
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
-    generateSuggestions(value);
+    // The useQuery will automatically trigger with the new value
+    // generateSuggestions is now handled by the API
   };
 
   const handleSuggestionClick = (suggestion: string) => {

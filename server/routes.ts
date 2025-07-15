@@ -847,6 +847,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test endpoint to verify middleware issues
+  app.get('/api/test-suggestions', async (req, res) => {
+    res.json(['Test 1', 'Test 2', 'Test 3']);
+  });
+
+  // Predictive search suggestions endpoint  
+  app.get('/api/search/suggestions', async (req, res) => {
+    try {
+      const query = req.query.q as string;
+      
+      if (!query || query.length < 2) {
+        return res.json([]);
+      }
+
+      // Check cache first
+      const cacheKey = `search_suggestions:${query.toLowerCase()}`;
+      try {
+        const cached = await cache.get(cacheKey);
+        if (cached) {
+          return res.json(cached);
+        }
+      } catch (cacheError) {
+        // Continue without cache
+      }
+
+      // Get suggestions from storage
+      const suggestions = await storage.getSearchSuggestions(query);
+      
+      // Try to cache but don't fail if cache is unavailable
+      try {
+        await cache.set(cacheKey, suggestions, 600);
+      } catch (cacheError) {
+        // Continue without caching
+      }
+      
+      res.json(suggestions);
+    } catch (error) {
+      console.error('Search suggestions error details:', error);
+      // Return empty array instead of error
+      res.json([]);
+    }
+  });
+
   // Search communities - OPTIMIZED FOR PERFORMANCE WITH HUD INTEGRATION
   app.get("/api/communities/search", async (req, res) => {
     try {
