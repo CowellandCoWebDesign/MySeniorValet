@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { MapIcon } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { 
   getAmenitiesByCategory, 
@@ -216,19 +216,47 @@ Let me know what you think!`;
       { type: '1 Bedroom + Den', sqft: '850-950', features: ['Full kitchen', 'Private bathroom', 'Walk-in closet', 'Emergency system', 'Office space'] }
     ];
 
-    return unitTypes.map((unit, index) => ({
-      id: `${community.id}-${index}`,
-      type: unit.type,
-      sqft: unit.sqft,
-      features: unit.features,
-      available: community.id % 3 === 0 ? Math.max(1, (community.id + index) % 5) : 0,
-      price: community.monthlyRent ? 
-        community.monthlyRent + (index * 400) : 
-        (community.state === 'CA' ? 4800 : community.state === 'TX' ? 3600 : 4200) + (index * 400),
-      moveInDate: community.id % 3 === 0 ? 
-        (index % 2 === 0 ? 'Available now' : 'Available in 2-3 weeks') : 
-        'Join waitlist'
-    }));
+    // Calculate total available units based on header logic
+    const totalUnitsAvailable = community.id % 3 === 0 ? 
+      2 + (community.id % 4) : 
+      community.id % 3 === 1 ? 
+        1 + (community.id % 2) : 
+        0;
+
+    // Distribute available units across different unit types
+    const unitsToShow = unitTypes.slice(0, 3); // Show 3 unit types
+    
+    return unitsToShow.map((unit, index) => {
+      let availableUnits = 0;
+      
+      // Distribute the total available units across different types
+      if (totalUnitsAvailable > 0) {
+        if (index === 0) {
+          // First unit type gets the most availability
+          availableUnits = Math.max(1, Math.ceil(totalUnitsAvailable / 2));
+        } else if (index === 1 && totalUnitsAvailable > 1) {
+          // Second unit type gets remaining units
+          availableUnits = Math.max(0, totalUnitsAvailable - Math.ceil(totalUnitsAvailable / 2));
+        } else if (index === 2 && totalUnitsAvailable > 2) {
+          // Third unit type occasionally has availability
+          availableUnits = community.id % 5 === 0 ? 1 : 0;
+        }
+      }
+
+      return {
+        id: `${community.id}-${index}`,
+        type: unit.type,
+        sqft: unit.sqft,
+        features: unit.features,
+        available: availableUnits,
+        price: community.monthlyRent ? 
+          community.monthlyRent + (index * 400) : 
+          (community.state === 'CA' ? 4800 : community.state === 'TX' ? 3600 : 4200) + (index * 400),
+        moveInDate: availableUnits > 0 ? 
+          (index % 2 === 0 ? 'Available now' : 'Available in 2-3 weeks') : 
+          'Join waitlist'
+      };
+    });
   };
 
   const generatePhoneNumber = (state: string, id: number) => {
@@ -328,6 +356,9 @@ Let me know what you think!`;
                       <DialogContent className="sm:max-w-md">
                         <DialogHeader>
                           <DialogTitle>Share Community</DialogTitle>
+                          <DialogDescription>
+                            Share this community with family and friends using the options below.
+                          </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4">
                           {/* Quick Copy Link */}
@@ -656,6 +687,9 @@ Let me know what you think!`;
                         <DialogContent className="sm:max-w-md">
                           <DialogHeader>
                             <DialogTitle>Schedule a Tour</DialogTitle>
+                            <DialogDescription>
+                              Fill out the form below to schedule a tour of this community.
+                            </DialogDescription>
                           </DialogHeader>
                           <div className="space-y-4">
                             <div className="bg-blue-50 p-4 rounded-lg">
@@ -747,11 +781,13 @@ Let me know what you think!`;
                         <DialogContent className="sm:max-w-[425px]">
                           <DialogHeader>
                             <DialogTitle>Join Waitlist</DialogTitle>
-                            {selectedUnitType && (
-                              <p className="text-sm text-gray-600 mt-1">
-                                You'll be notified when {selectedUnitType} units become available
-                              </p>
-                            )}
+                            <DialogDescription>
+                              {selectedUnitType ? (
+                                `You'll be notified when ${selectedUnitType} units become available.`
+                              ) : (
+                                "Complete this form to be notified when units become available."
+                              )}
+                            </DialogDescription>
                           </DialogHeader>
                           <div className="space-y-4">
                             <div>
