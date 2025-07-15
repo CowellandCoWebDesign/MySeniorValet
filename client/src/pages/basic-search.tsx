@@ -197,12 +197,12 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
 
   const { data: communitiesResponse, isLoading, error } = useQuery({
     queryKey: ["/api/communities/search", { 
-      limit: 200, 
+      limit: 10000, 
       location: debouncedSearchQuery,
       careTypes: selectedCareTypes 
     }],
     queryFn: async () => {
-      let url = "/api/communities/search?limit=200";
+      let url = "/api/communities/search?limit=10000";
       
       // Add location parameter if debounced search query exists
       if (debouncedSearchQuery) {

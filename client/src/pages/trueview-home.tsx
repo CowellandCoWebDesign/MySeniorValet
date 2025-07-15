@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,6 @@ export default function TrueViewHome() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   
   // ONLY get cached community count - no need for full community list on homepage
   const { data: communityStats, isLoading } = useQuery({
@@ -60,40 +59,67 @@ export default function TrueViewHome() {
     ...(featuredCommunities || []).slice(0, 4)
   ];
 
-  // Generate location suggestions based on database with debouncing
-  const generateSuggestions = async (query: string) => {
+  // Generate location suggestions based on available community data
+  const generateSuggestions = (query: string) => {
     if (!query.trim() || query.length < 2) {
       setSuggestions([]);
       setShowSuggestions(false);
-      setSuggestionsLoading(false);
       return;
     }
 
-    setSuggestionsLoading(true);
+    const lowerQuery = query.toLowerCase();
+    const allSuggestions = new Set<string>();
 
-    try {
-      const response = await fetch(`/api/search/suggestions?q=${encodeURIComponent(query)}`);
-      if (response.ok) {
-        const data = await response.json();
-        const suggestionStrings = data.map((item: any) => item.suggestion);
-        setSuggestions(suggestionStrings);
-        setShowSuggestions(suggestionStrings.length > 0);
-      } else {
-        // Fallback to static suggestions on error
-        const fallbackSuggestions = [
-          "San Francisco, CA", "Los Angeles, CA", "San Diego, CA",
-          "Sacramento, CA", "San Jose, CA", "Oakland, CA"
-        ].filter(city => city.toLowerCase().includes(query.toLowerCase()));
-        setSuggestions(fallbackSuggestions);
-        setShowSuggestions(fallbackSuggestions.length > 0);
+    // Add popular California cities from different regions
+    const popularCities = [
+      "San Francisco, CA",
+      "Los Angeles, CA",
+      "San Diego, CA", 
+      "Sacramento, CA",
+      "San Jose, CA",
+      "Oakland, CA",
+      "Fresno, CA",
+      "Long Beach, CA",
+      "Santa Ana, CA",
+      "Redding, CA",
+      "Santa Rosa, CA",
+      "Stockton, CA",
+      "Fremont, CA",
+      "Berkeley, CA",
+      "Richmond, CA",
+      "Eureka, CA",
+      "Arcata, CA",
+      "Napa, CA",
+      "Petaluma, CA",
+      "Vallejo, CA"
+    ];
+
+    popularCities.forEach(city => {
+      if (city.toLowerCase().includes(lowerQuery)) {
+        allSuggestions.add(city);
       }
-    } catch (error) {
-      console.error('Search suggestions error:', error);
-      setSuggestions([]);
-      setShowSuggestions(false);
-    } finally {
-      setSuggestionsLoading(false);
-    }
+    });
+
+    // Static suggestions for performance - no database queries on homepage
+
+    // Add care type suggestions
+    const careTypes = [
+      "Independent Living",
+      "Assisted Living", 
+      "Memory Care",
+      "Skilled Nursing",
+      "Independent Living with Services"
+    ];
+
+    careTypes.forEach(careType => {
+      if (careType.toLowerCase().includes(lowerQuery)) {
+        allSuggestions.add(careType);
+      }
+    });
+
+    const filteredSuggestions = Array.from(allSuggestions).slice(0, 6);
+    setSuggestions(filteredSuggestions);
+    setShowSuggestions(filteredSuggestions.length > 0);
   };
 
   const handleSearchChange = (value: string) => {
