@@ -14,7 +14,7 @@ export default function AffordableHousing() {
   const { data: facilities, isLoading, error } = useQuery({
     queryKey: ["/api/communities/search", "affordable-housing", selectedState],
     queryFn: async () => {
-      let url = "/api/communities/search?careType=Affordable%20Housing&limit=100";
+      let url = "/api/communities/search?careType=Affordable%20Housing&limit=10000";
       if (selectedState !== "all") {
         url += `&location=${selectedState}`;
       }

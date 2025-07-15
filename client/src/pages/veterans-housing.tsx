@@ -14,7 +14,7 @@ export default function VeteransHousing() {
   const { data: hudVashFacilities, isLoading } = useQuery({
     queryKey: ["/api/communities/hud-vash"],
     queryFn: async () => {
-      const response = await fetch("/api/communities/search?limit=50&careTypes=Veterans+Housing");
+      const response = await fetch("/api/communities/search?limit=10000&careTypes=Veterans+Housing");
       if (!response.ok) throw new Error("Failed to fetch HUD-VASH facilities");
       return response.json();
     },

@@ -18,7 +18,7 @@ export default function RentalsClean() {
 
   // Fetch communities data
   const { data: communities = [], isLoading, error } = useQuery({
-    queryKey: ['/api/communities/search', { limit: 50 }],
+    queryKey: ['/api/communities/search', { limit: 10000 }],
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
 
