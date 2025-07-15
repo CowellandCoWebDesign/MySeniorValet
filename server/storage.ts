@@ -12,6 +12,7 @@ import {
 import { db } from "./db";
 import { eq, like, ilike, gte, and, or, sql, inArray, desc, isNotNull, gt } from "drizzle-orm";
 import { zipCodeService } from "./zip-code-mapping";
+import { cache } from "./cache";
 
 export interface IStorage {
   // User methods
@@ -108,6 +109,16 @@ export interface IStorage {
   createClaim(claim: any): Promise<any>;
   updateCommunityPricing(communityId: number, pricingData: any): Promise<void>;
   updateCommunityAvailability(communityId: number, availabilityData: any): Promise<void>;
+
+  // Consolidated homepage data
+  getHomepageData(): Promise<{
+    totalCommunities: number;
+    trendingCommunities: Community[];
+    coastalCommunities: Community[];
+    locationCommunities: {
+      [key: string]: Community[];
+    };
+  }>;
 }
 
 export class MemStorage implements IStorage {
@@ -544,24 +555,44 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getTrendingCommunities(limit: number = 8): Promise<Community[]> {
-    // Optimized query: get trending communities directly from database
-    // More inclusive filtering - only require coordinates, not necessarily ratings
-    return await db.select()
+    const cacheKey = `trending_communities:${limit}`;
+    
+    // Check cache first
+    const cached = await cache.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
+    
+    // Optimized query using pre-calculated trending_score
+    const result = await db.select()
       .from(communities)
       .where(and(
         isNotNull(communities.latitude),
-        isNotNull(communities.longitude)
+        isNotNull(communities.longitude),
+        sql`${communities.trendingScore} > 0`
       ))
       .orderBy(
-        desc(sql`(COALESCE(${communities.googleRating}, 3.5) * COALESCE(${communities.googleReviewCount}, 1))`),
-        desc(sql`COALESCE(${communities.googleRating}, 3.5)`),
+        desc(communities.trendingScore),
         desc(communities.id)
       )
       .limit(limit);
+    
+    // Cache for 5 minutes
+    await cache.set(cacheKey, result, 300);
+    return result;
   }
 
   async searchCommunities(params: SearchCommunity): Promise<Community[]> {
     console.log('Search parameters received:', params);
+    
+    // Create cache key from search parameters
+    const cacheKey = `search:${JSON.stringify(params)}`;
+    
+    // Check cache first (shorter TTL for search results)
+    const cached = await cache.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
 
     // Handle HUD specifically to avoid SQL issues
     if (params.careType === "HUD") {
@@ -643,6 +674,9 @@ export class DatabaseStorage implements IStorage {
 
     const results = await query;
     console.log(`Search returned ${results.length} communities`);
+    
+    // Cache search results for 2 minutes
+    await cache.set(cacheKey, results, 120);
     return results;
   }
 
@@ -1338,6 +1372,72 @@ export class DatabaseStorage implements IStorage {
       .update(communities)
       .set(availabilityData)
       .where(eq(communities.id, communityId));
+  }
+
+  // Consolidated homepage data endpoint
+  async getHomepageData(): Promise<{
+    totalCommunities: number;
+    trendingCommunities: Community[];
+    coastalCommunities: Community[];
+    locationCommunities: {
+      [key: string]: Community[];
+    };
+  }> {
+    const cacheKey = 'homepage_data';
+    
+    // Check cache first
+    const cached = await cache.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
+    
+    // Fetch all data in parallel
+    const [
+      totalCount,
+      trending,
+      coastal,
+      california,
+      sacramento,
+      sanFrancisco,
+      santaMonica,
+      monterey,
+      santaBarbara,
+      carmel
+    ] = await Promise.all([
+      // Total communities count
+      db.execute(sql`SELECT COUNT(*) as count FROM communities`),
+      // Trending communities
+      this.getTrendingCommunities(8),
+      // Coastal communities 
+      this.searchCommunities({ location: 'Santa Barbara', limit: 5 }),
+      // Location-specific communities
+      this.searchCommunities({ location: 'California', limit: 20 }),
+      this.searchCommunities({ location: 'Sacramento', limit: 20 }),
+      this.searchCommunities({ location: 'San Francisco', limit: 5 }),
+      this.searchCommunities({ location: 'Santa Monica', limit: 5 }),
+      this.searchCommunities({ location: 'Monterey', limit: 5 }),
+      this.searchCommunities({ location: 'Santa Barbara', limit: 5 }),
+      this.searchCommunities({ location: 'Carmel', limit: 5 })
+    ]);
+    
+    const result = {
+      totalCommunities: totalCount.rows[0].count,
+      trendingCommunities: trending,
+      coastalCommunities: coastal,
+      locationCommunities: {
+        California: california,
+        Sacramento: sacramento,
+        'San Francisco': sanFrancisco,
+        'Santa Monica': santaMonica,
+        Monterey: monterey,
+        'Santa Barbara': santaBarbara,
+        Carmel: carmel
+      }
+    };
+    
+    // Cache for 5 minutes
+    await cache.set(cacheKey, result, 300);
+    return result;
   }
 }
 

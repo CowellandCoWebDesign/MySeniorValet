@@ -297,6 +297,9 @@ export const communities = pgTable("communities", {
   // Enrichment completion tracking
   enrichmentCompleted: boolean("enrichment_completed").default(false), // Tracks if community has been fully enriched
   
+  // Performance optimization fields
+  trendingScore: decimal("trending_score", { precision: 10, scale: 2 }).default("0"), // Pre-calculated trending score for fast sorting
+  
   // Veterans Housing / HUD-VASH fields
   facilityType: text("facility_type", { 
     enum: ["Senior Living", "HUD-VASH", "Affordable Senior", "VA CLC", "Veterans Housing"] 

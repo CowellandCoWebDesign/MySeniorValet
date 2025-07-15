@@ -921,6 +921,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Consolidated homepage data endpoint - reduces API calls from 6 to 1
+  app.get('/api/homepage', async (req, res) => {
+    try {
+      const startTime = Date.now();
+      const homepageData = await storage.getHomepageData();
+      console.log(`Homepage data loaded in ${Date.now() - startTime}ms`);
+      res.json(homepageData);
+    } catch (error) {
+      console.error('Homepage data error:', error);
+      res.status(500).json({ error: 'Failed to fetch homepage data' });
+    }
+  });
+
   // Get trending communities for homepage - fast-loading diverse selection (must be before :id route)
   app.get('/api/communities/trending', async (req, res) => {
     try {
