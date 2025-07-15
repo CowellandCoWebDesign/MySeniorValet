@@ -995,7 +995,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
         
         {viewMode === 'map' ? (
           <div className="w-full h-full">
-            <MapboxMap />
+            <MapboxMap communities={sortedCommunities} />
           </div>
         ) : (
           <div className="w-full h-full bg-gray-100 flex items-center justify-center">

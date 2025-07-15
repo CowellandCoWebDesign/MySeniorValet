@@ -3,19 +3,57 @@ import { useEffect, useRef, useState } from "react";
 // Simple map component using Static Maps API to avoid CSP issues
 const MAPBOX_TOKEN = "pk.eyJ1IjoibXlzZW5pb3J2YWxldCIsImEiOiJjbWQ0OTlhc3YwZDZ3MmtweHhkc3lueGpzIn0.3l9MasL6_ZAZHw1y44d04A";
 
-export default function MapboxMap() {
+interface Community {
+  id: number;
+  name: string;
+  city: string;
+  state: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+interface MapboxMapProps {
+  communities?: Community[];
+}
+
+export default function MapboxMap({ communities = [] }: MapboxMapProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
 
-  // San Francisco coordinates
-  const center = [-122.4194, 37.7749];
-  const zoom = 9;
+  // Calculate map bounds based on communities or use San Francisco default
+  const getMapBounds = () => {
+    if (communities.length === 0) {
+      return { center: [-122.4194, 37.7749], zoom: 9 };
+    }
+
+    const validCommunities = communities.filter(c => c.latitude && c.longitude);
+    if (validCommunities.length === 0) {
+      return { center: [-122.4194, 37.7749], zoom: 9 };
+    }
+
+    const lats = validCommunities.map(c => c.latitude!);
+    const lons = validCommunities.map(c => c.longitude!);
+    
+    const centerLat = (Math.min(...lats) + Math.max(...lats)) / 2;
+    const centerLon = (Math.min(...lons) + Math.max(...lons)) / 2;
+    
+    return { center: [centerLon, centerLat], zoom: 8 };
+  };
+
+  const { center, zoom } = getMapBounds();
   const width = 600;
   const height = 400;
 
+  // Create markers for communities with coordinates
+  const markers = communities
+    .filter(c => c.latitude && c.longitude)
+    .slice(0, 10) // Limit to first 10 to avoid URL length issues
+    .map(c => `pin-s+ff6b35(${c.longitude},${c.latitude})`)
+    .join(',');
+
   // Use Mapbox Static Images API to avoid CSP issues
-  const mapUrl = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/${center[0]},${center[1]},${zoom}/${width}x${height}?access_token=${MAPBOX_TOKEN}`;
+  const mapUrl = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/${markers ? markers + '/' : ''}${center[0]},${center[1]},${zoom}/${width}x${height}?access_token=${MAPBOX_TOKEN}`;
 
   useEffect(() => {
     // Simulate loading time
@@ -77,7 +115,13 @@ export default function MapboxMap() {
       
       {imageLoaded && (
         <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg shadow p-2 text-xs text-gray-600">
-          San Francisco, CA - Static Preview
+          {communities.length > 0 ? `${communities.length} communities` : 'San Francisco, CA'} - Map Preview
+        </div>
+      )}
+      
+      {imageLoaded && communities.length > 0 && (
+        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg shadow p-2 text-xs text-gray-600">
+          🏠 {communities.filter(c => c.latitude && c.longitude).length} communities with locations
         </div>
       )}
     </div>
