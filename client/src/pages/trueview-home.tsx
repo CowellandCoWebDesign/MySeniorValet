@@ -99,29 +99,29 @@ export default function TrueViewHome() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       {/* Header */}
-      <header className="absolute top-0 left-0 right-0 z-50 bg-transparent">
+      <header className="absolute top-0 left-0 right-0 z-50 bg-black/10 backdrop-blur-md border-b border-white/10">
         <div className="px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-white/20 rounded-md backdrop-blur-sm">
+              <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm shadow-lg">
                 <div className="flex flex-col space-y-1">
-                  <div className="w-5 h-0.5 bg-white"></div>
-                  <div className="w-5 h-0.5 bg-white"></div>
-                  <div className="w-5 h-0.5 bg-white"></div>
+                  <div className="w-5 h-0.5 bg-white rounded-full"></div>
+                  <div className="w-5 h-0.5 bg-white rounded-full"></div>
+                  <div className="w-5 h-0.5 bg-white rounded-full"></div>
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
-                  <Home className="w-6 h-6 text-white" />
+              <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 shadow-lg">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
+                  <Home className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-xl font-bold text-white drop-shadow-lg">MySeniorValet</span>
+                <span className="text-xl font-bold bg-gradient-to-r from-white via-amber-100 to-white bg-clip-text text-transparent drop-shadow-lg">MySeniorValet</span>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/login" className="text-white hover:text-amber-200 transition-colors">
+            <div className="flex items-center space-x-3">
+              <Link href="/login" className="text-white hover:text-amber-200 transition-colors font-medium">
                 Sign In
               </Link>
-              <Link href="/signup" className="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors">
+              <Link href="/signup" className="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-xl hover:bg-white/30 transition-all duration-200 font-medium shadow-lg hover:shadow-xl">
                 Sign Up
               </Link>
             </div>
@@ -145,7 +145,7 @@ export default function TrueViewHome() {
               className="w-full h-full object-cover"
             />
           )}
-          <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/60"></div>
         </div>
         
         <div className="relative z-10 flex flex-col items-center justify-center hero-content min-h-screen px-6 py-16 mobile-keyboard-safe">
