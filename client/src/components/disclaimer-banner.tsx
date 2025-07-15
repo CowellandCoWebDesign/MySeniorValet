@@ -7,9 +7,10 @@ export function DisclaimerBanner() {
   const [isVisible, setIsVisible] = useState(() => {
     if (typeof window !== 'undefined') {
       const dismissed = localStorage.getItem('disclaimerDismissed');
+      // Force show on first visit - only hide if explicitly dismissed
       return dismissed !== 'true';
     }
-    return true;
+    return true; // Show by default for first-time visitors
   });
 
   const handleDismiss = () => {

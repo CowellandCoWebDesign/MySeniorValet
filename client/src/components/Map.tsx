@@ -78,8 +78,8 @@ function MapBoundsHandler({ onBoundsChange }: { onBoundsChange: (bounds: LatLngB
     map.on('moveend', handleBoundsChange);
     map.on('zoomend', handleBoundsChange);
     
-    // Initial bounds
-    handleBoundsChange();
+    // Initial bounds - call immediately after map is ready
+    setTimeout(() => handleBoundsChange(), 100);
     
     return () => {
       map.off('moveend', handleBoundsChange);
