@@ -353,7 +353,7 @@ export default function TrueViewHome() {
                     </div>
                   </div>
                   
-                  {/* Vacancy Status Badge - Top Priority */}
+                  {/* Vacancy Status Badge - Top Left */}
                   {index % 3 === 0 && (
                     <Badge className="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 font-medium animate-pulse z-10">
                       🟢 Available Now
@@ -370,7 +370,7 @@ export default function TrueViewHome() {
                     </Badge>
                   )}
                   
-                  {/* Price Badge */}
+                  {/* Price Badge - Bottom Left */}
                   <Badge className="absolute bottom-2 left-2 bg-gray-900 text-white text-xs px-2 py-1 font-medium z-10">
                     {community.monthlyRent ? `$${(community.monthlyRent / 1000).toFixed(1)}K+` : '$4K+'}
                     {!community.claimed && (
@@ -378,37 +378,37 @@ export default function TrueViewHome() {
                     )}
                   </Badge>
                   
-                  {/* Achievement Badge - Special Recognition */}
+                  {/* Achievement Badge - Bottom Right (smaller to avoid overlap) */}
                   {index % 5 === 0 && (
                     <Badge className="absolute bottom-2 right-2 bg-purple-600 text-white text-xs px-1.5 py-0.5 font-medium z-10">
-                      🏆 Featured
+                      🏆
                     </Badge>
                   )}
                   {index % 5 === 1 && (
                     <Badge className="absolute bottom-2 right-2 bg-blue-600 text-white text-xs px-1.5 py-0.5 font-medium z-10">
-                      ⭐ Top Rated
+                      ⭐
                     </Badge>
                   )}
                   {index % 5 === 2 && (
                     <Badge className="absolute bottom-2 right-2 bg-cyan-600 text-white text-xs px-1.5 py-0.5 font-medium z-10">
-                      🌊 Ocean
+                      🌊
                     </Badge>
                   )}
                 </div>
                 
                 <CardContent className="p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="text-xl font-bold text-gray-900">
-                      {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : '$3,800'}
-                      {!community.claimed && (
-                        <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
-                      )}
+                  {/* Availability Status - Above Price */}
+                  {index % 3 === 0 && (
+                    <div className="flex items-center text-xs text-green-600 font-medium mb-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                      Available
                     </div>
-                    {index % 3 === 0 && (
-                      <div className="flex items-center text-xs text-green-600 font-medium">
-                        <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
-                        Available
-                      </div>
+                  )}
+                  
+                  <div className="text-xl font-bold text-gray-900 mb-2">
+                    {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : '$3,800'}
+                    {!community.claimed && (
+                      <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
                     )}
                   </div>
                   
@@ -649,36 +649,42 @@ export default function TrueViewHome() {
                       {/* Price Badge */}
                       <Badge className="absolute bottom-3 left-3 bg-gray-900 text-white text-xs px-2 py-1 font-medium">
                         {community.monthlyRent ? `$${(community.monthlyRent / 1000).toFixed(1)}K+` : '$4K+'}
+                        {!community.claimed && (
+                          <span className="text-xs text-gray-300 ml-1 font-normal">est.</span>
+                        )}
                       </Badge>
                       
-                      {/* Achievement Badge - Special Recognition */}
+                      {/* Achievement Badge - Special Recognition (smaller to avoid overlap) */}
                       {index % 5 === 0 && (
-                        <Badge className="absolute bottom-3 right-3 bg-purple-600 text-white text-xs px-2 py-1 font-medium">
-                          🏆 Featured
+                        <Badge className="absolute bottom-3 right-3 bg-purple-600 text-white text-xs px-1.5 py-0.5 font-medium">
+                          🏆
                         </Badge>
                       )}
                       {index % 5 === 1 && (
-                        <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
-                          ⭐ Top Rated
+                        <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-1.5 py-0.5 font-medium">
+                          ⭐
                         </Badge>
                       )}
                       {index % 5 === 2 && (
-                        <Badge className="absolute bottom-3 right-3 bg-green-600 text-white text-xs px-2 py-1 font-medium">
-                          💎 Premium
+                        <Badge className="absolute bottom-3 right-3 bg-green-600 text-white text-xs px-1.5 py-0.5 font-medium">
+                          💎
                         </Badge>
                       )}
                     </div>
                     
                     <CardContent className="p-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="text-xl font-bold text-gray-900">
-                          {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : '$4,200'}
+                      {/* Availability Status - Above Price */}
+                      {index % 3 === 0 && (
+                        <div className="flex items-center text-xs text-green-600 font-medium mb-2">
+                          <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                          Available
                         </div>
-                        {index % 3 === 0 && (
-                          <div className="flex items-center text-xs text-green-600 font-medium">
-                            <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
-                            Available
-                          </div>
+                      )}
+                      
+                      <div className="text-xl font-bold text-gray-900 mb-2">
+                        {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : '$4,200'}
+                        {!community.claimed && (
+                          <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
                         )}
                       </div>
                       
