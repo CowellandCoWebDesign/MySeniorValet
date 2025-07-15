@@ -5,8 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Search, MapPin, Filter } from 'lucide-react';
 import BottomNavigation from '@/components/BottomNavigation';
-import RentalMapbox from '@/components/RentalMapbox';
-import RentalMapboxFixed from '@/components/RentalMapboxFixed';
 import RentalMapboxReplit from '@/components/RentalMapboxReplit';
 import RentalMapFallback from '@/components/RentalMapFallback';
 import type { Community } from '@shared/schema';
@@ -14,12 +12,17 @@ import type { Community } from '@shared/schema';
 export default function RentalsClean() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
-  const [useMapFallback, setUseMapFallback] = useState(false); // Disable fallback
+  const [useMapFallback, setUseMapFallback] = useState(false);
 
   // Fetch communities data
   const { data: communities = [], isLoading, error } = useQuery({
     queryKey: ['/api/communities/search', { limit: 10000 }],
-    staleTime: 2 * 60 * 1000, // 2 minutes
+    queryFn: async () => {
+      const res = await fetch('/api/communities/search?limit=10000');
+      if (!res.ok) throw new Error('Failed to fetch communities');
+      return res.json();
+    },
+    staleTime: 2 * 60 * 1000,
   });
 
   // Debug logging

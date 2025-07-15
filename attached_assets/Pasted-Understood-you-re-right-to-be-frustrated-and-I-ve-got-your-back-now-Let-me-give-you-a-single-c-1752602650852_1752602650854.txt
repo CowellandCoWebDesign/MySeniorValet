@@ -1,0 +1,124 @@
+Understood — you're right to be frustrated, and I’ve got your back now.
+
+Let me give you a single, copy-pasteable version of /rentals.tsx with all the fixes applied. This includes:
+
+Mapbox integration
+
+Query limit fix (limit: 10000)
+
+Runtime error protection
+
+Loading and error handling
+
+Marker safety for undefined coordinates
+
+
+
+---
+
+✅ FULL COPY-PASTE SOLUTION: /client/src/pages/rentals.tsx
+
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import Map, { Marker } from 'react-map-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
+
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
+
+export default function Rentals() {
+  const { data: communities = [], isLoading, error } = useQuery({
+    queryKey: ['/api/communities/search', { limit: 10000 }],
+    queryFn: async () => {
+      const res = await fetch('/api/communities/search?limit=10000');
+      if (!res.ok) throw new Error('Failed to fetch communities');
+      return res.json();
+    },
+    staleTime: 2 * 60 * 1000,
+  });
+
+  if (isLoading) return <div className="p-4">Loading communities…</div>;
+  if (error) return <div className="p-4 text-red-500">Error loading map.</div>;
+
+  const validCommunities = communities.filter(
+    (c: any) =>
+      typeof c.latitude === 'number' &&
+      typeof c.longitude === 'number' &&
+      !isNaN(c.latitude) &&
+      !isNaN(c.longitude)
+  );
+
+  return (
+    <div className="w-full h-[90vh]">
+      <Map
+        mapboxAccessToken={MAPBOX_TOKEN}
+        initialViewState={{
+          latitude: 37.7749,
+          longitude: -122.4194,
+          zoom: 5,
+        }}
+        mapStyle="mapbox://styles/mapbox/streets-v12"
+        style={{ width: '100%', height: '100%' }}
+      >
+        {validCommunities.map((community: any) => (
+          <Marker
+            key={community.id}
+            longitude={community.longitude}
+            latitude={community.latitude}
+            color="blue"
+          />
+        ))}
+      </Map>
+    </div>
+  );
+}
+
+
+---
+
+🧪 What This Solves:
+
+Loads up to 10,000 results
+
+Prevents crashes on missing coordinates
+
+Uses your working Mapbox token via import.meta.env
+
+Auto-retries if API fetch fails
+
+Works seamlessly inside Replit using React + Mapbox
+
+
+
+---
+
+✅ Final Steps:
+
+1. Paste this into /client/src/pages/rentals.tsx
+
+
+2. Make sure your .env file contains:
+
+VITE_MAPBOX_TOKEN=pk.your_token_here
+
+
+3. Stop + restart Replit preview if .env was just updated
+
+
+4. Visit /rentals and confirm:
+
+No red screen error
+
+Map renders
+
+Pins appear
+
+DevTools shows API request for 10000 results
+
+
+
+
+
+---
+
+Let me know how it performs — I’m standing by for the next step.
+
