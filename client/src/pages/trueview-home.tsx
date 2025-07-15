@@ -1354,6 +1354,178 @@ export default function TrueViewHome() {
         </div>
       </section>
 
+      {/* Website Footer */}
+      <footer className="bg-gray-900 text-white">
+        <div className="max-w-7xl mx-auto px-4 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {/* Company Info */}
+            <div className="lg:col-span-2">
+              <div className="mb-6">
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent mb-2">
+                  MySeniorValet
+                </h3>
+                <p className="text-gray-300 text-sm mb-4">
+                  Your Personal Senior Living Concierge
+                </p>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  Providing transparent, comprehensive senior living community information to help families make informed decisions. 
+                  Our platform connects families with authentic community data, pricing transparency, and trusted reviews.
+                </p>
+              </div>
+              
+              <div className="border-t border-gray-700 pt-6">
+                <h4 className="text-lg font-semibold mb-3">Contact Information</h4>
+                <div className="space-y-2 text-sm text-gray-300">
+                  <p><span className="font-medium">Founder:</span> William Scott Cowell</p>
+                  <p><span className="font-medium">Business Address:</span> 5048 Main Street, Shasta Lake, CA</p>
+                  <p><span className="font-medium">Website:</span> 
+                    <a href="https://cowellandcowebdesign.github.io" 
+                       target="_blank" 
+                       rel="noopener noreferrer"
+                       className="text-blue-400 hover:text-blue-300 ml-2 underline">
+                      cowellandcowebdesign.github.io
+                    </a>
+                  </p>
+                  <p><span className="font-medium">Email:</span> 
+                    <a href="mailto:info@myseniorvalet.com" 
+                       className="text-blue-400 hover:text-blue-300 ml-2">
+                      info@myseniorvalet.com
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* About Us */}
+            <div>
+              <h4 className="text-lg font-semibold mb-4">About Us</h4>
+              <ul className="space-y-2 text-sm text-gray-300">
+                <li>
+                  <a href="/about" className="hover:text-blue-400 transition-colors">
+                    Our Story
+                  </a>
+                </li>
+                <li>
+                  <a href="/mission" className="hover:text-blue-400 transition-colors">
+                    Our Mission
+                  </a>
+                </li>
+                <li>
+                  <a href="/team" className="hover:text-blue-400 transition-colors">
+                    Meet the Team
+                  </a>
+                </li>
+                <li>
+                  <a href="/testimonials" className="hover:text-blue-400 transition-colors">
+                    Success Stories
+                  </a>
+                </li>
+                <li>
+                  <a href="/media" className="hover:text-blue-400 transition-colors">
+                    Media & Press
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Services & Support */}
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Services & Support</h4>
+              <ul className="space-y-2 text-sm text-gray-300">
+                <li>
+                  <a href="/search" className="hover:text-blue-400 transition-colors">
+                    Find Communities
+                  </a>
+                </li>
+                <li>
+                  <a href="/family-collaboration" className="hover:text-blue-400 transition-colors">
+                    Family Collaboration
+                  </a>
+                </li>
+                <li>
+                  <a href="/affordable-housing" className="hover:text-blue-400 transition-colors">
+                    Affordable Housing
+                  </a>
+                </li>
+                <li>
+                  <a href="/help" className="hover:text-blue-400 transition-colors">
+                    Help Center
+                  </a>
+                </li>
+                <li>
+                  <a href="/contact" className="hover:text-blue-400 transition-colors">
+                    Contact Support
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Legal Protection & Bottom Section */}
+          <div className="border-t border-gray-700 mt-8 pt-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Legal Links */}
+              <div>
+                <h4 className="text-lg font-semibold mb-4">Legal Information</h4>
+                <div className="flex flex-wrap gap-4 text-sm text-gray-300">
+                  <a href="/terms" className="hover:text-blue-400 transition-colors">
+                    Terms of Service
+                  </a>
+                  <a href="/privacy" className="hover:text-blue-400 transition-colors">
+                    Privacy Policy
+                  </a>
+                  <a href="/disclaimer" className="hover:text-blue-400 transition-colors">
+                    Disclaimer
+                  </a>
+                  <a href="/accessibility" className="hover:text-blue-400 transition-colors">
+                    Accessibility
+                  </a>
+                </div>
+              </div>
+
+              {/* Business Status */}
+              <div>
+                <h4 className="text-lg font-semibold mb-4">Business Status</h4>
+                <div className="text-sm text-gray-300 space-y-1">
+                  <p>Independent Platform</p>
+                  <p>California-Based Operation</p>
+                  <p>Sole Proprietorship</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Copyright & Final Protection */}
+          <div className="border-t border-gray-700 mt-8 pt-8">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <div className="text-sm text-gray-400">
+                <p>&copy; {new Date().getFullYear()} MySeniorValet. All rights reserved.</p>
+                <p className="mt-1">
+                  Created and owned by William Scott Cowell. All content, design, and functionality are protected by copyright law.
+                </p>
+              </div>
+              
+              <div className="flex items-center gap-4 text-sm text-gray-400">
+                <span>Platform Coverage:</span>
+                <span className="text-blue-400 font-medium">8,053+ Communities</span>
+                <span>•</span>
+                <span className="text-green-400 font-medium">19 States</span>
+              </div>
+            </div>
+            
+            {/* Additional Legal Protection */}
+            <div className="mt-6 p-4 bg-gray-800 rounded-lg">
+              <p className="text-xs text-gray-400 leading-relaxed">
+                <strong>Legal Notice:</strong> This website and all its contents are the exclusive property of William Scott Cowell. 
+                No part of this site may be reproduced, distributed, or transmitted in any form without prior written permission. 
+                The MySeniorValet name, logo, and all related content are proprietary and protected by intellectual property laws. 
+                All community information is provided for informational purposes only and should be verified independently before making decisions.
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
+
       {/* Bottom spacing */}
       <div className="h-8"></div>
     </div>

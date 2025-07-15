@@ -41,6 +41,8 @@ import MapSearch from "@/pages/map-search";
 // Rentals page removed - consolidated to use BasicSearch
 // MapboxTest removed
 // Map test pages removed
+import About from "@/pages/about";
+import Contact from "@/pages/contact";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -79,6 +81,8 @@ function Router() {
       <Route path="/family-collaboration" component={FamilyCollaboration} />
       <Route path="/login" component={Login} />
       <Route path="/signup" component={Signup} />
+      <Route path="/about" component={About} />
+      <Route path="/contact" component={Contact} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/terms" component={Terms} />
       <Route path="/disclaimer" component={Disclaimer} />

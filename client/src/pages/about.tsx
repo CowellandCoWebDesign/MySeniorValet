@@ -1,165 +1,93 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Shield, Database, Clock, Star, CheckCircle, Users, Map, DollarSign, Award, Heart, Lightbulb, Target } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Home, Heart, Users, Shield } from "lucide-react";
 import { Link } from "wouter";
 
 export default function About() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/5 w-80 h-80 bg-gradient-to-r from-purple-400/10 to-pink-400/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/3 right-1/5 w-72 h-72 bg-gradient-to-r from-cyan-400/10 to-blue-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-2/3 left-2/3 w-64 h-64 bg-gradient-to-r from-emerald-400/10 to-teal-400/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
-      </div>
-      
-      <div className="relative z-10">
-        <Header />
-      
+    <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="py-16 lg:py-24 bg-gradient-to-br from-blue-50/50 via-white/80 to-purple-50/50 backdrop-blur-sm relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-purple-600/5"></div>
-        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="relative inline-block group">
-            <h1 className="text-4xl lg:text-5xl font-display font-bold text-gray-900 mb-6 group-hover:scale-105 transition-transform duration-300">
-              About <span className="text-primary bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">TrueView</span>
-            </h1>
-            <div className="absolute -top-2 -right-2 w-4 h-4 bg-yellow-400 rounded-full opacity-0 group-hover:opacity-100 animate-ping transition-opacity duration-300"></div>
-          </div>
-          <p className="text-xl text-gray-700 mb-8 leading-relaxed">
-            We're transforming how families find senior living communities through transparent pricing, 
-            authentic reviews, and comprehensive data from trusted sources.
+      <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h1 className="text-4xl font-bold mb-4">About MySeniorValet</h1>
+          <p className="text-xl mb-8">
+            Your Personal Senior Living Concierge - Trusted guidance for your family's most important decision
           </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-gray-200">
-              <Database className="text-blue-600 h-5 w-5" />
-              <span className="text-sm font-medium text-gray-800">182 Communities</span>
-            </div>
-            <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-gray-200">
-              <Map className="text-green-600 h-5 w-5" />
-              <span className="text-sm font-medium text-gray-800">Northern California</span>
-            </div>
-            <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-gray-200">
-              <Shield className="text-purple-600 h-5 w-5" />
-              <span className="text-sm font-medium text-gray-800">Verified Data</span>
-            </div>
+          <div className="flex items-center justify-center gap-4 text-sm">
+            <span>Founded by William Scott Cowell</span>
+            <span>•</span>
+            <span>Shasta Lake, California</span>
           </div>
         </div>
       </section>
 
-      {/* Mission Section */}
+      {/* Our Story */}
+      <section className="py-16">
+        <div className="max-w-4xl mx-auto px-4">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Our Story</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <Card className="border-0 shadow-lg">
+              <CardContent className="p-8">
+                <div className="flex items-center mb-4">
+                  <Home className="w-8 h-8 text-blue-600 mr-3" />
+                  <h3 className="text-xl font-semibold">The Problem</h3>
+                </div>
+                <p className="text-gray-600 leading-relaxed">
+                  Families struggle with finding senior living communities due to lack of pricing transparency, 
+                  unreliable information, and overwhelming "call for pricing" barriers. Traditional search methods 
+                  leave families in the dark about costs and quality.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-lg">
+              <CardContent className="p-8">
+                <div className="flex items-center mb-4">
+                  <Heart className="w-8 h-8 text-purple-600 mr-3" />
+                  <h3 className="text-xl font-semibold">Our Solution</h3>
+                </div>
+                <p className="text-gray-600 leading-relaxed">
+                  MySeniorValet eliminates the "call for pricing" problem by providing intelligent pricing estimates, 
+                  authentic government data, and transparent community information. We put families first with 
+                  honest, comprehensive information.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Mission & Values */}
       <section className="py-16 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl font-display font-bold text-gray-900 mb-6">
-                Our Mission
-              </h2>
-              <p className="text-lg text-gray-700 mb-6 leading-relaxed">
-                Finding the right senior living community shouldn't be overwhelming or confusing. 
-                We believe families deserve complete transparency when making one of life's most important decisions.
-              </p>
-              <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mt-1">
-                    <DollarSign className="text-blue-600 h-4 w-4" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Transparent Pricing</h3>
-                    <p className="text-gray-600 text-sm">Real monthly costs and fee structures with no hidden surprises</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mt-1">
-                    <Star className="text-green-600 h-4 w-4" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Authentic Reviews</h3>
-                    <p className="text-gray-600 text-sm">Real family experiences from Google, Yelp, and other trusted platforms</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mt-1">
-                    <Database className="text-purple-600 h-4 w-4" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Verified Information</h3>
-                    <p className="text-gray-600 text-sm">Cross-referenced data from state licensing and official sources</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="lg:text-center">
-              <Card className="p-8 shadow-lg border-0 bg-gradient-to-br from-blue-50 to-purple-50">
-                <CardContent className="p-0">
-                  <div className="text-center mb-6">
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                      <Heart className="text-white h-8 w-8" />
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Built for Families</h3>
-                    <p className="text-gray-600">
-                      Every feature is designed with families in mind, providing the tools and information 
-                      needed to make confident decisions about senior care.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* How We Work Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-display font-bold text-gray-900 mb-4">
-              How TrueView Works
-            </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Our platform aggregates and verifies information from multiple trusted sources 
-              to provide the most comprehensive and accurate senior living data available.
-            </p>
-          </div>
-          
+        <div className="max-w-4xl mx-auto px-4">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Our Mission & Values</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="text-center border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <CardContent className="p-8">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                  <span className="text-white text-xl font-bold">1</span>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Data Collection</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  We gather information from Google Places, Yelp, state licensing databases, 
-                  and official community websites to build comprehensive profiles.
+            <Card className="border-0 shadow-lg">
+              <CardContent className="p-6 text-center">
+                <Shield className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-3">Transparency</h3>
+                <p className="text-gray-600 text-sm">
+                  No hidden fees, no "call for pricing" - just honest, upfront information families need to make informed decisions.
                 </p>
               </CardContent>
             </Card>
-            
-            <Card className="text-center border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <CardContent className="p-8">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                  <span className="text-white text-xl font-bold">2</span>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Verification</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  All information is cross-referenced across multiple sources and verified 
-                  for accuracy before being displayed to families.
+
+            <Card className="border-0 shadow-lg">
+              <CardContent className="p-6 text-center">
+                <Users className="w-12 h-12 text-purple-600 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-3">Family-Centered</h3>
+                <p className="text-gray-600 text-sm">
+                  Built for families by families. Every feature designed to support collaborative decision-making and family involvement.
                 </p>
               </CardContent>
             </Card>
-            
-            <Card className="text-center border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <CardContent className="p-8">
-                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                  <span className="text-white text-xl font-bold">3</span>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Real-Time Updates</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  Our platform continuously monitors for changes and updates information 
-                  to ensure families always have the most current data.
+
+            <Card className="border-0 shadow-lg">
+              <CardContent className="p-6 text-center">
+                <Heart className="w-12 h-12 text-green-600 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-3">Quality</h3>
+                <p className="text-gray-600 text-sm">
+                  Authentic government data, verified community information, and trusted review sources - no synthetic or placeholder data.
                 </p>
               </CardContent>
             </Card>
@@ -167,82 +95,52 @@ export default function About() {
         </div>
       </section>
 
-      {/* Values Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-display font-bold text-gray-900 mb-4">
-              Our Values
-            </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              These core principles guide everything we do at TrueView.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Shield className="text-blue-600 h-8 w-8" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Transparency</h3>
-              <p className="text-gray-600 text-sm">Complete honesty in all our data and processes</p>
+      {/* Platform Stats */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8">Platform Coverage</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div>
+              <div className="text-3xl font-bold text-blue-600 mb-2">8,053+</div>
+              <div className="text-gray-600">Communities</div>
             </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="text-green-600 h-8 w-8" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Accuracy</h3>
-              <p className="text-gray-600 text-sm">Verified information you can trust</p>
+            <div>
+              <div className="text-3xl font-bold text-purple-600 mb-2">19</div>
+              <div className="text-gray-600">States</div>
             </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Heart className="text-purple-600 h-8 w-8" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Compassion</h3>
-              <p className="text-gray-600 text-sm">Understanding the importance of this decision</p>
+            <div>
+              <div className="text-3xl font-bold text-green-600 mb-2">942</div>
+              <div className="text-gray-600">Counties</div>
             </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Lightbulb className="text-yellow-600 h-8 w-8" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Innovation</h3>
-              <p className="text-gray-600 text-sm">Continuously improving our platform</p>
+            <div>
+              <div className="text-3xl font-bold text-orange-600 mb-2">100%</div>
+              <div className="text-gray-600">Authentic Data</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-br from-blue-600 to-purple-600">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-display font-bold text-white mb-4">
-            Ready to Find the Right Community?
-          </h2>
-          <p className="text-xl text-blue-100 mb-8">
-            Start your search with transparent pricing and authentic reviews.
+      {/* Contact & Get Started */}
+      <section className="py-16 bg-gradient-to-r from-blue-50 to-purple-50">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">Ready to Get Started?</h2>
+          <p className="text-gray-600 mb-8">
+            Join thousands of families who have found their perfect senior living community through MySeniorValet.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/search">
-              <Button size="lg" variant="secondary" className="shadow-lg hover:shadow-xl transition-shadow">
-                <Target className="mr-2 h-5 w-5" />
-                Start Searching
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3">
+                Search Communities
               </Button>
             </Link>
-            <Link href="/explore">
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 shadow-lg hover:shadow-xl transition-all">
-                <Map className="mr-2 h-5 w-5" />
-                Explore All Communities
+            <Link href="/contact">
+              <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-3">
+                Contact Us
               </Button>
             </Link>
           </div>
         </div>
       </section>
-
-      <Footer />
-      </div>
     </div>
   );
 }
