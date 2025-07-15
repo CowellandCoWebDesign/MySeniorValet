@@ -616,7 +616,7 @@ export class DatabaseStorage implements IStorage {
     }
 
     if (params.location) {
-      const locationConditions = this.buildLocationSearchConditions(params.location, params.distance);
+      const locationConditions = this.buildOptimizedLocationSearch(params.location);
       if (locationConditions) {
         conditions.push(locationConditions);
       }
@@ -666,45 +666,43 @@ export class DatabaseStorage implements IStorage {
       query = query.where(and(...conditions));
     }
 
-    // Add pagination support for performance
-    if (params.limit) {
-      query = query.limit(params.limit);
-    }
+    // Add pagination support for performance (default limit to prevent large result sets)
+    const limit = params.limit || 50; // Default to 50 results
+    const offset = params.offset || 0;
     
-    if (params.offset) {
-      query = query.offset(params.offset);
-    }
+    query = query.limit(limit).offset(offset);
 
     const results = await query;
     console.log(`Search returned ${results.length} communities`);
     
-    // Cache search results for 2 minutes
-    await cache.set(cacheKey, results, 120);
+    // Cache search results for 5 minutes (longer for better performance)
+    await cache.set(cacheKey, results, 300);
     return results;
   }
 
-  // Enhanced location search logic that handles cities, states, ZIP codes, and counties
-  private buildLocationSearchConditions(location: string, distance?: number) {
-    const lower = location.toLowerCase().trim();
+  // Optimized location search with indexed queries
+  private buildOptimizedLocationSearch(location: string) {
+    const searchTerm = location.toLowerCase().trim();
     
-    // ZIP code search
-    if (/^\d{5}$/.test(lower)) {
-      return eq(communities.zipCode, lower);
+    // ZIP code search (exact match on indexed column)
+    if (/^\d{5}$/.test(searchTerm)) {
+      return eq(communities.zipCode, searchTerm);
     }
     
-    // City, State format
-    if (lower.includes(',')) {
-      const [city, state] = lower.split(',').map(s => s.trim());
+    // City, State format (exact match on indexed columns)
+    if (searchTerm.includes(',')) {
+      const [city, state] = searchTerm.split(',').map(s => s.trim());
       return and(
-        eq(communities.city, city),
-        eq(communities.state, state.toUpperCase())
+        ilike(communities.city, city),
+        ilike(communities.state, state)
       );
     }
     
-    // Simple location search (city or state)
+    // Simple location search using indexed patterns
     return or(
-      eq(communities.city, lower),
-      eq(communities.state, lower.toUpperCase())
+      ilike(communities.city, searchTerm),
+      ilike(communities.state, searchTerm),
+      ilike(communities.name, `%${searchTerm}%`)
     );
   }
 
