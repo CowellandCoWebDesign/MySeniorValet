@@ -1184,10 +1184,10 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
               Map
             </Button>
           </div>
-          <div className="flex flex-col items-center space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center">
           {filteredCommunities.map((community: any, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
-              <Card className="overflow-hidden w-56 h-[30rem] animate-float hover:shadow-xl transition-all duration-300" style={{animationDelay: `${index * 0.1}s`}}>
+              <Card className="overflow-hidden w-56 h-[30rem] hover:shadow-xl transition-shadow duration-300">
                 <div className="relative">
                   <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
                     <Home className="w-12 h-12 text-gray-400" />
