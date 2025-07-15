@@ -162,13 +162,13 @@ export default function TrueViewHome() {
           </div>
           
           {/* Search Bar */}
-          <div className="w-full max-w-lg mb-12 md:mb-20 relative animate-fade-in-up animation-delay-600" style={{ zIndex: 9999 }}>
+          <div className="w-full max-w-lg mb-12 md:mb-20 relative animate-fade-in-up animation-delay-600" style={{ zIndex: 99999 }}>
             <form onSubmit={(e) => {
               e.preventDefault();
               const query = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
               window.location.href = `/search${query}`;
             }}>
-              <div className="relative bg-white rounded-2xl shadow-xl overflow-hidden">
+              <div className={`relative bg-white ${showSuggestions && suggestions.length > 0 ? 'rounded-t-2xl' : 'rounded-2xl'} shadow-xl overflow-hidden`}>
                 <div className="flex items-center">
                   <input
                     type="text"
@@ -189,10 +189,19 @@ export default function TrueViewHome() {
                       if (suggestions.length > 0) {
                         setShowSuggestions(true);
                       }
+                      // Scroll to input on mobile to prevent keyboard hiding dropdown
+                      if (window.innerWidth <= 768) {
+                        setTimeout(() => {
+                          const input = document.activeElement as HTMLInputElement;
+                          if (input) {
+                            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                          }
+                        }, 300);
+                      }
                     }}
                     onBlur={() => {
                       // Delay hiding suggestions to allow click events
-                      setTimeout(() => setShowSuggestions(false), 150);
+                      setTimeout(() => setShowSuggestions(false), 200);
                     }}
                     className="flex-1 px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 placeholder-gray-500"
                   />
@@ -207,23 +216,23 @@ export default function TrueViewHome() {
               
               {/* Suggestions Dropdown */}
               {showSuggestions && suggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden z-[9999] max-h-48 overflow-y-auto backdrop-blur-sm">
+                <div className="absolute top-full left-0 right-0 bg-white rounded-b-2xl shadow-2xl border border-gray-200 border-t-0 overflow-hidden z-[99999] max-h-60 overflow-y-auto">
                   {suggestions.map((suggestion, index) => (
                     <button
                       key={index}
                       type="button"
                       onClick={() => handleSuggestionClick(suggestion)}
-                      className="w-full px-4 py-2.5 text-left hover:bg-blue-50 border-b border-gray-100 last:border-b-0 flex items-center space-x-2 transition-colors text-sm"
+                      className="w-full px-4 sm:px-6 py-3 text-left hover:bg-blue-50 active:bg-blue-100 border-b border-gray-100 last:border-b-0 flex items-center space-x-3 transition-colors text-sm sm:text-base"
                     >
                       {/* Icon based on suggestion type */}
                       {suggestion.includes(', CA') || suggestion.includes(', AZ') || suggestion.includes(', TX') ? (
-                        <MapPin className="w-3 h-3 text-blue-500 flex-shrink-0" />
+                        <MapPin className="w-4 h-4 text-blue-500 flex-shrink-0" />
                       ) : suggestion.includes('Living') || suggestion.includes('Care') || suggestion.includes('Nursing') ? (
-                        <Heart className="w-3 h-3 text-red-500 flex-shrink-0" />
+                        <Heart className="w-4 h-4 text-red-500 flex-shrink-0" />
                       ) : (
-                        <Search className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                        <Search className="w-4 h-4 text-gray-500 flex-shrink-0" />
                       )}
-                      <span className="text-gray-800">{suggestion}</span>
+                      <span className="text-gray-800 font-medium">{suggestion}</span>
                     </button>
                   ))}
                 </div>
