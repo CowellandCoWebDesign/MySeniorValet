@@ -35,6 +35,37 @@ const assistedLivingIcon = createCustomIcon('#16a34a'); // Green
 const memoryCareIcon = createCustomIcon('#dc2626'); // Red
 const independentIcon = createCustomIcon('#7c3aed'); // Purple
 
+// Spatial cache for storing communities by geographic regions
+interface SpatialCacheEntry {
+  bounds: { swLat: number; swLng: number; neLat: number; neLng: number };
+  communities: Community[];
+  timestamp: number;
+}
+
+const spatialCache = new Map<string, SpatialCacheEntry>();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Helper function to generate cache key for bounds
+function generateCacheKey(bounds: { swLat: number; swLng: number; neLat: number; neLng: number }) {
+  return `${bounds.swLat.toFixed(3)}_${bounds.swLng.toFixed(3)}_${bounds.neLat.toFixed(3)}_${bounds.neLng.toFixed(3)}`;
+}
+
+// Helper function to check if bounds overlap with cached region
+function boundsOverlap(bounds1: any, bounds2: any) {
+  return !(bounds1.neLat < bounds2.swLat || 
+           bounds1.swLat > bounds2.neLat || 
+           bounds1.neLng < bounds2.swLng || 
+           bounds1.swLng > bounds2.neLng);
+}
+
+// Helper function to check if current bounds are contained within cached bounds
+function boundsContained(currentBounds: any, cachedBounds: any) {
+  return currentBounds.swLat >= cachedBounds.swLat &&
+         currentBounds.swLng >= cachedBounds.swLng &&
+         currentBounds.neLat <= cachedBounds.neLat &&
+         currentBounds.neLng <= cachedBounds.neLng;
+}
+
 interface Community {
   id: number;
   name: string;
@@ -113,13 +144,15 @@ function MapBoundsHandler({ onBoundsChange }: { onBoundsChange: (bounds: LatLngB
 }
 
 export default function Map({ 
-  searchFilters = {}, 
+  searchFilters, 
   onCommunityClick, 
   onBoundsChange,
   height = "500px",
   center = [37.7749, -122.4194], // Default to San Francisco
   zoom = 12
 }: MapProps) {
+  // Ensure searchFilters is always an object
+  const safeSearchFilters = searchFilters || {};
   const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
@@ -157,9 +190,9 @@ export default function Map({
   const mapCenter = userLocation || center;
   const mapZoom = userLocation ? 12 : zoom;
 
-  // Fetch communities within map bounds using PostGIS spatial search
+  // Fetch communities within map bounds using PostGIS spatial search with intelligent caching
   const { data: communities = [], isLoading, error } = useQuery({
-    queryKey: ['communities-spatial', mapBounds, searchFilters],
+    queryKey: ['communities-spatial', mapBounds, searchFilters || {}],
     queryFn: async () => {
       let swLat, swLng, neLat, neLng;
       
@@ -176,6 +209,34 @@ export default function Map({
         swLng = sw.lng.toString();
         neLat = ne.lat.toString();
         neLng = ne.lng.toString();
+      }
+
+      const currentBounds = {
+        swLat: parseFloat(swLat),
+        swLng: parseFloat(swLng),
+        neLat: parseFloat(neLat),
+        neLng: parseFloat(neLng)
+      };
+      
+      // Check spatial cache first
+      const now = Date.now();
+      for (const [key, entry] of spatialCache.entries()) {
+        // Remove expired entries
+        if (now - entry.timestamp > CACHE_DURATION) {
+          spatialCache.delete(key);
+          continue;
+        }
+        
+        // Check if current bounds are contained within cached bounds
+        if (boundsContained(currentBounds, entry.bounds)) {
+          console.log(`🎯 Cache HIT: Using cached communities for ${key}`);
+          return entry.communities.filter(community => 
+            community.latitude >= currentBounds.swLat &&
+            community.latitude <= currentBounds.neLat &&
+            community.longitude >= currentBounds.swLng &&
+            community.longitude <= currentBounds.neLng
+          );
+        }
       }
       
       // Calculate appropriate limit based on zoom level (approximate)
@@ -202,8 +263,8 @@ export default function Map({
         neLat,
         neLng,
         limit,
-        ...(searchFilters.careType && { careType: searchFilters.careType }),
-        ...(searchFilters.minRating && { minRating: searchFilters.minRating.toString() }),
+        ...(searchFilters?.careType && { careType: searchFilters.careType }),
+        ...(searchFilters?.minRating && { minRating: searchFilters.minRating.toString() }),
       });
       
       const response = await fetch(`/api/communities/search/spatial?${params}`);
@@ -212,7 +273,33 @@ export default function Map({
         throw new Error('Failed to fetch communities');
       }
       
-      return response.json();
+      const result = await response.json();
+      
+      // Cache the result with expanded bounds for better hit rate
+      const cacheLatSpan = parseFloat(neLat) - parseFloat(swLat);
+      const cacheLngSpan = parseFloat(neLng) - parseFloat(swLng);
+      const expandedBounds = {
+        swLat: currentBounds.swLat - (cacheLatSpan * 0.3),
+        swLng: currentBounds.swLng - (cacheLngSpan * 0.3),
+        neLat: currentBounds.neLat + (cacheLatSpan * 0.3),
+        neLng: currentBounds.neLng + (cacheLngSpan * 0.3)
+      };
+      
+      const cacheKey = generateCacheKey(expandedBounds);
+      spatialCache.set(cacheKey, {
+        bounds: expandedBounds,
+        communities: result,
+        timestamp: now
+      });
+      
+      // Clean up old cache entries (keep only 8 most recent)
+      if (spatialCache.size > 8) {
+        const oldestKey = Array.from(spatialCache.keys())[0];
+        spatialCache.delete(oldestKey);
+      }
+      
+      console.log(`💾 Cache MISS: Stored ${result.length} communities for ${cacheKey}`);
+      return result;
     },
     enabled: true, // Always enabled - will use fallback bounds if needed
     staleTime: 2000, // Very short cache time for dynamic updates
