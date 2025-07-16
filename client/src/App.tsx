@@ -52,6 +52,7 @@ import CareGuide from "@/pages/care-guide";
 import CommunityPortal from "@/pages/community-portal";
 import AISupport from "@/pages/ai-support";
 import AllInOnePlanner from "@/pages/all-in-one-planner";
+import Costs from "@/pages/costs";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -106,6 +107,7 @@ function Router() {
       <Route path="/support" component={AISupport} />
       <Route path="/ai-support" component={AISupport} />
       <Route path="/all-in-one-planner" component={AllInOnePlanner} />
+      <Route path="/costs" component={Costs} />
       <Route component={NotFound} />
     </Switch>
   );

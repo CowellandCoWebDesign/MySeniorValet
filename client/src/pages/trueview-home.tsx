@@ -7,7 +7,7 @@ import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, 
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { PricingBreakdown } from "@/components/pricing-breakdown";
-import { PricingIntelligenceSelector } from "@/components/pricing-intelligence-selector";
+
 
 export default function TrueViewHome() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -632,9 +632,11 @@ export default function TrueViewHome() {
           </p>
         </div>
         
-        <Button className="w-full gradient-primary hover:opacity-90 text-white py-3 border-0">
-          Get move-in cost estimate
-        </Button>
+        <Link href="/costs">
+          <Button className="w-full gradient-primary hover:opacity-90 text-white py-3 border-0">
+            Get move-in cost estimate
+          </Button>
+        </Link>
       </section>
 
       {/* California Communities Section */}
@@ -949,27 +951,7 @@ export default function TrueViewHome() {
           </Card>
         </div>
         
-        {/* Market Pricing Intelligence */}
-        <div className="mt-8 space-y-4">
-          <div className="text-center mb-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Market Pricing Intelligence</h3>
-            <p className="text-gray-600 text-sm">
-              Transparent pricing data sourced from CMS Medicare, state health departments, and industry associations
-            </p>
-          </div>
-          
-          <PricingIntelligenceSelector />
-          
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <div className="flex items-center space-x-2 mb-2">
-              <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-              <h4 className="font-semibold text-blue-900">Pricing Transparency Promise</h4>
-            </div>
-            <p className="text-blue-800 text-sm">
-              Featured communities provide live pricing • All estimates based on authentic market data • No hidden fees or surprises
-            </p>
-          </div>
-        </div>
+
         
         <div className="mt-6 space-y-3">
           <Link href="/search?view=care-levels">
