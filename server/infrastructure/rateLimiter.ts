@@ -162,7 +162,8 @@ export function createRateLimitMiddleware(limiter: TokenBucketRateLimiter) {
     if (req.path === '/api/search/suggestions' || 
         req.path.startsWith('/api/communities/search') ||
         req.path === '/api/communities/by-location' ||
-        req.path.startsWith('/api/communities/by-location/')) {
+        req.path.startsWith('/api/communities/by-location/') ||
+        req.path.includes('/api/communities/search/spatial')) {
       return next();
     }
     

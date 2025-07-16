@@ -89,7 +89,14 @@ function MapBoundsHandler({ onBoundsChange }: { onBoundsChange: (bounds: LatLngB
       // Initial bounds with delay to ensure map is ready
       setTimeout(() => {
         handleBoundsChange();
-      }, 100);
+      }, 500);
+      
+      // Also trigger bounds change when map loads completely
+      map.whenReady(() => {
+        setTimeout(() => {
+          handleBoundsChange();
+        }, 100);
+      });
       
       return () => {
         try {
@@ -115,6 +122,35 @@ export default function Map({
 }: MapProps) {
   const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
+  
+  // Initialize with default bounds for San Francisco area
+  useEffect(() => {
+    if (!mapBounds) {
+      // Create default bounds for San Francisco area
+      const defaultBounds = new LatLngBounds(
+        new LatLng(37.7049, -122.5262), // Southwest
+        new LatLng(37.8449, -122.3832)  // Northeast
+      );
+      setMapBounds(defaultBounds);
+      onBoundsChange?.(defaultBounds);
+    }
+  }, []);
+  
+  // Update bounds when center changes
+  useEffect(() => {
+    if (center && center.length === 2) {
+      const lat = center[0];
+      const lng = center[1];
+      // Create bounds around the new center
+      const offset = 0.1; // Adjust as needed
+      const newBounds = new LatLngBounds(
+        new LatLng(lat - offset, lng - offset), // Southwest
+        new LatLng(lat + offset, lng + offset)  // Northeast
+      );
+      setMapBounds(newBounds);
+      onBoundsChange?.(newBounds);
+    }
+  }, [center]);
   
   const handleBoundsChange = (bounds: LatLngBounds) => {
     setMapBounds(bounds);
