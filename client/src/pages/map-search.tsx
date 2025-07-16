@@ -590,10 +590,14 @@ export default function MapSearch() {
                             </Badge>
                           )}
                           
-                          {/* Live Pricing Badge */}
-                          {!community.claimed && (
-                            <Badge className="text-white text-xs px-2 py-1 font-medium bg-orange-600/90">
+                          {/* Pricing Badge */}
+                          {community.claimed ? (
+                            <Badge className="text-white text-xs px-2 py-1 font-medium bg-green-600/90">
                               📊 Live Pricing
+                            </Badge>
+                          ) : (
+                            <Badge className="text-white text-xs px-2 py-1 font-medium bg-orange-600/90">
+                              📈 Estimated Pricing
                             </Badge>
                           )}
                         </div>
