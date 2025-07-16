@@ -118,7 +118,7 @@ export default function Map({
   onBoundsChange,
   height = "500px",
   center = [37.7749, -122.4194], // Default to San Francisco
-  zoom = 12
+  zoom = 6
 }: MapProps) {
   const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
@@ -164,10 +164,10 @@ export default function Map({
         if (area > 5000) limit = '8000'; // Continental US level
         else if (area > 2000) limit = '6000'; // Multi-state regions
         else if (area > 800) limit = '4000'; // State-wide level
-        else if (area > 400) limit = '3000'; // Large state regions
-        else if (area > 100) limit = '2000'; // Metro areas
-        else if (area > 50) limit = '1500'; // Large cities
-        else if (area > 10) limit = '1000'; // City level
+        else if (area > 200) limit = '3000'; // Large state regions
+        else if (area > 50) limit = '2000'; // Metro areas
+        else if (area > 20) limit = '1500'; // Large cities
+        else if (area > 5) limit = '1000'; // City level
         else if (area > 1) limit = '800'; // City districts
         else limit = '500'; // Neighborhood level
       }
@@ -182,6 +182,8 @@ export default function Map({
         ...(searchFilters.minRating && { minRating: searchFilters.minRating.toString() }),
       });
       
+      console.log('Map bounds area:', area, 'limit:', limit, 'bounds:', {swLat, swLng, neLat, neLng});
+      
       const response = await fetch(`/api/communities/search/spatial?${params}`);
       
       if (!response.ok) {
@@ -191,7 +193,7 @@ export default function Map({
       return response.json();
     },
     enabled: true, // Always enabled - will use fallback bounds if needed
-    staleTime: 2000, // Very short cache time for dynamic updates
+    staleTime: 1000, // Very short cache time for dynamic updates
     refetchOnWindowFocus: false, // Don't refetch when window regains focus
     gcTime: 5000, // Garbage collect after 5 seconds
   });

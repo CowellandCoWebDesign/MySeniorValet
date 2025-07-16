@@ -56,7 +56,7 @@ export default function MapSearch() {
     availability: 'All Status'
   });
   const [mapCenter, setMapCenter] = useState<[number, number]>([37.7749, -122.4194]);
-  const [mapZoom, setMapZoom] = useState(12);
+  const [mapZoom, setMapZoom] = useState(6);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
   const [mapBounds, setMapBounds] = useState<any>(null);
   
