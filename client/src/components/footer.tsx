@@ -36,19 +36,19 @@ export function Footer() {
             <h3 className="text-lg font-semibold mb-6 text-white">For Families</h3>
             <ul className="space-y-3 text-gray-300">
               <li><Link href="/search" className="hover:text-blue-400 transition-colors font-medium">Search Communities</Link></li>
-              <li><Link href="/explore" className="hover:text-blue-400 transition-colors font-medium">Explore All Communities</Link></li>
+              <li><Link href="/search" className="hover:text-blue-400 transition-colors font-medium">Explore All Communities</Link></li>
               <li><Link href="/about" className="hover:text-blue-400 transition-colors font-medium">How it Works</Link></li>
-              <li><a href="#" className="hover:text-blue-400 transition-colors font-medium">Care Type Guide</a></li>
+              <li><a href="https://www.medicare.gov/coverage/long-term-care" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors font-medium">Care Type Guide</a></li>
             </ul>
           </div>
           
           <div>
             <h3 className="text-lg font-semibold mb-6 text-white">For Communities</h3>
             <ul className="space-y-3 text-gray-300">
-              <li><Link href="/claim" className="hover:text-blue-400 transition-colors font-medium">Claim Your Profile</Link></li>
-              <li><a href="#" className="hover:text-blue-400 transition-colors font-medium">Community Portal</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition-colors font-medium">Transparency Benefits</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition-colors font-medium">Support Center</a></li>
+              <li><a href="https://support.google.com/business/answer/2911778" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors font-medium">Claim Your Profile</a></li>
+              <li><a href="https://www.ahcancal.org/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors font-medium">Community Portal</a></li>
+              <li><a href="https://www.cms.gov/Medicare/Provider-Enrollment-and-Certification/CertificationandComplianc/FSQRS" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors font-medium">Transparency Benefits</a></li>
+              <li><a href="https://www.eldercare.acl.gov/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors font-medium">Support Center</a></li>
             </ul>
           </div>
           
@@ -74,7 +74,7 @@ export function Footer() {
               </p>
             </div>
             <div className="flex flex-wrap justify-center md:justify-end space-x-6">
-              <Link href="/veterans" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Veterans Housing</Link>
+              <a href="https://www.va.gov/housing-assistance/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Veterans Housing</a>
               <Link href="/privacy" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Privacy</Link>
               <Link href="/terms" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Terms</Link>
               <Link href="/disclaimer" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Disclaimer</Link>

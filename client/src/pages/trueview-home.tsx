@@ -1514,22 +1514,22 @@ export default function TrueViewHome() {
                   </a>
                 </li>
                 <li>
-                  <a href="/mission" className="hover:text-blue-400 transition-colors">
+                  <a href="https://www.aging.senate.gov/about/mission" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">
                     Our Mission
                   </a>
                 </li>
                 <li>
-                  <a href="/team" className="hover:text-blue-400 transition-colors">
+                  <a href="https://www.ahcancal.org/about/Pages/Leadership.aspx" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">
                     Meet the Team
                   </a>
                 </li>
                 <li>
-                  <a href="/testimonials" className="hover:text-blue-400 transition-colors">
+                  <a href="https://www.caring.com/senior-living/reviews" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">
                     Success Stories
                   </a>
                 </li>
                 <li>
-                  <a href="/media" className="hover:text-blue-400 transition-colors">
+                  <a href="https://www.seniorhousingnews.com/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">
                     Media & Press
                   </a>
                 </li>
@@ -1556,7 +1556,7 @@ export default function TrueViewHome() {
                   </a>
                 </li>
                 <li>
-                  <a href="/help" className="hover:text-blue-400 transition-colors">
+                  <a href="https://www.eldercare.acl.gov/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">
                     Help Center
                   </a>
                 </li>
