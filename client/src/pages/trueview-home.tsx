@@ -7,6 +7,7 @@ import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, 
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { PricingBreakdown } from "@/components/pricing-breakdown";
+import { PricingIntelligenceSelector } from "@/components/pricing-intelligence-selector";
 
 export default function TrueViewHome() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -946,10 +947,7 @@ export default function TrueViewHome() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <PricingBreakdown state="CA" city="San Francisco" />
-            <PricingBreakdown state="TX" city="Austin" />
-          </div>
+          <PricingIntelligenceSelector />
           
           <div className="bg-blue-50 p-4 rounded-lg">
             <div className="flex items-center space-x-2 mb-2">
