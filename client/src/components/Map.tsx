@@ -160,12 +160,14 @@ export default function Map({
         const lngSpan = ne.lng - sw.lng;
         const area = latSpan * lngSpan;
         
-        // Optimize for nationwide scaling (up to 40,000+ communities)
-        if (area > 1000) limit = '5000'; // Continental US level
-        else if (area > 500) limit = '3000'; // Multi-state regions
-        else if (area > 100) limit = '2000'; // State/large region level
-        else if (area > 50) limit = '1500'; // Large metro areas
-        else if (area > 10) limit = '1000'; // Metro/city level
+        // Optimize for state-wide viewing and nationwide scaling
+        if (area > 5000) limit = '8000'; // Continental US level
+        else if (area > 2000) limit = '6000'; // Multi-state regions
+        else if (area > 800) limit = '4000'; // State-wide level
+        else if (area > 400) limit = '3000'; // Large state regions
+        else if (area > 100) limit = '2000'; // Metro areas
+        else if (area > 50) limit = '1500'; // Large cities
+        else if (area > 10) limit = '1000'; // City level
         else if (area > 1) limit = '800'; // City districts
         else limit = '500'; // Neighborhood level
       }
@@ -221,7 +223,7 @@ export default function Map({
         <MapContainer
           center={center}
           zoom={zoom}
-          minZoom={2}
+          minZoom={1}
           maxZoom={19}
           style={{ height: '100%', width: '100%' }}
           className="rounded-lg"
@@ -236,14 +238,14 @@ export default function Map({
         {/* Clustered community markers */}
         <MarkerClusterGroup
           chunkedLoading
-          maxClusterRadius={50}
+          maxClusterRadius={80}
           spiderfyOnMaxZoom={true}
           showCoverageOnHover={false}
           zoomToBoundsOnClick={true}
           removeOutsideVisibleBounds={true}
           animate={true}
           animateAddingMarkers={true}
-          disableClusteringAtZoom={16}
+          disableClusteringAtZoom={14}
         >
           {communities.map((community: Community) => (
           <Marker
