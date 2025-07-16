@@ -39,7 +39,8 @@ export function createRateLimit(maxRequests: number = SECURITY_CONFIG.rateLimiti
         req.path.startsWith('/api/communities/count') ||
         req.path.startsWith('/api/communities/trending') ||
         req.path.startsWith('/api/communities/coastal') ||
-        req.path.includes('/api/communities/search/spatial')) {
+        req.path.includes('/spatial') ||
+        req.path.endsWith('/spatial')) {
       return next();
     }
     

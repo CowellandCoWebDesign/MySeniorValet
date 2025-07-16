@@ -214,8 +214,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Apply performance monitoring to all routes
   app.use(monitor.middleware());
   
-  // Apply general rate limiting to all routes
-  app.use(createRateLimitMiddleware(generalLimiter));
+  // Apply general rate limiting to all routes (except spatial search)
+  app.use((req, res, next) => {
+    if (req.path.includes('/spatial') || req.path.endsWith('/spatial')) {
+      return next(); // Skip rate limiting for spatial search
+    }
+    return createRateLimitMiddleware(generalLimiter)(req, res, next);
+  });
   
   // ===============================
   // COMPLIANCE MIDDLEWARE - APPLIED FIRST
@@ -287,11 +292,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Permissive rate limiting for authentication endpoints (using new authLimiter)
   app.use('/api/auth', createRateLimitMiddleware(authLimiter)); // Very permissive for auth
   
-  // Moderate rate limiting for API endpoints
-  app.use('/api', createRateLimit(50)); // 50 requests per 15 minutes
+  // Moderate rate limiting for API endpoints (except spatial search)
+  app.use('/api', (req, res, next) => {
+    if (req.path.includes('/spatial') || req.path.endsWith('/spatial')) {
+      return next(); // Skip rate limiting for spatial search
+    }
+    return createRateLimit(50)(req, res, next);
+  });
   
-  // Generous rate limiting for search (but still protected)
-  app.use('/api/communities/search', createRateLimit(100)); // 100 requests per 15 minutes
+  // Generous rate limiting for search (but still protected), except spatial search
+  app.use('/api/communities/search', (req, res, next) => {
+    if (req.path.includes('/spatial') || req.path.endsWith('/spatial')) {
+      return next(); // Skip rate limiting for spatial search
+    }
+    return createRateLimit(100)(req, res, next);
+  });
 
   // ===============================
   // AUTHENTICATION ROUTES
