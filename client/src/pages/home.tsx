@@ -2,6 +2,7 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { SearchBar } from "@/components/search-bar";
 import { PremiumImage } from "@/components/premium-image";
+import { PricingBreakdown } from "@/components/pricing-breakdown";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Shield, FolderSync, MapPin, Database, Tag, Map, Check, Star, DollarSign, Clock, Users, Wifi, Car, Activity, MapIcon } from "lucide-react";
@@ -174,6 +175,8 @@ export default function Home() {
               </p>
             </div>
           </div>
+
+
 
           {/* Compact Data Collection Section */}
           <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 lg:p-8 shadow-lg border border-blue-100/50">
