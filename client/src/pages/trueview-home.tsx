@@ -37,28 +37,28 @@ export default function TrueViewHome() {
   const { data: trendingCommunities, isLoading: trendingLoading } = useQuery({
     queryKey: ["/api/communities/trending"],
     retry: false,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    staleTime: 0, // No cache - always fresh data
   });
 
   // Location-specific queries for horizontal sections
   const { data: sacramentoCommunities, isLoading: sacramentoLoading } = useQuery({
     queryKey: ["/api/communities/by-location/Sacramento"],
     retry: false,
-    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+    staleTime: 0, // No cache - always fresh data
   });
 
   // Coastal communities - search for actual coastal cities
   const { data: coastalCommunities, isLoading: coastalLoading } = useQuery({
     queryKey: ["/api/communities/coastal"],
     retry: false,
-    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+    staleTime: 0, // No cache - always fresh data
   });
 
   // California communities - search for California-wide communities
   const { data: californiaCommunities, isLoading: californiaLoading } = useQuery({
     queryKey: ["/api/communities/by-location/California"],
     retry: false,
-    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+    staleTime: 0, // No cache - always fresh data
   });
 
   const featuredCommunities = trendingCommunities?.slice(0, 8) || [];

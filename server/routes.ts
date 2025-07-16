@@ -3025,6 +3025,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await searchCache.clear();
       await communityCache.clear();
       await apiCache.clear();
+      communityStatsCache.invalidateCache();
       
       res.json({
         success: true,
