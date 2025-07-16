@@ -1,0 +1,193 @@
+Perfect — here’s your full Ghostrider’s Dispatch prompt to build out the “Senior Valet Concierge Planner” space on the TrueView platform. This prompt is structured to be copy-paste ready for Ghost, fully aligned with your goals:
+
+
+---
+
+🧠 GHOSTRIDER’S DISPATCH — BUILD REQUEST
+
+Objective: Build out an all-in-one “Senior Valet Concierge Planner” space inside the TrueView platform. This planner will serve as a centralized dashboard for users (families or seniors) to explore, select, and initiate various move-in and lifestyle support services, all tied to affiliate monetization.
+
+
+---
+
+🧱 Core Functional Layout
+
+1. Overview Section (Top)
+
+Brief headline: “Simplify Your Move-In with Our Senior Valet Concierge”
+
+Subtext: “From movers to meal delivery, choose only what you need.”
+
+Optional: “Save time. Start services now with trusted partners.”
+
+
+
+---
+
+2. Concierge Categories (Collapsible Panels or Tab View)
+
+Each panel should contain:
+
+🔹 Brief category description
+
+🔹 Curated service options (tiles/cards with logos)
+
+🔹 “Start Setup” or “Visit Partner” CTA buttons (UTM-enabled for affiliate links)
+
+🔹 Checkboxes or toggle for user selections (to track what they’ve chosen)
+
+🔹 Optional embedded resource/tooltips or FAQs
+
+
+Categories to build:
+
+
+---
+
+🚚 Moving Services
+
+Description: Trusted moving and setup support for a stress-free transition.
+
+Partners (affiliate links): MoveAdvisor, TaskRabbit, Bellhop
+
+Optional Add-on: Cleaning services, junk removal
+
+Trackable selections: Full move, packing only, furniture setup
+
+
+
+---
+
+🛋️ Furniture & Home Setup
+
+Description: Order move-in furniture and essentials with delivery + assembly.
+
+Partners: Wayfair, Amazon Home, Handy/Angi for setup
+
+Modules: “Recommended Starter Kits,” “Request Assembly Help”
+
+
+
+---
+
+💊 Prescription Delivery
+
+Description: Have medications delivered directly to your new address.
+
+Partners: Nurx, GO MD USA, Medzoomer
+
+Sub-options: Rx transfer form links, telehealth + med management
+
+
+
+---
+
+🩺 Doctors & Insurance
+
+Description: Find new in-network doctors or insurance options near your new community.
+
+Partners: AccessADoctor, APRIL, Smart & Simple (Insurance Market)
+
+Embed: ZIP code-based search widgets or redirection
+
+
+
+---
+
+🛒 Groceries & Meals
+
+Description: Stock your fridge or have ready-to-eat meals delivered.
+
+Partners: Instacart, Silver Cuisine, Thrive Market, HelloFresh
+
+CTA: “Set Up Grocery Delivery,” “Choose Meals by Diet Type”
+
+
+
+---
+
+📱 Phone Access
+
+Description: Apply for free or discounted phones and service under Lifeline.
+
+Partner: Assurance Wireless
+
+Include: “Apply Now” link, eligibility tool, upload docs (if needed)
+
+
+
+---
+
+🚗 Transportation
+
+Description: Schedule safe rides to appointments or errands.
+
+Partners: Uber, Lyft (via Uber for Business), local NEMT resources
+
+Module: “Request First Ride,” “Get Setup with Uber Access”
+
+
+
+---
+
+3. Selected Services Recap Section (Sticky Sidebar or Final Step)
+
+“Your Valet Setup Summary”
+
+Show selected services
+
+Option to email/share/print checklist
+
+Button: “Finalize My Setup” → can track all chosen CTAs
+
+
+
+---
+
+4. Admin Dashboard (Internal Only)
+
+Track user selections via backend tags
+
+Capture click-through data on affiliate CTAs
+
+Optional future expansion: auto-generate “setup bundle” page per user
+
+
+
+---
+
+💡 Styling Notes
+
+Match TrueView visual identity
+
+Clean icons per category
+
+Hover card previews for each service
+
+Use toggle filters (e.g., “Essential only,” “Health-related,” “Local only”)
+
+
+
+---
+
+🔧 Technical Considerations
+
+All CTAs should support affiliate tracking URLs (UTM ready)
+
+Allow modular category addition in the future
+
+Frontend should support dynamic loading based on user ZIP/community
+
+Enable hooks for future concierge AI chat handoff or setup wizards
+
+
+
+---
+
+Once live, this planner will become the conversion engine for monetizing every move-in journey via helpful, curated services.
+
+
+---
+
+Let me know if you want the next Ghost task to be wiring up the actual UTM links per service, or building the user-facing email follow-up that summarizes selected services after use.
+

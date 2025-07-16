@@ -68,6 +68,7 @@ import { pricingTransparencyService } from "./pricing-transparency-badges";
 import { intelligentPricingService } from "./intelligent-pricing-service";
 import { nationwidePricingResearch } from "./nationwide-pricing-research";
 import { ServiceListingClassifier } from "./service-listing-classifier";
+import { affiliateTracker } from "./affiliate-tracking";
 
 // Authentication middleware function
 const isAuthenticated = (req: any, res: any, next: any) => {
@@ -8068,6 +8069,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
         error: 'Failed to fetch hero images from Pixabay',
         message: error instanceof Error ? error.message : 'Unknown error'
       });
+    }
+  });
+
+  // ===============================
+  // AFFILIATE TRACKING ENDPOINTS
+  // ===============================
+  
+  // Track affiliate clicks
+  app.post('/api/affiliate/track', async (req, res) => {
+    try {
+      const { service, partner, category, affiliateUrl, metadata } = req.body;
+      
+      if (!service || !partner || !category || !affiliateUrl) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+      
+      const clickData = {
+        service,
+        partner,
+        category,
+        affiliateUrl,
+        userAgent: req.get('User-Agent'),
+        ipAddress: req.ip,
+        sessionId: req.sessionID,
+        metadata
+      };
+      
+      const click = await affiliateTracker.trackClick(clickData);
+      res.json({ success: true, clickId: click.id });
+    } catch (error) {
+      console.error('Error tracking affiliate click:', error);
+      res.status(500).json({ error: 'Failed to track click' });
+    }
+  });
+  
+  // Get affiliate click statistics
+  app.get('/api/affiliate/stats', async (req, res) => {
+    try {
+      const stats = await affiliateTracker.getClickStats();
+      res.json(stats);
+    } catch (error) {
+      console.error('Error fetching affiliate stats:', error);
+      res.status(500).json({ error: 'Failed to fetch stats' });
+    }
+  });
+  
+  // Get clicks by category
+  app.get('/api/affiliate/clicks/:category', async (req, res) => {
+    try {
+      const { category } = req.params;
+      const { limit = 100 } = req.query;
+      
+      const clicks = await affiliateTracker.getClicksByCategory(category, parseInt(limit as string));
+      res.json(clicks);
+    } catch (error) {
+      console.error('Error fetching clicks by category:', error);
+      res.status(500).json({ error: 'Failed to fetch clicks' });
+    }
+  });
+  
+  // Get clicks by partner
+  app.get('/api/affiliate/partner/:partner', async (req, res) => {
+    try {
+      const { partner } = req.params;
+      const { limit = 100 } = req.query;
+      
+      const clicks = await affiliateTracker.getClicksByPartner(partner, parseInt(limit as string));
+      res.json(clicks);
+    } catch (error) {
+      console.error('Error fetching clicks by partner:', error);
+      res.status(500).json({ error: 'Failed to fetch clicks' });
     }
   });
 
