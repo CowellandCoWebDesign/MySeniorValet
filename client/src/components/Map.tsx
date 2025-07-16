@@ -35,37 +35,6 @@ const assistedLivingIcon = createCustomIcon('#16a34a'); // Green
 const memoryCareIcon = createCustomIcon('#dc2626'); // Red
 const independentIcon = createCustomIcon('#7c3aed'); // Purple
 
-// Spatial cache for storing communities by geographic regions
-interface SpatialCacheEntry {
-  bounds: { swLat: number; swLng: number; neLat: number; neLng: number };
-  communities: Community[];
-  timestamp: number;
-}
-
-const spatialCache = new Map<string, SpatialCacheEntry>();
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-
-// Helper function to generate cache key for bounds
-function generateCacheKey(bounds: { swLat: number; swLng: number; neLat: number; neLng: number }) {
-  return `${bounds.swLat.toFixed(3)}_${bounds.swLng.toFixed(3)}_${bounds.neLat.toFixed(3)}_${bounds.neLng.toFixed(3)}`;
-}
-
-// Helper function to check if bounds overlap with cached region
-function boundsOverlap(bounds1: any, bounds2: any) {
-  return !(bounds1.neLat < bounds2.swLat || 
-           bounds1.swLat > bounds2.neLat || 
-           bounds1.neLng < bounds2.swLng || 
-           bounds1.swLng > bounds2.neLng);
-}
-
-// Helper function to check if current bounds are contained within cached bounds
-function boundsContained(currentBounds: any, cachedBounds: any) {
-  return currentBounds.swLat >= cachedBounds.swLat &&
-         currentBounds.swLng >= cachedBounds.swLng &&
-         currentBounds.neLat <= cachedBounds.neLat &&
-         currentBounds.neLng <= cachedBounds.neLng;
-}
-
 interface Community {
   id: number;
   name: string;
@@ -144,55 +113,24 @@ function MapBoundsHandler({ onBoundsChange }: { onBoundsChange: (bounds: LatLngB
 }
 
 export default function Map({ 
-  searchFilters, 
+  searchFilters = {}, 
   onCommunityClick, 
   onBoundsChange,
   height = "500px",
   center = [37.7749, -122.4194], // Default to San Francisco
   zoom = 12
 }: MapProps) {
-  // Ensure searchFilters is always an object
-  const safeSearchFilters = searchFilters || {};
   const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
-  const [locationDenied, setLocationDenied] = useState(false);
   
   const handleBoundsChange = useCallback((bounds: LatLngBounds) => {
     setMapBounds(bounds);
     onBoundsChange?.(bounds);
   }, [onBoundsChange]);
 
-  // Request user location on component mount
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setUserLocation([latitude, longitude]);
-        },
-        (error) => {
-          console.log('Location access denied or unavailable:', error);
-          setLocationDenied(true);
-        },
-        {
-          enableHighAccuracy: false,
-          timeout: 10000,
-          maximumAge: 300000 // 5 minutes
-        }
-      );
-    } else {
-      setLocationDenied(true);
-    }
-  }, []);
-
-  // Determine map center based on user location or fallback
-  const mapCenter = userLocation || center;
-  const mapZoom = userLocation ? 12 : zoom;
-
-  // Fetch communities within map bounds using PostGIS spatial search with intelligent caching
+  // Fetch communities within map bounds using PostGIS spatial search
   const { data: communities = [], isLoading, error } = useQuery({
-    queryKey: ['communities-spatial', mapBounds, searchFilters || {}],
+    queryKey: ['communities-spatial', mapBounds, searchFilters],
     queryFn: async () => {
       let swLat, swLng, neLat, neLng;
       
@@ -210,34 +148,6 @@ export default function Map({
         neLat = ne.lat.toString();
         neLng = ne.lng.toString();
       }
-
-      const currentBounds = {
-        swLat: parseFloat(swLat),
-        swLng: parseFloat(swLng),
-        neLat: parseFloat(neLat),
-        neLng: parseFloat(neLng)
-      };
-      
-      // Check spatial cache first
-      const now = Date.now();
-      for (const [key, entry] of spatialCache.entries()) {
-        // Remove expired entries
-        if (now - entry.timestamp > CACHE_DURATION) {
-          spatialCache.delete(key);
-          continue;
-        }
-        
-        // Check if current bounds are contained within cached bounds
-        if (boundsContained(currentBounds, entry.bounds)) {
-          console.log(`🎯 Cache HIT: Using cached communities for ${key}`);
-          return entry.communities.filter(community => 
-            community.latitude >= currentBounds.swLat &&
-            community.latitude <= currentBounds.neLat &&
-            community.longitude >= currentBounds.swLng &&
-            community.longitude <= currentBounds.neLng
-          );
-        }
-      }
       
       // Calculate appropriate limit based on zoom level (approximate)
       const bounds = mapBounds ? mapBounds : null;
@@ -250,11 +160,11 @@ export default function Map({
         const lngSpan = ne.lng - sw.lng;
         const area = latSpan * lngSpan;
         
-        // Adjust limit based on visible area - controlled loading
-        if (area > 100) limit = '1000'; // State/regional level
-        else if (area > 10) limit = '800'; // Multi-city level
-        else if (area > 1) limit = '600'; // City level
-        else limit = '400'; // Neighborhood level
+        // Adjust limit based on visible area - more generous for no API cost
+        if (area > 100) limit = '2000'; // Very zoomed out (state/country level)
+        else if (area > 10) limit = '1500'; // Zoomed out (region level)
+        else if (area > 1) limit = '1000'; // Medium zoom (city level)
+        else limit = '800'; // Zoomed in (neighborhood level)
       }
       
       const params = new URLSearchParams({
@@ -263,8 +173,8 @@ export default function Map({
         neLat,
         neLng,
         limit,
-        ...(searchFilters?.careType && { careType: searchFilters.careType }),
-        ...(searchFilters?.minRating && { minRating: searchFilters.minRating.toString() }),
+        ...(searchFilters.careType && { careType: searchFilters.careType }),
+        ...(searchFilters.minRating && { minRating: searchFilters.minRating.toString() }),
       });
       
       const response = await fetch(`/api/communities/search/spatial?${params}`);
@@ -273,33 +183,7 @@ export default function Map({
         throw new Error('Failed to fetch communities');
       }
       
-      const result = await response.json();
-      
-      // Cache the result with expanded bounds for better hit rate
-      const cacheLatSpan = parseFloat(neLat) - parseFloat(swLat);
-      const cacheLngSpan = parseFloat(neLng) - parseFloat(swLng);
-      const expandedBounds = {
-        swLat: currentBounds.swLat - (cacheLatSpan * 0.3),
-        swLng: currentBounds.swLng - (cacheLngSpan * 0.3),
-        neLat: currentBounds.neLat + (cacheLatSpan * 0.3),
-        neLng: currentBounds.neLng + (cacheLngSpan * 0.3)
-      };
-      
-      const cacheKey = generateCacheKey(expandedBounds);
-      spatialCache.set(cacheKey, {
-        bounds: expandedBounds,
-        communities: result,
-        timestamp: now
-      });
-      
-      // Clean up old cache entries (keep only 8 most recent)
-      if (spatialCache.size > 8) {
-        const oldestKey = Array.from(spatialCache.keys())[0];
-        spatialCache.delete(oldestKey);
-      }
-      
-      console.log(`💾 Cache MISS: Stored ${result.length} communities for ${cacheKey}`);
-      return result;
+      return response.json();
     },
     enabled: true, // Always enabled - will use fallback bounds if needed
     staleTime: 2000, // Very short cache time for dynamic updates
@@ -332,10 +216,10 @@ export default function Map({
       {/* Map Container */}
       <div className="flex-1 relative">
         <MapContainer
-          center={mapCenter}
-          zoom={mapZoom}
-          minZoom={2}
-          maxZoom={19}
+          center={center}
+          zoom={zoom}
+          minZoom={3}
+          maxZoom={18}
           style={{ height: '100%', width: '100%' }}
           className="rounded-lg"
         >
@@ -349,16 +233,14 @@ export default function Map({
         {/* Clustered community markers */}
         <MarkerClusterGroup
           chunkedLoading
-          maxClusterRadius={80}
+          maxClusterRadius={60}
           spiderfyOnMaxZoom={true}
           showCoverageOnHover={false}
           zoomToBoundsOnClick={true}
           removeOutsideVisibleBounds={true}
           animate={true}
           animateAddingMarkers={true}
-          disableClusteringAtZoom={16}
-          spiderfyDistanceMultiplier={2}
-          polygonOptions={{ fillColor: '#3b82f6', color: '#1e40af', weight: 2, opacity: 0.8, fillOpacity: 0.4 }}
+          disableClusteringAtZoom={15}
         >
           {communities.map((community: Community) => (
           <Marker
@@ -474,58 +356,12 @@ export default function Map({
         </div>
       )}
       
-      {/* Community Count and Location Status */}
+      {/* Community Count */}
       {!isLoading && communities.length > 0 && (
         <div className="absolute bottom-4 left-4 bg-white p-2 rounded shadow-lg">
           <span className="text-sm font-medium">
-            {communities.length} communities shown
+            {communities.length} communities found
           </span>
-          {userLocation && (
-            <div className="text-xs text-gray-600 mt-1">
-              📍 Showing near your location
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Location Permission Prompt */}
-      {!userLocation && !locationDenied && (
-        <div className="absolute top-4 right-4 bg-blue-50 border border-blue-200 p-3 rounded-lg shadow-lg max-w-sm">
-          <div className="flex items-center gap-2 text-blue-800">
-            <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-            <span className="text-sm font-medium">Requesting location access...</span>
-          </div>
-          <p className="text-xs text-blue-600 mt-1">
-            Allow location access to see communities near you
-          </p>
-        </div>
-      )}
-
-      {/* Find My Location Button */}
-      {(locationDenied || !userLocation) && (
-        <div className="absolute top-4 right-4 z-50">
-          <Button
-            size="sm"
-            onClick={() => {
-              setLocationDenied(false);
-              if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                  (position) => {
-                    const { latitude, longitude } = position.coords;
-                    setUserLocation([latitude, longitude]);
-                  },
-                  (error) => {
-                    console.log('Location access denied:', error);
-                    setLocationDenied(true);
-                  }
-                );
-              }
-            }}
-            className="bg-white text-blue-600 hover:bg-blue-50 border border-blue-200 shadow-lg"
-          >
-            <MapPin className="w-4 h-4 mr-1" />
-            Find My Location
-          </Button>
         </div>
       )}
       </div>

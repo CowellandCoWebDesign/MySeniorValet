@@ -800,7 +800,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         swLng,
         neLat,
         neLng,
-        limit = 5000,
+        limit = 1000,
         careType,
         minRating,
         amenities
@@ -819,7 +819,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let query = db.select().from(communities);
       const conditions = [];
 
-      // PostGIS spatial query - optimized for nationwide scale (40k+ communities)
+      // PostGIS spatial query - find communities within bounding box
       // Use ST_DWithin for radius-based search with geography type
       const centerLat = (parseFloat(swLat as string) + parseFloat(neLat as string)) / 2;
       const centerLng = (parseFloat(swLng as string) + parseFloat(neLng as string)) / 2;
@@ -857,9 +857,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         query = query.where(sql`${sql.join(conditions, sql` AND `)}`);
       }
 
-      // Add limit with performance optimization for large datasets
-      const parsedLimit = Math.min(parseInt(limit as string), 10000); // Cap at 10k for performance
-      query = query.limit(parsedLimit);
+      // Add limit
+      query = query.limit(parseInt(limit as string));
 
       // Execute query
       const result = await query;
