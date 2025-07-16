@@ -18,7 +18,10 @@ import {
   ExternalLink,
   Mail,
   Printer,
-  Share2
+  Share2,
+  Sparkles,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 import { Link } from "wouter";
 
@@ -334,102 +337,145 @@ export default function AllInOnePlanner() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+      <header className="bg-white shadow-lg border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-6">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => window.history.back()}
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 font-medium"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="w-5 h-5" />
                 <span>Back</span>
               </Button>
+              <div className="h-6 w-px bg-gray-200" />
               <Link href="/">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
+                  className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 font-semibold px-4 py-2"
                 >
-                  <Home className="w-4 h-4" />
+                  <Home className="w-5 h-5" />
                   <span>MySeniorValet</span>
                 </Button>
               </Link>
             </div>
-            <div className="text-sm text-gray-600">
-              {selectedServices.length} services selected
+            <div className="text-center">
+              <h1 className="text-2xl font-bold text-gray-900">Senior Valet Concierge</h1>
+              <p className="text-sm text-gray-600 mt-1">All-in-One Move Planning Portal</p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="bg-blue-50 px-4 py-2 rounded-lg border border-blue-200">
+                <span className="text-sm font-medium text-blue-700">
+                  {selectedServices.length} services selected
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
           {/* Main Content */}
           <div className="lg:col-span-3">
             {/* Overview Section */}
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                Senior Valet Concierge Planner
-              </h1>
-              <p className="text-xl text-gray-600 mb-2">
-                Simplify Your Move-In with Our Senior Valet Concierge
-              </p>
-              <p className="text-gray-500">
-                From movers to meal delivery, choose only what you need. Save time. Start services now with trusted partners.
-              </p>
+            <div className="text-center mb-12">
+              <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+                <div className="max-w-3xl mx-auto">
+                  <div className="flex items-center justify-center mb-6">
+                    <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-3 rounded-full">
+                      <Sparkles className="w-8 h-8 text-white" />
+                    </div>
+                  </div>
+                  <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                    Senior Valet Concierge Planner
+                  </h2>
+                  <p className="text-xl text-gray-600 mb-4 leading-relaxed">
+                    Simplify Your Move-In with Our Professional Senior Valet Concierge
+                  </p>
+                  <p className="text-lg text-gray-500 mb-6">
+                    From movers to meal delivery, choose only what you need. Save time. Start services now with trusted partners.
+                  </p>
+                  <div className="flex items-center justify-center space-x-8 text-sm text-gray-500">
+                    <div className="flex items-center">
+                      <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+                      <span>Trusted Partners</span>
+                    </div>
+                    <div className="flex items-center">
+                      <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+                      <span>No Referral Fees</span>
+                    </div>
+                    <div className="flex items-center">
+                      <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+                      <span>Professional Service</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Service Categories */}
-            <div className="space-y-6">
+            <div className="space-y-8">
               {serviceCategories.map((category) => (
-                <Card key={category.id} className="overflow-hidden">
-                  <CardHeader 
-                    className="cursor-pointer hover:bg-gray-50 transition-colors"
+                <Card key={category.id} className="overflow-hidden border-0 shadow-lg bg-white rounded-2xl">
+                  <CardHeader
+                    className="cursor-pointer hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-300 p-6"
                     onClick={() => toggleCategory(category.id)}
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white">
+                      <div className="flex items-center space-x-4">
+                        <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-3 rounded-xl text-white shadow-lg">
                           {category.icon}
                         </div>
                         <div>
-                          <CardTitle className="text-lg">{category.title}</CardTitle>
-                          <p className="text-sm text-gray-600">{category.description}</p>
+                          <CardTitle className="text-xl font-bold text-gray-900 mb-2">{category.title}</CardTitle>
+                          <p className="text-gray-600 leading-relaxed">{category.description}</p>
                         </div>
                       </div>
-                      <Badge variant="secondary">
-                        {category.services.filter(s => selectedServices.includes(s.id)).length} selected
-                      </Badge>
+                      <div className="flex items-center space-x-4">
+                        <div className="bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+                          <span className="text-sm font-medium text-blue-700">
+                            {category.services.filter(s => selectedServices.includes(s.id)).length} selected
+                          </span>
+                        </div>
+                        <div className="bg-gray-100 p-2 rounded-full">
+                          {expandedCategory === category.id ? 
+                            <ChevronUp className="w-5 h-5 text-gray-600" /> : 
+                            <ChevronDown className="w-5 h-5 text-gray-600" />
+                          }
+                        </div>
+                      </div>
                     </div>
                   </CardHeader>
                   
                   {expandedCategory === category.id && (
-                    <CardContent className="pt-0">
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <CardContent className="pt-0 px-6 pb-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {category.services.map((service) => (
                           <div
                             key={service.id}
-                            className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+                            className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl p-5 hover:shadow-lg hover:border-blue-300 transition-all duration-300"
                           >
-                            <div className="flex items-start space-x-3">
+                            <div className="flex items-start space-x-4">
                               <Checkbox
                                 checked={selectedServices.includes(service.id)}
                                 onCheckedChange={() => toggleService(service.id)}
+                                className="mt-1"
                               />
                               <div className="flex-1">
-                                <h4 className="font-medium text-gray-900">{service.name}</h4>
-                                <p className="text-sm text-gray-600 mb-3">{service.description}</p>
+                                <h4 className="font-semibold text-gray-900 mb-2">{service.name}</h4>
+                                <p className="text-sm text-gray-600 mb-4 leading-relaxed">{service.description}</p>
                                 <Button
                                   size="sm"
-                                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
                                   onClick={() => handleServiceClick(service)}
                                 >
-                                  Visit Partner <ExternalLink className="w-3 h-3 ml-1" />
+                                  Visit Partner <ExternalLink className="w-4 h-4 ml-2" />
                                 </Button>
                               </div>
                             </div>
@@ -446,32 +492,48 @@ export default function AllInOnePlanner() {
           {/* Selected Services Sidebar */}
           <div className="lg:col-span-1">
             <div className="sticky top-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                    <span>Your Valet Setup Summary</span>
+              <Card className="border-0 shadow-xl bg-white rounded-2xl">
+                <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-2xl p-6">
+                  <CardTitle className="flex items-center space-x-3">
+                    <CheckCircle className="w-6 h-6" />
+                    <span className="text-lg font-bold">Your Valet Setup Summary</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-6">
                   {selectedServices.length === 0 ? (
-                    <p className="text-gray-500 text-sm">Select services to see your summary</p>
+                    <div className="text-center py-8">
+                      <div className="bg-gray-50 p-6 rounded-xl mb-4">
+                        <CheckCircle className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                        <p className="text-gray-500 text-sm">Select services to see your summary</p>
+                        <p className="text-gray-400 text-xs mt-2">Choose from the categories above to build your personalized plan</p>
+                      </div>
+                    </div>
                   ) : (
-                    <div className="space-y-3">
-                      {getSelectedServicesDetails().map((service) => (
-                        <div key={service.id} className="flex items-center space-x-2">
-                          <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
-                          <span className="text-sm">{service.name}</span>
+                    <div className="space-y-6">
+                      <div className="bg-green-50 p-5 rounded-xl border border-green-200">
+                        <div className="flex items-center mb-4">
+                          <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
+                          <span className="font-semibold text-green-800">
+                            {selectedServices.length} Services Selected
+                          </span>
                         </div>
-                      ))}
+                        <div className="space-y-2">
+                          {getSelectedServicesDetails().map((service) => (
+                            <div key={service.id} className="flex items-center space-x-2">
+                              <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
+                              <span className="text-sm text-gray-700 font-medium">{service.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                       
-                      <Separator className="my-4" />
+                      <Separator className="my-6" />
                       
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         <Button
                           variant="outline"
                           size="sm"
-                          className="w-full"
+                          className="w-full bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 hover:from-blue-100 hover:to-purple-100 text-blue-700 font-medium py-3 rounded-xl"
                           onClick={handleEmailSummary}
                         >
                           <Mail className="w-4 h-4 mr-2" />
@@ -480,7 +542,7 @@ export default function AllInOnePlanner() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="w-full"
+                          className="w-full bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 hover:from-blue-100 hover:to-purple-100 text-blue-700 font-medium py-3 rounded-xl"
                           onClick={handlePrintSummary}
                         >
                           <Printer className="w-4 h-4 mr-2" />
@@ -489,7 +551,7 @@ export default function AllInOnePlanner() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="w-full"
+                          className="w-full bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 hover:from-blue-100 hover:to-purple-100 text-blue-700 font-medium py-3 rounded-xl"
                           onClick={handleShareSummary}
                         >
                           <Share2 className="w-4 h-4 mr-2" />
@@ -497,9 +559,9 @@ export default function AllInOnePlanner() {
                         </Button>
                       </div>
                       
-                      <Separator className="my-4" />
+                      <Separator className="my-6" />
                       
-                      <Button className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700">
+                      <Button className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
                         Finalize My Setup
                       </Button>
                     </div>
