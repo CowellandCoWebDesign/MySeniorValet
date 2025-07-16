@@ -11,6 +11,7 @@ import { db } from "./db";
 import { communities } from "@shared/schema";
 import { eq, and, or, sql } from "drizzle-orm";
 import { searchCache, communityCache, apiCache } from "./infrastructure/cache";
+import { communityStatsCache } from "./community-stats-cache";
 
 interface PricingEstimate {
   min: number;
@@ -401,6 +402,16 @@ class IntelligentPricingService {
         // Log progress every 100 communities
         if (updated % 100 === 0) {
           console.log(`Updated pricing for ${updated} communities...`);
+        }
+        
+        // Clear cache every 500 communities to show immediate results
+        if (updated % 500 === 0) {
+          console.log('🗑️ Clearing cache to show updated pricing immediately...');
+          await searchCache.clear();
+          await communityCache.clear();
+          await apiCache.clear();
+          // Also invalidate community stats cache to refresh homepage
+          communityStatsCache.invalidateCache();
         }
       }
       
