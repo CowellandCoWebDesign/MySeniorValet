@@ -38,6 +38,7 @@ export default function TrueViewHome() {
     queryKey: ["/api/communities/trending"],
     retry: false,
     staleTime: 0, // No cache - always fresh data
+    refetchInterval: 30000, // Refresh every 30 seconds
   });
 
   // Location-specific queries for horizontal sections

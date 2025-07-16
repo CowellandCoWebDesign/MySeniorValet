@@ -20,6 +20,15 @@ export function CommunityCard({ community }: CommunityCardProps) {
     careTypes: false,
   });
 
+  // Debug: Log pricing data for the first few communities
+  if (community.id <= 400) {
+    console.log(`DEBUG: Community ${community.name} (ID: ${community.id}):`, {
+      priceRange: community.priceRange,
+      pricingType: community.pricingType,
+      pricingLastUpdated: community.pricingLastUpdated
+    });
+  }
+
   const toggleSection = (section: 'amenities' | 'services' | 'careTypes') => {
     setExpandedSections(prev => ({
       ...prev,
