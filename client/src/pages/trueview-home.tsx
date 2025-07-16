@@ -1176,9 +1176,9 @@ export default function TrueViewHome() {
           <p className="text-xs text-green-700 mb-2">
             If you're a veteran, explore HUD-VASH housing which combines rental assistance with VA supportive services.
           </p>
-          <Link href="/hud-vash" className="text-xs text-green-600 hover:text-green-700 underline font-medium">
+          <a href="https://www.va.gov/housing-assistance/" target="_blank" rel="noopener noreferrer" className="text-xs text-green-600 hover:text-green-700 underline font-medium">
             Learn about Veterans Housing →
-          </Link>
+          </a>
         </div>
       </section>
 
