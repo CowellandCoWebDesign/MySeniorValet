@@ -961,16 +961,19 @@ export default function TrueViewHome() {
         </div>
         
         <div className="mt-6 space-y-3">
-          <Button className="w-full gradient-tertiary hover:opacity-90 text-white border-0">
-            Find communities by care level
-          </Button>
-          <Button 
-            variant="outline" 
-            className="w-full border-blue-200 text-blue-600 hover:bg-blue-50"
-            onClick={() => window.location.href = '/rentals'}
-          >
-            Try New Rental Search with Maps
-          </Button>
+          <Link href="/search?view=care-levels">
+            <Button className="w-full gradient-tertiary hover:opacity-90 text-white border-0">
+              Find communities by care level
+            </Button>
+          </Link>
+          <Link href="/search">
+            <Button 
+              variant="outline" 
+              className="w-full border-blue-200 text-blue-600 hover:bg-blue-50"
+            >
+              Try New Rental Search with Maps
+            </Button>
+          </Link>
         </div>
       </section>
 
