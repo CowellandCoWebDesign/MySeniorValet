@@ -820,22 +820,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let query = db.select().from(communities);
       const conditions = [];
 
-      // PostGIS spatial query - find communities within bounding box
-      // Use ST_DWithin for radius-based search with geography type
+      // PostGIS spatial query - find communities within exact bounding box
       const centerLat = (parseFloat(swLat as string) + parseFloat(neLat as string)) / 2;
       const centerLng = (parseFloat(swLng as string) + parseFloat(neLng as string)) / 2;
       
-      // Calculate approximate radius in meters (rough estimate for bounding box)
-      const latDiff = parseFloat(neLat as string) - parseFloat(swLat as string);
-      const lngDiff = parseFloat(neLng as string) - parseFloat(swLng as string);
-      const radiusMeters = Math.max(latDiff, lngDiff) * 111000; // Convert degrees to meters
-      
+      // Use precise bounding box filtering instead of radius-based search
       conditions.push(
-        sql`ST_DWithin(
-          ${communities.location},
-          ST_SetSRID(ST_MakePoint(${centerLng}, ${centerLat}), 4326)::geography,
-          ${radiusMeters}
-        )`
+        sql`${communities.latitude} BETWEEN ${parseFloat(swLat as string)} AND ${parseFloat(neLat as string)}`
+      );
+      conditions.push(
+        sql`${communities.longitude} BETWEEN ${parseFloat(swLng as string)} AND ${parseFloat(neLng as string)}`
       );
 
       // Additional filters
@@ -857,6 +851,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (conditions.length > 0) {
         query = query.where(sql`${sql.join(conditions, sql` AND `)}`);
       }
+
+      // Order by distance from center of viewed area for most relevant results
+      query = query.orderBy(
+        sql`ST_Distance(
+          ${communities.location},
+          ST_SetSRID(ST_MakePoint(${centerLng}, ${centerLat}), 4326)::geography
+        )`
+      );
 
       // Add limit
       query = query.limit(parseInt(limit as string));
