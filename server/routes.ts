@@ -29,6 +29,15 @@ import { supportResourceService } from './support-resources';
 import { pixabayService } from './pixabay-api';
 import { superclusterService } from './services/supercluster';
 import { z } from "zod";
+import { securityMonitoringMiddleware, securityMonitor } from "./security-monitor";
+import { 
+  getSecurityDashboard, 
+  getUserTrace, 
+  blockIP, 
+  unblockIP, 
+  getSecurityEvents, 
+  generateSecurityReport 
+} from "./security-admin-endpoints";
 
 // Scalable infrastructure imports
 import { searchCache, communityCache, apiCache } from "./infrastructure/cache";
@@ -1620,6 +1629,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Community stats error:', error);
       res.status(500).json({ error: 'Failed to fetch community statistics' });
+    }
+  });
+
+  // Security monitoring middleware - add to all routes
+  app.use(securityMonitoringMiddleware);
+
+  // Security Admin Endpoints
+  app.get('/api/admin/security/dashboard', getSecurityDashboard);
+  app.get('/api/admin/security/user-trace', getUserTrace);
+  app.post('/api/admin/security/block-ip', blockIP);
+  app.post('/api/admin/security/unblock-ip', unblockIP);
+  app.get('/api/admin/security/events', getSecurityEvents);
+  app.get('/api/admin/security/report', generateSecurityReport);
+  
+  // Console data tracing endpoint for security analysis
+  app.get('/api/admin/security/console-trace', async (req, res) => {
+    try {
+      const { hours = 1, includeAll = false } = req.query;
+      
+      // Get current security monitor instance
+      const monitor = securityMonitor;
+      const metrics = await monitor.getCurrentMetrics();
+      
+      // Get detailed trace data
+      const traceData = await monitor.getDetailedUserTrace();
+      
+      // Generate console analysis
+      const consoleData = {
+        timestamp: new Date().toISOString(),
+        securityStatus: {
+          threatLevel: metrics.threatLevel,
+          activeUsers: metrics.activeUsers,
+          suspiciousActivity: metrics.suspiciousActivity,
+          blockedIPs: metrics.blockedIPs,
+          recentThreats: metrics.recentThreats.length
+        },
+        userActivity: traceData.userSessions.map(session => ({
+          timestamp: session.timestamp,
+          action: session.action,
+          ipAddress: session.ipAddress,
+          userAgent: session.userAgent,
+          riskLevel: session.riskLevel,
+          success: session.success
+        })),
+        threatAnalysis: traceData.threatHistory.map(threat => ({
+          id: threat.id,
+          type: threat.type,
+          severity: threat.severity,
+          ipAddress: threat.ipAddress,
+          endpoint: threat.endpoint,
+          timestamp: threat.timestamp,
+          details: threat.details
+        })),
+        systemStatus: {
+          uptime: process.uptime(),
+          memoryUsage: process.memoryUsage(),
+          cpuUsage: process.cpuUsage(),
+          nodeVersion: process.version
+        },
+        recommendations: traceData.riskAssessment
+      };
+      
+      res.json(consoleData);
+    } catch (error) {
+      console.error('Console trace error:', error);
+      res.status(500).json({ 
+        error: 'Failed to generate console trace',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 

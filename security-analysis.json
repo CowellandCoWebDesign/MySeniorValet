@@ -1,0 +1,168 @@
+{
+  "timestamp": "2025-07-16T16:09:08.164Z",
+  "analysisWindow": {
+    "start": "2025-07-16T16:09:08.161Z",
+    "duration": 3
+  },
+  "summary": {
+    "totalThreats": 7,
+    "criticalThreats": 4,
+    "highThreats": 1,
+    "mediumThreats": 1,
+    "lowThreats": 1,
+    "uniqueIPs": 3,
+    "suspiciousIPs": 0
+  },
+  "threatsByType": {
+    "sql_injection": [
+      {
+        "type": "sql_injection",
+        "severity": "HIGH",
+        "pattern": "(';|\";|--|\\/\\*|\\*\\/|xp_|sp_)",
+        "timestamp": "2025-07-16T16:09:08.163Z",
+        "evidence": "POST /api/auth/login { username: \"admin\", password: \"admin' OR 1=1--\" }"
+      },
+      {
+        "type": "sql_injection",
+        "severity": "CRITICAL",
+        "pattern": "(\\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|UNION|EXEC|EXECUTE)\\b)",
+        "timestamp": "2025-07-16T16:09:08.164Z",
+        "evidence": "POST /api/communities { name: \"Test\"; DROP TABLE users; --\" }"
+      },
+      {
+        "type": "sql_injection",
+        "severity": "CRITICAL",
+        "pattern": "(';|\";|--|\\/\\*|\\*\\/|xp_|sp_)",
+        "timestamp": "2025-07-16T16:09:08.164Z",
+        "evidence": "POST /api/communities { name: \"Test\"; DROP TABLE users; --\" }"
+      }
+    ],
+    "xss_injection": [
+      {
+        "type": "xss_injection",
+        "severity": "CRITICAL",
+        "pattern": "(<script|<\\/script>|javascript:|vbscript:|onload=|onerror=|eval\\(|setTimeout\\()",
+        "timestamp": "2025-07-16T16:09:08.164Z",
+        "evidence": "GET /api/communities/search?q=<script>alert(1)</script>"
+      },
+      {
+        "type": "xss_injection",
+        "severity": "CRITICAL",
+        "pattern": "(\\balert\\(|\\bconfirm\\(|\\bprompt\\()",
+        "timestamp": "2025-07-16T16:09:08.164Z",
+        "evidence": "GET /api/communities/search?q=<script>alert(1)</script>"
+      }
+    ],
+    "ldap_injection": [
+      {
+        "type": "ldap_injection",
+        "severity": "MEDIUM",
+        "pattern": "(\\*\\)|&\\(|\\|\\(|\\)|\\(cn=|\\(uid=|\\(mail=)",
+        "timestamp": "2025-07-16T16:09:08.164Z",
+        "evidence": "GET /api/communities/search?q=<script>alert(1)</script>"
+      }
+    ],
+    "command_injection": [
+      {
+        "type": "command_injection",
+        "severity": "LOW",
+        "pattern": "(\\||;|&|`|\\$\\(|exec|system|shell_exec|passthru)",
+        "timestamp": "2025-07-16T16:09:08.164Z",
+        "evidence": "POST /api/communities { name: \"Test\"; DROP TABLE users; --\" }"
+      }
+    ]
+  },
+  "ipAnalysis": [
+    {
+      "ipAddress": "127.0.0.1",
+      "requestCount": 1,
+      "endpointCount": 1,
+      "userAgentCount": 1,
+      "methodCount": 1,
+      "suspicious": false,
+      "firstSeen": "2025-07-16T16:09:08.164Z",
+      "lastSeen": "2025-07-16T16:09:08.164Z",
+      "riskScore": 0
+    },
+    {
+      "ipAddress": "192.168.1.100",
+      "requestCount": 1,
+      "endpointCount": 1,
+      "userAgentCount": 1,
+      "methodCount": 1,
+      "suspicious": false,
+      "firstSeen": "2025-07-16T16:09:08.164Z",
+      "lastSeen": "2025-07-16T16:09:08.164Z",
+      "riskScore": 0
+    },
+    {
+      "ipAddress": "10.0.0.1",
+      "requestCount": 1,
+      "endpointCount": 1,
+      "userAgentCount": 1,
+      "methodCount": 1,
+      "suspicious": false,
+      "firstSeen": "2025-07-16T16:09:08.164Z",
+      "lastSeen": "2025-07-16T16:09:08.164Z",
+      "riskScore": 0
+    }
+  ],
+  "recommendations": [
+    {
+      "priority": "IMMEDIATE",
+      "action": "Block IPs with critical threats detected",
+      "reason": "Critical injection attempts or destructive commands detected"
+    }
+  ],
+  "detectedThreats": [
+    {
+      "type": "sql_injection",
+      "severity": "HIGH",
+      "pattern": "(';|\";|--|\\/\\*|\\*\\/|xp_|sp_)",
+      "timestamp": "2025-07-16T16:09:08.163Z",
+      "evidence": "POST /api/auth/login { username: \"admin\", password: \"admin' OR 1=1--\" }"
+    },
+    {
+      "type": "xss_injection",
+      "severity": "CRITICAL",
+      "pattern": "(<script|<\\/script>|javascript:|vbscript:|onload=|onerror=|eval\\(|setTimeout\\()",
+      "timestamp": "2025-07-16T16:09:08.164Z",
+      "evidence": "GET /api/communities/search?q=<script>alert(1)</script>"
+    },
+    {
+      "type": "xss_injection",
+      "severity": "CRITICAL",
+      "pattern": "(\\balert\\(|\\bconfirm\\(|\\bprompt\\()",
+      "timestamp": "2025-07-16T16:09:08.164Z",
+      "evidence": "GET /api/communities/search?q=<script>alert(1)</script>"
+    },
+    {
+      "type": "ldap_injection",
+      "severity": "MEDIUM",
+      "pattern": "(\\*\\)|&\\(|\\|\\(|\\)|\\(cn=|\\(uid=|\\(mail=)",
+      "timestamp": "2025-07-16T16:09:08.164Z",
+      "evidence": "GET /api/communities/search?q=<script>alert(1)</script>"
+    },
+    {
+      "type": "sql_injection",
+      "severity": "CRITICAL",
+      "pattern": "(\\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|UNION|EXEC|EXECUTE)\\b)",
+      "timestamp": "2025-07-16T16:09:08.164Z",
+      "evidence": "POST /api/communities { name: \"Test\"; DROP TABLE users; --\" }"
+    },
+    {
+      "type": "sql_injection",
+      "severity": "CRITICAL",
+      "pattern": "(';|\";|--|\\/\\*|\\*\\/|xp_|sp_)",
+      "timestamp": "2025-07-16T16:09:08.164Z",
+      "evidence": "POST /api/communities { name: \"Test\"; DROP TABLE users; --\" }"
+    },
+    {
+      "type": "command_injection",
+      "severity": "LOW",
+      "pattern": "(\\||;|&|`|\\$\\(|exec|system|shell_exec|passthru)",
+      "timestamp": "2025-07-16T16:09:08.164Z",
+      "evidence": "POST /api/communities { name: \"Test\"; DROP TABLE users; --\" }"
+    }
+  ]
+}

@@ -181,11 +181,19 @@ export function sqlInjectionProtection(req: Request, res: Response, next: NextFu
   }
 
   const suspiciousPatterns = [
-    // Modified: Allow legitimate apostrophes in names like "Frye's Care Home"
+    // Enhanced SQL injection patterns
     /(';)|(\';)|(;)|(--)|(\s(OR|AND)\s.*(=|LIKE))/i,
     /(UNION|SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER)\s/i,
     /(\bEXEC\b|\bEXECUTE\b)/i,
-    /(\bSP_\w+)/i
+    /(\bSP_\w+)/i,
+    // XSS patterns
+    /(<script|<\/script>|javascript:|vbscript:|onload=|onerror=|eval\(|alert\()/i,
+    // Command injection patterns
+    /(\||;|&|`|\$\(|exec|system|shell_exec|passthru)/i,
+    // LDAP injection patterns
+    /(\*\)|&\(|\|\(|\)|\(cn=|\(uid=|\(mail=)/i,
+    // NoSQL injection patterns
+    /(\$where|\$ne|\$in|\$nin|\$or|\$and|\$not|\$nor|\$exists|\$type|\$mod|\$regex|\$text|\$search)/i
   ];
   
   const checkForSQLInjection = (value: any): boolean => {
@@ -204,13 +212,28 @@ export function sqlInjectionProtection(req: Request, res: Response, next: NextFu
   const suspicious = [req.body, req.query, req.params].some(checkForSQLInjection);
   
   if (suspicious) {
-    console.warn('Potential SQL injection attempt detected:', {
+    console.warn('🚨 CRITICAL SECURITY THREAT DETECTED:', {
       ip: req.ip,
       userAgent: req.get('User-Agent'),
       url: req.originalUrl,
       body: req.body,
-      query: req.query
+      query: req.query,
+      timestamp: new Date().toISOString(),
+      severity: 'HIGH',
+      threatType: 'INJECTION_ATTEMPT'
     });
+    
+    // Log to security audit
+    try {
+      const { auditService } = require('./audit');
+      auditService.logSuspiciousActivity(req, 'Injection attack detected', {
+        patterns: suspiciousPatterns.map(p => p.source),
+        requestData: { body: req.body, query: req.query },
+        severity: 'HIGH'
+      });
+    } catch (error) {
+      console.error('Failed to log security event:', error);
+    }
     
     return res.status(400).json({
       error: 'Invalid Request',
