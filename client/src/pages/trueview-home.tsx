@@ -98,30 +98,30 @@ export default function TrueViewHome() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-      {/* Header */}
+      {/* Header - Reduced height */}
       <header className="absolute top-0 left-0 right-0 z-50 bg-black/10 backdrop-blur-md border-b border-white/10">
-        <div className="px-4 py-4">
+        <div className="px-4 py-2.5">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm shadow-lg">
+            <div className="flex items-center space-x-2">
+              <div className="p-1.5 bg-white/20 rounded-lg backdrop-blur-sm shadow-lg">
                 <div className="flex flex-col space-y-1">
-                  <div className="w-5 h-0.5 bg-white rounded-full"></div>
-                  <div className="w-5 h-0.5 bg-white rounded-full"></div>
-                  <div className="w-5 h-0.5 bg-white rounded-full"></div>
+                  <div className="w-4 h-0.5 bg-white rounded-full"></div>
+                  <div className="w-4 h-0.5 bg-white rounded-full"></div>
+                  <div className="w-4 h-0.5 bg-white rounded-full"></div>
                 </div>
               </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500 rounded-xl flex items-center justify-center shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
-                  <Home className="w-6 h-6 text-white drop-shadow-md" />
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500 rounded-xl flex items-center justify-center shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                  <Home className="w-5 h-5 text-white drop-shadow-md" />
                 </div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-amber-200 via-white to-amber-200 bg-clip-text text-transparent drop-shadow-2xl">MySeniorValet</span>
+                <span className="text-xl font-bold bg-gradient-to-r from-amber-200 via-white to-amber-200 bg-clip-text text-transparent drop-shadow-2xl">MySeniorValet</span>
               </div>
             </div>
             <div className="flex items-center space-x-3">
-              <Link href="/login" className="text-white hover:text-amber-200 transition-colors font-medium">
+              <Link href="/login" className="text-white hover:text-amber-200 transition-colors font-medium text-sm">
                 Sign In
               </Link>
-              <Link href="/signup" className="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-xl hover:bg-white/30 transition-all duration-200 font-medium shadow-lg hover:shadow-xl">
+              <Link href="/signup" className="bg-white/20 backdrop-blur-sm text-white px-3 py-1.5 rounded-xl hover:bg-white/30 transition-all duration-200 font-medium shadow-lg hover:shadow-xl text-sm">
                 Sign Up
               </Link>
             </div>
@@ -148,14 +148,14 @@ export default function TrueViewHome() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/60"></div>
         </div>
         
-        <div className="relative z-10 flex flex-col items-center justify-center hero-content min-h-screen px-6 py-16 mobile-keyboard-safe">
+        <div className="relative z-10 flex flex-col items-center justify-center hero-content min-h-screen px-6 py-12 mobile-keyboard-safe">
           {/* Centered Headlines */}
-          <div className="text-center mb-6 md:mb-8">
-            <div className="space-y-3 mb-4">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight drop-shadow-lg animate-fade-in-up">
+          <div className="text-center mb-4 md:mb-6">
+            <div className="space-y-2 mb-3">
+              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight drop-shadow-lg animate-fade-in-up">
                 Everything Senior Living Needs—Handled in One Place
               </h1>
-              <h2 className="text-sm sm:text-base md:text-lg text-white opacity-90 drop-shadow-md px-4 animate-fade-in-up animation-delay-300">
+              <h2 className="text-xs sm:text-sm md:text-base text-white opacity-90 drop-shadow-md px-4 animate-fade-in-up animation-delay-300">
                 From live pricing and unit availability to move coordination, furniture setup, and prescription delivery, MySeniorValet is your white-glove partner.
               </h2>
             </div>
@@ -164,7 +164,7 @@ export default function TrueViewHome() {
 
 
           {/* Search Bar */}
-          <div className="w-full max-w-md mb-3 relative animate-fade-in-up animation-delay-600" style={{ zIndex: 99999 }}>
+          <div className="w-full max-w-md mb-2 relative animate-fade-in-up animation-delay-600" style={{ zIndex: 99999 }}>
             <form onSubmit={(e) => {
               e.preventDefault();
               const query = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
@@ -205,13 +205,13 @@ export default function TrueViewHome() {
                       // Delay hiding suggestions to allow click events
                       setTimeout(() => setShowSuggestions(false), 200);
                     }}
-                    className="flex-1 px-4 sm:px-5 py-2.5 sm:py-3 text-sm sm:text-base border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 placeholder-gray-500"
+                    className="flex-1 px-4 py-2.5 text-sm border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 placeholder-gray-500"
                   />
                   <button
                     type="submit"
-                    className="bg-gray-700 hover:bg-gray-800 text-white p-2 sm:p-2.5 m-1 rounded-xl transition-colors flex items-center justify-center"
+                    className="bg-gray-700 hover:bg-gray-800 text-white p-2 m-1 rounded-xl transition-colors flex items-center justify-center"
                   >
-                    <Search className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <Search className="w-4 h-4" />
                   </button>
                 </div>
               </div>
@@ -244,29 +244,29 @@ export default function TrueViewHome() {
           </div>
 
           {/* Primary & Secondary CTAs */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-4 animate-fade-in-up animation-delay-700">
+          <div className="flex flex-col sm:flex-row gap-3 mb-3 animate-fade-in-up animation-delay-700">
             <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}>
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 border-0">
+              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-xl font-medium text-sm shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 border-0">
                 Start Your All-in-One Planner
               </Button>
             </Link>
             <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}>
-              <Button variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-3 rounded-xl font-semibold text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-white/10 backdrop-blur-sm">
+              <Button variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-6 py-2.5 rounded-xl font-medium text-sm shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-white/10 backdrop-blur-sm">
                 Explore Communities
               </Button>
             </Link>
           </div>
           
           {/* Community Count Text */}
-          <div className="mb-3 animate-fade-in-up animation-delay-750">
-            <p className="text-white/90 text-sm drop-shadow-md text-center">
+          <div className="mb-2 animate-fade-in-up animation-delay-750">
+            <p className="text-white/90 text-xs drop-shadow-md text-center">
               Serving families across <strong className="text-amber-200">8,000+ verified senior living communities</strong>
             </p>
           </div>
           
           {/* Verification Badge */}
           <div className="mb-4 animate-fade-in-up animation-delay-800">
-            <div className="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium shadow-lg">
+            <div className="inline-flex items-center px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-full text-white text-xs font-medium shadow-lg">
               <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
               Verified Pricing • Real Availability • No Pressure
             </div>
