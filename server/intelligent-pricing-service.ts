@@ -222,7 +222,31 @@ class IntelligentPricingService {
       };
     }
     
-    // 2. Check if community has existing price range
+    // 2. Use nationwide pricing research data as primary source
+    try {
+      const { nationwidePricingResearch } = await import('./nationwide-pricing-research');
+      const researchData = await nationwidePricingResearch.getCommunityPricingEstimate(community.id);
+      
+      if (researchData && researchData.priceRange && researchData.priceRange.min > 0) {
+        // Apply amenity multiplier to research data
+        const amenityMultiplier = this.calculateAmenityMultiplier(community);
+        const finalMin = Math.round(researchData.priceRange.min * amenityMultiplier);
+        const finalMax = Math.round(researchData.priceRange.max * amenityMultiplier);
+        
+        return {
+          min: finalMin,
+          max: finalMax,
+          careTypePricing: this.calculateCareTypePricing(finalMin, finalMax, community.careTypes || []),
+          confidence: 'high',
+          dataSource: 'market',
+          lastUpdated: new Date()
+        };
+      }
+    } catch (error) {
+      console.log('Research data not available, using existing pricing');
+    }
+    
+    // 3. Check if community has existing price range
     if (community.priceRange && community.priceRange.min > 0) {
       return {
         min: community.priceRange.min,
