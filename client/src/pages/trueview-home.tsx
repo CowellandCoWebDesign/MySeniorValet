@@ -421,7 +421,7 @@ export default function TrueViewHome() {
                   
                   {/* Price Badge - Bottom Left */}
                   <Badge className="absolute bottom-2 left-2 bg-gray-900 text-white text-xs px-2 py-1 font-medium z-10">
-                    {community.monthlyRent ? `$${(community.monthlyRent / 1000).toFixed(1)}K+` : '$4K+'}
+                    {community.priceRange && community.priceRange.min ? `$${(community.priceRange.min / 1000).toFixed(1)}K+` : '$4K+'}
                     {!community.claimed && (
                       <span className="text-xs text-gray-300 ml-1 font-normal">est.</span>
                     )}
@@ -455,7 +455,7 @@ export default function TrueViewHome() {
                   )}
                   
                   <div className="text-xl font-bold text-gray-900 mb-2">
-                    {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : '$3,800'}
+                    {community.priceRange && community.priceRange.min ? `$${community.priceRange.min.toLocaleString()}` : '$3,800'}
                     {!community.claimed && (
                       <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
                     )}
@@ -697,7 +697,7 @@ export default function TrueViewHome() {
                       
                       {/* Price Badge */}
                       <Badge className="absolute bottom-3 left-3 bg-gray-900 text-white text-xs px-2 py-1 font-medium">
-                        {community.monthlyRent ? `$${(community.monthlyRent / 1000).toFixed(1)}K+` : '$4K+'}
+                        {community.priceRange && community.priceRange.min ? `$${(community.priceRange.min / 1000).toFixed(1)}K+` : '$4K+'}
                         {!community.claimed && (
                           <span className="text-xs text-gray-300 ml-1 font-normal">est.</span>
                         )}
@@ -731,7 +731,7 @@ export default function TrueViewHome() {
                       )}
                       
                       <div className="text-xl font-bold text-gray-900 mb-2">
-                        {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : '$4,200'}
+                        {community.priceRange && community.priceRange.min ? `$${community.priceRange.min.toLocaleString()}` : '$4,200'}
                         {!community.claimed && (
                           <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
                         )}
@@ -1310,7 +1310,7 @@ export default function TrueViewHome() {
                   
                   {/* Price Badge */}
                   <Badge className="absolute bottom-3 left-3 bg-gray-900 text-white text-xs px-2 py-1 font-medium">
-                    {community.monthlyRent ? `$${(community.monthlyRent / 1000).toFixed(1)}K+` : '$4K+'}
+                    {community.priceRange && community.priceRange.min ? `$${(community.priceRange.min / 1000).toFixed(1)}K+` : '$4K+'}
                   </Badge>
                   
                   {/* Achievement Badge - Special Recognition */}
@@ -1334,7 +1334,7 @@ export default function TrueViewHome() {
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between mb-2">
                     <div className="text-xl font-bold text-gray-900">
-                      {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : '$4,200'}
+                      {community.priceRange && community.priceRange.min ? `$${community.priceRange.min.toLocaleString()}` : '$4,200'}
                     </div>
                     {index % 3 === 0 && (
                       <div className="flex items-center text-xs text-green-600 font-medium">
