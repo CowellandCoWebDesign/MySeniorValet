@@ -332,6 +332,16 @@ export default function TrueViewHome() {
               </CardContent>
             </Card>
           </div>
+          
+          {/* All-in-One Planner Button */}
+          <div className="text-center mt-8">
+            <Button 
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl font-medium text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 border-0"
+              onClick={() => window.location.href = '/all-in-one-planner'}
+            >
+              Start Your All-in-One Planner
+            </Button>
+          </div>
         </div>
       </section>
 
