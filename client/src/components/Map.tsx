@@ -117,8 +117,8 @@ export default function Map({
   onCommunityClick, 
   onBoundsChange,
   height = "500px",
-  center = [37.7749, -122.4194], // Default to San Francisco
-  zoom = 12
+  center = [39.8283, -98.5795], // Default to center of USA
+  zoom = 4
 }: MapProps) {
   const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
@@ -135,11 +135,11 @@ export default function Map({
       let swLat, swLng, neLat, neLng;
       
       if (!mapBounds) {
-        // Use default San Francisco bounds
-        swLat = '37.7049';
-        swLng = '-122.5262';
-        neLat = '37.8449';
-        neLng = '-122.3832';
+        // Use default continental US bounds (includes Puerto Rico at 18.4655°N, 66.1057°W)
+        swLat = '17.5'; // Puerto Rico southern bound
+        swLng = '-179.0'; // Alaska western bound
+        neLat = '71.0'; // Alaska northern bound
+        neLng = '-65.0'; // US Virgin Islands eastern bound
       } else {
         const sw = mapBounds.getSouthWest();
         const ne = mapBounds.getNorthEast();
@@ -160,11 +160,12 @@ export default function Map({
         const lngSpan = ne.lng - sw.lng;
         const area = latSpan * lngSpan;
         
-        // Adjust limit based on visible area - more generous for no API cost
-        if (area > 100) limit = '2000'; // Very zoomed out (state/country level)
-        else if (area > 10) limit = '1500'; // Zoomed out (region level)
-        else if (area > 1) limit = '1000'; // Medium zoom (city level)
-        else limit = '800'; // Zoomed in (neighborhood level)
+        // Adjust limit based on visible area - optimized for 40,000+ communities
+        if (area > 500) limit = '5000'; // Continental/multi-state level
+        else if (area > 100) limit = '3000'; // State/regional level
+        else if (area > 10) limit = '2000'; // Multi-city level
+        else if (area > 1) limit = '1000'; // City level
+        else limit = '500'; // Neighborhood level
       }
       
       const params = new URLSearchParams({
@@ -218,8 +219,8 @@ export default function Map({
         <MapContainer
           center={center}
           zoom={zoom}
-          minZoom={3}
-          maxZoom={18}
+          minZoom={2}
+          maxZoom={19}
           style={{ height: '100%', width: '100%' }}
           className="rounded-lg"
         >
@@ -233,14 +234,16 @@ export default function Map({
         {/* Clustered community markers */}
         <MarkerClusterGroup
           chunkedLoading
-          maxClusterRadius={60}
+          maxClusterRadius={80}
           spiderfyOnMaxZoom={true}
           showCoverageOnHover={false}
           zoomToBoundsOnClick={true}
           removeOutsideVisibleBounds={true}
           animate={true}
           animateAddingMarkers={true}
-          disableClusteringAtZoom={15}
+          disableClusteringAtZoom={16}
+          spiderfyDistanceMultiplier={2}
+          polygonOptions={{ fillColor: '#3b82f6', color: '#1e40af', weight: 2, opacity: 0.8, fillOpacity: 0.4 }}
         >
           {communities.map((community: Community) => (
           <Marker

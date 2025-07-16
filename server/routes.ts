@@ -800,7 +800,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         swLng,
         neLat,
         neLng,
-        limit = 1000,
+        limit = 5000,
         careType,
         minRating,
         amenities
@@ -819,21 +819,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let query = db.select().from(communities);
       const conditions = [];
 
-      // PostGIS spatial query - find communities within bounding box
-      // Use ST_DWithin for radius-based search with geography type
-      const centerLat = (parseFloat(swLat as string) + parseFloat(neLat as string)) / 2;
-      const centerLng = (parseFloat(swLng as string) + parseFloat(neLng as string)) / 2;
-      
-      // Calculate approximate radius in meters (rough estimate for bounding box)
-      const latDiff = parseFloat(neLat as string) - parseFloat(swLat as string);
-      const lngDiff = parseFloat(neLng as string) - parseFloat(swLng as string);
-      const radiusMeters = Math.max(latDiff, lngDiff) * 111000; // Convert degrees to meters
-      
+      // PostGIS spatial query - optimized for nationwide scale (40k+ communities)
+      // Use bounding box for better performance at scale
       conditions.push(
-        sql`ST_DWithin(
-          ${communities.location},
-          ST_SetSRID(ST_MakePoint(${centerLng}, ${centerLat}), 4326)::geography,
-          ${radiusMeters}
+        sql`ST_Contains(
+          ST_MakeEnvelope(
+            ${parseFloat(swLng as string)},
+            ${parseFloat(swLat as string)},
+            ${parseFloat(neLng as string)},
+            ${parseFloat(neLat as string)},
+            4326
+          ),
+          ${communities.location}
         )`
       );
 
@@ -857,8 +854,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         query = query.where(sql`${sql.join(conditions, sql` AND `)}`);
       }
 
-      // Add limit
-      query = query.limit(parseInt(limit as string));
+      // Add limit with performance optimization for large datasets
+      const parsedLimit = Math.min(parseInt(limit as string), 10000); // Cap at 10k for performance
+      query = query.limit(parsedLimit);
 
       // Execute query
       const result = await query;
