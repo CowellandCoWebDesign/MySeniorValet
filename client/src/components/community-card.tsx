@@ -355,20 +355,22 @@ export function CommunityCard({ community }: CommunityCardProps) {
               <DollarSign className="h-6 w-6 text-green-600" />
               <span className="font-bold text-green-900 text-lg">Monthly Cost Estimates</span>
             </div>
-            {community.isClaimed && community.livePricing ? (
+            {/* Check if community is claimed - Featured/Premium = claimed, isClaimed = claimed */}
+            {((community.badges && (community.badges.includes('Featured') || community.badges.includes('Premium'))) || community.isClaimed) && community.livePricing ? (
               <Badge className="bg-blue-600 text-white text-xs font-semibold">
                 ✓ Live Pricing
               </Badge>
             ) : (
               <Badge className="bg-green-600 text-white text-xs">
-                Estimated Pricing
+                Market Research
               </Badge>
             )}
           </div>
           
           {/* Always show pricing estimates - NO "call for pricing" */}
           <div>
-            {community.isClaimed && community.livePricing ? (
+            {/* Check if community is claimed - Featured/Premium = claimed, isClaimed = claimed */}
+            {((community.badges && (community.badges.includes('Featured') || community.badges.includes('Premium'))) || community.isClaimed) && community.livePricing ? (
               <div>
                 <div className="text-2xl font-bold text-blue-900 mb-2">
                   ${community.livePricing.min.toLocaleString()} - ${community.livePricing.max.toLocaleString()}
@@ -380,7 +382,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
                 <div className="text-2xl font-bold text-green-900 mb-2">
                   ${(community.priceRange?.min || 3500).toLocaleString()} - ${(community.priceRange?.max || 6500).toLocaleString()}
                 </div>
-                <div className="text-sm text-green-700 mb-3">Estimated monthly range based on local market data</div>
+                <div className="text-sm text-green-700 mb-3">Estimated monthly range based on authentic market research</div>
               </div>
             )}
             

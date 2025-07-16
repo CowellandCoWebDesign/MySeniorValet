@@ -57,6 +57,7 @@ import { systematicPhotoEnrichment } from "./systematic-photo-enrichment";
 import { emergencyEnrichment } from "./emergency-enrichment";
 import { pricingTransparencyService } from "./pricing-transparency-badges";
 import { intelligentPricingService } from "./intelligent-pricing-service";
+import { nationwidePricingResearch } from "./nationwide-pricing-research";
 
 // Authentication middleware function
 const isAuthenticated = (req: any, res: any, next: any) => {
@@ -1491,6 +1492,110 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Badges error:', error);
       res.status(500).json({ message: 'Failed to fetch badges' });
+    }
+  });
+
+  // Get pricing research data for a community
+  app.get('/api/communities/:id/pricing-research', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const community = await storage.getCommunity(communityId);
+      
+      if (!community) {
+        return res.status(404).json({ message: 'Community not found' });
+      }
+      
+      const pricingEstimate = nationwidePricingResearch.getAuthenticPricing(
+        community.state,
+        community.city,
+        community.careTypes
+      );
+      
+      const transparencyLevel = nationwidePricingResearch.getPricingTransparencyLevel(community);
+      
+      res.json({ 
+        pricingEstimate, 
+        transparencyLevel,
+        researchBased: true,
+        lastUpdated: new Date()
+      });
+    } catch (error) {
+      console.error('Pricing research error:', error);
+      res.status(500).json({ message: 'Failed to fetch pricing research' });
+    }
+  });
+
+  // Update all communities with nationwide pricing research
+  app.post('/api/admin/pricing/update-research', async (req, res) => {
+    try {
+      console.log('🔬 Starting nationwide pricing research update...');
+      
+      // Launch pricing research update asynchronously
+      nationwidePricingResearch.updateAllCommunityPricing().then(() => {
+        console.log('✅ Nationwide pricing research completed for all communities');
+      }).catch(error => {
+        console.error('❌ Nationwide pricing research failed:', error);
+      });
+      
+      res.json({
+        success: true,
+        message: 'Nationwide pricing research update started - applying authentic market data to all communities'
+      });
+    } catch (error) {
+      console.error('Failed to start pricing research update:', error);
+      res.status(500).json({ 
+        success: false,
+        error: 'Failed to start pricing research update' 
+      });
+    }
+  });
+
+  // Get nationwide pricing research statistics
+  app.get('/api/admin/pricing/research-stats', async (req, res) => {
+    try {
+      const allCommunities = await db.select().from(communities);
+      
+      const stats = {
+        totalCommunities: allCommunities.length,
+        withResearchPricing: allCommunities.filter(c => c.priceRange && c.priceRange.min > 0).length,
+        withLivePricing: allCommunities.filter(c => c.isClaimed && c.livePricing).length,
+        needingResearch: allCommunities.filter(c => !c.priceRange || c.priceRange.min === 0).length,
+        researchCoverage: {} as Record<string, { total: number; researched: number; avgMin: number; avgMax: number }>
+      };
+      
+      // Calculate research coverage by state
+      allCommunities.forEach(community => {
+        if (!stats.researchCoverage[community.state]) {
+          stats.researchCoverage[community.state] = { total: 0, researched: 0, avgMin: 0, avgMax: 0 };
+        }
+        stats.researchCoverage[community.state].total++;
+        if (community.priceRange && community.priceRange.min > 0) {
+          stats.researchCoverage[community.state].researched++;
+          stats.researchCoverage[community.state].avgMin += community.priceRange.min;
+          stats.researchCoverage[community.state].avgMax += community.priceRange.max;
+        }
+      });
+      
+      // Calculate averages
+      Object.keys(stats.researchCoverage).forEach(state => {
+        const stateData = stats.researchCoverage[state];
+        if (stateData.researched > 0) {
+          stateData.avgMin = Math.round(stateData.avgMin / stateData.researched);
+          stateData.avgMax = Math.round(stateData.avgMax / stateData.researched);
+        }
+      });
+      
+      res.json({
+        success: true,
+        stats,
+        message: 'Nationwide pricing research statistics retrieved'
+      });
+    } catch (error) {
+      console.error('Failed to get pricing research stats:', error);
+      res.status(500).json({ 
+        success: false,
+        error: 'Failed to get pricing research statistics' 
+      });
     }
   });
 
