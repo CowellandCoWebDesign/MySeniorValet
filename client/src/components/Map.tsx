@@ -427,10 +427,10 @@ export default function Map({
       )}
       
       {/* Community Count */}
-      {!isLoading && communities.length > 0 && (
+      {!isLoading && clusterData?.features && clusterData.features.length > 0 && (
         <div className="absolute bottom-4 left-4 bg-white p-2 rounded shadow-lg">
           <span className="text-sm font-medium">
-            {communities.length} communities found
+            {clusterData.features.length} clusters/communities found
           </span>
         </div>
       )}
