@@ -150,14 +150,14 @@ export default function TrueViewHome() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/60"></div>
         </div>
         
-        <div className="relative z-10 flex flex-col items-center justify-center hero-content min-h-screen px-6 py-12 mobile-keyboard-safe">
-          {/* Centered Headlines */}
-          <div className="text-center mb-4 md:mb-6">
-            <div className="space-y-2 mb-3">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight drop-shadow-lg animate-fade-in-up">
+        <div className="relative z-10 flex flex-col items-center justify-center hero-content min-h-screen px-6 py-16 mobile-keyboard-safe">
+          {/* Centered Headlines - Much Larger */}
+          <div className="text-center mb-8 md:mb-12 max-w-5xl">
+            <div className="space-y-4 mb-6">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight drop-shadow-lg animate-fade-in-up">
                 Everything Senior Living Needs—Handled in One Place
               </h1>
-              <h2 className="text-xs sm:text-sm md:text-base text-white opacity-90 drop-shadow-md px-4 animate-fade-in-up animation-delay-300">
+              <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl text-white opacity-90 drop-shadow-md px-4 animate-fade-in-up animation-delay-300 max-w-4xl mx-auto">
                 From live pricing and unit availability to move coordination, furniture setup, and prescription delivery, MySeniorValet is your white-glove partner.
               </h2>
             </div>
@@ -165,14 +165,14 @@ export default function TrueViewHome() {
           
 
 
-          {/* Search Bar */}
-          <div className="w-full max-w-md mb-2 relative animate-fade-in-up animation-delay-600" style={{ zIndex: 99999 }}>
+          {/* Search Bar - Larger */}
+          <div className="w-full max-w-2xl mb-4 relative animate-fade-in-up animation-delay-600" style={{ zIndex: 99999 }}>
             <form onSubmit={(e) => {
               e.preventDefault();
               const query = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
               window.location.href = `/search${query}`;
             }}>
-              <div className={`relative bg-white ${showSuggestions && suggestions.length > 0 ? 'rounded-t-2xl' : 'rounded-2xl'} shadow-xl overflow-hidden`}>
+              <div className={`relative bg-white ${showSuggestions && suggestions.length > 0 ? 'rounded-t-3xl' : 'rounded-3xl'} shadow-xl overflow-hidden`}>
                 <div className="flex items-center">
                   <input
                     type="text"
@@ -207,13 +207,13 @@ export default function TrueViewHome() {
                       // Delay hiding suggestions to allow click events
                       setTimeout(() => setShowSuggestions(false), 200);
                     }}
-                    className="flex-1 px-4 py-2.5 text-sm border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 placeholder-gray-500"
+                    className="flex-1 px-6 py-4 text-base border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 placeholder-gray-500"
                   />
                   <button
                     type="submit"
-                    className="bg-gray-700 hover:bg-gray-800 text-white p-2 m-1 rounded-xl transition-colors flex items-center justify-center"
+                    className="bg-gray-700 hover:bg-gray-800 text-white p-3 m-2 rounded-2xl transition-colors flex items-center justify-center"
                   >
-                    <Search className="w-4 h-4" />
+                    <Search className="w-6 h-6" />
                   </button>
                 </div>
               </div>
@@ -222,21 +222,21 @@ export default function TrueViewHome() {
             
             {/* Suggestions Dropdown - Connected directly to search box */}
             {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 bg-white rounded-b-2xl shadow-2xl border border-gray-200 border-t-0 overflow-hidden max-h-60 overflow-y-auto" style={{ zIndex: 999999 }}>
+              <div className="absolute top-full left-0 right-0 bg-white rounded-b-3xl shadow-2xl border border-gray-200 border-t-0 overflow-hidden max-h-60 overflow-y-auto" style={{ zIndex: 999999 }}>
                 {suggestions.map((suggestion, index) => (
                   <button
                     key={index}
                     type="button"
                     onClick={() => handleSuggestionClick(suggestion)}
-                    className="w-full px-4 sm:px-6 py-3 text-left hover:bg-blue-50 active:bg-blue-100 border-b border-gray-100 last:border-b-0 flex items-center space-x-3 transition-colors text-sm sm:text-base"
+                    className="w-full px-6 py-4 text-left hover:bg-blue-50 active:bg-blue-100 border-b border-gray-100 last:border-b-0 flex items-center space-x-4 transition-colors text-base"
                   >
                     {/* Icon based on suggestion type */}
                     {suggestion.includes(', CA') || suggestion.includes(', AZ') || suggestion.includes(', TX') ? (
-                      <MapPin className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                      <MapPin className="w-5 h-5 text-blue-500 flex-shrink-0" />
                     ) : suggestion.includes('Living') || suggestion.includes('Care') || suggestion.includes('Nursing') ? (
-                      <Heart className="w-4 h-4 text-red-500 flex-shrink-0" />
+                      <Heart className="w-5 h-5 text-red-500 flex-shrink-0" />
                     ) : (
-                      <Search className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                      <Search className="w-5 h-5 text-gray-500 flex-shrink-0" />
                     )}
                     <span className="text-gray-800 font-medium">{suggestion}</span>
                   </button>
@@ -245,31 +245,31 @@ export default function TrueViewHome() {
             )}
           </div>
 
-          {/* Primary & Secondary CTAs */}
-          <div className="flex flex-col sm:flex-row gap-3 mb-4 animate-fade-in-up animation-delay-700">
+          {/* Primary & Secondary CTAs - Larger */}
+          <div className="flex flex-col sm:flex-row gap-4 mb-6 animate-fade-in-up animation-delay-700">
             <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}>
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-xl font-medium text-sm shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 border-0">
+              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl font-medium text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 border-0">
                 Start Your All-in-One Planner
               </Button>
             </Link>
             <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}>
-              <Button variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-6 py-2.5 rounded-xl font-medium text-sm shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-white/10 backdrop-blur-sm">
+              <Button variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 rounded-2xl font-medium text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-white/10 backdrop-blur-sm">
                 Explore Communities
               </Button>
             </Link>
           </div>
           
-          {/* Community Count Text */}
-          <div className="mb-3 animate-fade-in-up animation-delay-750">
-            <p className="text-white/90 text-xs drop-shadow-md text-center">
+          {/* Community Count Text - Larger */}
+          <div className="mb-4 animate-fade-in-up animation-delay-750">
+            <p className="text-white/90 text-sm md:text-base drop-shadow-md text-center">
               Serving families across <strong className="text-amber-200">8,000+ verified senior living communities</strong>
             </p>
           </div>
           
-          {/* Verification Badge */}
-          <div className="mb-6 animate-fade-in-up animation-delay-800">
-            <div className="inline-flex items-center px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-full text-white text-xs font-medium shadow-lg">
-              <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+          {/* Verification Badge - Larger */}
+          <div className="mb-8 animate-fade-in-up animation-delay-800">
+            <div className="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium shadow-lg">
+              <div className="w-3 h-3 bg-green-400 rounded-full mr-3 animate-pulse"></div>
               Verified Pricing • Real Availability • No Pressure
             </div>
           </div>
