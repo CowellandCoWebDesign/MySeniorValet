@@ -171,10 +171,16 @@ export default function MapSearch() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setLocation('/')}
+                className="text-gray-600 hover:text-gray-900"
               >
                 ← Back
               </Button>
-              <h1 className="text-xl font-semibold">Map Search</h1>
+              <div className="flex items-center gap-2">
+                <Home className="w-5 h-5 text-blue-600" />
+                <span className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  MySeniorValet
+                </span>
+              </div>
             </div>
             
             <div className="flex items-center gap-2">
@@ -198,7 +204,7 @@ export default function MapSearch() {
       </div>
 
       {/* Search Bar */}
-      <div className="bg-white border-b p-4">
+      <div className="bg-gray-800 border-b border-gray-700 p-4">
         <div className="flex gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -207,21 +213,24 @@ export default function MapSearch() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleLocationSearch(searchQuery)}
-              className="pl-10"
+              className="pl-10 bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500"
             />
           </div>
-          <Button onClick={() => handleLocationSearch(searchQuery)}>
+          <Button 
+            onClick={() => handleLocationSearch(searchQuery)}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
             Search
           </Button>
         </div>
       </div>
 
       {/* Filters Bar */}
-      <div className="bg-white border-b p-4">
+      <div className="bg-gray-800 border-b border-gray-700 p-4">
         <div className="flex items-center gap-2 overflow-x-auto">
           <Drawer>
             <DrawerTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="border-gray-600 bg-gray-700 text-white hover:bg-gray-600">
                 <SlidersHorizontal className="w-4 h-4 mr-2" />
                 Filters
                 {activeFiltersCount > 0 && (
@@ -321,25 +330,25 @@ export default function MapSearch() {
 
           {/* Active Filters */}
           {filters.careType !== 'All Types' && (
-            <Badge variant="secondary" className="gap-1">
+            <Badge variant="secondary" className="gap-1 bg-gray-700 text-gray-200 hover:bg-gray-600">
               {filters.careType}
               <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({...filters, careType: 'All Types'})} />
             </Badge>
           )}
           {filters.budget !== 'Any Budget' && (
-            <Badge variant="secondary" className="gap-1">
+            <Badge variant="secondary" className="gap-1 bg-gray-700 text-gray-200 hover:bg-gray-600">
               {filters.budget}
               <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({...filters, budget: 'Any Budget'})} />
             </Badge>
           )}
           {filters.minRating > 0 && (
-            <Badge variant="secondary" className="gap-1">
+            <Badge variant="secondary" className="gap-1 bg-gray-700 text-gray-200 hover:bg-gray-600">
               {filters.minRating}+ Stars
               <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({...filters, minRating: 0})} />
             </Badge>
           )}
           {filters.amenities.map((amenity) => (
-            <Badge key={amenity} variant="secondary" className="gap-1">
+            <Badge key={amenity} variant="secondary" className="gap-1 bg-gray-700 text-gray-200 hover:bg-gray-600">
               {amenity}
               <X 
                 className="w-3 h-3 cursor-pointer" 
