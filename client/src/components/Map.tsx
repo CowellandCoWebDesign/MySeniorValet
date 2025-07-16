@@ -62,6 +62,7 @@ interface MapProps {
   };
   onCommunityClick?: (community: Community) => void;
   onBoundsChange?: (bounds: any) => void;
+  onClusterClick?: (clusterId: number, lat: number, lng: number, zoomLevel: number) => void;
   height?: string;
   center?: [number, number];
   zoom?: number;
@@ -135,6 +136,7 @@ export default function Map({
   searchFilters = {}, 
   onCommunityClick, 
   onBoundsChange,
+  onClusterClick,
   height = "500px",
   center = [37.0, -119.0], // Default to California center
   zoom = 6
@@ -263,6 +265,11 @@ export default function Map({
                 icon={clusterIcon}
                 eventHandlers={{
                   click: async () => {
+                    // Call cluster click callback with current zoom level
+                    if (onClusterClick) {
+                      onClusterClick(properties.cluster_id, lat, lng, currentZoom);
+                    }
+                    
                     // Get cluster expansion zoom to zoom into cluster
                     try {
                       const response = await fetch(`/api/communities/clusters/${properties.cluster_id}/expansion-zoom`);

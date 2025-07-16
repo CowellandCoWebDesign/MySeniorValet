@@ -164,6 +164,15 @@ export default function MapSearch() {
     setLocation(`/communities/${community.id}`);
   };
 
+  const handleClusterClick = (clusterId: number, lat: number, lng: number, zoomLevel: number) => {
+    // Only switch to list view for high zoom levels (close zoom)
+    // Zoom levels 11+ indicate user is looking at a specific area
+    if (zoomLevel >= 11) {
+      setViewMode('list');
+    }
+    // For lower zoom levels, just let the cluster expand normally
+  };
+
   const availableAmenities = [
     'Pet Friendly',
     'Fitness Center',
@@ -450,6 +459,7 @@ export default function MapSearch() {
             searchFilters={filters}
             onCommunityClick={handleCommunityClick}
             onBoundsChange={setMapBounds}
+            onClusterClick={handleClusterClick}
           />
         ) : (
           <div className="p-4">
