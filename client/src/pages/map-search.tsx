@@ -596,8 +596,8 @@ export default function MapSearch() {
 
       {/* Yelp-style Bottom Slide Panel */}
       <div 
-        className={`fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 shadow-2xl rounded-t-2xl transition-transform duration-300 ease-out z-50 ${
-          showBottomPanel ? 'translate-y-0' : 'translate-y-full'
+        className={`fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 shadow-2xl rounded-t-2xl transition-all duration-500 ease-out z-50 ${
+          showBottomPanel ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
         }`}
         style={{ height: `${panelHeight}vh` }}
       >
@@ -631,7 +631,9 @@ export default function MapSearch() {
         <div className="px-4 pb-3 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              {mapCommunities.length} communities in this area
+              {!mapBounds ? 'Position map to see communities' : 
+               isLoadingCommunities ? 'Loading communities...' : 
+               `${mapCommunities.length} communities in this area`}
             </h3>
             <Button
               variant="ghost"
@@ -646,7 +648,15 @@ export default function MapSearch() {
 
         {/* Panel Content - Scrollable */}
         <div className="flex-1 overflow-y-auto p-4">
-          {isLoadingCommunities ? (
+          {!mapBounds ? (
+            <div className="text-center py-8">
+              <MapIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+              <p className="text-gray-600 dark:text-gray-400">Position the map to see communities</p>
+              <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
+                Pan and zoom the map to load communities in the current area
+              </p>
+            </div>
+          ) : isLoadingCommunities ? (
             <div className="space-y-4">
               {[...Array(3)].map((_, i) => (
                 <div key={i} className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 animate-pulse">
@@ -719,7 +729,10 @@ export default function MapSearch() {
       {/* Floating Action Button to Show Panel */}
       {viewMode === 'map' && !showBottomPanel && (
         <button
-          onClick={() => setShowBottomPanel(true)}
+          onClick={() => {
+            setShowBottomPanel(true);
+            setPanelHeight(60); // Set to a good default height
+          }}
           className="fixed bottom-6 right-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 z-40"
         >
           <List className="w-6 h-6" />
