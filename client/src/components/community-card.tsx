@@ -20,15 +20,6 @@ export function CommunityCard({ community }: CommunityCardProps) {
     careTypes: false,
   });
 
-  // Debug: Log pricing data for the first few communities
-  if (community.id <= 400) {
-    console.log(`DEBUG: Community ${community.name} (ID: ${community.id}):`, {
-      priceRange: community.priceRange,
-      pricingType: community.pricingType,
-      pricingLastUpdated: community.pricingLastUpdated
-    });
-  }
-
   const toggleSection = (section: 'amenities' | 'services' | 'careTypes') => {
     setExpandedSections(prev => ({
       ...prev,
@@ -382,14 +373,22 @@ export function CommunityCard({ community }: CommunityCardProps) {
             {((community.badges && (community.badges.includes('Featured') || community.badges.includes('Premium'))) || community.isClaimed) ? (
               <div>
                 <div className="text-2xl font-bold text-blue-900 mb-2">
-                  ${(community.priceRange?.min || 3500).toLocaleString()} - ${(community.priceRange?.max || 6500).toLocaleString()}
+                  {community.priceRange ? (
+                    `$${community.priceRange.min.toLocaleString()} - $${community.priceRange.max.toLocaleString()}`
+                  ) : (
+                    "Contact for Pricing"
+                  )}
                 </div>
                 <div className="text-sm text-blue-700 mb-3">Live pricing from community owner (updated {new Date(community.lastPriceUpdate || Date.now()).toLocaleDateString()})</div>
               </div>
             ) : (
               <div>
                 <div className="text-2xl font-bold text-green-900 mb-2">
-                  ${(community.priceRange?.min || 3500).toLocaleString()} - ${(community.priceRange?.max || 6500).toLocaleString()}
+                  {community.priceRange ? (
+                    `$${community.priceRange.min.toLocaleString()} - $${community.priceRange.max.toLocaleString()}`
+                  ) : (
+                    "Contact for Pricing"
+                  )}
                 </div>
                 <div className="text-sm text-green-700 mb-3">Estimated monthly range based on authentic market research</div>
               </div>
@@ -398,8 +397,9 @@ export function CommunityCard({ community }: CommunityCardProps) {
             {/* Care Level Estimates */}
             <div className="space-y-2">
               {community.careTypes.map((careType, index) => {
-                const baseMin = community.priceRange?.min || 3500;
-                const baseMax = community.priceRange?.max || 6500;
+                if (!community.priceRange) return null;
+                const baseMin = community.priceRange.min;
+                const baseMax = community.priceRange.max;
                 
                 // Enhanced multipliers based on industry standards
                 const multiplier = careType === 'Independent Living' ? 0.7 : 
