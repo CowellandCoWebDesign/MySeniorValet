@@ -427,8 +427,8 @@ Let me know what you think!`;
         features: unit.features,
         details: unit.details,
         available: availableUnits,
-        price: community.monthlyRent ? 
-          community.monthlyRent + (index * 400) : 
+        price: community.priceRange ? 
+          community.priceRange.min + (index * 400) : 
           (community.state === 'CA' ? 4800 : community.state === 'TX' ? 3600 : 4200) + (index * 400),
         moveInDate: availableUnits > 0 ? 
           (index % 2 === 0 ? 'Available now' : 'Available in 2-3 weeks') : 
@@ -753,12 +753,10 @@ Let me know what you think!`;
                         </Badge>
                       </div>
                       <div className="text-3xl font-bold text-gray-900 mb-1">
-                        ${community.monthlyRent ? community.monthlyRent.toLocaleString() : (
-                          community.state === 'CA' ? (4800 + (community.id % 800)).toLocaleString() :
-                          community.state === 'TX' ? (3600 + (community.id % 600)).toLocaleString() :
-                          community.state === 'FL' ? (3800 + (community.id % 700)).toLocaleString() :
-                          (4200 + (community.id % 600)).toLocaleString()
-                        )}
+                        {community.priceRange ? 
+                          `$${community.priceRange.min.toLocaleString()} - $${community.priceRange.max.toLocaleString()}` : 
+                          'Contact for Pricing'
+                        }
                         {!community.claimed && (
                           <span className="text-sm text-gray-500 ml-2 font-normal">est.</span>
                         )}

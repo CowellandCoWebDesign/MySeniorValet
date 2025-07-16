@@ -250,7 +250,7 @@ export default function TrueViewSearch() {
                   
                   {/* Price Badge */}
                   <Badge className="absolute bottom-3 left-3 bg-gray-900 text-white text-xs px-2 py-1 font-medium">
-                    {community.monthlyRent ? `$${(community.monthlyRent / 1000).toFixed(1)}K+` : '$4K+'}
+                    {community.priceRange ? `$${(community.priceRange.min / 1000).toFixed(1)}K+` : 'Contact'}
                   </Badge>
                   
                   {/* Achievement Badge - Special Recognition */}
@@ -274,7 +274,7 @@ export default function TrueViewSearch() {
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between mb-2">
                     <div className="text-xl font-bold text-gray-900">
-                      {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : '$4,200'}
+                      {community.priceRange ? `$${community.priceRange.min.toLocaleString()}+` : 'Contact for Pricing'}
                     </div>
                     {index % 3 === 0 && (
                       <div className="flex items-center text-xs text-green-600 font-medium">
