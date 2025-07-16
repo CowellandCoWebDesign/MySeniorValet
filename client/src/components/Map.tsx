@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { Icon, LatLngBounds, LatLng } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -70,44 +70,40 @@ interface MapProps {
 // Component to handle map bounds changes
 function MapBoundsHandler({ onBoundsChange }: { onBoundsChange: (bounds: LatLngBounds) => void }) {
   const map = useMap();
+  const [initialized, setInitialized] = useState(false);
+  
+  const handleBoundsChange = useCallback(() => {
+    try {
+      if (map && map.getBounds) {
+        onBoundsChange(map.getBounds());
+      }
+    } catch (error) {
+      console.warn('Error getting map bounds:', error);
+    }
+  }, [map, onBoundsChange]);
   
   useEffect(() => {
-    const handleBoundsChange = () => {
-      try {
-        if (map && map.getBounds) {
-          onBoundsChange(map.getBounds());
-        }
-      } catch (error) {
-        console.warn('Error getting map bounds:', error);
-      }
-    };
-    
-    if (map) {
+    if (map && !initialized) {
       map.on('moveend', handleBoundsChange);
       map.on('zoomend', handleBoundsChange);
       
-      // Initial bounds with delay to ensure map is ready
-      setTimeout(() => {
-        handleBoundsChange();
-      }, 500);
-      
-      // Also trigger bounds change when map loads completely
+      // Initial bounds when map is ready
       map.whenReady(() => {
         setTimeout(() => {
           handleBoundsChange();
         }, 100);
       });
       
-      return () => {
-        try {
-          map.off('moveend', handleBoundsChange);
-          map.off('zoomend', handleBoundsChange);
-        } catch (error) {
-          console.warn('Error removing map event listeners:', error);
-        }
-      };
+      setInitialized(true);
     }
-  }, [map, onBoundsChange]);
+    
+    return () => {
+      if (map) {
+        map.off('moveend', handleBoundsChange);
+        map.off('zoomend', handleBoundsChange);
+      }
+    };
+  }, [map, handleBoundsChange, initialized]);
   
   return null;
 }
@@ -123,54 +119,37 @@ export default function Map({
   const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
   
-  // Initialize with default bounds for San Francisco area
-  useEffect(() => {
-    if (!mapBounds) {
-      // Create default bounds for San Francisco area
-      const defaultBounds = new LatLngBounds(
-        new LatLng(37.7049, -122.5262), // Southwest
-        new LatLng(37.8449, -122.3832)  // Northeast
-      );
-      setMapBounds(defaultBounds);
-      onBoundsChange?.(defaultBounds);
-    }
-  }, []);
-  
-  // Update bounds when center changes
-  useEffect(() => {
-    if (center && center.length === 2) {
-      const lat = center[0];
-      const lng = center[1];
-      // Create bounds around the new center
-      const offset = 0.1; // Adjust as needed
-      const newBounds = new LatLngBounds(
-        new LatLng(lat - offset, lng - offset), // Southwest
-        new LatLng(lat + offset, lng + offset)  // Northeast
-      );
-      setMapBounds(newBounds);
-      onBoundsChange?.(newBounds);
-    }
-  }, [center]);
-  
-  const handleBoundsChange = (bounds: LatLngBounds) => {
+  const handleBoundsChange = useCallback((bounds: LatLngBounds) => {
     setMapBounds(bounds);
     onBoundsChange?.(bounds);
-  };
+  }, [onBoundsChange]);
 
   // Fetch communities within map bounds using PostGIS spatial search
   const { data: communities = [], isLoading, error } = useQuery({
     queryKey: ['communities-spatial', mapBounds, searchFilters],
     queryFn: async () => {
-      if (!mapBounds) return [];
+      let swLat, swLng, neLat, neLng;
       
-      const sw = mapBounds.getSouthWest();
-      const ne = mapBounds.getNorthEast();
+      if (!mapBounds) {
+        // Use default San Francisco bounds
+        swLat = '37.7049';
+        swLng = '-122.5262';
+        neLat = '37.8449';
+        neLng = '-122.3832';
+      } else {
+        const sw = mapBounds.getSouthWest();
+        const ne = mapBounds.getNorthEast();
+        swLat = sw.lat.toString();
+        swLng = sw.lng.toString();
+        neLat = ne.lat.toString();
+        neLng = ne.lng.toString();
+      }
       
       const params = new URLSearchParams({
-        swLat: sw.lat.toString(),
-        swLng: sw.lng.toString(),
-        neLat: ne.lat.toString(),
-        neLng: ne.lng.toString(),
+        swLat,
+        swLng,
+        neLat,
+        neLng,
         limit: '300',
         ...(searchFilters.careType && { careType: searchFilters.careType }),
         ...(searchFilters.minRating && { minRating: searchFilters.minRating.toString() }),
@@ -184,7 +163,7 @@ export default function Map({
       
       return response.json();
     },
-    enabled: !!mapBounds,
+    enabled: true, // Always enabled - will use fallback bounds if needed
     staleTime: 30000, // Cache for 30 seconds
   });
 
