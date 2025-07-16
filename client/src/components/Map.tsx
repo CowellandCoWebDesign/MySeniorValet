@@ -150,15 +150,16 @@ export default function Map({
       }
       
       // Calculate appropriate limit based on zoom level (approximate)
-      const bounds = mapBounds ? mapBounds : null;
-      let limit = '500';
+      const bounds = mapBounds;
+      let limit = '4000'; // Default to state-wide limit for California bounds
+      let area = 0;
       
       if (bounds) {
         const sw = bounds.getSouthWest();
         const ne = bounds.getNorthEast();
         const latSpan = ne.lat - sw.lat;
         const lngSpan = ne.lng - sw.lng;
-        const area = latSpan * lngSpan;
+        area = latSpan * lngSpan;
         
         // Optimize for state-wide viewing and nationwide scaling
         if (area > 5000) limit = '8000'; // Continental US level
@@ -170,6 +171,10 @@ export default function Map({
         else if (area > 5) limit = '1000'; // City level
         else if (area > 1) limit = '800'; // City districts
         else limit = '500'; // Neighborhood level
+      } else {
+        // When no bounds (initial load), use California state area calculation
+        area = (42.0 - 32.0) * (-114.0 - (-124.0)); // California state bounds area = 100
+        limit = '4000'; // State-wide level for California
       }
       
       const params = new URLSearchParams({
@@ -227,6 +232,7 @@ export default function Map({
           zoom={zoom}
           minZoom={1}
           maxZoom={19}
+          bounds={[[32.0, -124.0], [42.0, -114.0]]} // California state bounds
           style={{ height: '100%', width: '100%' }}
           className="rounded-lg"
         >
