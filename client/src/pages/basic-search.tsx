@@ -485,11 +485,11 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                   
                   <div className="p-3">
                     <div className="text-lg font-bold text-gray-900 mb-1">
-                      {community.monthlyRent 
-                        ? `$${community.monthlyRent.toLocaleString()}/mo` 
+                      {community.priceRange && community.priceRange.min 
+                        ? `Starting at $${community.priceRange.min.toLocaleString()}` 
                         : 'Contact for pricing'
                       }
-                      {community.monthlyRent && !community.claimed && (
+                      {community.priceRange && community.priceRange.min && !community.claimed && (
                         <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
                       )}
                     </div>
@@ -548,11 +548,11 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                   
                   <div className="p-3">
                     <div className="text-lg font-bold text-gray-900 mb-1">
-                      {community.monthlyRent 
-                        ? `$${community.monthlyRent.toLocaleString()}/mo` 
+                      {community.priceRange && community.priceRange.min 
+                        ? `Starting at $${community.priceRange.min.toLocaleString()}` 
                         : 'Contact for pricing'
                       }
-                      {community.monthlyRent && !community.claimed && (
+                      {community.priceRange && community.priceRange.min && !community.claimed && (
                         <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
                       )}
                     </div>
@@ -612,8 +612,8 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                 
                 <div className="flex items-center justify-between">
                   <div className="text-lg font-bold text-blue-600">
-                    {community.monthlyRent 
-                      ? `$${community.monthlyRent.toLocaleString()}/mo` 
+                    {community.priceRange && community.priceRange.min 
+                      ? `Starting at $${community.priceRange.min.toLocaleString()}` 
                       : 'Contact for pricing'
                     }
                   </div>

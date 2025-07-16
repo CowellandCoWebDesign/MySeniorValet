@@ -455,7 +455,7 @@ export default function TrueViewHome() {
                   )}
                   
                   <div className="text-xl font-bold text-gray-900 mb-2">
-                    {community.priceRange && community.priceRange.min ? `$${community.priceRange.min.toLocaleString()}` : '$3,800'}
+                    {community.priceRange && community.priceRange.min ? `Starting at $${community.priceRange.min.toLocaleString()}` : 'Starting at $3,800'}
                     {!community.claimed && (
                       <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
                     )}
@@ -731,7 +731,7 @@ export default function TrueViewHome() {
                       )}
                       
                       <div className="text-xl font-bold text-gray-900 mb-2">
-                        {community.priceRange && community.priceRange.min ? `$${community.priceRange.min.toLocaleString()}` : '$4,200'}
+                        {community.priceRange && community.priceRange.min ? `Starting at $${community.priceRange.min.toLocaleString()}` : 'Starting at $4,200'}
                         {!community.claimed && (
                           <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
                         )}
@@ -1334,7 +1334,7 @@ export default function TrueViewHome() {
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between mb-2">
                     <div className="text-xl font-bold text-gray-900">
-                      {community.priceRange && community.priceRange.min ? `$${community.priceRange.min.toLocaleString()}` : '$4,200'}
+                      {community.priceRange && community.priceRange.min ? `Starting at $${community.priceRange.min.toLocaleString()}` : 'Starting at $4,200'}
                     </div>
                     {index % 3 === 0 && (
                       <div className="flex items-center text-xs text-green-600 font-medium">
