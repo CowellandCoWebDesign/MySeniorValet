@@ -117,8 +117,8 @@ export default function Map({
   onCommunityClick, 
   onBoundsChange,
   height = "500px",
-  center = [39.8283, -98.5795], // Default to center of USA
-  zoom = 4
+  center = [37.7749, -122.4194], // Default to San Francisco
+  zoom = 12
 }: MapProps) {
   const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
@@ -155,7 +155,7 @@ export default function Map({
 
   // Determine map center based on user location or fallback
   const mapCenter = userLocation || center;
-  const mapZoom = userLocation ? 10 : (locationDenied ? 4 : zoom);
+  const mapZoom = userLocation ? 12 : zoom;
 
   // Fetch communities within map bounds using PostGIS spatial search
   const { data: communities = [], isLoading, error } = useQuery({
@@ -164,11 +164,11 @@ export default function Map({
       let swLat, swLng, neLat, neLng;
       
       if (!mapBounds) {
-        // Use default continental US bounds (includes Puerto Rico at 18.4655°N, 66.1057°W)
-        swLat = '17.5'; // Puerto Rico southern bound
-        swLng = '-179.0'; // Alaska western bound
-        neLat = '71.0'; // Alaska northern bound
-        neLng = '-65.0'; // US Virgin Islands eastern bound
+        // Use default San Francisco bounds
+        swLat = '37.7049';
+        swLng = '-122.5262';
+        neLat = '37.8449';
+        neLng = '-122.3832';
       } else {
         const sw = mapBounds.getSouthWest();
         const ne = mapBounds.getNorthEast();
@@ -189,12 +189,11 @@ export default function Map({
         const lngSpan = ne.lng - sw.lng;
         const area = latSpan * lngSpan;
         
-        // Adjust limit based on visible area - optimized for 40,000+ communities
-        if (area > 500) limit = '5000'; // Continental/multi-state level
-        else if (area > 100) limit = '3000'; // State/regional level
-        else if (area > 10) limit = '2000'; // Multi-city level
-        else if (area > 1) limit = '1000'; // City level
-        else limit = '500'; // Neighborhood level
+        // Adjust limit based on visible area - controlled loading
+        if (area > 100) limit = '1000'; // State/regional level
+        else if (area > 10) limit = '800'; // Multi-city level
+        else if (area > 1) limit = '600'; // City level
+        else limit = '400'; // Neighborhood level
       }
       
       const params = new URLSearchParams({
@@ -388,12 +387,58 @@ export default function Map({
         </div>
       )}
       
-      {/* Community Count */}
+      {/* Community Count and Location Status */}
       {!isLoading && communities.length > 0 && (
         <div className="absolute bottom-4 left-4 bg-white p-2 rounded shadow-lg">
           <span className="text-sm font-medium">
-            {communities.length} communities found
+            {communities.length} communities shown
           </span>
+          {userLocation && (
+            <div className="text-xs text-gray-600 mt-1">
+              📍 Showing near your location
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Location Permission Prompt */}
+      {!userLocation && !locationDenied && (
+        <div className="absolute top-4 right-4 bg-blue-50 border border-blue-200 p-3 rounded-lg shadow-lg max-w-sm">
+          <div className="flex items-center gap-2 text-blue-800">
+            <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+            <span className="text-sm font-medium">Requesting location access...</span>
+          </div>
+          <p className="text-xs text-blue-600 mt-1">
+            Allow location access to see communities near you
+          </p>
+        </div>
+      )}
+
+      {/* Find My Location Button */}
+      {(locationDenied || !userLocation) && (
+        <div className="absolute top-4 right-4 z-50">
+          <Button
+            size="sm"
+            onClick={() => {
+              setLocationDenied(false);
+              if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                  (position) => {
+                    const { latitude, longitude } = position.coords;
+                    setUserLocation([latitude, longitude]);
+                  },
+                  (error) => {
+                    console.log('Location access denied:', error);
+                    setLocationDenied(true);
+                  }
+                );
+              }
+            }}
+            className="bg-white text-blue-600 hover:bg-blue-50 border border-blue-200 shadow-lg"
+          >
+            <MapPin className="w-4 h-4 mr-1" />
+            Find My Location
+          </Button>
         </div>
       )}
       </div>
