@@ -60,6 +60,8 @@ export default function MapSearch() {
   const [mapZoom, setMapZoom] = useState(6);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
   const [mapBounds, setMapBounds] = useState<any>(null);
+  const [showBottomPanel, setShowBottomPanel] = useState(false);
+  const [panelHeight, setPanelHeight] = useState(40); // Percentage of screen height
   
   // Fetch communities within map bounds for list view
   const { data: mapCommunities = [], isLoading: isLoadingCommunities } = useQuery({
@@ -196,22 +198,42 @@ export default function MapSearch() {
               </Button>
               
               {/* View Mode Toggles */}
-              <Button
-                variant={viewMode === 'map' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setViewMode('map')}
-                className={isDarkMode && viewMode !== 'map' ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : ''}
-              >
-                <MapIcon className="w-4 h-4" />
-              </Button>
-              <Button
-                variant={viewMode === 'list' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setViewMode('list')}
-                className={isDarkMode && viewMode !== 'list' ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : ''}
-              >
-                <List className="w-4 h-4" />
-              </Button>
+              <div className="flex items-center gap-1 bg-gray-200 dark:bg-gray-700 rounded-lg p-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setViewMode('map')}
+                  className={`relative transition-all duration-300 ${
+                    viewMode === 'map' 
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg transform scale-105' 
+                      : isDarkMode 
+                      ? 'text-gray-300 hover:text-white hover:bg-gray-600' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  <MapIcon className="w-4 h-4" />
+                  {viewMode === 'map' && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-md animate-pulse opacity-20"></div>
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setViewMode('list')}
+                  className={`relative transition-all duration-300 ${
+                    viewMode === 'list' 
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg transform scale-105' 
+                      : isDarkMode 
+                      ? 'text-gray-300 hover:text-white hover:bg-gray-600' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  <List className="w-4 h-4" />
+                  {viewMode === 'list' && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-md animate-pulse opacity-20"></div>
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -571,6 +593,138 @@ export default function MapSearch() {
           </div>
         )}
       </div>
+
+      {/* Yelp-style Bottom Slide Panel */}
+      <div 
+        className={`fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 shadow-2xl rounded-t-2xl transition-transform duration-300 ease-out z-50 ${
+          showBottomPanel ? 'translate-y-0' : 'translate-y-full'
+        }`}
+        style={{ height: `${panelHeight}vh` }}
+      >
+        {/* Panel Handle */}
+        <div className="flex justify-center pt-3 pb-2">
+          <div 
+            className="w-12 h-1 bg-gray-300 rounded-full cursor-grab active:cursor-grabbing"
+            onMouseDown={(e) => {
+              // Add drag functionality for resizing panel
+              const startY = e.clientY;
+              const startHeight = panelHeight;
+              
+              const handleMouseMove = (e: MouseEvent) => {
+                const deltaY = startY - e.clientY;
+                const newHeight = Math.max(20, Math.min(80, startHeight + (deltaY / window.innerHeight) * 100));
+                setPanelHeight(newHeight);
+              };
+              
+              const handleMouseUp = () => {
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+              };
+              
+              document.addEventListener('mousemove', handleMouseMove);
+              document.addEventListener('mouseup', handleMouseUp);
+            }}
+          />
+        </div>
+
+        {/* Panel Header */}
+        <div className="px-4 pb-3 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              {mapCommunities.length} communities in this area
+            </h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowBottomPanel(false)}
+              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Panel Content - Scrollable */}
+        <div className="flex-1 overflow-y-auto p-4">
+          {isLoadingCommunities ? (
+            <div className="space-y-4">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 animate-pulse">
+                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-3/4"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                </div>
+              ))}
+            </div>
+          ) : mapCommunities.length === 0 ? (
+            <div className="text-center py-8">
+              <MapIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+              <p className="text-gray-600 dark:text-gray-400">No communities found in current area</p>
+              <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
+                Try adjusting your search location or zoom level
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {mapCommunities.map((community, index) => (
+                <div
+                  key={community.id}
+                  className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => handleCommunityClick(community)}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-gray-900 dark:text-white line-clamp-1">
+                        {community.name}
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-1 mt-1">
+                        {community.address}, {community.city}, {community.state}
+                      </p>
+                      
+                      {/* Rating and Price */}
+                      <div className="flex items-center justify-between mt-2">
+                        <div className="flex items-center gap-2">
+                          {community.rating > 0 && (
+                            <div className="flex items-center gap-1">
+                              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                {community.rating}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="text-right">
+                          <div className="text-sm font-bold text-gray-900 dark:text-white">
+                            {typeof community.priceRange === 'string' 
+                              ? community.priceRange 
+                              : community.priceRange?.min 
+                              ? `$${community.priceRange.min.toLocaleString()}`
+                              : '$3,800'}
+                            {!community.claimed && (
+                              <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Floating Action Button to Show Panel */}
+      {viewMode === 'map' && !showBottomPanel && (
+        <button
+          onClick={() => setShowBottomPanel(true)}
+          className="fixed bottom-6 right-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 z-40"
+        >
+          <List className="w-6 h-6" />
+        </button>
+      )}
     </div>
   );
 }
