@@ -10,6 +10,7 @@
 import { db } from "./db";
 import { communities } from "@shared/schema";
 import { eq, and, or, sql } from "drizzle-orm";
+import { searchCache, communityCache, apiCache } from "./infrastructure/cache";
 
 interface PricingEstimate {
   min: number;
@@ -404,6 +405,13 @@ class IntelligentPricingService {
       }
       
       console.log(`✅ UNIVERSAL PRICING COVERAGE ACHIEVED! Updated ${updated} communities, skipped ${skippedServiceProviders} service providers.`);
+      
+      // Clear all cached data that depends on community pricing
+      console.log('🗑️ Clearing homepage and search caches to reflect updated pricing...');
+      await searchCache.clear();
+      await communityCache.clear();
+      await apiCache.clear();
+      console.log('✅ Cache cleared - updated pricing will now be visible on homepage and search results');
     } catch (error) {
       console.error('Error updating community pricing:', error);
     }

@@ -3016,6 +3016,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Cache clearing admin route for testing
+  app.post('/api/admin/clear-cache', async (req, res) => {
+    try {
+      console.log('🗑️ Manual cache clearing requested...');
+      
+      // Clear all caches
+      await searchCache.clear();
+      await communityCache.clear();
+      await apiCache.clear();
+      
+      res.json({
+        success: true,
+        message: 'All caches cleared successfully - homepage and search results will refresh',
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error clearing cache:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to clear cache',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Get all states compliance summary
   app.get('/api/compliance/states', async (req, res) => {
     try {
