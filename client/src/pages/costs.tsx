@@ -73,6 +73,22 @@ export default function Costs() {
     const affordable = recommendedBudget >= careData.min;
     const stretchAffordable = maxBudget >= careData.min;
 
+    // Calculate at-home costs for comparison
+    const atHomeCosts = {
+      rent: Math.floor(income * 0.25), // 25% of income for housing
+      utilities: 200,
+      groceries: 400,
+      transportation: 300,
+      healthcare: 500,
+      homecare: careLevel === 'memorycare' ? 3500 : careLevel === 'assistedLiving' ? 2500 : careLevel === 'skilled' ? 4500 : 1500,
+      misc: 300
+    };
+    
+    const totalAtHomeCosts = Object.values(atHomeCosts).reduce((sum, cost) => sum + cost, 0);
+    const seniorLivingAverage = Math.floor((careData.min + careData.max) / 2);
+    const monthlySavings = totalAtHomeCosts - seniorLivingAverage;
+    const yearlyDifference = monthlySavings * 12;
+
     setAffordabilityResult({
       income,
       recommendedBudget,
@@ -81,7 +97,12 @@ export default function Costs() {
       affordable,
       stretchAffordable,
       state: selectedState,
-      careType: careTypeLabels[careLevel as keyof typeof careTypeLabels]
+      careType: careTypeLabels[careLevel as keyof typeof careTypeLabels],
+      atHomeCosts,
+      totalAtHomeCosts,
+      seniorLivingAverage,
+      monthlySavings,
+      yearlyDifference
     });
   };
 
@@ -336,6 +357,107 @@ export default function Costs() {
                             </div>
                           </div>
                         </div>
+
+                        {/* At-Home vs Senior Living Comparison */}
+                        {affordabilityResult.atHomeCosts && (
+                          <div className="bg-gradient-to-br from-green-50 to-blue-50 p-4 rounded-xl border border-green-200">
+                            <div className="flex items-center mb-3">
+                              <MapPin className="w-5 h-5 text-green-600 mr-2" />
+                              <span className="font-semibold text-green-800">At-Home vs Senior Living Costs</span>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-4 mb-4">
+                              {/* At-Home Costs */}
+                              <div className="bg-white p-3 rounded-lg border border-gray-200">
+                                <h5 className="font-semibold text-gray-900 mb-2 text-sm">At-Home Costs</h5>
+                                <div className="space-y-1 text-xs">
+                                  <div className="flex justify-between">
+                                    <span>Rent/Mortgage:</span>
+                                    <span>{formatCurrency(affordabilityResult.atHomeCosts.rent)}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>Utilities:</span>
+                                    <span>{formatCurrency(affordabilityResult.atHomeCosts.utilities)}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>Groceries:</span>
+                                    <span>{formatCurrency(affordabilityResult.atHomeCosts.groceries)}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>Transportation:</span>
+                                    <span>{formatCurrency(affordabilityResult.atHomeCosts.transportation)}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>Healthcare:</span>
+                                    <span>{formatCurrency(affordabilityResult.atHomeCosts.healthcare)}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>Home Care:</span>
+                                    <span>{formatCurrency(affordabilityResult.atHomeCosts.homecare)}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>Miscellaneous:</span>
+                                    <span>{formatCurrency(affordabilityResult.atHomeCosts.misc)}</span>
+                                  </div>
+                                  <div className="flex justify-between border-t pt-1 font-semibold">
+                                    <span>Total Monthly:</span>
+                                    <span>{formatCurrency(affordabilityResult.totalAtHomeCosts)}</span>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {/* Senior Living Costs */}
+                              <div className="bg-white p-3 rounded-lg border border-gray-200">
+                                <h5 className="font-semibold text-gray-900 mb-2 text-sm">Senior Living</h5>
+                                <div className="space-y-1 text-xs">
+                                  <div className="flex justify-between">
+                                    <span>All-Inclusive Care:</span>
+                                    <span>{formatCurrency(affordabilityResult.seniorLivingAverage)}</span>
+                                  </div>
+                                  <div className="text-gray-600 text-xs mt-2">
+                                    <p>Includes: Housing, meals, utilities, housekeeping, activities, and care services</p>
+                                  </div>
+                                  <div className="flex justify-between border-t pt-1 font-semibold mt-4">
+                                    <span>Total Monthly:</span>
+                                    <span>{formatCurrency(affordabilityResult.seniorLivingAverage)}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Savings/Cost Difference */}
+                            <div className={`p-3 rounded-lg border text-center ${
+                              affordabilityResult.monthlySavings > 0 
+                                ? 'bg-red-50 border-red-200' 
+                                : 'bg-green-50 border-green-200'
+                            }`}>
+                              <div className="flex items-center justify-center mb-2">
+                                {affordabilityResult.monthlySavings > 0 ? (
+                                  <AlertCircle className="w-4 h-4 text-red-600 mr-2" />
+                                ) : (
+                                  <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
+                                )}
+                                <span className={`font-semibold text-sm ${
+                                  affordabilityResult.monthlySavings > 0 ? 'text-red-800' : 'text-green-800'
+                                }`}>
+                                  {affordabilityResult.monthlySavings > 0 ? 'Additional Cost' : 'Potential Savings'}
+                                </span>
+                              </div>
+                              <div className="space-y-1">
+                                <div className={`text-lg font-bold ${
+                                  affordabilityResult.monthlySavings > 0 ? 'text-red-600' : 'text-green-600'
+                                }`}>
+                                  {formatCurrency(Math.abs(affordabilityResult.monthlySavings))} /month
+                                </div>
+                                <div className={`text-sm ${
+                                  affordabilityResult.monthlySavings > 0 ? 'text-red-600' : 'text-green-600'
+                                }`}>
+                                  {formatCurrency(Math.abs(affordabilityResult.yearlyDifference))} /year
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
 
                         <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
                           <div className="flex items-center mb-2">
