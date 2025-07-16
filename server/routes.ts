@@ -58,6 +58,7 @@ import { emergencyEnrichment } from "./emergency-enrichment";
 import { pricingTransparencyService } from "./pricing-transparency-badges";
 import { intelligentPricingService } from "./intelligent-pricing-service";
 import { nationwidePricingResearch } from "./nationwide-pricing-research";
+import { ServiceListingClassifier } from "./service-listing-classifier";
 
 // Authentication middleware function
 const isAuthenticated = (req: any, res: any, next: any) => {
@@ -1853,7 +1854,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Service listing classification endpoints
+  app.get("/api/admin/service-listings/scan", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 100;
+      const dryRun = req.query.dry_run !== 'false';
+      
+      const results = await ServiceListingClassifier.processServiceListings(dryRun);
+      
+      res.json({
+        summary: {
+          flagged: results.flagged,
+          needsReview: results.needsReview,
+          kept: results.kept,
+          dryRun
+        },
+        results: results.results
+      });
+    } catch (error) {
+      console.error('Error scanning service listings:', error);
+      res.status(500).json({ message: 'Failed to scan service listings' });
+    }
+  });
 
+  app.post("/api/admin/service-listings/process", async (req, res) => {
+    try {
+      const { dryRun = false } = req.body;
+      
+      const results = await ServiceListingClassifier.processServiceListings(dryRun);
+      
+      res.json({
+        message: dryRun ? 'Dry run completed' : 'Service listings processed',
+        summary: {
+          flagged: results.flagged,
+          needsReview: results.needsReview,
+          kept: results.kept,
+          dryRun
+        },
+        results: results.results
+      });
+    } catch (error) {
+      console.error('Error processing service listings:', error);
+      res.status(500).json({ message: 'Failed to process service listings' });
+    }
+  });
+
+  app.post("/api/admin/service-listings/flag/:id", async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) {
+        return res.status(400).json({ message: "Invalid community ID" });
+      }
+
+      const community = await db.select().from(communities).where(eq(communities.id, communityId)).limit(1);
+      if (community.length === 0) {
+        return res.status(404).json({ message: "Community not found" });
+      }
+
+      const analysis = ServiceListingClassifier.analyzeListing({
+        id: community[0].id,
+        name: community[0].name,
+        address: community[0].address,
+        phone: community[0].phone,
+        description: community[0].description,
+        facility_type: community[0].facilityType,
+        data_source: community[0].dataSource
+      });
+
+      await ServiceListingClassifier.flagAsServiceProvider(communityId, analysis);
+
+      res.json({
+        message: 'Successfully flagged as service provider',
+        analysis
+      });
+    } catch (error) {
+      console.error('Error flagging service listing:', error);
+      res.status(500).json({ message: 'Failed to flag service listing' });
+    }
+  });
 
   // Get all communities (optimized with pagination)
   app.get("/api/communities", async (req, res) => {
