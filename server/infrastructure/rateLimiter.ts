@@ -124,10 +124,10 @@ export const generalLimiter = new TokenBucketRateLimiter(
 );
 
 export const searchLimiter = new TokenBucketRateLimiter(
-  isDev ? 1000 : 50,     // tokens: 1000 in dev, 50 in prod
-  isDev ? 100 : 5,       // refill rate: 100/sec in dev, 5/sec in prod
+  isDev ? 5000 : 500,    // tokens: 5000 in dev, 500 in prod - more permissive for search
+  isDev ? 500 : 50,      // refill rate: 500/sec in dev, 50/sec in prod
   60000, 
-  isDev ? 500 : 30       // max requests per minute: 500 in dev, 30 in prod
+  isDev ? 2000 : 300     // max requests per minute: 2000 in dev, 300 in prod
 );
 
 export const apiLimiter = new TokenBucketRateLimiter(
@@ -158,8 +158,11 @@ export const authLimiter = new TokenBucketRateLimiter(
 // Rate limiting middleware
 export function createRateLimitMiddleware(limiter: TokenBucketRateLimiter) {
   return (req: any, res: any, next: any) => {
-    // Skip rate limiting for search suggestions endpoint
-    if (req.path === '/api/search/suggestions') {
+    // Skip rate limiting for search-related endpoints
+    if (req.path === '/api/search/suggestions' || 
+        req.path.startsWith('/api/communities/search') ||
+        req.path === '/api/communities/by-location' ||
+        req.path.startsWith('/api/communities/by-location/')) {
       return next();
     }
     

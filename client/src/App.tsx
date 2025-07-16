@@ -56,7 +56,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={TrueViewHome} />
-      <Route path="/search" component={BasicSearch} />
+      <Route path="/search" component={MapSearch} />
       <Route path="/map" component={MapSearch} />
       {/* Rentals route removed - redirect to search */}
       {/* MapboxTest route removed */}

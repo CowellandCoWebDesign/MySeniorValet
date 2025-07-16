@@ -33,7 +33,12 @@ export function createRateLimit(maxRequests: number = SECURITY_CONFIG.rateLimiti
         req.path.endsWith('.map') ||
         req.path.includes('vite') ||
         req.path.includes('hmr') ||
-        req.path === '/api/search/suggestions') {
+        req.path === '/api/search/suggestions' ||
+        req.path.startsWith('/api/communities/search') ||
+        req.path.startsWith('/api/communities/by-location') ||
+        req.path.startsWith('/api/communities/count') ||
+        req.path.startsWith('/api/communities/trending') ||
+        req.path.startsWith('/api/communities/coastal')) {
       return next();
     }
     
