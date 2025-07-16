@@ -402,7 +402,7 @@ export default function MapSearch() {
             ) : (
               <div className="space-y-4">
                 {mapCommunities.map((community, index) => (
-                  <Card key={community.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group animate-float border-gray-200" style={{animationDelay: `${index * 0.1}s`}}>
+                  <Card key={community.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group border-gray-200 animate-fade-in-up" style={{animationDelay: `${index * 0.05}s`}}>
                     <div className="flex">
                       {/* Image Section */}
                       <div className="relative w-32 h-32 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center flex-shrink-0">
