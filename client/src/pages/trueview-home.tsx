@@ -244,7 +244,7 @@ export default function TrueViewHome() {
           </div>
 
           {/* Primary & Secondary CTAs */}
-          <div className="flex flex-col sm:flex-row gap-3 mb-3 animate-fade-in-up animation-delay-700">
+          <div className="flex flex-col sm:flex-row gap-3 mb-4 animate-fade-in-up animation-delay-700">
             <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}>
               <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-xl font-medium text-sm shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 border-0">
                 Start Your All-in-One Planner
@@ -258,14 +258,14 @@ export default function TrueViewHome() {
           </div>
           
           {/* Community Count Text */}
-          <div className="mb-2 animate-fade-in-up animation-delay-750">
+          <div className="mb-3 animate-fade-in-up animation-delay-750">
             <p className="text-white/90 text-xs drop-shadow-md text-center">
               Serving families across <strong className="text-amber-200">8,000+ verified senior living communities</strong>
             </p>
           </div>
           
           {/* Verification Badge */}
-          <div className="mb-4 animate-fade-in-up animation-delay-800">
+          <div className="mb-6 animate-fade-in-up animation-delay-800">
             <div className="inline-flex items-center px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-full text-white text-xs font-medium shadow-lg">
               <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
               Verified Pricing • Real Availability • No Pressure
