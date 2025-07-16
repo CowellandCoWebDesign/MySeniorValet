@@ -1,57 +1,138 @@
-import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { useLocation } from "wouter";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import { CommunityCard } from "@/components/community-card";
-import { CommunityCardSkeleton } from "@/components/community-card-skeleton";
-import { MapView } from "@/components/map-view";
-import { Breadcrumb } from "@/components/breadcrumb";
-import BottomNavigation from "@/components/BottomNavigation";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { List, Map as MapIcon, Filter, X, Search as SearchIcon, MapPin, Star, AlertTriangle } from "lucide-react";
-import type { Community, SearchCommunity } from "@shared/schema";
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'wouter';
+import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
+import { Separator } from '@/components/ui/separator';
+import Map from '@/components/Map';
+import BottomNavigation from '@/components/BottomNavigation';
+import { useQuery } from '@tanstack/react-query';
 
-interface SearchFilters {
-  location: string;
-  careType: string;
+interface Community {
+  id: number;
+  name: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  latitude: number;
+  longitude: number;
+  careTypes: string[];
+  rating: number;
+  reviewCount: number;
+  phone: string;
+  website: string;
   priceRange: string;
   availability: string;
-  minRating: string;
-  hasPhotos: boolean;
+  photos: string[];
+  description: string;
+}
+
+interface SearchFilters {
+  careType: string;
+  minRating: number;
+  amenities: string[];
+  budget: string;
+  availability: string;
 }
 
 export default function Search() {
-  const [location, setLocation] = useLocation();
+  const [, setLocation] = useLocation();
   
-  // Initialize filters from URL parameters
+  // Get search query from URL parameters
   const urlParams = new URLSearchParams(window.location.search);
+  const initialQuery = urlParams.get('q') || '';
+  
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
+  const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [filters, setFilters] = useState<SearchFilters>({
-    location: urlParams.get('location') || '',
-    careType: urlParams.get('careType') || 'all',
-    priceRange: urlParams.get('priceRange') || 'all',
-    availability: urlParams.get('availability') || 'all',
-    minRating: urlParams.get('minRating') || 'all',
-    hasPhotos: urlParams.get('hasPhotos') === 'true',
+    careType: 'All Types',
+    minRating: 0,
+    amenities: [],
+    budget: 'Any Budget',
+    availability: 'All Status'
   });
-  
-  const [viewMode, setViewMode] = useState<'list' | 'map'>((urlParams.get('view') as 'list' | 'map') || 'list');
-  const [showFilters, setShowFilters] = useState(false);
+  const [mapCenter, setMapCenter] = useState<[number, number]>([37.7749, -122.4194]);
+  const [mapZoom, setMapZoom] = useState(12);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
-  const [sortBy, setSortBy] = useState(urlParams.get('sortBy') || 'relevance');
-  
-  // Search history and suggestions
-  const [searchHistory, setSearchHistory] = useState<string[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
+  const [mapBounds, setMapBounds] = useState<any>(null);
   
   // Bottom navigation state
   const [activeTab, setActiveTab] = useState('search');
   
+  // Fetch communities within map bounds for list view
+  const { data: mapCommunities = [], isLoading: isLoadingCommunities } = useQuery({
+    queryKey: ['communities-map-bounds', mapBounds, filters],
+    queryFn: async () => {
+      if (!mapBounds) return [];
+      
+      try {
+        const sw = mapBounds.getSouthWest();
+        const ne = mapBounds.getNorthEast();
+        
+        const params = new URLSearchParams({
+          swLat: sw.lat.toString(),
+          swLng: sw.lng.toString(),
+          neLat: ne.lat.toString(),
+          neLng: ne.lng.toString(),
+          limit: '50',
+          ...(filters.careType !== 'All Types' && { careType: filters.careType }),
+          ...(filters.minRating > 0 && { minRating: filters.minRating.toString() }),
+        });
+        
+        const response = await fetch(`/api/communities/search/spatial?${params}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch communities');
+        }
+        
+        return response.json();
+      } catch (error) {
+        console.warn('Error fetching communities:', error);
+        return [];
+      }
+    },
+    enabled: !!mapBounds && viewMode === 'list',
+    staleTime: 30000, // Cache for 30 seconds
+    retry: 1, // Only retry once on failure
+  });
+
+  // Handle initial search query from URL
+  useEffect(() => {
+    if (initialQuery) {
+      handleLocationSearch(initialQuery);
+    }
+  }, [initialQuery]);
+
+  const handleLocationSearch = (location: string) => {
+    // Geocode location and update map center
+    // For now, we'll use some common locations
+    const locationMap: Record<string, [number, number]> = {
+      'san francisco': [37.7749, -122.4194],
+      'los angeles': [34.0522, -118.2437],
+      'sacramento': [38.5816, -121.4944],
+      'san diego': [32.7157, -117.1611],
+      'fresno': [36.7378, -119.7871],
+      'san jose': [37.3382, -121.8863],
+      'california': [36.7783, -119.4179],
+    };
+    
+    const coords = locationMap[location.toLowerCase()];
+    if (coords) {
+      setMapCenter(coords);
+      setMapZoom(location.toLowerCase() === 'california' ? 6 : 12);
+    }
+  };
+
+  const handleCommunityClick = (community: Community) => {
+    setSelectedCommunity(community);
+    setLocation(`/communities/${community.id}`);
+  };
+
   // Handle bottom navigation
   const handleTabChange = (tab: string) => {
     console.log('Bottom navigation clicked:', tab);
@@ -73,512 +154,408 @@ export default function Search() {
         console.log('Navigating to dashboard tours');
         setLocation('/dashboard?tab=tours');
         break;
-      case 'inbox':
-        console.log('Navigating to dashboard inbox');
-        setLocation('/dashboard?tab=inbox');
+      case 'more':
+        console.log('Navigating to dashboard');
+        setLocation('/dashboard');
         break;
       default:
         console.log('Unknown tab:', tab);
-        break;
     }
   };
 
-  // Load search history from localStorage
-  useEffect(() => {
-    const history = localStorage.getItem('searchHistory');
-    if (history) {
-      setSearchHistory(JSON.parse(history));
-    }
-  }, []);
-
-  // Save search to history
-  const saveSearchToHistory = (searchTerm: string) => {
-    if (!searchTerm.trim()) return;
-    
-    const newHistory = [searchTerm, ...searchHistory.filter(item => item !== searchTerm)].slice(0, 10);
-    setSearchHistory(newHistory);
-    localStorage.setItem('searchHistory', JSON.stringify(newHistory));
-  };
-
-  // Popular search suggestions
-  const popularSearches = [
-    'San Francisco', 'Sacramento', 'Oakland', 'San Jose', 'Fresno',
-    'Assisted Living', 'Memory Care', 'Independent Living', 'Skilled Nursing',
-    'Redding', 'Stockton', 'Modesto', 'Eureka', 'Chico'
+  const availableAmenities = [
+    'Pet Friendly',
+    'Fitness Center',
+    'Swimming Pool',
+    'Transportation',
+    'Dining Services',
+    'Laundry Services',
+    'Housekeeping',
+    'Activities Program',
+    'Beauty/Barber Shop',
+    'Library',
+    'Chapel Services',
+    'Memory Care',
+    'Rehabilitation Services'
   ];
 
-  // Generate suggestions based on input
-  const generateSuggestions = (input: string) => {
-    if (!input.trim()) {
-      setSearchSuggestions([...searchHistory.slice(0, 5), ...popularSearches.slice(0, 5)]);
-      return;
-    }
-    
-    const inputLower = input.toLowerCase();
-    const historySuggestions = searchHistory.filter(item => 
-      item.toLowerCase().includes(inputLower)
-    );
-    const popularSuggestions = popularSearches.filter(item => 
-      item.toLowerCase().includes(inputLower)
-    );
-    
-    setSearchSuggestions([...historySuggestions, ...popularSuggestions].slice(0, 8));
+  const clearFilters = () => {
+    setFilters({
+      careType: 'All Types',
+      minRating: 0,
+      amenities: [],
+      budget: 'Any Budget',
+      availability: 'All Status'
+    });
   };
 
-  // Update URL and localStorage when filters change
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (filters.location) params.set('location', filters.location);
-    if (filters.careType !== 'all') params.set('careType', filters.careType);
-    if (filters.priceRange !== 'all') params.set('priceRange', filters.priceRange);
-    if (filters.availability !== 'all') params.set('availability', filters.availability);
-    if (filters.minRating !== 'all') params.set('minRating', filters.minRating);
-    if (filters.hasPhotos) params.set('hasPhotos', 'true');
-    if (viewMode !== 'list') params.set('view', viewMode);
-    if (sortBy !== 'relevance') params.set('sortBy', sortBy);
-    
-    const newUrl = params.toString() ? `/search?${params.toString()}` : '/search';
-    window.history.replaceState({}, '', newUrl);
-    
-    // Save search state to localStorage for back navigation
-    const searchState = {
-      location: filters.location,
-      careType: filters.careType,
-      priceRange: filters.priceRange,
-      availability: filters.availability,
-      minRating: filters.minRating,
-      hasPhotos: filters.hasPhotos,
-      viewMode: viewMode,
-      sortBy: sortBy
-    };
-    localStorage.setItem('searchState', JSON.stringify(searchState));
-  }, [filters, viewMode, sortBy]);
-
-  // Convert filters to API search params
-  const searchParams: SearchCommunity = {
-    location: filters.location || undefined,
-    careType: filters.careType !== 'all' ? filters.careType : undefined,
-    budget: filters.priceRange !== 'all' ? filters.priceRange : undefined,
-    availability: filters.availability !== 'all' ? filters.availability : undefined,
-    minRating: filters.minRating !== 'all' ? parseFloat(filters.minRating) : undefined,
-    hasPhotos: filters.hasPhotos || undefined,
-  };
-
-  // Get all communities and filter them
-  const { data: allCommunities, isLoading, error } = useQuery<Community[]>({
-    queryKey: ['/api/communities'],
-  });
-
-  // Filter communities based on current filters
-  const filteredCommunities = allCommunities?.filter((community) => {
-    // Location filter
-    if (filters.location && filters.location.trim()) {
-      const searchTerm = filters.location.toLowerCase();
-      const matchesLocation = 
-        community.city.toLowerCase().includes(searchTerm) ||
-        community.state.toLowerCase().includes(searchTerm) ||
-        community.zipCode.includes(searchTerm) ||
-        community.name.toLowerCase().includes(searchTerm);
-      if (!matchesLocation) return false;
-    }
-
-    // Care type filter
-    if (filters.careType !== 'all' && community.careTypes) {
-      if (!community.careTypes.includes(filters.careType)) return false;
-    }
-
-    // Rating filter
-    if (filters.minRating !== 'all') {
-      const communityRating = community.googleRating;
-      const rating = typeof communityRating === 'string' ? parseFloat(communityRating) : (communityRating || 0);
-      if (rating < parseFloat(filters.minRating)) return false;
-    }
-
-    // Photos filter
-    if (filters.hasPhotos && (!community.photos || !Array.isArray(community.photos) || community.photos.length === 0)) {
-      return false;
-    }
-
-    return true;
-  }) || [];
+  const activeFiltersCount = Object.values(filters).filter(value => 
+    value !== 'All Types' && value !== 'Any Budget' && value !== 'All Status' && 
+    value !== 0 && (Array.isArray(value) ? value.length > 0 : true)
+  ).length;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-      
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20">
-        {/* Breadcrumb */}
-        <Breadcrumb 
-          items={[
-            { label: 'Search', href: '/search' },
-            { label: filteredCommunities.length > 0 ? `${filteredCommunities.length} Communities` : 'Results', current: true }
-          ]}
-          className="mb-6"
-        />
-        
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Find Your Perfect Senior Living Community</h1>
-          <p className="text-lg text-gray-600 mb-6">
-            Search through our database of verified senior living communities in Northern California.
-          </p>
-          
-          {/* Search Bar */}
-          <div className="relative max-w-2xl">
-            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 z-10" />
-            <Input
-              placeholder="Try 'San Francisco' or 'Memory Care'"
-              value={filters.location}
-              onChange={(e) => {
-                const value = e.target.value;
-                setFilters(prev => ({ ...prev, location: value }));
-                generateSuggestions(value);
-                setShowSuggestions(true);
-              }}
-              onFocus={() => {
-                generateSuggestions(filters.location);
-                setShowSuggestions(true);
-              }}
-              onBlur={() => {
-                setTimeout(() => setShowSuggestions(false), 150);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  saveSearchToHistory(filters.location);
-                  setShowSuggestions(false);
-                }
-              }}
-              className="pl-10 h-12 text-lg"
-            />
-            
-            {/* Search Suggestions Dropdown */}
-            {showSuggestions && searchSuggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-20 max-h-60 overflow-y-auto">
-                {searchSuggestions.map((suggestion, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      setFilters(prev => ({ ...prev, location: suggestion }));
-                      saveSearchToHistory(suggestion);
-                      setShowSuggestions(false);
-                    }}
-                    className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0 focus:outline-none focus:bg-gray-50"
-                  >
-                    <div className="flex items-center space-x-3">
-                      {searchHistory.includes(suggestion) ? (
-                        <div className="w-4 h-4 text-gray-400">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        </div>
-                      ) : (
-                        <SearchIcon className="w-4 h-4 text-gray-400" />
-                      )}
-                      <span className="text-gray-900">{suggestion}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Quick Filter Buttons */}
-        <div className="mb-6">
-          <div className="flex flex-wrap gap-2 items-center">
-            <span className="text-sm font-medium text-gray-700 mr-2">Popular filters:</span>
-            <Button
-              variant={filters.careType === "Assisted Living" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFilters(prev => ({ 
-                ...prev, 
-                careType: prev.careType === "Assisted Living" ? "all" : "Assisted Living" 
-              }))}
-            >
-              Assisted Living
-            </Button>
-            <Button
-              variant={filters.careType === "Memory Care" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFilters(prev => ({ 
-                ...prev, 
-                careType: prev.careType === "Memory Care" ? "all" : "Memory Care" 
-              }))}
-            >
-              Memory Care
-            </Button>
-            <Button
-              variant={filters.minRating === "4" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFilters(prev => ({ 
-                ...prev, 
-                minRating: prev.minRating === "4" ? "all" : "4" 
-              }))}
-            >
-              4+ Stars
-            </Button>
-            <Button
-              variant={filters.hasPhotos ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFilters(prev => ({ ...prev, hasPhotos: !prev.hasPhotos }))}
-            >
-              With Photos
-            </Button>
-          </div>
-        </div>
-
-        {/* Advanced Filters */}
-        <div className="mb-8">
-          <div className="flex flex-wrap gap-3 items-center">
-            <Select value={filters.careType} onValueChange={(value) => setFilters(prev => ({ ...prev, careType: value }))}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Care Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Care Types</SelectItem>
-                <SelectItem value="Independent Living">Independent Living</SelectItem>
-                <SelectItem value="Assisted Living">Assisted Living</SelectItem>
-                <SelectItem value="Memory Care">Memory Care</SelectItem>
-                <SelectItem value="Skilled Nursing">Skilled Nursing</SelectItem>
-                <SelectItem value="CCRC">CCRC</SelectItem>
-                <SelectItem value="55+ Housing">55+ Housing</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={filters.minRating} onValueChange={(value) => setFilters(prev => ({ ...prev, minRating: value }))}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Rating" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Any Rating</SelectItem>
-                <SelectItem value="4">4+ Stars</SelectItem>
-                <SelectItem value="3">3+ Stars</SelectItem>
-                <SelectItem value="2">2+ Stars</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="has-photos"
-                checked={filters.hasPhotos}
-                onCheckedChange={(checked) => setFilters(prev => ({ ...prev, hasPhotos: checked }))}
-              />
-              <label htmlFor="has-photos" className="text-sm font-medium text-gray-700">
-                Has Photos
-              </label>
-            </div>
-
-            <Button
-              variant={showFilters ? "default" : "outline"}
-              onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2"
-            >
-              <Filter className="h-4 w-4" />
-              More Filters
-            </Button>
-          </div>
-        </div>
-
-        {/* Advanced Filters Panel */}
-        {showFilters && (
-          <div className="mb-8 bg-white rounded-lg shadow-sm border p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Advanced Filters</h2>
+    <div className="min-h-screen bg-gray-50 pb-16">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setShowFilters(false)}
+                onClick={() => setLocation('/')}
               >
-                <X className="h-4 w-4" />
+                <Home className="w-4 h-4 mr-2" />
+                MySeniorValet
               </Button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Select value={filters.priceRange} onValueChange={(value) => setFilters(prev => ({ ...prev, priceRange: value }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Price Range" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Budgets</SelectItem>
-                  <SelectItem value="budget">Under $4,000</SelectItem>
-                  <SelectItem value="mid">$4,000 - $6,000</SelectItem>
-                  <SelectItem value="premium">$6,000 - $8,000</SelectItem>
-                  <SelectItem value="luxury">$8,000+</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={filters.availability} onValueChange={(value) => setFilters(prev => ({ ...prev, availability: value }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Availability" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Availability</SelectItem>
-                  <SelectItem value="Available Now">Available Now</SelectItem>
-                  <SelectItem value="Waitlist">Waitlist</SelectItem>
-                  <SelectItem value="Contact for Availability">Contact for Availability</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        )}
-
-        {/* Sticky Header with Sort and View Controls */}
-        <div className="sticky top-0 bg-white z-10 border-b border-gray-200 pb-4 mb-6">
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="flex-1">
-              {isLoading ? (
-                <div className="text-gray-600">Loading communities...</div>
-              ) : error ? (
-                <div className="text-red-600">Error loading communities. Please try again.</div>
-              ) : (
-                <div className="text-gray-600">
-                  {filteredCommunities.length} of {allCommunities?.length || 0} communities found
-                </div>
-              )}
+              <h1 className="text-xl font-semibold">Search Communities</h1>
             </div>
             
             <div className="flex items-center gap-2">
-              {/* Sort Dropdown */}
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="relevance">Relevance</SelectItem>
-                  <SelectItem value="rating">Rating</SelectItem>
-                  <SelectItem value="name">Name</SelectItem>
-                  <SelectItem value="city">City</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              {/* View Toggle */}
-              <div className="flex gap-1">
-                <Button
-                  variant={viewMode === 'list' ? "default" : "outline"}
-                  onClick={() => setViewMode('list')}
-                  size="sm"
-                  className="flex items-center gap-1"
-                >
-                  <List className="h-3 w-3" />
-                  List
-                </Button>
-                <Button
-                  variant={viewMode === 'map' ? "default" : "outline"}
-                  onClick={() => setViewMode('map')}
-                  size="sm"
-                  className="flex items-center gap-1"
-                >
-                  <MapIcon className="h-3 w-3" />
-                  Map
-                </Button>
-              </div>
+              <Button
+                variant={viewMode === 'map' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('map')}
+              >
+                <MapIcon className="w-4 h-4" />
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+              >
+                <List className="w-4 h-4" />
+              </Button>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Results Content */}
-        {viewMode === 'list' ? (
-          <div>
-            {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...Array(6)].map((_, i) => (
-                  <CommunityCardSkeleton key={i} />
+      {/* Search Bar */}
+      <div className="bg-white border-b p-4">
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              placeholder="Search location (e.g., San Francisco, CA)"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleLocationSearch(searchQuery)}
+              className="pl-10"
+            />
+          </div>
+          <Button onClick={() => handleLocationSearch(searchQuery)}>
+            Search
+          </Button>
+        </div>
+      </div>
+
+      {/* Filters Bar */}
+      <div className="bg-white border-b p-4">
+        <div className="flex items-center gap-2 overflow-x-auto">
+          <Drawer>
+            <DrawerTrigger asChild>
+              <Button variant="outline" size="sm">
+                <SlidersHorizontal className="w-4 h-4 mr-2" />
+                Filters
+                {activeFiltersCount > 0 && (
+                  <Badge variant="destructive" className="ml-2 text-xs">
+                    {activeFiltersCount}
+                  </Badge>
+                )}
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent>
+              <DrawerHeader>
+                <DrawerTitle>Filter Communities</DrawerTitle>
+              </DrawerHeader>
+              <div className="p-4 space-y-4">
+                {/* Care Type Filter */}
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Care Type</label>
+                  <Select value={filters.careType} onValueChange={(value) => setFilters({...filters, careType: value})}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="All Types">All Types</SelectItem>
+                      <SelectItem value="Independent Living">Independent Living</SelectItem>
+                      <SelectItem value="Assisted Living">Assisted Living</SelectItem>
+                      <SelectItem value="Memory Care">Memory Care</SelectItem>
+                      <SelectItem value="Skilled Nursing">Skilled Nursing</SelectItem>
+                      <SelectItem value="Continuing Care">Continuing Care</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Budget Filter */}
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Budget</label>
+                  <Select value={filters.budget} onValueChange={(value) => setFilters({...filters, budget: value})}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Any Budget">Any Budget</SelectItem>
+                      <SelectItem value="Under $3,000">Under $3,000</SelectItem>
+                      <SelectItem value="$3,000 - $5,000">$3,000 - $5,000</SelectItem>
+                      <SelectItem value="$5,000 - $7,000">$5,000 - $7,000</SelectItem>
+                      <SelectItem value="$7,000+">$7,000+</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Rating Filter */}
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Minimum Rating</label>
+                  <Select value={filters.minRating.toString()} onValueChange={(value) => setFilters({...filters, minRating: parseInt(value)})}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0">Any Rating</SelectItem>
+                      <SelectItem value="3">3+ Stars</SelectItem>
+                      <SelectItem value="4">4+ Stars</SelectItem>
+                      <SelectItem value="5">5 Stars</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Amenities Filter */}
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Amenities</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {availableAmenities.map((amenity) => (
+                      <Button
+                        key={amenity}
+                        variant={filters.amenities.includes(amenity) ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => {
+                          const newAmenities = filters.amenities.includes(amenity)
+                            ? filters.amenities.filter(a => a !== amenity)
+                            : [...filters.amenities, amenity];
+                          setFilters({...filters, amenities: newAmenities});
+                        }}
+                      >
+                        {amenity}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex gap-2 pt-4">
+                  <Button onClick={clearFilters} variant="outline" className="flex-1">
+                    Clear All
+                  </Button>
+                  <Button className="flex-1">Apply Filters</Button>
+                </div>
+              </div>
+            </DrawerContent>
+          </Drawer>
+
+          {/* Active Filters */}
+          {filters.careType !== 'All Types' && (
+            <Badge variant="secondary" className="gap-1">
+              {filters.careType}
+              <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({...filters, careType: 'All Types'})} />
+            </Badge>
+          )}
+          {filters.budget !== 'Any Budget' && (
+            <Badge variant="secondary" className="gap-1">
+              {filters.budget}
+              <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({...filters, budget: 'Any Budget'})} />
+            </Badge>
+          )}
+          {filters.minRating > 0 && (
+            <Badge variant="secondary" className="gap-1">
+              {filters.minRating}+ Stars
+              <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({...filters, minRating: 0})} />
+            </Badge>
+          )}
+          {filters.amenities.map((amenity) => (
+            <Badge key={amenity} variant="secondary" className="gap-1">
+              {amenity}
+              <X 
+                className="w-3 h-3 cursor-pointer" 
+                onClick={() => setFilters({...filters, amenities: filters.amenities.filter(a => a !== amenity)})} 
+              />
+            </Badge>
+          ))}
+        </div>
+      </div>
+
+      {/* Map Container */}
+      <div className="flex-1">
+        {viewMode === 'map' ? (
+          <Map
+            center={mapCenter}
+            zoom={mapZoom}
+            height="calc(100vh - 280px)"
+            searchFilters={filters}
+            onCommunityClick={handleCommunityClick}
+            onBoundsChange={setMapBounds}
+          />
+        ) : (
+          <div className="p-4">
+            {/* List View Header */}
+            <div className="mb-4">
+              <h2 className="text-lg font-semibold mb-2">Communities in Current Area</h2>
+              <p className="text-sm text-gray-600">
+                {!mapBounds ? 'Move the map to view communities in this area' : 
+                 isLoadingCommunities ? 'Loading...' : `${mapCommunities.length} communities found`}
+              </p>
+            </div>
+            
+            {/* Communities List */}
+            {isLoadingCommunities ? (
+              <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="bg-gray-100 rounded-lg p-4 animate-pulse">
+                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-2 w-3/4"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                  </div>
                 ))}
               </div>
-            ) : error ? (
-              <div className="text-center py-12 max-w-md mx-auto">
-                <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
-                  <AlertTriangle className="w-8 h-8 text-red-500" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Unable to load communities</h3>
-                <p className="text-gray-600 mb-6">
-                  We're having trouble connecting to our servers. This usually resolves quickly.
+            ) : !mapBounds ? (
+              <div className="text-center py-8">
+                <MapIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-600">Switch to map view first</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  Move around the map to set the area, then switch back to list view
                 </p>
-                <div className="space-y-3">
-                  <Button 
-                    onClick={() => window.location.reload()}
-                    className="w-full"
-                  >
-                    Try Again
-                  </Button>
-                  <p className="text-xs text-gray-500">
-                    If the problem persists, try refreshing the page or check your internet connection.
-                  </p>
-                </div>
               </div>
-            ) : !filteredCommunities.length ? (
-              <div className="text-center py-12 max-w-md mx-auto">
-                <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                  <SearchIcon className="w-8 h-8 text-gray-400" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No communities found</h3>
-                <p className="text-gray-600 mb-6">
-                  Don't worry! Try these suggestions to find more communities:
+            ) : mapCommunities.length === 0 ? (
+              <div className="text-center py-8">
+                <List className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-600">No communities found in current area</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  Try adjusting your search location or filters
                 </p>
-                <div className="space-y-3 text-left">
-                  <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
-                    <MapPin className="w-5 h-5 text-blue-600 flex-shrink-0" />
-                    <span className="text-sm text-blue-900">
-                      Try expanding your search radius or searching nearby cities
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
-                    <Filter className="w-5 h-5 text-green-600 flex-shrink-0" />
-                    <span className="text-sm text-green-900">
-                      Remove some filters like price range or care type
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-3 p-3 bg-purple-50 rounded-lg">
-                    <Star className="w-5 h-5 text-purple-600 flex-shrink-0" />
-                    <span className="text-sm text-purple-900">
-                      Lower the minimum rating requirement
-                    </span>
-                  </div>
-                </div>
-                <div className="mt-6 space-y-2">
-                  <Button 
-                    onClick={() => setFilters({
-                      location: filters.location,
-                      careType: 'all',
-                      priceRange: 'all', 
-                      availability: 'all',
-                      minRating: 'all',
-                      hasPhotos: false
-                    })}
-                    className="w-full"
-                  >
-                    Clear All Filters
-                  </Button>
-                  <p className="text-xs text-gray-500">
-                    Popular searches: "San Francisco", "Sacramento", "Assisted Living"
-                  </p>
-                </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
-                {filteredCommunities.map((community) => (
-                  <CommunityCard key={community.id} community={community} />
+              <div className="space-y-4">
+                {mapCommunities.map((community, index) => (
+                  <Card key={community.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group animate-float border-gray-200" style={{animationDelay: `${index * 0.1}s`}}>
+                    <div className="flex">
+                      {/* Image Section */}
+                      <div className="relative w-32 h-32 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+                        {community.photos && community.photos.length > 0 ? (
+                          <img 
+                            src={community.photos[0]} 
+                            alt={community.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="text-center">
+                            <Home className="w-8 h-8 mx-auto text-blue-500 mb-2" />
+                            <span className="text-xs text-blue-600 font-medium">Photo Coming Soon</span>
+                          </div>
+                        )}
+                        
+                        {/* Heart favorite in top right */}
+                        <div className="absolute top-2 right-2 z-10">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-8 h-8 p-0 bg-white/80 backdrop-blur-sm hover:bg-white/90 rounded-full"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // Handle favorite logic
+                            }}
+                          >
+                            <Heart className="w-4 h-4 text-gray-600 hover:text-red-500 transition-colors" />
+                          </Button>
+                        </div>
+                        
+                        {/* Availability badge */}
+                        <div className="absolute bottom-2 left-2">
+                          <Badge 
+                            variant={community.availability === 'Available' ? 'default' : 
+                                   community.availability === 'Waitlist' ? 'secondary' : 'outline'}
+                            className="text-xs"
+                          >
+                            {community.availability || 'Available'}
+                          </Badge>
+                        </div>
+                      </div>
+                      
+                      {/* Content Section */}
+                      <div className="flex-1 p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-1">
+                            {community.name}
+                          </h3>
+                          <div className="flex items-center gap-1 text-sm">
+                            <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                            <span className="font-medium">{community.rating?.toFixed(1) || 'N/A'}</span>
+                            <span className="text-gray-500">({community.reviewCount || 0})</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
+                          <MapPin className="w-4 h-4" />
+                          <span className="line-clamp-1">{community.address}, {community.city}, {community.state}</span>
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="flex gap-2">
+                            {community.careTypes?.slice(0, 2).map((type) => (
+                              <Badge key={type} variant="outline" className="text-xs">
+                                {type}
+                              </Badge>
+                            ))}
+                            {community.careTypes?.length > 2 && (
+                              <Badge variant="outline" className="text-xs">
+                                +{community.careTypes.length - 2} more
+                              </Badge>
+                            )}
+                          </div>
+                          
+                          <div className="text-right">
+                            <div className="font-semibold text-green-600">
+                              {community.priceRange || 'Call for Pricing'}
+                            </div>
+                            <div className="text-xs text-gray-500">per month</div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-2 mt-3">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.open(`tel:${community.phone}`, '_self');
+                            }}
+                          >
+                            <Phone className="w-4 h-4 mr-1" />
+                            Call
+                          </Button>
+                          <Button
+                            size="sm"
+                            className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                            onClick={() => handleCommunityClick(community)}
+                          >
+                            View Details
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
                 ))}
               </div>
             )}
           </div>
-        ) : (
-          <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-            <div className="h-[600px]">
-              <MapView 
-                communities={filteredCommunities} 
-                onCommunitySelect={setSelectedCommunity}
-                selectedCommunity={selectedCommunity}
-              />
-            </div>
-          </div>
         )}
-      </main>
-      
+      </div>
+
       {/* Bottom Navigation */}
       <BottomNavigation 
-        activeTab={activeTab} 
+        activeTab={activeTab}
         onTabChange={handleTabChange}
-        updateCount={0}
       />
     </div>
   );
