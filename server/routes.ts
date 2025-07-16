@@ -820,17 +820,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const conditions = [];
 
       // PostGIS spatial query - optimized for nationwide scale (40k+ communities)
-      // Use bounding box for better performance at scale
+      // Use ST_DWithin for radius-based search with geography type
+      const centerLat = (parseFloat(swLat as string) + parseFloat(neLat as string)) / 2;
+      const centerLng = (parseFloat(swLng as string) + parseFloat(neLng as string)) / 2;
+      
+      // Calculate approximate radius in meters (rough estimate for bounding box)
+      const latDiff = parseFloat(neLat as string) - parseFloat(swLat as string);
+      const lngDiff = parseFloat(neLng as string) - parseFloat(swLng as string);
+      const radiusMeters = Math.max(latDiff, lngDiff) * 111000; // Convert degrees to meters
+      
       conditions.push(
-        sql`ST_Contains(
-          ST_MakeEnvelope(
-            ${parseFloat(swLng as string)},
-            ${parseFloat(swLat as string)},
-            ${parseFloat(neLng as string)},
-            ${parseFloat(neLat as string)},
-            4326
-          ),
-          ${communities.location}
+        sql`ST_DWithin(
+          ${communities.location},
+          ST_SetSRID(ST_MakePoint(${centerLng}, ${centerLat}), 4326)::geography,
+          ${radiusMeters}
         )`
       );
 

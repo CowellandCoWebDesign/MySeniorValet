@@ -122,11 +122,40 @@ export default function Map({
 }: MapProps) {
   const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [locationDenied, setLocationDenied] = useState(false);
   
   const handleBoundsChange = useCallback((bounds: LatLngBounds) => {
     setMapBounds(bounds);
     onBoundsChange?.(bounds);
   }, [onBoundsChange]);
+
+  // Request user location on component mount
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setUserLocation([latitude, longitude]);
+        },
+        (error) => {
+          console.log('Location access denied or unavailable:', error);
+          setLocationDenied(true);
+        },
+        {
+          enableHighAccuracy: false,
+          timeout: 10000,
+          maximumAge: 300000 // 5 minutes
+        }
+      );
+    } else {
+      setLocationDenied(true);
+    }
+  }, []);
+
+  // Determine map center based on user location or fallback
+  const mapCenter = userLocation || center;
+  const mapZoom = userLocation ? 10 : (locationDenied ? 4 : zoom);
 
   // Fetch communities within map bounds using PostGIS spatial search
   const { data: communities = [], isLoading, error } = useQuery({
@@ -217,8 +246,8 @@ export default function Map({
       {/* Map Container */}
       <div className="flex-1 relative">
         <MapContainer
-          center={center}
-          zoom={zoom}
+          center={mapCenter}
+          zoom={mapZoom}
           minZoom={2}
           maxZoom={19}
           style={{ height: '100%', width: '100%' }}
