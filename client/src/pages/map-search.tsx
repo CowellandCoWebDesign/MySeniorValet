@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home } from 'lucide-react';
+import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -48,6 +48,7 @@ export default function MapSearch() {
   
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
+  const [isDarkMode, setIsDarkMode] = useState(true); // Default to dark mode for eye comfort
   const [filters, setFilters] = useState<SearchFilters>({
     careType: 'All Types',
     minRating: 0,
@@ -163,7 +164,7 @@ export default function MapSearch() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className={`shadow-sm border-b ${isDarkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'}`}>
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -171,7 +172,7 @@ export default function MapSearch() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setLocation('/')}
-                className="text-gray-600 hover:text-gray-900"
+                className={`${isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 hover:text-gray-900'}`}
               >
                 ← Back
               </Button>
@@ -184,10 +185,22 @@ export default function MapSearch() {
             </div>
             
             <div className="flex items-center gap-2">
+              {/* Dark Mode Toggle */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsDarkMode(!isDarkMode)}
+                className={`${isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 hover:text-gray-900'}`}
+              >
+                {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </Button>
+              
+              {/* View Mode Toggles */}
               <Button
                 variant={viewMode === 'map' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setViewMode('map')}
+                className={isDarkMode && viewMode !== 'map' ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : ''}
               >
                 <MapIcon className="w-4 h-4" />
               </Button>
@@ -195,6 +208,7 @@ export default function MapSearch() {
                 variant={viewMode === 'list' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setViewMode('list')}
+                className={isDarkMode && viewMode !== 'list' ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : ''}
               >
                 <List className="w-4 h-4" />
               </Button>
@@ -204,7 +218,7 @@ export default function MapSearch() {
       </div>
 
       {/* Search Bar */}
-      <div className="bg-gray-800 border-b border-gray-700 p-4">
+      <div className={`border-b p-4 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
         <div className="flex gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -213,7 +227,10 @@ export default function MapSearch() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleLocationSearch(searchQuery)}
-              className="pl-10 bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500"
+              className={`pl-10 ${isDarkMode 
+                ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500' 
+                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500'
+              }`}
             />
           </div>
           <Button 
@@ -226,11 +243,18 @@ export default function MapSearch() {
       </div>
 
       {/* Filters Bar */}
-      <div className="bg-gray-800 border-b border-gray-700 p-4">
+      <div className={`border-b p-4 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
         <div className="flex items-center gap-2 overflow-x-auto">
           <Drawer>
             <DrawerTrigger asChild>
-              <Button variant="outline" size="sm" className="border-gray-600 bg-gray-700 text-white hover:bg-gray-600">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className={isDarkMode 
+                  ? 'border-gray-600 bg-gray-700 text-white hover:bg-gray-600' 
+                  : 'border-gray-300 bg-white text-gray-900 hover:bg-gray-50'
+                }
+              >
                 <SlidersHorizontal className="w-4 h-4 mr-2" />
                 Filters
                 {activeFiltersCount > 0 && (
@@ -330,25 +354,25 @@ export default function MapSearch() {
 
           {/* Active Filters */}
           {filters.careType !== 'All Types' && (
-            <Badge variant="secondary" className="gap-1 bg-gray-700 text-gray-200 hover:bg-gray-600">
+            <Badge variant="secondary" className={`gap-1 ${isDarkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}>
               {filters.careType}
               <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({...filters, careType: 'All Types'})} />
             </Badge>
           )}
           {filters.budget !== 'Any Budget' && (
-            <Badge variant="secondary" className="gap-1 bg-gray-700 text-gray-200 hover:bg-gray-600">
+            <Badge variant="secondary" className={`gap-1 ${isDarkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}>
               {filters.budget}
               <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({...filters, budget: 'Any Budget'})} />
             </Badge>
           )}
           {filters.minRating > 0 && (
-            <Badge variant="secondary" className="gap-1 bg-gray-700 text-gray-200 hover:bg-gray-600">
+            <Badge variant="secondary" className={`gap-1 ${isDarkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}>
               {filters.minRating}+ Stars
               <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({...filters, minRating: 0})} />
             </Badge>
           )}
           {filters.amenities.map((amenity) => (
-            <Badge key={amenity} variant="secondary" className="gap-1 bg-gray-700 text-gray-200 hover:bg-gray-600">
+            <Badge key={amenity} variant="secondary" className={`gap-1 ${isDarkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}>
               {amenity}
               <X 
                 className="w-3 h-3 cursor-pointer" 
