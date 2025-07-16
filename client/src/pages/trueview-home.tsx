@@ -269,20 +269,7 @@ export default function TrueViewHome() {
             </div>
           </div>
           
-          {/* Dynamic Community Count Text - Moved outside search container */}
-          <div className="text-center mb-6 md:mb-8 animate-fade-in-up animation-delay-900" style={{ zIndex: 1 }}>
-            <p className="text-white/80 text-xs sm:text-sm drop-shadow-md">
-              {isLoading ? (
-                <span>Loading verified communities...</span>
-              ) : (
-                <span>
-                  Search <strong className="text-white">{communityStats?.count || '1,702'} verified Senior Living Communities</strong> with transparent listing information
-                  <br className="hidden sm:block" />
-                  <span className="block sm:inline sm:ml-1">— no sales pressure, no surprise calls</span>
-                </span>
-              )}
-            </p>
-          </div>
+
         </div>
       </section>
 
