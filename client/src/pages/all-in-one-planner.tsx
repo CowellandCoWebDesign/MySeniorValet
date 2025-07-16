@@ -340,37 +340,37 @@ export default function AllInOnePlanner() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       {/* Header */}
       <header className="bg-white shadow-lg border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 py-6">
+        <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-4">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => window.history.back()}
                 className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 font-medium"
               >
-                <ArrowLeft className="w-5 h-5" />
+                <ArrowLeft className="w-4 h-4" />
                 <span>Back</span>
               </Button>
-              <div className="h-6 w-px bg-gray-200" />
+              <div className="h-5 w-px bg-gray-200" />
               <Link href="/">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 font-semibold px-4 py-2"
+                  className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 font-semibold px-3 py-1.5"
                 >
-                  <Home className="w-5 h-5" />
+                  <Home className="w-4 h-4" />
                   <span>MySeniorValet</span>
                 </Button>
               </Link>
             </div>
             <div className="text-center">
-              <h1 className="text-2xl font-bold text-gray-900">Senior Valet Concierge</h1>
-              <p className="text-sm text-gray-600 mt-1">All-in-One Move Planning Portal</p>
+              <h1 className="text-xl font-bold text-gray-900">Senior Valet Concierge</h1>
+              <p className="text-xs text-gray-600">All-in-One Move Planning Portal</p>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="bg-blue-50 px-4 py-2 rounded-lg border border-blue-200">
-                <span className="text-sm font-medium text-blue-700">
+            <div className="flex items-center space-x-3">
+              <div className="bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200">
+                <span className="text-xs font-medium text-blue-700">
                   {selectedServices.length} services selected
                 </span>
               </div>
