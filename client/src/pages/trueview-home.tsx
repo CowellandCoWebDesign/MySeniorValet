@@ -309,25 +309,25 @@ export default function TrueViewHome() {
               </CardContent>
             </Card>
 
-            {/* Furniture & Setup */}
+            {/* Medical Equipment & Furniture */}
             <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
               <CardContent className="p-6 text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Sofa className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Furniture & Setup</h3>
-                <p className="text-sm text-gray-600">Room design and furniture arrangement services</p>
+                <h3 className="font-semibold text-gray-900 mb-2">Medical Equipment & Furniture</h3>
+                <p className="text-sm text-gray-600">Medical equipment purchase and furniture delivery services</p>
               </CardContent>
             </Card>
 
-            {/* Prescription Delivery */}
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+            {/* Family Collaboration & Tour Tracker */}
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow border-2 border-amber-200">
               <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Pill className="w-8 h-8 text-white" />
+                <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Users className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Prescription Delivery</h3>
-                <p className="text-sm text-gray-600">Medication management and delivery coordination</p>
+                <h3 className="font-semibold text-gray-900 mb-2">Family Collaboration & Tour Tracker</h3>
+                <p className="text-sm text-gray-600">Family sharing tools and tour scheduling with progress tracking</p>
               </CardContent>
             </Card>
           </div>

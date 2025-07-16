@@ -1933,6 +1933,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // COMPLETE REFERRAL SERVICE REMOVAL - Battle against referral fees
+  app.post("/api/admin/service-listings/remove-all-referral-services", async (req, res) => {
+    try {
+      console.log('🚫 STARTING COMPLETE REFERRAL SERVICE REMOVAL - Battle against referral fees');
+      
+      const results = await ServiceListingClassifier.processServiceListings(false);
+      
+      // Get all flagged service providers for removal
+      const serviceProviders = await db
+        .select()
+        .from(communities)
+        .where(eq(communities.facilityType, 'Service Provider'));
+      
+      console.log(`Found ${serviceProviders.length} service providers to remove`);
+      
+      // Remove all referral services and agencies from the database
+      let removedCount = 0;
+      for (const provider of serviceProviders) {
+        await db.delete(communities).where(eq(communities.id, provider.id));
+        removedCount++;
+        console.log(`Removed referral service: ${provider.name}`);
+      }
+      
+      // Refresh community count cache after removal
+      await communityStatsCache.refreshCache();
+      const newCount = await communityStatsCache.getTotalCount();
+      
+      console.log(`✅ REFERRAL SERVICE REMOVAL COMPLETE - Removed ${removedCount} referral services/agencies`);
+      console.log(`🎯 New total community count: ${newCount}`);
+      
+      res.json({
+        success: true,
+        message: `Successfully removed ${removedCount} referral services and agencies - Battle against referral fees complete`,
+        summary: {
+          removedCount,
+          newTotalCommunities: newCount,
+          analysisResults: results
+        }
+      });
+    } catch (error) {
+      console.error('Error removing referral services:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to remove referral services' 
+      });
+    }
+  });
+
   // Get all communities (optimized with pagination)
   app.get("/api/communities", async (req, res) => {
     try {
