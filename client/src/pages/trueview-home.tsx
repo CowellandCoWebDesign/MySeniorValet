@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2 } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 
@@ -153,11 +153,15 @@ export default function TrueViewHome() {
           <div className="text-center mb-6 md:mb-8">
             <div className="space-y-3 mb-4">
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight drop-shadow-lg animate-fade-in-up">
-                Your Personal Senior Living Concierge
+                Everything Senior Living Needs—Handled in One Place
               </h1>
-              <p className="text-sm sm:text-base md:text-lg text-white opacity-90 drop-shadow-md px-4 animate-fade-in-up animation-delay-300">
-                Trusted guidance for your family's most important decision.
-              </p>
+              <h2 className="text-sm sm:text-base md:text-lg text-white opacity-90 drop-shadow-md px-4 animate-fade-in-up animation-delay-300">
+                From live pricing and unit availability to move coordination, furniture setup, and prescription delivery, MySeniorValet is your white-glove partner.
+                <br className="hidden sm:block" />
+                <span className="block sm:inline sm:mt-2">
+                  Serving families across <strong className="text-amber-200">8,000+ verified senior living communities</strong>.
+                </span>
+              </h2>
             </div>
           </div>
           
@@ -174,7 +178,7 @@ export default function TrueViewHome() {
                 <div className="flex items-center">
                   <input
                     type="text"
-                    placeholder="Try 'San Francisco' or 'Memory Care'"
+                    placeholder="Enter city, zip, or community name…"
                     value={searchQuery}
                     onChange={(e) => handleSearchChange(e.target.value)}
                     onKeyDown={(e) => {
@@ -243,14 +247,26 @@ export default function TrueViewHome() {
             )}
           </div>
 
-          {/* Beautiful Map View Button */}
-          <div className="mb-4 animate-fade-in-up animation-delay-700">
-            <Link href={`/map${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}>
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-xl font-semibold text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 border-0">
-                <MapPin className="w-4 h-4 mr-2" />
-                Explore Map View
+          {/* Primary & Secondary CTAs */}
+          <div className="flex flex-col sm:flex-row gap-4 mb-4 animate-fade-in-up animation-delay-700">
+            <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}>
+              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 border-0">
+                Start Your All-in-One Planner
               </Button>
             </Link>
+            <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}>
+              <Button variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-3 rounded-xl font-semibold text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-white/10 backdrop-blur-sm">
+                Explore Communities
+              </Button>
+            </Link>
+          </div>
+          
+          {/* Verification Badge */}
+          <div className="mb-4 animate-fade-in-up animation-delay-800">
+            <div className="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium shadow-lg">
+              <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+              Verified Pricing • Real Availability • No Pressure
+            </div>
           </div>
           
           {/* Dynamic Community Count Text - Moved outside search container */}
@@ -266,6 +282,62 @@ export default function TrueViewHome() {
                 </span>
               )}
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Complete Concierge Services */}
+      <section className="px-4 py-12 bg-white">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Complete Concierge Services</h2>
+            <p className="text-gray-600">Everything you need for senior living decisions, all in one place</p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {/* Live Pricing & Availability */}
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+              <CardContent className="p-6 text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Eye className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">Live Pricing & Availability</h3>
+                <p className="text-sm text-gray-600">Real-time pricing and unit availability across all communities</p>
+              </CardContent>
+            </Card>
+
+            {/* Move Coordination */}
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+              <CardContent className="p-6 text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Truck className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">Move Coordination</h3>
+                <p className="text-sm text-gray-600">Professional moving services and timeline coordination</p>
+              </CardContent>
+            </Card>
+
+            {/* Furniture & Setup */}
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+              <CardContent className="p-6 text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Sofa className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">Furniture & Setup</h3>
+                <p className="text-sm text-gray-600">Room design and furniture arrangement services</p>
+              </CardContent>
+            </Card>
+
+            {/* Prescription Delivery */}
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+              <CardContent className="p-6 text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Pill className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">Prescription Delivery</h3>
+                <p className="text-sm text-gray-600">Medication management and delivery coordination</p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
