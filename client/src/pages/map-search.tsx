@@ -63,6 +63,9 @@ export default function MapSearch() {
   const [showBottomPanel, setShowBottomPanel] = useState(false);
   const [panelHeight, setPanelHeight] = useState(40); // Percentage of screen height
   
+  // Debug log
+  console.log('Map Search Component - showBottomPanel:', showBottomPanel, 'viewMode:', viewMode);
+  
   // Fetch communities within map bounds for list view
   const { data: mapCommunities = [], isLoading: isLoadingCommunities } = useQuery({
     queryKey: ['communities-map-bounds', mapBounds, filters],
@@ -503,6 +506,7 @@ export default function MapSearch() {
                             {!community.claimed && (
                               <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
                             )}
+                            <span className="text-xs text-gray-500 ml-1">per month</span>
                           </div>
                           
                           {/* Care Type & Location */}
@@ -525,7 +529,7 @@ export default function MapSearch() {
                           {community.address}, {community.city}, {community.state} {community.zipCode}
                         </div>
                         
-                        {/* Rating */}
+                        {/* Rating & Reviews */}
                         {community.rating > 0 && (
                           <div className="flex items-center gap-2 mb-2">
                             <div className="flex items-center gap-1">
@@ -535,11 +539,36 @@ export default function MapSearch() {
                             <span className="text-xs text-gray-600">
                               ({community.reviewCount} reviews)
                             </span>
+                            <div className="flex items-center gap-1 ml-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-xs text-blue-600 hover:text-blue-800 p-0 h-auto"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.open(`https://www.google.com/search?q=${encodeURIComponent(community.name + ' ' + community.city + ' reviews')}`, '_blank');
+                                }}
+                              >
+                                Google
+                              </Button>
+                              <span className="text-xs text-gray-400">•</span>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-xs text-red-600 hover:text-red-800 p-0 h-auto"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.open(`https://www.yelp.com/search?find_desc=${encodeURIComponent(community.name)}&find_loc=${encodeURIComponent(community.city + ', ' + community.state)}`, '_blank');
+                                }}
+                              >
+                                Yelp
+                              </Button>
+                            </div>
                           </div>
                         )}
                         
                         {/* Premium Badges */}
-                        <div className="mb-2">
+                        <div className="flex flex-wrap gap-1 mb-2">
                           {index % 4 === 0 && (
                             <Badge className="text-white text-xs px-2 py-1 font-medium bg-purple-600/90">
                               🏆 Featured
@@ -558,6 +587,13 @@ export default function MapSearch() {
                           {index % 4 === 3 && (
                             <Badge className="text-white text-xs px-2 py-1 font-medium bg-pink-600/90">
                               💎 Exclusive
+                            </Badge>
+                          )}
+                          
+                          {/* Live Pricing Badge */}
+                          {!community.claimed && (
+                            <Badge className="text-white text-xs px-2 py-1 font-medium bg-orange-600/90">
+                              📊 Live Pricing
                             </Badge>
                           )}
                         </div>
@@ -596,7 +632,7 @@ export default function MapSearch() {
 
       {/* Yelp-style Bottom Slide Panel */}
       <div 
-        className={`fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 shadow-2xl rounded-t-2xl transition-all duration-500 ease-out z-50 ${
+        className={`fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 shadow-2xl rounded-t-2xl transition-all duration-500 ease-out z-[55] ${
           showBottomPanel ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
         }`}
         style={{ height: `${panelHeight}vh` }}
@@ -730,10 +766,11 @@ export default function MapSearch() {
       {viewMode === 'map' && !showBottomPanel && (
         <button
           onClick={() => {
+            console.log('Floating button clicked!');
             setShowBottomPanel(true);
-            setPanelHeight(60); // Set to a good default height
+            setPanelHeight(60);
           }}
-          className="fixed bottom-6 right-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 z-40"
+          className="fixed bottom-6 right-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 z-[60]"
         >
           <List className="w-6 h-6" />
         </button>
