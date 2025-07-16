@@ -160,11 +160,14 @@ export default function Map({
         const lngSpan = ne.lng - sw.lng;
         const area = latSpan * lngSpan;
         
-        // Adjust limit based on visible area - more generous for no API cost
-        if (area > 100) limit = '2000'; // Very zoomed out (state/country level)
-        else if (area > 10) limit = '1500'; // Zoomed out (region level)
-        else if (area > 1) limit = '1000'; // Medium zoom (city level)
-        else limit = '800'; // Zoomed in (neighborhood level)
+        // Optimize for nationwide scaling (up to 40,000+ communities)
+        if (area > 1000) limit = '5000'; // Continental US level
+        else if (area > 500) limit = '3000'; // Multi-state regions
+        else if (area > 100) limit = '2000'; // State/large region level
+        else if (area > 50) limit = '1500'; // Large metro areas
+        else if (area > 10) limit = '1000'; // Metro/city level
+        else if (area > 1) limit = '800'; // City districts
+        else limit = '500'; // Neighborhood level
       }
       
       const params = new URLSearchParams({
@@ -218,8 +221,8 @@ export default function Map({
         <MapContainer
           center={center}
           zoom={zoom}
-          minZoom={3}
-          maxZoom={18}
+          minZoom={2}
+          maxZoom={19}
           style={{ height: '100%', width: '100%' }}
           className="rounded-lg"
         >
@@ -233,14 +236,14 @@ export default function Map({
         {/* Clustered community markers */}
         <MarkerClusterGroup
           chunkedLoading
-          maxClusterRadius={60}
+          maxClusterRadius={50}
           spiderfyOnMaxZoom={true}
           showCoverageOnHover={false}
           zoomToBoundsOnClick={true}
           removeOutsideVisibleBounds={true}
           animate={true}
           animateAddingMarkers={true}
-          disableClusteringAtZoom={15}
+          disableClusteringAtZoom={16}
         >
           {communities.map((community: Community) => (
           <Marker
