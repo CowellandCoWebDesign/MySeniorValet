@@ -7,6 +7,7 @@ import { Star, MapPin, Phone, Globe, Heart, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import MarkerClusterGroup from 'react-leaflet-cluster';
 
 // Fix for default markers in Leaflet
 delete (Icon.Default.prototype as any)._getIconUrl;
@@ -84,8 +85,10 @@ function MapBoundsHandler({ onBoundsChange }: { onBoundsChange: (bounds: LatLngB
   
   useEffect(() => {
     if (map && !initialized) {
+      // Set up event handlers for map movement
       map.on('moveend', handleBoundsChange);
       map.on('zoomend', handleBoundsChange);
+      map.on('dragend', handleBoundsChange);
       
       // Initial bounds when map is ready
       map.whenReady(() => {
@@ -101,6 +104,7 @@ function MapBoundsHandler({ onBoundsChange }: { onBoundsChange: (bounds: LatLngB
       if (map) {
         map.off('moveend', handleBoundsChange);
         map.off('zoomend', handleBoundsChange);
+        map.off('dragend', handleBoundsChange);
       }
     };
   }, [map, handleBoundsChange, initialized]);
@@ -145,12 +149,30 @@ export default function Map({
         neLng = ne.lng.toString();
       }
       
+      // Calculate appropriate limit based on zoom level (approximate)
+      const bounds = mapBounds ? mapBounds : null;
+      let limit = '500';
+      
+      if (bounds) {
+        const sw = bounds.getSouthWest();
+        const ne = bounds.getNorthEast();
+        const latSpan = ne.lat - sw.lat;
+        const lngSpan = ne.lng - sw.lng;
+        const area = latSpan * lngSpan;
+        
+        // Adjust limit based on visible area - more generous for no API cost
+        if (area > 100) limit = '2000'; // Very zoomed out (state/country level)
+        else if (area > 10) limit = '1500'; // Zoomed out (region level)
+        else if (area > 1) limit = '1000'; // Medium zoom (city level)
+        else limit = '800'; // Zoomed in (neighborhood level)
+      }
+      
       const params = new URLSearchParams({
         swLat,
         swLng,
         neLat,
         neLng,
-        limit: '300',
+        limit,
         ...(searchFilters.careType && { careType: searchFilters.careType }),
         ...(searchFilters.minRating && { minRating: searchFilters.minRating.toString() }),
       });
@@ -164,7 +186,9 @@ export default function Map({
       return response.json();
     },
     enabled: true, // Always enabled - will use fallback bounds if needed
-    staleTime: 30000, // Cache for 30 seconds
+    staleTime: 2000, // Very short cache time for dynamic updates
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
+    gcTime: 5000, // Garbage collect after 5 seconds
   });
 
   const getIconForCommunity = (community: Community) => {
@@ -194,6 +218,8 @@ export default function Map({
         <MapContainer
           center={center}
           zoom={zoom}
+          minZoom={3}
+          maxZoom={18}
           style={{ height: '100%', width: '100%' }}
           className="rounded-lg"
         >
@@ -204,7 +230,19 @@ export default function Map({
         
         <MapBoundsHandler onBoundsChange={handleBoundsChange} />
         
-        {communities.map((community: Community) => (
+        {/* Clustered community markers */}
+        <MarkerClusterGroup
+          chunkedLoading
+          maxClusterRadius={60}
+          spiderfyOnMaxZoom={true}
+          showCoverageOnHover={false}
+          zoomToBoundsOnClick={true}
+          removeOutsideVisibleBounds={true}
+          animate={true}
+          animateAddingMarkers={true}
+          disableClusteringAtZoom={15}
+        >
+          {communities.map((community: Community) => (
           <Marker
             key={community.id}
             position={[community.latitude, community.longitude]}
@@ -298,7 +336,8 @@ export default function Map({
               </Card>
             </Popup>
           </Marker>
-        ))}
+          ))}
+        </MarkerClusterGroup>
       </MapContainer>
       
       {/* Loading/Error States */}

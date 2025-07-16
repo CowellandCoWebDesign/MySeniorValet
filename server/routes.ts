@@ -800,7 +800,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         swLng,
         neLat,
         neLng,
-        limit = 300,
+        limit = 1000,
         careType,
         minRating,
         amenities
