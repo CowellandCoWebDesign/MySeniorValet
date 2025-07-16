@@ -48,6 +48,9 @@ import Mission from "@/pages/mission";
 import Team from "@/pages/team";
 import Testimonials from "@/pages/testimonials";
 import Help from "@/pages/help";
+import CareGuide from "@/pages/care-guide";
+import CommunityPortal from "@/pages/community-portal";
+import AISupport from "@/pages/ai-support";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -97,6 +100,10 @@ function Router() {
       <Route path="/team" component={Team} />
       <Route path="/testimonials" component={Testimonials} />
       <Route path="/help" component={Help} />
+      <Route path="/care-guide" component={CareGuide} />
+      <Route path="/community-portal" component={CommunityPortal} />
+      <Route path="/support" component={AISupport} />
+      <Route path="/ai-support" component={AISupport} />
       <Route component={NotFound} />
     </Switch>
   );

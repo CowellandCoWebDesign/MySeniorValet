@@ -12,8 +12,8 @@ export function Footer() {
                 <Home className="text-white h-6 w-6" />
               </div>
               <div>
-                <span className="text-2xl font-display font-bold">TrueView</span>
-                <p className="text-sm text-blue-400 font-medium">Clarity in Senior Living</p>
+                <span className="text-2xl font-display font-bold">MySeniorValet</span>
+                <p className="text-sm text-blue-400 font-medium">Your Personal Senior Living Concierge</p>
               </div>
             </div>
             <p className="text-gray-300 mb-6 leading-relaxed">
@@ -38,17 +38,17 @@ export function Footer() {
               <li><Link href="/search" className="hover:text-blue-400 transition-colors font-medium">Search Communities</Link></li>
               <li><Link href="/search" className="hover:text-blue-400 transition-colors font-medium">Explore All Communities</Link></li>
               <li><Link href="/about" className="hover:text-blue-400 transition-colors font-medium">How it Works</Link></li>
-              <li><a href="https://www.medicare.gov/coverage/long-term-care" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors font-medium">Care Type Guide</a></li>
+              <li><Link href="/care-guide" className="hover:text-blue-400 transition-colors font-medium">Care Type Guide</Link></li>
             </ul>
           </div>
           
           <div>
             <h3 className="text-lg font-semibold mb-6 text-white">For Communities</h3>
             <ul className="space-y-3 text-gray-300">
-              <li><a href="https://support.google.com/business/answer/2911778" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors font-medium">Claim Your Profile</a></li>
-              <li><a href="https://www.ahcancal.org/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors font-medium">Community Portal</a></li>
-              <li><a href="https://www.cms.gov/Medicare/Provider-Enrollment-and-Certification/CertificationandComplianc/FSQRS" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors font-medium">Transparency Benefits</a></li>
-              <li><a href="https://www.eldercare.acl.gov/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors font-medium">Support Center</a></li>
+              <li><Link href="/community-portal" className="hover:text-blue-400 transition-colors font-medium">Claim Your Profile</Link></li>
+              <li><Link href="/community-portal" className="hover:text-blue-400 transition-colors font-medium">Community Portal</Link></li>
+              <li><Link href="/mission" className="hover:text-blue-400 transition-colors font-medium">Transparency Benefits</Link></li>
+              <li><Link href="/ai-support" className="hover:text-blue-400 transition-colors font-medium">Support Center</Link></li>
             </ul>
           </div>
           
@@ -67,14 +67,14 @@ export function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-center md:text-left">
               <p className="text-gray-300 text-sm font-medium">
-                © 2025 TrueView. All rights reserved.
+                © 2025 MySeniorValet. All rights reserved.
               </p>
               <p className="text-gray-400 text-xs mt-1">
                 Data sourced from authentic, verified state licensing agencies and Google Places.
               </p>
             </div>
             <div className="flex flex-wrap justify-center md:justify-end space-x-6">
-              <a href="https://www.va.gov/housing-assistance/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Veterans Housing</a>
+              <Link href="/veterans" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Veterans Housing</Link>
               <Link href="/privacy" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Privacy</Link>
               <Link href="/terms" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Terms</Link>
               <Link href="/disclaimer" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Disclaimer</Link>
