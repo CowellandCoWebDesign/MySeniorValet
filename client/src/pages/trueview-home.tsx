@@ -157,10 +157,6 @@ export default function TrueViewHome() {
               </h1>
               <h2 className="text-sm sm:text-base md:text-lg text-white opacity-90 drop-shadow-md px-4 animate-fade-in-up animation-delay-300">
                 From live pricing and unit availability to move coordination, furniture setup, and prescription delivery, MySeniorValet is your white-glove partner.
-                <br className="hidden sm:block" />
-                <span className="block sm:inline sm:mt-2">
-                  Serving families across <strong className="text-amber-200">8,000+ verified senior living communities</strong>.
-                </span>
               </h2>
             </div>
           </div>
@@ -259,6 +255,13 @@ export default function TrueViewHome() {
                 Explore Communities
               </Button>
             </Link>
+          </div>
+          
+          {/* Community Count Text */}
+          <div className="mb-3 animate-fade-in-up animation-delay-750">
+            <p className="text-white/90 text-sm drop-shadow-md text-center">
+              Serving families across <strong className="text-amber-200">8,000+ verified senior living communities</strong>
+            </p>
           </div>
           
           {/* Verification Badge */}
