@@ -27,6 +27,7 @@ import { googlePlacesReviews } from './google-places-reviews';
 import { dataProtectionService } from './data-protection';
 import { supportResourceService } from './support-resources';
 import { pixabayService } from './pixabay-api';
+import { superclusterService } from './services/supercluster';
 import { z } from "zod";
 
 // Scalable infrastructure imports
@@ -1180,6 +1181,107 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Error fetching location communities:', error);
       // Return empty array instead of error to prevent UI breakage
       res.json([]);
+    }
+  });
+
+  // Supercluster-powered advanced clustering endpoint for 40,000+ communities
+  app.get('/api/communities/clusters', async (req, res) => {
+    try {
+      console.log('Supercluster request received:', req.query);
+      
+      const { bbox, zoom = 1 } = req.query;
+      
+      // Validate required parameters
+      if (!bbox || typeof bbox !== 'string') {
+        return res.status(400).json({ 
+          error: 'Missing bbox parameter. Required format: "west,south,east,north"' 
+        });
+      }
+      
+      const startTime = Date.now();
+      
+      // Parse bounding box
+      const [west, south, east, north] = bbox.split(',').map(Number);
+      
+      if ([west, south, east, north].some(isNaN)) {
+        return res.status(400).json({ 
+          error: 'Invalid bbox format. Required: "west,south,east,north" as numbers' 
+        });
+      }
+      
+      // Get clusters from supercluster service
+      const clusters = await superclusterService.getClusters(
+        [west, south, east, north], 
+        parseInt(zoom as string)
+      );
+      
+      console.log(`Supercluster returned ${clusters.length} clusters/points in ${Date.now() - startTime}ms`);
+      
+      res.json({
+        type: 'FeatureCollection',
+        features: clusters,
+        metadata: {
+          zoom: parseInt(zoom as string),
+          bbox: [west, south, east, north],
+          featureCount: clusters.length,
+          generatedAt: new Date().toISOString()
+        }
+      });
+    } catch (error) {
+      console.error('Supercluster error:', error);
+      res.status(500).json({ 
+        error: 'Supercluster request failed',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Get cluster expansion zoom level
+  app.get('/api/communities/clusters/:clusterId/expansion-zoom', async (req, res) => {
+    try {
+      const clusterId = parseInt(req.params.clusterId);
+      const expansionZoom = await superclusterService.getClusterExpansionZoom(clusterId);
+      
+      res.json({ expansionZoom });
+    } catch (error) {
+      console.error('Cluster expansion zoom error:', error);
+      res.status(500).json({ 
+        error: 'Failed to get expansion zoom',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Get cluster children
+  app.get('/api/communities/clusters/:clusterId/children', async (req, res) => {
+    try {
+      const clusterId = parseInt(req.params.clusterId);
+      const children = await superclusterService.getClusterChildren(clusterId);
+      
+      res.json({
+        type: 'FeatureCollection',
+        features: children
+      });
+    } catch (error) {
+      console.error('Cluster children error:', error);
+      res.status(500).json({ 
+        error: 'Failed to get cluster children',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Refresh supercluster index
+  app.post('/api/communities/clusters/refresh', async (req, res) => {
+    try {
+      await superclusterService.refresh();
+      res.json({ success: true, message: 'Supercluster index refreshed' });
+    } catch (error) {
+      console.error('Supercluster refresh error:', error);
+      res.status(500).json({ 
+        error: 'Failed to refresh supercluster index',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 

@@ -7,7 +7,6 @@ import { Star, MapPin, Phone, Globe, Heart, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import MarkerClusterGroup from 'react-leaflet-cluster';
 
 // Fix for default markers in Leaflet
 delete (Icon.Default.prototype as any)._getIconUrl;
@@ -68,8 +67,14 @@ interface MapProps {
   zoom?: number;
 }
 
-// Component to handle map bounds changes
-function MapBoundsHandler({ onBoundsChange }: { onBoundsChange: (bounds: LatLngBounds) => void }) {
+// Component to handle map bounds and zoom changes
+function MapBoundsHandler({ 
+  onBoundsChange, 
+  onZoomChange 
+}: { 
+  onBoundsChange: (bounds: LatLngBounds) => void;
+  onZoomChange: (zoom: number) => void;
+}) {
   const map = useMap();
   const [initialized, setInitialized] = useState(false);
   
@@ -83,17 +88,31 @@ function MapBoundsHandler({ onBoundsChange }: { onBoundsChange: (bounds: LatLngB
     }
   }, [map, onBoundsChange]);
   
+  const handleZoomChange = useCallback(() => {
+    try {
+      if (map) {
+        onZoomChange(map.getZoom());
+      }
+    } catch (error) {
+      console.warn('Error getting map zoom:', error);
+    }
+  }, [map, onZoomChange]);
+  
   useEffect(() => {
     if (map && !initialized) {
       // Set up event handlers for map movement
       map.on('moveend', handleBoundsChange);
-      map.on('zoomend', handleBoundsChange);
+      map.on('zoomend', () => {
+        handleBoundsChange();
+        handleZoomChange();
+      });
       map.on('dragend', handleBoundsChange);
       
       // Initial bounds when map is ready
       map.whenReady(() => {
         setTimeout(() => {
           handleBoundsChange();
+          handleZoomChange();
         }, 100);
       });
       
@@ -107,7 +126,7 @@ function MapBoundsHandler({ onBoundsChange }: { onBoundsChange: (bounds: LatLngB
         map.off('dragend', handleBoundsChange);
       }
     };
-  }, [map, handleBoundsChange, initialized]);
+  }, [map, handleBoundsChange, handleZoomChange, initialized]);
   
   return null;
 }
@@ -128,79 +147,53 @@ export default function Map({
     onBoundsChange?.(bounds);
   }, [onBoundsChange]);
 
-  // Fetch communities within map bounds using PostGIS spatial search
-  const { data: communities = [], isLoading, error } = useQuery({
-    queryKey: ['communities-spatial', mapBounds, searchFilters],
+  const handleZoomChange = useCallback((zoom: number) => {
+    setCurrentZoom(zoom);
+  }, []);
+
+  // Track current zoom level for supercluster
+  const [currentZoom, setCurrentZoom] = useState(zoom);
+  
+  // Fetch clustered communities using supercluster service
+  const { data: clusterData, isLoading, error } = useQuery({
+    queryKey: ['communities-clusters', mapBounds, currentZoom, searchFilters],
     queryFn: async () => {
-      let swLat, swLng, neLat, neLng;
+      let west, south, east, north;
       
       if (!mapBounds) {
         // Use default California state bounds for better coverage display
-        swLat = '32.0'; // Southern California
-        swLng = '-124.0'; // Western California
-        neLat = '42.0'; // Northern California
-        neLng = '-114.0'; // Eastern California
+        west = -124.0; // Western California
+        south = 32.0; // Southern California
+        east = -114.0; // Eastern California
+        north = 42.0; // Northern California
       } else {
         const sw = mapBounds.getSouthWest();
         const ne = mapBounds.getNorthEast();
-        swLat = sw.lat.toString();
-        swLng = sw.lng.toString();
-        neLat = ne.lat.toString();
-        neLng = ne.lng.toString();
-      }
-      
-      // Calculate appropriate limit based on zoom level (approximate)
-      const bounds = mapBounds;
-      let limit = '4000'; // Default to state-wide limit for California bounds
-      let area = 0;
-      
-      if (bounds) {
-        const sw = bounds.getSouthWest();
-        const ne = bounds.getNorthEast();
-        const latSpan = ne.lat - sw.lat;
-        const lngSpan = ne.lng - sw.lng;
-        area = latSpan * lngSpan;
-        
-        // Optimize for state-wide viewing and nationwide scaling
-        if (area > 5000) limit = '8000'; // Continental US level
-        else if (area > 2000) limit = '6000'; // Multi-state regions
-        else if (area > 800) limit = '4000'; // State-wide level
-        else if (area > 200) limit = '3000'; // Large state regions
-        else if (area > 50) limit = '2000'; // Metro areas
-        else if (area > 20) limit = '1500'; // Large cities
-        else if (area > 5) limit = '1000'; // City level
-        else if (area > 1) limit = '800'; // City districts
-        else limit = '500'; // Neighborhood level
-      } else {
-        // When no bounds (initial load), use California state area calculation
-        area = (42.0 - 32.0) * (-114.0 - (-124.0)); // California state bounds area = 100
-        limit = '4000'; // State-wide level for California
+        west = sw.lng;
+        south = sw.lat;
+        east = ne.lng;
+        north = ne.lat;
       }
       
       const params = new URLSearchParams({
-        swLat,
-        swLng,
-        neLat,
-        neLng,
-        limit,
-        ...(searchFilters.careType && { careType: searchFilters.careType }),
-        ...(searchFilters.minRating && { minRating: searchFilters.minRating.toString() }),
+        bbox: `${west},${south},${east},${north}`,
+        zoom: currentZoom.toString(),
       });
       
-      console.log('Map bounds area:', area, 'limit:', limit, 'bounds:', {swLat, swLng, neLat, neLng});
+      console.log('Supercluster request:', { west, south, east, north, zoom: currentZoom });
       
-      const response = await fetch(`/api/communities/search/spatial?${params}`);
+      const response = await fetch(`/api/communities/clusters?${params}`);
       
       if (!response.ok) {
-        throw new Error('Failed to fetch communities');
+        throw new Error('Failed to fetch clusters');
       }
       
       return response.json();
     },
     enabled: true, // Always enabled - will use fallback bounds if needed
-    staleTime: 1000, // Very short cache time for dynamic updates
+    staleTime: 2000, // 2 second cache time for cluster updates
     refetchOnWindowFocus: false, // Don't refetch when window regains focus
-    gcTime: 5000, // Garbage collect after 5 seconds
+    gcTime: 10000, // Garbage collect after 10 seconds
   });
 
   const getIconForCommunity = (community: Community) => {
@@ -230,9 +223,9 @@ export default function Map({
         <MapContainer
           center={center}
           zoom={zoom}
-          minZoom={1}
+          minZoom={2}
           maxZoom={19}
-          bounds={[[32.0, -124.0], [42.0, -114.0]]} // California state bounds
+          bounds={[[24.0, -130.0], [50.0, -65.0]]} // Continental US bounds for 40,000+ communities
           style={{ height: '100%', width: '100%' }}
           className="rounded-lg"
         >
@@ -241,116 +234,180 @@ export default function Map({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         
-        <MapBoundsHandler onBoundsChange={handleBoundsChange} />
+        <MapBoundsHandler onBoundsChange={handleBoundsChange} onZoomChange={handleZoomChange} />
         
-        {/* Clustered community markers */}
-        <MarkerClusterGroup
-          chunkedLoading
-          maxClusterRadius={80}
-          spiderfyOnMaxZoom={true}
-          showCoverageOnHover={false}
-          zoomToBoundsOnClick={true}
-          removeOutsideVisibleBounds={true}
-          animate={true}
-          animateAddingMarkers={true}
-          disableClusteringAtZoom={14}
-        >
-          {communities.map((community: Community) => (
-          <Marker
-            key={community.id}
-            position={[community.latitude, community.longitude]}
-            icon={getIconForCommunity(community)}
-            eventHandlers={{
-              click: () => handleCommunityClick(community),
-            }}
-          >
-            <Popup maxWidth={400} className="custom-popup">
-              <Card className="border-0 shadow-none">
-                <CardContent className="p-4">
-                  <div className="space-y-3">
-                    {/* Header */}
-                    <div>
-                      <h3 className="font-semibold text-lg leading-tight">
-                        {community.name}
-                      </h3>
-                      <p className="text-sm text-gray-600 flex items-center gap-1">
-                        <MapPin className="w-4 h-4" />
-                        {community.address}, {community.city}, {community.state} {community.zipCode}
-                      </p>
+        {/* Supercluster-powered markers and clusters */}
+        {clusterData?.features?.map((feature: any, index: number) => {
+          const [lng, lat] = feature.geometry.coordinates;
+          const { properties } = feature;
+          
+          // Handle cluster markers (multiple communities)
+          if (properties.cluster) {
+            const clusterIcon = new Icon({
+              iconUrl: `data:image/svg+xml;base64,${btoa(`
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+                  <circle cx="20" cy="20" r="20" fill="#1e40af" stroke="#fff" stroke-width="2"/>
+                  <text x="20" y="26" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">
+                    ${properties.point_count_abbreviated}
+                  </text>
+                </svg>
+              `)}`,
+              iconSize: [40, 40],
+              iconAnchor: [20, 20],
+            });
+            
+            return (
+              <Marker
+                key={`cluster-${properties.cluster_id}`}
+                position={[lat, lng]}
+                icon={clusterIcon}
+                eventHandlers={{
+                  click: async () => {
+                    // Get cluster expansion zoom to zoom into cluster
+                    try {
+                      const response = await fetch(`/api/communities/clusters/${properties.cluster_id}/expansion-zoom`);
+                      const data = await response.json();
+                      const map = (document.querySelector('.leaflet-container') as any)?._leaflet_map;
+                      if (map) {
+                        map.setView([lat, lng], data.expansionZoom);
+                      }
+                    } catch (error) {
+                      console.error('Error expanding cluster:', error);
+                    }
+                  },
+                }}
+              >
+                <Popup>
+                  <div className="text-center">
+                    <div className="font-semibold text-lg text-blue-900">
+                      {properties.point_count} Communities
                     </div>
-                    
-                    {/* Rating */}
-                    {community.rating > 0 && (
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          <span className="font-medium">{community.rating}</span>
-                        </div>
-                        <span className="text-sm text-gray-600">
-                          ({community.reviewCount} reviews)
-                        </span>
-                      </div>
-                    )}
-                    
-                    {/* Care Types */}
-                    <div className="flex flex-wrap gap-1">
-                      {community.careTypes?.map((type, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs">
-                          {type}
-                        </Badge>
-                      ))}
-                    </div>
-                    
-                    {/* Pricing */}
-                    <div className="bg-blue-50 p-2 rounded">
-                      <p className="text-sm font-medium text-blue-900">
-                        {formatPrice(community.priceRange)}
-                      </p>
-                      {community.availability && (
-                        <p className="text-xs text-blue-700">
-                          {community.availability}
-                        </p>
-                      )}
-                    </div>
-                    
-                    {/* Actions */}
-                    <div className="flex gap-2 pt-2">
-                      <Button 
-                        size="sm" 
-                        className="flex-1"
-                        onClick={() => handleCommunityClick(community)}
-                      >
-                        <ExternalLink className="w-4 h-4 mr-1" />
-                        View Details
-                      </Button>
-                      
-                      {community.phone && (
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => window.open(`tel:${community.phone}`)}
-                        >
-                          <Phone className="w-4 h-4" />
-                        </Button>
-                      )}
-                      
-                      {community.website && (
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => window.open(community.website, '_blank')}
-                        >
-                          <Globe className="w-4 h-4" />
-                        </Button>
-                      )}
+                    <div className="text-sm text-gray-600 mt-1">
+                      Click to zoom in and see individual communities
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </Popup>
-          </Marker>
-          ))}
-        </MarkerClusterGroup>
+                </Popup>
+              </Marker>
+            );
+          }
+          
+          // Handle individual community markers
+          const community = {
+            id: properties.id,
+            name: properties.name,
+            address: properties.address,
+            city: properties.city,
+            state: properties.state,
+            zipCode: properties.zipCode,
+            latitude: lat,
+            longitude: lng,
+            careTypes: properties.careTypes || [],
+            rating: properties.rating || 0,
+            reviewCount: properties.reviewCount || 0,
+            phone: properties.phone,
+            website: properties.website,
+            priceRange: properties.priceRange,
+            availability: properties.availability,
+            photos: properties.photos || [],
+            description: properties.description || '',
+          };
+          
+          return (
+            <Marker
+              key={`community-${properties.id}`}
+              position={[lat, lng]}
+              icon={getIconForCommunity(community)}
+              eventHandlers={{
+                click: () => handleCommunityClick(community),
+              }}
+            >
+              <Popup maxWidth={400} className="custom-popup">
+                <Card className="border-0 shadow-none">
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      {/* Header */}
+                      <div>
+                        <h3 className="font-semibold text-lg leading-tight">
+                          {community.name}
+                        </h3>
+                        <p className="text-sm text-gray-600 flex items-center gap-1">
+                          <MapPin className="w-4 h-4" />
+                          {community.address}, {community.city}, {community.state} {community.zipCode}
+                        </p>
+                      </div>
+                      
+                      {/* Rating */}
+                      {community.rating > 0 && (
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1">
+                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                            <span className="font-medium">{community.rating}</span>
+                          </div>
+                          <span className="text-sm text-gray-600">
+                            ({community.reviewCount} reviews)
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* Care Types */}
+                      <div className="flex flex-wrap gap-1">
+                        {community.careTypes?.map((type, index) => (
+                          <Badge key={index} variant="secondary" className="text-xs">
+                            {type}
+                          </Badge>
+                        ))}
+                      </div>
+                      
+                      {/* Pricing */}
+                      <div className="bg-blue-50 p-2 rounded">
+                        <p className="text-sm font-medium text-blue-900">
+                          {formatPrice(community.priceRange)}
+                        </p>
+                        {community.availability && (
+                          <p className="text-xs text-blue-700">
+                            {community.availability}
+                          </p>
+                        )}
+                      </div>
+                      
+                      {/* Actions */}
+                      <div className="flex gap-2 pt-2">
+                        <Button 
+                          size="sm" 
+                          className="flex-1"
+                          onClick={() => handleCommunityClick(community)}
+                        >
+                          <ExternalLink className="w-4 h-4 mr-1" />
+                          View Details
+                        </Button>
+                        
+                        {community.phone && (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => window.open(`tel:${community.phone}`)}
+                          >
+                            <Phone className="w-4 h-4" />
+                          </Button>
+                        )}
+                        
+                        {community.website && (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => window.open(community.website, '_blank')}
+                          >
+                            <Globe className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Popup>
+            </Marker>
+          );
+        })}
       </MapContainer>
       
       {/* Loading/Error States */}
