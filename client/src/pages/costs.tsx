@@ -81,6 +81,8 @@ export default function Costs() {
       transportation: 300,
       healthcare: 500,
       homecare: careLevel === 'memorycare' ? 3500 : careLevel === 'assistedLiving' ? 2500 : careLevel === 'skilled' ? 4500 : 1500,
+      housekeeping: 200,
+      activities: 100,
       misc: 300
     };
     
@@ -360,99 +362,106 @@ export default function Costs() {
 
                         {/* At-Home vs Senior Living Comparison */}
                         {affordabilityResult.atHomeCosts && (
-                          <div className="bg-gradient-to-br from-green-50 to-blue-50 p-4 rounded-xl border border-green-200">
-                            <div className="flex items-center mb-3">
-                              <MapPin className="w-5 h-5 text-green-600 mr-2" />
-                              <span className="font-semibold text-green-800">At-Home vs Senior Living Costs</span>
+                          <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+                            <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white p-4 rounded-t-xl">
+                              <div className="flex items-center">
+                                <MapPin className="w-5 h-5 mr-2" />
+                                <span className="font-semibold">Cost Comparison Analysis</span>
+                              </div>
                             </div>
                             
-                            <div className="grid grid-cols-2 gap-4 mb-4">
-                              {/* At-Home Costs */}
-                              <div className="bg-white p-3 rounded-lg border border-gray-200">
-                                <h5 className="font-semibold text-gray-900 mb-2 text-sm">At-Home Costs</h5>
-                                <div className="space-y-1 text-xs">
-                                  <div className="flex justify-between">
-                                    <span>Rent/Mortgage:</span>
-                                    <span>{formatCurrency(affordabilityResult.atHomeCosts.rent)}</span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span>Utilities:</span>
-                                    <span>{formatCurrency(affordabilityResult.atHomeCosts.utilities)}</span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span>Groceries:</span>
-                                    <span>{formatCurrency(affordabilityResult.atHomeCosts.groceries)}</span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span>Transportation:</span>
-                                    <span>{formatCurrency(affordabilityResult.atHomeCosts.transportation)}</span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span>Healthcare:</span>
-                                    <span>{formatCurrency(affordabilityResult.atHomeCosts.healthcare)}</span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span>Home Care:</span>
-                                    <span>{formatCurrency(affordabilityResult.atHomeCosts.homecare)}</span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span>Miscellaneous:</span>
-                                    <span>{formatCurrency(affordabilityResult.atHomeCosts.misc)}</span>
-                                  </div>
-                                  <div className="flex justify-between border-t pt-1 font-semibold">
-                                    <span>Total Monthly:</span>
-                                    <span>{formatCurrency(affordabilityResult.totalAtHomeCosts)}</span>
-                                  </div>
+                            <div className="p-4">
+                              {/* Header Row */}
+                              <div className="grid grid-cols-3 gap-4 mb-4">
+                                <div className="font-semibold text-gray-700 text-sm">Monthly Expenses</div>
+                                <div className="font-semibold text-center text-gray-700 text-sm">Your Home</div>
+                                <div className="font-semibold text-center text-gray-700 text-sm">Senior Living</div>
+                              </div>
+                              
+                              {/* Expense Rows */}
+                              <div className="space-y-2">
+                                <div className="grid grid-cols-3 gap-4 py-2 border-b border-gray-100">
+                                  <div className="text-sm text-gray-700">Monthly Rent / Mortgage</div>
+                                  <div className="text-center text-sm font-medium">{formatCurrency(affordabilityResult.atHomeCosts.rent)}</div>
+                                  <div className="text-center text-sm font-medium text-green-600">Included</div>
+                                </div>
+                                
+                                <div className="grid grid-cols-3 gap-4 py-2 border-b border-gray-100">
+                                  <div className="text-sm text-gray-700">Utilities (Electric, Gas, Water, Internet)</div>
+                                  <div className="text-center text-sm font-medium">{formatCurrency(affordabilityResult.atHomeCosts.utilities)}</div>
+                                  <div className="text-center text-sm font-medium text-green-600">Included</div>
+                                </div>
+                                
+                                <div className="grid grid-cols-3 gap-4 py-2 border-b border-gray-100">
+                                  <div className="text-sm text-gray-700">Groceries & Meal Preparation</div>
+                                  <div className="text-center text-sm font-medium">{formatCurrency(affordabilityResult.atHomeCosts.groceries)}</div>
+                                  <div className="text-center text-sm font-medium text-green-600">Included</div>
+                                </div>
+                                
+                                <div className="grid grid-cols-3 gap-4 py-2 border-b border-gray-100">
+                                  <div className="text-sm text-gray-700">Transportation & Vehicle Costs</div>
+                                  <div className="text-center text-sm font-medium">{formatCurrency(affordabilityResult.atHomeCosts.transportation)}</div>
+                                  <div className="text-center text-sm font-medium text-green-600">Included</div>
+                                </div>
+                                
+                                <div className="grid grid-cols-3 gap-4 py-2 border-b border-gray-100">
+                                  <div className="text-sm text-gray-700">Healthcare & Insurance</div>
+                                  <div className="text-center text-sm font-medium">{formatCurrency(affordabilityResult.atHomeCosts.healthcare)}</div>
+                                  <div className="text-center text-sm font-medium text-green-600">Included</div>
+                                </div>
+                                
+                                <div className="grid grid-cols-3 gap-4 py-2 border-b border-gray-100">
+                                  <div className="text-sm text-gray-700">Personal Care Services</div>
+                                  <div className="text-center text-sm font-medium">{formatCurrency(affordabilityResult.atHomeCosts.homecare)}</div>
+                                  <div className="text-center text-sm font-medium">{formatCurrency(affordabilityResult.seniorLivingAverage)}</div>
+                                </div>
+                                
+                                <div className="grid grid-cols-3 gap-4 py-2 border-b border-gray-100">
+                                  <div className="text-sm text-gray-700">Housekeeping & Maintenance</div>
+                                  <div className="text-center text-sm font-medium">{formatCurrency(affordabilityResult.atHomeCosts.housekeeping)}</div>
+                                  <div className="text-center text-sm font-medium text-green-600">Included</div>
+                                </div>
+                                
+                                <div className="grid grid-cols-3 gap-4 py-2 border-b border-gray-100">
+                                  <div className="text-sm text-gray-700">Activities & Social Programs</div>
+                                  <div className="text-center text-sm font-medium">{formatCurrency(affordabilityResult.atHomeCosts.activities)}</div>
+                                  <div className="text-center text-sm font-medium text-green-600">Included</div>
+                                </div>
+                                
+                                <div className="grid grid-cols-3 gap-4 py-2 border-b border-gray-100">
+                                  <div className="text-sm text-gray-700">24-Hour Emergency Support</div>
+                                  <div className="text-center text-sm font-medium text-red-600">Not Available</div>
+                                  <div className="text-center text-sm font-medium text-green-600">Included</div>
+                                </div>
+                                
+                                <div className="grid grid-cols-3 gap-4 py-2 border-b border-gray-100">
+                                  <div className="text-sm text-gray-700">Community & Social Connection</div>
+                                  <div className="text-center text-sm font-medium text-red-600">Limited</div>
+                                  <div className="text-center text-sm font-medium text-green-600">Included</div>
                                 </div>
                               </div>
                               
-                              {/* Senior Living Costs */}
-                              <div className="bg-white p-3 rounded-lg border border-gray-200">
-                                <h5 className="font-semibold text-gray-900 mb-2 text-sm">Senior Living</h5>
-                                <div className="space-y-1 text-xs">
-                                  <div className="flex justify-between">
-                                    <span>All-Inclusive Care:</span>
-                                    <span>{formatCurrency(affordabilityResult.seniorLivingAverage)}</span>
-                                  </div>
-                                  <div className="text-gray-600 text-xs mt-2">
-                                    <p>Includes: Housing, meals, utilities, housekeeping, activities, and care services</p>
-                                  </div>
-                                  <div className="flex justify-between border-t pt-1 font-semibold mt-4">
-                                    <span>Total Monthly:</span>
-                                    <span>{formatCurrency(affordabilityResult.seniorLivingAverage)}</span>
-                                  </div>
-                                </div>
+                              {/* Total Row */}
+                              <div className="grid grid-cols-3 gap-4 py-3 mt-4 bg-gray-50 rounded-lg font-semibold">
+                                <div className="text-gray-900">Total Monthly Cost</div>
+                                <div className="text-center text-gray-900">{formatCurrency(affordabilityResult.totalAtHomeCosts)}</div>
+                                <div className="text-center text-gray-900">{formatCurrency(affordabilityResult.seniorLivingAverage)}</div>
                               </div>
-                            </div>
-                            
-                            {/* Savings/Cost Difference */}
-                            <div className={`p-3 rounded-lg border text-center ${
-                              affordabilityResult.monthlySavings > 0 
-                                ? 'bg-red-50 border-red-200' 
-                                : 'bg-green-50 border-green-200'
-                            }`}>
-                              <div className="flex items-center justify-center mb-2">
-                                {affordabilityResult.monthlySavings > 0 ? (
-                                  <AlertCircle className="w-4 h-4 text-red-600 mr-2" />
-                                ) : (
-                                  <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                                )}
-                                <span className={`font-semibold text-sm ${
-                                  affordabilityResult.monthlySavings > 0 ? 'text-red-800' : 'text-green-800'
+                              
+                              {/* Calculate Total Button */}
+                              <div className="mt-4 text-center">
+                                <div className={`inline-flex items-center px-4 py-2 rounded-lg font-semibold text-sm ${
+                                  affordabilityResult.monthlySavings > 0 
+                                    ? 'bg-red-100 text-red-800' 
+                                    : 'bg-green-100 text-green-800'
                                 }`}>
-                                  {affordabilityResult.monthlySavings > 0 ? 'Additional Cost' : 'Potential Savings'}
-                                </span>
-                              </div>
-                              <div className="space-y-1">
-                                <div className={`text-lg font-bold ${
-                                  affordabilityResult.monthlySavings > 0 ? 'text-red-600' : 'text-green-600'
-                                }`}>
+                                  {affordabilityResult.monthlySavings > 0 ? (
+                                    <AlertCircle className="w-4 h-4 mr-2" />
+                                  ) : (
+                                    <CheckCircle className="w-4 h-4 mr-2" />
+                                  )}
+                                  {affordabilityResult.monthlySavings > 0 ? 'Additional Cost: ' : 'Potential Savings: '}
                                   {formatCurrency(Math.abs(affordabilityResult.monthlySavings))} /month
-                                </div>
-                                <div className={`text-sm ${
-                                  affordabilityResult.monthlySavings > 0 ? 'text-red-600' : 'text-green-600'
-                                }`}>
-                                  {formatCurrency(Math.abs(affordabilityResult.yearlyDifference))} /year
                                 </div>
                               </div>
                             </div>
