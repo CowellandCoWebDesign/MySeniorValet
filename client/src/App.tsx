@@ -23,6 +23,7 @@ import AdminCleanFull from "@/pages/admin-clean-full";
 import AdminCreative from "@/pages/admin-creative";
 import ExpansionMonitor from "@/pages/expansion-monitor";
 import ApiCostDashboard from "@/pages/api-cost-dashboard";
+import ServiceListingsAdmin from "@/pages/admin/service-listings";
 import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
 import Disclaimer from "@/pages/disclaimer";
@@ -68,6 +69,7 @@ function Router() {
       <Route path="/communities/:id" component={CommunityDetail} />
       <Route path="/claim/:communityId" component={Claim} />
       <Route path="/admin" component={AdminCreative} />
+      <Route path="/admin/service-listings" component={ServiceListingsAdmin} />
       <Route path="/expansion-monitor" component={ExpansionMonitor} />
       <Route path="/api-costs" component={ApiCostDashboard} />
       <Route path="/dashboard" component={Dashboard} />

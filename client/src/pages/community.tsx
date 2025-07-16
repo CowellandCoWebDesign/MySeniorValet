@@ -217,10 +217,106 @@ export default function CommunityPage() {
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Community Not Found</h1>
             <p className="text-gray-600 mb-6">The community you're looking for doesn't exist or has been removed.</p>
-            <Link href={getBackUrl()}>
+            <Link to={getBackUrl()}>
               <Button>Back to Search</Button>
             </Link>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle service provider detection
+  const isServiceProvider = community?.facilityType === 'Service Provider' || 
+                           community?.pricingType === 'service_provider' ||
+                           (community?.description?.includes('⚠️ 3rd Party Service Provider'));
+
+  // Service provider warning display
+  if (isServiceProvider) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Navigation */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-4">
+              <Link to={getBackUrl()}>
+                <Button variant="outline" size="sm" className="flex items-center space-x-2">
+                  <ChevronLeft className="h-4 w-4" />
+                  <span>Back to Search</span>
+                </Button>
+              </Link>
+              <Link to="/">
+                <Button variant="outline" size="sm" className="flex items-center space-x-2">
+                  <Home className="h-4 w-4" />
+                  <span>MySeniorValet</span>
+                </Button>
+              </Link>
+            </div>
+          </div>
+
+          {/* Service Provider Warning */}
+          <Card className="border-red-200 bg-red-50">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2 text-red-800">
+                <AlertTriangle className="h-6 w-6" />
+                <span>Service Provider Detected</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="bg-red-100 border border-red-200 rounded-lg p-4">
+                  <h3 className="font-semibold text-red-900 mb-2">{community?.name}</h3>
+                  <p className="text-red-800 text-sm mb-3">
+                    This listing appears to be a 3rd party service provider, referral agency, or care service company - not a senior living community.
+                  </p>
+                  <div className="text-red-700 text-sm space-y-1">
+                    <p><strong>Why this matters:</strong> MySeniorValet maintains strict anti-referral policies to protect families from hidden fees.</p>
+                    <p><strong>What we recommend:</strong> Search for actual senior living communities instead of service providers.</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-4">
+                  <Link to="/search">
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Search Real Communities
+                    </Button>
+                  </Link>
+                  <Link to="/">
+                    <Button variant="outline">
+                      <Home className="h-4 w-4 mr-2" />
+                      Return Home
+                    </Button>
+                  </Link>
+                </div>
+
+                <div className="border-t pt-4">
+                  <h4 className="font-semibold text-red-900 mb-2">Our Anti-Referral Mission</h4>
+                  <p className="text-red-800 text-sm">
+                    MySeniorValet connects families directly with senior living communities, eliminating referral fees and hidden costs. 
+                    We actively remove service providers to maintain pricing transparency and protect families from unnecessary markups.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Report Issue */}
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <AlertCircle className="h-5 w-5" />
+                <span>Report an Issue</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600 mb-3">
+                If you believe this listing was incorrectly classified, please let us know.
+              </p>
+              <FlagListingDialog communityId={community?.id || 0} />
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -1010,20 +1106,42 @@ export default function CommunityPage() {
             {/* Pricing & Contact */}
             <Card className="sticky top-24">
               <CardContent className="p-6">
-                {/* Pricing */}
+                {/* Pricing - Business Rule Compliant */}
                 {community.priceRange && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                  <div className={`border rounded-lg p-4 mb-6 ${
+                    community.claimed ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'
+                  }`}>
                     <div className="flex items-center space-x-2 mb-2">
-                      <DollarSign className="h-5 w-5 text-green-600" />
-                      <span className="font-semibold text-green-900">Monthly Cost</span>
+                      <DollarSign className={`h-5 w-5 ${
+                        community.claimed ? 'text-green-600' : 'text-blue-600'
+                      }`} />
+                      <span className={`font-semibold ${
+                        community.claimed ? 'text-green-900' : 'text-blue-900'
+                      }`}>
+                        {community.claimed ? 'Live Pricing' : 'Estimated Pricing'}
+                      </span>
+                      {community.claimed && (
+                        <Badge className="bg-green-600 text-white text-xs">
+                          Claimed Community
+                        </Badge>
+                      )}
                     </div>
-                    <div className="text-2xl font-bold text-green-900">
+                    <div className={`text-2xl font-bold ${
+                      community.claimed ? 'text-green-900' : 'text-blue-900'
+                    }`}>
                       ${community.priceRange.min.toLocaleString()} - ${community.priceRange.max.toLocaleString()}
+                      {!community.claimed && (
+                        <span className="text-sm text-blue-600 ml-2 font-normal">est.</span>
+                      )}
                     </div>
-                    <div className="text-sm text-green-700">per month</div>
+                    <div className={`text-sm ${
+                      community.claimed ? 'text-green-700' : 'text-blue-700'
+                    }`}>
+                      per month {community.claimed ? '(verified)' : '(market estimate)'}
+                    </div>
                     
-                    {/* Special Offers */}
-                    {community.pricingDetails?.specialOffers && community.pricingDetails.specialOffers.length > 0 && (
+                    {/* Special Offers - Only for claimed communities */}
+                    {community.claimed && community.pricingDetails?.specialOffers && community.pricingDetails.specialOffers.length > 0 && (
                       <div className="mt-3 pt-3 border-t border-green-200">
                         {community.pricingDetails.specialOffers.map((offer, index) => (
                           <div key={index} className="bg-red-100 border border-red-200 rounded p-2">
@@ -1036,53 +1154,91 @@ export default function CommunityPage() {
                   </div>
                 )}
 
-                {/* PRICING INFORMATION */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                {/* ADDITIONAL PRICING DETAILS - Business Rule Compliant */}
+                <div className={`border rounded-lg p-4 mb-6 ${
+                  community.claimed ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'
+                }`}>
                   <div className="flex items-center space-x-2 mb-4">
-                    <Home className="h-5 w-5 text-blue-600" />
-                    <span className="font-semibold text-blue-900">Pricing Information</span>
+                    <Home className={`h-5 w-5 ${
+                      community.claimed ? 'text-green-600' : 'text-yellow-600'
+                    }`} />
+                    <span className={`font-semibold ${
+                      community.claimed ? 'text-green-900' : 'text-yellow-900'
+                    }`}>
+                      {community.claimed ? 'Verified Pricing Details' : 'Estimated Pricing Information'}
+                    </span>
                   </div>
                   
                   {/* Typical Pricing Range */}
                   {community.priceRange && (
                     <div className="mb-4">
-                      <div className="text-lg font-semibold text-blue-900 mb-2">
-                        Typical Monthly Cost: ${community.priceRange.min?.toLocaleString()} - ${community.priceRange.max?.toLocaleString()}
+                      <div className={`text-lg font-semibold mb-2 ${
+                        community.claimed ? 'text-green-900' : 'text-yellow-900'
+                      }`}>
+                        {community.claimed ? 'Current Monthly Cost' : 'Typical Monthly Cost'}: ${community.priceRange.min?.toLocaleString()} - ${community.priceRange.max?.toLocaleString()}
+                        {!community.claimed && (
+                          <span className="text-sm text-yellow-600 ml-2 font-normal">est.</span>
+                        )}
                       </div>
-                      <div className="text-sm text-blue-700">Based on care level and unit type</div>
+                      <div className={`text-sm ${
+                        community.claimed ? 'text-green-700' : 'text-yellow-700'
+                      }`}>
+                        {community.claimed ? 'Verified pricing based on care level and unit type' : 'Based on care level and unit type (market estimate)'}
+                      </div>
                     </div>
                   )}
 
-                  {/* Move-In Costs */}
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    <div className="bg-white border border-blue-200 rounded p-3">
-                      <div className="text-sm font-medium text-blue-900">Community Fee</div>
-                      <div className="text-lg font-semibold text-blue-800">
-                        $1,500 (one-time)
+                  {/* Move-In Costs - Only for claimed communities */}
+                  {community.claimed && (
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div className="bg-white border border-green-200 rounded p-3">
+                        <div className="text-sm font-medium text-green-900">Community Fee</div>
+                        <div className="text-lg font-semibold text-green-800">
+                          $1,500 (one-time)
+                        </div>
+                        <div className="text-xs text-green-600">One-time move-in fee</div>
                       </div>
-                      <div className="text-xs text-blue-600">One-time move-in fee</div>
+                      <div className="bg-white border border-green-200 rounded p-3">
+                        <div className="text-sm font-medium text-green-900">Application Fee</div>
+                        <div className="text-lg font-semibold text-green-800">$150</div>
+                        <div className="text-xs text-green-600">Non-refundable</div>
+                      </div>
                     </div>
-                    <div className="bg-white border border-blue-200 rounded p-3">
-                      <div className="text-sm font-medium text-blue-900">Application Fee</div>
-                      <div className="text-lg font-semibold text-blue-800">$150</div>
-                      <div className="text-xs text-blue-600">Non-refundable</div>
-                    </div>
-                  </div>
+                  )}
 
                   {/* Verification Notice */}
-                  <div className="bg-orange-100 border border-orange-200 rounded p-3">
+                  <div className={`border rounded p-3 ${
+                    community.claimed 
+                      ? 'bg-green-100 border-green-200' 
+                      : 'bg-orange-100 border-orange-200'
+                  }`}>
                     <div className="flex items-center space-x-2 mb-2">
-                      <AlertCircle className="h-4 w-4 text-orange-600" />
-                      <span className="text-sm font-medium text-orange-900">Pending Community Verification</span>
+                      <AlertCircle className={`h-4 w-4 ${
+                        community.claimed ? 'text-green-600' : 'text-orange-600'
+                      }`} />
+                      <span className={`text-sm font-medium ${
+                        community.claimed ? 'text-green-900' : 'text-orange-900'
+                      }`}>
+                        {community.claimed ? 'Verified Community Information' : 'Pending Community Verification'}
+                      </span>
                     </div>
-                    <div className="text-xs text-orange-700">
-                      Exact pricing, current specials, and available units are being verified directly with the community. 
-                      Prices shown are typical ranges and may vary based on care needs and current promotions.
+                    <div className={`text-xs ${
+                      community.claimed ? 'text-green-700' : 'text-orange-700'
+                    }`}>
+                      {community.claimed 
+                        ? 'This community has been verified and is actively managed by the community team. Pricing and availability information is current and accurate.'
+                        : 'Exact pricing, current specials, and available units are being verified directly with the community. Prices shown are typical ranges and may vary based on care needs and current promotions.'
+                      }
                     </div>
                   </div>
 
-                  <div className="mt-4 text-xs text-blue-600 text-center">
-                    Contact the community for current pricing and availability information.
+                  <div className={`mt-4 text-xs text-center ${
+                    community.claimed ? 'text-green-600' : 'text-blue-600'
+                  }`}>
+                    {community.claimed 
+                      ? 'Contact the community for immediate availability and to schedule a tour.'
+                      : 'Contact the community for current pricing and availability information.'
+                    }
                   </div>
                 </div>
 

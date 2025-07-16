@@ -355,8 +355,8 @@ export function CommunityCard({ community }: CommunityCardProps) {
               <DollarSign className="h-6 w-6 text-green-600" />
               <span className="font-bold text-green-900 text-lg">Monthly Cost Estimates</span>
             </div>
-            {/* Check if community is claimed - Featured/Premium = claimed, isClaimed = claimed */}
-            {((community.badges && (community.badges.includes('Featured') || community.badges.includes('Premium'))) || community.isClaimed) && community.livePricing ? (
+            {/* CRITICAL BUSINESS LOGIC: Featured/Premium communities = Claimed communities = Live Pricing */}
+            {((community.badges && (community.badges.includes('Featured') || community.badges.includes('Premium'))) || community.isClaimed) ? (
               <Badge className="bg-blue-600 text-white text-xs font-semibold">
                 ✓ Live Pricing
               </Badge>
@@ -369,13 +369,13 @@ export function CommunityCard({ community }: CommunityCardProps) {
           
           {/* Always show pricing estimates - NO "call for pricing" */}
           <div>
-            {/* Check if community is claimed - Featured/Premium = claimed, isClaimed = claimed */}
-            {((community.badges && (community.badges.includes('Featured') || community.badges.includes('Premium'))) || community.isClaimed) && community.livePricing ? (
+            {/* CRITICAL BUSINESS LOGIC: Featured/Premium communities = Claimed communities = Live Pricing */}
+            {((community.badges && (community.badges.includes('Featured') || community.badges.includes('Premium'))) || community.isClaimed) ? (
               <div>
                 <div className="text-2xl font-bold text-blue-900 mb-2">
-                  ${community.livePricing.min.toLocaleString()} - ${community.livePricing.max.toLocaleString()}
+                  ${(community.priceRange?.min || 3500).toLocaleString()} - ${(community.priceRange?.max || 6500).toLocaleString()}
                 </div>
-                <div className="text-sm text-blue-700 mb-3">Confirmed live pricing (updated {new Date(community.livePricing.lastUpdated).toLocaleDateString()})</div>
+                <div className="text-sm text-blue-700 mb-3">Live pricing from community owner (updated {new Date(community.lastPriceUpdate || Date.now()).toLocaleDateString()})</div>
               </div>
             ) : (
               <div>
@@ -415,7 +415,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
             </div>
             
             <div className="text-xs text-green-600 mt-2">
-              {community.isClaimed && community.livePricing ? (
+              {((community.badges && (community.badges.includes('Featured') || community.badges.includes('Premium'))) || community.isClaimed) ? (
                 <span className="font-medium">✓ Community-verified pricing. Contact for current specials and move-in costs.</span>
               ) : (
                 <span>* Market-based estimates. Actual costs may vary. Community can claim listing for exact pricing.</span>

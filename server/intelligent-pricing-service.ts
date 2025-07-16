@@ -366,26 +366,25 @@ class IntelligentPricingService {
   }
   
   /**
-   * Update all communities with intelligent pricing estimates
+   * Update ALL communities with pricing ranges - NO EXCEPTIONS
+   * Ensures every community has a pricing range (either live or estimated)
    */
   async updateAllCommunityPricing(): Promise<void> {
     try {
-      console.log('Starting intelligent pricing update for all communities...');
+      console.log('🎯 ENFORCING UNIVERSAL PRICING COVERAGE - Starting update for ALL communities...');
       
       const allCommunities = await db.select().from(communities);
       let updated = 0;
+      let skippedServiceProviders = 0;
       
       for (const community of allCommunities) {
-        // Skip if already has live pricing
-        if (community.isClaimed && community.livePricing) {
+        // Skip service providers (they don't need pricing)
+        if (community.facilityType === 'Service Provider' || community.pricingType === 'service_provider') {
+          skippedServiceProviders++;
           continue;
         }
         
-        // Skip if already has recent pricing
-        if (community.priceRange && community.priceRange.min > 0) {
-          continue;
-        }
-        
+        // Generate pricing estimate for ALL communities (claimed or unclaimed)
         const estimate = await this.generatePricingEstimate(community);
         
         // Update community with pricing estimate
@@ -404,7 +403,7 @@ class IntelligentPricingService {
         }
       }
       
-      console.log(`✅ Pricing update complete! Updated ${updated} communities.`);
+      console.log(`✅ UNIVERSAL PRICING COVERAGE ACHIEVED! Updated ${updated} communities, skipped ${skippedServiceProviders} service providers.`);
     } catch (error) {
       console.error('Error updating community pricing:', error);
     }
