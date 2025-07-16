@@ -44,6 +44,10 @@ import MapSearch from "@/pages/map-search";
 // Map test pages removed
 import About from "@/pages/about";
 import Contact from "@/pages/contact";
+import Mission from "@/pages/mission";
+import Team from "@/pages/team";
+import Testimonials from "@/pages/testimonials";
+import Help from "@/pages/help";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -89,6 +93,10 @@ function Router() {
       <Route path="/terms" component={Terms} />
       <Route path="/disclaimer" component={Disclaimer} />
       <Route path="/accessibility" component={Accessibility} />
+      <Route path="/mission" component={Mission} />
+      <Route path="/team" component={Team} />
+      <Route path="/testimonials" component={Testimonials} />
+      <Route path="/help" component={Help} />
       <Route component={NotFound} />
     </Switch>
   );
