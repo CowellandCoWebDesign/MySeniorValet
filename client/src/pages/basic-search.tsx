@@ -486,7 +486,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                   <div className="p-3">
                     <div className="text-lg font-bold text-gray-900 mb-1">
                       {community.priceRange && community.priceRange.min 
-                        ? `Starting at $${community.priceRange.min.toLocaleString()}` 
+                        ? `<><span className="text-sm">Starting at</span> ${community.priceRange.min.toLocaleString()}</>` 
                         : 'Contact for pricing'
                       }
                       {community.priceRange && community.priceRange.min && !community.claimed && (
@@ -549,7 +549,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                   <div className="p-3">
                     <div className="text-lg font-bold text-gray-900 mb-1">
                       {community.priceRange && community.priceRange.min 
-                        ? `Starting at $${community.priceRange.min.toLocaleString()}` 
+                        ? `<><span className="text-sm">Starting at</span> ${community.priceRange.min.toLocaleString()}</>` 
                         : 'Contact for pricing'
                       }
                       {community.priceRange && community.priceRange.min && !community.claimed && (
@@ -613,7 +613,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                 <div className="flex items-center justify-between">
                   <div className="text-lg font-bold text-blue-600">
                     {community.priceRange && community.priceRange.min 
-                      ? `Starting at $${community.priceRange.min.toLocaleString()}` 
+                      ? `<><span className="text-sm">Starting at</span> ${community.priceRange.min.toLocaleString()}</>` 
                       : 'Contact for pricing'
                     }
                   </div>

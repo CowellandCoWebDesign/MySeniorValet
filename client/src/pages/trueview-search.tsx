@@ -274,7 +274,7 @@ export default function TrueViewSearch() {
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between mb-2">
                     <div className="text-xl font-bold text-gray-900">
-                      {community.priceRange ? `Starting at $${community.priceRange.min.toLocaleString()}` : 'Contact for Pricing'}
+                      {community.priceRange ? <><span className="text-sm">Starting at</span> ${community.priceRange.min.toLocaleString()}</> : 'Contact for Pricing'}
                     </div>
                     {index % 3 === 0 && (
                       <div className="flex items-center text-xs text-green-600 font-medium">

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { PricingBreakdown } from "@/components/pricing-breakdown";
@@ -455,7 +455,7 @@ export default function TrueViewHome() {
                   )}
                   
                   <div className="text-xl font-bold text-gray-900 mb-2">
-                    {community.priceRange && community.priceRange.min ? `Starting at $${community.priceRange.min.toLocaleString()}` : 'Starting at $3,800'}
+                    <span className="text-sm">Starting at</span> ${community.priceRange && community.priceRange.min ? community.priceRange.min.toLocaleString() : '3,800'}
                     {!community.claimed && (
                       <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
                     )}
@@ -731,7 +731,7 @@ export default function TrueViewHome() {
                       )}
                       
                       <div className="text-xl font-bold text-gray-900 mb-2">
-                        {community.priceRange && community.priceRange.min ? `Starting at $${community.priceRange.min.toLocaleString()}` : 'Starting at $4,200'}
+                        <span className="text-sm">Starting at</span> ${community.priceRange && community.priceRange.min ? community.priceRange.min.toLocaleString() : '4,200'}
                         {!community.claimed && (
                           <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
                         )}
@@ -1125,7 +1125,7 @@ export default function TrueViewHome() {
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Section 202 & 811 Housing</h3>
               <p className="text-sm text-gray-600 mb-3">
                 HUD provides affordable housing for elderly residents (62+) and adults with disabilities. 
-                Rent is typically 30% of your adjusted monthly income.
+                Select communities are income-based with rent capped at 30% of your adjusted monthly income.
               </p>
               <div className="text-sm text-gray-700 space-y-1 mb-4">
                 <div className="flex items-center gap-2">
@@ -1134,11 +1134,15 @@ export default function TrueViewHome() {
                 </div>
                 <div className="flex items-center gap-2">
                   <DollarSign className="w-4 h-4 text-gray-400" />
-                  <span>Income-based rent (30% of income)</span>
+                  <span>Income-based rent (30% of income) - income must be below 50% of area median</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-gray-400" />
                   <span>For seniors 62+ and disabled adults</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-gray-400" />
+                  <span>Standard wait lists: 6+ months expected</span>
                 </div>
               </div>
               <Link href="/search?careType=Affordable%20Housing">
@@ -1148,6 +1152,20 @@ export default function TrueViewHome() {
               </Link>
             </div>
           </div>
+        </div>
+        
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+          <div className="flex items-center space-x-2 mb-2">
+            <Info className="w-5 h-5 text-amber-600" />
+            <span className="text-sm font-semibold text-amber-800">Application Process</span>
+          </div>
+          <p className="text-xs text-amber-700 mb-2">
+            Apply directly with each property. Due to high demand, most properties have waiting lists of 6+ months. 
+            Apply to multiple properties to increase your chances.
+          </p>
+          <p className="text-xs text-amber-700">
+            <strong>Income requirements:</strong> Must qualify as "very low income" (below 50% of area median income).
+          </p>
         </div>
         
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
@@ -1334,7 +1352,7 @@ export default function TrueViewHome() {
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between mb-2">
                     <div className="text-xl font-bold text-gray-900">
-                      {community.priceRange && community.priceRange.min ? `Starting at $${community.priceRange.min.toLocaleString()}` : 'Starting at $4,200'}
+                      <span className="text-sm">Starting at</span> ${community.priceRange && community.priceRange.min ? community.priceRange.min.toLocaleString() : '4,200'}
                     </div>
                     {index % 3 === 0 && (
                       <div className="flex items-center text-xs text-green-600 font-medium">
