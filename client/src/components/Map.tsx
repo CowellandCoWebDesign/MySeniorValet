@@ -117,7 +117,7 @@ export default function Map({
   onCommunityClick, 
   onBoundsChange,
   height = "500px",
-  center = [37.7749, -122.4194], // Default to San Francisco
+  center = [37.0, -119.0], // Default to California center
   zoom = 6
 }: MapProps) {
   const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
@@ -135,11 +135,11 @@ export default function Map({
       let swLat, swLng, neLat, neLng;
       
       if (!mapBounds) {
-        // Use default San Francisco bounds
-        swLat = '37.7049';
-        swLng = '-122.5262';
-        neLat = '37.8449';
-        neLng = '-122.3832';
+        // Use default California state bounds for better coverage display
+        swLat = '32.0'; // Southern California
+        swLng = '-124.0'; // Western California
+        neLat = '42.0'; // Northern California
+        neLng = '-114.0'; // Eastern California
       } else {
         const sw = mapBounds.getSouthWest();
         const ne = mapBounds.getNorthEast();

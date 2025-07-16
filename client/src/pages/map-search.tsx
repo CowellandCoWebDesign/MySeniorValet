@@ -55,7 +55,7 @@ export default function MapSearch() {
     budget: 'Any Budget',
     availability: 'All Status'
   });
-  const [mapCenter, setMapCenter] = useState<[number, number]>([37.7749, -122.4194]);
+  const [mapCenter, setMapCenter] = useState<[number, number]>([37.0, -119.0]); // California center
   const [mapZoom, setMapZoom] = useState(6);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
   const [mapBounds, setMapBounds] = useState<any>(null);
