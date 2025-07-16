@@ -876,6 +876,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Nearest communities search endpoint for expanded search
+  app.get('/api/communities/search/nearest', async (req, res) => {
+    try {
+      console.log('Nearest communities search request received:', req.query);
+      
+      const {
+        lat,
+        lng,
+        radius = 100, // Default 100km radius
+        limit = 20
+      } = req.query;
+
+      // Validate required parameters
+      if (!lat || !lng) {
+        return res.status(400).json({ 
+          error: 'Missing required parameters. Required: lat, lng' 
+        });
+      }
+
+      const startTime = Date.now();
+      
+      // Convert radius from km to meters
+      const radiusMeters = parseFloat(radius as string) * 1000;
+      
+      // Build query to find nearest communities within radius
+      const query = db.select()
+        .from(communities)
+        .where(
+          sql`ST_DWithin(
+            ${communities.location},
+            ST_SetSRID(ST_MakePoint(${parseFloat(lng as string)}, ${parseFloat(lat as string)}), 4326)::geography,
+            ${radiusMeters}
+          )`
+        )
+        .orderBy(
+          sql`ST_Distance(
+            ${communities.location},
+            ST_SetSRID(ST_MakePoint(${parseFloat(lng as string)}, ${parseFloat(lat as string)}), 4326)::geography
+          )`
+        )
+        .limit(parseInt(limit as string));
+
+      // Execute query
+      const result = await query;
+      
+      console.log(`Nearest communities search returned ${result.length} communities in ${Date.now() - startTime}ms`);
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Nearest communities search error:', error);
+      res.status(500).json({ 
+        error: 'Nearest communities search failed',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Enhanced search with ZIP code intelligence  
   app.get('/api/communities/search/enhanced', async (req, res) => {
     try {

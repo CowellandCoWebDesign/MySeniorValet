@@ -103,6 +103,35 @@ export default function MapSearch() {
     retry: 1, // Only retry once on failure
   });
 
+  // State for expanded search
+  const [showExpandedSearch, setShowExpandedSearch] = useState(false);
+
+  // Fetch expanded search results when no communities in current view
+  const { data: expandedCommunities = [], isLoading: isLoadingExpanded } = useQuery({
+    queryKey: ['communities-expanded-search', mapBounds],
+    queryFn: async () => {
+      if (!mapBounds) return [];
+      
+      try {
+        // Get center of current map view
+        const center = mapBounds.getCenter();
+        const centerLat = center.lat;
+        const centerLng = center.lng;
+        
+        // Search for closest communities within a larger radius (100km)
+        const response = await fetch(`/api/communities/search/nearest?lat=${centerLat}&lng=${centerLng}&radius=100&limit=20`);
+        if (!response.ok) throw new Error('Failed to fetch expanded communities');
+        return response.json();
+      } catch (error) {
+        console.error('Error fetching expanded communities:', error);
+        return [];
+      }
+    },
+    enabled: !!mapBounds && viewMode === 'list' && showExpandedSearch,
+    staleTime: 30000,
+    retry: 1,
+  });
+
   // Handle initial search query from URL
   useEffect(() => {
     if (initialQuery) {
@@ -456,9 +485,93 @@ export default function MapSearch() {
               <div className="text-center py-8">
                 <List className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                 <p className="text-gray-600">No communities found in current area</p>
-                <p className="text-sm text-gray-500 mt-2">
-                  Try adjusting your search location or filters
+                <p className="text-sm text-gray-500 mt-2 mb-4">
+                  Would you like to see the closest available communities?
                 </p>
+                
+                {!showExpandedSearch ? (
+                  <Button
+                    onClick={() => setShowExpandedSearch(true)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    Show Closest Communities
+                  </Button>
+                ) : isLoadingExpanded ? (
+                  <div className="flex items-center gap-2 justify-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                    <span className="text-gray-600">Finding closest communities...</span>
+                  </div>
+                ) : expandedCommunities.length > 0 ? (
+                  <div className="mt-6">
+                    <div className="text-center mb-4">
+                      <h4 className="text-md font-medium text-gray-700 mb-2">Closest Available Communities</h4>
+                      <Button
+                        onClick={() => setShowExpandedSearch(false)}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs"
+                      >
+                        Hide Expanded Results
+                      </Button>
+                    </div>
+                    <div className="space-y-4">
+                      {expandedCommunities.map((community, index) => (
+                        <Card key={community.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group border-gray-200">
+                          <div className="flex">
+                            {/* Image Section */}
+                            <div className="relative w-32 h-32 bg-gradient-to-br from-orange-50 to-red-100 flex items-center justify-center flex-shrink-0">
+                              <div className="w-16 h-16 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
+                                <Home className="w-8 h-8 text-orange-600" />
+                              </div>
+                              
+                              {/* Distance Badge */}
+                              <Badge className="absolute top-2 right-2 bg-orange-500 text-white text-xs px-2 py-1 font-medium">
+                                Nearby
+                              </Badge>
+                            </div>
+                            
+                            {/* Content Section */}
+                            <CardContent className="p-4 flex-1">
+                              {/* Community Name */}
+                              <h3 className="text-lg font-semibold text-gray-900 mb-1 line-clamp-1">
+                                {community.name}
+                              </h3>
+                              
+                              {/* Location */}
+                              <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
+                                <MapPin className="w-3 h-3" />
+                                {community.address}, {community.city}, {community.state} {community.zipCode}
+                              </div>
+                              
+                              {/* Action Button */}
+                              <div className="flex justify-end">
+                                <Button 
+                                  size="sm" 
+                                  className="gradient-primary hover:opacity-90 text-white border-0"
+                                  onClick={() => handleCommunityClick(community)}
+                                >
+                                  <ExternalLink className="w-3 h-3 mr-1" />
+                                  View Details
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center mt-4">
+                    <p className="text-gray-500 mb-2">No communities found in the expanded search area.</p>
+                    <Button
+                      onClick={() => setShowExpandedSearch(false)}
+                      variant="outline"
+                      size="sm"
+                    >
+                      Try Different Location
+                    </Button>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="space-y-4">
