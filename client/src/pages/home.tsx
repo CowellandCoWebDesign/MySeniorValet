@@ -97,7 +97,7 @@ export default function Home() {
             </Link>
           </div>
           
-          {/* Compact Data Integrity Notice */}
+          {/* Serving Families Statement */}
           <div className="max-w-2xl mx-auto">
             <div className="bg-white/90 backdrop-blur-md border border-blue-200/60 rounded-xl p-4 shadow-md">
               <div className="flex items-start space-x-3">
@@ -105,7 +105,7 @@ export default function Home() {
                   <Database className="h-4 w-4 text-blue-600" />
                 </div>
                 <div className="text-sm text-blue-900 leading-relaxed">
-                  <strong className="text-blue-800 font-medium">Trusted Data Sources:</strong> Information from Google Places, Yelp reviews, state licensing records, and verified community websites.
+                  <strong className="text-blue-800 font-medium">Serving families across 8000+ communities</strong> with trusted data from Google Places, Yelp reviews, state licensing records, and verified community websites.
                 </div>
               </div>
             </div>
