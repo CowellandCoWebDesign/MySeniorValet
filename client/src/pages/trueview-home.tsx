@@ -152,7 +152,7 @@ export default function TrueViewHome() {
           {/* Centered Headlines */}
           <div className="text-center mb-4 md:mb-6">
             <div className="space-y-2 mb-3">
-              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight drop-shadow-lg animate-fade-in-up">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight drop-shadow-lg animate-fade-in-up">
                 Everything Senior Living Needs—Handled in One Place
               </h1>
               <h2 className="text-xs sm:text-sm md:text-base text-white opacity-90 drop-shadow-md px-4 animate-fade-in-up animation-delay-300">
