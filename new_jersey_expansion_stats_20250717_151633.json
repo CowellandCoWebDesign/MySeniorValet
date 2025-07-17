@@ -1,0 +1,40 @@
+{
+  "total_facilities": 295,
+  "counties_covered": 21,
+  "cities_covered": 21,
+  "counties_list": [
+    "Atlantic",
+    "Bergen",
+    "Burlington",
+    "Camden",
+    "Cape May",
+    "Cumberland",
+    "Essex",
+    "Gloucester",
+    "Hudson",
+    "Hunterdon",
+    "Mercer",
+    "Middlesex",
+    "Monmouth",
+    "Morris",
+    "Ocean",
+    "Passaic",
+    "Salem",
+    "Somerset",
+    "Sussex",
+    "Union",
+    "Warren"
+  ],
+  "major_metros": {
+    "Newark": 25,
+    "Jersey City": 25,
+    "Paterson": 15,
+    "Elizabeth": 15,
+    "Trenton": 12,
+    "Camden": 12,
+    "Hackensack": 25,
+    "Atlantic City": 12
+  },
+  "collection_date": "2025-07-17T15:16:33.804862",
+  "data_source": "New Jersey Department of Health"
+}
