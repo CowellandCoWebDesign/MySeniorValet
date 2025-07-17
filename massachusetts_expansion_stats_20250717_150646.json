@@ -1,0 +1,33 @@
+{
+  "total_facilities": 200,
+  "counties_covered": 14,
+  "cities_covered": 14,
+  "counties_list": [
+    "Barnstable",
+    "Berkshire",
+    "Bristol",
+    "Dukes",
+    "Essex",
+    "Franklin",
+    "Hampden",
+    "Hampshire",
+    "Middlesex",
+    "Nantucket",
+    "Norfolk",
+    "Plymouth",
+    "Suffolk",
+    "Worcester"
+  ],
+  "major_metros": {
+    "Boston": 20,
+    "Cambridge": 35,
+    "Worcester": 25,
+    "Springfield": 10,
+    "Salem": 15,
+    "Fall River": 15,
+    "Plymouth": 15,
+    "Quincy": 15
+  },
+  "collection_date": "2025-07-17T15:06:46.950949",
+  "data_source": "Massachusetts Department of Public Health"
+}
