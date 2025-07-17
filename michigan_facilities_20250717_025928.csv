@@ -1,0 +1,11 @@
+name,address,city,state,zip_code,county,phone,care_types,facility_type,license_number,data_source,verification_status,last_updated
+Sunrise Senior Living of Troy,123 Big Beaver Road,Troy,MI,48084,Oakland,(248) 555-0123,"['Assisted Living', 'Senior Living']",Senior Living Community,MI-AL-001,Michigan_Demo,Framework_Ready,2025-07-17T02:59:28.634234
+Atria Senior Living Grand Rapids,456 Michigan Street,Grand Rapids,MI,49503,Kent,(616) 555-0456,"['Assisted Living', 'Senior Living']",Senior Living Community,MI-AL-002,Michigan_Demo,Framework_Ready,2025-07-17T02:59:28.634251
+Brookdale Senior Living Ann Arbor,789 Main Street,Ann Arbor,MI,48104,Washtenaw,(734) 555-0789,"['Assisted Living', 'Senior Living']",Senior Living Community,MI-AL-003,Michigan_Demo,Framework_Ready,2025-07-17T02:59:28.634255
+Emeritus Senior Living Lansing,321 Capitol Avenue,Lansing,MI,48933,Ingham,(517) 555-0321,"['Assisted Living', 'Senior Living']",Senior Living Community,MI-AL-004,Michigan_Demo,Framework_Ready,2025-07-17T02:59:28.634258
+Great Lakes Senior Living Kalamazoo,654 West Michigan Avenue,Kalamazoo,MI,49007,Kalamazoo,(269) 555-0654,"['Assisted Living', 'Senior Living']",Senior Living Community,MI-AL-005,Michigan_Demo,Framework_Ready,2025-07-17T02:59:28.634261
+Motor City Senior Living Detroit,987 Woodward Avenue,Detroit,MI,48202,Wayne,(313) 555-0987,"['Assisted Living', 'Senior Living']",Senior Living Community,MI-AL-006,Michigan_Demo,Framework_Ready,2025-07-17T02:59:28.634264
+Lakeside Senior Living Flint,135 Saginaw Street,Flint,MI,48502,Genesee,(810) 555-0135,"['Assisted Living', 'Senior Living']",Senior Living Community,MI-AL-007,Michigan_Demo,Framework_Ready,2025-07-17T02:59:28.634267
+Wolverine Senior Living Dearborn,246 Michigan Avenue,Dearborn,MI,48124,Wayne,(313) 555-0246,"['Assisted Living', 'Senior Living']",Senior Living Community,MI-AL-008,Michigan_Demo,Framework_Ready,2025-07-17T02:59:28.634274
+Traverse Bay Senior Living,369 Front Street,Traverse City,MI,49684,Grand Traverse,(231) 555-0369,"['Assisted Living', 'Senior Living']",Senior Living Community,MI-AL-009,Michigan_Demo,Framework_Ready,2025-07-17T02:59:28.634278
+Mackinac Senior Living Bay City,159 Center Avenue,Bay City,MI,48708,Bay,(989) 555-0159,"['Assisted Living', 'Senior Living']",Senior Living Community,MI-AL-010,Michigan_Demo,Framework_Ready,2025-07-17T02:59:28.634281

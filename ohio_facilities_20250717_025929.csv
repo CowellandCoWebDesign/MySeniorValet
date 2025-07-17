@@ -1,0 +1,13 @@
+name,address,city,state,zip_code,county,phone,care_types,facility_type,license_number,data_source,verification_status,last_updated
+Sunrise Senior Living of Columbus,123 Broad Street,Columbus,OH,43215,Franklin,(614) 555-0123,"['Assisted Living', 'Senior Living']",Senior Living Community,OH-AL-001,Ohio_Demo,Framework_Ready,2025-07-17T02:59:29.503274
+Atria Senior Living Cleveland,456 Euclid Avenue,Cleveland,OH,44115,Cuyahoga,(216) 555-0456,"['Assisted Living', 'Senior Living']",Senior Living Community,OH-AL-002,Ohio_Demo,Framework_Ready,2025-07-17T02:59:29.503753
+Brookdale Senior Living Cincinnati,789 Vine Street,Cincinnati,OH,45202,Hamilton,(513) 555-0789,"['Assisted Living', 'Senior Living']",Senior Living Community,OH-AL-003,Ohio_Demo,Framework_Ready,2025-07-17T02:59:29.503762
+Emeritus Senior Living Toledo,321 Summit Street,Toledo,OH,43604,Lucas,(419) 555-0321,"['Assisted Living', 'Senior Living']",Senior Living Community,OH-AL-004,Ohio_Demo,Framework_Ready,2025-07-17T02:59:29.503766
+Buckeye Senior Living Akron,654 Main Street,Akron,OH,44308,Summit,(330) 555-0654,"['Assisted Living', 'Senior Living']",Senior Living Community,OH-AL-005,Ohio_Demo,Framework_Ready,2025-07-17T02:59:29.503769
+Prairie Senior Living Dayton,987 Third Street,Dayton,OH,45402,Montgomery,(937) 555-0987,"['Assisted Living', 'Senior Living']",Senior Living Community,OH-AL-006,Ohio_Demo,Framework_Ready,2025-07-17T02:59:29.503886
+Valley Senior Living Youngstown,135 Federal Street,Youngstown,OH,44503,Mahoning,(330) 555-0135,"['Assisted Living', 'Senior Living']",Senior Living Community,OH-AL-007,Ohio_Demo,Framework_Ready,2025-07-17T02:59:29.503931
+Riverside Senior Living Canton,246 Market Avenue,Canton,OH,44702,Stark,(330) 555-0246,"['Assisted Living', 'Senior Living']",Senior Living Community,OH-AL-008,Ohio_Demo,Framework_Ready,2025-07-17T02:59:29.503995
+Maumee Senior Living Lima,369 North Main Street,Lima,OH,45801,Allen,(419) 555-0369,"['Assisted Living', 'Senior Living']",Senior Living Community,OH-AL-009,Ohio_Demo,Framework_Ready,2025-07-17T02:59:29.503999
+Scioto Senior Living Portsmouth,159 Chillicothe Street,Portsmouth,OH,45662,Scioto,(740) 555-0159,"['Assisted Living', 'Senior Living']",Senior Living Community,OH-AL-010,Ohio_Demo,Framework_Ready,2025-07-17T02:59:29.504001
+Lake Erie Senior Living Lorain,753 Broadway,Lorain,OH,44052,Lorain,(440) 555-0753,"['Assisted Living', 'Senior Living']",Senior Living Community,OH-AL-011,Ohio_Demo,Framework_Ready,2025-07-17T02:59:29.504009
+Heritage Senior Living Mansfield,951 Park Avenue,Mansfield,OH,44906,Richland,(419) 555-0951,"['Assisted Living', 'Senior Living']",Senior Living Community,OH-AL-012,Ohio_Demo,Framework_Ready,2025-07-17T02:59:29.504126

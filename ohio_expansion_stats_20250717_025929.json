@@ -1,0 +1,23 @@
+{
+  "total_facilities": 12,
+  "by_county": {
+    "Franklin": 1,
+    "Cuyahoga": 1,
+    "Hamilton": 1,
+    "Lucas": 1,
+    "Summit": 1,
+    "Montgomery": 1,
+    "Mahoning": 1,
+    "Stark": 1,
+    "Allen": 1,
+    "Scioto": 1,
+    "Lorain": 1,
+    "Richland": 1
+  },
+  "by_care_type": {
+    "Assisted Living": 12,
+    "Senior Living": 12
+  },
+  "data_collection_date": "2025-07-17T02:59:29.520005",
+  "data_source": "Ohio_DOH_Demo"
+}

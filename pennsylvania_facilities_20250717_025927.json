@@ -1,0 +1,182 @@
+[
+  {
+    "name": "Atria Senior Living King of Prussia",
+    "address": "123 King of Prussia Road",
+    "city": "King of Prussia",
+    "state": "PA",
+    "zip_code": "19406",
+    "county": "Montgomery",
+    "phone": "(610) 555-0123",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "PA-AL-001",
+    "data_source": "PA_DOA_Demo",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T02:59:27.830550"
+  },
+  {
+    "name": "Brookdale Senior Living Pittsburgh",
+    "address": "456 Penn Avenue",
+    "city": "Pittsburgh",
+    "state": "PA",
+    "zip_code": "15219",
+    "county": "Allegheny",
+    "phone": "(412) 555-0456",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "PA-AL-002",
+    "data_source": "PA_DOA_Demo",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T02:59:27.830560"
+  },
+  {
+    "name": "Sunrise Senior Living Philadelphia",
+    "address": "789 Broad Street",
+    "city": "Philadelphia",
+    "state": "PA",
+    "zip_code": "19102",
+    "county": "Philadelphia",
+    "phone": "(215) 555-0789",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "PA-AL-003",
+    "data_source": "PA_DOA_Demo",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T02:59:27.830564"
+  },
+  {
+    "name": "Emeritus Senior Living Allentown",
+    "address": "321 Hamilton Street",
+    "city": "Allentown",
+    "state": "PA",
+    "zip_code": "18101",
+    "county": "Lehigh",
+    "phone": "(610) 555-0321",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "PA-AL-004",
+    "data_source": "PA_DOA_Demo",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T02:59:27.830567"
+  },
+  {
+    "name": "Liberty Senior Living Harrisburg",
+    "address": "654 State Street",
+    "city": "Harrisburg",
+    "state": "PA",
+    "zip_code": "17101",
+    "county": "Dauphin",
+    "phone": "(717) 555-0654",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "PA-AL-005",
+    "data_source": "PA_DOA_Demo",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T02:59:27.830569"
+  },
+  {
+    "name": "Keystone Senior Living Scranton",
+    "address": "987 Lackawanna Avenue",
+    "city": "Scranton",
+    "state": "PA",
+    "zip_code": "18503",
+    "county": "Lackawanna",
+    "phone": "(570) 555-0987",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "PA-AL-006",
+    "data_source": "PA_DOA_Demo",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T02:59:27.830572"
+  },
+  {
+    "name": "Valley Senior Living Reading",
+    "address": "135 Penn Street",
+    "city": "Reading",
+    "state": "PA",
+    "zip_code": "19601",
+    "county": "Berks",
+    "phone": "(610) 555-0135",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "PA-AL-007",
+    "data_source": "PA_DOA_Demo",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T02:59:27.830575"
+  },
+  {
+    "name": "Commonwealth Senior Living Erie",
+    "address": "246 State Street",
+    "city": "Erie",
+    "state": "PA",
+    "zip_code": "16501",
+    "county": "Erie",
+    "phone": "(814) 555-0246",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "PA-AL-008",
+    "data_source": "PA_DOA_Demo",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T02:59:27.830579"
+  },
+  {
+    "name": "Mansions Senior Living York",
+    "address": "369 Market Street",
+    "city": "York",
+    "state": "PA",
+    "zip_code": "17401",
+    "county": "York",
+    "phone": "(717) 555-0369",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "PA-AL-009",
+    "data_source": "PA_DOA_Demo",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T02:59:27.830583"
+  },
+  {
+    "name": "Westmoreland Senior Living Greensburg",
+    "address": "159 Main Street",
+    "city": "Greensburg",
+    "state": "PA",
+    "zip_code": "15601",
+    "county": "Westmoreland",
+    "phone": "(724) 555-0159",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "PA-AL-010",
+    "data_source": "PA_DOA_Demo",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T02:59:27.830586"
+  }
+]

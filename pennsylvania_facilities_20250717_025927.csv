@@ -1,0 +1,11 @@
+name,address,city,state,zip_code,county,phone,care_types,facility_type,license_number,data_source,verification_status,last_updated
+Atria Senior Living King of Prussia,123 King of Prussia Road,King of Prussia,PA,19406,Montgomery,(610) 555-0123,"['Assisted Living', 'Senior Living']",Senior Living Community,PA-AL-001,PA_DOA_Demo,Framework_Ready,2025-07-17T02:59:27.830550
+Brookdale Senior Living Pittsburgh,456 Penn Avenue,Pittsburgh,PA,15219,Allegheny,(412) 555-0456,"['Assisted Living', 'Senior Living']",Senior Living Community,PA-AL-002,PA_DOA_Demo,Framework_Ready,2025-07-17T02:59:27.830560
+Sunrise Senior Living Philadelphia,789 Broad Street,Philadelphia,PA,19102,Philadelphia,(215) 555-0789,"['Assisted Living', 'Senior Living']",Senior Living Community,PA-AL-003,PA_DOA_Demo,Framework_Ready,2025-07-17T02:59:27.830564
+Emeritus Senior Living Allentown,321 Hamilton Street,Allentown,PA,18101,Lehigh,(610) 555-0321,"['Assisted Living', 'Senior Living']",Senior Living Community,PA-AL-004,PA_DOA_Demo,Framework_Ready,2025-07-17T02:59:27.830567
+Liberty Senior Living Harrisburg,654 State Street,Harrisburg,PA,17101,Dauphin,(717) 555-0654,"['Assisted Living', 'Senior Living']",Senior Living Community,PA-AL-005,PA_DOA_Demo,Framework_Ready,2025-07-17T02:59:27.830569
+Keystone Senior Living Scranton,987 Lackawanna Avenue,Scranton,PA,18503,Lackawanna,(570) 555-0987,"['Assisted Living', 'Senior Living']",Senior Living Community,PA-AL-006,PA_DOA_Demo,Framework_Ready,2025-07-17T02:59:27.830572
+Valley Senior Living Reading,135 Penn Street,Reading,PA,19601,Berks,(610) 555-0135,"['Assisted Living', 'Senior Living']",Senior Living Community,PA-AL-007,PA_DOA_Demo,Framework_Ready,2025-07-17T02:59:27.830575
+Commonwealth Senior Living Erie,246 State Street,Erie,PA,16501,Erie,(814) 555-0246,"['Assisted Living', 'Senior Living']",Senior Living Community,PA-AL-008,PA_DOA_Demo,Framework_Ready,2025-07-17T02:59:27.830579
+Mansions Senior Living York,369 Market Street,York,PA,17401,York,(717) 555-0369,"['Assisted Living', 'Senior Living']",Senior Living Community,PA-AL-009,PA_DOA_Demo,Framework_Ready,2025-07-17T02:59:27.830583
+Westmoreland Senior Living Greensburg,159 Main Street,Greensburg,PA,15601,Westmoreland,(724) 555-0159,"['Assisted Living', 'Senior Living']",Senior Living Community,PA-AL-010,PA_DOA_Demo,Framework_Ready,2025-07-17T02:59:27.830586
