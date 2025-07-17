@@ -48,11 +48,8 @@ async function integrateCompleteNYData() {
           description: facility.description,
           website: null,
           email: null,
-          monthly_rent: null,
           photos: [],
-          amenities: {},
-          inspection_data: null,
-          verification_status: facility.verification_status,
+          amenities: [],
           source: facility.source,
           created_at: facility.created_at,
           updated_at: facility.updated_at,
@@ -68,10 +65,10 @@ async function integrateCompleteNYData() {
           INSERT INTO communities (
             name, address, city, state, zip_code, county, phone,
             latitude, longitude, care_types, facility_type, capacity, description,
-            website, email, monthly_rent, photos, amenities,
-            inspection_data, verification_status, source, created_at, updated_at
+            website, email, photos, amenities,
+            data_source, created_at, updated_at
           ) VALUES (
-            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20
           ) RETURNING id
         `, [
           facilityData.name,
@@ -89,11 +86,8 @@ async function integrateCompleteNYData() {
           facilityData.description,
           facilityData.website,
           facilityData.email,
-          facilityData.monthly_rent,
-          JSON.stringify(facilityData.photos),
-          JSON.stringify(facilityData.amenities),
-          facilityData.inspection_data,
-          facilityData.verification_status,
+          facilityData.photos,
+          facilityData.amenities,
           facilityData.source,
           facilityData.created_at,
           facilityData.updated_at
