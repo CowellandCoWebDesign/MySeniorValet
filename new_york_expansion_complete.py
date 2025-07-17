@@ -62,8 +62,8 @@ class NewYorkExpansionCollector:
                 
             # Filter for adult care facilities
             for cert in data:
-                facility_type = cert.get('facility_type', '')
-                if any(acf_type in facility_type for acf_type in acf_types):
+                description = cert.get('description', '').lower()
+                if any(acf_type.lower() in description for acf_type in acf_types):
                     certifications.append(cert)
                     
             print(f"✅ Fetched {len(data)} certification records (offset {offset})")

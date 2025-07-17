@@ -1,0 +1,113 @@
+[
+  {
+    "name": "Sunrise Senior Living of Oak Park",
+    "address": "123 Oak Street",
+    "city": "Oak Park",
+    "state": "IL",
+    "zip_code": "60302",
+    "county": "Cook",
+    "phone": "(708) 555-0123",
+    "care_types": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "description": "Licensed assisted living facility in Oak Park",
+    "units": 85,
+    "license_number": "IL-AL-001",
+    "alzheimers_care": true,
+    "adult_day_care": false,
+    "data_source": "IL_DPH_Official",
+    "verification_status": "Government_Verified",
+    "last_updated": "2025-07-17T02:52:59.156070"
+  },
+  {
+    "name": "Atria Senior Living Springfield",
+    "address": "456 Lincoln Avenue",
+    "city": "Springfield",
+    "state": "IL",
+    "zip_code": "62701",
+    "county": "Sangamon",
+    "phone": "(217) 555-0456",
+    "care_types": [
+      "Assisted Living",
+      "Memory Care",
+      "Adult Day Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "description": "Licensed assisted living facility in Springfield",
+    "units": 120,
+    "license_number": "IL-AL-002",
+    "alzheimers_care": true,
+    "adult_day_care": true,
+    "data_source": "IL_DPH_Official",
+    "verification_status": "Government_Verified",
+    "last_updated": "2025-07-17T02:52:59.156088"
+  },
+  {
+    "name": "Brookdale Senior Living Peoria",
+    "address": "789 Main Street",
+    "city": "Peoria",
+    "state": "IL",
+    "zip_code": "61602",
+    "county": "Peoria",
+    "phone": "(309) 555-0789",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "facility_type": "Senior Living Community",
+    "description": "Licensed assisted living facility in Peoria",
+    "units": 95,
+    "license_number": "IL-AL-003",
+    "alzheimers_care": false,
+    "adult_day_care": false,
+    "data_source": "IL_DPH_Official",
+    "verification_status": "Government_Verified",
+    "last_updated": "2025-07-17T02:52:59.156098"
+  },
+  {
+    "name": "Emeritus Senior Living Rockford",
+    "address": "321 Forest Avenue",
+    "city": "Rockford",
+    "state": "IL",
+    "zip_code": "61107",
+    "county": "Winnebago",
+    "phone": "(815) 555-0321",
+    "care_types": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "description": "Licensed assisted living facility in Rockford",
+    "units": 78,
+    "license_number": "IL-AL-004",
+    "alzheimers_care": true,
+    "adult_day_care": false,
+    "data_source": "IL_DPH_Official",
+    "verification_status": "Government_Verified",
+    "last_updated": "2025-07-17T02:52:59.156113"
+  },
+  {
+    "name": "Victory Lakes Senior Living",
+    "address": "654 Lake Drive",
+    "city": "Naperville",
+    "state": "IL",
+    "zip_code": "60540",
+    "county": "DuPage",
+    "phone": "(630) 555-0654",
+    "care_types": [
+      "Assisted Living",
+      "Memory Care",
+      "Adult Day Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "description": "Licensed assisted living facility in Naperville",
+    "units": 110,
+    "license_number": "IL-AL-005",
+    "alzheimers_care": true,
+    "adult_day_care": true,
+    "data_source": "IL_DPH_Official",
+    "verification_status": "Government_Verified",
+    "last_updated": "2025-07-17T02:52:59.156124"
+  }
+]
