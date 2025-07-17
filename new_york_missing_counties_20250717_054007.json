@@ -1,0 +1,153 @@
+[
+  {
+    "name": "Randolph Manor",
+    "address": "19 Jamestown Street",
+    "city": "Randolph",
+    "county": "Cattaraugus",
+    "state": "NY",
+    "zip_code": "14772",
+    "phone": "(716) 358-5851",
+    "care_types": [
+      "Adult Care Facility"
+    ],
+    "description": "Family-owned and operated adult care facility certified by the New York State Department of Health",
+    "latitude": 42.09937970998037,
+    "longitude": -78.63621147686771
+  },
+  {
+    "name": "Field of Dreams Senior Living",
+    "address": "3372 NYS Route 417",
+    "city": "Olean",
+    "county": "Cattaraugus",
+    "state": "NY",
+    "zip_code": "14760",
+    "phone": "(716) 372-2881",
+    "care_types": [
+      "Senior Living"
+    ],
+    "description": "New and clean facility with very friendly staff",
+    "latitude": 42.08605097552264,
+    "longitude": -78.64843333973538
+  },
+  {
+    "name": "Eden Heights of Olean",
+    "address": "2270 West State Street",
+    "city": "Olean",
+    "county": "Cattaraugus",
+    "state": "NY",
+    "zip_code": "14760",
+    "phone": "(716) 372-7800",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "description": "State-licensed assisted living facility located in the quiet town of Olean",
+    "latitude": 42.08448465032726,
+    "longitude": -78.63160645237038
+  },
+  {
+    "name": "Auburn Nursing Home",
+    "address": "17 Lansing Street",
+    "city": "Auburn",
+    "county": "Cayuga",
+    "state": "NY",
+    "zip_code": "13021",
+    "phone": "(315) 253-9821",
+    "care_types": [
+      "Skilled Nursing"
+    ],
+    "description": "Provides senior care to up to 92 senior citizens",
+    "latitude": 42.91564102980474,
+    "longitude": -76.57370060155986
+  },
+  {
+    "name": "Finger Lakes Center for Living",
+    "address": "1 Finger Lakes Drive",
+    "city": "Auburn",
+    "county": "Cayuga",
+    "state": "NY",
+    "zip_code": "13021",
+    "phone": "(315) 255-7000",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "description": "Provides assisted retirement living to a maximum of 80 elderly adults",
+    "latitude": 42.908261166184055,
+    "longitude": -76.5624371465752
+  },
+  {
+    "name": "The Commons on St. Anthony",
+    "address": "1 St. Anthony Drive",
+    "city": "Auburn",
+    "county": "Cayuga",
+    "state": "NY",
+    "zip_code": "13021",
+    "phone": "(315) 255-5158",
+    "care_types": [
+      "Senior Living"
+    ],
+    "description": "Provides senior assisted living to up to 297 elderly adults",
+    "latitude": 42.926700388959155,
+    "longitude": -76.56515230776687
+  },
+  {
+    "name": "Bethany Village",
+    "address": "202 Bethany Road",
+    "city": "Horseheads",
+    "county": "Chemung",
+    "state": "NY",
+    "zip_code": "14845",
+    "phone": "(607) 739-3151",
+    "care_types": [
+      "Senior Living"
+    ],
+    "description": "Provides senior assisted living to 144 senior citizens",
+    "latitude": 42.134029315582815,
+    "longitude": -76.80573636684557
+  },
+  {
+    "name": "Woodbrook",
+    "address": "2435 Corning Road",
+    "city": "Elmira",
+    "county": "Chemung",
+    "state": "NY",
+    "zip_code": "14904",
+    "phone": "(607) 732-0436",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "description": "Provides assisted living to up to 80 older adults",
+    "latitude": 42.142144282512675,
+    "longitude": -76.81613412070246
+  },
+  {
+    "name": "Camphill Ghent",
+    "address": "1300 Fog Hill Road",
+    "city": "Ghent",
+    "county": "Columbia",
+    "state": "NY",
+    "zip_code": "12037",
+    "phone": "(518) 392-3846",
+    "care_types": [
+      "Senior Care"
+    ],
+    "description": "Provides senior care to 29 older adults",
+    "latitude": 42.29493856237241,
+    "longitude": -73.54410338402855
+  },
+  {
+    "name": "Whittier Rehab & Skilled Nursing Center",
+    "address": "1 Whittier Way",
+    "city": "Ghent",
+    "county": "Columbia",
+    "state": "NY",
+    "zip_code": "12075",
+    "phone": "(518) 828-2800",
+    "care_types": [
+      "Skilled Nursing",
+      "Assisted Living"
+    ],
+    "description": "120 assisted living apartments, pet-friendly facility",
+    "latitude": 42.29817570565917,
+    "longitude": -73.54484088019687
+  }
+]

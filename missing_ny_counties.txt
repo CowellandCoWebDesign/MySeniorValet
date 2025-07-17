@@ -1,0 +1,33 @@
+Missing New York Counties (24 out of 62):
+
+1. Cattaraugus County
+2. Cayuga County
+3. Chemung County
+4. Columbia County
+5. Cortland County
+6. Delaware County
+7. Essex County
+8. Franklin County
+9. Fulton County
+10. Greene County
+11. Hamilton County
+12. Lewis County
+13. Livingston County
+14. Montgomery County
+15. Orleans County
+16. Putnam County
+17. Saint Lawrence County
+18. Schoharie County
+19. Schuyler County
+20. Steuben County
+21. Sullivan County
+22. Washington County
+23. Wyoming County
+24. Yates County
+
+These are primarily rural counties in:
+- Adirondack region (Hamilton, Essex, Franklin, Saint Lawrence)
+- Central New York (Cortland, Cayuga, Livingston, Wyoming, Yates)
+- Southern Tier (Cattaraugus, Chemung, Schuyler, Steuben)
+- Hudson Valley (Columbia, Delaware, Greene, Sullivan)
+- Other rural areas
