@@ -194,11 +194,13 @@
     border: 1px solid rgba(255, 255, 255, 0.3);
   }
   
+  /* MySeniorValet gradient styling - Updated 2:09 AM */
   .text-gradient {
     background: linear-gradient(135deg, #3b82f6, #8b5cf6);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    display: inline-block;
   }
 
   /* Zillow-style utilities */
