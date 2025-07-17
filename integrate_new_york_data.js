@@ -7,9 +7,9 @@
  * Source: new_york_facilities_fixed_20250717_025407.json (185 facilities)
  */
 
-const fs = require('fs');
-const path = require('path');
-const { Pool } = require('pg');
+import fs from 'fs';
+import path from 'path';
+import { Pool } from 'pg';
 
 // Database configuration
 const pool = new Pool({
@@ -85,15 +85,15 @@ class NewYorkDataIntegrator {
       return;
     }
     
-    // Insert new facility
+    // Insert new facility (using only columns that exist in the database)
     const insertQuery = `
       INSERT INTO communities (
         name, address, city, state, zip_code, county, phone,
-        care_types, facility_type, description, license_number,
-        operator_name, ownership_type, latitude, longitude,
-        data_source, verification_status, last_updated
+        care_types, facility_type, description, 
+        latitude, longitude, data_source, government_verified,
+        license_number, created_at, updated_at
       ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
       )
     `;
     
@@ -105,16 +105,15 @@ class NewYorkDataIntegrator {
       facility.zip_code,
       facility.county,
       facility.phone,
-      JSON.stringify(facility.care_types),
-      facility.facility_type,
+      facility.care_types,
+      'Senior Living',
       facility.description,
-      facility.license_number,
-      facility.operator_name,
-      facility.ownership_type,
       parseFloat(facility.latitude),
       parseFloat(facility.longitude),
       facility.data_source,
-      facility.verification_status,
+      true, // government_verified = true for NY DOH data
+      facility.license_number,
+      new Date(),
       new Date()
     ];
     
