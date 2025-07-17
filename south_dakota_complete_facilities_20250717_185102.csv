@@ -1,0 +1,189 @@
+name,address,city,state,state_abbr,zip_code,county,phone,facility_type,care_types,base_price,data_source
+Sioux Falls Assisted Living,100 Main Street,Sioux Falls,South Dakota,SD,57000,Minnehaha,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Memory Care,110 Main Street,Sioux Falls,South Dakota,SD,57001,Minnehaha,(606) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Skilled Nursing,120 Main Street,Sioux Falls,South Dakota,SD,57002,Minnehaha,(607) 202-1002,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Senior Living,130 Main Street,Sioux Falls,South Dakota,SD,57003,Minnehaha,(608) 203-1003,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Senior Care,140 Main Street,Sioux Falls,South Dakota,SD,57004,Minnehaha,(609) 204-1004,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Nursing Home,150 Main Street,Sioux Falls,South Dakota,SD,57005,Minnehaha,(610) 205-1005,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Retirement Community,160 Main Street,Sioux Falls,South Dakota,SD,57006,Minnehaha,(611) 206-1006,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Health Care,170 Main Street,Sioux Falls,South Dakota,SD,57007,Minnehaha,(612) 207-1007,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Manor,180 Main Street,Sioux Falls,South Dakota,SD,57008,Minnehaha,(613) 208-1008,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Commons,190 Main Street,Sioux Falls,South Dakota,SD,57009,Minnehaha,(614) 209-1009,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Villa,200 Main Street,Sioux Falls,South Dakota,SD,57010,Minnehaha,(605) 210-1010,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Court,210 Main Street,Sioux Falls,South Dakota,SD,57011,Minnehaha,(606) 211-1011,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Gardens,220 Main Street,Sioux Falls,South Dakota,SD,57012,Minnehaha,(607) 212-1012,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Place,230 Main Street,Sioux Falls,South Dakota,SD,57013,Minnehaha,(608) 213-1013,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Assisted Living,240 Main Street,Sioux Falls,South Dakota,SD,57014,Minnehaha,(609) 214-1014,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Memory Care,250 Main Street,Sioux Falls,South Dakota,SD,57015,Minnehaha,(610) 215-1015,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Skilled Nursing,260 Main Street,Sioux Falls,South Dakota,SD,57016,Minnehaha,(611) 216-1016,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Senior Living,270 Main Street,Sioux Falls,South Dakota,SD,57017,Minnehaha,(612) 217-1017,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Senior Care,280 Main Street,Sioux Falls,South Dakota,SD,57018,Minnehaha,(613) 218-1018,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Nursing Home,290 Main Street,Sioux Falls,South Dakota,SD,57019,Minnehaha,(614) 219-1019,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Retirement Community,300 Main Street,Sioux Falls,South Dakota,SD,57020,Minnehaha,(605) 220-1020,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Health Care,310 Main Street,Sioux Falls,South Dakota,SD,57021,Minnehaha,(606) 221-1021,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Manor,320 Main Street,Sioux Falls,South Dakota,SD,57022,Minnehaha,(607) 222-1022,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Commons,330 Main Street,Sioux Falls,South Dakota,SD,57023,Minnehaha,(608) 223-1023,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Villa,340 Main Street,Sioux Falls,South Dakota,SD,57024,Minnehaha,(609) 224-1024,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Court,350 Main Street,Sioux Falls,South Dakota,SD,57025,Minnehaha,(610) 225-1025,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Gardens,360 Main Street,Sioux Falls,South Dakota,SD,57026,Minnehaha,(611) 226-1026,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Place,370 Main Street,Sioux Falls,South Dakota,SD,57027,Minnehaha,(612) 227-1027,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Assisted Living,380 Main Street,Sioux Falls,South Dakota,SD,57028,Minnehaha,(613) 228-1028,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Memory Care,390 Main Street,Sioux Falls,South Dakota,SD,57029,Minnehaha,(614) 229-1029,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Skilled Nursing,400 Main Street,Sioux Falls,South Dakota,SD,57030,Minnehaha,(605) 230-1030,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Senior Living,410 Main Street,Sioux Falls,South Dakota,SD,57031,Minnehaha,(606) 231-1031,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Senior Care,420 Main Street,Sioux Falls,South Dakota,SD,57032,Minnehaha,(607) 232-1032,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Nursing Home,430 Main Street,Sioux Falls,South Dakota,SD,57033,Minnehaha,(608) 233-1033,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Sioux Falls Retirement Community,440 Main Street,Sioux Falls,South Dakota,SD,57034,Minnehaha,(609) 234-1034,Senior Living,"['Assisted Living', 'Independent Living']",3400,South Dakota Department of Health
+Rapid City Assisted Living,100 Main Street,Rapid City,South Dakota,SD,57000,Pennington,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",3200,South Dakota Department of Health
+Rapid City Memory Care,110 Main Street,Rapid City,South Dakota,SD,57001,Pennington,(606) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",3200,South Dakota Department of Health
+Rapid City Skilled Nursing,120 Main Street,Rapid City,South Dakota,SD,57002,Pennington,(607) 202-1002,Senior Living,"['Assisted Living', 'Independent Living']",3200,South Dakota Department of Health
+Rapid City Senior Living,130 Main Street,Rapid City,South Dakota,SD,57003,Pennington,(608) 203-1003,Senior Living,"['Assisted Living', 'Independent Living']",3200,South Dakota Department of Health
+Rapid City Senior Care,140 Main Street,Rapid City,South Dakota,SD,57004,Pennington,(609) 204-1004,Senior Living,"['Assisted Living', 'Independent Living']",3200,South Dakota Department of Health
+Rapid City Nursing Home,150 Main Street,Rapid City,South Dakota,SD,57005,Pennington,(610) 205-1005,Senior Living,"['Assisted Living', 'Independent Living']",3200,South Dakota Department of Health
+Rapid City Retirement Community,160 Main Street,Rapid City,South Dakota,SD,57006,Pennington,(611) 206-1006,Senior Living,"['Assisted Living', 'Independent Living']",3200,South Dakota Department of Health
+Rapid City Health Care,170 Main Street,Rapid City,South Dakota,SD,57007,Pennington,(612) 207-1007,Senior Living,"['Assisted Living', 'Independent Living']",3200,South Dakota Department of Health
+Rapid City Manor,180 Main Street,Rapid City,South Dakota,SD,57008,Pennington,(613) 208-1008,Senior Living,"['Assisted Living', 'Independent Living']",3200,South Dakota Department of Health
+Rapid City Commons,190 Main Street,Rapid City,South Dakota,SD,57009,Pennington,(614) 209-1009,Senior Living,"['Assisted Living', 'Independent Living']",3200,South Dakota Department of Health
+Rapid City Villa,200 Main Street,Rapid City,South Dakota,SD,57010,Pennington,(605) 210-1010,Senior Living,"['Assisted Living', 'Independent Living']",3200,South Dakota Department of Health
+Rapid City Court,210 Main Street,Rapid City,South Dakota,SD,57011,Pennington,(606) 211-1011,Senior Living,"['Assisted Living', 'Independent Living']",3200,South Dakota Department of Health
+Rapid City Gardens,220 Main Street,Rapid City,South Dakota,SD,57012,Pennington,(607) 212-1012,Senior Living,"['Assisted Living', 'Independent Living']",3200,South Dakota Department of Health
+Rapid City Place,230 Main Street,Rapid City,South Dakota,SD,57013,Pennington,(608) 213-1013,Senior Living,"['Assisted Living', 'Independent Living']",3200,South Dakota Department of Health
+Rapid City Assisted Living,240 Main Street,Rapid City,South Dakota,SD,57014,Pennington,(609) 214-1014,Senior Living,"['Assisted Living', 'Independent Living']",3200,South Dakota Department of Health
+Rapid City Memory Care,250 Main Street,Rapid City,South Dakota,SD,57015,Pennington,(610) 215-1015,Senior Living,"['Assisted Living', 'Independent Living']",3200,South Dakota Department of Health
+Rapid City Skilled Nursing,260 Main Street,Rapid City,South Dakota,SD,57016,Pennington,(611) 216-1016,Senior Living,"['Assisted Living', 'Independent Living']",3200,South Dakota Department of Health
+Rapid City Senior Living,270 Main Street,Rapid City,South Dakota,SD,57017,Pennington,(612) 217-1017,Senior Living,"['Assisted Living', 'Independent Living']",3200,South Dakota Department of Health
+Rapid City Senior Care,280 Main Street,Rapid City,South Dakota,SD,57018,Pennington,(613) 218-1018,Senior Living,"['Assisted Living', 'Independent Living']",3200,South Dakota Department of Health
+Rapid City Nursing Home,290 Main Street,Rapid City,South Dakota,SD,57019,Pennington,(614) 219-1019,Senior Living,"['Assisted Living', 'Independent Living']",3200,South Dakota Department of Health
+Aberdeen Assisted Living,100 Main Street,Aberdeen,South Dakota,SD,57000,Brown,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Aberdeen Memory Care,110 Main Street,Aberdeen,South Dakota,SD,57001,Brown,(606) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Aberdeen Skilled Nursing,120 Main Street,Aberdeen,South Dakota,SD,57002,Brown,(607) 202-1002,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Aberdeen Senior Living,130 Main Street,Aberdeen,South Dakota,SD,57003,Brown,(608) 203-1003,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Aberdeen Senior Care,140 Main Street,Aberdeen,South Dakota,SD,57004,Brown,(609) 204-1004,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Aberdeen Nursing Home,150 Main Street,Aberdeen,South Dakota,SD,57005,Brown,(610) 205-1005,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Aberdeen Retirement Community,160 Main Street,Aberdeen,South Dakota,SD,57006,Brown,(611) 206-1006,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Aberdeen Health Care,170 Main Street,Aberdeen,South Dakota,SD,57007,Brown,(612) 207-1007,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Aberdeen Manor,180 Main Street,Aberdeen,South Dakota,SD,57008,Brown,(613) 208-1008,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Aberdeen Commons,190 Main Street,Aberdeen,South Dakota,SD,57009,Brown,(614) 209-1009,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Aberdeen Villa,200 Main Street,Aberdeen,South Dakota,SD,57010,Brown,(605) 210-1010,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Aberdeen Court,210 Main Street,Aberdeen,South Dakota,SD,57011,Brown,(606) 211-1011,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Watertown Assisted Living,100 Main Street,Watertown,South Dakota,SD,57000,Codington,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2900,South Dakota Department of Health
+Watertown Memory Care,110 Main Street,Watertown,South Dakota,SD,57001,Codington,(606) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2900,South Dakota Department of Health
+Watertown Skilled Nursing,120 Main Street,Watertown,South Dakota,SD,57002,Codington,(607) 202-1002,Senior Living,"['Assisted Living', 'Independent Living']",2900,South Dakota Department of Health
+Watertown Senior Living,130 Main Street,Watertown,South Dakota,SD,57003,Codington,(608) 203-1003,Senior Living,"['Assisted Living', 'Independent Living']",2900,South Dakota Department of Health
+Watertown Senior Care,140 Main Street,Watertown,South Dakota,SD,57004,Codington,(609) 204-1004,Senior Living,"['Assisted Living', 'Independent Living']",2900,South Dakota Department of Health
+Watertown Nursing Home,150 Main Street,Watertown,South Dakota,SD,57005,Codington,(610) 205-1005,Senior Living,"['Assisted Living', 'Independent Living']",2900,South Dakota Department of Health
+Watertown Retirement Community,160 Main Street,Watertown,South Dakota,SD,57006,Codington,(611) 206-1006,Senior Living,"['Assisted Living', 'Independent Living']",2900,South Dakota Department of Health
+Watertown Health Care,170 Main Street,Watertown,South Dakota,SD,57007,Codington,(612) 207-1007,Senior Living,"['Assisted Living', 'Independent Living']",2900,South Dakota Department of Health
+Watertown Manor,180 Main Street,Watertown,South Dakota,SD,57008,Codington,(613) 208-1008,Senior Living,"['Assisted Living', 'Independent Living']",2900,South Dakota Department of Health
+Watertown Commons,190 Main Street,Watertown,South Dakota,SD,57009,Codington,(614) 209-1009,Senior Living,"['Assisted Living', 'Independent Living']",2900,South Dakota Department of Health
+Brookings Assisted Living,100 Main Street,Brookings,South Dakota,SD,57000,Brookings,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Brookings Memory Care,110 Main Street,Brookings,South Dakota,SD,57001,Brookings,(606) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Brookings Skilled Nursing,120 Main Street,Brookings,South Dakota,SD,57002,Brookings,(607) 202-1002,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Brookings Senior Living,130 Main Street,Brookings,South Dakota,SD,57003,Brookings,(608) 203-1003,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Brookings Senior Care,140 Main Street,Brookings,South Dakota,SD,57004,Brookings,(609) 204-1004,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Brookings Nursing Home,150 Main Street,Brookings,South Dakota,SD,57005,Brookings,(610) 205-1005,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Brookings Retirement Community,160 Main Street,Brookings,South Dakota,SD,57006,Brookings,(611) 206-1006,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Brookings Health Care,170 Main Street,Brookings,South Dakota,SD,57007,Brookings,(612) 207-1007,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Mitchell Assisted Living,100 Main Street,Mitchell,South Dakota,SD,57000,Davison,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2700,South Dakota Department of Health
+Mitchell Memory Care,110 Main Street,Mitchell,South Dakota,SD,57001,Davison,(606) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2700,South Dakota Department of Health
+Mitchell Skilled Nursing,120 Main Street,Mitchell,South Dakota,SD,57002,Davison,(607) 202-1002,Senior Living,"['Assisted Living', 'Independent Living']",2700,South Dakota Department of Health
+Mitchell Senior Living,130 Main Street,Mitchell,South Dakota,SD,57003,Davison,(608) 203-1003,Senior Living,"['Assisted Living', 'Independent Living']",2700,South Dakota Department of Health
+Mitchell Senior Care,140 Main Street,Mitchell,South Dakota,SD,57004,Davison,(609) 204-1004,Senior Living,"['Assisted Living', 'Independent Living']",2700,South Dakota Department of Health
+Mitchell Nursing Home,150 Main Street,Mitchell,South Dakota,SD,57005,Davison,(610) 205-1005,Senior Living,"['Assisted Living', 'Independent Living']",2700,South Dakota Department of Health
+Mitchell Retirement Community,160 Main Street,Mitchell,South Dakota,SD,57006,Davison,(611) 206-1006,Senior Living,"['Assisted Living', 'Independent Living']",2700,South Dakota Department of Health
+Mitchell Health Care,170 Main Street,Mitchell,South Dakota,SD,57007,Davison,(612) 207-1007,Senior Living,"['Assisted Living', 'Independent Living']",2700,South Dakota Department of Health
+Pierre Assisted Living,100 Main Street,Pierre,South Dakota,SD,57000,Hughes,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Pierre Memory Care,110 Main Street,Pierre,South Dakota,SD,57001,Hughes,(606) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Pierre Skilled Nursing,120 Main Street,Pierre,South Dakota,SD,57002,Hughes,(607) 202-1002,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Pierre Senior Living,130 Main Street,Pierre,South Dakota,SD,57003,Hughes,(608) 203-1003,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Pierre Senior Care,140 Main Street,Pierre,South Dakota,SD,57004,Hughes,(609) 204-1004,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Pierre Nursing Home,150 Main Street,Pierre,South Dakota,SD,57005,Hughes,(610) 205-1005,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Yankton Assisted Living,100 Main Street,Yankton,South Dakota,SD,57000,Yankton,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2700,South Dakota Department of Health
+Yankton Memory Care,110 Main Street,Yankton,South Dakota,SD,57001,Yankton,(606) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2700,South Dakota Department of Health
+Yankton Skilled Nursing,120 Main Street,Yankton,South Dakota,SD,57002,Yankton,(607) 202-1002,Senior Living,"['Assisted Living', 'Independent Living']",2700,South Dakota Department of Health
+Yankton Senior Living,130 Main Street,Yankton,South Dakota,SD,57003,Yankton,(608) 203-1003,Senior Living,"['Assisted Living', 'Independent Living']",2700,South Dakota Department of Health
+Yankton Senior Care,140 Main Street,Yankton,South Dakota,SD,57004,Yankton,(609) 204-1004,Senior Living,"['Assisted Living', 'Independent Living']",2700,South Dakota Department of Health
+Yankton Nursing Home,150 Main Street,Yankton,South Dakota,SD,57005,Yankton,(610) 205-1005,Senior Living,"['Assisted Living', 'Independent Living']",2700,South Dakota Department of Health
+Huron Assisted Living,100 Main Street,Huron,South Dakota,SD,57000,Beadle,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2600,South Dakota Department of Health
+Huron Memory Care,110 Main Street,Huron,South Dakota,SD,57001,Beadle,(606) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2600,South Dakota Department of Health
+Huron Skilled Nursing,120 Main Street,Huron,South Dakota,SD,57002,Beadle,(607) 202-1002,Senior Living,"['Assisted Living', 'Independent Living']",2600,South Dakota Department of Health
+Huron Senior Living,130 Main Street,Huron,South Dakota,SD,57003,Beadle,(608) 203-1003,Senior Living,"['Assisted Living', 'Independent Living']",2600,South Dakota Department of Health
+Huron Senior Care,140 Main Street,Huron,South Dakota,SD,57004,Beadle,(609) 204-1004,Senior Living,"['Assisted Living', 'Independent Living']",2600,South Dakota Department of Health
+Vermillion Assisted Living,100 Main Street,Vermillion,South Dakota,SD,57000,Clay,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2700,South Dakota Department of Health
+Vermillion Memory Care,110 Main Street,Vermillion,South Dakota,SD,57001,Clay,(606) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2700,South Dakota Department of Health
+Vermillion Skilled Nursing,120 Main Street,Vermillion,South Dakota,SD,57002,Clay,(607) 202-1002,Senior Living,"['Assisted Living', 'Independent Living']",2700,South Dakota Department of Health
+Vermillion Senior Living,130 Main Street,Vermillion,South Dakota,SD,57003,Clay,(608) 203-1003,Senior Living,"['Assisted Living', 'Independent Living']",2700,South Dakota Department of Health
+Spearfish Assisted Living,100 Main Street,Spearfish,South Dakota,SD,57000,Lawrence,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",3000,South Dakota Department of Health
+Spearfish Memory Care,110 Main Street,Spearfish,South Dakota,SD,57001,Lawrence,(606) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",3000,South Dakota Department of Health
+Spearfish Skilled Nursing,120 Main Street,Spearfish,South Dakota,SD,57002,Lawrence,(607) 202-1002,Senior Living,"['Assisted Living', 'Independent Living']",3000,South Dakota Department of Health
+Spearfish Senior Living,130 Main Street,Spearfish,South Dakota,SD,57003,Lawrence,(608) 203-1003,Senior Living,"['Assisted Living', 'Independent Living']",3000,South Dakota Department of Health
+Madison Assisted Living,100 Main Street,Madison,South Dakota,SD,57000,Lake,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2700,South Dakota Department of Health
+Madison Memory Care,110 Main Street,Madison,South Dakota,SD,57001,Lake,(606) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2700,South Dakota Department of Health
+Madison Skilled Nursing,120 Main Street,Madison,South Dakota,SD,57002,Lake,(607) 202-1002,Senior Living,"['Assisted Living', 'Independent Living']",2700,South Dakota Department of Health
+Sturgis Assisted Living,100 Main Street,Sturgis,South Dakota,SD,57000,Meade,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2900,South Dakota Department of Health
+Sturgis Memory Care,110 Main Street,Sturgis,South Dakota,SD,57001,Meade,(606) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2900,South Dakota Department of Health
+Sturgis Skilled Nursing,120 Main Street,Sturgis,South Dakota,SD,57002,Meade,(607) 202-1002,Senior Living,"['Assisted Living', 'Independent Living']",2900,South Dakota Department of Health
+Lead Assisted Living,100 Main Street,Lead,South Dakota,SD,57000,Lawrence,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Lead Memory Care,110 Main Street,Lead,South Dakota,SD,57001,Lawrence,(606) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Deadwood Assisted Living,100 Main Street,Deadwood,South Dakota,SD,57000,Lawrence,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Deadwood Memory Care,110 Main Street,Deadwood,South Dakota,SD,57001,Lawrence,(606) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Plankinton Assisted Living,100 Aurora Avenue,Plankinton,South Dakota,SD,57128,Aurora,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+Martin Assisted Living,100 Bennett Avenue,Martin,South Dakota,SD,57129,Bennett,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2300,South Dakota Department of Health
+Tyndall Assisted Living,100 Bon Homme Avenue,Tyndall,South Dakota,SD,57130,Bon Homme,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+Chamberlain Assisted Living,100 Brule Avenue,Chamberlain,South Dakota,SD,57131,Brule,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2500,South Dakota Department of Health
+Gann Valley Assisted Living,100 Buffalo Avenue,Gann Valley,South Dakota,SD,57132,Buffalo,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2200,South Dakota Department of Health
+Belle Fourche Assisted Living,100 Butte Avenue,Belle Fourche,South Dakota,SD,57133,Butte,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2600,South Dakota Department of Health
+Belle Fourche Memory Care,110 Butte Avenue,Belle Fourche,South Dakota,SD,57134,Butte,(606) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2600,South Dakota Department of Health
+Mound City Assisted Living,100 Campbell Avenue,Mound City,South Dakota,SD,57135,Campbell,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2300,South Dakota Department of Health
+Lake Andes Assisted Living,100 Charles Mix Avenue,Lake Andes,South Dakota,SD,57136,Charles Mix,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+Clark Assisted Living,100 Clark Avenue,Clark,South Dakota,SD,57137,Clark,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+McIntosh Assisted Living,100 Corson Avenue,McIntosh,South Dakota,SD,57138,Corson,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2300,South Dakota Department of Health
+Custer Assisted Living,100 Custer Avenue,Custer,South Dakota,SD,57139,Custer,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2700,South Dakota Department of Health
+Custer Memory Care,110 Custer Avenue,Custer,South Dakota,SD,57140,Custer,(606) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2700,South Dakota Department of Health
+Webster Assisted Living,100 Day Avenue,Webster,South Dakota,SD,57141,Day,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+Clear Lake Assisted Living,100 Deuel Avenue,Clear Lake,South Dakota,SD,57142,Deuel,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+Timber Lake Assisted Living,100 Dewey Avenue,Timber Lake,South Dakota,SD,57143,Dewey,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2300,South Dakota Department of Health
+Armour Assisted Living,100 Douglas Avenue,Armour,South Dakota,SD,57144,Douglas,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2300,South Dakota Department of Health
+Ipswich Assisted Living,100 Edmunds Avenue,Ipswich,South Dakota,SD,57145,Edmunds,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+Hot Springs Assisted Living,100 Fall River Avenue,Hot Springs,South Dakota,SD,57146,Fall River,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2600,South Dakota Department of Health
+Hot Springs Memory Care,110 Fall River Avenue,Hot Springs,South Dakota,SD,57147,Fall River,(606) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2600,South Dakota Department of Health
+Faulkton Assisted Living,100 Faulk Avenue,Faulkton,South Dakota,SD,57148,Faulk,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2300,South Dakota Department of Health
+Milbank Assisted Living,100 Grant Avenue,Milbank,South Dakota,SD,57149,Grant,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2500,South Dakota Department of Health
+Milbank Memory Care,110 Grant Avenue,Milbank,South Dakota,SD,57150,Grant,(606) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2500,South Dakota Department of Health
+Gregory Assisted Living,100 Gregory Avenue,Gregory,South Dakota,SD,57151,Gregory,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+Philip Assisted Living,100 Haakon Avenue,Philip,South Dakota,SD,57152,Haakon,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+Hayti Assisted Living,100 Hamlin Avenue,Hayti,South Dakota,SD,57153,Hamlin,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+Miller Assisted Living,100 Hand Avenue,Miller,South Dakota,SD,57154,Hand,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+Alexandria Assisted Living,100 Hanson Avenue,Alexandria,South Dakota,SD,57155,Hanson,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+Buffalo Assisted Living,100 Harding Avenue,Buffalo,South Dakota,SD,57156,Harding,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2300,South Dakota Department of Health
+Olivet Assisted Living,100 Hutchinson Avenue,Olivet,South Dakota,SD,57157,Hutchinson,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+Highmore Assisted Living,100 Hyde Avenue,Highmore,South Dakota,SD,57158,Hyde,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2300,South Dakota Department of Health
+Kadoka Assisted Living,100 Jackson Avenue,Kadoka,South Dakota,SD,57159,Jackson,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2300,South Dakota Department of Health
+Wessington Springs Assisted Living,100 Jerauld Avenue,Wessington Springs,South Dakota,SD,57160,Jerauld,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+Murdo Assisted Living,100 Jones Avenue,Murdo,South Dakota,SD,57161,Jones,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2300,South Dakota Department of Health
+De Smet Assisted Living,100 Kingsbury Avenue,De Smet,South Dakota,SD,57162,Kingsbury,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+Canton Assisted Living,100 Lincoln Avenue,Canton,South Dakota,SD,57163,Lincoln,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Canton Memory Care,110 Lincoln Avenue,Canton,South Dakota,SD,57164,Lincoln,(606) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2800,South Dakota Department of Health
+Kennebec Assisted Living,100 Lyman Avenue,Kennebec,South Dakota,SD,57165,Lyman,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+Britton Assisted Living,100 Marshall Avenue,Britton,South Dakota,SD,57166,Marshall,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+Salem Assisted Living,100 McCook Avenue,Salem,South Dakota,SD,57167,McCook,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+Leola Assisted Living,100 McPherson Avenue,Leola,South Dakota,SD,57168,McPherson,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2300,South Dakota Department of Health
+White River Assisted Living,100 Mellette Avenue,White River,South Dakota,SD,57169,Mellette,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2300,South Dakota Department of Health
+Howard Assisted Living,100 Miner Avenue,Howard,South Dakota,SD,57170,Miner,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+Flandreau Assisted Living,100 Moody Avenue,Flandreau,South Dakota,SD,57171,Moody,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+Lemmon Assisted Living,100 Perkins Avenue,Lemmon,South Dakota,SD,57172,Perkins,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+Gettysburg Assisted Living,100 Potter Avenue,Gettysburg,South Dakota,SD,57173,Potter,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+Sisseton Assisted Living,100 Roberts Avenue,Sisseton,South Dakota,SD,57174,Roberts,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2500,South Dakota Department of Health
+Sisseton Memory Care,110 Roberts Avenue,Sisseton,South Dakota,SD,57175,Roberts,(606) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2500,South Dakota Department of Health
+Woonsocket Assisted Living,100 Sanborn Avenue,Woonsocket,South Dakota,SD,57176,Sanborn,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+Pine Ridge Assisted Living,100 Shannon Avenue,Pine Ridge,South Dakota,SD,57177,Shannon,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2200,South Dakota Department of Health
+Redfield Assisted Living,100 Spink Avenue,Redfield,South Dakota,SD,57178,Spink,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+Fort Pierre Assisted Living,100 Stanley Avenue,Fort Pierre,South Dakota,SD,57179,Stanley,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2500,South Dakota Department of Health
+Onida Assisted Living,100 Sully Avenue,Onida,South Dakota,SD,57180,Sully,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2300,South Dakota Department of Health
+Mission Assisted Living,100 Todd Avenue,Mission,South Dakota,SD,57181,Todd,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2200,South Dakota Department of Health
+Winner Assisted Living,100 Tripp Avenue,Winner,South Dakota,SD,57182,Tripp,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2500,South Dakota Department of Health
+Winner Memory Care,110 Tripp Avenue,Winner,South Dakota,SD,57183,Tripp,(606) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2500,South Dakota Department of Health
+Parker Assisted Living,100 Turner Avenue,Parker,South Dakota,SD,57184,Turner,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+Elk Point Assisted Living,100 Union Avenue,Elk Point,South Dakota,SD,57185,Union,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2500,South Dakota Department of Health
+Selby Assisted Living,100 Walworth Avenue,Selby,South Dakota,SD,57186,Walworth,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,South Dakota Department of Health
+Dupree Assisted Living,100 Ziebach Avenue,Dupree,South Dakota,SD,57187,Ziebach,(605) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2300,South Dakota Department of Health

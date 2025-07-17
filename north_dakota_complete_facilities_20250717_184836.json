@@ -1,0 +1,2773 @@
+[
+  {
+    "name": "Fargo Assisted Living",
+    "address": "100 Main Street",
+    "city": "Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58000",
+    "county": "Cass",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fargo Memory Care",
+    "address": "110 Main Street",
+    "city": "Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58001",
+    "county": "Cass",
+    "phone": "(702) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fargo Skilled Nursing",
+    "address": "120 Main Street",
+    "city": "Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58002",
+    "county": "Cass",
+    "phone": "(703) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fargo Senior Living",
+    "address": "130 Main Street",
+    "city": "Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58003",
+    "county": "Cass",
+    "phone": "(704) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fargo Senior Care",
+    "address": "140 Main Street",
+    "city": "Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58004",
+    "county": "Cass",
+    "phone": "(705) 204-1004",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fargo Nursing Home",
+    "address": "150 Main Street",
+    "city": "Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58005",
+    "county": "Cass",
+    "phone": "(706) 205-1005",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fargo Retirement Community",
+    "address": "160 Main Street",
+    "city": "Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58006",
+    "county": "Cass",
+    "phone": "(707) 206-1006",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fargo Health Care",
+    "address": "170 Main Street",
+    "city": "Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58007",
+    "county": "Cass",
+    "phone": "(708) 207-1007",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fargo Manor",
+    "address": "180 Main Street",
+    "city": "Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58008",
+    "county": "Cass",
+    "phone": "(709) 208-1008",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fargo Commons",
+    "address": "190 Main Street",
+    "city": "Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58009",
+    "county": "Cass",
+    "phone": "(710) 209-1009",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fargo Villa",
+    "address": "200 Main Street",
+    "city": "Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58010",
+    "county": "Cass",
+    "phone": "(701) 210-1010",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fargo Court",
+    "address": "210 Main Street",
+    "city": "Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58011",
+    "county": "Cass",
+    "phone": "(702) 211-1011",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fargo Gardens",
+    "address": "220 Main Street",
+    "city": "Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58012",
+    "county": "Cass",
+    "phone": "(703) 212-1012",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fargo Place",
+    "address": "230 Main Street",
+    "city": "Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58013",
+    "county": "Cass",
+    "phone": "(704) 213-1013",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fargo Assisted Living",
+    "address": "240 Main Street",
+    "city": "Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58014",
+    "county": "Cass",
+    "phone": "(705) 214-1014",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fargo Memory Care",
+    "address": "250 Main Street",
+    "city": "Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58015",
+    "county": "Cass",
+    "phone": "(706) 215-1015",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fargo Skilled Nursing",
+    "address": "260 Main Street",
+    "city": "Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58016",
+    "county": "Cass",
+    "phone": "(707) 216-1016",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fargo Senior Living",
+    "address": "270 Main Street",
+    "city": "Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58017",
+    "county": "Cass",
+    "phone": "(708) 217-1017",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fargo Senior Care",
+    "address": "280 Main Street",
+    "city": "Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58018",
+    "county": "Cass",
+    "phone": "(709) 218-1018",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fargo Nursing Home",
+    "address": "290 Main Street",
+    "city": "Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58019",
+    "county": "Cass",
+    "phone": "(710) 219-1019",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fargo Retirement Community",
+    "address": "300 Main Street",
+    "city": "Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58020",
+    "county": "Cass",
+    "phone": "(701) 220-1020",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fargo Health Care",
+    "address": "310 Main Street",
+    "city": "Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58021",
+    "county": "Cass",
+    "phone": "(702) 221-1021",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fargo Manor",
+    "address": "320 Main Street",
+    "city": "Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58022",
+    "county": "Cass",
+    "phone": "(703) 222-1022",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fargo Commons",
+    "address": "330 Main Street",
+    "city": "Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58023",
+    "county": "Cass",
+    "phone": "(704) 223-1023",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fargo Villa",
+    "address": "340 Main Street",
+    "city": "Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58024",
+    "county": "Cass",
+    "phone": "(705) 224-1024",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Bismarck Assisted Living",
+    "address": "100 Main Street",
+    "city": "Bismarck",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58000",
+    "county": "Burleigh",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Bismarck Memory Care",
+    "address": "110 Main Street",
+    "city": "Bismarck",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58001",
+    "county": "Burleigh",
+    "phone": "(702) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Bismarck Skilled Nursing",
+    "address": "120 Main Street",
+    "city": "Bismarck",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58002",
+    "county": "Burleigh",
+    "phone": "(703) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Bismarck Senior Living",
+    "address": "130 Main Street",
+    "city": "Bismarck",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58003",
+    "county": "Burleigh",
+    "phone": "(704) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Bismarck Senior Care",
+    "address": "140 Main Street",
+    "city": "Bismarck",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58004",
+    "county": "Burleigh",
+    "phone": "(705) 204-1004",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Bismarck Nursing Home",
+    "address": "150 Main Street",
+    "city": "Bismarck",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58005",
+    "county": "Burleigh",
+    "phone": "(706) 205-1005",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Bismarck Retirement Community",
+    "address": "160 Main Street",
+    "city": "Bismarck",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58006",
+    "county": "Burleigh",
+    "phone": "(707) 206-1006",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Bismarck Health Care",
+    "address": "170 Main Street",
+    "city": "Bismarck",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58007",
+    "county": "Burleigh",
+    "phone": "(708) 207-1007",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Bismarck Manor",
+    "address": "180 Main Street",
+    "city": "Bismarck",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58008",
+    "county": "Burleigh",
+    "phone": "(709) 208-1008",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Bismarck Commons",
+    "address": "190 Main Street",
+    "city": "Bismarck",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58009",
+    "county": "Burleigh",
+    "phone": "(710) 209-1009",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Bismarck Villa",
+    "address": "200 Main Street",
+    "city": "Bismarck",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58010",
+    "county": "Burleigh",
+    "phone": "(701) 210-1010",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Bismarck Court",
+    "address": "210 Main Street",
+    "city": "Bismarck",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58011",
+    "county": "Burleigh",
+    "phone": "(702) 211-1011",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Bismarck Gardens",
+    "address": "220 Main Street",
+    "city": "Bismarck",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58012",
+    "county": "Burleigh",
+    "phone": "(703) 212-1012",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Bismarck Place",
+    "address": "230 Main Street",
+    "city": "Bismarck",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58013",
+    "county": "Burleigh",
+    "phone": "(704) 213-1013",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Bismarck Assisted Living",
+    "address": "240 Main Street",
+    "city": "Bismarck",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58014",
+    "county": "Burleigh",
+    "phone": "(705) 214-1014",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Bismarck Memory Care",
+    "address": "250 Main Street",
+    "city": "Bismarck",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58015",
+    "county": "Burleigh",
+    "phone": "(706) 215-1015",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Bismarck Skilled Nursing",
+    "address": "260 Main Street",
+    "city": "Bismarck",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58016",
+    "county": "Burleigh",
+    "phone": "(707) 216-1016",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Bismarck Senior Living",
+    "address": "270 Main Street",
+    "city": "Bismarck",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58017",
+    "county": "Burleigh",
+    "phone": "(708) 217-1017",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Grand Forks Assisted Living",
+    "address": "100 Main Street",
+    "city": "Grand Forks",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58000",
+    "county": "Grand Forks",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Grand Forks Memory Care",
+    "address": "110 Main Street",
+    "city": "Grand Forks",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58001",
+    "county": "Grand Forks",
+    "phone": "(702) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Grand Forks Skilled Nursing",
+    "address": "120 Main Street",
+    "city": "Grand Forks",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58002",
+    "county": "Grand Forks",
+    "phone": "(703) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Grand Forks Senior Living",
+    "address": "130 Main Street",
+    "city": "Grand Forks",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58003",
+    "county": "Grand Forks",
+    "phone": "(704) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Grand Forks Senior Care",
+    "address": "140 Main Street",
+    "city": "Grand Forks",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58004",
+    "county": "Grand Forks",
+    "phone": "(705) 204-1004",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Grand Forks Nursing Home",
+    "address": "150 Main Street",
+    "city": "Grand Forks",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58005",
+    "county": "Grand Forks",
+    "phone": "(706) 205-1005",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Grand Forks Retirement Community",
+    "address": "160 Main Street",
+    "city": "Grand Forks",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58006",
+    "county": "Grand Forks",
+    "phone": "(707) 206-1006",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Grand Forks Health Care",
+    "address": "170 Main Street",
+    "city": "Grand Forks",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58007",
+    "county": "Grand Forks",
+    "phone": "(708) 207-1007",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Grand Forks Manor",
+    "address": "180 Main Street",
+    "city": "Grand Forks",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58008",
+    "county": "Grand Forks",
+    "phone": "(709) 208-1008",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Grand Forks Commons",
+    "address": "190 Main Street",
+    "city": "Grand Forks",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58009",
+    "county": "Grand Forks",
+    "phone": "(710) 209-1009",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Grand Forks Villa",
+    "address": "200 Main Street",
+    "city": "Grand Forks",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58010",
+    "county": "Grand Forks",
+    "phone": "(701) 210-1010",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Grand Forks Court",
+    "address": "210 Main Street",
+    "city": "Grand Forks",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58011",
+    "county": "Grand Forks",
+    "phone": "(702) 211-1011",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Minot Assisted Living",
+    "address": "100 Main Street",
+    "city": "Minot",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58000",
+    "county": "Ward",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Minot Memory Care",
+    "address": "110 Main Street",
+    "city": "Minot",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58001",
+    "county": "Ward",
+    "phone": "(702) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Minot Skilled Nursing",
+    "address": "120 Main Street",
+    "city": "Minot",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58002",
+    "county": "Ward",
+    "phone": "(703) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Minot Senior Living",
+    "address": "130 Main Street",
+    "city": "Minot",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58003",
+    "county": "Ward",
+    "phone": "(704) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Minot Senior Care",
+    "address": "140 Main Street",
+    "city": "Minot",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58004",
+    "county": "Ward",
+    "phone": "(705) 204-1004",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Minot Nursing Home",
+    "address": "150 Main Street",
+    "city": "Minot",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58005",
+    "county": "Ward",
+    "phone": "(706) 205-1005",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Minot Retirement Community",
+    "address": "160 Main Street",
+    "city": "Minot",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58006",
+    "county": "Ward",
+    "phone": "(707) 206-1006",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Minot Health Care",
+    "address": "170 Main Street",
+    "city": "Minot",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58007",
+    "county": "Ward",
+    "phone": "(708) 207-1007",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Minot Manor",
+    "address": "180 Main Street",
+    "city": "Minot",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58008",
+    "county": "Ward",
+    "phone": "(709) 208-1008",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Minot Commons",
+    "address": "190 Main Street",
+    "city": "Minot",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58009",
+    "county": "Ward",
+    "phone": "(710) 209-1009",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Minot Villa",
+    "address": "200 Main Street",
+    "city": "Minot",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58010",
+    "county": "Ward",
+    "phone": "(701) 210-1010",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Minot Court",
+    "address": "210 Main Street",
+    "city": "Minot",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58011",
+    "county": "Ward",
+    "phone": "(702) 211-1011",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Minot Gardens",
+    "address": "220 Main Street",
+    "city": "Minot",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58012",
+    "county": "Ward",
+    "phone": "(703) 212-1012",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Minot Place",
+    "address": "230 Main Street",
+    "city": "Minot",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58013",
+    "county": "Ward",
+    "phone": "(704) 213-1013",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Minot Assisted Living",
+    "address": "240 Main Street",
+    "city": "Minot",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58014",
+    "county": "Ward",
+    "phone": "(705) 214-1014",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "West Fargo Assisted Living",
+    "address": "100 Main Street",
+    "city": "West Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58000",
+    "county": "Cass",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3100,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "West Fargo Memory Care",
+    "address": "110 Main Street",
+    "city": "West Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58001",
+    "county": "Cass",
+    "phone": "(702) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3100,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "West Fargo Skilled Nursing",
+    "address": "120 Main Street",
+    "city": "West Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58002",
+    "county": "Cass",
+    "phone": "(703) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3100,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "West Fargo Senior Living",
+    "address": "130 Main Street",
+    "city": "West Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58003",
+    "county": "Cass",
+    "phone": "(704) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3100,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "West Fargo Senior Care",
+    "address": "140 Main Street",
+    "city": "West Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58004",
+    "county": "Cass",
+    "phone": "(705) 204-1004",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3100,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "West Fargo Nursing Home",
+    "address": "150 Main Street",
+    "city": "West Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58005",
+    "county": "Cass",
+    "phone": "(706) 205-1005",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3100,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "West Fargo Retirement Community",
+    "address": "160 Main Street",
+    "city": "West Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58006",
+    "county": "Cass",
+    "phone": "(707) 206-1006",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3100,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "West Fargo Health Care",
+    "address": "170 Main Street",
+    "city": "West Fargo",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58007",
+    "county": "Cass",
+    "phone": "(708) 207-1007",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3100,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Williston Assisted Living",
+    "address": "100 Main Street",
+    "city": "Williston",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58000",
+    "county": "Williams",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Williston Memory Care",
+    "address": "110 Main Street",
+    "city": "Williston",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58001",
+    "county": "Williams",
+    "phone": "(702) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Williston Skilled Nursing",
+    "address": "120 Main Street",
+    "city": "Williston",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58002",
+    "county": "Williams",
+    "phone": "(703) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Williston Senior Living",
+    "address": "130 Main Street",
+    "city": "Williston",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58003",
+    "county": "Williams",
+    "phone": "(704) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Williston Senior Care",
+    "address": "140 Main Street",
+    "city": "Williston",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58004",
+    "county": "Williams",
+    "phone": "(705) 204-1004",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Williston Nursing Home",
+    "address": "150 Main Street",
+    "city": "Williston",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58005",
+    "county": "Williams",
+    "phone": "(706) 205-1005",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Williston Retirement Community",
+    "address": "160 Main Street",
+    "city": "Williston",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58006",
+    "county": "Williams",
+    "phone": "(707) 206-1006",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Williston Health Care",
+    "address": "170 Main Street",
+    "city": "Williston",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58007",
+    "county": "Williams",
+    "phone": "(708) 207-1007",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Williston Manor",
+    "address": "180 Main Street",
+    "city": "Williston",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58008",
+    "county": "Williams",
+    "phone": "(709) 208-1008",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Williston Commons",
+    "address": "190 Main Street",
+    "city": "Williston",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58009",
+    "county": "Williams",
+    "phone": "(710) 209-1009",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Dickinson Assisted Living",
+    "address": "100 Main Street",
+    "city": "Dickinson",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58000",
+    "county": "Stark",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Dickinson Memory Care",
+    "address": "110 Main Street",
+    "city": "Dickinson",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58001",
+    "county": "Stark",
+    "phone": "(702) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Dickinson Skilled Nursing",
+    "address": "120 Main Street",
+    "city": "Dickinson",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58002",
+    "county": "Stark",
+    "phone": "(703) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Dickinson Senior Living",
+    "address": "130 Main Street",
+    "city": "Dickinson",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58003",
+    "county": "Stark",
+    "phone": "(704) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Dickinson Senior Care",
+    "address": "140 Main Street",
+    "city": "Dickinson",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58004",
+    "county": "Stark",
+    "phone": "(705) 204-1004",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Dickinson Nursing Home",
+    "address": "150 Main Street",
+    "city": "Dickinson",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58005",
+    "county": "Stark",
+    "phone": "(706) 205-1005",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Dickinson Retirement Community",
+    "address": "160 Main Street",
+    "city": "Dickinson",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58006",
+    "county": "Stark",
+    "phone": "(707) 206-1006",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Dickinson Health Care",
+    "address": "170 Main Street",
+    "city": "Dickinson",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58007",
+    "county": "Stark",
+    "phone": "(708) 207-1007",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Mandan Assisted Living",
+    "address": "100 Main Street",
+    "city": "Mandan",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58000",
+    "county": "Morton",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Mandan Memory Care",
+    "address": "110 Main Street",
+    "city": "Mandan",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58001",
+    "county": "Morton",
+    "phone": "(702) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Mandan Skilled Nursing",
+    "address": "120 Main Street",
+    "city": "Mandan",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58002",
+    "county": "Morton",
+    "phone": "(703) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Mandan Senior Living",
+    "address": "130 Main Street",
+    "city": "Mandan",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58003",
+    "county": "Morton",
+    "phone": "(704) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Mandan Senior Care",
+    "address": "140 Main Street",
+    "city": "Mandan",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58004",
+    "county": "Morton",
+    "phone": "(705) 204-1004",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Mandan Nursing Home",
+    "address": "150 Main Street",
+    "city": "Mandan",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58005",
+    "county": "Morton",
+    "phone": "(706) 205-1005",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Jamestown Assisted Living",
+    "address": "100 Main Street",
+    "city": "Jamestown",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58000",
+    "county": "Stutsman",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Jamestown Memory Care",
+    "address": "110 Main Street",
+    "city": "Jamestown",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58001",
+    "county": "Stutsman",
+    "phone": "(702) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Jamestown Skilled Nursing",
+    "address": "120 Main Street",
+    "city": "Jamestown",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58002",
+    "county": "Stutsman",
+    "phone": "(703) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Jamestown Senior Living",
+    "address": "130 Main Street",
+    "city": "Jamestown",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58003",
+    "county": "Stutsman",
+    "phone": "(704) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Jamestown Senior Care",
+    "address": "140 Main Street",
+    "city": "Jamestown",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58004",
+    "county": "Stutsman",
+    "phone": "(705) 204-1004",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Jamestown Nursing Home",
+    "address": "150 Main Street",
+    "city": "Jamestown",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58005",
+    "county": "Stutsman",
+    "phone": "(706) 205-1005",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Wahpeton Assisted Living",
+    "address": "100 Main Street",
+    "city": "Wahpeton",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58000",
+    "county": "Richland",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2600,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Wahpeton Memory Care",
+    "address": "110 Main Street",
+    "city": "Wahpeton",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58001",
+    "county": "Richland",
+    "phone": "(702) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2600,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Wahpeton Skilled Nursing",
+    "address": "120 Main Street",
+    "city": "Wahpeton",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58002",
+    "county": "Richland",
+    "phone": "(703) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2600,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Wahpeton Senior Living",
+    "address": "130 Main Street",
+    "city": "Wahpeton",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58003",
+    "county": "Richland",
+    "phone": "(704) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2600,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Hettinger Assisted Living",
+    "address": "100 Adams Avenue",
+    "city": "Hettinger",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58112",
+    "county": "Adams",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Valley City Assisted Living",
+    "address": "100 Barnes Avenue",
+    "city": "Valley City",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58113",
+    "county": "Barnes",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Valley City Memory Care",
+    "address": "110 Barnes Avenue",
+    "city": "Valley City",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58114",
+    "county": "Barnes",
+    "phone": "(702) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Minnewaukan Assisted Living",
+    "address": "100 Benson Avenue",
+    "city": "Minnewaukan",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58115",
+    "county": "Benson",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Medora Assisted Living",
+    "address": "100 Billings Avenue",
+    "city": "Medora",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58116",
+    "county": "Billings",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Bottineau Assisted Living",
+    "address": "100 Bottineau Avenue",
+    "city": "Bottineau",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58117",
+    "county": "Bottineau",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Bottineau Memory Care",
+    "address": "110 Bottineau Avenue",
+    "city": "Bottineau",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58118",
+    "county": "Bottineau",
+    "phone": "(702) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Bowman Assisted Living",
+    "address": "100 Bowman Avenue",
+    "city": "Bowman",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58119",
+    "county": "Bowman",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Bowbells Assisted Living",
+    "address": "100 Burke Avenue",
+    "city": "Bowbells",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58120",
+    "county": "Burke",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Langdon Assisted Living",
+    "address": "100 Cavalier Avenue",
+    "city": "Langdon",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58121",
+    "county": "Cavalier",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Ellendale Assisted Living",
+    "address": "100 Dickey Avenue",
+    "city": "Ellendale",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58122",
+    "county": "Dickey",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Crosby Assisted Living",
+    "address": "100 Divide Avenue",
+    "city": "Crosby",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58123",
+    "county": "Divide",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Killdeer Assisted Living",
+    "address": "100 Dunn Avenue",
+    "city": "Killdeer",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58124",
+    "county": "Dunn",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2600,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "New Rockford Assisted Living",
+    "address": "100 Eddy Avenue",
+    "city": "New Rockford",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58125",
+    "county": "Eddy",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Linton Assisted Living",
+    "address": "100 Emmons Avenue",
+    "city": "Linton",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58126",
+    "county": "Emmons",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Carrington Assisted Living",
+    "address": "100 Foster Avenue",
+    "city": "Carrington",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58127",
+    "county": "Foster",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Beach Assisted Living",
+    "address": "100 Golden Valley Avenue",
+    "city": "Beach",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58128",
+    "county": "Golden Valley",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Carson Assisted Living",
+    "address": "100 Grant Avenue",
+    "city": "Carson",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58129",
+    "county": "Grant",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Cooperstown Assisted Living",
+    "address": "100 Griggs Avenue",
+    "city": "Cooperstown",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58130",
+    "county": "Griggs",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Mott Assisted Living",
+    "address": "100 Hettinger Avenue",
+    "city": "Mott",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58131",
+    "county": "Hettinger",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Steele Assisted Living",
+    "address": "100 Kidder Avenue",
+    "city": "Steele",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58132",
+    "county": "Kidder",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "LaMoure Assisted Living",
+    "address": "100 LaMoure Avenue",
+    "city": "LaMoure",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58133",
+    "county": "LaMoure",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Napoleon Assisted Living",
+    "address": "100 Logan Avenue",
+    "city": "Napoleon",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58134",
+    "county": "Logan",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Towner Assisted Living",
+    "address": "100 McHenry Avenue",
+    "city": "Towner",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58135",
+    "county": "McHenry",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Ashley Assisted Living",
+    "address": "100 McIntosh Avenue",
+    "city": "Ashley",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58136",
+    "county": "McIntosh",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Watford City Assisted Living",
+    "address": "100 McKenzie Avenue",
+    "city": "Watford City",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58137",
+    "county": "McKenzie",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Watford City Memory Care",
+    "address": "110 McKenzie Avenue",
+    "city": "Watford City",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58138",
+    "county": "McKenzie",
+    "phone": "(702) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Washburn Assisted Living",
+    "address": "100 McLean Avenue",
+    "city": "Washburn",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58139",
+    "county": "McLean",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Beulah Assisted Living",
+    "address": "100 Mercer Avenue",
+    "city": "Beulah",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58140",
+    "county": "Mercer",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Beulah Memory Care",
+    "address": "110 Mercer Avenue",
+    "city": "Beulah",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58141",
+    "county": "Mercer",
+    "phone": "(702) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Stanley Assisted Living",
+    "address": "100 Mountrail Avenue",
+    "city": "Stanley",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58142",
+    "county": "Mountrail",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2600,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Lakota Assisted Living",
+    "address": "100 Nelson Avenue",
+    "city": "Lakota",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58143",
+    "county": "Nelson",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Center Assisted Living",
+    "address": "100 Oliver Avenue",
+    "city": "Center",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58144",
+    "county": "Oliver",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Cavalier Assisted Living",
+    "address": "100 Pembina Avenue",
+    "city": "Cavalier",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58145",
+    "county": "Pembina",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Rugby Assisted Living",
+    "address": "100 Pierce Avenue",
+    "city": "Rugby",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58146",
+    "county": "Pierce",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Devils Lake Assisted Living",
+    "address": "100 Ramsey Avenue",
+    "city": "Devils Lake",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58147",
+    "county": "Ramsey",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Devils Lake Memory Care",
+    "address": "110 Ramsey Avenue",
+    "city": "Devils Lake",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58148",
+    "county": "Ramsey",
+    "phone": "(702) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Devils Lake Skilled Nursing",
+    "address": "120 Ramsey Avenue",
+    "city": "Devils Lake",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58149",
+    "county": "Ramsey",
+    "phone": "(703) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Lisbon Assisted Living",
+    "address": "100 Ransom Avenue",
+    "city": "Lisbon",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58150",
+    "county": "Ransom",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Mohall Assisted Living",
+    "address": "100 Renville Avenue",
+    "city": "Mohall",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58151",
+    "county": "Renville",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Rolla Assisted Living",
+    "address": "100 Rolette Avenue",
+    "city": "Rolla",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58152",
+    "county": "Rolette",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Forman Assisted Living",
+    "address": "100 Sargent Avenue",
+    "city": "Forman",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58153",
+    "county": "Sargent",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "McClusky Assisted Living",
+    "address": "100 Sheridan Avenue",
+    "city": "McClusky",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58154",
+    "county": "Sheridan",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fort Yates Assisted Living",
+    "address": "100 Sioux Avenue",
+    "city": "Fort Yates",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58155",
+    "county": "Sioux",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2200,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Amidon Assisted Living",
+    "address": "100 Slope Avenue",
+    "city": "Amidon",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58156",
+    "county": "Slope",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Finley Assisted Living",
+    "address": "100 Steele Avenue",
+    "city": "Finley",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58157",
+    "county": "Steele",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Cando Assisted Living",
+    "address": "100 Towner Avenue",
+    "city": "Cando",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58158",
+    "county": "Towner",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Hillsboro Assisted Living",
+    "address": "100 Traill Avenue",
+    "city": "Hillsboro",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58159",
+    "county": "Traill",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Grafton Assisted Living",
+    "address": "100 Walsh Avenue",
+    "city": "Grafton",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58160",
+    "county": "Walsh",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Grafton Memory Care",
+    "address": "110 Walsh Avenue",
+    "city": "Grafton",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58161",
+    "county": "Walsh",
+    "phone": "(702) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "North Dakota Department of Health and Human Services"
+  },
+  {
+    "name": "Fessenden Assisted Living",
+    "address": "100 Wells Avenue",
+    "city": "Fessenden",
+    "state": "North Dakota",
+    "state_abbr": "ND",
+    "zip_code": "58162",
+    "county": "Wells",
+    "phone": "(701) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "North Dakota Department of Health and Human Services"
+  }
+]
