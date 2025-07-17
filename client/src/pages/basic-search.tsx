@@ -667,13 +667,13 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
   return (
     <div className="min-h-screen bg-white pb-16">
       {/* Navigation Bar */}
-      <div className="sticky top-0 bg-white z-40 border-b border-gray-200 shadow-sm">
+      <div className="sticky top-0 bg-black/10 backdrop-blur-md border-b border-white/10 z-40">
         <div className="px-3 py-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Link href="/">
-                <Button variant="ghost" size="sm" className="p-1.5 hover:bg-gray-100">
-                  <ArrowLeft className="w-4 h-4 text-gray-600" />
+                <Button variant="ghost" size="sm" className="p-1.5 hover:bg-white/20">
+                  <ArrowLeft className="w-4 h-4 text-white" />
                 </Button>
               </Link>
               <Link href="/" className="flex items-center space-x-1.5">
@@ -683,10 +683,10 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                 <span className="text-lg font-bold text-gradient">MySeniorValet</span>
               </Link>
             </div>
-            <div className="text-gray-600 font-medium text-xs">
+            <div className="text-white font-medium text-xs">
               {visibleCommunities?.length || 0} shown
               {(filteredCommunities?.length || 0) > (visibleCommunities?.length || 0) && (
-                <span className="text-blue-600 ml-1">
+                <span className="text-amber-200 ml-1">
                   • {filteredCommunities?.length || 0} total
                 </span>
               )}

@@ -102,15 +102,15 @@ export default function TrueViewHome() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       {/* Header - Reduced height */}
-      <header className="absolute top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+      <header className="absolute top-0 left-0 right-0 z-50 bg-black/10 backdrop-blur-md border-b border-white/10">
         <div className="px-4 py-2.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="p-1.5 bg-gray-100 rounded-lg shadow-sm">
+              <div className="p-1.5 bg-white/20 rounded-lg backdrop-blur-sm shadow-lg">
                 <div className="flex flex-col space-y-1">
-                  <div className="w-4 h-0.5 bg-gray-600 rounded-full"></div>
-                  <div className="w-4 h-0.5 bg-gray-600 rounded-full"></div>
-                  <div className="w-4 h-0.5 bg-gray-600 rounded-full"></div>
+                  <div className="w-4 h-0.5 bg-white rounded-full"></div>
+                  <div className="w-4 h-0.5 bg-white rounded-full"></div>
+                  <div className="w-4 h-0.5 bg-white rounded-full"></div>
                 </div>
               </div>
               <div className="flex items-center space-x-1.5">
@@ -121,10 +121,10 @@ export default function TrueViewHome() {
               </div>
             </div>
             <div className="flex items-center space-x-3">
-              <Link href="/login" className="text-gray-600 hover:text-blue-600 transition-colors font-medium text-sm">
+              <Link href="/login" className="text-white hover:text-amber-200 transition-colors font-medium text-sm">
                 Sign In
               </Link>
-              <Link href="/signup" className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-xl transition-all duration-200 font-medium shadow-lg hover:shadow-xl text-sm">
+              <Link href="/signup" className="bg-white/20 backdrop-blur-sm text-white px-3 py-1.5 rounded-xl hover:bg-white/30 transition-all duration-200 font-medium shadow-lg hover:shadow-xl text-sm">
                 Sign Up
               </Link>
             </div>
