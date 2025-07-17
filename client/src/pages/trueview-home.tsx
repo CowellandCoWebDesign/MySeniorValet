@@ -114,10 +114,10 @@ export default function TrueViewHome() {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500 rounded-xl flex items-center justify-center shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                <div className="w-8 h-8 gradient-primary rounded-xl flex items-center justify-center shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
                   <Home className="w-5 h-5 text-white drop-shadow-md" />
                 </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-amber-200 via-white to-amber-200 bg-clip-text text-transparent drop-shadow-2xl">MySeniorValet</span>
+                <span className="text-xl font-bold text-gradient drop-shadow-2xl">MySeniorValet</span>
               </div>
             </div>
             <div className="flex items-center space-x-3">
