@@ -444,8 +444,8 @@ class IntelligentPricingService {
 
 export const intelligentPricingService = new IntelligentPricingService();
 
-// Auto-update pricing on service startup
-setTimeout(async () => {
-  console.log('🎯 WAR ON "CALL FOR PRICING" - Starting automatic pricing updates...');
-  await intelligentPricingService.updateAllCommunityPricing();
-}, 5000); // Wait 5 seconds for DB to be ready
+// Auto-update pricing on service startup - DISABLED to prevent infinite loops
+// setTimeout(async () => {
+//   console.log('🎯 WAR ON "CALL FOR PRICING" - Starting automatic pricing updates...');
+//   await intelligentPricingService.updateAllCommunityPricing();
+// }, 5000); // Wait 5 seconds for DB to be ready
