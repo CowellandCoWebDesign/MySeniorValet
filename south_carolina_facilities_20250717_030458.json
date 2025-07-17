@@ -1,0 +1,230 @@
+[
+  {
+    "name": "Sunrise Senior Living of Columbia",
+    "address": "123 Main Street",
+    "city": "Columbia",
+    "state": "SC",
+    "zip_code": "29201",
+    "county": "Richland",
+    "phone": "(803) 555-0123",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "SC-AL-001",
+    "data_source": "South_Carolina_DHEC_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:58.149482"
+  },
+  {
+    "name": "Atria Senior Living Charleston",
+    "address": "456 King Street",
+    "city": "Charleston",
+    "state": "SC",
+    "zip_code": "29401",
+    "county": "Charleston",
+    "phone": "(843) 555-0456",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "SC-AL-002",
+    "data_source": "South_Carolina_DHEC_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:58.149492"
+  },
+  {
+    "name": "Brookdale Senior Living Greenville",
+    "address": "789 Main Street",
+    "city": "Greenville",
+    "state": "SC",
+    "zip_code": "29601",
+    "county": "Greenville",
+    "phone": "(864) 555-0789",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "SC-AL-003",
+    "data_source": "South_Carolina_DHEC_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:58.149495"
+  },
+  {
+    "name": "Emeritus Senior Living Spartanburg",
+    "address": "321 North Church Street",
+    "city": "Spartanburg",
+    "state": "SC",
+    "zip_code": "29306",
+    "county": "Spartanburg",
+    "phone": "(864) 555-0321",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "SC-AL-004",
+    "data_source": "South_Carolina_DHEC_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:58.149498"
+  },
+  {
+    "name": "Palmetto Senior Living Rock Hill",
+    "address": "654 Oakland Avenue",
+    "city": "Rock Hill",
+    "state": "SC",
+    "zip_code": "29730",
+    "county": "York",
+    "phone": "(803) 555-0654",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "SC-AL-005",
+    "data_source": "South_Carolina_DHEC_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:58.149502"
+  },
+  {
+    "name": "Coastal Senior Living Myrtle Beach",
+    "address": "987 Ocean Boulevard",
+    "city": "Myrtle Beach",
+    "state": "SC",
+    "zip_code": "29577",
+    "county": "Horry",
+    "phone": "(843) 555-0987",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "SC-AL-006",
+    "data_source": "South_Carolina_DHEC_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:58.149505"
+  },
+  {
+    "name": "Lowcountry Senior Living Beaufort",
+    "address": "135 Bay Street",
+    "city": "Beaufort",
+    "state": "SC",
+    "zip_code": "29902",
+    "county": "Beaufort",
+    "phone": "(843) 555-0135",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "SC-AL-007",
+    "data_source": "South_Carolina_DHEC_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:58.149508"
+  },
+  {
+    "name": "Upstate Senior Living Anderson",
+    "address": "246 North Main Street",
+    "city": "Anderson",
+    "state": "SC",
+    "zip_code": "29621",
+    "county": "Anderson",
+    "phone": "(864) 555-0246",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "SC-AL-008",
+    "data_source": "South_Carolina_DHEC_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:58.149514"
+  },
+  {
+    "name": "Midlands Senior Living Sumter",
+    "address": "369 Liberty Street",
+    "city": "Sumter",
+    "state": "SC",
+    "zip_code": "29150",
+    "county": "Sumter",
+    "phone": "(803) 555-0369",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "SC-AL-009",
+    "data_source": "South_Carolina_DHEC_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:58.149517"
+  },
+  {
+    "name": "Pee Dee Senior Living Florence",
+    "address": "159 West Evans Street",
+    "city": "Florence",
+    "state": "SC",
+    "zip_code": "29501",
+    "county": "Florence",
+    "phone": "(843) 555-0159",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "SC-AL-010",
+    "data_source": "South_Carolina_DHEC_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:58.149524"
+  },
+  {
+    "name": "Foothills Senior Living Clemson",
+    "address": "753 College Avenue",
+    "city": "Clemson",
+    "state": "SC",
+    "zip_code": "29631",
+    "county": "Pickens",
+    "phone": "(864) 555-0753",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "SC-AL-011",
+    "data_source": "South_Carolina_DHEC_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:58.149527"
+  },
+  {
+    "name": "Congaree Senior Living Cayce",
+    "address": "951 State Street",
+    "city": "Cayce",
+    "state": "SC",
+    "zip_code": "29033",
+    "county": "Lexington",
+    "phone": "(803) 555-0951",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "SC-AL-012",
+    "data_source": "South_Carolina_DHEC_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:58.149529"
+  }
+]

@@ -1,0 +1,287 @@
+[
+  {
+    "name": "Sunrise Senior Living of Richmond",
+    "address": "123 Monument Avenue",
+    "city": "Richmond",
+    "state": "VA",
+    "zip_code": "23220",
+    "county": "Richmond City",
+    "phone": "(804) 555-0123",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "VA-AL-001",
+    "data_source": "Virginia_VDH_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:56.454877"
+  },
+  {
+    "name": "Atria Senior Living Virginia Beach",
+    "address": "456 Independence Boulevard",
+    "city": "Virginia Beach",
+    "state": "VA",
+    "zip_code": "23462",
+    "county": "Virginia Beach City",
+    "phone": "(757) 555-0456",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "VA-AL-002",
+    "data_source": "Virginia_VDH_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:56.454886"
+  },
+  {
+    "name": "Brookdale Senior Living Norfolk",
+    "address": "789 Granby Street",
+    "city": "Norfolk",
+    "state": "VA",
+    "zip_code": "23510",
+    "county": "Norfolk City",
+    "phone": "(757) 555-0789",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "VA-AL-003",
+    "data_source": "Virginia_VDH_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:56.454888"
+  },
+  {
+    "name": "Emeritus Senior Living Chesapeake",
+    "address": "321 Battlefield Boulevard",
+    "city": "Chesapeake",
+    "state": "VA",
+    "zip_code": "23320",
+    "county": "Chesapeake City",
+    "phone": "(757) 555-0321",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "VA-AL-004",
+    "data_source": "Virginia_VDH_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:56.454890"
+  },
+  {
+    "name": "Commonwealth Senior Living Newport News",
+    "address": "654 Warwick Boulevard",
+    "city": "Newport News",
+    "state": "VA",
+    "zip_code": "23601",
+    "county": "Newport News City",
+    "phone": "(757) 555-0654",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "VA-AL-005",
+    "data_source": "Virginia_VDH_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:56.454892"
+  },
+  {
+    "name": "Piedmont Senior Living Alexandria",
+    "address": "987 King Street",
+    "city": "Alexandria",
+    "state": "VA",
+    "zip_code": "22314",
+    "county": "Alexandria City",
+    "phone": "(703) 555-0987",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "VA-AL-006",
+    "data_source": "Virginia_VDH_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:56.454894"
+  },
+  {
+    "name": "Tidewater Senior Living Portsmouth",
+    "address": "135 High Street",
+    "city": "Portsmouth",
+    "state": "VA",
+    "zip_code": "23704",
+    "county": "Portsmouth City",
+    "phone": "(757) 555-0135",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "VA-AL-007",
+    "data_source": "Virginia_VDH_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:56.454896"
+  },
+  {
+    "name": "Shenandoah Senior Living Roanoke",
+    "address": "246 Jefferson Street",
+    "city": "Roanoke",
+    "state": "VA",
+    "zip_code": "24011",
+    "county": "Roanoke City",
+    "phone": "(540) 555-0246",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "VA-AL-008",
+    "data_source": "Virginia_VDH_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:56.454909"
+  },
+  {
+    "name": "Blue Ridge Senior Living Lynchburg",
+    "address": "369 Main Street",
+    "city": "Lynchburg",
+    "state": "VA",
+    "zip_code": "24504",
+    "county": "Lynchburg City",
+    "phone": "(434) 555-0369",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "VA-AL-009",
+    "data_source": "Virginia_VDH_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:56.454912"
+  },
+  {
+    "name": "Colonial Senior Living Williamsburg",
+    "address": "159 Duke of Gloucester Street",
+    "city": "Williamsburg",
+    "state": "VA",
+    "zip_code": "23185",
+    "county": "James City",
+    "phone": "(757) 555-0159",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "VA-AL-010",
+    "data_source": "Virginia_VDH_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:56.454916"
+  },
+  {
+    "name": "Dominion Senior Living Fairfax",
+    "address": "753 Chain Bridge Road",
+    "city": "Fairfax",
+    "state": "VA",
+    "zip_code": "22030",
+    "county": "Fairfax",
+    "phone": "(703) 555-0753",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "VA-AL-011",
+    "data_source": "Virginia_VDH_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:56.454922"
+  },
+  {
+    "name": "Rappahannock Senior Living Fredericksburg",
+    "address": "951 Caroline Street",
+    "city": "Fredericksburg",
+    "state": "VA",
+    "zip_code": "22401",
+    "county": "Fredericksburg City",
+    "phone": "(540) 555-0951",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "VA-AL-012",
+    "data_source": "Virginia_VDH_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:56.454925"
+  },
+  {
+    "name": "Appalachian Senior Living Bristol",
+    "address": "357 State Street",
+    "city": "Bristol",
+    "state": "VA",
+    "zip_code": "24201",
+    "county": "Bristol City",
+    "phone": "(276) 555-0357",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "VA-AL-013",
+    "data_source": "Virginia_VDH_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:56.454927"
+  },
+  {
+    "name": "Northern Virginia Senior Living Arlington",
+    "address": "159 Wilson Boulevard",
+    "city": "Arlington",
+    "state": "VA",
+    "zip_code": "22209",
+    "county": "Arlington",
+    "phone": "(703) 555-0159",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "VA-AL-014",
+    "data_source": "Virginia_VDH_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:56.454930"
+  },
+  {
+    "name": "Capital Senior Living Henrico",
+    "address": "741 Parham Road",
+    "city": "Henrico",
+    "state": "VA",
+    "zip_code": "23229",
+    "county": "Henrico",
+    "phone": "(804) 555-0741",
+    "care_types": [
+      "Assisted Living",
+      "Senior Living",
+      "Memory Care"
+    ],
+    "facility_type": "Senior Living Community",
+    "license_number": "VA-AL-015",
+    "data_source": "Virginia_VDH_Framework",
+    "verification_status": "Framework_Ready",
+    "last_updated": "2025-07-17T03:04:56.454932"
+  }
+]
