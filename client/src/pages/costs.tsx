@@ -171,6 +171,149 @@ export default function Costs() {
       </header>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Featured Cost Comparison Table - Always Visible */}
+        <div className="mb-8">
+          <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-t-xl">
+              <CardTitle className="flex items-center text-2xl font-bold">
+                <MapPin className="w-8 h-8 mr-3" />
+                Monthly Living Expenses: Your Home vs Senior Living
+              </CardTitle>
+              <p className="text-sm opacity-90 mt-2">Compare real costs to see the value of senior living communities</p>
+            </CardHeader>
+            <CardContent className="p-6">
+              {/* Header Row */}
+              <div className="grid grid-cols-3 gap-4 mb-4 pb-3 border-b-2 border-gray-300">
+                <div className="font-bold text-gray-800 text-lg">Monthly Expense Category</div>
+                <div className="font-bold text-center text-gray-800 text-lg">Your Home</div>
+                <div className="font-bold text-center text-gray-800 text-lg">Senior Living Residences</div>
+              </div>
+              
+              {/* Expense List */}
+              <div className="space-y-0">
+                {/* Monthly Housing Payment */}
+                <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <div className="text-base text-gray-800 font-medium">Monthly Mortgage + Property Tax / Rent Payment</div>
+                  <div className="text-center text-base font-medium text-red-600">$1,200 - $3,500</div>
+                  <div className="text-center text-base font-medium text-blue-600">$2,500 - $8,000</div>
+                </div>
+                
+                {/* Utilities */}
+                <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <div className="text-base text-gray-800 font-medium">Utilities (Electric, Gas, Water, Sewer, A/C)</div>
+                  <div className="text-center text-base font-medium text-red-600">$200</div>
+                  <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
+                </div>
+                
+                {/* Exterior Maintenance */}
+                <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <div className="text-base text-gray-800 font-medium">Exterior Maintenance (Lawn, Trash, Plow, Paint)</div>
+                  <div className="text-center text-base font-medium text-red-600">$150</div>
+                  <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
+                </div>
+                
+                {/* Interior Maintenance */}
+                <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <div className="text-base text-gray-800 font-medium">Interior Maintenance & Home Repairs</div>
+                  <div className="text-center text-base font-medium text-red-600">$200</div>
+                  <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
+                </div>
+                
+                {/* Housekeeping */}
+                <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <div className="text-base text-gray-800 font-medium">Weekly Housekeeping</div>
+                  <div className="text-center text-base font-medium text-red-600">$200</div>
+                  <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
+                </div>
+                
+                {/* Linen Service */}
+                <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <div className="text-base text-gray-800 font-medium">Linen Service (Washer & Dryer Available)</div>
+                  <div className="text-center text-base font-medium text-red-600">$50</div>
+                  <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
+                </div>
+                
+                {/* Transportation */}
+                <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <div className="text-base text-gray-800 font-medium">Transportation (Gas, Insurance, Repairs)</div>
+                  <div className="text-center text-base font-medium text-red-600">$300</div>
+                  <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
+                </div>
+                
+                {/* Groceries */}
+                <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <div className="text-base text-gray-800 font-medium">Groceries & Meal Preparation</div>
+                  <div className="text-center text-base font-medium text-red-600">$400</div>
+                  <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
+                </div>
+                
+                {/* Personal Care */}
+                <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <div className="text-base text-gray-800 font-medium">Caregiving / Personal Care Services*</div>
+                  <div className="text-center text-base font-medium text-red-600">$1,500 - $4,500</div>
+                  <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
+                </div>
+                
+                {/* Exercise & Wellness */}
+                <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <div className="text-base text-gray-800 font-medium">Exercise & Wellness Programs</div>
+                  <div className="text-center text-base font-medium text-red-600">$100</div>
+                  <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
+                </div>
+                
+                {/* Entertainment */}
+                <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <div className="text-base text-gray-800 font-medium">Entertainment, Social & Cultural Programs</div>
+                  <div className="text-center text-base font-medium text-red-600">$100</div>
+                  <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
+                </div>
+                
+                {/* EnrichedLIFE */}
+                <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <div className="text-base text-gray-800 font-medium">Full-time EnrichedLIFE Director</div>
+                  <div className="text-center text-base font-medium text-red-600">$150</div>
+                  <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
+                </div>
+                
+                {/* Emergency Service */}
+                <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <div className="text-base text-gray-800 font-medium">24-Hour Emergency Call Service</div>
+                  <div className="text-center text-base font-medium text-red-600">$100</div>
+                  <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
+                </div>
+                
+                {/* Building Security */}
+                <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <div className="text-base text-gray-800 font-medium">24-Hour Building Security with Someone Awake</div>
+                  <div className="text-center text-base font-medium text-red-600">$200</div>
+                  <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
+                </div>
+                
+                {/* Peace of Mind */}
+                <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <div className="text-base text-gray-800 font-medium">Peace of Mind</div>
+                  <div className="text-center text-base font-medium text-gray-500">N/A</div>
+                  <div className="text-center text-base font-medium text-blue-600 font-bold">Priceless!</div>
+                </div>
+                
+                {/* Community */}
+                <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <div className="text-base text-gray-800 font-medium">A Caring Community & New Friends</div>
+                  <div className="text-center text-base font-medium text-gray-500">N/A</div>
+                  <div className="text-center text-base font-medium text-blue-600 font-bold">Priceless!</div>
+                </div>
+              </div>
+              
+              {/* Summary Note */}
+              <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-sm text-blue-800">
+                  <strong>*Personal Care Services:</strong> Varies by care level - Independent Living ($1,500), Assisted Living ($2,500), Memory Care ($3,500), Skilled Nursing ($4,500)
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Move-in Cost Estimate */}
           <div className="lg:col-span-2 space-y-8">
