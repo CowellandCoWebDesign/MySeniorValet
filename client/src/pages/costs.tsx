@@ -25,6 +25,25 @@ export default function Costs() {
   const [selectedState, setSelectedState] = useState<string>("");
   const [careLevel, setCareLevel] = useState<string>("");
   const [affordabilityResult, setAffordabilityResult] = useState<any>(null);
+  const [customHomeCosts, setCustomHomeCosts] = useState({
+    rent: 2500,
+    utilities: 200,
+    exteriorMaintenance: 150,
+    interiorMaintenance: 200,
+    housekeeping: 200,
+    linenService: 50,
+    transportation: 300,
+    groceries: 400,
+    homecare: 2500,
+    activities: 100,
+    entertainment: 100,
+    enrichedLife: 150,
+    emergencyService: 100,
+    buildingSecurity: 200,
+    healthcare: 500,
+    misc: 300
+  });
+  const [isCustomizing, setIsCustomizing] = useState(false);
 
   const stateAverages = {
     "California": {
@@ -194,113 +213,291 @@ export default function Costs() {
                 {/* Monthly Housing Payment */}
                 <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <div className="text-base text-gray-800 font-medium">Monthly Mortgage + Property Tax / Rent Payment</div>
-                  <div className="text-center text-base font-medium text-red-600">$1,200 - $3,500</div>
+                  <div className="text-center text-base font-medium text-red-600">
+                    {isCustomizing ? (
+                      <Input
+                        type="number"
+                        value={customHomeCosts.rent}
+                        onChange={(e) => setCustomHomeCosts({...customHomeCosts, rent: parseInt(e.target.value) || 0})}
+                        className="w-20 text-center"
+                        prefix="$"
+                      />
+                    ) : (
+                      formatCurrency(customHomeCosts.rent)
+                    )}
+                  </div>
                   <div className="text-center text-base font-medium text-blue-600">$2,500 - $8,000</div>
                 </div>
                 
                 {/* Utilities */}
                 <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <div className="text-base text-gray-800 font-medium">Utilities (Electric, Gas, Water, Sewer, A/C)</div>
-                  <div className="text-center text-base font-medium text-red-600">$200</div>
+                  <div className="text-center text-base font-medium text-red-600">
+                    {isCustomizing ? (
+                      <Input
+                        type="number"
+                        value={customHomeCosts.utilities}
+                        onChange={(e) => setCustomHomeCosts({...customHomeCosts, utilities: parseInt(e.target.value) || 0})}
+                        className="w-20 text-center"
+                      />
+                    ) : (
+                      formatCurrency(customHomeCosts.utilities)
+                    )}
+                  </div>
                   <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
                 </div>
                 
                 {/* Exterior Maintenance */}
                 <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <div className="text-base text-gray-800 font-medium">Exterior Maintenance (Lawn, Trash, Plow, Paint)</div>
-                  <div className="text-center text-base font-medium text-red-600">$150</div>
+                  <div className="text-center text-base font-medium text-red-600">
+                    {isCustomizing ? (
+                      <Input
+                        type="number"
+                        value={customHomeCosts.exteriorMaintenance}
+                        onChange={(e) => setCustomHomeCosts({...customHomeCosts, exteriorMaintenance: parseInt(e.target.value) || 0})}
+                        className="w-20 text-center"
+                      />
+                    ) : (
+                      formatCurrency(customHomeCosts.exteriorMaintenance)
+                    )}
+                  </div>
                   <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
                 </div>
                 
                 {/* Interior Maintenance */}
                 <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <div className="text-base text-gray-800 font-medium">Interior Maintenance & Home Repairs</div>
-                  <div className="text-center text-base font-medium text-red-600">$200</div>
+                  <div className="text-center text-base font-medium text-red-600">
+                    {isCustomizing ? (
+                      <Input
+                        type="number"
+                        value={customHomeCosts.interiorMaintenance}
+                        onChange={(e) => setCustomHomeCosts({...customHomeCosts, interiorMaintenance: parseInt(e.target.value) || 0})}
+                        className="w-20 text-center"
+                      />
+                    ) : (
+                      formatCurrency(customHomeCosts.interiorMaintenance)
+                    )}
+                  </div>
                   <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
                 </div>
                 
                 {/* Housekeeping */}
                 <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <div className="text-base text-gray-800 font-medium">Weekly Housekeeping</div>
-                  <div className="text-center text-base font-medium text-red-600">$200</div>
+                  <div className="text-center text-base font-medium text-red-600">
+                    {isCustomizing ? (
+                      <Input
+                        type="number"
+                        value={customHomeCosts.housekeeping}
+                        onChange={(e) => setCustomHomeCosts({...customHomeCosts, housekeeping: parseInt(e.target.value) || 0})}
+                        className="w-20 text-center"
+                      />
+                    ) : (
+                      formatCurrency(customHomeCosts.housekeeping)
+                    )}
+                  </div>
                   <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
                 </div>
                 
                 {/* Linen Service */}
                 <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <div className="text-base text-gray-800 font-medium">Linen Service (Washer & Dryer Available)</div>
-                  <div className="text-center text-base font-medium text-red-600">$50</div>
+                  <div className="text-center text-base font-medium text-red-600">
+                    {isCustomizing ? (
+                      <Input
+                        type="number"
+                        value={customHomeCosts.linenService}
+                        onChange={(e) => setCustomHomeCosts({...customHomeCosts, linenService: parseInt(e.target.value) || 0})}
+                        className="w-20 text-center"
+                      />
+                    ) : (
+                      formatCurrency(customHomeCosts.linenService)
+                    )}
+                  </div>
                   <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
                 </div>
                 
                 {/* Transportation */}
                 <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <div className="text-base text-gray-800 font-medium">Transportation (Gas, Insurance, Repairs)</div>
-                  <div className="text-center text-base font-medium text-red-600">$300</div>
+                  <div className="text-center text-base font-medium text-red-600">
+                    {isCustomizing ? (
+                      <Input
+                        type="number"
+                        value={customHomeCosts.transportation}
+                        onChange={(e) => setCustomHomeCosts({...customHomeCosts, transportation: parseInt(e.target.value) || 0})}
+                        className="w-20 text-center"
+                      />
+                    ) : (
+                      formatCurrency(customHomeCosts.transportation)
+                    )}
+                  </div>
                   <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
                 </div>
                 
                 {/* Groceries */}
                 <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <div className="text-base text-gray-800 font-medium">Groceries & Meal Preparation</div>
-                  <div className="text-center text-base font-medium text-red-600">$400</div>
+                  <div className="text-center text-base font-medium text-red-600">
+                    {isCustomizing ? (
+                      <Input
+                        type="number"
+                        value={customHomeCosts.groceries}
+                        onChange={(e) => setCustomHomeCosts({...customHomeCosts, groceries: parseInt(e.target.value) || 0})}
+                        className="w-20 text-center"
+                      />
+                    ) : (
+                      formatCurrency(customHomeCosts.groceries)
+                    )}
+                  </div>
                   <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
                 </div>
                 
                 {/* Personal Care */}
                 <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <div className="text-base text-gray-800 font-medium">Caregiving / Personal Care Services*</div>
-                  <div className="text-center text-base font-medium text-red-600">$1,500 - $4,500</div>
+                  <div className="text-center text-base font-medium text-red-600">
+                    {isCustomizing ? (
+                      <Input
+                        type="number"
+                        value={customHomeCosts.homecare}
+                        onChange={(e) => setCustomHomeCosts({...customHomeCosts, homecare: parseInt(e.target.value) || 0})}
+                        className="w-20 text-center"
+                      />
+                    ) : (
+                      formatCurrency(customHomeCosts.homecare)
+                    )}
+                  </div>
                   <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
                 </div>
                 
                 {/* Exercise & Wellness */}
                 <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <div className="text-base text-gray-800 font-medium">Exercise & Wellness Programs</div>
-                  <div className="text-center text-base font-medium text-red-600">$100</div>
+                  <div className="text-center text-base font-medium text-red-600">
+                    {isCustomizing ? (
+                      <Input
+                        type="number"
+                        value={customHomeCosts.activities}
+                        onChange={(e) => setCustomHomeCosts({...customHomeCosts, activities: parseInt(e.target.value) || 0})}
+                        className="w-20 text-center"
+                      />
+                    ) : (
+                      formatCurrency(customHomeCosts.activities)
+                    )}
+                  </div>
                   <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
                 </div>
                 
                 {/* Entertainment */}
                 <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <div className="text-base text-gray-800 font-medium">Entertainment, Social & Cultural Programs</div>
-                  <div className="text-center text-base font-medium text-red-600">$100</div>
+                  <div className="text-center text-base font-medium text-red-600">
+                    {isCustomizing ? (
+                      <Input
+                        type="number"
+                        value={customHomeCosts.entertainment}
+                        onChange={(e) => setCustomHomeCosts({...customHomeCosts, entertainment: parseInt(e.target.value) || 0})}
+                        className="w-20 text-center"
+                      />
+                    ) : (
+                      formatCurrency(customHomeCosts.entertainment)
+                    )}
+                  </div>
                   <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
                 </div>
                 
                 {/* EnrichedLIFE */}
                 <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <div className="text-base text-gray-800 font-medium">Full-time EnrichedLIFE Director</div>
-                  <div className="text-center text-base font-medium text-red-600">$150</div>
+                  <div className="text-center text-base font-medium text-red-600">
+                    {isCustomizing ? (
+                      <Input
+                        type="number"
+                        value={customHomeCosts.enrichedLife}
+                        onChange={(e) => setCustomHomeCosts({...customHomeCosts, enrichedLife: parseInt(e.target.value) || 0})}
+                        className="w-20 text-center"
+                      />
+                    ) : (
+                      formatCurrency(customHomeCosts.enrichedLife)
+                    )}
+                  </div>
                   <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
                 </div>
                 
                 {/* Emergency Service */}
                 <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <div className="text-base text-gray-800 font-medium">24-Hour Emergency Call Service</div>
-                  <div className="text-center text-base font-medium text-red-600">$100</div>
+                  <div className="text-center text-base font-medium text-red-600">
+                    {isCustomizing ? (
+                      <Input
+                        type="number"
+                        value={customHomeCosts.emergencyService}
+                        onChange={(e) => setCustomHomeCosts({...customHomeCosts, emergencyService: parseInt(e.target.value) || 0})}
+                        className="w-20 text-center"
+                      />
+                    ) : (
+                      formatCurrency(customHomeCosts.emergencyService)
+                    )}
+                  </div>
                   <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
                 </div>
                 
                 {/* Building Security */}
                 <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <div className="text-base text-gray-800 font-medium">24-Hour Building Security with Someone Awake</div>
-                  <div className="text-center text-base font-medium text-red-600">$200</div>
+                  <div className="text-center text-base font-medium text-red-600">
+                    {isCustomizing ? (
+                      <Input
+                        type="number"
+                        value={customHomeCosts.buildingSecurity}
+                        onChange={(e) => setCustomHomeCosts({...customHomeCosts, buildingSecurity: parseInt(e.target.value) || 0})}
+                        className="w-20 text-center"
+                      />
+                    ) : (
+                      formatCurrency(customHomeCosts.buildingSecurity)
+                    )}
+                  </div>
                   <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
                 </div>
                 
                 {/* Peace of Mind */}
                 <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <div className="text-base text-gray-800 font-medium">Peace of Mind</div>
-                  <div className="text-center text-base font-medium text-gray-500">N/A</div>
+                  <div className="text-center text-base font-medium text-gray-500">$0</div>
                   <div className="text-center text-base font-medium text-blue-600 font-bold">Priceless!</div>
                 </div>
                 
                 {/* Community */}
                 <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <div className="text-base text-gray-800 font-medium">A Caring Community & New Friends</div>
-                  <div className="text-center text-base font-medium text-gray-500">N/A</div>
+                  <div className="text-center text-base font-medium text-gray-500">$0</div>
                   <div className="text-center text-base font-medium text-blue-600 font-bold">Priceless!</div>
+                </div>
+              </div>
+              
+              {/* Total Row */}
+              <div className="mt-4 pt-4 border-t-2 border-gray-300">
+                <div className="grid grid-cols-3 gap-4 py-4 bg-gray-50 rounded-lg">
+                  <div className="text-lg text-gray-900 font-bold">Monthly Total</div>
+                  <div className="text-center text-lg font-bold text-red-600">
+                    {formatCurrency(Object.values(customHomeCosts).reduce((sum, cost) => sum + cost, 0))}
+                  </div>
+                  <div className="text-center text-lg font-bold text-blue-600">$2,500 - $8,000</div>
+                </div>
+                
+                {/* Savings Calculation */}
+                <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-green-800">
+                      Potential Monthly Savings: {formatCurrency(Object.values(customHomeCosts).reduce((sum, cost) => sum + cost, 0) - 5250)}
+                    </div>
+                    <div className="text-sm text-green-600 mt-1">
+                      Based on average senior living cost of $5,250/month
+                    </div>
+                  </div>
                 </div>
               </div>
               
