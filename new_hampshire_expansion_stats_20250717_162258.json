@@ -1,0 +1,31 @@
+{
+  "total_facilities": 129,
+  "counties_covered": 10,
+  "cities_covered": 78,
+  "counties_list": [
+    "Belknap",
+    "Carroll",
+    "Cheshire",
+    "Coos",
+    "Grafton",
+    "Hillsborough",
+    "Merrimack",
+    "Rockingham",
+    "Strafford",
+    "Sullivan"
+  ],
+  "major_metros": {
+    "Manchester": 4,
+    "Nashua": 3,
+    "Concord": 2,
+    "Derry": 3,
+    "Rochester": 2,
+    "Salem": 3,
+    "Portsmouth": 3,
+    "Keene": 2,
+    "Dover": 2,
+    "Lebanon": 2
+  },
+  "collection_date": "2025-07-17T16:22:58.160429",
+  "data_source": "New Hampshire Department of Health and Human Services"
+}
