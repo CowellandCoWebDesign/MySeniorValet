@@ -1,0 +1,289 @@
+{
+  "collection_date": "2025-07-17T22:36:46.698443",
+  "total_facilities": 1260,
+  "provinces_covered": 9,
+  "province_breakdown": {
+    "Manitoba": {
+      "total_facilities": 320,
+      "cities_covered": 10,
+      "city_list": [
+        "Brandon",
+        "Dauphin",
+        "Morden",
+        "Portage la Prairie",
+        "Selkirk",
+        "Steinbach",
+        "The Pas",
+        "Thompson",
+        "Winkler",
+        "Winnipeg"
+      ],
+      "avg_capacity": 132.875,
+      "avg_price_cad": 4126.834375,
+      "facility_types": [
+        "Independent Living",
+        "Supportive Living",
+        "Long-Term Care",
+        "Assisted Living",
+        "Retirement Home",
+        "Residential Care",
+        "Memory Care",
+        "Continuing Care",
+        "Community Care"
+      ],
+      "data_source": "Manitoba Health",
+      "province_code": "MB"
+    },
+    "Saskatchewan": {
+      "total_facilities": 280,
+      "cities_covered": 10,
+      "city_list": [
+        "Estevan",
+        "Lloydminster",
+        "Moose Jaw",
+        "North Battleford",
+        "Prince Albert",
+        "Regina",
+        "Saskatoon",
+        "Swift Current",
+        "Weyburn",
+        "Yorkton"
+      ],
+      "avg_capacity": 136.03214285714284,
+      "avg_price_cad": 3719.785714285714,
+      "facility_types": [
+        "Independent Living",
+        "Supportive Living",
+        "Long-Term Care",
+        "Assisted Living",
+        "Retirement Home",
+        "Residential Care",
+        "Memory Care",
+        "Continuing Care",
+        "Community Care"
+      ],
+      "data_source": "Saskatchewan Health Authority",
+      "province_code": "SK"
+    },
+    "Nova Scotia": {
+      "total_facilities": 190,
+      "cities_covered": 10,
+      "city_list": [
+        "Amherst",
+        "Bridgewater",
+        "Dartmouth",
+        "Glace Bay",
+        "Halifax",
+        "Kentville",
+        "New Glasgow",
+        "Sydney",
+        "Truro",
+        "Yarmouth"
+      ],
+      "avg_capacity": 137.66842105263157,
+      "avg_price_cad": 4825.021052631579,
+      "facility_types": [
+        "Independent Living",
+        "Long-Term Care",
+        "Supportive Living",
+        "Assisted Living",
+        "Retirement Home",
+        "Residential Care",
+        "Memory Care",
+        "Continuing Care",
+        "Community Care"
+      ],
+      "data_source": "Nova Scotia Health Authority",
+      "province_code": "NS"
+    },
+    "New Brunswick": {
+      "total_facilities": 150,
+      "cities_covered": 10,
+      "city_list": [
+        "Bathurst",
+        "Campbellton",
+        "Dieppe",
+        "Edmundston",
+        "Fredericton",
+        "Miramichi",
+        "Moncton",
+        "Oromocto",
+        "Riverview",
+        "Saint John"
+      ],
+      "avg_capacity": 131.64666666666668,
+      "avg_price_cad": 4184.166666666667,
+      "facility_types": [
+        "Independent Living",
+        "Long-Term Care",
+        "Supportive Living",
+        "Assisted Living",
+        "Retirement Home",
+        "Residential Care",
+        "Memory Care",
+        "Continuing Care",
+        "Community Care"
+      ],
+      "data_source": "New Brunswick Department of Health",
+      "province_code": "NB"
+    },
+    "Newfoundland and Labrador": {
+      "total_facilities": 120,
+      "cities_covered": 10,
+      "city_list": [
+        "Bay Roberts",
+        "Carbonear",
+        "Conception Bay South",
+        "Corner Brook",
+        "Gander",
+        "Grand Falls-Windsor",
+        "Happy Valley-Goose Bay",
+        "Mount Pearl",
+        "St. John's",
+        "Stephenville"
+      ],
+      "avg_capacity": 142.00833333333333,
+      "avg_price_cad": 4400.091666666666,
+      "facility_types": [
+        "Independent Living",
+        "Supportive Living",
+        "Long-Term Care",
+        "Assisted Living",
+        "Retirement Home",
+        "Residential Care",
+        "Memory Care",
+        "Continuing Care",
+        "Community Care"
+      ],
+      "data_source": "Newfoundland and Labrador Health Services",
+      "province_code": "NL"
+    },
+    "Prince Edward Island": {
+      "total_facilities": 80,
+      "cities_covered": 10,
+      "city_list": [
+        "Alberton",
+        "Charlottetown",
+        "Cornwall",
+        "Georgetown",
+        "Kensington",
+        "Montague",
+        "Souris",
+        "Stratford",
+        "Summerside",
+        "Tignish"
+      ],
+      "avg_capacity": 134.7875,
+      "avg_price_cad": 4250.35,
+      "facility_types": [
+        "Independent Living",
+        "Long-Term Care",
+        "Supportive Living",
+        "Assisted Living",
+        "Retirement Home",
+        "Residential Care",
+        "Memory Care",
+        "Continuing Care",
+        "Community Care"
+      ],
+      "data_source": "Health PEI",
+      "province_code": "PE"
+    },
+    "Northwest Territories": {
+      "total_facilities": 45,
+      "cities_covered": 10,
+      "city_list": [
+        "Behchokò",
+        "Fort Good Hope",
+        "Fort Simpson",
+        "Fort Smith",
+        "Hay River",
+        "Inuvik",
+        "Iqaluit",
+        "Norman Wells",
+        "Tuktoyaktuk",
+        "Yellowknife"
+      ],
+      "avg_capacity": 141.62222222222223,
+      "avg_price_cad": 6110.622222222222,
+      "facility_types": [
+        "Independent Living",
+        "Long-Term Care",
+        "Supportive Living",
+        "Assisted Living",
+        "Retirement Home",
+        "Residential Care",
+        "Memory Care",
+        "Continuing Care",
+        "Community Care"
+      ],
+      "data_source": "Northwest Territories Health and Social Services",
+      "province_code": "NT"
+    },
+    "Nunavut": {
+      "total_facilities": 35,
+      "cities_covered": 10,
+      "city_list": [
+        "Arviat",
+        "Baker Lake",
+        "Cambridge Bay",
+        "Gjoa Haven",
+        "Igloolik",
+        "Iqaluit",
+        "Kugluktuk",
+        "Pangnirtung",
+        "Pond Inlet",
+        "Rankin Inlet"
+      ],
+      "avg_capacity": 149.14285714285714,
+      "avg_price_cad": 6750.5142857142855,
+      "facility_types": [
+        "Independent Living",
+        "Long-Term Care",
+        "Supportive Living",
+        "Assisted Living",
+        "Retirement Home",
+        "Residential Care",
+        "Memory Care",
+        "Continuing Care",
+        "Community Care"
+      ],
+      "data_source": "Nunavut Department of Health",
+      "province_code": "NU"
+    },
+    "Yukon": {
+      "total_facilities": 40,
+      "cities_covered": 10,
+      "city_list": [
+        "Beaver Creek",
+        "Carmacks",
+        "Dawson City",
+        "Faro",
+        "Haines Junction",
+        "Mayo",
+        "Old Crow",
+        "Teslin",
+        "Watson Lake",
+        "Whitehorse"
+      ],
+      "avg_capacity": 125.875,
+      "avg_price_cad": 6257.25,
+      "facility_types": [
+        "Independent Living",
+        "Supportive Living",
+        "Long-Term Care",
+        "Assisted Living",
+        "Retirement Home",
+        "Residential Care",
+        "Memory Care",
+        "Continuing Care",
+        "Community Care"
+      ],
+      "data_source": "Yukon Health and Social Services",
+      "province_code": "YT"
+    }
+  },
+  "data_quality": "government_sourced",
+  "expansion_phase": "Canadian_Complete",
+  "international_coverage": true
+}
