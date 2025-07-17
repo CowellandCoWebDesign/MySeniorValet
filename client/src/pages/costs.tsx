@@ -501,11 +501,54 @@ export default function Costs() {
                 </div>
               </div>
               
+              {/* Control Buttons */}
+              <div className="mt-6 flex justify-between items-center">
+                <Button
+                  onClick={() => setIsCustomizing(!isCustomizing)}
+                  variant={isCustomizing ? "default" : "outline"}
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  {isCustomizing ? "Save Changes" : "Customize Your Costs"}
+                </Button>
+                
+                {isCustomizing && (
+                  <Button
+                    onClick={() => setCustomHomeCosts({
+                      rent: 2500,
+                      utilities: 200,
+                      exteriorMaintenance: 150,
+                      interiorMaintenance: 200,
+                      housekeeping: 200,
+                      linenService: 50,
+                      transportation: 300,
+                      groceries: 400,
+                      homecare: 2500,
+                      activities: 100,
+                      entertainment: 100,
+                      enrichedLife: 150,
+                      emergencyService: 100,
+                      buildingSecurity: 200,
+                      healthcare: 500,
+                      misc: 300
+                    })}
+                    variant="outline"
+                    className="text-gray-600 border-gray-300 hover:bg-gray-50"
+                  >
+                    Reset to Defaults
+                  </Button>
+                )}
+              </div>
+              
               {/* Summary Note */}
               <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <p className="text-sm text-blue-800">
                   <strong>*Personal Care Services:</strong> Varies by care level - Independent Living ($1,500), Assisted Living ($2,500), Memory Care ($3,500), Skilled Nursing ($4,500)
                 </p>
+                {isCustomizing && (
+                  <p className="text-sm text-blue-700 mt-2">
+                    <strong>Tip:</strong> Click in the "Your Home" column to adjust any cost to match your personal situation.
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
