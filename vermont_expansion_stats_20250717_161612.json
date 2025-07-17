@@ -1,0 +1,35 @@
+{
+  "total_facilities": 115,
+  "counties_covered": 14,
+  "cities_covered": 99,
+  "counties_list": [
+    "Addison",
+    "Bennington",
+    "Caledonia",
+    "Chittenden",
+    "Essex",
+    "Franklin",
+    "Grand Isle",
+    "Lamoille",
+    "Orange",
+    "Orleans",
+    "Rutland",
+    "Washington",
+    "Windham",
+    "Windsor"
+  ],
+  "major_metros": {
+    "Burlington": 2,
+    "Montpelier": 2,
+    "Rutland": 2,
+    "Brattleboro": 2,
+    "South Burlington": 2,
+    "Barre": 2,
+    "St. Johnsbury": 1,
+    "Newport": 1,
+    "Bennington": 1,
+    "Manchester": 1
+  },
+  "collection_date": "2025-07-17T16:16:12.115248",
+  "data_source": "Vermont Department of Health"
+}
