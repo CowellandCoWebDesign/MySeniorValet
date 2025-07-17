@@ -26,7 +26,7 @@ export default function Costs() {
   const [careLevel, setCareLevel] = useState<string>("");
   const [affordabilityResult, setAffordabilityResult] = useState<any>(null);
   const [customHomeCosts, setCustomHomeCosts] = useState({
-    rent: 2500,
+    rent: 2000,
     utilities: 200,
     exteriorMaintenance: 150,
     interiorMaintenance: 200,
@@ -34,14 +34,14 @@ export default function Costs() {
     linenService: 50,
     transportation: 300,
     groceries: 400,
-    homecare: 2500,
+    homecare: 800,
     activities: 100,
     entertainment: 100,
-    enrichedLife: 150,
-    emergencyService: 100,
-    buildingSecurity: 200,
-    healthcare: 500,
-    misc: 300
+    enrichedLife: 0,
+    emergencyService: 50,
+    buildingSecurity: 0,
+    healthcare: 300,
+    misc: 200
   });
   const [isCustomizing, setIsCustomizing] = useState(false);
 
@@ -514,7 +514,7 @@ export default function Costs() {
                 {isCustomizing && (
                   <Button
                     onClick={() => setCustomHomeCosts({
-                      rent: 2500,
+                      rent: 2000,
                       utilities: 200,
                       exteriorMaintenance: 150,
                       interiorMaintenance: 200,
@@ -522,14 +522,14 @@ export default function Costs() {
                       linenService: 50,
                       transportation: 300,
                       groceries: 400,
-                      homecare: 2500,
+                      homecare: 800,
                       activities: 100,
                       entertainment: 100,
-                      enrichedLife: 150,
-                      emergencyService: 100,
-                      buildingSecurity: 200,
-                      healthcare: 500,
-                      misc: 300
+                      enrichedLife: 0,
+                      emergencyService: 50,
+                      buildingSecurity: 0,
+                      healthcare: 300,
+                      misc: 200
                     })}
                     variant="outline"
                     className="text-gray-600 border-gray-300 hover:bg-gray-50"
