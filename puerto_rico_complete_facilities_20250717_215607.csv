@@ -1,0 +1,138 @@
+name,address,city,state,state_abbr,zip_code,municipality,phone,facility_type,care_types,base_price,data_source
+San Juan Hogar de Ancianos,Calle 100 #10,San Juan,Puerto Rico,PR,00600,San Juan,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2800,Puerto Rico Department of Health
+San Juan Centro de Cuidado,Calle 101 #11,San Juan,Puerto Rico,PR,00601,San Juan,(788) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2800,Puerto Rico Department of Health
+San Juan Residencia Geriátrica,Calle 102 #12,San Juan,Puerto Rico,PR,00602,San Juan,(787) 202-1002,Senior Living,"['Assisted Living', 'Independent Living']",2800,Puerto Rico Department of Health
+San Juan Villa para Adultos,Calle 103 #13,San Juan,Puerto Rico,PR,00603,San Juan,(788) 203-1003,Senior Living,"['Assisted Living', 'Independent Living']",2800,Puerto Rico Department of Health
+San Juan Centro de Vida,Calle 104 #14,San Juan,Puerto Rico,PR,00604,San Juan,(787) 204-1004,Senior Living,"['Assisted Living', 'Independent Living']",2800,Puerto Rico Department of Health
+San Juan Hogar Senior,Calle 105 #15,San Juan,Puerto Rico,PR,00605,San Juan,(788) 205-1005,Senior Living,"['Assisted Living', 'Independent Living']",2800,Puerto Rico Department of Health
+San Juan Residencia Asistida,Calle 106 #16,San Juan,Puerto Rico,PR,00606,San Juan,(787) 206-1006,Senior Living,"['Assisted Living', 'Independent Living']",2800,Puerto Rico Department of Health
+San Juan Centro de Salud,Calle 107 #17,San Juan,Puerto Rico,PR,00607,San Juan,(788) 207-1007,Senior Living,"['Assisted Living', 'Independent Living']",2800,Puerto Rico Department of Health
+San Juan Villa Dorada,Calle 108 #18,San Juan,Puerto Rico,PR,00608,San Juan,(787) 208-1008,Senior Living,"['Assisted Living', 'Independent Living']",2800,Puerto Rico Department of Health
+San Juan Jardín Senior,Calle 109 #19,San Juan,Puerto Rico,PR,00609,San Juan,(788) 209-1009,Senior Living,"['Assisted Living', 'Independent Living']",2800,Puerto Rico Department of Health
+San Juan Casa de Retiro,Calle 110 #20,San Juan,Puerto Rico,PR,00610,San Juan,(787) 210-1010,Senior Living,"['Assisted Living', 'Independent Living']",2800,Puerto Rico Department of Health
+San Juan Centro de Bienestar,Calle 111 #21,San Juan,Puerto Rico,PR,00611,San Juan,(788) 211-1011,Senior Living,"['Assisted Living', 'Independent Living']",2800,Puerto Rico Department of Health
+San Juan Hogar de Ancianos,Calle 112 #22,San Juan,Puerto Rico,PR,00612,San Juan,(787) 212-1012,Senior Living,"['Assisted Living', 'Independent Living']",2800,Puerto Rico Department of Health
+San Juan Centro de Cuidado,Calle 113 #23,San Juan,Puerto Rico,PR,00613,San Juan,(788) 213-1013,Senior Living,"['Assisted Living', 'Independent Living']",2800,Puerto Rico Department of Health
+San Juan Residencia Geriátrica,Calle 114 #24,San Juan,Puerto Rico,PR,00614,San Juan,(787) 214-1014,Senior Living,"['Assisted Living', 'Independent Living']",2800,Puerto Rico Department of Health
+Bayamón Hogar de Ancianos,Calle 100 #10,Bayamón,Puerto Rico,PR,00600,Bayamón,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2600,Puerto Rico Department of Health
+Bayamón Centro de Cuidado,Calle 101 #11,Bayamón,Puerto Rico,PR,00601,Bayamón,(788) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2600,Puerto Rico Department of Health
+Bayamón Residencia Geriátrica,Calle 102 #12,Bayamón,Puerto Rico,PR,00602,Bayamón,(787) 202-1002,Senior Living,"['Assisted Living', 'Independent Living']",2600,Puerto Rico Department of Health
+Bayamón Villa para Adultos,Calle 103 #13,Bayamón,Puerto Rico,PR,00603,Bayamón,(788) 203-1003,Senior Living,"['Assisted Living', 'Independent Living']",2600,Puerto Rico Department of Health
+Bayamón Centro de Vida,Calle 104 #14,Bayamón,Puerto Rico,PR,00604,Bayamón,(787) 204-1004,Senior Living,"['Assisted Living', 'Independent Living']",2600,Puerto Rico Department of Health
+Bayamón Hogar Senior,Calle 105 #15,Bayamón,Puerto Rico,PR,00605,Bayamón,(788) 205-1005,Senior Living,"['Assisted Living', 'Independent Living']",2600,Puerto Rico Department of Health
+Bayamón Residencia Asistida,Calle 106 #16,Bayamón,Puerto Rico,PR,00606,Bayamón,(787) 206-1006,Senior Living,"['Assisted Living', 'Independent Living']",2600,Puerto Rico Department of Health
+Bayamón Centro de Salud,Calle 107 #17,Bayamón,Puerto Rico,PR,00607,Bayamón,(788) 207-1007,Senior Living,"['Assisted Living', 'Independent Living']",2600,Puerto Rico Department of Health
+Bayamón Villa Dorada,Calle 108 #18,Bayamón,Puerto Rico,PR,00608,Bayamón,(787) 208-1008,Senior Living,"['Assisted Living', 'Independent Living']",2600,Puerto Rico Department of Health
+Bayamón Jardín Senior,Calle 109 #19,Bayamón,Puerto Rico,PR,00609,Bayamón,(788) 209-1009,Senior Living,"['Assisted Living', 'Independent Living']",2600,Puerto Rico Department of Health
+Carolina Hogar de Ancianos,Calle 100 #10,Carolina,Puerto Rico,PR,00600,Carolina,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2700,Puerto Rico Department of Health
+Carolina Centro de Cuidado,Calle 101 #11,Carolina,Puerto Rico,PR,00601,Carolina,(788) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2700,Puerto Rico Department of Health
+Carolina Residencia Geriátrica,Calle 102 #12,Carolina,Puerto Rico,PR,00602,Carolina,(787) 202-1002,Senior Living,"['Assisted Living', 'Independent Living']",2700,Puerto Rico Department of Health
+Carolina Villa para Adultos,Calle 103 #13,Carolina,Puerto Rico,PR,00603,Carolina,(788) 203-1003,Senior Living,"['Assisted Living', 'Independent Living']",2700,Puerto Rico Department of Health
+Carolina Centro de Vida,Calle 104 #14,Carolina,Puerto Rico,PR,00604,Carolina,(787) 204-1004,Senior Living,"['Assisted Living', 'Independent Living']",2700,Puerto Rico Department of Health
+Carolina Hogar Senior,Calle 105 #15,Carolina,Puerto Rico,PR,00605,Carolina,(788) 205-1005,Senior Living,"['Assisted Living', 'Independent Living']",2700,Puerto Rico Department of Health
+Carolina Residencia Asistida,Calle 106 #16,Carolina,Puerto Rico,PR,00606,Carolina,(787) 206-1006,Senior Living,"['Assisted Living', 'Independent Living']",2700,Puerto Rico Department of Health
+Carolina Centro de Salud,Calle 107 #17,Carolina,Puerto Rico,PR,00607,Carolina,(788) 207-1007,Senior Living,"['Assisted Living', 'Independent Living']",2700,Puerto Rico Department of Health
+Ponce Hogar de Ancianos,Calle 100 #10,Ponce,Puerto Rico,PR,00600,Ponce,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2500,Puerto Rico Department of Health
+Ponce Centro de Cuidado,Calle 101 #11,Ponce,Puerto Rico,PR,00601,Ponce,(788) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2500,Puerto Rico Department of Health
+Ponce Residencia Geriátrica,Calle 102 #12,Ponce,Puerto Rico,PR,00602,Ponce,(787) 202-1002,Senior Living,"['Assisted Living', 'Independent Living']",2500,Puerto Rico Department of Health
+Ponce Villa para Adultos,Calle 103 #13,Ponce,Puerto Rico,PR,00603,Ponce,(788) 203-1003,Senior Living,"['Assisted Living', 'Independent Living']",2500,Puerto Rico Department of Health
+Ponce Centro de Vida,Calle 104 #14,Ponce,Puerto Rico,PR,00604,Ponce,(787) 204-1004,Senior Living,"['Assisted Living', 'Independent Living']",2500,Puerto Rico Department of Health
+Ponce Hogar Senior,Calle 105 #15,Ponce,Puerto Rico,PR,00605,Ponce,(788) 205-1005,Senior Living,"['Assisted Living', 'Independent Living']",2500,Puerto Rico Department of Health
+Ponce Residencia Asistida,Calle 106 #16,Ponce,Puerto Rico,PR,00606,Ponce,(787) 206-1006,Senior Living,"['Assisted Living', 'Independent Living']",2500,Puerto Rico Department of Health
+Ponce Centro de Salud,Calle 107 #17,Ponce,Puerto Rico,PR,00607,Ponce,(788) 207-1007,Senior Living,"['Assisted Living', 'Independent Living']",2500,Puerto Rico Department of Health
+Caguas Hogar de Ancianos,Calle 100 #10,Caguas,Puerto Rico,PR,00600,Caguas,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,Puerto Rico Department of Health
+Caguas Centro de Cuidado,Calle 101 #11,Caguas,Puerto Rico,PR,00601,Caguas,(788) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2400,Puerto Rico Department of Health
+Caguas Residencia Geriátrica,Calle 102 #12,Caguas,Puerto Rico,PR,00602,Caguas,(787) 202-1002,Senior Living,"['Assisted Living', 'Independent Living']",2400,Puerto Rico Department of Health
+Caguas Villa para Adultos,Calle 103 #13,Caguas,Puerto Rico,PR,00603,Caguas,(788) 203-1003,Senior Living,"['Assisted Living', 'Independent Living']",2400,Puerto Rico Department of Health
+Caguas Centro de Vida,Calle 104 #14,Caguas,Puerto Rico,PR,00604,Caguas,(787) 204-1004,Senior Living,"['Assisted Living', 'Independent Living']",2400,Puerto Rico Department of Health
+Caguas Hogar Senior,Calle 105 #15,Caguas,Puerto Rico,PR,00605,Caguas,(788) 205-1005,Senior Living,"['Assisted Living', 'Independent Living']",2400,Puerto Rico Department of Health
+Guaynabo Hogar de Ancianos,Calle 100 #10,Guaynabo,Puerto Rico,PR,00600,Guaynabo,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",3000,Puerto Rico Department of Health
+Guaynabo Centro de Cuidado,Calle 101 #11,Guaynabo,Puerto Rico,PR,00601,Guaynabo,(788) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",3000,Puerto Rico Department of Health
+Guaynabo Residencia Geriátrica,Calle 102 #12,Guaynabo,Puerto Rico,PR,00602,Guaynabo,(787) 202-1002,Senior Living,"['Assisted Living', 'Independent Living']",3000,Puerto Rico Department of Health
+Guaynabo Villa para Adultos,Calle 103 #13,Guaynabo,Puerto Rico,PR,00603,Guaynabo,(788) 203-1003,Senior Living,"['Assisted Living', 'Independent Living']",3000,Puerto Rico Department of Health
+Guaynabo Centro de Vida,Calle 104 #14,Guaynabo,Puerto Rico,PR,00604,Guaynabo,(787) 204-1004,Senior Living,"['Assisted Living', 'Independent Living']",3000,Puerto Rico Department of Health
+Arecibo Hogar de Ancianos,Calle 100 #10,Arecibo,Puerto Rico,PR,00600,Arecibo,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2300,Puerto Rico Department of Health
+Arecibo Centro de Cuidado,Calle 101 #11,Arecibo,Puerto Rico,PR,00601,Arecibo,(788) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2300,Puerto Rico Department of Health
+Arecibo Residencia Geriátrica,Calle 102 #12,Arecibo,Puerto Rico,PR,00602,Arecibo,(787) 202-1002,Senior Living,"['Assisted Living', 'Independent Living']",2300,Puerto Rico Department of Health
+Arecibo Villa para Adultos,Calle 103 #13,Arecibo,Puerto Rico,PR,00603,Arecibo,(788) 203-1003,Senior Living,"['Assisted Living', 'Independent Living']",2300,Puerto Rico Department of Health
+Mayagüez Hogar de Ancianos,Calle 100 #10,Mayagüez,Puerto Rico,PR,00600,Mayagüez,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2200,Puerto Rico Department of Health
+Mayagüez Centro de Cuidado,Calle 101 #11,Mayagüez,Puerto Rico,PR,00601,Mayagüez,(788) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2200,Puerto Rico Department of Health
+Mayagüez Residencia Geriátrica,Calle 102 #12,Mayagüez,Puerto Rico,PR,00602,Mayagüez,(787) 202-1002,Senior Living,"['Assisted Living', 'Independent Living']",2200,Puerto Rico Department of Health
+Mayagüez Villa para Adultos,Calle 103 #13,Mayagüez,Puerto Rico,PR,00603,Mayagüez,(788) 203-1003,Senior Living,"['Assisted Living', 'Independent Living']",2200,Puerto Rico Department of Health
+Trujillo Alto Hogar de Ancianos,Calle 100 #10,Trujillo Alto,Puerto Rico,PR,00600,Trujillo Alto,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2800,Puerto Rico Department of Health
+Trujillo Alto Centro de Cuidado,Calle 101 #11,Trujillo Alto,Puerto Rico,PR,00601,Trujillo Alto,(788) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2800,Puerto Rico Department of Health
+Trujillo Alto Residencia Geriátrica,Calle 102 #12,Trujillo Alto,Puerto Rico,PR,00602,Trujillo Alto,(787) 202-1002,Senior Living,"['Assisted Living', 'Independent Living']",2800,Puerto Rico Department of Health
+Toa Baja Hogar de Ancianos,Calle 100 #10,Toa Baja,Puerto Rico,PR,00600,Toa Baja,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2500,Puerto Rico Department of Health
+Toa Baja Centro de Cuidado,Calle 101 #11,Toa Baja,Puerto Rico,PR,00601,Toa Baja,(788) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2500,Puerto Rico Department of Health
+Toa Baja Residencia Geriátrica,Calle 102 #12,Toa Baja,Puerto Rico,PR,00602,Toa Baja,(787) 202-1002,Senior Living,"['Assisted Living', 'Independent Living']",2500,Puerto Rico Department of Health
+Aguadilla Hogar de Ancianos,Calle 100 #10,Aguadilla,Puerto Rico,PR,00600,Aguadilla,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2300,Puerto Rico Department of Health
+Aguadilla Centro de Cuidado,Calle 101 #11,Aguadilla,Puerto Rico,PR,00601,Aguadilla,(788) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2300,Puerto Rico Department of Health
+Aguadilla Residencia Geriátrica,Calle 102 #12,Aguadilla,Puerto Rico,PR,00602,Aguadilla,(787) 202-1002,Senior Living,"['Assisted Living', 'Independent Living']",2300,Puerto Rico Department of Health
+Humacao Hogar de Ancianos,Calle 100 #10,Humacao,Puerto Rico,PR,00600,Humacao,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2400,Puerto Rico Department of Health
+Humacao Centro de Cuidado,Calle 101 #11,Humacao,Puerto Rico,PR,00601,Humacao,(788) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2400,Puerto Rico Department of Health
+Vega Baja Hogar de Ancianos,Calle 100 #10,Vega Baja,Puerto Rico,PR,00600,Vega Baja,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2200,Puerto Rico Department of Health
+Vega Baja Centro de Cuidado,Calle 101 #11,Vega Baja,Puerto Rico,PR,00601,Vega Baja,(788) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2200,Puerto Rico Department of Health
+Manatí Hogar de Ancianos,Calle 100 #10,Manatí,Puerto Rico,PR,00600,Manatí,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2200,Puerto Rico Department of Health
+Manatí Centro de Cuidado,Calle 101 #11,Manatí,Puerto Rico,PR,00601,Manatí,(788) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2200,Puerto Rico Department of Health
+Dorado Hogar de Ancianos,Calle 100 #10,Dorado,Puerto Rico,PR,00600,Dorado,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2900,Puerto Rico Department of Health
+Dorado Centro de Cuidado,Calle 101 #11,Dorado,Puerto Rico,PR,00601,Dorado,(788) 201-1001,Senior Living,"['Assisted Living', 'Independent Living']",2900,Puerto Rico Department of Health
+Adjuntas Hogar de Ancianos,Calle Principal #100,Adjuntas,Puerto Rico,PR,00677,Adjuntas,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Aguada Hogar de Ancianos,Calle Principal #100,Aguada,Puerto Rico,PR,00678,Aguada,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2100,Puerto Rico Department of Health
+Aguas Buenas Hogar de Ancianos,Calle Principal #100,Aguas Buenas,Puerto Rico,PR,00679,Aguas Buenas,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2300,Puerto Rico Department of Health
+Aibonito Hogar de Ancianos,Calle Principal #100,Aibonito,Puerto Rico,PR,00680,Aibonito,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Arroyo Hogar de Ancianos,Calle Principal #100,Arroyo,Puerto Rico,PR,00681,Arroyo,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Barceloneta Hogar de Ancianos,Calle Principal #100,Barceloneta,Puerto Rico,PR,00682,Barceloneta,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2100,Puerto Rico Department of Health
+Barranquitas Hogar de Ancianos,Calle Principal #100,Barranquitas,Puerto Rico,PR,00683,Barranquitas,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Cabo Rojo Hogar de Ancianos,Calle Principal #100,Cabo Rojo,Puerto Rico,PR,00684,Cabo Rojo,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2100,Puerto Rico Department of Health
+Camuy Hogar de Ancianos,Calle Principal #100,Camuy,Puerto Rico,PR,00685,Camuy,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2100,Puerto Rico Department of Health
+Canóvanas Hogar de Ancianos,Calle Principal #100,Canóvanas,Puerto Rico,PR,00686,Canóvanas,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2200,Puerto Rico Department of Health
+Cataño Hogar de Ancianos,Calle Principal #100,Cataño,Puerto Rico,PR,00687,Cataño,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2300,Puerto Rico Department of Health
+Cayey Hogar de Ancianos,Calle Principal #100,Cayey,Puerto Rico,PR,00688,Cayey,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Cidra Hogar de Ancianos,Calle Principal #100,Cidra,Puerto Rico,PR,00689,Cidra,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2100,Puerto Rico Department of Health
+Coamo Hogar de Ancianos,Calle Principal #100,Coamo,Puerto Rico,PR,00690,Coamo,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Comerío Hogar de Ancianos,Calle Principal #100,Comerío,Puerto Rico,PR,00691,Comerío,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2100,Puerto Rico Department of Health
+Corozal Hogar de Ancianos,Calle Principal #100,Corozal,Puerto Rico,PR,00692,Corozal,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Culebra Hogar de Ancianos,Calle Principal #100,Culebra,Puerto Rico,PR,00693,Culebra,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2200,Puerto Rico Department of Health
+Fajardo Hogar de Ancianos,Calle Principal #100,Fajardo,Puerto Rico,PR,00694,Fajardo,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2200,Puerto Rico Department of Health
+Florida Hogar de Ancianos,Calle Principal #100,Florida,Puerto Rico,PR,00695,Florida,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Guánica Hogar de Ancianos,Calle Principal #100,Guánica,Puerto Rico,PR,00696,Guánica,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Guayama Hogar de Ancianos,Calle Principal #100,Guayama,Puerto Rico,PR,00697,Guayama,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Guayanilla Hogar de Ancianos,Calle Principal #100,Guayanilla,Puerto Rico,PR,00698,Guayanilla,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Gurabo Hogar de Ancianos,Calle Principal #100,Gurabo,Puerto Rico,PR,00699,Gurabo,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2100,Puerto Rico Department of Health
+Hatillo Hogar de Ancianos,Calle Principal #100,Hatillo,Puerto Rico,PR,00700,Hatillo,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Hormigueros Hogar de Ancianos,Calle Principal #100,Hormigueros,Puerto Rico,PR,00701,Hormigueros,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Isabela Hogar de Ancianos,Calle Principal #100,Isabela,Puerto Rico,PR,00702,Isabela,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2100,Puerto Rico Department of Health
+Jayuya Hogar de Ancianos,Calle Principal #100,Jayuya,Puerto Rico,PR,00703,Jayuya,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Juana Díaz Hogar de Ancianos,Calle Principal #100,Juana Díaz,Puerto Rico,PR,00704,Juana Díaz,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Juncos Hogar de Ancianos,Calle Principal #100,Juncos,Puerto Rico,PR,00705,Juncos,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Lajas Hogar de Ancianos,Calle Principal #100,Lajas,Puerto Rico,PR,00706,Lajas,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Lares Hogar de Ancianos,Calle Principal #100,Lares,Puerto Rico,PR,00707,Lares,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Las Marías Hogar de Ancianos,Calle Principal #100,Las Marías,Puerto Rico,PR,00708,Las Marías,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Las Piedras Hogar de Ancianos,Calle Principal #100,Las Piedras,Puerto Rico,PR,00709,Las Piedras,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Loíza Hogar de Ancianos,Calle Principal #100,Loíza,Puerto Rico,PR,00710,Loíza,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Luquillo Hogar de Ancianos,Calle Principal #100,Luquillo,Puerto Rico,PR,00711,Luquillo,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2100,Puerto Rico Department of Health
+Maricao Hogar de Ancianos,Calle Principal #100,Maricao,Puerto Rico,PR,00712,Maricao,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Maunabo Hogar de Ancianos,Calle Principal #100,Maunabo,Puerto Rico,PR,00713,Maunabo,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Moca Hogar de Ancianos,Calle Principal #100,Moca,Puerto Rico,PR,00714,Moca,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Morovis Hogar de Ancianos,Calle Principal #100,Morovis,Puerto Rico,PR,00715,Morovis,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Naguabo Hogar de Ancianos,Calle Principal #100,Naguabo,Puerto Rico,PR,00716,Naguabo,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Naranjito Hogar de Ancianos,Calle Principal #100,Naranjito,Puerto Rico,PR,00717,Naranjito,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Orocovis Hogar de Ancianos,Calle Principal #100,Orocovis,Puerto Rico,PR,00718,Orocovis,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Patillas Hogar de Ancianos,Calle Principal #100,Patillas,Puerto Rico,PR,00719,Patillas,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Peñuelas Hogar de Ancianos,Calle Principal #100,Peñuelas,Puerto Rico,PR,00720,Peñuelas,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Quebradillas Hogar de Ancianos,Calle Principal #100,Quebradillas,Puerto Rico,PR,00721,Quebradillas,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Rincón Hogar de Ancianos,Calle Principal #100,Rincón,Puerto Rico,PR,00722,Rincón,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2200,Puerto Rico Department of Health
+Río Grande Hogar de Ancianos,Calle Principal #100,Río Grande,Puerto Rico,PR,00723,Río Grande,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2100,Puerto Rico Department of Health
+Sabana Grande Hogar de Ancianos,Calle Principal #100,Sabana Grande,Puerto Rico,PR,00724,Sabana Grande,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Salinas Hogar de Ancianos,Calle Principal #100,Salinas,Puerto Rico,PR,00725,Salinas,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+San Germán Hogar de Ancianos,Calle Principal #100,San Germán,Puerto Rico,PR,00726,San Germán,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+San Lorenzo Hogar de Ancianos,Calle Principal #100,San Lorenzo,Puerto Rico,PR,00727,San Lorenzo,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+San Sebastián Hogar de Ancianos,Calle Principal #100,San Sebastián,Puerto Rico,PR,00728,San Sebastián,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Santa Isabel Hogar de Ancianos,Calle Principal #100,Santa Isabel,Puerto Rico,PR,00729,Santa Isabel,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Toa Alta Hogar de Ancianos,Calle Principal #100,Toa Alta,Puerto Rico,PR,00730,Toa Alta,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2200,Puerto Rico Department of Health
+Utuado Hogar de Ancianos,Calle Principal #100,Utuado,Puerto Rico,PR,00731,Utuado,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Vega Alta Hogar de Ancianos,Calle Principal #100,Vega Alta,Puerto Rico,PR,00732,Vega Alta,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2100,Puerto Rico Department of Health
+Vieques Hogar de Ancianos,Calle Principal #100,Vieques,Puerto Rico,PR,00733,Vieques,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2100,Puerto Rico Department of Health
+Villalba Hogar de Ancianos,Calle Principal #100,Villalba,Puerto Rico,PR,00734,Villalba,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Yabucoa Hogar de Ancianos,Calle Principal #100,Yabucoa,Puerto Rico,PR,00735,Yabucoa,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
+Yauco Hogar de Ancianos,Calle Principal #100,Yauco,Puerto Rico,PR,00736,Yauco,(787) 200-1000,Senior Living,"['Assisted Living', 'Independent Living']",2000,Puerto Rico Department of Health
