@@ -24,8 +24,8 @@ export class PricingService {
   private readonly careTypePricing: CareTypePricing[] = [
     {
       careType: 'Independent Living',
-      baseMin: 2800,
-      baseMax: 4500,
+      baseMin: 1800,
+      baseMax: 3500,
       californiaMultiplier: 1.0,
       description: 'Active senior communities with social activities and dining'
     },
@@ -59,8 +59,8 @@ export class PricingService {
     },
     {
       careType: 'Senior Apartments',
-      baseMin: 1800,
-      baseMax: 3200,
+      baseMin: 1200,
+      baseMax: 2800,
       californiaMultiplier: 1.0,
       description: 'Age-restricted housing with minimal services'
     },

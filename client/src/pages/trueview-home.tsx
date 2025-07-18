@@ -434,7 +434,9 @@ export default function TrueViewHome() {
                   
                   {/* Price Badge - Bottom Left */}
                   <Badge className="absolute bottom-2 left-2 bg-gray-900 text-white text-xs px-2 py-1 font-medium z-10">
-                    {community.priceRange && community.priceRange.min ? `$${(community.priceRange.min / 1000).toFixed(1)}K+` : '$4K+'}
+                    {community.priceMin ? `$${(community.priceMin / 1000).toFixed(1)}K+` : 
+                     community.priceRange && community.priceRange.min ? `$${(community.priceRange.min / 1000).toFixed(1)}K+` : 
+                     '$1.8K+'}
                     {!community.claimed && (
                       <span className="text-xs text-gray-300 ml-1 font-normal">est.</span>
                     )}
@@ -468,7 +470,9 @@ export default function TrueViewHome() {
                   )}
                   
                   <div className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                    <span className="text-sm">Starting at</span> ${community.priceRange && community.priceRange.min ? community.priceRange.min.toLocaleString() : '3,800'}
+                    <span className="text-sm">Starting at</span> ${community.priceMin ? community.priceMin.toLocaleString() : 
+                     community.priceRange && community.priceRange.min ? community.priceRange.min.toLocaleString() : 
+                     '1,800'}
                     {!community.claimed && (
                       <span className="text-xs text-gray-500 dark:text-gray-400 ml-1 font-normal">est.</span>
                     )}

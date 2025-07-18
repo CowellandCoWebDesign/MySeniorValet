@@ -13,19 +13,19 @@ export function PricingBreakdown({ state = 'CA', city, className = '' }: Pricing
   // Authentic market data based on our 25,782 verified communities across North America
   const careTypePricing = {
     'CA': {
-      'Independent Living': { min: 3500, max: 6500, median: 4800, growth: '+3.2%', coverage: '10%' },
+      'Independent Living': { min: 2800, max: 5500, median: 3800, growth: '+3.2%', coverage: '10%' },
       'Assisted Living': { min: 4500, max: 8500, median: 6200, growth: '+4.1%', coverage: '60.8%' },
       'Memory Care': { min: 6500, max: 12500, median: 8800, growth: '+5.2%', coverage: '25%' },
       'Skilled Nursing': { min: 8500, max: 15000, median: 11200, growth: '+2.8%', coverage: '4.2%' }
     },
     'TX': {
-      'Independent Living': { min: 2400, max: 6000, median: 3400, growth: '+2.8%', coverage: '10%' },
+      'Independent Living': { min: 1800, max: 4500, median: 2800, growth: '+2.8%', coverage: '10%' },
       'Assisted Living': { min: 3200, max: 8000, median: 4400, growth: '+3.5%', coverage: '60.8%' },
       'Memory Care': { min: 4500, max: 10000, median: 6000, growth: '+4.2%', coverage: '25%' },
       'Skilled Nursing': { min: 5200, max: 12000, median: 7000, growth: '+2.5%', coverage: '4.2%' }
     },
     'FL': {
-      'Independent Living': { min: 2800, max: 5500, median: 3800, growth: '+3.0%', coverage: '10%' },
+      'Independent Living': { min: 2200, max: 4200, median: 3000, growth: '+3.0%', coverage: '10%' },
       'Assisted Living': { min: 3500, max: 7000, median: 4800, growth: '+3.8%', coverage: '60.8%' },
       'Memory Care': { min: 5000, max: 9500, median: 6800, growth: '+4.5%', coverage: '25%' },
       'Skilled Nursing': { min: 6000, max: 11000, median: 8000, growth: '+2.2%', coverage: '4.2%' }

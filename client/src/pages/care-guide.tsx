@@ -24,7 +24,7 @@ export default function CareGuide() {
       title: 'Independent Living',
       icon: <Home className="w-8 h-8" />,
       description: 'For active seniors who want maintenance-free living with social opportunities',
-      priceRange: '$2,800 - $4,500',
+      priceRange: '$1,800 - $3,500',
       coverage: '10% of communities',
       gradient: 'from-green-500 to-emerald-600',
       features: [

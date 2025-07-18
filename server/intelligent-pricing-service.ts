@@ -48,7 +48,7 @@ const STATE_MARKET_DATA: Record<string, MarketData> = {
   },
   'TX': {
     state: 'Texas',
-    avgIndependentLiving: 3200,
+    avgIndependentLiving: 2500,
     avgAssistedLiving: 4200,
     avgMemoryCare: 5800,
     avgSkilledNursing: 6800,
@@ -80,7 +80,7 @@ const STATE_MARKET_DATA: Record<string, MarketData> = {
   },
   'ID': {
     state: 'Idaho',
-    avgIndependentLiving: 2800,
+    avgIndependentLiving: 2400,
     avgAssistedLiving: 3800,
     avgMemoryCare: 5200,
     avgSkilledNursing: 6200,
@@ -88,7 +88,7 @@ const STATE_MARKET_DATA: Record<string, MarketData> = {
   },
   'MT': {
     state: 'Montana',
-    avgIndependentLiving: 2900,
+    avgIndependentLiving: 2200,
     avgAssistedLiving: 3900,
     avgMemoryCare: 5400,
     avgSkilledNursing: 6400,
@@ -112,7 +112,7 @@ const STATE_MARKET_DATA: Record<string, MarketData> = {
   },
   'WY': {
     state: 'Wyoming',
-    avgIndependentLiving: 2700,
+    avgIndependentLiving: 2000,
     avgAssistedLiving: 3600,
     avgMemoryCare: 5000,
     avgSkilledNursing: 6000,
@@ -120,7 +120,7 @@ const STATE_MARKET_DATA: Record<string, MarketData> = {
   },
   'UT': {
     state: 'Utah',
-    avgIndependentLiving: 3100,
+    avgIndependentLiving: 2400,
     avgAssistedLiving: 4100,
     avgMemoryCare: 5600,
     avgSkilledNursing: 6600,
@@ -128,7 +128,7 @@ const STATE_MARKET_DATA: Record<string, MarketData> = {
   },
   'NM': {
     state: 'New Mexico',
-    avgIndependentLiving: 2900,
+    avgIndependentLiving: 2200,
     avgAssistedLiving: 3800,
     avgMemoryCare: 5200,
     avgSkilledNursing: 6200,
@@ -141,6 +141,47 @@ const STATE_MARKET_DATA: Record<string, MarketData> = {
     avgMemoryCare: 6000,
     avgSkilledNursing: 7000,
     costOfLivingMultiplier: 1.05
+  },
+  // Add more affordable states with lower pricing
+  'AL': {
+    state: 'Alabama',
+    avgIndependentLiving: 2000,
+    avgAssistedLiving: 3400,
+    avgMemoryCare: 4800,
+    avgSkilledNursing: 5800,
+    costOfLivingMultiplier: 0.75
+  },
+  'MS': {
+    state: 'Mississippi',
+    avgIndependentLiving: 1800,
+    avgAssistedLiving: 3200,
+    avgMemoryCare: 4500,
+    avgSkilledNursing: 5500,
+    costOfLivingMultiplier: 0.70
+  },
+  'AR': {
+    state: 'Arkansas',
+    avgIndependentLiving: 1900,
+    avgAssistedLiving: 3300,
+    avgMemoryCare: 4600,
+    avgSkilledNursing: 5600,
+    costOfLivingMultiplier: 0.72
+  },
+  'OK': {
+    state: 'Oklahoma',
+    avgIndependentLiving: 2100,
+    avgAssistedLiving: 3500,
+    avgMemoryCare: 4900,
+    avgSkilledNursing: 5900,
+    costOfLivingMultiplier: 0.76
+  },
+  'KS': {
+    state: 'Kansas',
+    avgIndependentLiving: 2200,
+    avgAssistedLiving: 3600,
+    avgMemoryCare: 5000,
+    avgSkilledNursing: 6000,
+    costOfLivingMultiplier: 0.78
   }
 };
 
