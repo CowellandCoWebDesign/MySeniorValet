@@ -59,6 +59,7 @@ import RealDataPricing from "@/pages/real-data-pricing";
 import Services from "@/pages/services";
 import CommunityPaymentProgram from "@/pages/community-payment-program";
 import NotFound from "@/pages/not-found";
+import QuizPage from "@/pages/quiz";
 
 function Router() {
   const [location] = useLocation();
@@ -116,6 +117,7 @@ function Router() {
       <Route path="/real-data-pricing" component={RealDataPricing} />
       <Route path="/services" component={Services} />
       <Route path="/community-payment-program" component={CommunityPaymentProgram} />
+      <Route path="/quiz" component={QuizPage} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -53,6 +53,7 @@ import { monitor } from "./infrastructure/monitoring";
 import { loadTester } from "./infrastructure/loadTest";
 import { aiRecommendationEngine, RecommendationRequest } from "./ai-recommendations";
 import { ComprehensiveScraper } from "./scraper";
+import { quizRouter } from "./routes/quiz";
 import { licensingScraper } from "./licensing-scraper";
 import { googleReviewsAI } from "./google-reviews-ai";
 import { googlePlacesIntegration } from "./google-places-integration";
@@ -2915,6 +2916,148 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error in location search:', error);
       res.status(500).json({ error: 'Failed to search locations' });
+    }
+  });
+
+  // Quiz matching endpoint
+  app.post('/api/communities/quiz-matches', async (req, res) => {
+    try {
+      const answers = req.body;
+      console.log('Quiz answers received:', answers);
+
+      // Build search conditions based on quiz answers
+      const conditions: any[] = [];
+      
+      // Care level matching
+      if (answers.careLevel) {
+        const careTypeMap: Record<string, string> = {
+          'independent': 'Independent Living',
+          'assisted': 'Assisted Living',
+          'memory': 'Memory Care',
+          'skilled': 'Skilled Nursing'
+        };
+        
+        const careType = careTypeMap[answers.careLevel];
+        if (careType) {
+          conditions.push(sql`${communities.careTypes} LIKE ${`%${careType}%`}`);
+        }
+      }
+
+      // Location matching
+      if (answers.location) {
+        conditions.push(
+          or(
+            sql`${communities.city} ILIKE ${`%${answers.location}%`}`,
+            sql`${communities.state} ILIKE ${`%${answers.location}%`}`,
+            sql`${communities.zipCode} ILIKE ${`%${answers.location}%`}`
+          )
+        );
+      }
+
+      // Base query - limit to 12 results for performance
+      let query = db.select().from(communities).limit(12);
+      
+      // Apply conditions if any
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions));
+      }
+
+      // Add ordering by rating
+      query = query.orderBy(desc(communities.rating));
+
+      const matchedCommunities = await query;
+
+      // Calculate match scores and reasons
+      const enrichedResults = matchedCommunities.map((community, index) => {
+        let matchScore = 75 + (12 - index) * 2; // Base score with ranking bonus
+        const matchReasons: string[] = [];
+
+        // Care level matching
+        if (answers.careLevel) {
+          const careTypeMap: Record<string, string> = {
+            'independent': 'Independent Living',
+            'assisted': 'Assisted Living',
+            'memory': 'Memory Care',
+            'skilled': 'Skilled Nursing'
+          };
+          
+          const requiredCareType = careTypeMap[answers.careLevel];
+          if (requiredCareType && community.careTypes?.includes(requiredCareType)) {
+            matchScore += 15;
+            matchReasons.push(`Offers ${requiredCareType}`);
+          }
+        }
+
+        // Budget matching
+        if (answers.budget && community.priceRangeMin && community.priceRangeMax) {
+          const communityAvg = (community.priceRangeMin + community.priceRangeMax) / 2;
+          const budgetDiff = Math.abs(communityAvg - answers.budget);
+          
+          if (budgetDiff <= 500) {
+            matchScore += 10;
+            matchReasons.push('Within your budget range');
+          } else if (budgetDiff <= 1000) {
+            matchScore += 5;
+            matchReasons.push('Close to your budget');
+          }
+        }
+
+        // Location matching
+        if (answers.location) {
+          const locationLower = answers.location.toLowerCase();
+          const cityMatch = community.city?.toLowerCase().includes(locationLower);
+          const stateMatch = community.state?.toLowerCase().includes(locationLower);
+          
+          if (cityMatch || stateMatch) {
+            matchScore += 10;
+            matchReasons.push(`Located in ${community.city}, ${community.state}`);
+          }
+        }
+
+        // Rating bonus
+        if (community.rating && community.rating >= 4.5) {
+          matchScore += 5;
+          matchReasons.push('Highly rated community');
+        }
+
+        // Photo bonus
+        if (community.photos && community.photos.length > 0) {
+          matchScore += 3;
+          matchReasons.push('Has photos available');
+        }
+
+        // Cap match score at 100
+        matchScore = Math.min(matchScore, 100);
+
+        return {
+          id: community.id,
+          name: community.name,
+          address: community.address || '',
+          city: community.city || '',
+          state: community.state || '',
+          zipCode: community.zipCode || '',
+          careTypes: community.careTypes ? community.careTypes.split(',') : [],
+          rating: community.rating || 0,
+          reviewCount: community.reviewCount || 0,
+          phone: community.phone || '',
+          website: community.website || '',
+          priceRange: {
+            min: community.priceRangeMin || 0,
+            max: community.priceRangeMax || 0
+          },
+          photos: community.photos || [],
+          description: community.description || '',
+          matchScore,
+          matchReasons
+        };
+      });
+
+      console.log(`Found ${enrichedResults.length} matching communities`);
+      res.json(enrichedResults);
+
+    } catch (error) {
+      console.error('Error in quiz matching:', error);
+      res.status(500).json({ error: 'Failed to find matching communities' });
     }
   });
 

@@ -251,6 +251,11 @@ export default function TrueViewHome() {
 
           {/* Primary CTA - Larger */}
           <div className="flex flex-col sm:flex-row gap-4 mb-6 animate-fade-in-up animation-delay-700">
+            <Link href="/quiz">
+              <Button variant="outline" className="border-2 border-purple-300 text-purple-100 hover:bg-purple-400 hover:text-purple-900 px-8 py-4 rounded-2xl font-medium text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-purple-500/20 backdrop-blur-sm">
+                ✨ Find My Perfect Match
+              </Button>
+            </Link>
             <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}>
               <Button variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 rounded-2xl font-medium text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-white/10 backdrop-blur-sm">
                 Explore Communities
