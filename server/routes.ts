@@ -70,6 +70,7 @@ import { nationwidePricingResearch } from "./nationwide-pricing-research";
 import { ServiceListingClassifier } from "./service-listing-classifier";
 import { affiliateTracker } from "./affiliate-tracking";
 import { enhancedPlatformStats } from "./enhanced-platform-stats";
+import { realDataAnalyzer } from "./real-data-analyzer";
 
 // Authentication middleware function
 const isAuthenticated = (req: any, res: any, next: any) => {
@@ -1668,6 +1669,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Community stats error:', error);
       res.status(500).json({ error: 'Failed to fetch community statistics' });
+    }
+  });
+
+  // Real Data API Routes - Authentic Pricing Intelligence
+  app.get('/api/real-data/analysis', async (req, res) => {
+    try {
+      const analysis = await realDataAnalyzer.analyzeDatabasePricing();
+      res.json(analysis);
+    } catch (error: any) {
+      console.error('Error analyzing database pricing:', error);
+      res.status(500).json({ error: 'Failed to analyze database pricing' });
+    }
+  });
+
+  app.get('/api/real-data/market-data', async (req, res) => {
+    try {
+      const marketData = await realDataAnalyzer.getExternalMarketData();
+      res.json(marketData);
+    } catch (error: any) {
+      console.error('Error getting market data:', error);
+      res.status(500).json({ error: 'Failed to get market data' });
+    }
+  });
+
+  app.get('/api/real-data/combined-intelligence', async (req, res) => {
+    try {
+      const intelligence = await realDataAnalyzer.getCombinedPricingIntelligence();
+      res.json(intelligence);
+    } catch (error: any) {
+      console.error('Error getting combined intelligence:', error);
+      res.status(500).json({ error: 'Failed to get combined intelligence' });
+    }
+  });
+
+  // Real Data Pricing Engine Routes
+  app.post('/api/real-data/update-all-pricing', async (req, res) => {
+    try {
+      const { realDataPricingEngine } = await import('./real-data-pricing-engine');
+      const result = await realDataPricingEngine.updateAllCommunitiesWithRealData();
+      res.json(result);
+    } catch (error: any) {
+      console.error('Error updating all pricing:', error);
+      res.status(500).json({ error: 'Failed to update pricing with real data' });
+    }
+  });
+
+  app.get('/api/real-data/pricing-stats', async (req, res) => {
+    try {
+      const { realDataPricingEngine } = await import('./real-data-pricing-engine');
+      const stats = await realDataPricingEngine.getRealPricingStats();
+      res.json(stats);
+    } catch (error: any) {
+      console.error('Error getting pricing stats:', error);
+      res.status(500).json({ error: 'Failed to get pricing stats' });
     }
   });
 

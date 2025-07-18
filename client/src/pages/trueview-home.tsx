@@ -263,15 +263,24 @@ export default function TrueViewHome() {
             </Link>
           </div>
           
-          {/* Community Count Text - Larger */}
+          {/* Real Data Pricing Badge */}
           <div className="mb-4 animate-fade-in-up animation-delay-750">
+            <Link href="/real-data-pricing">
+              <Button variant="outline" className="border-2 border-green-300 text-green-100 hover:bg-green-400 hover:text-green-900 px-6 py-3 rounded-xl font-medium text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-green-500/20 backdrop-blur-sm">
+                🔍 View Real Data Pricing Intelligence
+              </Button>
+            </Link>
+          </div>
+          
+          {/* Community Count Text - Larger */}
+          <div className="mb-4 animate-fade-in-up animation-delay-800">
             <p className="text-white/90 dark:text-gray-300 text-sm md:text-base drop-shadow-md text-center">
               Serving families across <strong className="text-amber-200">25,000+ verified senior living communities</strong>
             </p>
           </div>
           
           {/* Verification Badge - Larger */}
-          <div className="mb-8 animate-fade-in-up animation-delay-800">
+          <div className="mb-8 animate-fade-in-up animation-delay-900">
             <div className="inline-flex items-center px-4 py-2 bg-white/20 dark:bg-white/10 backdrop-blur-sm rounded-full text-white dark:text-gray-200 text-sm font-medium shadow-lg">
               <div className="w-3 h-3 bg-green-400 rounded-full mr-3 animate-pulse"></div>
               Verified Pricing • Real Availability • No Pressure
