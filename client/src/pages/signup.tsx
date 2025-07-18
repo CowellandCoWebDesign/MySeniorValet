@@ -67,7 +67,7 @@ export default function SignupPage() {
       await signup.mutateAsync(data);
       toast({
         title: "Account created successfully",
-        description: "Welcome to TrueView! You're now logged in.",
+        description: "Welcome to MySeniorValet! You're now logged in.",
       });
       setLocation("/dashboard");
     } catch (error: any) {
@@ -95,7 +95,7 @@ export default function SignupPage() {
           <Link href="/">
             <div className="inline-flex items-center space-x-2 text-2xl font-bold text-blue-600 mb-2 hover:text-blue-700 transition-colors">
               <Heart className="h-8 w-8" />
-              <span>TrueView</span>
+              <span>MySeniorValet</span>
             </div>
           </Link>
           <h1 className="text-2xl font-semibold text-gray-900 mb-2">Create your account</h1>

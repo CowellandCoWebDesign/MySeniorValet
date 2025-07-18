@@ -52,7 +52,7 @@ export default function LoginPage() {
       await login.mutateAsync(data);
       toast({
         title: "Login successful",
-        description: "Welcome back to TrueView!",
+        description: "Welcome back to MySeniorValet!",
       });
       setLocation("/dashboard");
     } catch (error: any) {
@@ -80,7 +80,7 @@ export default function LoginPage() {
           <Link href="/">
             <div className="inline-flex items-center space-x-2 text-2xl font-bold text-blue-600 mb-2 hover:text-blue-700 transition-colors">
               <Heart className="h-8 w-8" />
-              <span>TrueView</span>
+              <span>MySeniorValet</span>
             </div>
           </Link>
           <h1 className="text-2xl font-semibold text-gray-900 mb-2">Welcome back</h1>
@@ -168,10 +168,10 @@ export default function LoginPage() {
                 <p className="text-xs text-blue-600 mb-3">Use these demo credentials to explore the dashboard features:</p>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-mono text-blue-700">demo@trueview.com</span>
+                    <span className="font-mono text-blue-700">demo@myseniorvalet.com</span>
                     <button 
                       onClick={() => {
-                        form.setValue('email', 'demo@trueview.com');
+                        form.setValue('email', 'demo@myseniorvalet.com');
                         form.setValue('password', 'demo123');
                       }}
                       className="text-blue-600 hover:text-blue-800 underline"
