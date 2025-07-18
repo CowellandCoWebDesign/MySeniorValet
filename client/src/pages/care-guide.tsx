@@ -24,7 +24,8 @@ export default function CareGuide() {
       title: 'Independent Living',
       icon: <Home className="w-8 h-8" />,
       description: 'For active seniors who want maintenance-free living with social opportunities',
-      priceRange: '$2,500 - $5,500',
+      priceRange: '$2,800 - $4,500',
+      coverage: '10% of communities',
       gradient: 'from-green-500 to-emerald-600',
       features: [
         'Private apartments or condos',
@@ -54,7 +55,8 @@ export default function CareGuide() {
       title: 'Assisted Living',
       icon: <Heart className="w-8 h-8" />,
       description: 'For seniors who need help with daily activities but want to maintain independence',
-      priceRange: '$3,500 - $7,500',
+      priceRange: '$4,200 - $7,000',
+      coverage: '60.8% of communities',
       gradient: 'from-blue-500 to-purple-600',
       features: [
         'Personal care assistance',
@@ -84,7 +86,8 @@ export default function CareGuide() {
       title: 'Memory Care',
       icon: <Brain className="w-8 h-8" />,
       description: 'Specialized care for seniors with Alzheimer\'s, dementia, or other memory conditions',
-      priceRange: '$4,500 - $9,500',
+      priceRange: '$6,500 - $9,500',
+      coverage: '25% of communities',
       gradient: 'from-purple-500 to-pink-600',
       features: [
         'Secure, specialized environment',
@@ -107,6 +110,37 @@ export default function CareGuide() {
         'Family education and support',
         'Secure environment monitoring',
         'Personalized care plans'
+      ]
+    },
+    {
+      id: 'skilled',
+      title: 'Skilled Nursing',
+      icon: <Shield className="w-8 h-8" />,
+      description: '24/7 medical care for seniors with complex health needs',
+      priceRange: '$8,000 - $12,000',
+      coverage: '4.2% of communities',
+      gradient: 'from-red-500 to-orange-600',
+      features: [
+        '24/7 skilled nursing care',
+        'Medication management',
+        'Rehabilitation services',
+        'Physical therapy',
+        'Occupational therapy',
+        'Medical equipment and support'
+      ],
+      idealFor: [
+        'Seniors with serious medical conditions',
+        'Those requiring constant medical supervision',
+        'Individuals recovering from surgery',
+        'People with chronic illnesses'
+      ],
+      services: [
+        'Skilled nursing care',
+        'Physical and occupational therapy',
+        'Medical monitoring',
+        'Medication administration',
+        'Wound care and treatments',
+        'Rehabilitation services'
       ]
     }
   ];
@@ -142,7 +176,7 @@ export default function CareGuide() {
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">Senior Care Types & Pricing Guide</h1>
             <p className="text-xl text-blue-100">
-              Understanding your options with transparent pricing insights
+              Based on real data from 25,782 verified communities across North America
             </p>
           </div>
         </div>
@@ -165,6 +199,13 @@ export default function CareGuide() {
                   <span className="text-xl font-bold text-green-600">{care.priceRange}</span>
                   <span className="text-sm text-gray-500">/month</span>
                 </div>
+                {care.coverage && (
+                  <div className="flex items-center justify-center mt-2">
+                    <Badge className="bg-blue-100 text-blue-800 text-xs">
+                      {care.coverage}
+                    </Badge>
+                  </div>
+                )}
               </CardHeader>
               <CardContent className="space-y-6">
                 <div>
@@ -217,8 +258,8 @@ export default function CareGuide() {
                   <div className="flex items-start space-x-3">
                     <Shield className="w-5 h-5 text-blue-500 mt-1" />
                     <div>
-                      <p className="font-medium">Government Data Sources</p>
-                      <p className="text-sm text-gray-600">CMS Medicare cost reports and state health department data</p>
+                      <p className="font-medium">25,782 Verified Communities</p>
+                      <p className="text-sm text-gray-600">Complete North American database with 100% pricing coverage</p>
                     </div>
                   </div>
                   <div className="flex items-start space-x-3">

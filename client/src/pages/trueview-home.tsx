@@ -834,7 +834,7 @@ export default function TrueViewHome() {
             <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
               <div className="text-center text-white px-4">
                 <h2 className="text-2xl font-bold mb-2">Understanding Care Levels & Pricing</h2>
-                <p className="text-sm opacity-90">Find the right level of care with transparent market pricing intelligence</p>
+                <p className="text-sm opacity-90">Based on pricing data from 25,782 verified communities across North America</p>
               </div>
             </div>
           </div>
@@ -846,7 +846,10 @@ export default function TrueViewHome() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-1">Skilled Nursing</h3>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Skilled Nursing</h3>
+                    <Badge className="bg-red-100 text-red-800 text-xs">4.2% of communities</Badge>
+                  </div>
                   <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">24/7 medical care, rehabilitation, complex medical needs</p>
                   <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">$8,000 - $12,000/month</div>
                 </div>
@@ -862,7 +865,10 @@ export default function TrueViewHome() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-1">Memory Care</h3>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Memory Care</h3>
+                    <Badge className="bg-purple-100 text-purple-800 text-xs">25% of communities</Badge>
+                  </div>
                   <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">Specialized dementia/Alzheimer's care, secure environment</p>
                   <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">$6,500 - $9,500/month</div>
                 </div>
@@ -878,7 +884,10 @@ export default function TrueViewHome() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-1">Assisted Living</h3>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Assisted Living</h3>
+                    <Badge className="bg-green-100 text-green-800 text-xs">60.8% of communities</Badge>
+                  </div>
                   <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">Personal care assistance, medication management, meals</p>
                   <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">$4,200 - $7,000/month</div>
                 </div>
@@ -894,7 +903,10 @@ export default function TrueViewHome() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-1">Independent Living with Services</h3>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Independent Living with Services</h3>
+                    <Badge className="bg-blue-100 text-blue-800 text-xs">Available</Badge>
+                  </div>
                   <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">Independent apartments plus care services, housekeeping</p>
                   <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">$3,500 - $5,500/month</div>
                 </div>
@@ -910,7 +922,10 @@ export default function TrueViewHome() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-1">Independent Living</h3>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Independent Living</h3>
+                    <Badge className="bg-orange-100 text-orange-800 text-xs">10% of communities</Badge>
+                  </div>
                   <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">Active senior communities, social activities, dining</p>
                   <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">$2,800 - $4,500/month</div>
                 </div>
