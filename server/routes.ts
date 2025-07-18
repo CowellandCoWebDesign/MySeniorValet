@@ -2925,55 +2925,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const answers = req.body;
       console.log('Quiz answers received:', answers);
 
-      // Build search conditions based on quiz answers
-      const conditions: any[] = [];
+      // Get communities based on location - start with all communities if no location
+      let baseQuery = db.select().from(communities);
       
-      // Care level matching
-      if (answers.careLevel) {
-        const careTypeMap: Record<string, string> = {
-          'independent': 'Independent Living',
-          'assisted': 'Assisted Living',
-          'memory': 'Memory Care',
-          'skilled': 'Skilled Nursing'
+      if (answers.location) {
+        // Handle state name mappings
+        const stateMap: Record<string, string> = {
+          'California': 'CA',
+          'Texas': 'TX',
+          'Florida': 'FL',
+          'New York': 'NY',
+          'Arizona': 'AZ',
+          'Nevada': 'NV'
         };
         
-        const careType = careTypeMap[answers.careLevel];
-        if (careType) {
-          conditions.push(sql`${communities.careTypes} LIKE ${`%${careType}%`}`);
-        }
-      }
-
-      // Location matching
-      if (answers.location) {
-        conditions.push(
+        const mappedLocation = stateMap[answers.location] || answers.location;
+        
+        baseQuery = baseQuery.where(
           or(
-            sql`${communities.city} ILIKE ${`%${answers.location}%`}`,
-            sql`${communities.state} ILIKE ${`%${answers.location}%`}`,
-            sql`${communities.zipCode} ILIKE ${`%${answers.location}%`}`
+            eq(communities.city, answers.location),
+            eq(communities.state, mappedLocation),
+            eq(communities.state, answers.location)
           )
         );
       }
-
-      // Base query - limit to 12 results for performance
-      let query = db.select().from(communities).limit(12);
       
-      // Apply conditions if any
-      if (conditions.length > 0) {
-        query = query.where(and(...conditions));
-      }
+      const allCommunities = await baseQuery
+        .orderBy(desc(communities.rating))
+        .limit(100);
 
-      // Add ordering by rating
-      query = query.orderBy(desc(communities.rating));
+      console.log(`Found ${allCommunities.length} communities for location: ${answers.location}`);
 
-      const matchedCommunities = await query;
-
-      // Calculate match scores and reasons
-      const enrichedResults = matchedCommunities.map((community, index) => {
-        let matchScore = 75 + (12 - index) * 2; // Base score with ranking bonus
+      // Filter and score communities in JavaScript
+      const matchedCommunities = allCommunities.map((community, index) => {
+        let matchScore = 75 + (12 - index % 12) * 2; // Base score with ranking bonus
         const matchReasons: string[] = [];
 
         // Care level matching
-        if (answers.careLevel) {
+        if (answers.careLevel && community.careTypes) {
           const careTypeMap: Record<string, string> = {
             'independent': 'Independent Living',
             'assisted': 'Assisted Living',
@@ -2982,7 +2971,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           };
           
           const requiredCareType = careTypeMap[answers.careLevel];
-          if (requiredCareType && community.careTypes?.includes(requiredCareType)) {
+          if (requiredCareType && community.careTypes.includes(requiredCareType)) {
             matchScore += 15;
             matchReasons.push(`Offers ${requiredCareType}`);
           }
@@ -3020,15 +3009,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           matchReasons.push('Highly rated community');
         }
 
-        // Photo bonus
-        if (community.photos && community.photos.length > 0) {
-          matchScore += 3;
-          matchReasons.push('Has photos available');
-        }
-
-        // Cap match score at 100
-        matchScore = Math.min(matchScore, 100);
-
         return {
           id: community.id,
           name: community.name,
@@ -3036,24 +3016,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
           city: community.city || '',
           state: community.state || '',
           zipCode: community.zipCode || '',
-          careTypes: community.careTypes ? community.careTypes.split(',') : [],
+          careTypes: Array.isArray(community.careTypes) ? community.careTypes : [],
           rating: community.rating || 0,
           reviewCount: community.reviewCount || 0,
           phone: community.phone || '',
           website: community.website || '',
           priceRange: {
-            min: community.priceRangeMin || 0,
-            max: community.priceRangeMax || 0
+            min: community.priceRangeMin || 2000,
+            max: community.priceRangeMax || 8000
           },
           photos: community.photos || [],
           description: community.description || '',
-          matchScore,
+          matchScore: Math.min(matchScore, 100),
           matchReasons
         };
-      });
+      }).slice(0, 12);
 
-      console.log(`Found ${enrichedResults.length} matching communities`);
-      res.json(enrichedResults);
+      console.log(`Found ${matchedCommunities.length} matching communities`);
+      res.json(matchedCommunities);
 
     } catch (error) {
       console.error('Error in quiz matching:', error);
