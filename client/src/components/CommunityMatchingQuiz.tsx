@@ -91,12 +91,12 @@ const quizQuestions: QuizQuestion[] = [
 ];
 
 const progressSteps = [
-  { label: 'Care Needs', icon: <Heart className="w-4 h-4" />, color: 'text-pink-500' },
-  { label: 'Budget', icon: <Home className="w-4 h-4" />, color: 'text-blue-500' },
-  { label: 'Location', icon: <TreePine className="w-4 h-4" />, color: 'text-green-500' },
-  { label: 'Preferences', icon: <Sparkles className="w-4 h-4" />, color: 'text-purple-500' },
-  { label: 'Lifestyle', icon: <Activity className="w-4 h-4" />, color: 'text-orange-500' },
-  { label: 'Priorities', icon: <CheckCircle2 className="w-4 h-4" />, color: 'text-emerald-500' }
+  { label: 'Care Needs', icon: <Heart className="w-4 h-4" />, color: 'text-primary' },
+  { label: 'Budget', icon: <Home className="w-4 h-4" />, color: 'text-primary' },
+  { label: 'Location', icon: <TreePine className="w-4 h-4" />, color: 'text-primary' },
+  { label: 'Preferences', icon: <Sparkles className="w-4 h-4" />, color: 'text-primary' },
+  { label: 'Lifestyle', icon: <Activity className="w-4 h-4" />, color: 'text-primary' },
+  { label: 'Priorities', icon: <CheckCircle2 className="w-4 h-4" />, color: 'text-primary' }
 ];
 
 export default function CommunityMatchingQuiz({ onComplete }: { onComplete: (answers: QuizAnswers) => void }) {
@@ -157,8 +157,8 @@ export default function CommunityMatchingQuiz({ onComplete }: { onComplete: (ans
               transition={{ delay: 0.2 }}
               className="mb-6"
             >
-              <div className="w-24 h-24 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Sparkles className="w-12 h-12 text-white" />
+              <div className="w-24 h-24 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                <Sparkles className="w-12 h-12 text-primary-foreground" />
               </div>
             </motion.div>
             
@@ -167,15 +167,15 @@ export default function CommunityMatchingQuiz({ onComplete }: { onComplete: (ans
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             >
-              <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              <h2 className="text-3xl font-bold mb-4 text-foreground">
                 Finding Your Perfect Match!
               </h2>
-              <p className="text-gray-600 mb-8">
+              <p className="text-muted-foreground mb-8">
                 We're analyzing your preferences to find the best communities for you...
               </p>
               
               <div className="flex justify-center">
-                <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+                <div className="w-16 h-16 border-4 border-muted border-t-primary rounded-full animate-spin"></div>
               </div>
             </motion.div>
           </CardContent>
@@ -189,7 +189,7 @@ export default function CommunityMatchingQuiz({ onComplete }: { onComplete: (ans
       {/* Progress Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold text-foreground dark:text-foreground">
             Community Matching Quiz
           </h1>
           <Badge variant="secondary" className="text-sm">
@@ -213,8 +213,8 @@ export default function CommunityMatchingQuiz({ onComplete }: { onComplete: (ans
               >
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-2 ${
                   index <= currentQuestion 
-                    ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white' 
-                    : 'bg-gray-200 text-gray-400'
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'bg-muted text-muted-foreground'
                 }`}>
                   {index < currentQuestion ? (
                     <CheckCircle2 className="w-4 h-4" />
@@ -270,7 +270,7 @@ export default function CommunityMatchingQuiz({ onComplete }: { onComplete: (ans
         <Button
           onClick={nextQuestion}
           disabled={!currentAnswer || (Array.isArray(currentAnswer) && currentAnswer.length === 0)}
-          className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+          className="flex items-center gap-2"
         >
           {currentQuestion === quizQuestions.length - 1 ? 'Find My Match' : 'Next'}
           <ArrowRight className="w-4 h-4" />
@@ -303,11 +303,7 @@ function QuestionRenderer({
           >
             <Button
               variant={answer === option.value ? "default" : "outline"}
-              className={`w-full p-4 h-auto justify-start ${
-                answer === option.value 
-                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' 
-                  : 'hover:bg-gray-50'
-              }`}
+              className="w-full p-4 h-auto justify-start"
               onClick={() => onAnswer(question.id, option.value)}
             >
               <div className="flex items-center gap-3">
@@ -334,11 +330,7 @@ function QuestionRenderer({
           >
             <Button
               variant={selectedAnswers.includes(option.value) ? "default" : "outline"}
-              className={`w-full p-4 h-auto justify-start ${
-                selectedAnswers.includes(option.value)
-                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' 
-                  : 'hover:bg-gray-50'
-              }`}
+              className="w-full p-4 h-auto justify-start"
               onClick={() => {
                 const newAnswers = selectedAnswers.includes(option.value)
                   ? selectedAnswers.filter(a => a !== option.value)
@@ -363,10 +355,10 @@ function QuestionRenderer({
     return (
       <div className="space-y-6">
         <div className="text-center">
-          <div className="text-3xl font-bold text-purple-600 mb-2">
+          <div className="text-3xl font-bold text-primary mb-2">
             ${sliderValue?.toLocaleString()}
           </div>
-          <p className="text-gray-600">per month</p>
+          <p className="text-muted-foreground">per month</p>
         </div>
         
         <div className="px-4">
@@ -377,9 +369,9 @@ function QuestionRenderer({
             step={question.step}
             value={sliderValue}
             onChange={(e) => onAnswer(question.id, parseInt(e.target.value))}
-            className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+            className="w-full h-3 bg-muted rounded-lg appearance-none cursor-pointer slider"
           />
-          <div className="flex justify-between text-sm text-gray-500 mt-2">
+          <div className="flex justify-between text-sm text-muted-foreground mt-2">
             <span>${question.min?.toLocaleString()}</span>
             <span>${question.max?.toLocaleString()}</span>
           </div>
@@ -400,7 +392,7 @@ function QuestionRenderer({
               setLocationInput(e.target.value);
               onAnswer(question.id, e.target.value);
             }}
-            className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full p-4 border border-input bg-background rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
           />
         </div>
         
