@@ -249,13 +249,8 @@ export default function TrueViewHome() {
             )}
           </div>
 
-          {/* Primary & Secondary CTAs - Larger */}
+          {/* Primary CTA - Larger */}
           <div className="flex flex-col sm:flex-row gap-4 mb-6 animate-fade-in-up animation-delay-700">
-            <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}>
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl font-medium text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 border-0">
-                Start Your All-in-One Planner
-              </Button>
-            </Link>
             <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}>
               <Button variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 rounded-2xl font-medium text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-white/10 backdrop-blur-sm">
                 Explore Communities
