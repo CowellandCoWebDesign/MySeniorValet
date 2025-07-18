@@ -462,9 +462,9 @@ Let me know what you think!`;
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Navigation Bar */}
-      <div className="bg-white border-b border-gray-200 p-4">
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
         <div className="flex space-x-3">
           <Button 
             variant="ghost" 
@@ -507,14 +507,14 @@ Let me know what you think!`;
                       communityName={community.name}
                     />
                   ) : (
-                    <div className="h-full bg-gray-200 flex items-center justify-center">
+                    <div className="h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                       <div className="text-center">
-                        <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-2">
-                          <span className="text-2xl font-bold text-gray-600">
+                        <div className="w-16 h-16 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                          <span className="text-2xl font-bold text-gray-600 dark:text-gray-300">
                             {getInitials(community.name)}
                           </span>
                         </div>
-                        <p className="text-gray-600">No photos available</p>
+                        <p className="text-gray-600 dark:text-gray-400">No photos available</p>
                       </div>
                     </div>
                   )}
@@ -523,15 +523,15 @@ Let me know what you think!`;
                   <div className="absolute top-4 right-4 flex space-x-2">
                     <button
                       onClick={handleFavorite}
-                      className="p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-shadow"
+                      className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow"
                     >
-                      <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600'}`} />
+                      <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600 dark:text-gray-300'}`} />
                     </button>
                     
                     <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
                       <DialogTrigger asChild>
-                        <button className="p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-shadow">
-                          <Share2 className="w-5 h-5 text-gray-600" />
+                        <button className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow">
+                          <Share2 className="w-5 h-5 text-gray-600 dark:text-gray-300" />
                         </button>
                       </DialogTrigger>
                       <DialogContent className="sm:max-w-md">
@@ -543,11 +543,11 @@ Let me know what you think!`;
                         </DialogHeader>
                         <div className="space-y-4">
                           {/* Quick Copy Link */}
-                          <div className="bg-gray-50 p-4 rounded-lg">
+                          <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                             <div className="flex items-center justify-between">
                               <div>
                                 <p className="font-medium text-sm">Quick Share</p>
-                                <p className="text-xs text-gray-600">Copy link to share</p>
+                                <p className="text-xs text-gray-600 dark:text-gray-400">Copy link to share</p>
                               </div>
                               <Button onClick={handleCopyLink} variant="outline" size="sm">
                                 <Copy className="w-4 h-4 mr-2" />
@@ -596,9 +596,9 @@ Let me know what you think!`;
                           </div>
                           
                           {/* Family Collaboration */}
-                          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                            <h4 className="font-medium text-blue-900 mb-2">Family Collaboration</h4>
-                            <p className="text-sm text-blue-800 mb-3">
+                          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
+                            <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">Family Collaboration</h4>
+                            <p className="text-sm text-blue-800 dark:text-blue-200 mb-3">
                               Share this community with family members for collaborative decision-making
                             </p>
                             <Button
@@ -623,14 +623,14 @@ Let me know what you think!`;
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div>
-                    <CardTitle className="text-2xl font-bold text-gray-900 mb-2">
+                    <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                       {community.name}
                     </CardTitle>
-                    <div className="flex items-center text-gray-600 mb-2">
+                    <div className="flex items-center text-gray-600 dark:text-gray-400 mb-2">
                       <MapPin className="w-4 h-4 mr-1" />
                       <span>{community.address}, {community.city}, {community.state} {community.zipCode}</span>
                     </div>
-                    <div className="flex items-center text-gray-600 mb-2">
+                    <div className="flex items-center text-gray-600 dark:text-gray-400 mb-2">
                       <Phone className="w-4 h-4 mr-1" />
                       <span className="font-medium">{community.phone || generatePhoneNumber(community.state, community.id)}</span>
                     </div>
@@ -638,9 +638,9 @@ Let me know what you think!`;
                       <div className="flex items-center">
                         <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
                         <span className="font-medium">{community.googleRating || '4.2'}</span>
-                        <span className="text-gray-600 ml-1">({community.googleReviewCount || '47'} reviews)</span>
+                        <span className="text-gray-600 dark:text-gray-400 ml-1">({community.googleReviewCount || '47'} reviews)</span>
                       </div>
-                      <Badge className="bg-blue-100 text-blue-800">
+                      <Badge className="bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200">
                         {community.careTypes?.[0] || 'Senior Living'}
                       </Badge>
                     </div>
@@ -756,12 +756,12 @@ Let me know what you think!`;
                     {/* Live Pricing with Badge */}
                     <div className="mb-3">
                       <div className="flex items-center justify-end mb-1">
-                        <Badge className="bg-green-100 text-green-800 mr-2">
-                          <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                        <Badge className="bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200 mr-2">
+                          <div className="w-2 h-2 bg-green-500 dark:bg-green-400 rounded-full mr-1"></div>
                           Live Pricing
                         </Badge>
                       </div>
-                      <div className="text-3xl font-bold text-gray-900 mb-1">
+                      <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
                         {community.priceRange ? 
                           `$${community.priceRange.min.toLocaleString()} - $${community.priceRange.max.toLocaleString()}` : 
                           'Contact for Pricing'
@@ -790,15 +790,15 @@ Let me know what you think!`;
                       </div>
                       
                       {/* Unit Vacancy Information */}
-                      <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                        <div className="text-sm text-blue-900 font-medium mb-1">
+                      <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-700">
+                        <div className="text-sm text-blue-900 dark:text-blue-100 font-medium mb-1">
                           {community.id % 3 === 0 ? `${2 + (community.id % 4)} units available` : 
                            community.id % 3 === 1 ? `${1 + (community.id % 2)} units available` : 
                            <Button 
                              variant="outline" 
                              size="sm" 
                              onClick={() => setIsWaitlistOpen(true)}
-                             className="text-xs py-1 px-2 h-6 border-blue-300 text-blue-700 hover:bg-blue-100"
+                             className="text-xs py-1 px-2 h-6 border-blue-300 dark:border-blue-600 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/20"
                            >
                              Join waitlist
                            </Button>
@@ -817,14 +817,14 @@ Let me know what you think!`;
             {/* Contact & Tour Section */}
             <Card>
               <CardContent className="p-0">
-                <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-8 rounded-lg border-2 border-blue-100">
+                <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 p-8 rounded-lg border-2 border-blue-100 dark:border-blue-700">
                   <div className="text-center mb-6">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">Ready to Visit?</h3>
-                    <p className="text-gray-600">Connect with our community team to schedule your tour</p>
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Ready to Visit?</h3>
+                    <p className="text-gray-600 dark:text-gray-300">Connect with our community team to schedule your tour</p>
                   </div>
                   
                   {/* Sales Manager Info */}
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-blue-200 mb-6">
+                  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-blue-200 dark:border-blue-700 mb-6">
                     <div className="flex items-center mb-4">
                       <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-xl mr-4">
                         {(() => {
@@ -1454,8 +1454,8 @@ Let me know what you think!`;
                             <span className="text-sm text-green-900">Verified</span>
                           </div>
                           <div className="flex items-center">
-                            <Clock className="w-4 h-4 text-yellow-600 mr-2" />
-                            <span className="text-sm text-yellow-900">Reported</span>
+                            <Clock className="w-4 h-4 text-yellow-600 dark:text-yellow-400 mr-2" />
+                            <span className="text-sm text-yellow-900 dark:text-yellow-200">Reported</span>
                           </div>
                           <div className="flex items-center">
                             <X className="w-4 h-4 text-red-600 mr-2" />
@@ -1521,8 +1521,8 @@ Let me know what you think!`;
                             <span className="text-sm text-green-900">Verified</span>
                           </div>
                           <div className="flex items-center">
-                            <Clock className="w-4 h-4 text-yellow-600 mr-2" />
-                            <span className="text-sm text-yellow-900">Reported</span>
+                            <Clock className="w-4 h-4 text-yellow-600 dark:text-yellow-400 mr-2" />
+                            <span className="text-sm text-yellow-900 dark:text-yellow-200">Reported</span>
                           </div>
                           <div className="flex items-center">
                             <X className="w-4 h-4 text-red-600 mr-2" />
@@ -1611,8 +1611,8 @@ Let me know what you think!`;
                           />
                         </div>
                       ) : (
-                        <div className="bg-gray-100 p-8 rounded-lg text-center">
-                          <p className="text-gray-500">No photos available</p>
+                        <div className="bg-gray-100 dark:bg-gray-700 p-8 rounded-lg text-center">
+                          <p className="text-gray-500 dark:text-gray-400">No photos available</p>
                         </div>
                       )}
                     </div>
@@ -1634,16 +1634,16 @@ Let me know what you think!`;
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Overall Rating Display */}
-                <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-lg border border-yellow-200">
+                <div className="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-600">
                   <div className="text-center mb-3">
                     <div className="flex items-center justify-center mb-2">
                       <Star className="w-6 h-6 text-yellow-400 fill-current mr-1" />
-                      <span className="text-2xl font-bold text-gray-900">
+                      <span className="text-2xl font-bold text-gray-900 dark:text-white">
                         {community.googleRating || '4.2'}
                       </span>
-                      <span className="text-lg text-gray-600">/5</span>
+                      <span className="text-lg text-gray-600 dark:text-gray-400">/5</span>
                     </div>
-                    <p className="text-sm text-yellow-800">
+                    <p className="text-sm text-yellow-800 dark:text-yellow-200">
                       Based on {community.googleReviewCount || '47'} reviews
                     </p>
                   </div>
