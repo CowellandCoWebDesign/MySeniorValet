@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun } from 'lucide-react';
+import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -65,6 +65,7 @@ export default function MapSearch() {
   
   // Debug log
   console.log('Map Search Component - showBottomPanel:', showBottomPanel, 'viewMode:', viewMode);
+  console.log('Floating button should show:', viewMode === 'map' && !showBottomPanel);
   
   // Fetch communities within map bounds for list view
   const { data: mapCommunities = [], isLoading: isLoadingCommunities } = useQuery({
@@ -430,7 +431,7 @@ export default function MapSearch() {
                     : 'border-gray-300 bg-white text-gray-900 hover:bg-gray-50'
                   }
                 >
-                  <MapPin className="w-4 h-4 mr-2" />
+                  <Info className="w-4 h-4 mr-2" />
                   Legend
                 </Button>
               </DrawerTrigger>
@@ -954,19 +955,20 @@ export default function MapSearch() {
 
       {/* Enhanced Floating Action Button with Pulse Animation */}
       {viewMode === 'map' && !showBottomPanel && (
-        <div className="fixed bottom-6 right-6 z-[60]">
+        <div className="fixed bottom-6 right-6 z-[1000]">
           {/* Pulse rings for attention */}
           <div className="absolute inset-0 bg-blue-500 rounded-full animate-ping opacity-20"></div>
           <div className="absolute inset-0 bg-purple-500 rounded-full animate-ping opacity-20" style={{animationDelay: '0.5s'}}></div>
           
-          <button
+          <Button
             onClick={() => {
               console.log('Enhanced floating button clicked! Opening list view...');
               setShowBottomPanel(true);
               setPanelHeight(70); // Increased to 70% for better visibility
             }}
-            className="relative bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 group"
+            className="relative bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 group w-14 h-14"
             title="View Communities List"
+            size="lg"
           >
             <List className="w-6 h-6" />
             
@@ -974,7 +976,14 @@ export default function MapSearch() {
             <div className="absolute bottom-full right-0 mb-2 px-3 py-1 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
               View List ▲
             </div>
-          </button>
+          </Button>
+        </div>
+      )}
+      
+      {/* Force show floating button for debugging */}
+      {viewMode === 'map' && (
+        <div className="fixed bottom-20 right-6 z-[1000] bg-red-500 text-white p-2 rounded text-xs">
+          Debug: viewMode={viewMode}, showPanel={showBottomPanel.toString()}
         </div>
       )}
     </div>
