@@ -127,11 +127,11 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
   const [slidePanelHeight, setSlidePanelHeight] = useState(160);
   const [, navigate] = useLocation();
   
-  // Debounce search query to prevent excessive API calls - reduced to 300ms for better UX
+  // Debounce search query to prevent excessive API calls - reduced to 200ms for better UX
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
-    }, 300); // 300ms delay as specified
+    }, 200); // 200ms delay for faster response
     
     return () => clearTimeout(timer);
   }, [searchQuery]);
@@ -231,9 +231,10 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
       if (!response.ok) throw new Error("Failed to fetch communities");
       return response.json();
     },
-    retry: false,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-    cacheTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    retry: 2, // Retry on failure
+    staleTime: 30 * 1000, // Cache for 30 seconds for faster subsequent searches
+    refetchOnWindowFocus: false, // Don't refetch when window gains focus
+    keepPreviousData: true, // Keep previous data while loading new data
   });
 
   // Extract communities array from search response (now returns direct array, not paginated)
@@ -385,12 +386,12 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
 
   // Note: BottomNav component is defined at the end of the file
 
-  if (isLoading) {
+  if (isLoading && !communitiesResponse) {
     return (
       <>
         <SearchingMascot
           isLoading={isLoading}
-          searchLocation={searchLocation}
+          searchLocation={debouncedSearchQuery}
           searchType="communities"
         />
         <div className="min-h-screen bg-white dark:bg-gray-800 pb-16 flex items-center justify-center">
@@ -988,12 +989,22 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
 
       {/* Map View - Removed for fresh implementation */}
       <div className="flex-1 relative" style={{ height: 'calc(100vh - 160px)' }}>
-          {/* Map Loading State */}
-          {isLoading && (
+          {/* Map Loading State - Only show for initial load */}
+          {isLoading && !communitiesResponse && (
             <div className="absolute inset-0 bg-white dark:bg-gray-800/80 backdrop-blur-sm z-50 flex items-center justify-center">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Loading communities...</p>
+              </div>
+            </div>
+          )}
+          
+          {/* Subtle loading indicator for subsequent searches */}
+          {isLoading && communitiesResponse && (
+            <div className="absolute top-4 right-4 z-50">
+              <div className="bg-blue-600 text-white px-3 py-2 rounded-full shadow-lg flex items-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                <span className="text-sm">Updating...</span>
               </div>
             </div>
           )}
