@@ -408,45 +408,42 @@ export default function Map({
         )}
       </div>
       
-      {/* Map Legend */}
-      <div className="w-64 bg-white border-l border-gray-200 p-4 overflow-y-auto">
-        <h3 className="font-bold mb-4">Map Legend</h3>
+      {/* Compact Map Legend - Optimized for space efficiency */}
+      <div className="w-48 bg-white border-l border-gray-200 p-3 overflow-y-auto">
+        <h4 className="font-semibold mb-3 text-sm">Legend</h4>
         
-        <div className="space-y-3">
+        <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+            <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
               #
             </div>
-            <span className="text-sm">Cluster (Multiple Communities)</span>
+            <span className="text-xs">Clusters</span>
           </div>
           
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-blue-600 rounded-full"></div>
-            <span className="text-sm">General Community</span>
+            <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
+            <span className="text-xs">General</span>
           </div>
           
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-green-600 rounded-full"></div>
-            <span className="text-sm">Assisted Living</span>
+            <div className="w-3 h-3 bg-green-600 rounded-full"></div>
+            <span className="text-xs">Assisted Living</span>
           </div>
           
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-red-600 rounded-full"></div>
-            <span className="text-sm">Memory Care</span>
+            <div className="w-3 h-3 bg-red-600 rounded-full"></div>
+            <span className="text-xs">Memory Care</span>
           </div>
           
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-purple-600 rounded-full"></div>
-            <span className="text-sm">Independent Living</span>
+            <div className="w-3 h-3 bg-purple-600 rounded-full"></div>
+            <span className="text-xs">Independent</span>
           </div>
         </div>
         
-        <div className="mt-6 pt-4 border-t">
-          <p className="text-xs text-gray-500 mb-2">
-            Showing {clusterData?.features?.length || 0} items
-          </p>
+        <div className="mt-4 pt-3 border-t">
           <p className="text-xs text-gray-500">
-            Zoom in to see individual communities
+            {clusterData?.features?.length || 0} items shown
           </p>
         </div>
       </div>

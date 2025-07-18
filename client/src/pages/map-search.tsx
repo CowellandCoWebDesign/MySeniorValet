@@ -892,18 +892,30 @@ export default function MapSearch() {
         </div>
       </div>
 
-      {/* Floating Action Button to Show Panel */}
+      {/* Enhanced Floating Action Button with Pulse Animation */}
       {viewMode === 'map' && !showBottomPanel && (
-        <button
-          onClick={() => {
-            console.log('Floating button clicked!');
-            setShowBottomPanel(true);
-            setPanelHeight(60);
-          }}
-          className="fixed bottom-6 right-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 z-[60]"
-        >
-          <List className="w-6 h-6" />
-        </button>
+        <div className="fixed bottom-6 right-6 z-[60]">
+          {/* Pulse rings for attention */}
+          <div className="absolute inset-0 bg-blue-500 rounded-full animate-ping opacity-20"></div>
+          <div className="absolute inset-0 bg-purple-500 rounded-full animate-ping opacity-20" style={{animationDelay: '0.5s'}}></div>
+          
+          <button
+            onClick={() => {
+              console.log('Enhanced floating button clicked! Opening list view...');
+              setShowBottomPanel(true);
+              setPanelHeight(60);
+            }}
+            className="relative bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 group"
+            title="View Communities List"
+          >
+            <List className="w-6 h-6" />
+            
+            {/* Tooltip */}
+            <div className="absolute bottom-full right-0 mb-2 px-3 py-1 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+              View List ▲
+            </div>
+          </button>
+        </div>
       )}
     </div>
   );
