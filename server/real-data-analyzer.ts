@@ -121,9 +121,7 @@ export class RealDataAnalyzer {
       .select({
         state: communities.state,
         count: sql<number>`count(*)`,
-        avgPrice: sql<number>`avg(CASE WHEN ${communities.priceMin} > 0 THEN ${communities.priceMin} END)`,
-        careTypes: sql<string[]>`array_agg(DISTINCT ${communities.careType})`,
-        cities: sql<string[]>`array_agg(DISTINCT ${communities.city})`
+        avgPrice: sql<number>`avg(CASE WHEN ${communities.priceMin} > 0 THEN ${communities.priceMin} END)`
       })
       .from(communities)
       .where(sql`${communities.state} IS NOT NULL`)
@@ -133,9 +131,9 @@ export class RealDataAnalyzer {
     return stateData.map(row => ({
       state: row.state || 'Unknown',
       communityCount: row.count,
-      avgPricing: row.avgPrice,
-      careTypes: row.careTypes?.filter(Boolean) || [],
-      cities: row.cities?.filter(Boolean) || []
+      avgPricing: row.avgPrice || 0,
+      careTypes: [],
+      cities: []
     }));
   }
 
