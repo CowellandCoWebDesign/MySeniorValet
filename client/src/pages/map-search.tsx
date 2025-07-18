@@ -65,7 +65,6 @@ export default function MapSearch() {
   
   // Debug log
   console.log('Map Search Component - showBottomPanel:', showBottomPanel, 'viewMode:', viewMode);
-  console.log('Floating button should show:', viewMode === 'map' && !showBottomPanel);
   
   // Fetch communities within map bounds for list view
   const { data: mapCommunities = [], isLoading: isLoadingCommunities } = useQuery({
@@ -953,37 +952,40 @@ export default function MapSearch() {
         </div>
       </div>
 
-      {/* Enhanced Floating Action Button with Pulse Animation */}
-      {viewMode === 'map' && !showBottomPanel && (
+      {/* Enhanced Floating Action Button with Toggle Functionality */}
+      {viewMode === 'map' && (
         <div className="fixed bottom-6 right-6 z-[1000]">
-          {/* Pulse rings for attention */}
-          <div className="absolute inset-0 bg-blue-500 rounded-full animate-ping opacity-20"></div>
-          <div className="absolute inset-0 bg-purple-500 rounded-full animate-ping opacity-20" style={{animationDelay: '0.5s'}}></div>
+          {!showBottomPanel && (
+            <>
+              {/* Pulse rings for attention when panel is closed */}
+              <div className="absolute inset-0 bg-blue-500 rounded-full animate-ping opacity-20"></div>
+              <div className="absolute inset-0 bg-purple-500 rounded-full animate-ping opacity-20" style={{animationDelay: '0.5s'}}></div>
+            </>
+          )}
           
           <Button
             onClick={() => {
-              console.log('Enhanced floating button clicked! Opening list view...');
-              setShowBottomPanel(true);
-              setPanelHeight(70); // Increased to 70% for better visibility
+              console.log(`Floating button clicked! ${showBottomPanel ? 'Closing' : 'Opening'} list view...`);
+              setShowBottomPanel(!showBottomPanel);
+              if (!showBottomPanel) {
+                setPanelHeight(70); // Set to 70% when opening
+              }
             }}
-            className="relative bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 group w-14 h-14"
-            title="View Communities List"
+            className={`relative transition-all duration-300 transform hover:scale-105 group w-14 h-14 rounded-full shadow-lg hover:shadow-xl ${
+              showBottomPanel 
+                ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white' 
+                : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
+            }`}
+            title={showBottomPanel ? "Close Communities List" : "View Communities List"}
             size="lg"
           >
-            <List className="w-6 h-6" />
+            {showBottomPanel ? <X className="w-6 h-6" /> : <List className="w-6 h-6" />}
             
             {/* Tooltip */}
             <div className="absolute bottom-full right-0 mb-2 px-3 py-1 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
-              View List ▲
+              {showBottomPanel ? "Close List ▲" : "View List ▲"}
             </div>
           </Button>
-        </div>
-      )}
-      
-      {/* Force show floating button for debugging */}
-      {viewMode === 'map' && (
-        <div className="fixed bottom-20 right-6 z-[1000] bg-red-500 text-white p-2 rounded text-xs">
-          Debug: viewMode={viewMode}, showPanel={showBottomPanel.toString()}
         </div>
       )}
     </div>
