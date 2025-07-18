@@ -23,12 +23,13 @@ import {
   Globe,
   Upload,
   Eye,
-  Settings
+  Settings,
+  X
 } from "lucide-react";
 import { Link } from "wouter";
 
 export default function CommunityPortal() {
-  const [currentStep, setCurrentStep] = useState('search');
+  const [currentStep, setCurrentStep] = useState('landing');
   const [claimForm, setClaimForm] = useState({
     communityName: '',
     contactName: '',
@@ -41,6 +42,7 @@ export default function CommunityPortal() {
   });
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('');
+  const [showPricing, setShowPricing] = useState(false);
 
   const plans = [
     {
@@ -242,6 +244,116 @@ export default function CommunityPortal() {
     setIsLoggedIn(true);
     setCurrentStep('dashboard');
   };
+
+  const renderLandingPage = () => (
+    <div className="space-y-12">
+      {/* Hero Section */}
+      <div className="text-center space-y-6">
+        <div className="space-y-4">
+          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            MySeniorValet Community Portal
+          </h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Transform your community visibility, connect with families, and drive move-ins with our comprehensive platform
+          </p>
+        </div>
+        
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <Button 
+            size="lg" 
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-6 text-lg"
+            onClick={() => setCurrentStep('search')}
+          >
+            <Building className="w-5 h-5 mr-2" />
+            Claim Your Community
+          </Button>
+          <Button 
+            size="lg" 
+            variant="outline" 
+            className="px-8 py-6 text-lg"
+            onClick={() => setShowPricing(true)}
+          >
+            <CreditCard className="w-5 h-5 mr-2" />
+            View Pricing
+          </Button>
+        </div>
+      </div>
+      
+      {/* Value Proposition */}
+      <div className="grid md:grid-cols-3 gap-8">
+        <Card className="text-center p-6">
+          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Eye className="w-8 h-8 text-blue-600" />
+          </div>
+          <h3 className="text-xl font-semibold mb-2">Increase Visibility</h3>
+          <p className="text-gray-600">Stand out among 25,000+ communities with enhanced search placement and premium features</p>
+        </Card>
+        
+        <Card className="text-center p-6">
+          <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Users className="w-8 h-8 text-purple-600" />
+          </div>
+          <h3 className="text-xl font-semibold mb-2">Connect with Families</h3>
+          <p className="text-gray-600">Direct messaging, tour scheduling, and family collaboration tools to convert leads</p>
+        </Card>
+        
+        <Card className="text-center p-6">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Settings className="w-8 h-8 text-green-600" />
+          </div>
+          <h3 className="text-xl font-semibold mb-2">Streamline Operations</h3>
+          <p className="text-gray-600">Automated leasing tools, payment processing, and comprehensive reporting dashboard</p>
+        </Card>
+      </div>
+      
+      {/* Success Stats */}
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-8">
+        <h3 className="text-2xl font-bold text-center mb-8">Join Thousands of Successful Communities</h3>
+        <div className="grid md:grid-cols-4 gap-8 text-center">
+          <div>
+            <div className="text-3xl font-bold text-blue-600">25,000+</div>
+            <div className="text-gray-600">Communities Listed</div>
+          </div>
+          <div>
+            <div className="text-3xl font-bold text-purple-600">85%</div>
+            <div className="text-gray-600">Lead Conversion Rate</div>
+          </div>
+          <div>
+            <div className="text-3xl font-bold text-green-600">3.5x</div>
+            <div className="text-gray-600">More Tour Bookings</div>
+          </div>
+          <div>
+            <div className="text-3xl font-bold text-yellow-600">24/7</div>
+            <div className="text-gray-600">Family Engagement</div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Quick Pricing Preview */}
+      <div className="text-center space-y-6">
+        <h3 className="text-2xl font-bold">Simple, Transparent Pricing</h3>
+        <div className="grid md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+          {plans.map((plan, index) => (
+            <Card key={plan.id} className={`text-center p-4 ${index === 2 ? 'border-purple-500 shadow-lg' : ''}`}>
+              <h4 className="font-semibold text-lg">{plan.name}</h4>
+              <div className="text-2xl font-bold text-blue-600 my-2">{plan.price}</div>
+              <p className="text-sm text-gray-600">{plan.description}</p>
+              {index === 2 && (
+                <Badge className="mt-2 bg-purple-500">Most Popular</Badge>
+              )}
+            </Card>
+          ))}
+        </div>
+        <Button 
+          variant="outline" 
+          onClick={() => setShowPricing(true)}
+          className="px-8 py-3"
+        >
+          See All Features & Pricing
+        </Button>
+      </div>
+    </div>
+  );
 
   const renderSearchStep = () => (
     <div className="space-y-6">
@@ -612,7 +724,7 @@ export default function CommunityPortal() {
             { tier: 'Basic', goal: 'Establish searchable presence, low-friction intro to platform' },
             { tier: 'Verified', goal: 'Claim and clean up profile, use essential tools, verify trust' },
             { tier: 'Enhanced', goal: 'Actively drive move-ins, manage leasing documents, boost leads' },
-            { tier: 'Platinum', goal: 'Dominate search visibility, unlock full automation + MSV concierge help' }
+            { tier: 'Platinum', goal: 'Maximize search visibility, unlock full automation + MSV concierge help' }
           ].map((item, index) => (
             <div key={index} className="flex items-start space-x-4 bg-white p-4 rounded-lg shadow-sm">
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
@@ -755,46 +867,109 @@ export default function CommunityPortal() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="text-center">
-            <Building className="w-16 h-16 mx-auto mb-4" />
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Community Portal</h1>
-            <p className="text-xl text-blue-100">
-              Claim and manage your senior living community profile
-            </p>
+      {/* Top Navigation */}
+      <nav className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-3">
+              <Link href="/" className="flex items-center space-x-2">
+                <Building className="w-8 h-8 text-blue-600" />
+                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  MySeniorValet
+                </span>
+              </Link>
+              <span className="text-gray-300">|</span>
+              <span className="text-gray-600 font-medium">Community Portal</span>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              {currentStep !== 'landing' && (
+                <Button 
+                  variant="ghost" 
+                  onClick={() => setCurrentStep('landing')}
+                  className="text-gray-600 hover:text-blue-600"
+                >
+                  <Building className="w-4 h-4 mr-2" />
+                  Portal Home
+                </Button>
+              )}
+              
+              {!showPricing && (
+                <Button 
+                  variant="ghost" 
+                  onClick={() => setShowPricing(true)}
+                  className="text-gray-600 hover:text-blue-600"
+                >
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  Pricing
+                </Button>
+              )}
+              
+              <Button 
+                variant="outline" 
+                onClick={handleLogin}
+                className="text-blue-600 border-blue-600 hover:bg-blue-50"
+              >
+                <Shield className="w-4 h-4 mr-2" />
+                Sign In
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
+      </nav>
 
-      <div className="max-w-6xl mx-auto px-4 py-12">
-        {/* Progress Steps */}
-        <div className="mb-12">
-          <div className="flex items-center justify-center space-x-4 mb-8">
-            <div className={`flex items-center space-x-2 ${currentStep === 'search' ? 'text-blue-600' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'search' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>1</div>
-              <span>Search</span>
-            </div>
-            <div className="w-8 h-0.5 bg-gray-300" />
-            <div className={`flex items-center space-x-2 ${currentStep === 'claim' ? 'text-blue-600' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'claim' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>2</div>
-              <span>Claim</span>
-            </div>
-            <div className="w-8 h-0.5 bg-gray-300" />
-            <div className={`flex items-center space-x-2 ${currentStep === 'verification' ? 'text-blue-600' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'verification' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>3</div>
-              <span>Verify</span>
-            </div>
-            <div className="w-8 h-0.5 bg-gray-300" />
-            <div className={`flex items-center space-x-2 ${currentStep === 'plans' ? 'text-blue-600' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'plans' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>4</div>
-              <span>Plans</span>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Show Pricing Modal/Overlay */}
+        {showPricing && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold">Community Portal Pricing</h2>
+                  <Button 
+                    variant="ghost" 
+                    onClick={() => setShowPricing(false)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="w-5 h-5" />
+                  </Button>
+                </div>
+                {renderPlanSelection()}
+              </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {/* Progress Steps - only show for claim process */}
+        {currentStep !== 'landing' && !showPricing && (
+          <div className="mb-12">
+            <div className="flex items-center justify-center space-x-4 mb-8">
+              <div className={`flex items-center space-x-2 ${currentStep === 'search' ? 'text-blue-600' : 'text-gray-400'}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'search' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>1</div>
+                <span>Search</span>
+              </div>
+              <div className="w-8 h-0.5 bg-gray-300" />
+              <div className={`flex items-center space-x-2 ${currentStep === 'claim' ? 'text-blue-600' : 'text-gray-400'}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'claim' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>2</div>
+                <span>Claim</span>
+              </div>
+              <div className="w-8 h-0.5 bg-gray-300" />
+              <div className={`flex items-center space-x-2 ${currentStep === 'verification' ? 'text-blue-600' : 'text-gray-400'}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'verification' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>3</div>
+                <span>Verify</span>
+              </div>
+              <div className="w-8 h-0.5 bg-gray-300" />
+              <div className={`flex items-center space-x-2 ${currentStep === 'plans' ? 'text-blue-600' : 'text-gray-400'}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'plans' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>4</div>
+                <span>Plans</span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Dynamic Content */}
+        {currentStep === 'landing' && renderLandingPage()}
         {currentStep === 'search' && renderSearchStep()}
         {currentStep === 'claim' && renderClaimStep()}
         {currentStep === 'verification' && renderVerificationStep()}
@@ -802,35 +977,37 @@ export default function CommunityPortal() {
         {currentStep === 'dashboard' && renderDashboard()}
 
         {/* Support Section */}
-        <Card className="mt-12">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Phone className="w-5 h-5" />
-              <span>Need Help?</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <h4 className="font-semibold mb-2">Community Support</h4>
-                <p className="text-sm text-gray-600 mb-2">Get help with claiming or managing your community profile</p>
-                <div className="space-y-1">
-                  <p className="text-sm">📧 communities@myseniorvalet.com</p>
-                  <p className="text-sm">📞 (555) 123-4567</p>
+        {currentStep === 'landing' && (
+          <Card className="mt-12">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Phone className="w-5 h-5" />
+                <span>Need Help?</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-semibold mb-2">Community Support</h4>
+                  <p className="text-sm text-gray-600 mb-2">Get help with claiming or managing your community profile</p>
+                  <div className="space-y-1">
+                    <p className="text-sm">📧 communities@myseniorvalet.com</p>
+                    <p className="text-sm">📞 (555) 123-4567</p>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-2">Technical Support</h4>
+                  <p className="text-sm text-gray-600 mb-2">Having trouble with the portal? We're here to help</p>
+                  <Link href="/help">
+                    <Button variant="outline" size="sm">
+                      Visit Help Center
+                    </Button>
+                  </Link>
                 </div>
               </div>
-              <div>
-                <h4 className="font-semibold mb-2">Technical Support</h4>
-                <p className="text-sm text-gray-600 mb-2">Having trouble with the portal? We're here to help</p>
-                <Link href="/help">
-                  <Button variant="outline" size="sm">
-                    Visit Help Center
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
