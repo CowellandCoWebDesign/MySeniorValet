@@ -9,6 +9,7 @@ import { Link, useLocation } from "wouter";
 import SlidePanel from "@/components/SlidePanel";
 import BottomNavigation from "@/components/BottomNavigation";
 import { TransparencyBadgeList } from "@/components/TransparencyBadge";
+import { SearchingMascot } from "@/components/mascot";
 // Map imports removed - ready for fresh implementation
 
 // Care type icons and colors mapping
@@ -386,12 +387,19 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white pb-16 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="text-gray-600 mt-4">Loading communities...</p>
+      <>
+        <SearchingMascot
+          isLoading={isLoading}
+          searchLocation={searchLocation}
+          searchType="communities"
+        />
+        <div className="min-h-screen bg-white pb-16 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="text-gray-600 mt-4">Loading communities...</p>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 

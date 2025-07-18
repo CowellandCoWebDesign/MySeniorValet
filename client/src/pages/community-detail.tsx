@@ -15,6 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { MapIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { LoadingMascot } from "@/components/mascot";
 import { 
   getAmenitiesByCategory, 
   getCareServicesByCategory, 
@@ -195,7 +196,15 @@ export default function CommunityDetail() {
     return <div className="flex justify-center items-center h-64">Invalid community ID</div>;
   }
 
-  if (isLoading) return <div className="flex justify-center items-center h-64">Loading...</div>;
+  if (isLoading) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <LoadingMascot 
+        message="Loading community details..." 
+        variant="loading"
+        size="lg"
+      />
+    </div>
+  );
   if (error) return <div className="text-red-500">Error loading community</div>;
   if (!community) return <div>Community not found</div>;
 

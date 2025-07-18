@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Shield, FolderSync, MapPin, Database, Tag, Map, Check, Star, DollarSign, Clock, Users, Wifi, Car, Activity, MapIcon } from "lucide-react";
 import { Link } from "wouter";
+import { GreetingMascot } from "@/components/mascot";
 
 export default function Home() {
   return (
@@ -279,6 +280,15 @@ export default function Home() {
       </section>
 
       <Footer />
+      
+      {/* Greeting Mascot */}
+      <GreetingMascot
+        autoShow={true}
+        onDismiss={() => {
+          // Store in localStorage to prevent showing again
+          localStorage.setItem('greeting-mascot-dismissed', 'true');
+        }}
+      />
       </div>
     </div>
   );
