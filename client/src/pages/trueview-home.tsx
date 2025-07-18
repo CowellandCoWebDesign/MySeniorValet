@@ -39,8 +39,8 @@ export default function TrueViewHome() {
   const { data: trendingCommunities, isLoading: trendingLoading } = useQuery({
     queryKey: ["/api/communities/trending"],
     retry: false,
-    staleTime: 0, // No cache - always fresh data
-    refetchInterval: 30000, // Refresh every 30 seconds
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    refetchInterval: 5 * 60 * 1000, // Refresh every 5 minutes
   });
 
   // Location-specific queries for horizontal sections
