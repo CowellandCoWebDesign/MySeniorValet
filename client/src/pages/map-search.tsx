@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info } from 'lucide-react';
+import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { Separator } from '@/components/ui/separator';
 import Map from '@/components/Map';
+import MapTutorial from '@/components/MapTutorial';
 import { useQuery } from '@tanstack/react-query';
 
 interface Community {
@@ -62,6 +63,34 @@ export default function MapSearch() {
   const [mapBounds, setMapBounds] = useState<any>(null);
   const [showBottomPanel, setShowBottomPanel] = useState(false);
   const [panelHeight, setPanelHeight] = useState(70); // Percentage of screen height - increased for better visibility
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [hasSeenTutorial, setHasSeenTutorial] = useState(false);
+
+  // Check if user has seen tutorial before (localStorage)
+  useEffect(() => {
+    const hasSeenTutorialBefore = localStorage.getItem('map-tutorial-completed');
+    setHasSeenTutorial(!!hasSeenTutorialBefore);
+  }, []);
+
+  // Auto-show tutorial for first-time users
+  useEffect(() => {
+    if (!hasSeenTutorial && viewMode === 'map') {
+      const timer = setTimeout(() => {
+        setShowTutorial(true);
+      }, 2000); // Show tutorial after 2 seconds for first-time users
+      return () => clearTimeout(timer);
+    }
+  }, [hasSeenTutorial, viewMode]);
+
+  const handleTutorialComplete = () => {
+    localStorage.setItem('map-tutorial-completed', 'true');
+    setHasSeenTutorial(true);
+    setShowTutorial(false);
+  };
+
+  const handleStartTutorial = () => {
+    setShowTutorial(true);
+  };
   
   // Debug log
   console.log('Map Search Component - showBottomPanel:', showBottomPanel, 'viewMode:', viewMode);
@@ -231,6 +260,19 @@ export default function MapSearch() {
             </div>
             
             <div className="flex items-center gap-2">
+              {/* Tutorial Help Button - Only show in map mode */}
+              {viewMode === 'map' && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleStartTutorial}
+                  className={`${isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:text-white'}`}
+                  title="Map Navigation Tutorial"
+                >
+                  <HelpCircle className="w-4 h-4" />
+                </Button>
+              )}
+              
               {/* Dark Mode Toggle */}
               <Button
                 variant="ghost"
@@ -1066,6 +1108,13 @@ export default function MapSearch() {
           </Button>
         </div>
       )}
+
+      {/* Map Navigation Tutorial */}
+      <MapTutorial
+        isVisible={showTutorial}
+        onClose={() => setShowTutorial(false)}
+        onComplete={handleTutorialComplete}
+      />
     </div>
   );
 }
