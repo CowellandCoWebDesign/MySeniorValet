@@ -60,15 +60,17 @@ class SuperclusterService {
   private index: Supercluster;
   private isInitialized = false;
   private lastInitTime = 0;
-  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+  private readonly CACHE_DURATION = 30 * 60 * 1000; // 30 minutes - longer cache for better performance
+  private featuresCache: GeoJSONFeature[] | null = null;
+  private initializationPromise: Promise<void> | null = null;
 
   constructor() {
     this.index = new Supercluster({
-      radius: 60,        // pixel radius to group points
-      maxZoom: 16,       // max zoom to cluster before showing individual markers
-      minZoom: 1,        // min zoom level
-      minPoints: 2,      // minimum points to form a cluster
-      generateId: true,  // generate unique IDs for clusters
+      radius: 80,        // Increased radius for better clustering
+      maxZoom: 14,       // Lower max zoom for better performance
+      minZoom: 1,        
+      minPoints: 3,      // Require more points for clusters
+      generateId: true,  
     });
   }
 
@@ -80,11 +82,30 @@ class SuperclusterService {
       return;
     }
 
+    // Return existing promise if initialization is in progress
+    if (this.initializationPromise) {
+      return this.initializationPromise;
+    }
+
+    this.initializationPromise = this.performInitialization();
+    return this.initializationPromise;
+  }
+
+  private async performInitialization(): Promise<void> {
     console.log('Initializing Supercluster with community data...');
     
     try {
-      // Get all communities from database
-      const communities = await storage.getAllCommunities();
+      // Use cached features if available
+      if (this.featuresCache) {
+        this.index.load(this.featuresCache);
+        this.isInitialized = true;
+        this.lastInitTime = Date.now();
+        console.log(`Supercluster initialized with ${this.featuresCache.length} cached communities`);
+        return;
+      }
+
+      // Get all communities from database with optimized query
+      const communities = await storage.getAllCommunitiesForClustering();
       
       // Convert communities to GeoJSON features
       const features: GeoJSONFeature[] = communities
@@ -93,7 +114,7 @@ class SuperclusterService {
           type: 'Feature',
           geometry: {
             type: 'Point',
-            coordinates: [community.longitude, community.latitude]
+            coordinates: [parseFloat(community.longitude), parseFloat(community.latitude)]
           },
           properties: {
             id: community.id,
@@ -114,16 +135,22 @@ class SuperclusterService {
           }
         }));
 
+      // Cache features for future use
+      this.featuresCache = features;
+      
       // Load features into Supercluster
       this.index.load(features);
       
       this.isInitialized = true;
-      this.lastInitTime = now;
+      this.lastInitTime = Date.now();
       
       console.log(`Supercluster initialized with ${features.length} communities`);
     } catch (error) {
       console.error('Failed to initialize Supercluster:', error);
+      this.initializationPromise = null;
       throw error;
+    } finally {
+      this.initializationPromise = null;
     }
   }
 
@@ -198,6 +225,8 @@ class SuperclusterService {
   async refresh(): Promise<void> {
     this.isInitialized = false;
     this.lastInitTime = 0;
+    this.featuresCache = null;
+    this.initializationPromise = null;
     await this.initialize();
   }
 }

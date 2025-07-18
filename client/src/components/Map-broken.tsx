@@ -103,11 +103,19 @@ function MapBoundsHandler({
     if (map && !initialized) {
       // Set up event handlers for map movement
       map.on('moveend', handleBoundsChange);
-      map.on('zoomend', handleZoomChange);
+      map.on('zoomend', () => {
+        handleBoundsChange();
+        handleZoomChange();
+      });
+      map.on('dragend', handleBoundsChange);
       
-      // Initial bounds and zoom
-      handleBoundsChange();
-      handleZoomChange();
+      // Initial bounds when map is ready
+      map.whenReady(() => {
+        setTimeout(() => {
+          handleBoundsChange();
+          handleZoomChange();
+        }, 100);
+      });
       
       setInitialized(true);
     }
@@ -115,10 +123,11 @@ function MapBoundsHandler({
     return () => {
       if (map) {
         map.off('moveend', handleBoundsChange);
-        map.off('zoomend', handleZoomChange);
+        map.off('zoomend', handleBoundsChange);
+        map.off('dragend', handleBoundsChange);
       }
     };
-  }, [map, initialized, handleBoundsChange, handleZoomChange]);
+  }, [map, handleBoundsChange, handleZoomChange, initialized]);
   
   return null;
 }
@@ -126,25 +135,22 @@ function MapBoundsHandler({
 export default function Map({ 
   searchFilters = {}, 
   onCommunityClick, 
-  onBoundsChange, 
+  onBoundsChange,
   onClusterClick,
-  height = '600px',
-  center = [39.8283, -98.5795], // Geographic center of US
-  zoom = 4
+  height = "500px",
+  center = [37.0, -119.0], // Default to California center
+  zoom = 6
 }: MapProps) {
   const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
-  const [favorites, setFavorites] = useState<Set<number>>(new Set());
-
-  // Handle map bounds change
+  
   const handleBoundsChange = useCallback((bounds: LatLngBounds) => {
     setMapBounds(bounds);
     onBoundsChange?.(bounds);
   }, [onBoundsChange]);
 
-  // Handle zoom change
-  const handleZoomChange = useCallback((zoomLevel: number) => {
-    setCurrentZoom(zoomLevel);
+  const handleZoomChange = useCallback((zoom: number) => {
+    setCurrentZoom(zoom);
   }, []);
 
   // Track current zoom level for supercluster
@@ -190,6 +196,8 @@ export default function Map({
     staleTime: 30000, // 30 second cache time for better performance
     gcTime: 60000, // 1 minute garbage collection time
     refetchOnWindowFocus: false // Don't refetch when window regains focus
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
+    gcTime: 10000, // Garbage collect after 10 seconds
   });
 
   const getIconForCommunity = (community: Community) => {
@@ -250,33 +258,50 @@ export default function Map({
               `)}`,
               iconSize: [40, 40],
               iconAnchor: [20, 20],
-              popupAnchor: [0, -20],
             });
-
+            
             return (
               <Marker
                 key={`cluster-${properties.cluster_id}`}
                 position={[lat, lng]}
                 icon={clusterIcon}
                 eventHandlers={{
-                  click: () => {
-                    console.log('Cluster clicked:', properties.cluster_id);
-                    onClusterClick?.(properties.cluster_id, lat, lng, currentZoom + 2);
-                  }
+                  click: async () => {
+                    // Call cluster click callback with current zoom level
+                    if (onClusterClick) {
+                      onClusterClick(properties.cluster_id, lat, lng, currentZoom);
+                    }
+                    
+                    // Get cluster expansion zoom to zoom into cluster
+                    try {
+                      const response = await fetch(`/api/communities/clusters/${properties.cluster_id}/expansion-zoom`);
+                      const data = await response.json();
+                      const map = (document.querySelector('.leaflet-container') as any)?._leaflet_map;
+                      if (map) {
+                        map.setView([lat, lng], data.expansionZoom);
+                      }
+                    } catch (error) {
+                      console.error('Error expanding cluster:', error);
+                    }
+                  },
                 }}
               >
                 <Popup>
-                  <div className="p-2 text-center">
-                    <h4 className="font-bold">{properties.point_count} Communities</h4>
-                    <p className="text-sm text-gray-600">Click to explore</p>
+                  <div className="text-center">
+                    <div className="font-semibold text-lg text-blue-900">
+                      {properties.point_count} Communities
+                    </div>
+                    <div className="text-sm text-gray-600 mt-1">
+                      Click to zoom in and see individual communities
+                    </div>
                   </div>
                 </Popup>
               </Marker>
             );
           }
-
+          
           // Handle individual community markers
-          const community: Community = {
+          const community = {
             id: properties.id,
             name: properties.name,
             address: properties.address,
@@ -288,167 +313,136 @@ export default function Map({
             careTypes: properties.careTypes || [],
             rating: properties.rating || 0,
             reviewCount: properties.reviewCount || 0,
-            phone: properties.phone || '',
-            website: properties.website || '',
-            priceRange: properties.priceRange || 'Contact for pricing',
-            availability: properties.availability || 'Contact for availability',
+            phone: properties.phone,
+            website: properties.website,
+            priceRange: properties.priceRange,
+            availability: properties.availability,
             photos: properties.photos || [],
-            description: properties.description || ''
+            description: properties.description || '',
           };
-
+          
           return (
             <Marker
               key={`community-${properties.id}`}
               position={[lat, lng]}
               icon={getIconForCommunity(community)}
               eventHandlers={{
-                click: () => handleCommunityClick(community)
+                click: () => handleCommunityClick(community),
               }}
             >
-              <Popup>
-                <div className="w-80 p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-bold text-lg leading-tight">{community.name}</h3>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => {
-                        const newFavorites = new Set(favorites);
-                        if (favorites.has(community.id)) {
-                          newFavorites.delete(community.id);
-                        } else {
-                          newFavorites.add(community.id);
-                        }
-                        setFavorites(newFavorites);
-                      }}
-                    >
-                      <Heart className={`w-4 h-4 ${favorites.has(community.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} />
-                    </Button>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <MapPin className="w-4 h-4" />
-                      <span>{community.address}, {community.city}, {community.state}</span>
-                    </div>
-                    
-                    {community.phone && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Phone className="w-4 h-4" />
-                        <span>{community.phone}</span>
+              <Popup maxWidth={400} className="custom-popup">
+                <Card className="border-0 shadow-none">
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      {/* Header */}
+                      <div>
+                        <h3 className="font-semibold text-lg leading-tight">
+                          {community.name}
+                        </h3>
+                        <p className="text-sm text-gray-600 flex items-center gap-1">
+                          <MapPin className="w-4 h-4" />
+                          {community.address}, {community.city}, {community.state} {community.zipCode}
+                        </p>
                       </div>
-                    )}
-                    
-                    {community.website && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Globe className="w-4 h-4" />
-                        <a href={community.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                          Visit Website
-                        </a>
+                      
+                      {/* Rating */}
+                      {community.rating > 0 && (
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1">
+                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                            <span className="font-medium">{community.rating}</span>
+                          </div>
+                          <span className="text-sm text-gray-600">
+                            ({community.reviewCount} reviews)
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* Care Types */}
+                      <div className="flex flex-wrap gap-1">
+                        {community.careTypes?.map((type, index) => (
+                          <Badge key={index} variant="secondary" className="text-xs">
+                            {type}
+                          </Badge>
+                        ))}
                       </div>
-                    )}
-                    
-                    <div className="flex items-center gap-2">
-                      <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                      <span className="text-sm">{community.rating} ({community.reviewCount} reviews)</span>
+                      
+                      {/* Pricing */}
+                      <div className="bg-blue-50 p-2 rounded">
+                        <p className="text-sm font-medium text-blue-900">
+                          {formatPrice(community.priceRange)}
+                        </p>
+                        {community.availability && (
+                          <p className="text-xs text-blue-700">
+                            {community.availability}
+                          </p>
+                        )}
+                      </div>
+                      
+                      {/* Actions */}
+                      <div className="flex gap-2 pt-2">
+                        <Button 
+                          size="sm" 
+                          className="flex-1"
+                          onClick={() => handleCommunityClick(community)}
+                        >
+                          <ExternalLink className="w-4 h-4 mr-1" />
+                          View Details
+                        </Button>
+                        
+                        {community.phone && (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => window.open(`tel:${community.phone}`)}
+                          >
+                            <Phone className="w-4 h-4" />
+                          </Button>
+                        )}
+                        
+                        {community.website && (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => window.open(community.website, '_blank')}
+                          >
+                            <Globe className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
-                    
-                    <div className="flex flex-wrap gap-1">
-                      {community.careTypes.map((type) => (
-                        <Badge key={type} variant="secondary" className="text-xs">
-                          {type}
-                        </Badge>
-                      ))}
-                    </div>
-                    
-                    <div className="pt-2 border-t">
-                      <p className="text-sm font-medium text-green-600">
-                        {formatPrice(community.priceRange)}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {community.availability}
-                      </p>
-                    </div>
-                    
-                    <Button 
-                      className="w-full mt-2" 
-                      size="sm"
-                      onClick={() => handleCommunityClick(community)}
-                    >
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      View Details
-                    </Button>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               </Popup>
             </Marker>
           );
         })}
-        
-        </MapContainer>
-        
-        {/* Loading overlay */}
-        {isLoading && (
-          <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-lg">
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-sm font-medium">Loading communities...</span>
-            </div>
-          </div>
-        )}
-        
-        {/* Error overlay */}
-        {error && (
-          <div className="absolute inset-0 bg-red-50/90 flex items-center justify-center rounded-lg">
-            <div className="text-center">
-              <p className="text-red-600 font-medium">Failed to load communities</p>
-              <p className="text-sm text-red-500 mt-1">Please try again later</p>
-            </div>
-          </div>
-        )}
-      </div>
+      </MapContainer>
       
-      {/* Map Legend */}
-      <div className="w-64 bg-white border-l border-gray-200 p-4 overflow-y-auto">
-        <h3 className="font-bold mb-4">Map Legend</h3>
-        
-        <div className="space-y-3">
+      {/* Loading/Error States */}
+      {isLoading && (
+        <div className="absolute top-4 left-4 bg-white p-2 rounded shadow-lg">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
-              #
-            </div>
-            <span className="text-sm">Cluster (Multiple Communities)</span>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-blue-600 rounded-full"></div>
-            <span className="text-sm">General Community</span>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-green-600 rounded-full"></div>
-            <span className="text-sm">Assisted Living</span>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-red-600 rounded-full"></div>
-            <span className="text-sm">Memory Care</span>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-purple-600 rounded-full"></div>
-            <span className="text-sm">Independent Living</span>
+            <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <span className="text-sm">Loading communities...</span>
           </div>
         </div>
-        
-        <div className="mt-6 pt-4 border-t">
-          <p className="text-xs text-gray-500 mb-2">
-            Showing {clusterData?.features?.length || 0} items
-          </p>
-          <p className="text-xs text-gray-500">
-            Zoom in to see individual communities
-          </p>
+      )}
+      
+      {error && (
+        <div className="absolute top-4 left-4 bg-red-50 text-red-700 p-2 rounded shadow-lg">
+          <span className="text-sm">Error loading communities</span>
         </div>
+      )}
+      
+      {/* Community Count */}
+      {!isLoading && clusterData?.features && clusterData.features.length > 0 && (
+        <div className="absolute bottom-4 left-4 bg-white p-2 rounded shadow-lg">
+          <span className="text-sm font-medium">
+            {clusterData.features.length} clusters/communities found
+          </span>
+        </div>
+      )}
       </div>
     </div>
   );

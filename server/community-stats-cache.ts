@@ -16,7 +16,7 @@ interface CommunityStats {
 
 class CommunityStatsCache {
   private stats: CommunityStats | null = null;
-  private cacheExpiry = 24 * 60 * 60 * 1000; // 24 hours
+  private cacheExpiry = 12 * 60 * 60 * 1000; // 12 hours for better performance
 
   /**
    * Get cached community statistics

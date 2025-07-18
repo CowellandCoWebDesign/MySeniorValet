@@ -31,6 +31,7 @@ export interface IStorage {
   // Community methods
   getCommunity(id: number): Promise<Community | undefined>;
   getAllCommunities(): Promise<Community[]>;
+  getAllCommunitiesForClustering(): Promise<Community[]>;
   getTrendingCommunities(limit?: number): Promise<Community[]>;
   searchCommunities(params: SearchCommunity): Promise<Community[]>;
   createCommunity(community: InsertCommunity): Promise<Community>;
@@ -561,6 +562,41 @@ export class DatabaseStorage implements IStorage {
 
   async getAllCommunities(): Promise<Community[]> {
     return await db.select().from(communities);
+  }
+
+  async getAllCommunitiesForClustering(): Promise<Community[]> {
+    // Optimized query for clustering - only fetch essential fields
+    const result = await db.select({
+      id: communities.id,
+      name: communities.name,
+      address: communities.address,
+      city: communities.city,
+      state: communities.state,
+      zipCode: communities.zipCode,
+      phone: communities.phone,
+      website: communities.website,
+      latitude: communities.latitude,
+      longitude: communities.longitude,
+      careTypes: communities.careTypes,
+      priceRange: communities.priceRange,
+      availabilityStatus: communities.availabilityStatus,
+      rating: communities.rating,
+      reviewCount: communities.reviewCount,
+      photos: communities.photos,
+      description: communities.description
+    }).from(communities).where(sql`${communities.latitude} IS NOT NULL AND ${communities.longitude} IS NOT NULL`);
+    
+    return result.map(row => ({
+      ...row,
+      // Ensure numeric fields are properly typed
+      rating: row.rating || 0,
+      reviewCount: row.reviewCount || 0,
+      careTypes: row.careTypes || [],
+      photos: row.photos || [],
+      priceRange: row.priceRange || { min: 0, max: 0 },
+      availabilityStatus: row.availabilityStatus || 'Contact for Availability',
+      description: row.description || ''
+    })) as Community[];
   }
 
   async getTrendingCommunities(limit: number = 8): Promise<Community[]> {
