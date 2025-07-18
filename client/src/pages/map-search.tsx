@@ -820,17 +820,21 @@ export default function MapSearch() {
         )}
       </div>
 
-      {/* Yelp-style Bottom Slide Panel */}
+      {/* Enhanced Bottom Slide Panel - Fixed visibility */}
       <div 
-        className={`fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 shadow-2xl rounded-t-2xl transition-all duration-500 ease-out z-[55] ${
+        className={`fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 shadow-2xl rounded-t-2xl transition-all duration-500 ease-out z-[998] border-t-4 border-blue-500 ${
           showBottomPanel ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
         }`}
-        style={{ height: `${panelHeight}vh` }}
+        style={{ 
+          height: showBottomPanel ? `${panelHeight}vh` : '0vh',
+          minHeight: showBottomPanel ? '300px' : '0px',
+          maxHeight: '80vh'
+        }}
       >
-        {/* Panel Handle */}
-        <div className="flex justify-center pt-3 pb-2">
+        {/* Panel Handle - Enhanced visibility */}
+        <div className="flex justify-center pt-3 pb-2 bg-blue-50 dark:bg-blue-900/30">
           <div 
-            className="w-12 h-1 bg-gray-300 rounded-full cursor-grab active:cursor-grabbing"
+            className="w-16 h-2 bg-blue-400 rounded-full cursor-grab active:cursor-grabbing shadow-sm"
             onMouseDown={(e) => {
               // Add drag functionality for resizing panel
               const startY = e.clientY;
@@ -853,13 +857,13 @@ export default function MapSearch() {
           />
         </div>
 
-        {/* Panel Header */}
-        <div className="px-4 pb-3 border-b border-gray-200 dark:border-gray-700">
+        {/* Panel Header - Enhanced visibility */}
+        <div className="px-4 pb-3 border-b-2 border-blue-200 dark:border-blue-700 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              {!mapBounds ? 'Position map to see communities' : 
+            <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100">
+              🏠 {!mapBounds ? 'Position map to see communities' : 
                isLoadingCommunities ? 'Loading communities...' : 
-               `${mapCommunities.length} communities in this area`}
+               `${mapCommunities.length} Communities Found`}
             </h3>
             <Button
               variant="ghost"
