@@ -126,15 +126,15 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <ThemeProvider>
+      <ThemeProvider defaultTheme="light" storageKey="myseniorvalet-ui-theme">
+        <TooltipProvider>
           <MascotProvider>
             <Toaster />
             <Router />
             <DisclaimerBanner />
           </MascotProvider>
-        </ThemeProvider>
-      </TooltipProvider>
+        </TooltipProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

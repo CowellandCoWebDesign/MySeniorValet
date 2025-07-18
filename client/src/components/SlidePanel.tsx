@@ -151,11 +151,11 @@ export default function SlidePanel({
       return (
         <div
           style={style}
-          className="animate-pulse bg-white rounded-xl p-4 border border-gray-200 space-y-4"
+          className="animate-pulse bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 space-y-4"
         >
-          <div className="bg-gray-200 h-36 w-full rounded-md"></div>
-          <div className="h-4 bg-gray-300 w-3/4 rounded"></div>
-          <div className="h-3 bg-gray-200 w-1/2 rounded"></div>
+          <div className="bg-gray-200 dark:bg-gray-600 h-36 w-full rounded-md"></div>
+          <div className="h-4 bg-gray-300 dark:bg-gray-600 w-3/4 rounded"></div>
+          <div className="h-3 bg-gray-200 dark:bg-gray-600 w-1/2 rounded"></div>
         </div>
       );
     }
@@ -168,9 +168,9 @@ export default function SlidePanel({
         onClick={() =>
           (window.location.href = `/community/${c.id}`)
         }
-        className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md hover:scale-[1.01] transition-transform duration-200 ease-in-out cursor-pointer mb-2 overflow-hidden"
+        className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-md hover:scale-[1.01] transition-transform duration-200 ease-in-out cursor-pointer mb-2 overflow-hidden"
       >
-        <div className="relative w-full h-40 bg-gray-100 overflow-hidden">
+        <div className="relative w-full h-40 bg-gray-100 dark:bg-gray-700 overflow-hidden">
           {c.photos?.[0] ? (
             <img
               src={c.photos[0]}
@@ -179,15 +179,15 @@ export default function SlidePanel({
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-              <div className="w-12 h-12 text-gray-400">🏠</div>
+            <div className="w-full h-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
+              <div className="w-12 h-12 text-gray-400 dark:text-gray-300">🏠</div>
             </div>
           )}
           
           {/* Heart Icon */}
           <div className="absolute top-2 right-2">
-            <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
-              <Heart className="w-4 h-4 text-gray-600" />
+            <div className="w-8 h-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full flex items-center justify-center">
+              <Heart className="w-4 h-4 text-gray-600 dark:text-gray-300" />
             </div>
           </div>
           
@@ -219,10 +219,10 @@ export default function SlidePanel({
         </div>
         
         <div className="p-3">
-          <h4 className="font-semibold text-gray-900 text-sm truncate mb-1">
+          <h4 className="font-semibold text-gray-900 dark:text-white text-sm truncate mb-1">
             {c.name}
           </h4>
-          <p className="text-xs text-gray-600 truncate mb-2">
+          <p className="text-xs text-gray-600 dark:text-gray-400 truncate mb-2">
             {c.address || 'Community Address'}, {c.city}, {c.state} {c.zipCode}
           </p>
           
@@ -257,7 +257,7 @@ export default function SlidePanel({
           
           {/* Enhanced Features Row */}
           <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center text-gray-500">
+            <div className="flex items-center text-gray-500 dark:text-gray-400">
               <span>License #{20000 + c.id}</span>
             </div>
             {index % 4 === 0 && (
@@ -278,7 +278,7 @@ export default function SlidePanel({
             {index % 4 === 3 && c.googleRating && (
               <div className="flex items-center">
                 <Star className="w-3 h-3 mr-1 text-yellow-500" />
-                <span className="text-yellow-700 font-medium">{c.googleRating}</span>
+                <span className="text-yellow-700 dark:text-yellow-400 font-medium">{c.googleRating}</span>
               </div>
             )}
           </div>
@@ -294,14 +294,14 @@ export default function SlidePanel({
 
   return (
     <div
-      className={`fixed left-0 right-0 bottom-16 bg-white z-40 rounded-t-2xl border-t border-gray-200 shadow-2xl overflow-hidden ${isDragging ? 'transition-none' : 'transition-all duration-200'}`}
+      className={`fixed left-0 right-0 bottom-16 bg-white dark:bg-gray-800 z-40 rounded-t-2xl border-t border-gray-200 dark:border-gray-700 shadow-2xl overflow-hidden ${isDragging ? 'transition-none' : 'transition-all duration-200'}`}
       style={{ height: panelHeight }}
     >
       <div className="flex flex-col h-full">
         {/* Drag Handle - Expanded touch area */}
         <div
           ref={dragRef}
-          className="cursor-grab active:cursor-grabbing select-none bg-white rounded-t-2xl px-4 py-4"
+          className="cursor-grab active:cursor-grabbing select-none bg-white dark:bg-gray-800 rounded-t-2xl px-4 py-4"
           onMouseDown={handleDragStart}
           onTouchStart={handleDragStart}
           style={{ touchAction: "none" }}
@@ -309,13 +309,13 @@ export default function SlidePanel({
           <div className="flex justify-center items-center">
             <div className={`w-12 h-1.5 rounded-full ${isDragging ? 'bg-blue-500' : 'bg-gray-400'}`}></div>
           </div>
-          <div className="text-center mt-1 text-xs text-gray-500">
+          <div className="text-center mt-1 text-xs text-gray-500 dark:text-gray-400">
             Drag to resize
           </div>
         </div>
 
         {/* Sticky Sort Bar */}
-        <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-2">
+        <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2">
           <div className="flex flex-wrap gap-2 text-xs">
               <button
                 onClick={() => setSortBy("priceAsc")}
@@ -369,7 +369,7 @@ export default function SlidePanel({
               </button>
           </div>
           <div 
-            className="mt-2 text-sm font-semibold text-gray-900 cursor-grab active:cursor-grabbing select-none py-1"
+            className="mt-2 text-sm font-semibold text-gray-900 dark:text-white cursor-grab active:cursor-grabbing select-none py-1"
             onMouseDown={handleDragStart}
             onTouchStart={handleDragStart}
             style={{ touchAction: "none" }}

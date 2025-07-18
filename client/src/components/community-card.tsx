@@ -176,7 +176,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
 
   return (
     <Card 
-      className="overflow-hidden hover:shadow-xl transition-all duration-500 border-l-4 border-l-blue-500 cursor-pointer group transform hover:scale-[1.02] hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4 duration-700"
+      className="overflow-hidden hover:shadow-xl transition-all duration-500 border-l-4 border-l-blue-500 cursor-pointer group transform hover:scale-[1.02] hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4 duration-700 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
       onClick={handleCardClick}
     >
         {/* ENHANCED PHOTO CAROUSEL */}
@@ -197,7 +197,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
                   // TODO: Implement favorite toggle functionality
                   console.log('Toggle favorite for community:', community.id);
                 }}
-                className="p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white/90 transition-all duration-300 group shadow-lg transform hover:scale-110 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0"
+                className="p-2 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-white/90 dark:hover:bg-gray-700/90 transition-all duration-300 group shadow-lg transform hover:scale-110 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0"
                 aria-label="Add to favorites"
               >
                 <Heart className="h-5 w-5 text-red-500/70 hover:text-red-500 hover:fill-red-500/20 transition-all duration-300" />
@@ -209,7 +209,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
                   e.stopPropagation();
                   handleShare();
                 }}
-                className="p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white/90 transition-all duration-300 group shadow-lg transform hover:scale-110 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 delay-75"
+                className="p-2 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-white/90 dark:hover:bg-gray-700/90 transition-all duration-300 group shadow-lg transform hover:scale-110 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 delay-75"
                 aria-label="Share community"
               >
                 <Share className="h-5 w-5 text-blue-500/70 hover:text-blue-500 transition-all duration-300" />
@@ -244,7 +244,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
           </div>
         </div>
       ) : (
-        <div className="relative h-48 bg-gray-100 flex items-center justify-center">
+        <div className="relative h-48 bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
           <div className="text-center text-gray-500">
             <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
             <p className="text-sm">Photos coming soon</p>
@@ -288,8 +288,8 @@ export function CommunityCard({ community }: CommunityCardProps) {
         {/* Header: Name, Rating & Location */}
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
-            <h3 className="text-2xl font-bold text-gray-900 mb-2 hover:text-blue-600 transition-colors duration-300">{community.name}</h3>
-            <div className="flex items-center text-gray-600 text-sm mb-3 hover:text-gray-800 transition-colors duration-200">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 hover:text-blue-600 transition-colors duration-300">{community.name}</h3>
+            <div className="flex items-center text-gray-600 dark:text-gray-400 text-sm mb-3 hover:text-gray-800 dark:text-gray-200 transition-colors duration-200">
               <MapPin className="h-4 w-4 mr-1 hover:text-blue-500 transition-colors duration-200" />
               {community.address}, {community.city}, {community.state}
             </div>
@@ -300,9 +300,9 @@ export function CommunityCard({ community }: CommunityCardProps) {
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-center min-w-[100px] hover:bg-yellow-100 transform hover:scale-105 transition-all duration-300 animate-in fade-in slide-in-from-right-4 duration-500 delay-300">
               <div className="flex items-center justify-center space-x-1 mb-1">
                 <Star className="h-5 w-5 text-yellow-500 fill-current hover:text-yellow-600 transition-colors duration-200" />
-                <span className="text-xl font-bold text-gray-900">{parseFloat(community.googleRating).toFixed(1)}</span>
+                <span className="text-xl font-bold text-gray-900 dark:text-white">{parseFloat(community.googleRating).toFixed(1)}</span>
               </div>
-              <div className="text-xs text-gray-600">{community.googleReviewCount} reviews</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">{community.googleReviewCount} reviews</div>
               <div className="flex justify-center mt-1">
                 {[...Array(5)].map((_, i) => (
                   <Star 
@@ -708,10 +708,10 @@ export function CommunityCard({ community }: CommunityCardProps) {
         </div>
 
         {/* UNIT TYPES & AVAILABILITY SECTION */}
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
+        <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 rounded-lg p-4 mb-4">
           <div className="flex items-center space-x-2 mb-3">
             <Home className="h-5 w-5 text-blue-600" />
-            <span className="font-bold text-gray-900 text-lg">Unit Types & Availability</span>
+            <span className="font-bold text-gray-900 dark:text-white text-lg">Unit Types & Availability</span>
           </div>
           
           {community.unitTypes && community.unitTypes.length > 0 ? (
@@ -739,7 +739,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
                         </Badge>
                       ))}
                       {unitType.features.length > 3 && (
-                        <Badge variant="secondary" className="bg-gray-100 text-gray-600 text-xs">
+                        <Badge variant="secondary" className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs">
                           +{unitType.features.length - 3} more
                         </Badge>
                       )}
@@ -759,8 +759,8 @@ export function CommunityCard({ community }: CommunityCardProps) {
           ) : (
             <div className="bg-white border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
               <Home className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <h4 className="font-semibold text-gray-900 mb-1">Unit Types Information</h4>
-              <p className="text-sm text-gray-600 mb-3">
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Unit Types Information</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                 We're gathering verified unit type details for this community.
               </p>
               <div className="bg-yellow-50 border border-yellow-200 rounded p-2">
@@ -805,10 +805,10 @@ export function CommunityCard({ community }: CommunityCardProps) {
 
         {/* REVIEW SNIPPETS - Prominent Section */}
         {reviewSnippets.length > 0 && (
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
+          <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 rounded-lg p-4 mb-4">
             <div className="flex items-center space-x-2 mb-4">
               <Star className="h-5 w-5 text-yellow-500 fill-current" />
-              <span className="font-bold text-gray-900 text-lg">What Families Say</span>
+              <span className="font-bold text-gray-900 dark:text-white text-lg">What Families Say</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {reviewSnippets.map((snippet: any, index: number) => (
@@ -824,7 +824,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
                     </div>
                     <span className="text-xs text-gray-500">- {snippet.author}</span>
                   </div>
-                  <p className="text-sm text-gray-700 line-clamp-3">"{snippet.text}"</p>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-3">"{snippet.text}"</p>
                 </div>
               ))}
             </div>
@@ -832,7 +832,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
             {/* Review Platform Links */}
             <div className="mt-4 pt-3 border-t border-gray-200">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Read all reviews:</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Read all reviews:</span>
                 <div className="flex space-x-2">
                   <a
                     href={`https://www.google.com/search?q=${encodeURIComponent(community.name + ' ' + community.city + ' ' + community.state)}&tbm=lcl`}

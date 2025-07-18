@@ -90,10 +90,10 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-200">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-8 border border-gray-200 dark:border-gray-700">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6">
           <div className="md:col-span-2">
-            <Label className="block text-sm font-medium text-gray-700 mb-2">Location</Label>
+            <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Location</Label>
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
               <Input
@@ -111,7 +111,7 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
               {showSuggestions && (
                 <div 
                   ref={suggestionsRef}
-                  className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-xl z-30 max-h-56 overflow-y-auto mt-2"
+                  className="absolute top-full left-0 right-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-30 max-h-56 overflow-y-auto mt-2"
                   style={{ boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)' }}
                 >
                   {isSuggestionsLoading ? (
@@ -150,7 +150,7 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
                               <Icon className="h-3 w-3" />
                             </div>
                             <div className="flex-1">
-                              <span className="text-sm text-gray-900 font-medium">{suggestion.label}</span>
+                              <span className="text-sm text-gray-900 dark:text-white font-medium">{suggestion.label}</span>
                               {suggestion.type && (
                                 <span className="text-xs text-gray-500 ml-2 capitalize">
                                   {suggestion.type === 'zip_pattern' ? 'ZIP Area' : suggestion.type}
@@ -170,7 +170,7 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
           </div>
           
           <div>
-            <Label className="block text-sm font-medium text-gray-700 mb-2">Care Type</Label>
+            <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Care Type</Label>
             <Select value={searchParams.careType} onValueChange={(value) => setSearchParams(prev => ({ ...prev, careType: value }))}>
               <SelectTrigger>
                 <SelectValue />
@@ -188,7 +188,7 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
 
           {/* Prominent Availability Filter */}
           <div>
-            <Label className="block text-sm font-medium text-gray-700 mb-2">
+            <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Availability Status
               <span className="text-xs text-blue-600 ml-2">(Live Updates)</span>
             </Label>
@@ -221,7 +221,7 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
           </div>
           
           <div>
-            <Label className="block text-sm font-medium text-gray-700 mb-2">Budget</Label>
+            <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Budget</Label>
             <Select value={searchParams.budget} onValueChange={(value) => setSearchParams(prev => ({ ...prev, budget: value }))}>
               <SelectTrigger>
                 <SelectValue />

@@ -393,10 +393,10 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
           searchLocation={searchLocation}
           searchType="communities"
         />
-        <div className="min-h-screen bg-white pb-16 flex items-center justify-center">
+        <div className="min-h-screen bg-white dark:bg-gray-800 pb-16 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="text-gray-600 mt-4">Loading communities...</p>
+            <p className="text-gray-600 dark:text-gray-400 mt-4">Loading communities...</p>
           </div>
         </div>
       </>
@@ -405,7 +405,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
 
   if (error) {
     return (
-      <div className="min-h-screen bg-white pb-16 flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-gray-800 pb-16 flex items-center justify-center">
         <div className="text-center">
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 max-w-md">
             <h3 className="text-lg font-semibold text-red-800 mb-2">Error Loading</h3>
@@ -419,12 +419,12 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
 
   if (activeTab === 'updates') {
     return (
-      <div className="min-h-screen bg-white pb-16">
+      <div className="min-h-screen bg-white dark:bg-gray-800 pb-16">
         {/* Header */}
-        <div className="sticky top-0 bg-white z-30 border-b border-gray-200">
+        <div className="sticky top-0 bg-white dark:bg-gray-800 z-30 border-b border-gray-200 dark:border-gray-700">
           <div className="px-4 py-4">
             <div className="flex items-center justify-between">
-              <h1 className="text-3xl font-bold text-gray-900">Updates</h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Updates</h1>
               <Button 
                 onClick={() => setActiveTab('search')}
                 variant="outline" 
@@ -437,9 +437,9 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
         </div>
 
         {/* Saved Searches Section */}
-        <div className="bg-gray-50 px-4 py-4">
+        <div className="bg-gray-50 dark:bg-gray-800 px-4 py-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-900">Saved searches</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Saved searches</h2>
             <Button 
               variant="ghost" 
               size="sm"
@@ -451,10 +451,10 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
           </div>
 
           {/* Search Alert with Badge */}
-          <div className="bg-white rounded-lg border border-gray-200 p-4 mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 mb-4">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center">
-                <h3 className="text-lg font-semibold text-gray-900">Senior Living Communities</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Senior Living Communities</h3>
                 <span className="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">5</span>
               </div>
               <button className="text-blue-600">
@@ -463,7 +463,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                 </svg>
               </button>
             </div>
-            <p className="text-gray-600 mb-3">Memory Care, $3K - $6K</p>
+            <p className="text-gray-600 dark:text-gray-400 mb-3">Memory Care, $3K - $6K</p>
             
             {/* Sample Community Cards */}
             <div className="space-y-3">
@@ -471,7 +471,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                 <div 
                   key={community.id} 
                   onClick={() => window.location.href = `/community/${community.id}`}
-                  className="relative bg-white rounded-lg border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                  className="relative bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
                 >
                   {index === 0 && (
                     <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
@@ -486,13 +486,13 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                   
                   <div className="h-32 bg-gray-200 relative">
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                    <button className="absolute top-2 right-2 w-8 h-8 bg-white/80 rounded-full flex items-center justify-center">
-                      <Heart className="w-5 h-5 text-gray-600" />
+                    <button className="absolute top-2 right-2 w-8 h-8 bg-white dark:bg-gray-800/80 rounded-full flex items-center justify-center">
+                      <Heart className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                     </button>
                   </div>
                   
                   <div className="p-3">
-                    <div className="text-lg font-bold text-gray-900 mb-1">
+                    <div className="text-lg font-bold text-gray-900 dark:text-white mb-1">
                       {community.priceRange && community.priceRange.min 
                         ? `<><span className="text-sm">Starting at</span> ${community.priceRange.min.toLocaleString()}</>` 
                         : 'Contact for pricing'
@@ -501,13 +501,13 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                         <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
                       )}
                     </div>
-                    <div className="text-sm text-gray-600 mb-1">
+                    <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
                       {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
                     </div>
-                    <div className="text-sm text-gray-800 font-medium">
+                    <div className="text-sm text-gray-800 dark:text-gray-200 font-medium">
                       {community.name}
                     </div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
                       {community.city}, {community.state}
                     </div>
                   </div>
@@ -517,10 +517,10 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
           </div>
 
           {/* Second Saved Search */}
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center">
-                <h3 className="text-lg font-semibold text-gray-900">For Care near Redding, CA 96003</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">For Care near Redding, CA 96003</h3>
                 <span className="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">7</span>
               </div>
               <button className="text-blue-600">
@@ -529,14 +529,14 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                 </svg>
               </button>
             </div>
-            <p className="text-gray-600 mb-3">For Care: &lt;$2.4K, 3+ level, Allows families</p>
+            <p className="text-gray-600 dark:text-gray-400 mb-3">For Care: &lt;$2.4K, 3+ level, Allows families</p>
             
             <div className="space-y-3">
               {filteredCommunities
                 .filter(c => c.city?.toLowerCase().includes('redding'))
                 .slice(0, 2)
                 .map((community: any, index) => (
-                <div key={community.id} className="relative bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <div key={community.id} className="relative bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                   {index === 0 && (
                     <div className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
                       10 days on TrueView
@@ -549,13 +549,13 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                   )}
                   
                   <div className="h-32 bg-gray-200 relative">
-                    <button className="absolute top-2 right-2 w-8 h-8 bg-white/80 rounded-full flex items-center justify-center">
-                      <Heart className="w-5 h-5 text-gray-600" />
+                    <button className="absolute top-2 right-2 w-8 h-8 bg-white dark:bg-gray-800/80 rounded-full flex items-center justify-center">
+                      <Heart className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                     </button>
                   </div>
                   
                   <div className="p-3">
-                    <div className="text-lg font-bold text-gray-900 mb-1">
+                    <div className="text-lg font-bold text-gray-900 dark:text-white mb-1">
                       {community.priceRange && community.priceRange.min 
                         ? `<><span className="text-sm">Starting at</span> ${community.priceRange.min.toLocaleString()}</>` 
                         : 'Contact for pricing'
@@ -564,13 +564,13 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                         <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
                       )}
                     </div>
-                    <div className="text-sm text-gray-600 mb-1">
+                    <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
                       {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
                     </div>
-                    <div className="text-sm text-gray-800 font-medium">
+                    <div className="text-sm text-gray-800 dark:text-gray-200 font-medium">
                       {community.name}
                     </div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
                       {community.city}, {community.state}
                     </div>
                   </div>
@@ -591,25 +591,25 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
 
   if (activeTab === 'saved') {
     return (
-      <div className="min-h-screen bg-white pb-16">
+      <div className="min-h-screen bg-white dark:bg-gray-800 pb-16">
         <div className="px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">Saved Communities</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Saved Communities</h1>
           
           <div className="space-y-4">
             {filteredCommunities.slice(0, 8).map((community: any) => (
               <div
                 key={community.id}
                 onClick={() => window.location.href = `/community/${community.id}`}
-                className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-lg transition-shadow cursor-pointer"
+                className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-lg transition-shadow cursor-pointer"
               >
                 <div className="flex items-start justify-between mb-2">
-                  <h4 className="text-lg font-semibold text-gray-900">
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
                     {community.name}
                   </h4>
                   <Heart className="w-5 h-5 text-red-500 fill-current" />
                 </div>
                 
-                <div className="flex items-center text-gray-600 mb-2">
+                <div className="flex items-center text-gray-600 dark:text-gray-400 mb-2">
                   <MapPin className="w-4 h-4 mr-1" />
                   <span>{community.city}, {community.state}</span>
                 </div>
@@ -647,14 +647,14 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
 
   if (activeTab !== 'search') {
     return (
-      <div className="min-h-screen bg-gray-50 pb-16">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-800 pb-16">
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
               {activeTab === 'tours' && 'Tours'}
               {activeTab === 'inbox' && 'Messages'}
             </h2>
-            <p className="text-gray-600 mb-4">Coming soon...</p>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">Coming soon...</p>
             <Button 
               onClick={() => setActiveTab('search')}
               className="bg-blue-600 hover:bg-blue-700 text-white"
@@ -673,14 +673,14 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
   }
 
   return (
-    <div className="min-h-screen bg-white pb-16">
+    <div className="min-h-screen bg-white dark:bg-gray-800 pb-16">
       {/* Navigation Bar */}
       <div className="sticky top-0 bg-black/10 backdrop-blur-md border-b border-white/10 z-40">
         <div className="px-3 py-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Link href="/">
-                <Button variant="ghost" size="sm" className="p-1.5 hover:bg-white/20">
+                <Button variant="ghost" size="sm" className="p-1.5 hover:bg-white dark:bg-gray-800/20">
                   <ArrowLeft className="w-4 h-4 text-white" />
                 </Button>
               </Link>
@@ -704,7 +704,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
       </div>
 
       {/* Header - Compact Search */}
-      <div className="sticky top-12 bg-white z-30 border-b border-gray-200">
+      <div className="sticky top-12 bg-white dark:bg-gray-800 z-30 border-b border-gray-200 dark:border-gray-700">
         <div className="px-4 py-2.5">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -713,7 +713,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
               placeholder="Try 'San Francisco' or 'Memory Care'"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 h-9 text-sm border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:border-blue-500"
+              className="pl-9 pr-4 h-9 text-sm border-gray-300 rounded-lg bg-gray-50 dark:bg-gray-800 focus:bg-white dark:bg-gray-800 focus:border-blue-500"
             />
           </div>
         </div>
@@ -725,7 +725,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             <SheetTrigger asChild>
               <Button 
                 variant="outline" 
-                className="border-gray-300 text-gray-600 hover:bg-gray-50 rounded-full px-3 py-1 h-7 text-xs font-medium whitespace-nowrap flex items-center"
+                className="border-gray-300 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:bg-gray-800 rounded-full px-3 py-1 h-7 text-xs font-medium whitespace-nowrap flex items-center"
               >
                 <Filter className="w-3 h-3 mr-1.5" />
                 Filters {(selectedCareTypes.length + selectedAvailability.length + selectedBudget.length) > 0 && 
@@ -746,7 +746,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
               <div className="mt-6 space-y-6">
                 {/* Care Types Filter */}
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Care Types</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Care Types</h3>
                   <div className="flex flex-wrap gap-2">
                     {careTypeOptions.map(careType => {
                       const config = careTypeConfig[careType as keyof typeof careTypeConfig];
@@ -766,7 +766,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                           className={`rounded-full text-xs h-8 flex items-center ${
                             isSelected
                               ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
-                              : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                              : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 hover:bg-gray-50 dark:bg-gray-800'
                           }`}
                         >
                           <div 
@@ -782,7 +782,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                 
                 {/* Availability Filter */}
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Availability</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Availability</h3>
                   <div className="flex flex-wrap gap-2">
                     {availabilityOptions.map(availability => {
                       const isSelected = selectedAvailability.includes(availability);
@@ -801,7 +801,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                           className={`rounded-full text-xs h-8 flex items-center ${
                             isSelected
                               ? 'bg-green-600 text-white border-green-600 hover:bg-green-700'
-                              : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                              : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 hover:bg-gray-50 dark:bg-gray-800'
                           }`}
                         >
                           {availability === 'Available Now' && <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>}
@@ -816,7 +816,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                 
                 {/* Budget Filter */}
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Budget</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Budget</h3>
                   <div className="flex flex-wrap gap-2">
                     {budgetOptions.map(budget => {
                       const isSelected = selectedBudget.includes(budget);
@@ -835,7 +835,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                           className={`rounded-full text-xs h-8 flex items-center ${
                             isSelected
                               ? 'bg-purple-600 text-white border-purple-600 hover:bg-purple-700'
-                              : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                              : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 hover:bg-gray-50 dark:bg-gray-800'
                           }`}
                         >
                           <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
@@ -895,10 +895,10 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
         
         {/* Expanded Filter Panel */}
         {showFilters && (
-          <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
+          <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
             {/* Care Types */}
             <div className="mb-4">
-              <h3 className="text-xs font-semibold text-gray-700 mb-2">CARE TYPES</h3>
+              <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">CARE TYPES</h3>
               <div className="flex flex-wrap gap-2">
                 {careTypeOptions.map(careType => {
                   const config = careTypeConfig[careType as keyof typeof careTypeConfig];
@@ -918,7 +918,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                       className={`rounded-full text-xs h-7 flex items-center ${
                         isSelected
                           ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
-                          : 'bg-white text-gray-700 hover:bg-gray-100'
+                          : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:bg-gray-700'
                       }`}
                     >
                       <div 
@@ -934,7 +934,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             
             {/* Price Range */}
             <div className="mb-4">
-              <h3 className="text-xs font-semibold text-gray-700 mb-2">PRICE RANGE</h3>
+              <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">PRICE RANGE</h3>
               <div className="flex items-center space-x-2">
                 <Input
                   type="number"
@@ -951,13 +951,13 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                   onChange={(e) => setPriceRange({ ...priceRange, max: parseInt(e.target.value) || 10000 })}
                   className="w-24 h-8 text-xs"
                 />
-                <span className="text-xs text-gray-600">/month</span>
+                <span className="text-xs text-gray-600 dark:text-gray-400">/month</span>
               </div>
             </div>
             
             {/* Amenities */}
             <div>
-              <h3 className="text-xs font-semibold text-gray-700 mb-2">AMENITIES</h3>
+              <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">AMENITIES</h3>
               <div className="flex flex-wrap gap-2">
                 {amenityOptions.map(amenity => (
                   <Button
@@ -974,7 +974,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                     className={`rounded-full text-xs h-7 ${
                       selectedAmenities.includes(amenity)
                         ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
-                        : 'bg-white text-gray-700 hover:bg-gray-100'
+                        : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:bg-gray-700'
                     }`}
                   >
                     {amenity}
@@ -990,26 +990,26 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
       <div className="flex-1 relative" style={{ height: 'calc(100vh - 160px)' }}>
           {/* Map Loading State */}
           {isLoading && (
-            <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-white dark:bg-gray-800/80 backdrop-blur-sm z-50 flex items-center justify-center">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="text-sm text-gray-600 mt-2">Loading communities...</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Loading communities...</p>
               </div>
             </div>
           )}
           
-          <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+          <div className="w-full h-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
             <div className="text-center">
-              <h2 className="text-2xl font-semibold text-gray-700 mb-4">Map View Coming Soon</h2>
-              <p className="text-gray-600 mb-6">Map functionality temporarily disabled for fresh implementation</p>
-              <div className="bg-white rounded-lg shadow p-6 max-w-md">
+              <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-4">Map View Coming Soon</h2>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">Map functionality temporarily disabled for fresh implementation</p>
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 max-w-md">
                 <h3 className="text-lg font-medium mb-2">Search Results</h3>
-                <p className="text-gray-600">{sortedCommunities.length} communities found</p>
+                <p className="text-gray-600 dark:text-gray-400">{sortedCommunities.length} communities found</p>
                 <div className="mt-4 space-y-2 max-h-48 overflow-y-auto">
                   {sortedCommunities.slice(0, 5).map(community => (
-                    <div key={community.id} className="p-2 bg-gray-50 rounded text-sm">
+                    <div key={community.id} className="p-2 bg-gray-50 dark:bg-gray-800 rounded text-sm">
                       <div className="font-medium">{community.name}</div>
-                      <div className="text-gray-600">{community.city}, {community.state}</div>
+                      <div className="text-gray-600 dark:text-gray-400">{community.city}, {community.state}</div>
                     </div>
                   ))}
                   {sortedCommunities.length > 5 && (
