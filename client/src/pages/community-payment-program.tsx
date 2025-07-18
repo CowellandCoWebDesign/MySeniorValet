@@ -234,7 +234,7 @@ export default function CommunityPaymentProgram() {
   const totalPotentialRevenue = "$3.5M - $15M annually";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 isolate">
       <Header />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -408,7 +408,7 @@ export default function CommunityPaymentProgram() {
                     </li>
                     <li className="flex items-start space-x-3">
                       <Shield className="h-5 w-5 text-blue-500 mt-0.5" />
-                      <span><strong>Brand Recognition:</strong> TrueView/MySeniorValet market presence</span>
+                      <span><strong>Brand Recognition:</strong> MySeniorValet market presence</span>
                     </li>
                   </ul>
                 </div>

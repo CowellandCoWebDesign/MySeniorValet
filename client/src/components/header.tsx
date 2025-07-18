@@ -15,23 +15,23 @@ export function Header() {
 
   return (
     <header className="bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200/60 sticky top-0 z-50 relative overflow-hidden">
-      {/* Subtle animated background */}
+      {/* Subtle animated background - contained within header */}
       <div className="absolute inset-0 bg-gradient-to-r from-blue-50/30 via-purple-50/30 to-cyan-50/30 opacity-60"></div>
-      <div className="absolute top-0 left-1/4 w-32 h-32 bg-gradient-to-r from-blue-400/10 to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute top-0 right-1/4 w-24 h-24 bg-gradient-to-r from-cyan-400/10 to-teal-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      <div className="absolute top-0 left-1/4 w-32 h-16 bg-gradient-to-r from-blue-400/10 to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute top-0 right-1/4 w-24 h-16 bg-gradient-to-r from-cyan-400/10 to-teal-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
       
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-8">
-            <Link href="/" className="flex items-center space-x-3 group" aria-label="TrueView Home - Senior Living Community Search">
+            <Link href="/" className="flex items-center space-x-3 group" aria-label="MySeniorValet Home - Senior Living Community Search">
               <div className="relative w-10 h-10 bg-gradient-to-br from-blue-600 via-purple-600 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 overflow-hidden" aria-hidden="true">
                 <Home className="text-white h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
                 <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full opacity-0 group-hover:opacity-100 animate-pulse transition-opacity duration-300"></div>
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-display font-bold text-gray-900 group-hover:text-primary transition-colors duration-300 group-hover:scale-105 transform">TrueView</span>
-                <span className="text-xs text-gray-500 font-medium -mt-1 group-hover:text-gray-600 transition-colors duration-300">Senior Living Search</span>
+                <span className="text-xl font-display font-bold text-gray-900 group-hover:text-primary transition-colors duration-300 group-hover:scale-105 transform">MySeniorValet</span>
+                <span className="text-xs text-gray-500 font-medium -mt-1 group-hover:text-gray-600 transition-colors duration-300">Your Personal Senior Living Concierge</span>
               </div>
             </Link>
             <nav className="hidden lg:flex space-x-1">
@@ -63,7 +63,7 @@ export function Header() {
               </Button>
             </Link>
             <Link to="/login">
-              <Button className="shadow-sm hover:shadow-md transition-shadow" aria-label="Sign in to TrueView">
+              <Button className="shadow-sm hover:shadow-md transition-shadow" aria-label="Sign in to MySeniorValet">
                 Sign In
               </Button>
             </Link>
