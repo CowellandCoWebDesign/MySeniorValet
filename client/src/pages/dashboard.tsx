@@ -1,5 +1,135 @@
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
+import { 
+  Heart, 
+  Star, 
+  MapPin, 
+  Phone, 
+  Calendar, 
+  Clock, 
+  User, 
+  Settings, 
+  Bell, 
+  FileText,
+  TrendingUp,
+  Activity,
+  Mail,
+  Shield,
+  HelpCircle,
+  LogOut,
+  Home,
+  DollarSign,
+  Search,
+  Filter,
+  Grid,
+  List,
+  SortAsc,
+  Camera,
+  Plus,
+  Edit,
+  BarChart3,
+  PieChart,
+  Target,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Eye,
+  MessageSquare,
+  Share2,
+  Bookmark,
+  Download,
+  Calendar as CalendarIcon,
+  Clock as ClockIcon,
+  Users,
+  Building,
+  Sparkles,
+  Award,
+  TrendingDown
+} from "lucide-react";
+import { Link, useLocation } from "wouter";
+import { CommunityCard } from "@/components/community-card";
+import { useAuth, useLogout } from "@/hooks/useAuth";
+import { useQuery } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
+const mockFavoriteCommunities = [
+  {
+    id: 274,
+    name: "The Sequoias San Francisco",
+    address: "1400 Geary Blvd",
+    city: "San Francisco",
+    state: "CA",
+    careTypes: ["Independent Living", "Assisted Living"],
+    photos: ["https://images.unsplash.com/photo-1582719508461-905c673771fd?w=400&h=300&fit=crop"],
+    availabilityStatus: "Immediate Availability",
+    savedDate: "2024-01-03"
+  },
+  {
+    id: 275,
+    name: "Heritage on the Marina",
+    address: "3400 Laguna St",
+    city: "San Francisco", 
+    state: "CA",
+    careTypes: ["Independent Living"],
+    photos: ["https://images.unsplash.com/photo-1600298881974-6be191ceeda1?w=400&h=300&fit=crop"],
+    availabilityStatus: "Limited Availability",
+    savedDate: "2024-01-02"
+  }
+];
 
+const mockSearchAlerts = [
+  {
+    id: 1,
+    name: "San Francisco Independent Living",
+    criteria: "Independent Living in San Francisco, CA under $6,000/month",
+    newMatches: 3,
+    lastAlert: "2 hours ago"
+  },
+  {
+    id: 2,
+    name: "Bay Area Memory Care",
+    criteria: "Memory Care within 25 miles of Oakland, CA",
+    newMatches: 1,
+    lastAlert: "1 day ago"
+  }
+];
+
+export default function Dashboard() {
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [sortBy, setSortBy] = useState<'recent' | 'name' | 'availability'>('recent');
+  const { user, isLoading, isAuthenticated } = useAuth();
+  const logout = useLogout();
+  const { toast } = useToast();
+  const [, setLocation] = useLocation();
+  
+  // Get tab from URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const tabParam = urlParams.get('tab');
+  const [activeTab, setActiveTab] = useState(tabParam || 'favorites');
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to access your dashboard.",
+        variant: "destructive",
+      });
+      setLocation("/login");
+    }
+  }, [isLoading, isAuthenticated, setLocation, toast]);
+
+  // Fetch user favorites
+  const { data: favorites = [] } = useQuery({
+    queryKey: ["/api/favorites"],
+    enabled: isAuthenticated,
+    retry: false,
+  });
 
   // Fetch user search history
   const { data: searchHistory = [] } = useQuery({
@@ -68,7 +198,7 @@
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
               <Link href="/" className="text-2xl font-bold text-blue-600">
-                MySeniorValet
+                TrueView
               </Link>
               <div className="hidden md:block">
                 <span className="text-gray-500">•</span>
