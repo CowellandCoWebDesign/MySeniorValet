@@ -821,7 +821,7 @@ export default function TrueViewHome() {
       </section>
 
       {/* Care Level Guide */}
-      <section className="px-4 py-8 bg-gradient-to-br from-green-50 to-blue-50">
+      <section className="px-4 py-8 bg-gradient-to-br from-green-50 to-blue-50 dark:from-gray-800 dark:to-gray-900">
         {/* Healthcare Hero Image */}
         <div className="mb-6 relative">
           <div className="aspect-[16/9] bg-gradient-to-r from-blue-50 to-green-50 rounded-lg overflow-hidden">
@@ -841,112 +841,112 @@ export default function TrueViewHome() {
         
         <div className="space-y-4">
           {/* Skilled Nursing */}
-          <Card className="border-0 shadow-sm">
+          <Card className="border-0 shadow-sm dark:bg-gray-700 dark:border-gray-600">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 text-sm mb-1">Skilled Nursing</h3>
-                  <p className="text-xs text-gray-600 mb-2">24/7 medical care, rehabilitation, complex medical needs</p>
-                  <div className="text-sm font-semibold text-blue-600">$8,000 - $12,000/month</div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-1">Skilled Nursing</h3>
+                  <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">24/7 medical care, rehabilitation, complex medical needs</p>
+                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">$8,000 - $12,000/month</div>
                 </div>
-                <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                  <Heart className="w-6 h-6 text-red-600" />
+                <div className="w-12 h-12 bg-red-100 dark:bg-red-900/50 rounded-lg flex items-center justify-center">
+                  <Heart className="w-6 h-6 text-red-600 dark:text-red-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Memory Care */}
-          <Card className="border-0 shadow-sm">
+          <Card className="border-0 shadow-sm dark:bg-gray-700 dark:border-gray-600">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 text-sm mb-1">Memory Care</h3>
-                  <p className="text-xs text-gray-600 mb-2">Specialized dementia/Alzheimer's care, secure environment</p>
-                  <div className="text-sm font-semibold text-blue-600">$6,500 - $9,500/month</div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-1">Memory Care</h3>
+                  <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">Specialized dementia/Alzheimer's care, secure environment</p>
+                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">$6,500 - $9,500/month</div>
                 </div>
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <span className="text-purple-600 font-bold text-lg">🧠</span>
+                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center">
+                  <span className="text-purple-600 dark:text-purple-400 font-bold text-lg">🧠</span>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Assisted Living */}
-          <Card className="border-0 shadow-sm">
+          <Card className="border-0 shadow-sm dark:bg-gray-700 dark:border-gray-600">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 text-sm mb-1">Assisted Living</h3>
-                  <p className="text-xs text-gray-600 mb-2">Personal care assistance, medication management, meals</p>
-                  <div className="text-sm font-semibold text-blue-600">$4,200 - $7,000/month</div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-1">Assisted Living</h3>
+                  <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">Personal care assistance, medication management, meals</p>
+                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">$4,200 - $7,000/month</div>
                 </div>
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <span className="text-green-600 font-bold text-lg">🤝</span>
+                <div className="w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center">
+                  <span className="text-green-600 dark:text-green-400 font-bold text-lg">🤝</span>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Independent Living with Services */}
-          <Card className="border-0 shadow-sm">
+          <Card className="border-0 shadow-sm dark:bg-gray-700 dark:border-gray-600">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 text-sm mb-1">Independent Living with Services</h3>
-                  <p className="text-xs text-gray-600 mb-2">Independent apartments plus care services, housekeeping</p>
-                  <div className="text-sm font-semibold text-blue-600">$3,500 - $5,500/month</div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-1">Independent Living with Services</h3>
+                  <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">Independent apartments plus care services, housekeeping</p>
+                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">$3,500 - $5,500/month</div>
                 </div>
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Home className="w-6 h-6 text-blue-600" />
+                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
+                  <Home className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Independent Living */}
-          <Card className="border-0 shadow-sm">
+          <Card className="border-0 shadow-sm dark:bg-gray-700 dark:border-gray-600">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 text-sm mb-1">Independent Living</h3>
-                  <p className="text-xs text-gray-600 mb-2">Active senior communities, social activities, dining</p>
-                  <div className="text-sm font-semibold text-blue-600">$2,800 - $4,500/month</div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-1">Independent Living</h3>
+                  <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">Active senior communities, social activities, dining</p>
+                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">$2,800 - $4,500/month</div>
                 </div>
-                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <span className="text-orange-600 font-bold text-lg">🏃</span>
+                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/50 rounded-lg flex items-center justify-center">
+                  <span className="text-orange-600 dark:text-orange-400 font-bold text-lg">🏃</span>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Senior Apartments */}
-          <Card className="border-0 shadow-sm">
+          <Card className="border-0 shadow-sm dark:bg-gray-700 dark:border-gray-600">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 text-sm mb-1">Senior Apartments</h3>
-                  <p className="text-xs text-gray-600 mb-2">Age-restricted housing, minimal services, independent living</p>
-                  <div className="text-sm font-semibold text-blue-600">$1,800 - $3,200/month</div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-1">Senior Apartments</h3>
+                  <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">Age-restricted housing, minimal services, independent living</p>
+                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">$1,800 - $3,200/month</div>
                 </div>
-                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <span className="text-gray-600 font-bold text-lg">🏠</span>
+                <div className="w-12 h-12 bg-gray-100 dark:bg-gray-600 rounded-lg flex items-center justify-center">
+                  <span className="text-gray-600 dark:text-gray-300 font-bold text-lg">🏠</span>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* HUD/VASH + In-Home Services */}
-          <Card className="border-0 shadow-sm bg-green-50">
+          <Card className="border-0 shadow-sm bg-green-50 dark:bg-green-900/50">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 text-sm mb-1">HUD/VASH + In-Home Services</h3>
-                  <p className="text-xs text-gray-600 mb-2">Subsidized housing with IHSS or SLS home care support</p>
-                  <div className="text-sm font-semibold text-green-600">$800 - $1,500/month + services</div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-1">HUD/VASH + In-Home Services</h3>
+                  <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">Subsidized housing with IHSS or SLS home care support</p>
+                  <div className="text-sm font-semibold text-green-600 dark:text-green-400">$800 - $1,500/month + services</div>
                 </div>
-                <div className="w-12 h-12 bg-green-200 rounded-lg flex items-center justify-center">
-                  <span className="text-green-700 font-bold text-lg">🏡</span>
+                <div className="w-12 h-12 bg-green-200 dark:bg-green-700 rounded-lg flex items-center justify-center">
+                  <span className="text-green-700 dark:text-green-300 font-bold text-lg">🏡</span>
                 </div>
               </div>
             </CardContent>
@@ -973,35 +973,35 @@ export default function TrueViewHome() {
       </section>
 
       {/* Family Collaboration Section */}
-      <section className="px-4 py-8 bg-gradient-to-br from-purple-50 to-blue-50">
+      <section className="px-4 py-8 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-900">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <div className="bg-purple-100 rounded-full p-3">
-              <Users className="h-8 w-8 text-purple-600" />
+            <div className="bg-purple-100 dark:bg-purple-900/50 rounded-full p-3">
+              <Users className="h-8 w-8 text-purple-600 dark:text-purple-400" />
             </div>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
             Keep Your Family In The Loop
           </h2>
-          <p className="text-gray-600 text-sm max-w-md mx-auto">
+          <p className="text-gray-600 dark:text-gray-300 text-sm max-w-md mx-auto">
             Finding the right senior living community is a family decision. Share discoveries instantly with one click.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {/* Feature 1: One-Click Sharing */}
-          <Card className="border-0 shadow-sm bg-white">
+          <Card className="border-0 shadow-sm bg-white dark:bg-gray-700">
             <CardContent className="p-6">
               <div className="flex items-start space-x-4">
-                <div className="bg-blue-100 rounded-lg p-3">
-                  <Users className="h-6 w-6 text-blue-600" />
+                <div className="bg-blue-100 dark:bg-blue-900/50 rounded-lg p-3">
+                  <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">One-Click Family Sharing</h3>
-                  <p className="text-sm text-gray-600 mb-3">
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">One-Click Family Sharing</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
                     Send detailed community information, photos, and pricing to multiple family members instantly.
                   </p>
-                  <div className="text-xs text-blue-600 font-medium">
+                  <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">
                     Works with email, text, WhatsApp, and more
                   </div>
                 </div>
@@ -1010,18 +1010,18 @@ export default function TrueViewHome() {
           </Card>
 
           {/* Feature 2: Smart Formatting */}
-          <Card className="border-0 shadow-sm bg-white">
+          <Card className="border-0 shadow-sm bg-white dark:bg-gray-700">
             <CardContent className="p-6">
               <div className="flex items-start space-x-4">
-                <div className="bg-green-100 rounded-lg p-3">
-                  <Info className="h-6 w-6 text-green-600" />
+                <div className="bg-green-100 dark:bg-green-900/50 rounded-lg p-3">
+                  <Info className="h-6 w-6 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Smart Information Formatting</h3>
-                  <p className="text-sm text-gray-600 mb-3">
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Smart Information Formatting</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
                     Automatically formats community details, pricing, care types, and reviews for easy sharing.
                   </p>
-                  <div className="text-xs text-green-600 font-medium">
+                  <div className="text-xs text-green-600 dark:text-green-400 font-medium">
                     Professional email templates included
                   </div>
                 </div>
@@ -1030,18 +1030,18 @@ export default function TrueViewHome() {
           </Card>
 
           {/* Feature 3: Personal Notes */}
-          <Card className="border-0 shadow-sm bg-white">
+          <Card className="border-0 shadow-sm bg-white dark:bg-gray-700">
             <CardContent className="p-6">
               <div className="flex items-start space-x-4">
-                <div className="bg-purple-100 rounded-lg p-3">
-                  <MessageCircle className="h-6 w-6 text-purple-600" />
+                <div className="bg-purple-100 dark:bg-purple-900/50 rounded-lg p-3">
+                  <MessageCircle className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Add Personal Notes</h3>
-                  <p className="text-sm text-gray-600 mb-3">
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Add Personal Notes</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
                     Include your thoughts, questions, or observations with each community you share.
                   </p>
-                  <div className="text-xs text-purple-600 font-medium">
+                  <div className="text-xs text-purple-600 dark:text-purple-400 font-medium">
                     Keep everyone on the same page
                   </div>
                 </div>
@@ -1050,18 +1050,18 @@ export default function TrueViewHome() {
           </Card>
 
           {/* Feature 4: Direct Links */}
-          <Card className="border-0 shadow-sm bg-white">
+          <Card className="border-0 shadow-sm bg-white dark:bg-gray-700">
             <CardContent className="p-6">
               <div className="flex items-start space-x-4">
-                <div className="bg-orange-100 rounded-lg p-3">
-                  <Link2 className="h-6 w-6 text-orange-600" />
+                <div className="bg-orange-100 dark:bg-orange-900/50 rounded-lg p-3">
+                  <Link2 className="h-6 w-6 text-orange-600 dark:text-orange-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Direct Share Links</h3>
-                  <p className="text-sm text-gray-600 mb-3">
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Direct Share Links</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
                     Generate special family links that bring relatives directly to the community details.
                   </p>
-                  <div className="text-xs text-orange-600 font-medium">
+                  <div className="text-xs text-orange-600 dark:text-orange-400 font-medium">
                     No account required for family members
                   </div>
                 </div>
@@ -1070,18 +1070,18 @@ export default function TrueViewHome() {
           </Card>
 
           {/* Feature 5: Tour Tracker */}
-          <Card className="border-0 shadow-sm bg-white md:col-span-2 lg:col-span-1">
+          <Card className="border-0 shadow-sm bg-white dark:bg-gray-700 md:col-span-2 lg:col-span-1">
             <CardContent className="p-6">
               <div className="flex items-start space-x-4">
-                <div className="bg-indigo-100 rounded-lg p-3">
-                  <MapPin className="h-6 w-6 text-indigo-600" />
+                <div className="bg-indigo-100 dark:bg-indigo-900/50 rounded-lg p-3">
+                  <MapPin className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Tour Tracker</h3>
-                  <p className="text-sm text-gray-600 mb-3">
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Tour Tracker</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
                     One tour for all family members. Track visit notes, photos, and impressions that everyone can see.
                   </p>
-                  <div className="text-xs text-indigo-600 font-medium">
+                  <div className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
                     Shared tour insights and findings
                   </div>
                 </div>
@@ -1100,28 +1100,28 @@ export default function TrueViewHome() {
       </section>
 
       {/* Affordable Housing Section */}
-      <section className="px-4 py-8 bg-gradient-to-br from-blue-50 to-indigo-50">
+      <section className="px-4 py-8 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900">
         <div className="mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
             HUD Affordable Housing Options
           </h2>
-          <p className="text-gray-600 text-sm">
+          <p className="text-gray-600 dark:text-gray-300 text-sm">
             Government-subsidized housing for seniors and disabled adults
           </p>
         </div>
         
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-4">
+        <div className="bg-white dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-6 mb-4">
           <div className="flex items-start space-x-4">
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-              <Building2 className="w-6 h-6 text-blue-600" />
+            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center flex-shrink-0">
+              <Building2 className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Section 202 & 811 Housing</h3>
-              <p className="text-sm text-gray-600 mb-3">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Section 202 & 811 Housing</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
                 HUD provides affordable housing for elderly residents (62+) and adults with disabilities. 
                 Select communities are income-based with rent capped at 30% of your adjusted monthly income.
               </p>
-              <div className="text-sm text-gray-700 space-y-1 mb-4">
+              <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1 mb-4">
                 <div className="flex items-center gap-2">
                   <Home className="w-4 h-4 text-gray-400" />
                   <span><strong>66+ facilities</strong> available in California</span>
@@ -1177,37 +1177,37 @@ export default function TrueViewHome() {
       </section>
 
       {/* Reviews Comparison Section */}
-      <section className="px-4 py-8 gradient-card">
+      <section className="px-4 py-8 gradient-card dark:bg-gray-800">
         <div className="mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
             What families are saying
           </h2>
-          <p className="text-gray-600 text-sm">
+          <p className="text-gray-600 dark:text-gray-300 text-sm">
             Real reviews from families who found their perfect community
           </p>
         </div>
         
         <div className="space-y-6">
           {/* Review 1 */}
-          <Card className="border-0 shadow-sm bg-blue-50">
+          <Card className="border-0 shadow-sm bg-blue-50 dark:bg-blue-900/20">
             <CardContent className="p-6">
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+                <div className="w-12 h-12 bg-blue-600 dark:bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
                   MH
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-2">
-                    <h3 className="font-semibold text-gray-900">Margaret H.</h3>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">Margaret H.</h3>
                     <div className="flex items-center">
                       {[1,2,3,4,5].map(star => (
                         <span key={star} className="text-yellow-400 text-sm">★</span>
                       ))}
                     </div>
                   </div>
-                  <p className="text-sm text-gray-700 mb-2">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
                     "The transparency in pricing made all the difference. We knew exactly what to expect for mom's memory care, and the staff has been incredible."
                   </p>
-                  <div className="text-xs text-blue-600 font-medium">
+                  <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">
                     Sunrise Senior Living, Palo Alto • Memory Care
                   </div>
                 </div>
@@ -1216,25 +1216,25 @@ export default function TrueViewHome() {
           </Card>
 
           {/* Review 2 */}
-          <Card className="border-0 shadow-sm bg-green-50">
+          <Card className="border-0 shadow-sm bg-green-50 dark:bg-green-900/20">
             <CardContent className="p-6">
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white font-bold">
+                <div className="w-12 h-12 bg-green-600 dark:bg-green-500 rounded-full flex items-center justify-center text-white font-bold">
                   RJ
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-2">
-                    <h3 className="font-semibold text-gray-900">Robert J.</h3>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">Robert J.</h3>
                     <div className="flex items-center">
                       {[1,2,3,4,5].map(star => (
                         <span key={star} className="text-yellow-400 text-sm">★</span>
                       ))}
                     </div>
                   </div>
-                  <p className="text-sm text-gray-700 mb-2">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
                     "Found this through TrueView and couldn't be happier. The virtual tours saved us so much time, and dad loves his new home."
                   </p>
-                  <div className="text-xs text-green-600 font-medium">
+                  <div className="text-xs text-green-600 dark:text-green-400 font-medium">
                     The Gardens at Bay Area • Independent Living
                   </div>
                 </div>
@@ -1243,26 +1243,26 @@ export default function TrueViewHome() {
           </Card>
 
           {/* Review 3 */}
-          <Card className="border-0 shadow-sm bg-purple-50">
+          <Card className="border-0 shadow-sm bg-purple-50 dark:bg-purple-900/20">
             <CardContent className="p-6">
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                <div className="w-12 h-12 bg-purple-600 dark:bg-purple-500 rounded-full flex items-center justify-center text-white font-bold">
                   LC
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-2">
-                    <h3 className="font-semibold text-gray-900">Linda C.</h3>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">Linda C.</h3>
                     <div className="flex items-center">
                       {[1,2,3,4].map(star => (
                         <span key={star} className="text-yellow-400 text-sm">★</span>
                       ))}
-                      <span className="text-gray-300 text-sm">★</span>
+                      <span className="text-gray-300 dark:text-gray-500 text-sm">★</span>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-700 mb-2">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
                     "The care level matching was spot-on. They helped us understand exactly what services mom needed, and the pricing was fair and upfront."
                   </p>
-                  <div className="text-xs text-purple-600 font-medium">
+                  <div className="text-xs text-purple-600 dark:text-purple-400 font-medium">
                     Atria Senior Living, San Rafael • Assisted Living
                   </div>
                 </div>
@@ -1272,16 +1272,16 @@ export default function TrueViewHome() {
         </div>
         
         <div className="mt-6">
-          <Button variant="outline" className="w-full border-gray-300 text-gray-700 hover:bg-gray-50">
+          <Button variant="outline" className="w-full border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
             Read more family reviews
           </Button>
         </div>
       </section>
 
       {/* More Featured Communities */}
-      <section className="px-4 py-6 bg-white">
+      <section className="px-4 py-6 bg-white dark:bg-gray-800">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-900">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
             More recommended communities
           </h2>
         </div>
@@ -1290,10 +1290,10 @@ export default function TrueViewHome() {
           {/* Show remaining recommended communities */}
           {featuredCommunities.slice(4).map((community: any, index) => (
             <Link key={`more-featured-${community.id}-${index}`} href={`/community/${community.id}`}>
-              <Card className="overflow-hidden hover:shadow-lg transition-shadow border-0 shadow-sm flex-shrink-0 w-48">
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow border-0 shadow-sm flex-shrink-0 w-48 dark:bg-gray-700">
                 <div className="relative">
-                  <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
-                    <Home className="w-12 h-12 text-gray-400" />
+                  <div className="aspect-[4/3] bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
+                    <Home className="w-12 h-12 text-gray-400 dark:text-gray-500" />
                   </div>
                   
                   {/* Heart Icon */}
@@ -1345,29 +1345,29 @@ export default function TrueViewHome() {
                 
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between mb-2">
-                    <div className="text-xl font-bold text-gray-900">
+                    <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
                       <span className="text-sm">Starting at</span> ${community.priceRange && community.priceRange.min ? community.priceRange.min.toLocaleString() : '4,200'}
                     </div>
                     {index % 3 === 0 && (
-                      <div className="flex items-center text-xs text-green-600 font-medium">
+                      <div className="flex items-center text-xs text-green-600 dark:text-green-400 font-medium">
                         <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
                         Available
                       </div>
                     )}
                   </div>
                   
-                  <div className="text-sm text-gray-700 mb-1">
+                  <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
                     {community.careTypes?.length > 0 ? 
                       `${community.careTypes[0]} • ${community.careTypes.length > 1 ? community.careTypes[1] : 'Memory Care'}` : 
                       'Independent Living • Assisted Living'
                     }
                   </div>
                   
-                  <div className="text-sm font-medium text-gray-900 mb-2 line-clamp-1">
+                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2 line-clamp-1">
                     {community.name}
                   </div>
                   
-                  <div className="text-xs text-gray-600 line-clamp-1 mb-2">
+                  <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1 mb-2">
                     {community.address || `${Math.floor(Math.random() * 9999)} Community Way`}, {community.city}, {community.state} {community.zipCode}
                   </div>
                   
@@ -1422,7 +1422,7 @@ export default function TrueViewHome() {
                   
                   {/* Enhanced Features Row */}
                   <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center text-gray-500">
+                    <div className="flex items-center text-gray-500 dark:text-gray-400">
                       <span>
                         {community.state === 'CA' && `CA License #${20000 + community.id}`}
                         {community.state === 'TX' && `TX License #${30000 + community.id}`}
@@ -1434,17 +1434,17 @@ export default function TrueViewHome() {
                       </span>
                     </div>
                     {index % 4 === 0 && (
-                      <div className="text-purple-600 font-medium">
+                      <div className="text-purple-600 dark:text-purple-400 font-medium">
                         🏆 Featured
                       </div>
                     )}
                     {index % 4 === 1 && (
-                      <div className="text-blue-600 font-medium">
+                      <div className="text-blue-600 dark:text-blue-400 font-medium">
                         ⭐ Top Rated
                       </div>
                     )}
                     {index % 4 === 2 && (
-                      <div className="text-green-600 font-medium">
+                      <div className="text-green-600 dark:text-green-400 font-medium">
                         💎 Premium
                       </div>
                     )}
