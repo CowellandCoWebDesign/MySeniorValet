@@ -291,46 +291,46 @@ export default function TrueViewHome() {
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {/* Live Pricing & Availability */}
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow dark:bg-gray-800">
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow dark:bg-gray-700 dark:border-gray-600">
               <CardContent className="p-6 text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Eye className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Live Pricing & Availability</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Real-time pricing and unit availability across all communities</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Real-time pricing and unit availability across all communities</p>
               </CardContent>
             </Card>
 
             {/* Move Coordination */}
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow dark:bg-gray-800">
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow dark:bg-gray-700 dark:border-gray-600">
               <CardContent className="p-6 text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Truck className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Move Coordination</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Professional moving services and timeline coordination</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Professional moving services and timeline coordination</p>
               </CardContent>
             </Card>
 
             {/* Medical Equipment & Furniture */}
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow dark:bg-gray-800">
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow dark:bg-gray-700 dark:border-gray-600">
               <CardContent className="p-6 text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Sofa className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Medical Equipment & Furniture</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Medical equipment purchase and furniture delivery services</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Medical equipment purchase and furniture delivery services</p>
               </CardContent>
             </Card>
 
             {/* Family Collaboration & Tour Tracker */}
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow border-2 border-amber-200 dark:border-amber-400 dark:bg-gray-800">
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow border-2 border-amber-200 dark:border-amber-400 dark:bg-gray-700">
               <CardContent className="p-6 text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Users className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Family Collaboration & Tour Tracker</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Family sharing tools and tour scheduling with progress tracking</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Family sharing tools and tour scheduling with progress tracking</p>
               </CardContent>
             </Card>
           </div>
