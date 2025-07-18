@@ -38,6 +38,34 @@ export class SimpleAuthService {
     return { user, token };
   }
 
+  async signup(data: { email: string; password: string; firstName?: string; lastName?: string; phone?: string; relationshipToCare?: string }): Promise<{ user: User; token: string }> {
+    // Check if user already exists (using email as username)
+    const existingUser = await storage.getUserByEmail(data.email);
+    if (existingUser) {
+      throw new Error('An account with this email already exists');
+    }
+
+    // Hash password
+    const hashedPassword = await this.hashPassword(data.password);
+
+    // Create user with simplified structure matching current database
+    const userData = {
+      username: data.email, // Use email as username
+      password: hashedPassword,
+    };
+
+    const user = await storage.createUser(userData);
+
+    // Create JWT token
+    const token = jwt.sign(
+      { userId: user.id, username: user.username },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    return { user, token };
+  }
+
   async verifyToken(token: string): Promise<User | null> {
     try {
       const decoded = jwt.verify(token, JWT_SECRET) as { userId: number; username: string };

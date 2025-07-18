@@ -72,6 +72,13 @@ app.use((req, res, next) => {
     console.error('Failed to seed database:', error);
   });
 
+  // Create demo user (non-blocking)
+  import('./seed-demo-user').then(({ createDemoUser }) => {
+    createDemoUser().catch(error => {
+      console.error('Failed to create demo user:', error);
+    });
+  });
+
   // Enhanced error handling middleware
   app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

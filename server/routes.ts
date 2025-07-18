@@ -328,13 +328,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register/Signup
   app.post("/api/auth/signup", async (req, res) => {
     try {
-      // Simple validation for current database schema
-      const { email, password } = req.body;
+      // Enhanced validation for comprehensive user signup
+      const { email, password, firstName, lastName, phone, relationshipToCare } = req.body;
       if (!email || !password) {
         return res.status(400).json({ message: "Email and password are required" });
       }
       
-      const data = { email, password };
+      if (password.length < 8) {
+        return res.status(400).json({ message: "Password must be at least 8 characters long" });
+      }
+      
+      const data = { email, password, firstName, lastName, phone, relationshipToCare };
       const { user, token } = await simpleAuthService.signup(data);
       
       // Set secure HTTP-only cookie

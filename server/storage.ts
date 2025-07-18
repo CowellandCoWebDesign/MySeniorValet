@@ -540,12 +540,18 @@ export class DatabaseStorage implements IStorage {
     return undefined;
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(insertUser)
-      .returning();
-    return user;
+  async createUser(insertUser: any): Promise<User> {
+    // Use raw SQL to match current database structure
+    const result = await db.execute(
+      sql`INSERT INTO users (username, password) VALUES (${insertUser.username}, ${insertUser.password}) RETURNING id, username, password`
+    );
+    
+    const userRow = result.rows[0];
+    return {
+      id: userRow.id as number,
+      username: userRow.username as string,
+      password: userRow.password as string
+    } as User;
   }
 
   async getCommunity(id: number): Promise<Community | undefined> {
