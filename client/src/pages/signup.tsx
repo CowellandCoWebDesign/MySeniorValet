@@ -67,7 +67,7 @@ export default function SignupPage() {
       await signup.mutateAsync(data);
       toast({
         title: "Account created successfully",
-        description: "Welcome to TrueView! You're now logged in.",
+        description: "Welcome to MySeniorValet! You're now logged in.",
       });
       setLocation("/dashboard");
     } catch (error: any) {
