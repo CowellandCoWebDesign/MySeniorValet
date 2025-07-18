@@ -23,7 +23,7 @@ export default function Terms() {
             Terms of Service
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Please read these terms carefully before using TrueView. By accessing 
+            Please read these terms carefully before using MySeniorValet. By accessing 
             our platform, you agree to these terms and conditions.
           </p>
           <p className="text-sm text-gray-500 mt-2">
@@ -41,7 +41,7 @@ export default function Terms() {
             </CardHeader>
             <CardContent>
               <p className="mb-4">
-                By accessing and using TrueView ("the Service"), you accept and agree to be bound by 
+                By accessing and using MySeniorValet ("the Service"), you accept and agree to be bound by 
                 the terms and provision of this agreement. If you do not agree to abide by the above, 
                 please do not use this service.
               </p>
@@ -61,7 +61,7 @@ export default function Terms() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p>
-                TrueView is an informational platform that provides:
+                MySeniorValet is an informational platform that provides:
               </p>
               <ul className="list-disc list-inside space-y-2 text-gray-700">
                 <li>Search and discovery tools for senior living communities</li>
@@ -299,11 +299,11 @@ export default function Terms() {
               </p>
               
               <div className="space-y-2">
-                <div><strong>Email:</strong> legal@trueview.com</div>
-                <div><strong>Phone:</strong> 1-855-TRUE-VIEW (1-855-878-3834)</div>
+                <div><strong>Email:</strong> legal@myseniorvalet.com</div>
+                <div><strong>Phone:</strong> 1-855-MY-VALET (1-855-698-2538)</div>
                 <div>
                   <strong>Mail:</strong><br />
-                  TrueView Legal Department<br />
+                  MySeniorValet Legal Department<br />
                   123 Technology Way<br />
                   San Francisco, CA 94105
                 </div>

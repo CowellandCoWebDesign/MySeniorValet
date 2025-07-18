@@ -24,7 +24,7 @@ export default function Accessibility() {
             Accessibility Commitment
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            TrueView is committed to ensuring digital accessibility for people with disabilities. 
+            MySeniorValet is committed to ensuring digital accessibility for people with disabilities. 
             We continually improve the user experience for everyone.
           </p>
         </div>
@@ -38,7 +38,7 @@ export default function Accessibility() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p>TrueView strives to conform to WCAG 2.2 Level AA standards, including:</p>
+              <p>MySeniorValet strives to conform to WCAG 2.2 Level AA standards, including:</p>
               <ul className="list-disc list-inside space-y-2 text-gray-700">
                 <li>Keyboard navigation support</li>
                 <li>Screen reader compatibility</li>
@@ -92,7 +92,7 @@ export default function Accessibility() {
                 <Phone className="h-5 w-5 text-blue-600 mt-1" aria-hidden="true" />
                 <div>
                   <h3 className="font-semibold">Phone</h3>
-                  <p className="text-gray-600">1-855-TRUE-VIEW (1-855-878-3834)</p>
+                  <p className="text-gray-600">1-855-MY-VALET (1-855-698-2538)</p>
                   <p className="text-sm text-gray-500 mt-1">
                     Monday - Friday, 9 AM - 5 PM PT
                   </p>

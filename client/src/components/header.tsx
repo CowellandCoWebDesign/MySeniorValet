@@ -80,7 +80,7 @@ export function Header() {
                       <Home className="text-white h-5 w-5" />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-lg font-display font-bold text-gray-900">TrueView</span>
+                      <span className="text-lg font-display font-bold text-gray-900">MySeniorValet</span>
                       <span className="text-sm text-gray-500 font-medium -mt-1">Senior Living Search</span>
                     </div>
                   </div>

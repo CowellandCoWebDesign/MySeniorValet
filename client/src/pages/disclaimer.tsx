@@ -136,7 +136,7 @@ export default function Disclaimer() {
               </div>
 
               <p className="text-gray-700 text-sm">
-                TrueView operates independently from all senior living communities listed on our platform. 
+                MySeniorValet operates independently from all senior living communities listed on our platform. 
                 We do not have financial relationships with these communities that would influence our 
                 information presentation.
               </p>
@@ -149,7 +149,7 @@ export default function Disclaimer() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p>
-                TrueView aggregates information from various sources, including:
+                MySeniorValet aggregates information from various sources, including:
               </p>
               
               <ul className="list-disc list-inside space-y-1 text-gray-700">
@@ -255,11 +255,11 @@ export default function Disclaimer() {
               </p>
               
               <div className="space-y-2">
-                <div><strong>Email:</strong> legal@trueview.com</div>
-                <div><strong>Phone:</strong> 1-855-TRUE-VIEW (1-855-878-3834)</div>
+                <div><strong>Email:</strong> legal@myseniorvalet.com</div>
+                <div><strong>Phone:</strong> 1-855-MY-VALET (1-855-698-2538)</div>
                 <div>
                   <strong>Mail:</strong><br />
-                  TrueView Legal Department<br />
+                  MySeniorValet Legal Department<br />
                   123 Technology Way<br />
                   San Francisco, CA 94105
                 </div>

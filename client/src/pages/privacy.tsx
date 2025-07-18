@@ -57,7 +57,7 @@ export default function Privacy() {
             Privacy Policy
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Your privacy is important to us. This policy explains how TrueView collects, 
+            Your privacy is important to us. This policy explains how MySeniorValet collects, 
             uses, and protects your personal information.
           </p>
           <p className="text-sm text-gray-500 mt-2">
@@ -237,14 +237,14 @@ export default function Privacy() {
               
               <div className="space-y-3">
                 <div>
-                  <strong>Email:</strong> privacy@trueview.com
+                  <strong>Email:</strong> privacy@myseniorvalet.com
                 </div>
                 <div>
-                  <strong>Phone:</strong> 1-855-TRUE-VIEW (1-855-878-3834)
+                  <strong>Phone:</strong> 1-855-MY-VALET (1-855-698-2538)
                 </div>
                 <div>
                   <strong>Mail:</strong><br />
-                  TrueView Privacy Team<br />
+                  MySeniorValet Privacy Team<br />
                   123 Technology Way<br />
                   San Francisco, CA 94105
                 </div>
