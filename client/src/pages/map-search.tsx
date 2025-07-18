@@ -61,7 +61,7 @@ export default function MapSearch() {
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
   const [mapBounds, setMapBounds] = useState<any>(null);
   const [showBottomPanel, setShowBottomPanel] = useState(false);
-  const [panelHeight, setPanelHeight] = useState(40); // Percentage of screen height
+  const [panelHeight, setPanelHeight] = useState(70); // Percentage of screen height - increased for better visibility
   
   // Debug log
   console.log('Map Search Component - showBottomPanel:', showBottomPanel, 'viewMode:', viewMode);
@@ -417,6 +417,66 @@ export default function MapSearch() {
               </div>
             </DrawerContent>
           </Drawer>
+
+          {/* Map Legend Info Button - Only in Map View */}
+          {viewMode === 'map' && (
+            <Drawer>
+              <DrawerTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className={isDarkMode 
+                    ? 'border-gray-600 bg-gray-700 text-white hover:bg-gray-600' 
+                    : 'border-gray-300 bg-white text-gray-900 hover:bg-gray-50'
+                  }
+                >
+                  <MapPin className="w-4 h-4 mr-2" />
+                  Legend
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent>
+                <DrawerHeader>
+                  <DrawerTitle>Map Legend</DrawerTitle>
+                </DrawerHeader>
+                <div className="p-4 space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                        #
+                      </div>
+                      <span className="text-sm">Cluster (Multiple Communities)</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-3">
+                      <div className="w-4 h-4 bg-blue-600 rounded-full"></div>
+                      <span className="text-sm">General Community</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-3">
+                      <div className="w-4 h-4 bg-green-600 rounded-full"></div>
+                      <span className="text-sm">Assisted Living</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-3">
+                      <div className="w-4 h-4 bg-red-600 rounded-full"></div>
+                      <span className="text-sm">Memory Care</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-3">
+                      <div className="w-4 h-4 bg-purple-600 rounded-full"></div>
+                      <span className="text-sm">Independent Living</span>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-6 pt-4 border-t">
+                    <p className="text-sm text-gray-600">
+                      Click on markers to view community details. Click on clusters to zoom in and see individual communities.
+                    </p>
+                  </div>
+                </div>
+              </DrawerContent>
+            </Drawer>
+          )}
 
           {/* Active Filters */}
           {filters.careType !== 'All Types' && (
@@ -903,7 +963,7 @@ export default function MapSearch() {
             onClick={() => {
               console.log('Enhanced floating button clicked! Opening list view...');
               setShowBottomPanel(true);
-              setPanelHeight(60);
+              setPanelHeight(70); // Increased to 70% for better visibility
             }}
             className="relative bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 group"
             title="View Communities List"

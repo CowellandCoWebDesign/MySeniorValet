@@ -408,44 +408,11 @@ export default function Map({
         )}
       </div>
       
-      {/* Compact Map Legend - Optimized for space efficiency */}
-      <div className="w-48 bg-white border-l border-gray-200 p-3 overflow-y-auto">
-        <h4 className="font-semibold mb-3 text-sm">Legend</h4>
-        
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
-              #
-            </div>
-            <span className="text-xs">Clusters</span>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
-            <span className="text-xs">General</span>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-green-600 rounded-full"></div>
-            <span className="text-xs">Assisted Living</span>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-red-600 rounded-full"></div>
-            <span className="text-xs">Memory Care</span>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-purple-600 rounded-full"></div>
-            <span className="text-xs">Independent</span>
-          </div>
-        </div>
-        
-        <div className="mt-4 pt-3 border-t">
-          <p className="text-xs text-gray-500">
-            {clusterData?.features?.length || 0} items shown
-          </p>
-        </div>
+      {/* Minimal Map Stats Overlay - Moved to top-left corner */}
+      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg p-2 z-10 shadow-sm">
+        <p className="text-xs text-gray-600 font-medium">
+          {clusterData?.features?.length || 0} locations
+        </p>
       </div>
     </div>
   );
