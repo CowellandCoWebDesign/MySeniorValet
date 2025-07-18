@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { PricingBreakdown } from "@/components/pricing-breakdown";
@@ -1477,6 +1477,52 @@ export default function TrueViewHome() {
               </Card>
             </Link>
           )) || []}
+        </div>
+      </section>
+
+      {/* Community Portal CTA */}
+      <section className="px-4 py-16 bg-gradient-to-r from-purple-900 to-blue-900 text-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="mb-8">
+            <Building2 className="w-16 h-16 mx-auto mb-4 text-purple-300" />
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Own a Senior Living Community?
+            </h2>
+            <p className="text-lg text-purple-100 mb-6">
+              Take control of your community's online presence and connect with families actively searching for senior living options.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+              <Eye className="w-8 h-8 text-purple-300 mb-3" />
+              <h3 className="font-semibold mb-2">Increase Visibility</h3>
+              <p className="text-sm text-purple-100">Stand out among 25,000+ communities with enhanced search placement</p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+              <Users className="w-8 h-8 text-purple-300 mb-3" />
+              <h3 className="font-semibold mb-2">Connect with Families</h3>
+              <p className="text-sm text-purple-100">Direct messaging and tour scheduling tools to convert leads</p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+              <DollarSign className="w-8 h-8 text-purple-300 mb-3" />
+              <h3 className="font-semibold mb-2">Transparent Pricing</h3>
+              <p className="text-sm text-purple-100">From free basic listing to premium features starting at $149/month</p>
+            </div>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/community-portal">
+              <Button size="lg" className="bg-white text-purple-900 hover:bg-purple-50 px-8 py-6 text-lg font-semibold">
+                <Building2 className="w-5 h-5 mr-2" />
+                Access Community Portal
+              </Button>
+            </Link>
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 px-8 py-6 text-lg">
+              <Phone className="w-5 h-5 mr-2" />
+              Contact Sales Team
+            </Button>
+          </div>
         </div>
       </section>
 

@@ -56,10 +56,10 @@ export function Header() {
             </nav>
           </div>
           <div className="flex items-center space-x-3">
-            <Link to="/claim" className="hidden lg:block">
+            <Link to="/community-portal" className="hidden lg:block">
               <Button variant="ghost" className="text-gray-700 hover:text-primary hover:bg-gray-50 font-medium">
                 <Building2 className="h-4 w-4 mr-2" />
-                Claim Your Community
+                Community Portal
               </Button>
             </Link>
             <Link to="/login">
@@ -104,10 +104,10 @@ export function Header() {
                     })}
                   </nav>
                   <div className="pt-4 border-t border-gray-200 space-y-3">
-                    <Link to="/claim">
+                    <Link to="/community-portal">
                       <Button variant="outline" className="w-full justify-start">
                         <Building2 className="h-4 w-4 mr-2" />
-                        Claim Your Community
+                        Community Portal
                       </Button>
                     </Link>
                     <Link to="/login">
