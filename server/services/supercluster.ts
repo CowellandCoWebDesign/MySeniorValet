@@ -60,17 +60,19 @@ class SuperclusterService {
   private index: Supercluster;
   private isInitialized = false;
   private lastInitTime = 0;
-  private readonly CACHE_DURATION = 30 * 60 * 1000; // 30 minutes - longer cache for better performance
+  private readonly CACHE_DURATION = 60 * 60 * 1000; // 1 hour - longer cache for better performance
   private featuresCache: GeoJSONFeature[] | null = null;
   private initializationPromise: Promise<void> | null = null;
 
   constructor() {
     this.index = new Supercluster({
-      radius: 80,        // Increased radius for better clustering
-      maxZoom: 14,       // Lower max zoom for better performance
-      minZoom: 1,        
-      minPoints: 3,      // Require more points for clusters
+      radius: 40,        // Smaller radius for better individual community visibility
+      maxZoom: 18,       // Higher zoom for maximum detail at close range
+      minZoom: 0,        
+      minPoints: 2,      // Lower threshold for better Mexico/sparse area visibility
       generateId: true,  
+      extent: 512,       // Larger extent for better performance
+      nodeSize: 64,      // Optimized node size for faster queries
     });
   }
 
@@ -163,8 +165,15 @@ class SuperclusterService {
     }
 
     try {
-      // Get clusters from supercluster
+      // Get clusters from supercluster with performance optimization
+      const startTime = Date.now();
       const clusters = this.index.getClusters(bbox, zoom);
+      const processingTime = Date.now() - startTime;
+      
+      // Log performance if slow
+      if (processingTime > 100) {
+        console.log(`Slow cluster query: ${processingTime}ms for ${clusters.length} features at zoom ${zoom}`);
+      }
       
       // Convert to our ClusterFeature format
       const result: ClusterFeature[] = clusters.map(cluster => ({

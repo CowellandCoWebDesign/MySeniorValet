@@ -82,7 +82,11 @@ function MapBoundsHandler({
   const handleBoundsChange = useCallback(() => {
     try {
       if (map && map.getBounds) {
-        onBoundsChange(map.getBounds());
+        // Add small delay to prevent excessive API calls during dragging
+        clearTimeout(window.mapBoundsTimeout);
+        window.mapBoundsTimeout = setTimeout(() => {
+          onBoundsChange(map.getBounds());
+        }, 250); // 250ms debounce for smoother experience
       }
     } catch (error) {
       console.warn('Error getting map bounds:', error);
@@ -101,9 +105,10 @@ function MapBoundsHandler({
   
   useEffect(() => {
     if (map && !initialized) {
-      // Set up event handlers for map movement
+      // Set up event handlers for map movement with better responsiveness
       map.on('moveend', handleBoundsChange);
       map.on('zoomend', handleZoomChange);
+      map.on('drag', handleBoundsChange); // Update during drag for better UX
       
       // Initial bounds and zoom
       handleBoundsChange();
@@ -116,6 +121,8 @@ function MapBoundsHandler({
       if (map) {
         map.off('moveend', handleBoundsChange);
         map.off('zoomend', handleZoomChange);
+        map.off('drag', handleBoundsChange);
+        clearTimeout(window.mapBoundsTimeout);
       }
     };
   }, [map, initialized, handleBoundsChange, handleZoomChange]);
@@ -150,18 +157,22 @@ export default function Map({
   // Track current zoom level for supercluster
   const [currentZoom, setCurrentZoom] = useState(zoom);
   
-  // Fetch clustered communities using supercluster service
+  // Fetch clustered communities using supercluster service with optimized caching
   const { data: clusterData, isLoading, error } = useQuery({
-    queryKey: ['communities-clusters', mapBounds, currentZoom, searchFilters],
+    queryKey: ['communities-clusters', 
+      mapBounds ? `${mapBounds.getSouthWest().lng.toFixed(3)},${mapBounds.getSouthWest().lat.toFixed(3)},${mapBounds.getNorthEast().lng.toFixed(3)},${mapBounds.getNorthEast().lat.toFixed(3)}` : 'default',
+      currentZoom, 
+      searchFilters
+    ],
     queryFn: async () => {
       let west, south, east, north;
       
       if (!mapBounds) {
-        // Use default North America bounds for better coverage display
-        west = -140.0; // Western North America
-        south = 25.0; // Southern North America
-        east = -60.0; // Eastern North America
-        north = 60.0; // Northern North America
+        // Use full North America bounds including Mexico for initial load
+        west = -170.0; // Include Alaska
+        south = 14.0; // Include southern Mexico  
+        east = -50.0; // Include eastern Canada
+        north = 70.0; // Include northern Canada
       } else {
         const sw = mapBounds.getSouthWest();
         const ne = mapBounds.getNorthEast();
@@ -186,10 +197,11 @@ export default function Map({
       
       return response.json();
     },
-    enabled: true, // Always enabled - will use fallback bounds if needed
-    staleTime: 30000, // 30 second cache time for better performance
-    gcTime: 60000, // 1 minute garbage collection time
-    refetchOnWindowFocus: false // Don't refetch when window regains focus
+    enabled: !!mapBounds || currentZoom > 0, // Enable when we have bounds or valid zoom
+    staleTime: 30000, // 30 second cache for more responsive updates
+    refetchOnWindowFocus: false, // Don't refetch when switching tabs
+    gcTime: 300000, // 5 minute garbage collection for better memory management
+    keepPreviousData: true // Keep previous data while loading new data for smoother transitions
   });
 
   const getIconForCommunity = (community: Community) => {
@@ -220,8 +232,8 @@ export default function Map({
           center={center}
           zoom={zoom}
           minZoom={3}
-          maxZoom={16}
-          bounds={[[14.0, -140.0], [70.0, -52.0]]} // North America bounds for 25,000+ communities
+          maxZoom={18}
+          bounds={[[14.0, -170.0], [70.0, -50.0]]} // Full North America including Alaska and Mexico
           style={{ height: '100%', width: '100%' }}
           className="rounded-lg"
         >
