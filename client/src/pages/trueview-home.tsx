@@ -460,31 +460,31 @@ export default function TrueViewHome() {
                 <CardContent className="p-3">
                   {/* Availability Status - Above Price */}
                   {index % 3 === 0 && (
-                    <div className="flex items-center text-xs text-green-600 font-medium mb-2">
+                    <div className="flex items-center text-xs text-green-600 dark:text-green-400 font-medium mb-2">
                       <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
                       Available
                     </div>
                   )}
                   
-                  <div className="text-xl font-bold text-gray-900 mb-2">
+                  <div className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                     <span className="text-sm">Starting at</span> ${community.priceRange && community.priceRange.min ? community.priceRange.min.toLocaleString() : '3,800'}
                     {!community.claimed && (
-                      <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 ml-1 font-normal">est.</span>
                     )}
                   </div>
                   
-                  <div className="text-sm text-gray-700 mb-1">
+                  <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
                     {community.careTypes?.length > 0 ? 
                       `${community.careTypes[0]} • ${index < 4 ? 'Coastal Living' : 'Featured Community'}` : 
                       `Assisted Living • ${index < 4 ? 'Ocean Views' : 'Premium Care'}`
                     }
                   </div>
                   
-                  <div className="text-sm font-medium text-gray-900 mb-2 line-clamp-1">
+                  <div className="text-sm font-medium text-gray-900 dark:text-white mb-2 line-clamp-1">
                     {community.name}
                   </div>
                   
-                  <div className="text-xs text-gray-600 line-clamp-1 mb-2">
+                  <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1 mb-2">
                     {community.address || (index < 4 ? 'Coastal Community' : 'Featured Community')}, {community.city}, {community.state || 'CA'}
                   </div>
                   
@@ -514,21 +514,21 @@ export default function TrueViewHome() {
                   
                   {/* Enhanced Features Row */}
                   <div className="flex items-center justify-between text-xs mt-1">
-                    <div className="flex items-center text-gray-500">
+                    <div className="flex items-center text-gray-500 dark:text-gray-400">
                       <span>{index < 4 ? '🌊 Coastal Views' : '🏆 Featured'}</span>
                     </div>
                     {index % 4 === 0 && (
-                      <div className="text-purple-600 font-medium">
+                      <div className="text-purple-600 dark:text-purple-400 font-medium">
                         {index < 4 ? '🌊 Ocean View' : '🏆 Featured'}
                       </div>
                     )}
                     {index % 4 === 1 && (
-                      <div className="text-blue-600 font-medium">
+                      <div className="text-blue-600 dark:text-blue-400 font-medium">
                         ⭐ Top Rated
                       </div>
                     )}
                     {index % 4 === 2 && (
-                      <div className="text-cyan-600 font-medium">
+                      <div className="text-cyan-600 dark:text-cyan-400 font-medium">
                         {index < 4 ? '🌊 Waterfront' : '🏆 Premium'}
                       </div>
                     )}
@@ -744,7 +744,7 @@ export default function TrueViewHome() {
                         </div>
                       )}
                       
-                      <div className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                      <div className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                         <span className="text-sm">Starting at</span> ${community.priceRange && community.priceRange.min ? community.priceRange.min.toLocaleString() : '4,200'}
                         {!community.claimed && (
                           <span className="text-xs text-gray-500 dark:text-gray-400 ml-1 font-normal">est.</span>
@@ -1345,7 +1345,7 @@ export default function TrueViewHome() {
                 
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between mb-2">
-                    <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                    <div className="text-xl font-bold text-gray-900 dark:text-white">
                       <span className="text-sm">Starting at</span> ${community.priceRange && community.priceRange.min ? community.priceRange.min.toLocaleString() : '4,200'}
                     </div>
                     {index % 3 === 0 && (
