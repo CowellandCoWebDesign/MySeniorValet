@@ -56,6 +56,8 @@ import AISupport from "@/pages/ai-support";
 import AllInOnePlanner from "@/pages/all-in-one-planner";
 import Costs from "@/pages/costs";
 import RealDataPricing from "@/pages/real-data-pricing";
+import Services from "@/pages/services";
+import CommunityPaymentProgram from "@/pages/community-payment-program";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -112,6 +114,8 @@ function Router() {
       <Route path="/all-in-one-planner" component={AllInOnePlanner} />
       <Route path="/costs" component={Costs} />
       <Route path="/real-data-pricing" component={RealDataPricing} />
+      <Route path="/services" component={Services} />
+      <Route path="/community-payment-program" component={CommunityPaymentProgram} />
       <Route component={NotFound} />
     </Switch>
   );
