@@ -286,16 +286,16 @@ export default function Services() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 isolate">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-blue-900 dark:to-purple-900 isolate">
       <Header />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <div className="text-center mb-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Complete Senior Living Services
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
             End-to-end services for every aspect of senior living transitions. 
             From moving and healthcare to insurance and technology support.
           </p>
@@ -314,11 +314,11 @@ export default function Services() {
         {/* Category Navigation */}
         <div className="mb-8 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
           <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-            <TabsList className="flex flex-wrap justify-center gap-1 w-full max-w-6xl mx-auto h-auto p-2">
+            <TabsList className="flex flex-wrap justify-center gap-1 w-full max-w-6xl mx-auto h-auto p-2 dark:bg-gray-800">
               {categories.map((category) => (
-                <TabsTrigger key={category.id} value={category.id} className="text-xs px-3 py-2 whitespace-nowrap">
+                <TabsTrigger key={category.id} value={category.id} className="text-xs px-3 py-2 whitespace-nowrap dark:text-gray-300 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white">
                   {category.name}
-                  <Badge variant="secondary" className="ml-1 text-xs">
+                  <Badge variant="secondary" className="ml-1 text-xs dark:bg-gray-700 dark:text-gray-300">
                     {category.count}
                   </Badge>
                 </TabsTrigger>
@@ -330,16 +330,16 @@ export default function Services() {
         {/* Services Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-400">
           {filteredServices.map((service, index) => (
-            <Card key={service.id} className="hover:shadow-xl transition-all duration-300 transform hover:scale-105 animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: `${index * 100}ms` }}>
+            <Card key={service.id} className="hover:shadow-xl dark:hover:shadow-2xl transition-all duration-300 transform hover:scale-105 animate-in fade-in slide-in-from-bottom-4 duration-500 dark:bg-gray-800 dark:border-gray-700" style={{ animationDelay: `${index * 100}ms` }}>
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <service.icon className="h-6 w-6 text-blue-600" />
+                    <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                      <service.icon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div>
-                      <CardTitle className="text-lg">{service.name}</CardTitle>
-                      <CardDescription>{service.description}</CardDescription>
+                      <CardTitle className="text-lg dark:text-white">{service.name}</CardTitle>
+                      <CardDescription className="dark:text-gray-300">{service.description}</CardDescription>
                     </div>
                   </div>
                 </div>
@@ -351,34 +351,34 @@ export default function Services() {
               
               <CardContent className="space-y-4">
                 {/* Pricing & Commission */}
-                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-green-800">Service Pricing</span>
-                    <span className="text-lg font-bold text-green-900">{service.pricing}</span>
+                    <span className="text-sm font-medium text-green-800 dark:text-green-400">Service Pricing</span>
+                    <span className="text-lg font-bold text-green-900 dark:text-green-300">{service.pricing}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-green-800">Commission Rate</span>
-                    <span className="text-lg font-bold text-green-900">{service.commission}</span>
+                    <span className="text-sm font-medium text-green-800 dark:text-green-400">Commission Rate</span>
+                    <span className="text-lg font-bold text-green-900 dark:text-green-300">{service.commission}</span>
                   </div>
                 </div>
 
                 {/* Affiliate Partner */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
                   <div className="flex items-center space-x-2 mb-2">
-                    <ExternalLink className="h-4 w-4 text-blue-600" />
-                    <span className="text-sm font-medium text-blue-800">Affiliate Partner</span>
+                    <ExternalLink className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <span className="text-sm font-medium text-blue-800 dark:text-blue-400">Affiliate Partner</span>
                   </div>
-                  <span className="text-sm text-blue-700 font-medium">{service.affiliatePartner}</span>
+                  <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">{service.affiliatePartner}</span>
                 </div>
 
                 {/* Features */}
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Key Features</h4>
+                  <h4 className="font-medium text-gray-900 dark:text-white mb-2">Key Features</h4>
                   <ul className="space-y-1">
                     {service.features.map((feature, idx) => (
                       <li key={idx} className="flex items-center space-x-2">
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                        <span className="text-sm text-gray-600">{feature}</span>
+                        <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400" />
+                        <span className="text-sm text-gray-600 dark:text-gray-300">{feature}</span>
                       </li>
                     ))}
                   </ul>
