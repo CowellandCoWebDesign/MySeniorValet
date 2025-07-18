@@ -8,6 +8,7 @@ import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { PricingBreakdown } from "@/components/pricing-breakdown";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { EnhancedPlatformStats } from "@/components/EnhancedPlatformStats";
 
 
 export default function TrueViewHome() {
@@ -1453,6 +1454,13 @@ export default function TrueViewHome() {
               </Card>
             </Link>
           )) || []}
+        </div>
+      </section>
+
+      {/* Enhanced Platform Statistics */}
+      <section className="px-4 py-16 bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-7xl mx-auto">
+          <EnhancedPlatformStats />
         </div>
       </section>
 

@@ -69,6 +69,7 @@ import { intelligentPricingService } from "./intelligent-pricing-service";
 import { nationwidePricingResearch } from "./nationwide-pricing-research";
 import { ServiceListingClassifier } from "./service-listing-classifier";
 import { affiliateTracker } from "./affiliate-tracking";
+import { enhancedPlatformStats } from "./enhanced-platform-stats";
 
 // Authentication middleware function
 const isAuthenticated = (req: any, res: any, next: any) => {
@@ -1143,6 +1144,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Community count error:', error);
       res.status(500).json({ error: 'Failed to fetch community count' });
+    }
+  });
+
+  // Get enhanced platform statistics with real-time data
+  app.get("/api/platform/stats", async (req, res) => {
+    try {
+      const stats = await enhancedPlatformStats.getPlatformStats();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching platform stats:", error);
+      res.status(500).json({ error: "Failed to fetch platform statistics" });
+    }
+  });
+
+  // Get formatted platform statistics for display
+  app.get("/api/platform/stats/formatted", async (req, res) => {
+    try {
+      const stats = await enhancedPlatformStats.getFormattedStats();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching formatted platform stats:", error);
+      res.status(500).json({ error: "Failed to fetch formatted statistics" });
+    }
+  });
+
+  // Clear platform statistics cache
+  app.post("/api/platform/stats/clear-cache", async (req, res) => {
+    try {
+      enhancedPlatformStats.clearCache();
+      res.json({ message: "Platform statistics cache cleared successfully" });
+    } catch (error) {
+      console.error("Error clearing platform stats cache:", error);
+      res.status(500).json({ error: "Failed to clear cache" });
     }
   });
 
