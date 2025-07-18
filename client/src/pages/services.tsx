@@ -314,9 +314,9 @@ export default function Services() {
         {/* Category Navigation */}
         <div className="mb-8 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
           <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-            <TabsList className="grid grid-cols-7 w-full max-w-4xl mx-auto">
+            <TabsList className="flex flex-wrap justify-center gap-1 w-full max-w-6xl mx-auto h-auto p-2">
               {categories.map((category) => (
-                <TabsTrigger key={category.id} value={category.id} className="text-xs">
+                <TabsTrigger key={category.id} value={category.id} className="text-xs px-3 py-2 whitespace-nowrap">
                   {category.name}
                   <Badge variant="secondary" className="ml-1 text-xs">
                     {category.count}

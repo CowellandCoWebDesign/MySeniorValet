@@ -30,7 +30,7 @@ export function Header() {
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full opacity-0 group-hover:opacity-100 animate-pulse transition-opacity duration-300"></div>
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-display font-bold text-gray-900 group-hover:text-primary transition-colors duration-300 group-hover:scale-105 transform">MySeniorValet</span>
+                <span className="text-xl font-display font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent group-hover:scale-105 transform transition-all duration-300">MySeniorValet</span>
                 <span className="text-xs text-gray-500 font-medium -mt-1 group-hover:text-gray-600 transition-colors duration-300">Your Personal Senior Living Concierge</span>
               </div>
             </Link>
