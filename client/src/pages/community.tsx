@@ -334,11 +334,11 @@ export default function CommunityPage() {
       <div className="relative z-10">
         <Header />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
         {/* Back Navigation */}
-        <div className="mb-6">
+        <div className="mb-6 animate-in fade-in slide-in-from-left-4 duration-500">
           <Link href={getBackUrl()}>
-            <Button variant="outline" className="mb-4">
+            <Button variant="outline" className="mb-4 hover:bg-blue-50 hover:border-blue-300 transition-all duration-300 transform hover:scale-105">
               <ChevronLeft className="h-4 w-4 mr-2" />
               Back to Search
             </Button>
@@ -346,20 +346,20 @@ export default function CommunityPage() {
         </div>
 
         {/* ENHANCED PHOTO GALLERY */}
-        <div className="mb-8">
-          <Card className="overflow-hidden">
+        <div className="mb-8 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
+          <Card className="overflow-hidden hover:shadow-2xl transition-shadow duration-500">
             {hasPhotos ? (
-              <div className="relative">
+              <div className="relative overflow-hidden">
                 <PhotoCarousel 
                   photos={allPhotos} 
                   communityName={community.name}
-                  className="h-96"
+                  className="h-96 transform hover:scale-105 transition-transform duration-700"
                 />
                 
                 {/* Virtual Tour Badge */}
                 {community.virtualTourUrl && (
-                  <div className="absolute top-4 left-4">
-                    <Badge className="bg-blue-600 text-white cursor-pointer hover:bg-blue-700">
+                  <div className="absolute top-4 left-4 animate-in fade-in slide-in-from-top-4 duration-500 delay-300">
+                    <Badge className="bg-blue-600 text-white cursor-pointer hover:bg-blue-700 transform hover:scale-110 transition-all duration-300">
                       <Video className="h-3 w-3 mr-1" />
                       Virtual Tour Available
                     </Badge>
@@ -367,7 +367,7 @@ export default function CommunityPage() {
                 )}
 
                 {/* Availability Overlay */}
-                <div className={`absolute bottom-0 left-0 right-0 ${availability.color} px-6 py-4`}>
+                <div className={`absolute bottom-0 left-0 right-0 ${availability.color} px-6 py-4 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       {availability.icon}

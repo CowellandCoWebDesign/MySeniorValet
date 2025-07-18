@@ -176,16 +176,16 @@ export function CommunityCard({ community }: CommunityCardProps) {
 
   return (
     <Card 
-      className="overflow-hidden hover:shadow-xl transition-all duration-300 border-l-4 border-l-blue-500 cursor-pointer group"
+      className="overflow-hidden hover:shadow-xl transition-all duration-500 border-l-4 border-l-blue-500 cursor-pointer group transform hover:scale-[1.02] hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4 duration-700"
       onClick={handleCardClick}
     >
         {/* ENHANCED PHOTO CAROUSEL */}
         {hasPhotos ? (
-          <div className="relative">
+          <div className="relative overflow-hidden">
             <PhotoCarousel 
               photos={allPhotos} 
               communityName={community.name}
-              className="h-48"
+              className="h-48 transform group-hover:scale-105 transition-transform duration-700"
             />
             
             {/* FAVORITE AND SHARE OVERLAYS */}
@@ -197,10 +197,10 @@ export function CommunityCard({ community }: CommunityCardProps) {
                   // TODO: Implement favorite toggle functionality
                   console.log('Toggle favorite for community:', community.id);
                 }}
-                className="p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white/90 transition-all duration-200 group shadow-lg"
+                className="p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white/90 transition-all duration-300 group shadow-lg transform hover:scale-110 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0"
                 aria-label="Add to favorites"
               >
-                <Heart className="h-5 w-5 text-red-500/70 hover:text-red-500 hover:fill-red-500/20 transition-all duration-200" />
+                <Heart className="h-5 w-5 text-red-500/70 hover:text-red-500 hover:fill-red-500/20 transition-all duration-300" />
               </button>
               
               <button
@@ -209,23 +209,23 @@ export function CommunityCard({ community }: CommunityCardProps) {
                   e.stopPropagation();
                   handleShare();
                 }}
-                className="p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white/90 transition-all duration-200 group shadow-lg"
+                className="p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white/90 transition-all duration-300 group shadow-lg transform hover:scale-110 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 delay-75"
                 aria-label="Share community"
               >
-                <Share className="h-5 w-5 text-blue-500/70 hover:text-blue-500 transition-all duration-200" />
+                <Share className="h-5 w-5 text-blue-500/70 hover:text-blue-500 transition-all duration-300" />
               </button>
             </div>
 
           {/* OVERLAY BADGES */}
           <div className="absolute top-3 right-3 flex space-x-2">
             {allPhotos.length > 1 && (
-              <Badge className="bg-black/60 text-white border-0 backdrop-blur-sm">
+              <Badge className="bg-black/60 text-white border-0 backdrop-blur-sm transform hover:scale-105 transition-transform duration-200 animate-in fade-in slide-in-from-right-2">
                 <Camera className="h-3 w-3 mr-1" />
                 {allPhotos.length} Photos
               </Badge>
             )}
             {community.virtualTourUrl && (
-              <Badge className="bg-blue-600 text-white border-0 cursor-pointer hover:bg-blue-700">
+              <Badge className="bg-blue-600 text-white border-0 cursor-pointer hover:bg-blue-700 transform hover:scale-105 transition-all duration-200 animate-in fade-in slide-in-from-right-2 delay-100">
                 <Video className="h-3 w-3 mr-1" />
                 Virtual Tour
               </Badge>
@@ -233,7 +233,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
           </div>
           
           {/* AVAILABILITY OVERLAY */}
-          <div className={`absolute bottom-0 left-0 right-0 ${availability.color} px-4 py-2 flex items-center justify-between`}>
+          <div className={`absolute bottom-0 left-0 right-0 ${availability.color} px-4 py-2 flex items-center justify-between transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300`}>
             <div className="flex items-center space-x-2">
               {availability.icon}
               <span className="font-bold">{community.availabilityStatus}</span>
@@ -284,22 +284,22 @@ export function CommunityCard({ community }: CommunityCardProps) {
         </div>
       )}
 
-      <CardContent className="p-6">
+      <CardContent className="p-6 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
         {/* Header: Name, Rating & Location */}
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">{community.name}</h3>
-            <div className="flex items-center text-gray-600 text-sm mb-3">
-              <MapPin className="h-4 w-4 mr-1" />
+            <h3 className="text-2xl font-bold text-gray-900 mb-2 hover:text-blue-600 transition-colors duration-300">{community.name}</h3>
+            <div className="flex items-center text-gray-600 text-sm mb-3 hover:text-gray-800 transition-colors duration-200">
+              <MapPin className="h-4 w-4 mr-1 hover:text-blue-500 transition-colors duration-200" />
               {community.address}, {community.city}, {community.state}
             </div>
           </div>
           
           {/* PROMINENT RATING DISPLAY */}
           {community.googleRating && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-center min-w-[100px]">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-center min-w-[100px] hover:bg-yellow-100 transform hover:scale-105 transition-all duration-300 animate-in fade-in slide-in-from-right-4 duration-500 delay-300">
               <div className="flex items-center justify-center space-x-1 mb-1">
-                <Star className="h-5 w-5 text-yellow-500 fill-current" />
+                <Star className="h-5 w-5 text-yellow-500 fill-current hover:text-yellow-600 transition-colors duration-200" />
                 <span className="text-xl font-bold text-gray-900">{parseFloat(community.googleRating).toFixed(1)}</span>
               </div>
               <div className="text-xs text-gray-600">{community.googleReviewCount} reviews</div>
@@ -307,7 +307,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
                 {[...Array(5)].map((_, i) => (
                   <Star 
                     key={i} 
-                    className={`h-3 w-3 ${i < Math.round(parseFloat(community.googleRating || '0')) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+                    className={`h-3 w-3 transition-all duration-200 ${i < Math.round(parseFloat(community.googleRating || '0')) ? 'text-yellow-400 fill-current hover:text-yellow-500' : 'text-gray-300 hover:text-gray-400'}`} 
                   />
                 ))}
               </div>
@@ -316,24 +316,24 @@ export function CommunityCard({ community }: CommunityCardProps) {
         </div>
 
         {/* 1. CONTACT INFORMATION - Most Important */}
-        <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-4">
+        <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-4 hover:bg-blue-100 transform hover:scale-[1.02] transition-all duration-300 animate-in fade-in slide-in-from-left-4 duration-500 delay-300">
           <div className="flex items-center space-x-2 mb-3">
-            <Phone className="h-5 w-5 text-blue-600" />
+            <Phone className="h-5 w-5 text-blue-600 hover:text-blue-700 transition-colors duration-200" />
             <span className="font-bold text-blue-900 text-lg">Contact Information</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {community.phone && (
-              <div className="flex items-center space-x-2">
-                <Phone className="h-4 w-4 text-blue-600" />
-                <a href={`tel:${community.phone}`} className="text-blue-700 hover:text-blue-900 font-medium">
+              <div className="flex items-center space-x-2 hover:bg-blue-200 p-2 rounded transition-colors duration-200">
+                <Phone className="h-4 w-4 text-blue-600 hover:text-blue-700 transition-colors duration-200" />
+                <a href={`tel:${community.phone}`} className="text-blue-700 hover:text-blue-900 font-medium transition-colors duration-200">
                   {community.phone}
                 </a>
               </div>
             )}
             {community.email && (
-              <div className="flex items-center space-x-2">
-                <ExternalLink className="h-4 w-4 text-blue-600" />
-                <a href={`mailto:${community.email}`} className="text-blue-700 hover:text-blue-900 font-medium">
+              <div className="flex items-center space-x-2 hover:bg-blue-200 p-2 rounded transition-colors duration-200">
+                <ExternalLink className="h-4 w-4 text-blue-600 hover:text-blue-700 transition-colors duration-200" />
+                <a href={`mailto:${community.email}`} className="text-blue-700 hover:text-blue-900 font-medium transition-colors duration-200">
                   {community.email}
                 </a>
               </div>
@@ -341,7 +341,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
           </div>
           {community.website && (
             <div className="mt-2">
-              <a href={community.website} target="_blank" rel="noopener noreferrer" className="text-blue-700 hover:text-blue-900 font-medium text-sm">
+              <a href={community.website} target="_blank" rel="noopener noreferrer" className="text-blue-700 hover:text-blue-900 font-medium text-sm transition-colors duration-200 hover:underline">
                 Visit Website →
               </a>
             </div>
@@ -349,19 +349,19 @@ export function CommunityCard({ community }: CommunityCardProps) {
         </div>
 
         {/* 2. TRANSPARENT PRICING - NO "CALL FOR PRICING" ALLOWED */}
-        <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 mb-4">
+        <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 mb-4 hover:bg-green-100 transform hover:scale-[1.02] transition-all duration-300 animate-in fade-in slide-in-from-right-4 duration-500 delay-400">
           <div className="flex items-start justify-between mb-2">
             <div className="flex items-center space-x-2">
-              <DollarSign className="h-6 w-6 text-green-600" />
+              <DollarSign className="h-6 w-6 text-green-600 hover:text-green-700 transition-colors duration-200" />
               <span className="font-bold text-green-900 text-lg">Monthly Cost Estimates</span>
             </div>
             {/* CRITICAL BUSINESS LOGIC: Featured/Premium communities = Claimed communities = Live Pricing */}
             {((community.badges && (community.badges.includes('Featured') || community.badges.includes('Premium'))) || community.isClaimed) ? (
-              <Badge className="bg-blue-600 text-white text-xs font-semibold">
+              <Badge className="bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-colors duration-200">
                 ✓ Live Pricing
               </Badge>
             ) : (
-              <Badge className="bg-green-600 text-white text-xs">
+              <Badge className="bg-green-600 text-white text-xs hover:bg-green-700 transition-colors duration-200">
                 Market Research
               </Badge>
             )}
