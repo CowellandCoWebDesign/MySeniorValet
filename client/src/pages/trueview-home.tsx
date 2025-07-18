@@ -265,7 +265,7 @@ export default function TrueViewHome() {
           {/* Community Count Text - Larger */}
           <div className="mb-4 animate-fade-in-up animation-delay-750">
             <p className="text-white/90 dark:text-gray-300 text-sm md:text-base drop-shadow-md text-center">
-              Serving families across <strong className="text-amber-200">8,000+ verified senior living communities</strong>
+              Serving families across <strong className="text-amber-200">25,000+ verified senior living communities</strong>
             </p>
           </div>
           
@@ -1607,9 +1607,9 @@ export default function TrueViewHome() {
               
               <div className="flex items-center gap-4 text-sm text-gray-400">
                 <span>Platform Coverage:</span>
-                <span className="text-blue-400 font-medium">8,053+ Communities</span>
+                <span className="text-blue-400 font-medium">25,782+ Communities</span>
                 <span>•</span>
-                <span className="text-green-400 font-medium">19 States</span>
+                <span className="text-green-400 font-medium">Complete North America</span>
               </div>
             </div>
             
