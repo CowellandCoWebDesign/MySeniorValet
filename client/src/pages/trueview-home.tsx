@@ -7,6 +7,7 @@ import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, 
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { PricingBreakdown } from "@/components/pricing-breakdown";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 
 export default function TrueViewHome() {
@@ -100,9 +101,9 @@ export default function TrueViewHome() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Header - Reduced height */}
-      <header className="absolute top-0 left-0 right-0 z-50 bg-black/10 backdrop-blur-md border-b border-white/10">
+      <header className="absolute top-0 left-0 right-0 z-50 bg-black/10 dark:bg-black/30 backdrop-blur-md border-b border-white/10 dark:border-white/20">
         <div className="px-4 py-2.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -117,14 +118,15 @@ export default function TrueViewHome() {
                 <div className="w-6 h-6 gradient-primary rounded-md flex items-center justify-center">
                   <Home className="w-4 h-4 text-white" />
                 </div>
-                <span className="text-lg font-bold text-gradient">MySeniorValet</span>
+                <span className="text-lg font-bold text-gradient dark:text-white">MySeniorValet</span>
               </div>
             </div>
             <div className="flex items-center space-x-3">
-              <Link href="/login" className="text-white hover:text-amber-200 transition-colors font-medium text-sm">
+              <ThemeToggle />
+              <Link href="/login" className="text-white hover:text-amber-200 dark:text-gray-300 dark:hover:text-amber-300 transition-colors font-medium text-sm">
                 Sign In
               </Link>
-              <Link href="/signup" className="bg-white/20 backdrop-blur-sm text-white px-3 py-1.5 rounded-xl hover:bg-white/30 transition-all duration-200 font-medium shadow-lg hover:shadow-xl text-sm">
+              <Link href="/signup" className="bg-white/20 backdrop-blur-sm text-white px-3 py-1.5 rounded-xl hover:bg-white/30 dark:bg-white/10 dark:hover:bg-white/20 transition-all duration-200 font-medium shadow-lg hover:shadow-xl text-sm">
                 Sign Up
               </Link>
             </div>
@@ -133,7 +135,7 @@ export default function TrueViewHome() {
       </header>
 
       {/* Hero Section with Search */}
-      <section className="relative hero-mobile-safe bg-gradient-to-br from-slate-50 to-amber-50">
+      <section className="relative hero-mobile-safe bg-gradient-to-br from-slate-50 to-amber-50 dark:from-gray-900 dark:to-gray-800">
         <div className="absolute inset-0">
           {heroImages && heroImages.length > 0 ? (
             <img
@@ -148,17 +150,17 @@ export default function TrueViewHome() {
               className="w-full h-full object-cover"
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/60"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/60 dark:from-black/60 dark:via-black/70 dark:to-black/80"></div>
         </div>
         
         <div className="relative z-10 flex flex-col items-center justify-center hero-content min-h-screen px-6 py-16 mobile-keyboard-safe">
           {/* Centered Headlines - Much Larger */}
           <div className="text-center mb-8 md:mb-12 max-w-5xl">
             <div className="space-y-4 mb-6">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight drop-shadow-lg animate-fade-in-up">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white dark:text-gray-100 leading-tight drop-shadow-lg animate-fade-in-up">
                 Everything Senior Living Needs—Handled in One Place
               </h1>
-              <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl text-white opacity-90 drop-shadow-md px-4 animate-fade-in-up animation-delay-300 max-w-4xl mx-auto">
+              <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl text-white dark:text-gray-200 opacity-90 drop-shadow-md px-4 animate-fade-in-up animation-delay-300 max-w-4xl mx-auto">
                 From live pricing and unit availability to move coordination, furniture setup, and prescription delivery, MySeniorValet is your white-glove partner.
               </h2>
             </div>
@@ -173,7 +175,7 @@ export default function TrueViewHome() {
               const query = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
               window.location.href = `/search${query}`;
             }}>
-              <div className={`relative bg-white ${showSuggestions && suggestions.length > 0 ? 'rounded-t-3xl' : 'rounded-3xl'} shadow-xl overflow-hidden`}>
+              <div className={`relative bg-white dark:bg-gray-800 ${showSuggestions && suggestions.length > 0 ? 'rounded-t-3xl' : 'rounded-3xl'} shadow-xl overflow-hidden`}>
                 <div className="flex items-center">
                   <input
                     type="text"
@@ -208,11 +210,11 @@ export default function TrueViewHome() {
                       // Delay hiding suggestions to allow click events
                       setTimeout(() => setShowSuggestions(false), 200);
                     }}
-                    className="flex-1 px-6 py-4 text-base border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 placeholder-gray-500"
+                    className="flex-1 px-6 py-4 text-base border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                   />
                   <button
                     type="submit"
-                    className="bg-gray-700 hover:bg-gray-800 text-white p-3 m-2 rounded-2xl transition-colors flex items-center justify-center"
+                    className="bg-gray-700 hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-700 text-white p-3 m-2 rounded-2xl transition-colors flex items-center justify-center"
                   >
                     <Search className="w-6 h-6" />
                   </button>
@@ -223,13 +225,13 @@ export default function TrueViewHome() {
             
             {/* Suggestions Dropdown - Connected directly to search box */}
             {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 bg-white rounded-b-3xl shadow-2xl border border-gray-200 border-t-0 overflow-hidden max-h-60 overflow-y-auto" style={{ zIndex: 999999 }}>
+              <div className="absolute top-full left-0 right-0 bg-white dark:bg-gray-800 rounded-b-3xl shadow-2xl border border-gray-200 dark:border-gray-600 border-t-0 overflow-hidden max-h-60 overflow-y-auto" style={{ zIndex: 999999 }}>
                 {suggestions.map((suggestion, index) => (
                   <button
                     key={index}
                     type="button"
                     onClick={() => handleSuggestionClick(suggestion)}
-                    className="w-full px-6 py-4 text-left hover:bg-blue-50 active:bg-blue-100 border-b border-gray-100 last:border-b-0 flex items-center space-x-4 transition-colors text-base"
+                    className="w-full px-6 py-4 text-left hover:bg-blue-50 dark:hover:bg-gray-700 active:bg-blue-100 dark:active:bg-gray-600 border-b border-gray-100 dark:border-gray-600 last:border-b-0 flex items-center space-x-4 transition-colors text-base"
                   >
                     {/* Icon based on suggestion type */}
                     {suggestion.includes(', CA') || suggestion.includes(', AZ') || suggestion.includes(', TX') ? (
@@ -239,7 +241,7 @@ export default function TrueViewHome() {
                     ) : (
                       <Search className="w-5 h-5 text-gray-500 flex-shrink-0" />
                     )}
-                    <span className="text-gray-800 font-medium">{suggestion}</span>
+                    <span className="text-gray-800 dark:text-gray-200 font-medium">{suggestion}</span>
                   </button>
                 ))}
               </div>
@@ -262,14 +264,14 @@ export default function TrueViewHome() {
           
           {/* Community Count Text - Larger */}
           <div className="mb-4 animate-fade-in-up animation-delay-750">
-            <p className="text-white/90 text-sm md:text-base drop-shadow-md text-center">
+            <p className="text-white/90 dark:text-gray-300 text-sm md:text-base drop-shadow-md text-center">
               Serving families across <strong className="text-amber-200">8,000+ verified senior living communities</strong>
             </p>
           </div>
           
           {/* Verification Badge - Larger */}
           <div className="mb-8 animate-fade-in-up animation-delay-800">
-            <div className="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium shadow-lg">
+            <div className="inline-flex items-center px-4 py-2 bg-white/20 dark:bg-white/10 backdrop-blur-sm rounded-full text-white dark:text-gray-200 text-sm font-medium shadow-lg">
               <div className="w-3 h-3 bg-green-400 rounded-full mr-3 animate-pulse"></div>
               Verified Pricing • Real Availability • No Pressure
             </div>
@@ -280,55 +282,55 @@ export default function TrueViewHome() {
       </section>
 
       {/* Complete Concierge Services */}
-      <section className="px-4 py-12 bg-white">
+      <section className="px-4 py-12 bg-white dark:bg-gray-900">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Complete Concierge Services</h2>
-            <p className="text-gray-600">Everything you need for senior living decisions, all in one place</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Complete Concierge Services</h2>
+            <p className="text-gray-600 dark:text-gray-400">Everything you need for senior living decisions, all in one place</p>
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {/* Live Pricing & Availability */}
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow dark:bg-gray-800">
               <CardContent className="p-6 text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Eye className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Live Pricing & Availability</h3>
-                <p className="text-sm text-gray-600">Real-time pricing and unit availability across all communities</p>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Live Pricing & Availability</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Real-time pricing and unit availability across all communities</p>
               </CardContent>
             </Card>
 
             {/* Move Coordination */}
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow dark:bg-gray-800">
               <CardContent className="p-6 text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Truck className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Move Coordination</h3>
-                <p className="text-sm text-gray-600">Professional moving services and timeline coordination</p>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Move Coordination</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Professional moving services and timeline coordination</p>
               </CardContent>
             </Card>
 
             {/* Medical Equipment & Furniture */}
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow dark:bg-gray-800">
               <CardContent className="p-6 text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Sofa className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Medical Equipment & Furniture</h3>
-                <p className="text-sm text-gray-600">Medical equipment purchase and furniture delivery services</p>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Medical Equipment & Furniture</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Medical equipment purchase and furniture delivery services</p>
               </CardContent>
             </Card>
 
             {/* Family Collaboration & Tour Tracker */}
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow border-2 border-amber-200">
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow border-2 border-amber-200 dark:border-amber-400 dark:bg-gray-800">
               <CardContent className="p-6 text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Users className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Family Collaboration & Tour Tracker</h3>
-                <p className="text-sm text-gray-600">Family sharing tools and tour scheduling with progress tracking</p>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Family Collaboration & Tour Tracker</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Family sharing tools and tour scheduling with progress tracking</p>
               </CardContent>
             </Card>
           </div>
@@ -346,7 +348,7 @@ export default function TrueViewHome() {
       </section>
 
       {/* Coastal Living Section */}
-      <section className="px-4 py-12 relative overflow-hidden">
+      <section className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
         {/* Background Ocean Wave Image */}
         <div className="absolute inset-0 z-0">
           <img 
@@ -354,18 +356,18 @@ export default function TrueViewHome() {
             alt="Ocean waves background"
             className="w-full h-full object-cover opacity-75"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-50/40 to-cyan-50/40"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-50/40 to-cyan-50/40 dark:from-gray-900/60 dark:to-gray-800/60"></div>
         </div>
         
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-1">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                 Featured & Coastal Communities
               </h2>
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-purple-700 font-medium">Premium communities</span>
+                <span className="text-sm text-purple-700 dark:text-purple-300 font-medium">Premium communities</span>
                 <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                 <span className="text-sm text-blue-700 font-medium">Ocean views available</span>
               </div>

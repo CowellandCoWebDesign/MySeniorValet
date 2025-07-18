@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { DisclaimerBanner } from "@/components/disclaimer-banner";
 import { MascotProvider } from "@/components/mascot";
+import { ThemeProvider } from "@/components/theme-provider";
 import Home from "@/pages/home";
 import TrueViewHome from "@/pages/trueview-home";
 import Search from "@/pages/search";
@@ -118,11 +119,13 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <MascotProvider>
-          <Toaster />
-          <Router />
-          <DisclaimerBanner />
-        </MascotProvider>
+        <ThemeProvider>
+          <MascotProvider>
+            <Toaster />
+            <Router />
+            <DisclaimerBanner />
+          </MascotProvider>
+        </ThemeProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );
