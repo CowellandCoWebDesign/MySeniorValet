@@ -291,19 +291,7 @@ class IntelligentPricingService {
       console.log('Research data not available, using existing pricing');
     }
     
-    // 3. Check if community has existing price range
-    if (community.priceRange && community.priceRange.min > 0) {
-      return {
-        min: community.priceRange.min,
-        max: community.priceRange.max,
-        careTypePricing: this.calculateCareTypePricing(community.priceRange.min, community.priceRange.max, community.careTypes),
-        confidence: 'medium',
-        dataSource: 'market',
-        lastUpdated: new Date()
-      };
-    }
-    
-    // 3. Generate intelligent market-based estimate
+    // 3. Generate intelligent market-based estimate (ALWAYS regenerate to fix pricing issues)
     return this.generateMarketBasedEstimate(community);
   }
   
@@ -315,8 +303,8 @@ class IntelligentPricingService {
     const cityMultiplier = CITY_MULTIPLIERS[community.city] || 1.0;
     const amenityMultiplier = this.calculateAmenityMultiplier(community);
     
-    // Calculate base pricing for primary care type
-    const primaryCareType = community.careTypes[0] || 'Assisted Living';
+    // Calculate base pricing for highest-cost care type (fixes Memory Care pricing issue)
+    const primaryCareType = this.getHighestCostCareType(community.careTypes) || 'Assisted Living';
     let basePricing = this.getBasePricingForCareType(primaryCareType, stateData);
     
     // Apply multipliers
@@ -337,6 +325,25 @@ class IntelligentPricingService {
     };
   }
   
+  /**
+   * Get the highest-cost care type from a list of care types
+   * This ensures Memory Care pricing is used when communities offer multiple care types
+   */
+  private getHighestCostCareType(careTypes: string[]): string {
+    if (!careTypes || careTypes.length === 0) return 'Assisted Living';
+    
+    // Priority order from highest to lowest cost
+    const costOrder = ['Skilled Nursing', 'Memory Care', 'Assisted Living', 'Independent Living'];
+    
+    for (const careType of costOrder) {
+      if (careTypes.includes(careType)) {
+        return careType;
+      }
+    }
+    
+    return careTypes[0] || 'Assisted Living';
+  }
+
   /**
    * Get base pricing for specific care type
    */
