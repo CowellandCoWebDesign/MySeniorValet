@@ -81,6 +81,17 @@
   justify-content: center;
 }
 
+/* Enhanced cluster marker styling */
+.cluster-marker {
+  cursor: pointer !important;
+  transition: all 0.2s ease-in-out;
+}
+
+.cluster-marker:hover {
+  transform: scale(1.1);
+  filter: brightness(1.1);
+}
+
 :root {
   --background: hsl(220, 30%, 98%);
   --foreground: hsl(222, 84%, 4.9%);

@@ -251,18 +251,22 @@ export default function Map({
           
           // Handle cluster markers (multiple communities)
           if (properties.cluster) {
+            // Create dynamic cluster icon size based on point count
+            const size = Math.min(40 + Math.log10(properties.point_count || 1) * 8, 60);
             const clusterIcon = new Icon({
               iconUrl: `data:image/svg+xml;base64,${btoa(`
-                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
-                  <circle cx="20" cy="20" r="20" fill="#1e40af" stroke="#fff" stroke-width="2"/>
-                  <text x="20" y="26" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">
+                <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+                  <circle cx="${size/2}" cy="${size/2}" r="${size/2 - 2}" fill="#1e40af" stroke="#fff" stroke-width="3"/>
+                  <circle cx="${size/2}" cy="${size/2}" r="${size/2 - 6}" fill="rgba(59, 130, 246, 0.3)" stroke="none"/>
+                  <text x="${size/2}" y="${size/2 + 4}" text-anchor="middle" fill="#fff" font-size="${Math.min(12, size/4)}" font-weight="bold">
                     ${properties.point_count_abbreviated}
                   </text>
                 </svg>
               `)}`,
-              iconSize: [40, 40],
-              iconAnchor: [20, 20],
-              popupAnchor: [0, -20],
+              iconSize: [size, size],
+              iconAnchor: [size/2, size/2],
+              popupAnchor: [0, -size/2],
+              className: 'cluster-marker'
             });
 
             return (
@@ -271,16 +275,57 @@ export default function Map({
                 position={[lat, lng]}
                 icon={clusterIcon}
                 eventHandlers={{
-                  click: () => {
+                  click: async () => {
                     console.log('Cluster clicked:', properties.cluster_id);
-                    onClusterClick?.(properties.cluster_id, lat, lng, currentZoom + 2);
+                    
+                    try {
+                      // Get optimal expansion zoom level from server
+                      const response = await fetch(`/api/communities/clusters/${properties.cluster_id}/expansion-zoom`);
+                      const data = await response.json();
+                      
+                      // Get map instance and zoom to cluster
+                      const mapContainer = document.querySelector('.leaflet-container') as any;
+                      if (mapContainer && mapContainer._leaflet_map) {
+                        const map = mapContainer._leaflet_map;
+                        const targetZoom = Math.min(data.expansionZoom || currentZoom + 3, 18);
+                        map.setView([lat, lng], targetZoom, {
+                          animate: true,
+                          duration: 0.8
+                        });
+                        console.log(`Zooming to cluster ${properties.cluster_id} at zoom level ${targetZoom}`);
+                      }
+                      
+                      // Call optional callback
+                      onClusterClick?.(properties.cluster_id, lat, lng, data.expansionZoom);
+                      
+                    } catch (error) {
+                      console.error('Error expanding cluster:', error);
+                      // Fallback: intelligent zoom based on cluster size
+                      const mapContainer = document.querySelector('.leaflet-container') as any;
+                      if (mapContainer && mapContainer._leaflet_map) {
+                        const map = mapContainer._leaflet_map;
+                        // Zoom more for smaller clusters, less for larger ones
+                        const zoomIncrease = properties.point_count > 100 ? 2 : 
+                                           properties.point_count > 50 ? 3 : 
+                                           properties.point_count > 10 ? 4 : 5;
+                        const targetZoom = Math.min(currentZoom + zoomIncrease, 18);
+                        map.setView([lat, lng], targetZoom, {
+                          animate: true,
+                          duration: 0.8
+                        });
+                        console.log(`Fallback zoom for cluster with ${properties.point_count} communities to level ${targetZoom}`);
+                      }
+                    }
                   }
                 }}
               >
                 <Popup>
-                  <div className="p-2 text-center">
-                    <h4 className="font-bold">{properties.point_count} Communities</h4>
-                    <p className="text-sm text-gray-600">Click to explore</p>
+                  <div className="p-3 text-center">
+                    <h4 className="font-bold text-lg">{properties.point_count} Communities</h4>
+                    <p className="text-sm text-gray-600 mb-2">Click cluster to zoom in and explore</p>
+                    <div className="text-xs text-gray-500">
+                      Zoom level: {currentZoom}
+                    </div>
                   </div>
                 </Popup>
               </Marker>
