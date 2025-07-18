@@ -543,7 +543,7 @@ export default function TrueViewHome() {
       </section>
 
       {/* Move-In Cost Calculator */}
-      <section className="px-4 py-8 gradient-card dark:bg-gray-800">
+      <section className="px-4 py-8 gradient-card">
         <div className="mb-6">
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
             Understand your move-in costs
