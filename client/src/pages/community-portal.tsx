@@ -45,51 +45,191 @@ export default function CommunityPortal() {
   const plans = [
     {
       id: 'basic',
-      name: 'Basic Profile',
+      name: 'Basic Listing',
       price: 'Free',
+      priceValue: 0,
+      tier: 'Basic',
+      color: 'gray',
+      description: 'All licensed communities (default listing scraped by MSV)',
       features: [
-        'Update basic community information',
-        'Upload up to 10 photos',
-        'Respond to reviews',
-        'Update contact information',
-        'Basic analytics'
+        'Profile Ownership & Claim',
+        'Basic contact information display',
+        'Single auto-generated photo',
+        'Basic amenity tags',
+        'Lowest search visibility',
+        'No reporting dashboard'
       ],
       limitations: [
-        'No pricing updates',
-        'Limited photo uploads',
-        'No priority support'
+        'No editable contact info',
+        'No Google/Yelp reviews integration',
+        'Limited photo gallery (1 photo max)',
+        'No video uploads',
+        'No direct messaging'
       ]
     },
     {
-      id: 'professional',
-      name: 'Professional Profile',
-      price: '$49/month',
+      id: 'verified',
+      name: 'Verified Standard',
+      price: '$149/month',
+      priceValue: 149,
+      tier: 'Verified Standard',
+      color: 'blue',
+      description: 'Budget-conscious operators wanting verified info + basic upgrades',
       features: [
         'All Basic features',
-        'Update pricing and availability',
-        'Upload unlimited photos',
-        'Unit type management',
-        'Advanced analytics',
-        'Priority support',
-        'Custom amenities list'
+        'Editable contact info & description',
+        'Google Reviews integration',
+        'Photo gallery (5 photos max)',
+        'Standard amenity tags',
+        'Blue "Verified" badge',
+        'Monthly reporting dashboard',
+        'AI-generated lease template',
+        'eSignature integration (DocuSign)',
+        'Move-in intake form automation',
+        'Help documentation'
+      ],
+      popular: false
+    },
+    {
+      id: 'enhanced',
+      name: 'Enhanced Showcase',
+      price: '$249/month',
+      priceValue: 249,
+      tier: 'Enhanced Showcase',
+      color: 'purple',
+      description: 'Operators focused on lead generation, photo gallery, reviews, and leasing tools',
+      features: [
+        'All Verified Standard features',
+        'Yelp Reviews integration',
+        'Photo gallery (20 photos max)',
+        'Video upload (1 video)',
+        'Virtual tour embed',
+        'Full amenity tags',
+        'High search appearance',
+        'Feature tags in search',
+        'AI-driven lead match priority',
+        'Direct family messaging (secure)',
+        'Rent collection tools (Stripe/ACH)',
+        'Deposit & fee tracking',
+        'Secure family document uploads',
+        'Resident onboarding workflow',
+        'Co-signer/family collaboration tools',
+        'Lease expiration reminders',
+        'Recurring charges management',
+        'Internal notes/admin memo tool',
+        'Affiliate program eligibility',
+        'Assisted onboarding'
       ],
       popular: true
     },
     {
-      id: 'premium',
-      name: 'Premium Profile',
-      price: '$99/month',
+      id: 'platinum',
+      name: 'Platinum Spotlight',
+      price: '$399/month',
+      priceValue: 399,
+      tier: 'Platinum Spotlight',
+      color: 'gold',
+      description: 'Flagship communities needing premium exposure, full automation, and white-glove onboarding',
       features: [
-        'All Professional features',
-        'Featured community placement',
-        'Advanced SEO optimization',
-        'Custom virtual tours',
-        'Lead management tools',
-        'API access',
-        'Dedicated account manager'
+        'All Enhanced Showcase features',
+        'Unlimited photo gallery',
+        'Video uploads (up to 3 videos)',
+        'Custom feature tags',
+        'Premium gold border in search',
+        'Top search priority (rotating spotlight)',
+        'Animation on hover',
+        'Branded banner',
+        'Featured in "Best of" sections',
+        'Full reporting + competitive insights',
+        'Concierge placement leads',
+        'Custom branded lease packets',
+        'Move-out checklist automation',
+        'Multi-resident/multi-unit support',
+        'Fully managed onboarding',
+        'White-glove support',
+        'Affiliate program with premium benefits'
       ]
     }
   ];
+
+  // Add-on options for all tiers
+  const addOns = [
+    {
+      id: 'additional-videos',
+      name: 'Additional Videos',
+      price: '$25/video',
+      description: 'Beyond tier maximum video limit',
+      available: ['verified', 'enhanced', 'platinum']
+    },
+    {
+      id: 'branded-lease',
+      name: 'Branded Lease Packet',
+      price: '$99 one-time',
+      description: 'Custom branded lease documents',
+      available: ['enhanced']
+    },
+    {
+      id: 'concierge-setup',
+      name: 'Concierge Lease Setup',
+      price: '$299 one-time',
+      description: 'White-glove onboarding and lease customization',
+      available: ['verified', 'enhanced', 'platinum']
+    },
+    {
+      id: 'zip-lock',
+      name: 'Zip Code Lock (Ad Suppression)',
+      price: '$100/month',
+      description: 'Locks out competitor Spotlight ads in local area',
+      available: ['enhanced', 'platinum']
+    },
+    {
+      id: 'waitlist-tool',
+      name: 'Automated Waitlist Tool',
+      price: '$49/month',
+      description: 'Manage overflow leads efficiently',
+      available: ['verified', 'enhanced', 'platinum']
+    }
+  ];
+
+  // Tier benefits summary
+  const tierBenefits = {
+    basic: {
+      visibility: 'Lowest',
+      searchTreatment: 'Gray border, minimal data',
+      photoLimit: 1,
+      videoLimit: 0,
+      messaging: false,
+      analytics: false,
+      tools: ['Basic profile claim']
+    },
+    verified: {
+      visibility: 'Standard',
+      searchTreatment: 'Blue "Verified" badge, logo shown',
+      photoLimit: 5,
+      videoLimit: 0,
+      messaging: false,
+      analytics: 'Monthly reporting',
+      tools: ['Lease templates', 'eSignature', 'Intake forms']
+    },
+    enhanced: {
+      visibility: 'High',
+      searchTreatment: 'Feature tag, media-rich card, higher priority',
+      photoLimit: 20,
+      videoLimit: 1,
+      messaging: true,
+      analytics: 'Full reporting',
+      tools: ['All verified tools', 'Payment processing', 'Family collaboration', 'Lead management']
+    },
+    platinum: {
+      visibility: 'Top Priority',
+      searchTreatment: 'Premium gold border, animation, top carousel slot',
+      photoLimit: 'Unlimited',
+      videoLimit: 3,
+      messaging: true,
+      analytics: 'Full + competitive insights',
+      tools: ['All enhanced tools', 'Custom branding', 'Multi-unit support', 'White-glove service']
+    }
+  };
 
   const handleClaimSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -273,46 +413,218 @@ export default function CommunityPortal() {
   );
 
   const renderPlanSelection = () => (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="text-center">
-        <h2 className="text-3xl font-bold mb-4">Choose Your Management Plan</h2>
-        <p className="text-gray-600">Select the plan that best fits your community's needs</p>
+        <h2 className="text-3xl font-bold mb-4">MySeniorValet Community Tier System</h2>
+        <p className="text-gray-600 mb-2">Transform your community visibility, connect with families, and drive move-ins</p>
+        <p className="text-sm text-gray-500 mb-6">Choose the tier that maximizes your community's potential</p>
+        
+        {/* Annual Billing Toggle */}
+        <div className="flex items-center justify-center space-x-4 mb-8">
+          <span className="text-sm text-gray-600">Monthly</span>
+          <button className="relative bg-gray-200 rounded-full p-1 w-12 h-6">
+            <div className="bg-white rounded-full w-4 h-4 transition-transform transform translate-x-0"></div>
+          </button>
+          <span className="text-sm text-gray-600">Annual <span className="text-green-600 font-medium">(Save 15%)</span></span>
+        </div>
       </div>
       
-      <div className="grid md:grid-cols-3 gap-6">
-        {plans.map((plan) => (
-          <Card key={plan.id} className={`relative ${plan.popular ? 'border-2 border-blue-500' : ''}`}>
-            {plan.popular && (
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <Badge className="bg-blue-500 text-white">Most Popular</Badge>
+      {/* Tier Comparison Grid */}
+      <div className="grid md:grid-cols-4 gap-6">
+        {plans.map((plan) => {
+          const tierColor = plan.color === 'gray' ? 'border-gray-200' : 
+                          plan.color === 'blue' ? 'border-blue-200' : 
+                          plan.color === 'purple' ? 'border-purple-200' : 
+                          'border-yellow-200';
+          
+          const tierBg = plan.color === 'gray' ? 'bg-gray-50' : 
+                        plan.color === 'blue' ? 'bg-blue-50' : 
+                        plan.color === 'purple' ? 'bg-purple-50' : 
+                        'bg-yellow-50';
+          
+          const tierTextColor = plan.color === 'gray' ? 'text-gray-700' : 
+                                plan.color === 'blue' ? 'text-blue-700' : 
+                                plan.color === 'purple' ? 'text-purple-700' : 
+                                'text-yellow-700';
+          
+          return (
+            <Card key={plan.id} className={`relative ${tierColor} ${plan.popular ? 'border-purple-500 shadow-lg scale-105' : ''} transition-all duration-300 hover:shadow-xl`}>
+              {plan.popular && (
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                  <Badge className="bg-purple-500 text-white px-3 py-1">Most Popular</Badge>
+                </div>
+              )}
+              
+              <CardHeader className={`text-center ${tierBg} rounded-t-lg`}>
+                <div className="flex items-center justify-center mb-2">
+                  <Building className={`w-6 h-6 ${tierTextColor} mr-2`} />
+                  <CardTitle className={`text-xl ${tierTextColor}`}>{plan.name}</CardTitle>
+                </div>
+                <div className="text-3xl font-bold text-gray-900 mb-2">{plan.price}</div>
+                <p className="text-sm text-gray-600 px-2">{plan.description}</p>
+              </CardHeader>
+              
+              <CardContent className="p-4">
+                <div className="space-y-3 mb-6">
+                  {/* Key highlights */}
+                  <div className="text-xs text-gray-500 uppercase tracking-wide font-medium">Key Benefits</div>
+                  <ul className="space-y-2">
+                    {plan.features.slice(0, 8).map((feature, index) => (
+                      <li key={index} className="flex items-start space-x-2">
+                        <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span className="text-sm">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  
+                  {plan.features.length > 8 && (
+                    <div className="text-xs text-gray-500 text-center">
+                      +{plan.features.length - 8} more features
+                    </div>
+                  )}
+                </div>
+                
+                <Button 
+                  className={`w-full mb-3 ${plan.popular ? 'bg-purple-600 hover:bg-purple-700' : ''}`}
+                  variant={plan.popular ? "default" : "outline"}
+                  onClick={() => {
+                    setSelectedPlan(plan.id);
+                    setCurrentStep('dashboard');
+                  }}
+                >
+                  {plan.priceValue === 0 ? 'Start Free' : `Start ${plan.name}`}
+                </Button>
+                
+                {plan.popular && (
+                  <div className="text-xs text-center text-gray-500">
+                    ⭐ Most communities choose this tier
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+      
+      {/* Feature Comparison Table */}
+      <div className="mt-12">
+        <h3 className="text-2xl font-bold text-center mb-8">Complete Feature Comparison</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse bg-white rounded-lg shadow-lg">
+            <thead>
+              <tr className="bg-gray-50">
+                <th className="border p-4 text-left font-medium">Feature</th>
+                <th className="border p-4 text-center font-medium">Basic</th>
+                <th className="border p-4 text-center font-medium">Verified</th>
+                <th className="border p-4 text-center font-medium">Enhanced</th>
+                <th className="border p-4 text-center font-medium">Platinum</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                {
+                  feature: 'Profile Ownership & Claim',
+                  basic: '✅', verified: '✅', enhanced: '✅', platinum: '✅'
+                },
+                {
+                  feature: 'Editable Contact Info',
+                  basic: '❌', verified: '✅', enhanced: '✅', platinum: '✅'
+                },
+                {
+                  feature: 'Google Reviews Integration',
+                  basic: '❌', verified: '✅', enhanced: '✅', platinum: '✅'
+                },
+                {
+                  feature: 'Photo Gallery',
+                  basic: '1 photo', verified: '5 photos', enhanced: '20 photos', platinum: 'Unlimited'
+                },
+                {
+                  feature: 'Video Uploads',
+                  basic: '❌', verified: '❌', enhanced: '1 video', platinum: '3 videos'
+                },
+                {
+                  feature: 'Search Appearance',
+                  basic: 'Lowest', verified: 'Standard', enhanced: 'High', platinum: 'Top Priority'
+                },
+                {
+                  feature: 'Direct Family Messaging',
+                  basic: '❌', verified: '❌', enhanced: '✅', platinum: '✅'
+                },
+                {
+                  feature: 'Reporting Dashboard',
+                  basic: '❌', verified: 'Basic', enhanced: 'Advanced', platinum: 'Full + Insights'
+                },
+                {
+                  feature: 'Leasing Tools',
+                  basic: '❌', verified: 'Basic', enhanced: 'Full Suite', platinum: 'Full + Automation'
+                },
+                {
+                  feature: 'Onboarding Support',
+                  basic: '❌', verified: 'Help Docs', enhanced: 'Assisted', platinum: 'Fully Managed'
+                }
+              ].map((row, index) => (
+                <tr key={index} className="hover:bg-gray-50">
+                  <td className="border p-4 font-medium">{row.feature}</td>
+                  <td className="border p-4 text-center">{row.basic}</td>
+                  <td className="border p-4 text-center">{row.verified}</td>
+                  <td className="border p-4 text-center">{row.enhanced}</td>
+                  <td className="border p-4 text-center">{row.platinum}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      {/* Add-on Options */}
+      <div className="mt-12">
+        <h3 className="text-2xl font-bold text-center mb-8">Add-On Options</h3>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {addOns.map((addon) => (
+            <Card key={addon.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center">
+                  <CreditCard className="w-5 h-5 mr-2 text-green-600" />
+                  {addon.name}
+                </CardTitle>
+                <div className="text-2xl font-bold text-green-600">{addon.price}</div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-600 mb-4">{addon.description}</p>
+                <div className="flex flex-wrap gap-1">
+                  {addon.available.map((tier) => (
+                    <Badge key={tier} variant="outline" className="text-xs">
+                      {tier}
+                    </Badge>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+      
+      {/* Strategic Goals */}
+      <div className="mt-12 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-8">
+        <h3 className="text-2xl font-bold text-center mb-8">Strategic Goals by Tier</h3>
+        <div className="grid md:grid-cols-2 gap-8">
+          {[
+            { tier: 'Basic', goal: 'Establish searchable presence, low-friction intro to platform' },
+            { tier: 'Verified', goal: 'Claim and clean up profile, use essential tools, verify trust' },
+            { tier: 'Enhanced', goal: 'Actively drive move-ins, manage leasing documents, boost leads' },
+            { tier: 'Platinum', goal: 'Dominate search visibility, unlock full automation + MSV concierge help' }
+          ].map((item, index) => (
+            <div key={index} className="flex items-start space-x-4 bg-white p-4 rounded-lg shadow-sm">
+              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                <Building className="w-4 h-4 text-blue-600" />
               </div>
-            )}
-            <CardHeader className="text-center">
-              <CardTitle className="text-xl">{plan.name}</CardTitle>
-              <div className="text-3xl font-bold text-blue-600">{plan.price}</div>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 mb-6">
-                {plan.features.map((feature, index) => (
-                  <li key={index} className="flex items-start space-x-2">
-                    <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-              <Button 
-                className="w-full"
-                variant={plan.popular ? "default" : "outline"}
-                onClick={() => {
-                  setSelectedPlan(plan.id);
-                  setCurrentStep('dashboard');
-                }}
-              >
-                Select {plan.name}
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+              <div>
+                <h4 className="font-semibold text-gray-900">{item.tier} Tier</h4>
+                <p className="text-sm text-gray-600">{item.goal}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

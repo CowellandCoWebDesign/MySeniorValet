@@ -1,0 +1,190 @@
+Perfect. Here is the all-in-one, combined master pricing and feature breakdown for Ghostrider’s Dispatch to implement into the community-facing platform for MySeniorValet.
+
+This includes:
+
+Full tier names, pricing, and purpose
+
+Feature-by-feature breakdown (visibility, media, tools, automation, etc.)
+
+Leasing, payment, and document system access per tier
+
+Design treatments in search results
+
+Upsell and upgrade logic
+
+Add-on options for monetization
+
+
+
+---
+
+🧠 MySeniorValet – Community Tier System (For Implementation)
+
+🏷️ PRICING TIERS FOR COMMUNITIES
+
+Tier	Name	Monthly Price	Ideal For
+
+🟫 Free	Basic Listing	$0	All licensed communities (default listing scraped by MSV)
+🟨 Tier 1	Verified Standard	$149/mo	Budget-conscious operators wanting verified info + basic upgrades
+🟦 Tier 2	Enhanced Showcase	$249/mo	Operators focused on lead generation, photo gallery, reviews, and leasing tools
+🟥 Tier 3	Platinum Spotlight	$399/mo	Flagship communities needing premium exposure, full automation, and white-glove onboarding
+
+
+
+---
+
+📦 FEATURE BREAKDOWN BY TIER
+
+Feature	Basic	Verified Standard	Enhanced Showcase	Platinum Spotlight
+
+Profile Ownership & Claim	✅	✅	✅	✅
+Editable Contact Info & Description	❌	✅	✅	✅
+Google Reviews Integration	❌	✅	✅	✅
+Yelp Reviews Integration	❌	❌	✅	✅
+Photo Gallery (max photos)	1 (auto)	5	20	Unlimited
+Video Upload	❌	❌	✅ (1 video)	✅ (up to 3 videos)
+Virtual Tour Embed	❌	❌	✅	✅
+Amenity Tags & Filters	Basic	Standard	Full	Full + Custom Feature Tags
+Appearance in Search	Lowest	Standard	High	Top (rotating spotlight)
+Branded Banner	❌	❌	❌	✅
+Featured in “Best of” Sections	❌	❌	❌	✅
+Monthly Reporting Dashboard	❌	✅	✅	Full + Competitive Insights
+AI-Driven Lead Match Priority	❌	❌	✅	✅
+Direct Family Messaging (Secure)	❌	❌	✅	✅
+Concierge Placement Leads	❌	❌	❌	✅ (w/ affiliate tie-ins)
+Onboarding Help from MSV	❌	Help Docs	Assisted	Fully Managed
+Affiliate Program Eligibility	❌	❌	✅	✅
+
+
+
+---
+
+🔧 OPERATIONAL, LEASING & DOCUMENT TOOLS
+
+Tool/Feature	Basic	Verified Standard	Enhanced Showcase	Platinum Spotlight
+
+AI-Generated Lease Template	❌	✅	✅	✅
+eSignature Integration (DocuSign)	❌	✅	✅	✅
+Rent Collection Tools (Stripe/ACH-ready)	❌	❌	✅	✅
+Deposit + Fee Tracking	❌	❌	✅	✅
+Secure Family Document Uploads	❌	❌	✅	✅
+Move-in Intake Form Automation	❌	✅	✅	✅
+Resident Onboarding Workflow	❌	❌	✅	✅
+Co-signer/Family Collaboration Tools	❌	❌	✅	✅
+Custom Branded Lease Packets	❌	❌	❌	✅
+Lease Expiration Reminders	❌	❌	✅	✅
+Recurring Charges (e.g., Pet Rent, Cable)	❌	❌	✅	✅
+Internal Notes / Admin Memo Tool	❌	❌	✅	✅
+Move-out Checklist Automation	❌	❌	❌	✅
+Multi-resident / Multi-unit Support	❌	❌	❌	✅
+
+
+
+---
+
+🎨 SEARCH DESIGN TREATMENT
+
+Tier	Design in Search UI
+
+Basic	Gray border, minimal data, low visibility
+Verified Standard	Blue “Verified” badge, logo shown
+Enhanced Showcase	Feature tag, media-rich card, higher sort priority
+Platinum Spotlight	Premium gold border, animation on hover, top carousel slot, rotating exposure
+
+
+
+---
+
+📈 UPGRADE FLOW & UPSALES
+
+For unclaimed listings:
+
+> “Is this your community? Claim your profile to update your information, add photos, and connect with families for free.”
+
+
+
+For free plan users after claiming:
+
+> “Boost visibility, unlock leasing tools, and connect securely with families by upgrading your listing.”
+
+
+
+For urgency & scarcity:
+
+> “Only 2 Spotlight slots left in [ZIP Code] — secure priority exposure before they're gone.”
+
+
+
+
+---
+
+🔌 ADD-ONS (All Tiers)
+
+Add-On	Price	Notes
+
+Additional Videos	$25/video	Beyond tier max
+Branded Lease Packet	$99 one-time	For Enhanced tier users
+Concierge Lease Setup	$299 one-time	White-glove onboarding and lease customization
+Zip Code Lock (Ad Suppression)	$100/mo	Locks out competitor Spotlight ads in local area
+Automated Waitlist Tool	$49/mo	Manage overflow leads efficiently
+
+
+
+---
+
+🧠 STRATEGIC GOALS BY TIER
+
+Tier	Primary Benefit
+
+Basic	Establish searchable presence, low-friction intro to platform
+Verified	Claim and clean up profile, use essential tools, verify trust
+Enhanced	Actively drive move-ins, manage leasing documents, boost leads
+Platinum	Dominate search visibility, unlock full automation + MSV concierge help
+
+
+
+---
+
+✅ NEXT STEPS FOR GHOSTWRITER’S DISPATCH
+
+1. Stripe Product Setup
+
+4 recurring products: $0, $149, $249, $399
+
+Annual billing toggle w/15% discount
+
+
+2. Tier Logic & Feature Gates
+
+Conditional display of UI components, leasing tools, and search prioritization based on active tier
+
+
+3. Claim & Upgrade Flow
+
+Build editable community dashboard with “Upgrade” path and add-on upsells
+
+
+4. Search Results Renderer
+
+Dynamically render visual tier treatment in community cards based on tier status
+
+
+5. Admin Dashboard Tools
+
+Back-end admin can adjust tier, view billing status, track upsells, and feature listings manually
+
+
+
+---
+
+Let me know if you'd like to:
+
+Attach this as a PDF or internal spec doc
+
+Move forward with design mockups for pricing grid and search card examples
+
+Begin Stripe integration or claim flow programming
+
+
+Would you like me to now proceed with a design mockup of the tier display and community dashboard upgrade screen?
+

@@ -329,6 +329,51 @@ export const communities = pgTable("communities", {
   }>().default({}),
   acceptsHudVouchers: boolean("accepts_hud_vouchers").default(false),
   isVeteranFriendly: boolean("is_veteran_friendly").default(false),
+  
+  // Extended Tier System fields (extending existing isClaimed)
+  claimApprovalStatus: text("claim_approval_status", { 
+    enum: ["Pending", "Approved", "Rejected", "Under Review"] 
+  }).default("Pending"),
+  
+  // Subscription & Tier Management
+  subscriptionTier: text("subscription_tier", { 
+    enum: ["Basic", "Verified Standard", "Enhanced Showcase", "Platinum Spotlight"] 
+  }).default("Basic"),
+  subscriptionStatus: text("subscription_status", { 
+    enum: ["Active", "Past Due", "Cancelled", "Trial", "Suspended"] 
+  }).default("Active"),
+  subscriptionStartDate: timestamp("subscription_start_date"),
+  subscriptionEndDate: timestamp("subscription_end_date"),
+  billingCycleStart: timestamp("billing_cycle_start"),
+  billingCycleEnd: timestamp("billing_cycle_end"),
+  
+  // Tier-specific limits and usage tracking
+  tierPhotoLimit: integer("tier_photo_limit").default(1),
+  tierVideoLimit: integer("tier_video_limit").default(0),
+  featuredUntil: timestamp("featured_until"),
+  spotlightPriority: integer("spotlight_priority").default(0),
+  
+  // Community-managed content (available based on tier)
+  communityDescription: text("community_description"), // Community-written description
+  communityPhotos: text("community_photos").array().default([]), // Community-uploaded photos
+  communityVideos: text("community_videos").array().default([]), // Community-uploaded videos
+  virtualTours: text("virtual_tours").array().default([]), // Virtual tour embeds
+  brandedBanner: text("branded_banner"), // Custom banner for Platinum tier
+  customFeatureTags: text("custom_feature_tags").array().default([]), // Custom tags for Platinum
+  
+  // Community contact and settings
+  communityManagerName: text("community_manager_name"),
+  communityManagerEmail: text("community_manager_email"),
+  communityManagerPhone: text("community_manager_phone"),
+  allowDirectMessaging: boolean("allow_direct_messaging").default(false),
+  autoRespondEnabled: boolean("auto_respond_enabled").default(false),
+  autoRespondMessage: text("auto_respond_message"),
+  
+  // Performance tracking
+  monthlyViews: integer("monthly_views").default(0),
+  monthlyLeads: integer("monthly_leads").default(0),
+  monthlyMessages: integer("monthly_messages").default(0),
+  lastReportingPeriod: timestamp("last_reporting_period"),
 }, (table) => [
   // Performance indexes for fast search
   index("communities_city_idx").on(table.city),
