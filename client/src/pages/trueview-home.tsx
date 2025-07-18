@@ -1478,8 +1478,6 @@ export default function TrueViewHome() {
               <div className="border-t border-gray-700 pt-6">
                 <h4 className="text-lg font-semibold mb-3">Contact Information</h4>
                 <div className="space-y-2 text-sm text-gray-300">
-                  <p><span className="font-medium">Founder:</span> William Scott Cowell</p>
-                  <p><span className="font-medium">Business Address:</span> 5048 Main Street, Shasta Lake, CA</p>
                   <p><span className="font-medium">Website:</span> 
                     <a href="https://cowellandcowebdesign.github.io" 
                        target="_blank" 
@@ -1489,9 +1487,9 @@ export default function TrueViewHome() {
                     </a>
                   </p>
                   <p><span className="font-medium">Email:</span> 
-                    <a href="mailto:info@myseniorvalet.com" 
+                    <a href="mailto:Hello@myseniorvalet.com" 
                        className="text-blue-400 hover:text-blue-300 ml-2">
-                      info@myseniorvalet.com
+                      Hello@myseniorvalet.com
                     </a>
                   </p>
                 </div>
