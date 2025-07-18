@@ -543,37 +543,37 @@ export default function TrueViewHome() {
       </section>
 
       {/* Move-In Cost Calculator */}
-      <section className="px-4 py-8 gradient-card">
+      <section className="px-4 py-8 gradient-card dark:bg-gray-800">
         <div className="mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
             Understand your move-in costs
           </h2>
-          <p className="text-gray-600 text-sm">
+          <p className="text-gray-600 dark:text-gray-300 text-sm">
             Typical move-in expenses and financing options available
           </p>
         </div>
         
         <div className="grid grid-cols-3 gap-4 mb-6">
           <div className="text-center">
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-              <span className="text-blue-600 font-bold text-lg">💳</span>
+            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center mx-auto mb-2">
+              <span className="text-blue-600 dark:text-blue-400 font-bold text-lg">💳</span>
             </div>
-            <div className="text-xs text-gray-600">Community Fee</div>
-            <div className="text-sm font-semibold">$1,500 - 1 month</div>
+            <div className="text-xs text-gray-600 dark:text-gray-400">Community Fee</div>
+            <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">$1,500 - 1 month</div>
           </div>
           <div className="text-center">
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-              <span className="text-blue-600 font-bold text-lg">📅</span>
+            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center mx-auto mb-2">
+              <span className="text-blue-600 dark:text-blue-400 font-bold text-lg">📅</span>
             </div>
-            <div className="text-xs text-gray-600">Prorated</div>
-            <div className="text-sm font-semibold">1st Month</div>
+            <div className="text-xs text-gray-600 dark:text-gray-400">Prorated</div>
+            <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">1st Month</div>
           </div>
           <div className="text-center">
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-              <span className="text-blue-600 font-bold text-lg">🗓️</span>
+            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center mx-auto mb-2">
+              <span className="text-blue-600 dark:text-blue-400 font-bold text-lg">🗓️</span>
             </div>
-            <div className="text-xs text-gray-600">After 15th</div>
-            <div className="text-sm font-semibold">+ 2nd Month</div>
+            <div className="text-xs text-gray-600 dark:text-gray-400">After 15th</div>
+            <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">+ 2nd Month</div>
           </div>
         </div>
         
@@ -635,7 +635,7 @@ export default function TrueViewHome() {
         </div>
         
         <Link href="/costs">
-          <Button className="w-full gradient-primary hover:opacity-90 text-white py-3 border-0">
+          <Button className="w-full gradient-primary hover:opacity-90 text-white py-3 border-0 dark:border-gray-600">
             Get move-in cost estimate
           </Button>
         </Link>
@@ -645,8 +645,8 @@ export default function TrueViewHome() {
       <section className="px-4 py-8 relative overflow-hidden">
         {/* Background with California Golden State styling */}
         <div className="absolute inset-0 z-0">
-          <div className="w-full h-full bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-amber-100/30 via-orange-100/20 to-yellow-100/30"></div>
+          <div className="w-full h-full bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-amber-100/30 via-orange-100/20 to-yellow-100/30 dark:from-gray-700/30 dark:via-gray-800/20 dark:to-gray-700/30"></div>
         </div>
         
         <div className="relative z-10">
@@ -679,10 +679,10 @@ export default function TrueViewHome() {
             ) : (
               (californiaCommunities || []).map((community: any, index) => (
                 <Link key={`california-${community.id}-${index}`} href={`/community/${community.id}`}>
-                  <Card className="overflow-hidden flex-shrink-0 w-56 h-[30rem] animate-float california-card" style={{animationDelay: `${index * 0.2}s`}}>
+                  <Card className="overflow-hidden flex-shrink-0 w-56 h-[30rem] animate-float california-card dark:bg-gray-700" style={{animationDelay: `${index * 0.2}s`}}>
                     <div className="relative">
-                      <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
-                        <Home className="w-12 h-12 text-gray-400" />
+                      <div className="aspect-[4/3] bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
+                        <Home className="w-12 h-12 text-gray-400 dark:text-gray-500" />
                       </div>
                       
                       {/* Heart Icon */}
@@ -738,31 +738,31 @@ export default function TrueViewHome() {
                     <CardContent className="p-3">
                       {/* Availability Status - Above Price */}
                       {index % 3 === 0 && (
-                        <div className="flex items-center text-xs text-green-600 font-medium mb-2">
+                        <div className="flex items-center text-xs text-green-600 dark:text-green-400 font-medium mb-2">
                           <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
                           Available
                         </div>
                       )}
                       
-                      <div className="text-xl font-bold text-gray-900 mb-2">
+                      <div className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                         <span className="text-sm">Starting at</span> ${community.priceRange && community.priceRange.min ? community.priceRange.min.toLocaleString() : '4,200'}
                         {!community.claimed && (
-                          <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400 ml-1 font-normal">est.</span>
                         )}
                       </div>
                       
-                      <div className="text-sm text-gray-700 mb-1">
+                      <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
                         {community.careTypes?.length > 0 ? 
                           `${community.careTypes[0]} • California Living` : 
                           'Assisted Living • Golden State Care'
                         }
                       </div>
                       
-                      <div className="text-sm font-medium text-gray-900 mb-2 line-clamp-1">
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2 line-clamp-1">
                         {community.name}
                       </div>
                       
-                      <div className="text-xs text-gray-600 line-clamp-1 mb-2">
+                      <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1 mb-2">
                         {community.address || 'California Community'}, {community.city}, CA {community.zipCode}
                       </div>
                       
@@ -792,21 +792,21 @@ export default function TrueViewHome() {
                       
                       {/* Enhanced Features Row */}
                       <div className="flex items-center justify-between text-xs">
-                        <div className="flex items-center text-gray-500">
+                        <div className="flex items-center text-gray-500 dark:text-gray-400">
                           <span>CA License #{20000 + community.id}</span>
                         </div>
                         {index % 4 === 0 && (
-                          <div className="text-purple-600 font-medium">
+                          <div className="text-purple-600 dark:text-purple-400 font-medium">
                             🏆 Featured
                           </div>
                         )}
                         {index % 4 === 1 && (
-                          <div className="text-blue-600 font-medium">
+                          <div className="text-blue-600 dark:text-blue-400 font-medium">
                             ⭐ Top Rated
                           </div>
                         )}
                         {index % 4 === 2 && (
-                          <div className="text-green-600 font-medium">
+                          <div className="text-green-600 dark:text-green-400 font-medium">
                             💎 Premium
                           </div>
                         )}
