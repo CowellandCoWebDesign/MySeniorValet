@@ -287,12 +287,22 @@ export default function Map({
                       const mapContainer = document.querySelector('.leaflet-container') as any;
                       if (mapContainer && mapContainer._leaflet_map) {
                         const map = mapContainer._leaflet_map;
-                        const targetZoom = Math.min(data.expansionZoom || currentZoom + 3, 18);
+                        // Use expansion zoom with fallback, ensuring meaningful zoom increase
+                        const expansionZoom = data.expansionZoom || currentZoom + 3;
+                        const targetZoom = Math.min(Math.max(expansionZoom, currentZoom + 2), 18);
+                        
                         map.setView([lat, lng], targetZoom, {
                           animate: true,
-                          duration: 0.8
+                          duration: 0.8,
+                          easeLinearity: 0.5
                         });
-                        console.log(`Zooming to cluster ${properties.cluster_id} at zoom level ${targetZoom}`);
+                        
+                        console.log(`Zooming to cluster ${properties.cluster_id} from ${currentZoom} to ${targetZoom} (expansion: ${expansionZoom})`);
+                        
+                        // Force refresh cluster data after zoom
+                        setTimeout(() => {
+                          handleZoomChange(targetZoom);
+                        }, 900);
                       }
                       
                       // Call optional callback
@@ -311,9 +321,15 @@ export default function Map({
                         const targetZoom = Math.min(currentZoom + zoomIncrease, 18);
                         map.setView([lat, lng], targetZoom, {
                           animate: true,
-                          duration: 0.8
+                          duration: 0.8,
+                          easeLinearity: 0.5
                         });
                         console.log(`Fallback zoom for cluster with ${properties.point_count} communities to level ${targetZoom}`);
+                        
+                        // Force refresh cluster data after zoom
+                        setTimeout(() => {
+                          handleZoomChange(targetZoom);
+                        }, 900);
                       }
                     }
                   }
