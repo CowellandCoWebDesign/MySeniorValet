@@ -218,12 +218,10 @@ export default function MapSearch() {
   };
 
   const handleClusterClick = (clusterId: number, lat: number, lng: number, zoomLevel: number) => {
-    // Only switch to list view for high zoom levels (close zoom)
-    // Zoom levels 11+ indicate user is looking at a specific area
-    if (zoomLevel >= 11) {
-      setViewMode('list');
-    }
-    // For lower zoom levels, just let the cluster expand normally
+    // FIXED: Do not switch to list view automatically on cluster clicks
+    // Let users manually control view mode via the floating button
+    // The Map component will handle the zoom-in functionality
+    console.log(`Cluster ${clusterId} clicked at zoom ${zoomLevel} - staying in map view for drill-down`);
   };
 
   const availableAmenities = [

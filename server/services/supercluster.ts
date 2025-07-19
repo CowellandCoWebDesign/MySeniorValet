@@ -238,6 +238,20 @@ class SuperclusterService {
     }
   }
 
+  /**
+   * Get cluster children for expansion analysis
+   */
+  async getClusterChildren(clusterId: number): Promise<any[]> {
+    await this.initialize();
+    
+    try {
+      return this.index.getChildren(clusterId);
+    } catch (error) {
+      console.error('Error getting cluster children:', error);
+      return [];
+    }
+  }
+
   async getClusterChildren(clusterId: number): Promise<ClusterFeature[]> {
     await this.initialize();
     const children = this.index.getChildren(clusterId);
