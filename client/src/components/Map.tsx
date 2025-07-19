@@ -206,12 +206,8 @@ export default function Map({
   const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
-  const [expandingCluster, setExpandingCluster] = useState<number | null>(null);
-  const [transitionState, setTransitionState] = useState<'idle' | 'expanding' | 'complete'>('idle');
   const [hoveredCluster, setHoveredCluster] = useState<number | null>(null);
   const [hoveredCommunity, setHoveredCommunity] = useState<number | null>(null);
-  const [pulsingMarkers, setPulsingMarkers] = useState<Set<number>>(new Set());
-  const [animatingClusters, setAnimatingClusters] = useState<Set<number>>(new Set());
   const [mapInstance, setMapInstance] = useState<any>(null);
 
   // Handle map bounds change
@@ -517,18 +513,7 @@ export default function Map({
           </div>
         )}
         {/* Transition overlay for smooth expansion effects */}
-        {transitionState === 'expanding' && (
-          <div className="map-transition-overlay active">
-            <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
-              <div className="bg-white/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg">
-                <div className="flex items-center gap-2 text-blue-600">
-                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
-                  <span className="text-xs font-medium">Expanding...</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+
 
         <MapContainer
           center={center}
@@ -582,48 +567,24 @@ export default function Map({
           
           // Handle cluster markers (multiple communities)
           if (properties.cluster) {
-            // Create dynamic cluster icon with intelligent expansion feedback
+            // Simple cluster icon
             const size = Math.min(40 + Math.log10(properties.point_count || 1) * 8, 60);
-            const isExpanding = expandingCluster === properties.cluster_id;
-            const expandingSize = isExpanding ? size * 1.1 : size;
-            
-            // Enhanced cluster styling with hover and expansion states
             const isHovered = hoveredCluster === properties.cluster_id;
-            const isAnimating = animatingClusters.has(properties.cluster_id);
-            const clusterColor = isExpanding ? '#3b82f6' : isHovered ? '#2563eb' : '#1e40af';
-            const hoverGlow = isHovered ? `
-              <circle cx="${expandingSize/2}" cy="${expandingSize/2}" r="${expandingSize/2 + 2}" fill="none" stroke="#fbbf24" stroke-width="2" opacity="0.6">
-                <animate attributeName="stroke-opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
-              </circle>
-            ` : '';
-            const pulseEffect = isExpanding ? `
-              <circle cx="${expandingSize/2}" cy="${expandingSize/2}" r="${expandingSize/2 - 2}" fill="${clusterColor}" stroke="#fff" stroke-width="3" opacity="0.8">
-                <animate attributeName="r" values="${expandingSize/2 - 2};${expandingSize/2 + 4};${expandingSize/2 - 2}" dur="1.5s" repeatCount="indefinite"/>
-                <animate attributeName="opacity" values="0.8;0.4;0.8" dur="1.5s" repeatCount="indefinite"/>
-              </circle>
-            ` : '';
+            const clusterColor = isHovered ? '#2563eb' : '#1e40af';
             
             const clusterIcon = new Icon({
               iconUrl: `data:image/svg+xml;base64,${btoa(`
-                <svg xmlns="http://www.w3.org/2000/svg" width="${expandingSize}" height="${expandingSize}" viewBox="0 0 ${expandingSize} ${expandingSize}">
-                  ${hoverGlow}
-                  ${pulseEffect}
-                  <circle cx="${expandingSize/2}" cy="${expandingSize/2}" r="${expandingSize/2 - 2}" fill="${clusterColor}" stroke="#fff" stroke-width="${isHovered ? 4 : 3}"/>
-                  <circle cx="${expandingSize/2}" cy="${expandingSize/2}" r="${expandingSize/2 - 6}" fill="rgba(59, 130, 246, ${isHovered ? 0.5 : 0.3})" stroke="none"/>
-                  <text x="${expandingSize/2}" y="${expandingSize/2 + 4}" text-anchor="middle" fill="#fff" font-size="${Math.min(12, expandingSize/4)}" font-weight="bold">
+                <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+                  <circle cx="${size/2}" cy="${size/2}" r="${size/2 - 2}" fill="${clusterColor}" stroke="#fff" stroke-width="3"/>
+                  <text x="${size/2}" y="${size/2 + 4}" text-anchor="middle" fill="#fff" font-size="${Math.min(12, size/4)}" font-weight="bold">
                     ${properties.point_count_abbreviated}
                   </text>
-                  ${isExpanding ? `
-                    <circle cx="${expandingSize/2}" cy="${expandingSize/2}" r="${expandingSize/2 - 1}" fill="none" stroke="#fbbf24" stroke-width="2" opacity="0.7">
-                      <animate attributeName="stroke-dasharray" values="0,${Math.PI * 2 * (expandingSize/2 - 1)};${Math.PI * 2 * (expandingSize/2 - 1)},0" dur="1.2s" repeatCount="1"/>
-                    </circle>
-                  ` : ''}
                 </svg>
               `)}`,
-              iconSize: [expandingSize, expandingSize],
-              iconAnchor: [expandingSize/2, expandingSize/2],
-              popupAnchor: [0, -expandingSize/2],
-              className: `cluster-marker ${isExpanding ? 'expanding' : ''}`
+              iconSize: [size, size],
+              iconAnchor: [size/2, size/2],
+              popupAnchor: [0, -size/2],
+              className: `cluster-marker`
             });
 
             return (
@@ -634,85 +595,24 @@ export default function Map({
                 eventHandlers={{
                   mouseover: () => {
                     setHoveredCluster(properties.cluster_id);
-                    setAnimatingClusters(prev => new Set([...prev, properties.cluster_id]));
                   },
                   mouseout: () => {
                     setHoveredCluster(null);
-                    setAnimatingClusters(prev => {
-                      const newSet = new Set(prev);
-                      newSet.delete(properties.cluster_id);
-                      return newSet;
-                    });
                   },
                   click: () => {
-                    console.log('Cluster clicked:', properties.cluster_id, 'with', properties.point_count, 'communities');
-                    
-                    // Prevent multiple simultaneous expansions
-                    if (expandingCluster !== null) {
-                      console.log('Expansion already in progress, ignoring click');
-                      return;
-                    }
-                    
-                    // Set expansion state for visual feedback
-                    setExpandingCluster(properties.cluster_id);
-                    setTransitionState('expanding');
-                    
-                    // Use the stored map instance
                     if (!mapInstance) {
-                      console.error('Map instance not available for cluster expansion');
-                      setExpandingCluster(null);
-                      setTransitionState('idle');
+                      console.error('Map instance not available');
                       return;
                     }
                     
-                    // Intelligent zoom calculation based on cluster size
-                    let zoomIncrease;
-                    if (properties.point_count > 1000) {
-                      zoomIncrease = 2; // Conservative for very large clusters
-                    } else if (properties.point_count > 100) {
-                      zoomIncrease = 3; // Moderate for large clusters
-                    } else if (properties.point_count > 50) {
-                      zoomIncrease = 4; // Good for medium clusters
-                    } else if (properties.point_count > 10) {
-                      zoomIncrease = 5; // Aggressive for small clusters
-                    } else {
-                      zoomIncrease = 6; // Maximum for tiny clusters
-                    }
+                    // Simple zoom in by 3 levels to expand cluster
+                    const newZoom = Math.min(currentZoom + 3, 18);
                     
-                    const targetZoom = Math.min(currentZoom + zoomIncrease, 18);
-                    
-                    console.log(`Cluster expansion: ${properties.point_count} communities, zoom ${currentZoom} → ${targetZoom}`);
-                    console.log('Current center:', mapInstance.getCenter(), 'Target center:', [lat, lng]);
-                    console.log('Map instance:', mapInstance, 'flyTo method:', mapInstance.flyTo);
-                    
-                    // Smooth transition to cluster center with higher zoom
-                    mapInstance.flyTo([lat, lng], targetZoom, {
+                    // Fly to cluster center and zoom in
+                    mapInstance.flyTo([lat, lng], newZoom, {
                       animate: true,
-                      duration: 0.8
+                      duration: 0.5
                     });
-                    
-                    // Enterprise-level state management after expansion
-                    setTimeout(() => {
-                      // Clear expansion state
-                      setExpandingCluster(null);
-                      setTransitionState('idle');
-                      
-                      // Force immediate state updates to trigger re-render
-                      setCurrentZoom(targetZoom);
-                      setCenter([lat, lng]);
-                      
-                      // Manually trigger bounds change to fetch new data
-                      const newBounds = mapInstance.getBounds();
-                      handleBoundsChange(newBounds);
-                      
-                      // Force immediate query refresh using queryClient
-                      queryClient.invalidateQueries({ 
-                        queryKey: ['communities-clusters']
-                      });
-                    }, 650); // Slightly longer than animation for stability
-                    
-                    // Call optional callback
-                    onClusterClick?.(properties.cluster_id, lat, lng, currentZoom + 3);
                   }
                 }}
               />
@@ -744,19 +644,10 @@ export default function Map({
             <Marker
               key={`community-${properties.id}`}
               position={[lat, lng]}
-              icon={getIconForCommunity(community, hoveredCommunity === community.id, pulsingMarkers.has(community.id))}
+              icon={getIconForCommunity(community, hoveredCommunity === community.id, false)}
               eventHandlers={{
                 click: () => {
                   handleCommunityClick(community);
-                  setPulsingMarkers(prev => new Set([...prev, community.id]));
-                  // Remove pulse after animation
-                  setTimeout(() => {
-                    setPulsingMarkers(prev => {
-                      const newSet = new Set(prev);
-                      newSet.delete(community.id);
-                      return newSet;
-                    });
-                  }, 2000);
                 },
                 mouseover: () => {
                   setHoveredCommunity(community.id);

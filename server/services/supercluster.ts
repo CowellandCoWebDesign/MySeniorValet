@@ -66,13 +66,13 @@ class SuperclusterService {
 
   constructor() {
     this.index = new Supercluster({
-      radius: 50,        // Optimized radius for 25K+ points
-      maxZoom: 18,       // Higher max zoom for individual markers
+      radius: 80,        // Larger radius for cleaner city-level view
+      maxZoom: 16,       // Stop clustering at zoom 16 (street level)
       minZoom: 0,        
-      minPoints: 3,      // Optimized clustering threshold for North America scale
+      minPoints: 8,      // Only cluster when 8+ communities are close
       generateId: true,  
       extent: 512,       
-      nodeSize: 32,      // Optimized for memory efficiency
+      nodeSize: 64,      // Standard node size
     });
   }
 
