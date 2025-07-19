@@ -97,8 +97,17 @@ export default function MapSearch() {
       
       setShowTutorial(false);
       console.log('showTutorial set to false');
+      
+      // Force cleanup of any remaining tutorial elements
+      setTimeout(() => {
+        document.querySelectorAll('.tutorial-highlight').forEach(el => el.remove());
+        console.log('Tutorial cleanup completed');
+      }, 100);
+      
     } catch (error) {
       console.error('Error in handleTutorialComplete:', error);
+      // Force close tutorial even on error
+      setShowTutorial(false);
     }
   };
 
@@ -1130,7 +1139,14 @@ export default function MapSearch() {
       {showTutorial && (
         <MapTutorial
           isVisible={showTutorial}
-          onClose={() => setShowTutorial(false)}
+          onClose={() => {
+            console.log('Tutorial onClose called directly');
+            setShowTutorial(false);
+            // Cleanup any tutorial elements
+            setTimeout(() => {
+              document.querySelectorAll('.tutorial-highlight').forEach(el => el.remove());
+            }, 100);
+          }}
           onComplete={handleTutorialComplete}
         />
       )}

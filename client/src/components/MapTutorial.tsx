@@ -132,6 +132,9 @@ export default function MapTutorial({ isVisible, onClose, onComplete }: MapTutor
         setIsCompleted(true);
         console.log('Tutorial marked as completed');
         
+        // Clear any visual cues before completing
+        document.querySelectorAll('.tutorial-highlight').forEach(el => el.remove());
+        
         onComplete();
         console.log('Tutorial onComplete callback called');
         
@@ -139,10 +142,13 @@ export default function MapTutorial({ isVisible, onClose, onComplete }: MapTutor
         console.log('Tutorial onClose callback called');
       } catch (error) {
         console.error('Error during tutorial completion:', error);
+        // Ensure tutorial closes even if there's an error
+        onClose();
       }
     } else {
-      setCurrentStep(prev => prev + 1);
-      console.log('Tutorial advancing to step:', currentStep + 1);
+      const nextStep = currentStep + 1;
+      setCurrentStep(nextStep);
+      console.log('Tutorial advancing to step:', nextStep);
     }
   };
 
@@ -153,6 +159,9 @@ export default function MapTutorial({ isVisible, onClose, onComplete }: MapTutor
   };
 
   const handleSkip = () => {
+    console.log('Tutorial skip called');
+    // Clear any visual cues before closing
+    document.querySelectorAll('.tutorial-highlight').forEach(el => el.remove());
     onClose();
   };
 
