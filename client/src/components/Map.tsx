@@ -400,8 +400,8 @@ export default function Map({
                       return newSet;
                     });
                   },
-                  click: async () => {
-                    console.log('Intelligent cluster expansion:', properties.cluster_id, 'with', properties.point_count, 'communities');
+                  click: () => {
+                    console.log('Cluster clicked:', properties.cluster_id, 'with', properties.point_count, 'communities');
                     
                     // Prevent multiple simultaneous expansions
                     if (expandingCluster !== null) {
@@ -409,111 +409,50 @@ export default function Map({
                       return;
                     }
                     
-                    try {
-                      // Set expansion state for visual feedback
-                      setExpandingCluster(properties.cluster_id);
-                      setTransitionState('expanding');
+                    // Set expansion state for visual feedback
+                    setExpandingCluster(properties.cluster_id);
+                    setTransitionState('expanding');
+                    
+                    // Get map instance for expansion
+                    const mapContainer = document.querySelector('.leaflet-container') as any;
+                    if (mapContainer && mapContainer._leaflet_map) {
+                      const map = mapContainer._leaflet_map;
                       
-                      // Get optimal expansion zoom level from server
-                      const response = await fetch(`/api/communities/clusters/${properties.cluster_id}/expansion-zoom`);
-                      const data = await response.json();
-                      
-                      // Get map instance for intelligent expansion
-                      const mapContainer = document.querySelector('.leaflet-container') as any;
-                      if (mapContainer && mapContainer._leaflet_map) {
-                        const map = mapContainer._leaflet_map;
-                        
-                        // Intelligent zoom calculation based on cluster characteristics
-                        const expansionZoom = data.expansionZoom || currentZoom + 3;
-                        
-                        // Optimized zoom targeting for granular clustering
-                        let targetZoom;
-                        if (properties.point_count > 500) {
-                          // Very large clusters: conservative zoom
-                          targetZoom = Math.min(expansionZoom + 1, currentZoom + 2);
-                        } else if (properties.point_count > 50) {
-                          // Large clusters: moderate zoom
-                          targetZoom = Math.min(expansionZoom + 1, currentZoom + 3);
-                        } else if (properties.point_count > 10) {
-                          // Medium clusters: normal zoom
-                          targetZoom = Math.min(expansionZoom + 2, currentZoom + 4);
-                        } else if (properties.point_count > 3) {
-                          // Small clusters: aggressive zoom
-                          targetZoom = Math.min(expansionZoom + 3, currentZoom + 5);
-                        } else {
-                          // Very small clusters: maximum zoom to show individuals
-                          targetZoom = Math.min(expansionZoom + 4, 18);
-                        }
-                        
-                        // Ensure meaningful zoom increase for granular breakdown
-                        targetZoom = Math.max(targetZoom, currentZoom + 2);
-                        targetZoom = Math.min(targetZoom, 18);
-                        
-                        console.log(`Intelligent expansion: ${properties.point_count} communities, ${currentZoom} → ${targetZoom} (optimal: ${expansionZoom})`);
-                        
-                        // Smooth transition with enhanced easing
-                        map.setView([lat, lng], targetZoom, {
-                          animate: true,
-                          duration: 0.8, // Optimized duration for performance
-                          easeLinearity: 0.25
-                        });
-                        
-                        // Progressive data refresh with transition states
-                        setTimeout(() => {
-                          setTransitionState('complete');
-                          
-                          // Clear expansion state and refresh data
-                          setTimeout(() => {
-                            setExpandingCluster(null);
-                            setTransitionState('idle');
-                            handleZoomChange(targetZoom);
-                          }, 100);
-                        }, 800); // Match animation duration
+                      // Intelligent zoom calculation based on cluster size
+                      let zoomIncrease;
+                      if (properties.point_count > 1000) {
+                        zoomIncrease = 2; // Conservative for very large clusters
+                      } else if (properties.point_count > 100) {
+                        zoomIncrease = 3; // Moderate for large clusters
+                      } else if (properties.point_count > 50) {
+                        zoomIncrease = 4; // Good for medium clusters
+                      } else if (properties.point_count > 10) {
+                        zoomIncrease = 5; // Aggressive for small clusters
+                      } else {
+                        zoomIncrease = 6; // Maximum for tiny clusters
                       }
                       
-                      // Call optional callback with enhanced data
-                      onClusterClick?.(properties.cluster_id, lat, lng, data.expansionZoom);
+                      const targetZoom = Math.min(currentZoom + zoomIncrease, 18);
                       
-                    } catch (error) {
-                      console.error('Error in intelligent cluster expansion:', error);
-                      // Reset expansion state on error
-                      setExpandingCluster(null);
-                      setTransitionState('idle');
+                      console.log(`Cluster expansion: ${properties.point_count} communities, zoom ${currentZoom} → ${targetZoom}`);
                       
-                      // Enhanced fallback with smooth transitions
-                      const mapContainer = document.querySelector('.leaflet-container') as any;
-                      if (mapContainer && mapContainer._leaflet_map) {
-                        const map = mapContainer._leaflet_map;
-                        
-                        // Intelligent fallback zoom based on cluster characteristics
-                        let zoomIncrease;
-                        if (properties.point_count > 1000) zoomIncrease = 2;
-                        else if (properties.point_count > 100) zoomIncrease = 3;
-                        else if (properties.point_count > 50) zoomIncrease = 4;
-                        else if (properties.point_count > 10) zoomIncrease = 5;
-                        else zoomIncrease = 6;
-                        
-                        const targetZoom = Math.min(currentZoom + zoomIncrease, 18);
-                        
-                        map.setView([lat, lng], targetZoom, {
-                          animate: true,
-                          duration: 0.8,
-                          easeLinearity: 0.25
-                        });
-                        
-                        console.log(`Fallback intelligent expansion: ${properties.point_count} communities to zoom ${targetZoom}`);
-                        
-                        // Fallback data refresh
-                        setTimeout(() => {
-                          setTransitionState('complete');
-                          setTimeout(() => {
-                            setExpandingCluster(null);
-                            setTransitionState('idle');
-                            handleZoomChange(targetZoom);
-                          }, 100);
-                        }, 800);
-                      }
+                      // Smooth transition to cluster center with higher zoom
+                      map.setView([lat, lng], targetZoom, {
+                        animate: true,
+                        duration: 0.6,
+                        easeLinearity: 0.25
+                      });
+                      
+                      // Clear expansion state after animation
+                      setTimeout(() => {
+                        setExpandingCluster(null);
+                        setTransitionState('idle');
+                        handleZoomChange(targetZoom);
+                      }, 600); // Match animation duration
                     }
+                    
+                    // Call optional callback
+                    onClusterClick?.(properties.cluster_id, lat, lng, currentZoom + 3);
                   }
                 }}
               >
