@@ -9,16 +9,6 @@ import { MascotProvider } from "@/components/mascot";
 import { ThemeProvider } from "@/components/theme-provider";
 import Home from "@/pages/home";
 import TrueViewHome from "@/pages/trueview-home";
-import Search from "@/pages/search";
-import TrueViewSearch from "@/pages/trueview-search";
-import EnhancedSearch from "@/pages/enhanced-search";
-import SearchWorking from "@/pages/search-working";
-import BasicSearch from "@/pages/basic-search";
-import TestSearch from "@/pages/test-search";
-// Removed pages: SimpleSearch, WorkingSearch, Explore
-import Community from "@/pages/community";
-import CommunityPage from "@/pages/community";
-import TrueViewCommunity from "@/pages/trueview-community";
 import Claim from "@/pages/claim";
 import Admin from "@/pages/admin";
 import AdminCleanFull from "@/pages/admin-clean-full";
@@ -37,7 +27,6 @@ import TourTracker from "@/pages/tour-tracker";
 import SupportResources from "@/pages/support-resources";
 import VeteransHousing from "@/pages/veterans-housing";
 import AffordableHousing from "@/pages/affordable-housing";
-// HudVashMap removed
 import FamilyCollaboration from "@/pages/family-collaboration";
 import CommunityDetail from "@/pages/community-detail";
 import MapSearch from "@/pages/map-search";
@@ -75,12 +64,6 @@ function Router() {
       <Route path="/search" component={MapSearch} />
       <Route path="/map" component={MapSearch} />
       <Route path="/map-search" component={MapSearch} />
-      {/* Rentals route removed - redirect to search */}
-      {/* MapboxTest route removed */}
-      {/* Map test routes removed */}
-      <Route path="/test-search" component={TestSearch} />
-      <Route path="/old-search" component={TrueViewSearch} />
-      {/* Explore route removed */}
       <Route path="/community/:id" component={CommunityDetail} />
       <Route path="/communities/:id" component={CommunityDetail} />
       <Route path="/claim/:communityId" component={Claim} />
@@ -95,7 +78,7 @@ function Router() {
       <Route path="/support" component={SupportResources} />
       <Route path="/veterans" component={VeteransHousing} />
       {/* HudVashMap route removed */}
-      <Route path="/affordable-housing" component={() => <BasicSearch initialFilters={['Affordable Housing']} />} />
+      <Route path="/affordable-housing" component={AffordableHousing} />
       <Route path="/family-collaboration" component={FamilyCollaboration} />
       <Route path="/login" component={Login} />
       <Route path="/signup" component={Signup} />

@@ -193,6 +193,24 @@ export default function Map({
   // Track current zoom level for supercluster
   const [currentZoom, setCurrentZoom] = useState(zoom);
   
+  // Debug logging
+  useEffect(() => {
+    console.log('Map component mounted with initial zoom:', zoom, 'center:', center);
+  }, []);
+  
+  useEffect(() => {
+    console.log('Map bounds changed:', mapBounds);
+  }, [mapBounds]);
+  
+  useEffect(() => {
+    console.log('Cluster data state:', { 
+      isLoading, 
+      error, 
+      hasData: !!clusterData,
+      featureCount: clusterData?.features?.length || 0 
+    });
+  }, [isLoading, error, clusterData]);
+  
   // Performance tracking state
   const [performanceMetrics, setPerformanceMetrics] = useState({
     renderTime: 0,
@@ -255,6 +273,13 @@ export default function Map({
       
       const data = await response.json();
       const renderTime = performance.now() - renderStart;
+      
+      console.log('Cluster data received:', {
+        featureCount: data.features?.length || 0,
+        bounds: bounds,
+        zoom: Math.round(currentZoom),
+        features: data.features?.slice(0, 3) // Log first 3 features
+      });
       
       // Update performance metrics
       setPerformanceMetrics(prev => ({
@@ -342,8 +367,27 @@ export default function Map({
         
         <MapBoundsHandler onBoundsChange={handleBoundsChange} onZoomChange={handleZoomChange} />
         
+        {/* Loading indicator */}
+        {isLoading && (
+          <div className="absolute top-4 right-4 z-[1000] bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg">
+            <div className="flex items-center gap-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+              <span className="text-sm">Loading communities...</span>
+            </div>
+          </div>
+        )}
+        
+        {/* Error indicator */}
+        {error && (
+          <div className="absolute top-4 right-4 z-[1000] bg-red-50 rounded-lg px-4 py-2 shadow-lg">
+            <div className="flex items-center gap-2 text-red-600">
+              <span className="text-sm">Failed to load map data</span>
+            </div>
+          </div>
+        )}
+        
         {/* Supercluster-powered markers and clusters */}
-        {clusterData?.features?.map((feature: any, index: number) => {
+        {!isLoading && !error && clusterData?.features?.map((feature: any, index: number) => {
           const [lng, lat] = feature.geometry.coordinates;
           const { properties } = feature;
           

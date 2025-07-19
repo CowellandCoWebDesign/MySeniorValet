@@ -4,6 +4,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Leaflet Map Container Fix */
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  z-index: 0;
+}
+
 /* Custom scrollbar utilities */
 @layer utilities {
   .scrollbar-hide {

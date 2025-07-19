@@ -118,6 +118,11 @@ export default function MapSearch() {
   // Debug log
   console.log('Map Search Component - showBottomPanel:', showBottomPanel, 'viewMode:', viewMode);
   console.log('Tutorial state - hasSeenTutorial:', hasSeenTutorial, 'showTutorial:', showTutorial);
+  console.log('Map Search state:', { 
+    mapCenter, 
+    mapZoom, 
+    hasFilters: Object.keys(filters).length > 0 
+  });
   
   // Fetch communities within map bounds for list view
   const { data: mapCommunities = [], isLoading: isLoadingCommunities } = useQuery({
