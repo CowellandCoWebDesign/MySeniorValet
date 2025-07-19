@@ -212,6 +212,12 @@ export default function Map({
 
   // Handle map bounds change
   const handleBoundsChange = useCallback((bounds: LatLngBounds) => {
+    console.log('handleBoundsChange called with bounds:', {
+      west: bounds.getWest().toFixed(3),
+      east: bounds.getEast().toFixed(3),
+      south: bounds.getSouth().toFixed(3),
+      north: bounds.getNorth().toFixed(3)
+    });
     setMapBounds(bounds);
     onBoundsChange?.(bounds);
   }, [onBoundsChange]);
@@ -225,6 +231,8 @@ export default function Map({
 
   // Track current zoom level for supercluster
   const [currentZoom, setCurrentZoom] = useState(zoom);
+  
+  // Remove this - let React Query handle refetching based on key changes
   
   // Check for geolocation permission on mount
   useEffect(() => {
@@ -341,8 +349,8 @@ export default function Map({
   // Enterprise-level cluster data fetching with optimized performance
   const { data: clusterData, isLoading, error, refetch } = useQuery({
     queryKey: ['communities-clusters', 
-      mapBounds ? `${mapBounds.getSouthWest().lng.toFixed(3)},${mapBounds.getSouthWest().lat.toFixed(3)},${mapBounds.getNorthEast().lng.toFixed(3)},${mapBounds.getNorthEast().lat.toFixed(3)}` : 'default',
-      currentZoom, 
+      mapBounds ? `${mapBounds.getSouthWest().lng.toFixed(2)},${mapBounds.getSouthWest().lat.toFixed(2)},${mapBounds.getNorthEast().lng.toFixed(2)},${mapBounds.getNorthEast().lat.toFixed(2)}` : 'default',
+      Math.floor(currentZoom), 
       searchFilters
     ],
     queryFn: async () => {
@@ -355,7 +363,7 @@ export default function Map({
         viewport: 'true' // Enable viewport optimization on server
       });
       
-      console.log('Enterprise cluster request:', bounds, 'zoom:', Math.round(currentZoom));
+      console.log('Fetching communities for bounds:', bounds, 'zoom:', Math.round(currentZoom));
       
       const response = await fetch(`/api/communities/clusters?${params}`);
       

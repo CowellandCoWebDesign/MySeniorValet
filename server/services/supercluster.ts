@@ -165,17 +165,43 @@ class SuperclusterService {
     }
 
     try {
-      // Get clusters from supercluster with performance optimization
+      // DISABLE CLUSTERING AT CITY LEVEL (zoom 12+)
+      if (zoom >= 12) {
+        // Return individual communities without clustering
+        const startTime = Date.now();
+        
+        // Get all features within bounds without clustering
+        const allFeatures = this.featuresCache || [];
+        const [west, south, east, north] = bbox;
+        
+        // Filter features within the bounding box
+        const featuresInBounds = allFeatures.filter(feature => {
+          const [lng, lat] = feature.geometry.coordinates;
+          return lng >= west && lng <= east && lat >= south && lat <= north;
+        });
+        
+        const processingTime = Date.now() - startTime;
+        console.log(`City view (zoom ${zoom}): returning ${featuresInBounds.length} individual communities in ${processingTime}ms`);
+        
+        // Convert to ClusterFeature format without clustering
+        const result: ClusterFeature[] = featuresInBounds.map(feature => ({
+          type: 'Feature',
+          geometry: feature.geometry,
+          properties: {
+            cluster: false,
+            ...feature.properties
+          }
+        }));
+        
+        return result;
+      }
+      
+      // Only use clustering for zoom levels below 12
       const startTime = Date.now();
       const clusters = this.index.getClusters(bbox, zoom);
       const processingTime = Date.now() - startTime;
       
-      // Performance monitoring and optimization alerts
-      if (processingTime > 50) {
-        console.log(`⚠️  Cluster performance alert: ${processingTime}ms for ${clusters.length} features at zoom ${zoom}. Consider viewport optimization.`);
-      } else if (processingTime > 100) {
-        console.log(`🚨 Slow cluster query: ${processingTime}ms for ${clusters.length} features at zoom ${zoom}. Optimization required.`);
-      }
+      console.log(`Zoom ${zoom}: returned ${clusters.length} clusters/points in ${processingTime}ms`);
       
       // Convert to our ClusterFeature format
       const result: ClusterFeature[] = clusters.map(cluster => ({
