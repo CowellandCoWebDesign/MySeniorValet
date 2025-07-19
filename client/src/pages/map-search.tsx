@@ -127,7 +127,10 @@ export default function MapSearch() {
   
   // Fetch communities within map bounds for list view
   const { data: mapCommunities = [], isLoading: isLoadingCommunities } = useQuery({
-    queryKey: ['communities-map-bounds', mapBounds, filters],
+    queryKey: ['communities-map-bounds', 
+      mapBounds ? `${mapBounds.getSouthWest().lng.toFixed(3)},${mapBounds.getSouthWest().lat.toFixed(3)},${mapBounds.getNorthEast().lng.toFixed(3)},${mapBounds.getNorthEast().lat.toFixed(3)}` : 'null',
+      filters
+    ],
     queryFn: async () => {
       if (!mapBounds) return [];
       
@@ -140,7 +143,7 @@ export default function MapSearch() {
           swLng: sw.lng.toString(),
           neLat: ne.lat.toString(),
           neLng: ne.lng.toString(),
-          limit: '50',
+          limit: '100',
           ...(filters.careType !== 'All Types' && { careType: filters.careType }),
           ...(filters.minRating > 0 && { minRating: filters.minRating.toString() }),
         });
@@ -158,7 +161,8 @@ export default function MapSearch() {
       }
     },
     enabled: !!mapBounds && showBottomPanel, // Enable when bottom panel is shown
-    staleTime: 30000, // Cache for 30 seconds
+    staleTime: 0, // No cache - always fresh data
+    gcTime: 0, // No garbage collection time
     retry: 1, // Only retry once on failure
   });
 
@@ -198,45 +202,51 @@ export default function MapSearch() {
     }
   }, [initialQuery]);
 
-  const getLocationSuggestions = (query: string) => {
-    const locations = [
-      { name: 'Los Angeles, CA', state: 'California', coords: [34.0522, -118.2437] },
-      { name: 'San Francisco, CA', state: 'California', coords: [37.7749, -122.4194] },
-      { name: 'San Diego, CA', state: 'California', coords: [32.7157, -117.1611] },
-      { name: 'Sacramento, CA', state: 'California', coords: [38.5816, -121.4944] },
-      { name: 'San Jose, CA', state: 'California', coords: [37.3382, -121.8863] },
-      { name: 'Fresno, CA', state: 'California', coords: [36.7378, -119.7871] },
-      { name: 'Oakland, CA', state: 'California', coords: [37.8044, -122.2712] },
-      { name: 'Long Beach, CA', state: 'California', coords: [33.7701, -118.1937] },
-      { name: 'Bakersfield, CA', state: 'California', coords: [35.3733, -119.0187] },
-      { name: 'Anaheim, CA', state: 'California', coords: [33.8366, -117.9143] },
-      { name: 'Santa Monica, CA', state: 'California', coords: [34.0195, -118.4912] },
-      { name: 'Pasadena, CA', state: 'California', coords: [34.1478, -118.1445] },
-      { name: 'Riverside, CA', state: 'California', coords: [33.9806, -117.3755] },
-      { name: 'Houston, TX', state: 'Texas', coords: [29.7604, -95.3698] },
-      { name: 'Dallas, TX', state: 'Texas', coords: [32.7767, -96.7970] },
-      { name: 'Phoenix, AZ', state: 'Arizona', coords: [33.4484, -112.0740] },
-      { name: 'Las Vegas, NV', state: 'Nevada', coords: [36.1699, -115.1398] },
-      { name: 'Seattle, WA', state: 'Washington', coords: [47.6062, -122.3321] },
-      { name: 'Portland, OR', state: 'Oregon', coords: [45.5152, -122.6784] },
-      { name: 'Denver, CO', state: 'Colorado', coords: [39.7392, -104.9903] },
-    ];
-    
-    const lowerQuery = query.toLowerCase();
-    return locations
-      .filter(loc => loc.name.toLowerCase().includes(lowerQuery))
-      .slice(0, 5);
-  };
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
-  const handleLocationSearch = (location: string) => {
-    // First check our suggestions
-    const suggestions = getLocationSuggestions(location);
-    if (suggestions.length > 0) {
-      const firstMatch = suggestions[0];
-      setMapCenter(firstMatch.coords as [number, number]);
-      setMapZoom(12);
-      return;
+  // Debounced search suggestions
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (searchQuery.length < 2) {
+        setSuggestions([]);
+        return;
+      }
+      
+      setLoadingSuggestions(true);
+      try {
+        const response = await fetch(`/api/search/suggestions?q=${encodeURIComponent(searchQuery)}`);
+        if (response.ok) {
+          const data = await response.json();
+          setSuggestions(data.slice(0, 8));
+        }
+      } catch (error) {
+        console.error('Error fetching suggestions:', error);
+      } finally {
+        setLoadingSuggestions(false);
+      }
+    };
+
+    const debounceTimer = setTimeout(fetchSuggestions, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery]);
+
+  const handleLocationSearch = async (location: string) => {
+    // Try to geocode the location
+    try {
+      const response = await fetch(`/api/communities/search/enhanced?location=${encodeURIComponent(location)}&limit=1`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.searchMetadata?.coordinates) {
+          setMapCenter([data.searchMetadata.coordinates.lat, data.searchMetadata.coordinates.lng]);
+          setMapZoom(data.searchMetadata.searchType === 'state' ? 8 : 12);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Error searching location:', error);
     }
+
     
     // Fallback to manual mapping
     const locationMap: Record<string, [number, number]> = {
@@ -423,29 +433,30 @@ export default function MapSearch() {
               }`}
             />
             {/* Autocomplete suggestions */}
-            {showSuggestions && searchQuery.length > 0 && (
+            {showSuggestions && searchQuery.length > 0 && suggestions.length > 0 && (
               <div className={`absolute top-full left-0 right-0 mt-1 rounded-md shadow-lg z-50 max-h-60 overflow-auto ${
                 isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'
               } border`}>
-                {getLocationSuggestions(searchQuery).map((suggestion, idx) => (
-                  <button
-                    key={idx}
-                    className={`w-full text-left px-4 py-2 hover:bg-blue-50 dark:hover:bg-gray-600 ${
-                      isDarkMode ? 'text-gray-200' : 'text-gray-700'
-                    }`}
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      setSearchQuery(suggestion.name);
-                      handleLocationSearch(suggestion.name);
-                      setShowSuggestions(false);
-                    }}
-                  >
-                    <div className="font-medium">{suggestion.name}</div>
-                    {suggestion.state && (
-                      <div className="text-sm text-gray-500">{suggestion.state}</div>
-                    )}
-                  </button>
-                ))}
+                {loadingSuggestions ? (
+                  <div className="px-4 py-2 text-gray-500">Loading...</div>
+                ) : (
+                  suggestions.map((suggestion, idx) => (
+                    <button
+                      key={idx}
+                      className={`w-full text-left px-4 py-2 hover:bg-blue-50 dark:hover:bg-gray-600 ${
+                        isDarkMode ? 'text-gray-200' : 'text-gray-700'
+                      }`}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        setSearchQuery(suggestion);
+                        handleLocationSearch(suggestion);
+                        setShowSuggestions(false);
+                      }}
+                    >
+                      <div className="font-medium">{suggestion}</div>
+                    </button>
+                  ))
+                )}
               </div>
             )}
           </div>
@@ -734,7 +745,7 @@ export default function MapSearch() {
         </div>
 
         {/* Enhanced Panel Content - Beautiful List View */}
-        <div className="flex-1 overflow-y-auto p-4 bg-gradient-to-b from-blue-50/30 to-white dark:from-blue-900/10 dark:to-gray-900">
+        <div className="overflow-y-auto p-4 bg-gradient-to-b from-blue-50/30 to-white dark:from-blue-900/10 dark:to-gray-900" style={{ height: `calc(${panelHeight}vh - 140px)` }}>
           {!mapBounds ? (
             <div className="text-center py-12">
               <div className="bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 rounded-2xl p-8 mx-4">
