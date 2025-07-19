@@ -179,7 +179,7 @@ export default function MapTutorial({ isVisible, onClose, onComplete }: MapTutor
         highlight.style.border = '3px solid #3b82f6';
         highlight.style.borderRadius = '50%';
         highlight.style.pointerEvents = 'none';
-        highlight.style.zIndex = '10000';
+        highlight.style.zIndex = '10002';
         highlight.style.animation = 'pulse 3s infinite';
         
         // Add gentle bounce animation for better visibility
@@ -221,10 +221,10 @@ export default function MapTutorial({ isVisible, onClose, onComplete }: MapTutor
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-40" />
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-[10000]" />
       
       {/* Tutorial Card */}
-      <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
+      <div className="fixed inset-0 flex items-center justify-center p-4 z-[10001]">
         <Card className="w-full max-w-lg mx-4 shadow-2xl border-2 border-blue-200 dark:border-blue-700 bg-white dark:bg-gray-900">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
