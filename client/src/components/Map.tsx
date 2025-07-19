@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip } from 'react-leaflet';
 import { Icon, LatLngBounds, LatLng } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Star, MapPin, Phone, Globe, Heart, ExternalLink, Zap, Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -102,11 +102,18 @@ function MapBoundsHandler({
   const handleBoundsChange = useCallback(() => {
     try {
       if (map && map.getBounds) {
-        // Add small delay to prevent excessive API calls during dragging
+        // Enterprise-level debouncing for optimal performance
         clearTimeout(window.mapBoundsTimeout);
         window.mapBoundsTimeout = setTimeout(() => {
-          onBoundsChange(map.getBounds());
-        }, 250); // 250ms debounce for smoother experience
+          const bounds = map.getBounds();
+          onBoundsChange(bounds);
+          console.log('Map bounds updated:', {
+            west: bounds.getWest().toFixed(3),
+            east: bounds.getEast().toFixed(3),
+            south: bounds.getSouth().toFixed(3),
+            north: bounds.getNorth().toFixed(3)
+          });
+        }, 150); // Faster response for enterprise UX
       }
     } catch (error) {
       console.warn('Error getting map bounds:', error);
@@ -159,6 +166,7 @@ export default function Map({
   center = [39.8283, -98.5795], // Geographic center of US
   zoom = 3
 }: MapProps) {
+  const queryClient = useQueryClient();
   const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
@@ -220,8 +228,8 @@ export default function Map({
     };
   }, []);
 
-  // Fetch clustered communities using supercluster service with viewport optimization
-  const { data: clusterData, isLoading, error } = useQuery({
+  // Enterprise-level cluster data fetching with optimized performance
+  const { data: clusterData, isLoading, error, refetch } = useQuery({
     queryKey: ['communities-clusters', 
       mapBounds ? `${mapBounds.getSouthWest().lng.toFixed(3)},${mapBounds.getSouthWest().lat.toFixed(3)},${mapBounds.getNorthEast().lng.toFixed(3)},${mapBounds.getNorthEast().lat.toFixed(3)}` : 'default',
       currentZoom, 
@@ -233,11 +241,11 @@ export default function Map({
       
       const params = new URLSearchParams({
         bbox: `${bounds.west},${bounds.south},${bounds.east},${bounds.north}`,
-        zoom: currentZoom.toString(),
+        zoom: Math.round(currentZoom).toString(), // Ensure integer zoom
         viewport: 'true' // Enable viewport optimization on server
       });
       
-      console.log('Optimized viewport request:', bounds, 'zoom:', currentZoom);
+      console.log('Enterprise cluster request:', bounds, 'zoom:', Math.round(currentZoom));
       
       const response = await fetch(`/api/communities/clusters?${params}`);
       
@@ -258,11 +266,12 @@ export default function Map({
       
       return data;
     },
-    enabled: !!mapBounds || currentZoom > 0,
+    enabled: !!mapBounds && currentZoom >= 0,
     staleTime: 0, // Real-time data for natural clustering
     refetchOnWindowFocus: false,
     gcTime: 60000, // Shorter cache for viewport optimization
-    keepPreviousData: false // Fresh data on every interaction
+    keepPreviousData: false, // Fresh data on every interaction
+    refetchInterval: false // No auto-refresh
   });
 
   const getIconForCommunity = (community: Community, isHovered = false, isPulsing = false) => {
@@ -445,19 +454,29 @@ export default function Map({
                         easeLinearity: 0.25
                       });
                       
-                      // Clear expansion state and force data refresh after animation
+                      // Enterprise-level state management after expansion
                       setTimeout(() => {
+                        // Clear expansion state
                         setExpandingCluster(null);
                         setTransitionState('idle');
                         
-                        // Force zoom state update to trigger new cluster fetch
+                        // Force immediate state updates to trigger re-render
                         setCurrentZoom(targetZoom);
                         
-                        // Also trigger bounds change to ensure fresh data
+                        // Get fresh bounds and trigger complete update cycle
                         const newBounds = map.getBounds();
                         setMapBounds(newBounds);
-                        onBoundsChange?.(newBounds);
-                      }, 600); // Match animation duration
+                        
+                        // Ensure all callbacks fire
+                        if (onBoundsChange) {
+                          onBoundsChange(newBounds);
+                        }
+                        
+                        // Force immediate query refresh using queryClient
+                        queryClient.invalidateQueries({ 
+                          queryKey: ['communities-clusters']
+                        });
+                      }, 650); // Slightly longer than animation for stability
                     }
                     
                     // Call optional callback
