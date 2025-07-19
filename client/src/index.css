@@ -82,14 +82,56 @@
 }
 
 /* Enhanced cluster marker styling */
+/* Enhanced cluster marker styling with intelligent expansion */
 .cluster-marker {
   cursor: pointer !important;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
 .cluster-marker:hover {
-  transform: scale(1.1);
-  filter: brightness(1.1);
+  transform: scale(1.05);
+  z-index: 1000;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+}
+
+.cluster-marker.expanding {
+  animation: intelligentExpansion 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1001;
+  filter: drop-shadow(0 6px 12px rgba(59, 130, 246, 0.3));
+}
+
+@keyframes intelligentExpansion {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+/* Smooth transition overlay during expansion */
+.map-transition-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(59, 130, 246, 0.1);
+  z-index: 2000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.map-transition-overlay.active {
+  opacity: 1;
 }
 
 :root {

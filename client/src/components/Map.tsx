@@ -142,6 +142,8 @@ export default function Map({
   const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
+  const [expandingCluster, setExpandingCluster] = useState<number | null>(null);
+  const [transitionState, setTransitionState] = useState<'idle' | 'expanding' | 'complete'>('idle');
 
   // Handle map bounds change
   const handleBoundsChange = useCallback((bounds: LatLngBounds) => {
@@ -228,6 +230,17 @@ export default function Map({
     <div className="w-full flex" style={{ height }}>
       {/* Map Container */}
       <div className="flex-1 relative">
+        {/* Transition overlay for smooth expansion effects */}
+        <div className={`map-transition-overlay ${transitionState === 'expanding' ? 'active' : ''}`}>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg">
+              <div className="flex items-center gap-2 text-blue-600">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                <span className="text-sm font-medium">Intelligent expansion in progress...</span>
+              </div>
+            </div>
+          </div>
+        </div>
         <MapContainer
           center={center}
           zoom={zoom}
@@ -251,22 +264,40 @@ export default function Map({
           
           // Handle cluster markers (multiple communities)
           if (properties.cluster) {
-            // Create dynamic cluster icon size based on point count
+            // Create dynamic cluster icon with intelligent expansion feedback
             const size = Math.min(40 + Math.log10(properties.point_count || 1) * 8, 60);
+            const isExpanding = expandingCluster === properties.cluster_id;
+            const expandingSize = isExpanding ? size * 1.1 : size;
+            
+            // Enhanced cluster styling with expansion states
+            const clusterColor = isExpanding ? '#3b82f6' : '#1e40af';
+            const pulseEffect = isExpanding ? `
+              <circle cx="${expandingSize/2}" cy="${expandingSize/2}" r="${expandingSize/2 - 2}" fill="${clusterColor}" stroke="#fff" stroke-width="3" opacity="0.8">
+                <animate attributeName="r" values="${expandingSize/2 - 2};${expandingSize/2 + 4};${expandingSize/2 - 2}" dur="1.5s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.8;0.4;0.8" dur="1.5s" repeatCount="indefinite"/>
+              </circle>
+            ` : '';
+            
             const clusterIcon = new Icon({
               iconUrl: `data:image/svg+xml;base64,${btoa(`
-                <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-                  <circle cx="${size/2}" cy="${size/2}" r="${size/2 - 2}" fill="#1e40af" stroke="#fff" stroke-width="3"/>
-                  <circle cx="${size/2}" cy="${size/2}" r="${size/2 - 6}" fill="rgba(59, 130, 246, 0.3)" stroke="none"/>
-                  <text x="${size/2}" y="${size/2 + 4}" text-anchor="middle" fill="#fff" font-size="${Math.min(12, size/4)}" font-weight="bold">
+                <svg xmlns="http://www.w3.org/2000/svg" width="${expandingSize}" height="${expandingSize}" viewBox="0 0 ${expandingSize} ${expandingSize}">
+                  ${pulseEffect}
+                  <circle cx="${expandingSize/2}" cy="${expandingSize/2}" r="${expandingSize/2 - 2}" fill="${clusterColor}" stroke="#fff" stroke-width="3"/>
+                  <circle cx="${expandingSize/2}" cy="${expandingSize/2}" r="${expandingSize/2 - 6}" fill="rgba(59, 130, 246, 0.3)" stroke="none"/>
+                  <text x="${expandingSize/2}" y="${expandingSize/2 + 4}" text-anchor="middle" fill="#fff" font-size="${Math.min(12, expandingSize/4)}" font-weight="bold">
                     ${properties.point_count_abbreviated}
                   </text>
+                  ${isExpanding ? `
+                    <circle cx="${expandingSize/2}" cy="${expandingSize/2}" r="${expandingSize/2 - 1}" fill="none" stroke="#fbbf24" stroke-width="2" opacity="0.7">
+                      <animate attributeName="stroke-dasharray" values="0,${Math.PI * 2 * (expandingSize/2 - 1)};${Math.PI * 2 * (expandingSize/2 - 1)},0" dur="1.2s" repeatCount="1"/>
+                    </circle>
+                  ` : ''}
                 </svg>
               `)}`,
-              iconSize: [size, size],
-              iconAnchor: [size/2, size/2],
-              popupAnchor: [0, -size/2],
-              className: 'cluster-marker'
+              iconSize: [expandingSize, expandingSize],
+              iconAnchor: [expandingSize/2, expandingSize/2],
+              popupAnchor: [0, -expandingSize/2],
+              className: `cluster-marker ${isExpanding ? 'expanding' : ''}`
             });
 
             return (
@@ -276,71 +307,141 @@ export default function Map({
                 icon={clusterIcon}
                 eventHandlers={{
                   click: async () => {
-                    console.log('Cluster clicked:', properties.cluster_id);
+                    console.log('Intelligent cluster expansion:', properties.cluster_id, 'with', properties.point_count, 'communities');
+                    
+                    // Prevent multiple simultaneous expansions
+                    if (expandingCluster !== null) {
+                      console.log('Expansion already in progress, ignoring click');
+                      return;
+                    }
                     
                     try {
+                      // Set expansion state for visual feedback
+                      setExpandingCluster(properties.cluster_id);
+                      setTransitionState('expanding');
+                      
                       // Get optimal expansion zoom level from server
                       const response = await fetch(`/api/communities/clusters/${properties.cluster_id}/expansion-zoom`);
                       const data = await response.json();
                       
-                      // Get map instance and zoom to cluster
+                      // Get map instance for intelligent expansion
                       const mapContainer = document.querySelector('.leaflet-container') as any;
                       if (mapContainer && mapContainer._leaflet_map) {
                         const map = mapContainer._leaflet_map;
-                        // Use expansion zoom with fallback, ensuring meaningful zoom increase
-                        const expansionZoom = data.expansionZoom || currentZoom + 3;
-                        const targetZoom = Math.min(Math.max(expansionZoom, currentZoom + 2), 18);
                         
+                        // Intelligent zoom calculation based on cluster characteristics
+                        const expansionZoom = data.expansionZoom || currentZoom + 3;
+                        
+                        // Smart zoom targeting based on cluster density
+                        let targetZoom;
+                        if (properties.point_count > 1000) {
+                          // Very large clusters: conservative zoom
+                          targetZoom = Math.min(expansionZoom, currentZoom + 2);
+                        } else if (properties.point_count > 100) {
+                          // Large clusters: moderate zoom
+                          targetZoom = Math.min(expansionZoom, currentZoom + 3);
+                        } else if (properties.point_count > 10) {
+                          // Medium clusters: aggressive zoom
+                          targetZoom = Math.min(expansionZoom, currentZoom + 4);
+                        } else {
+                          // Small clusters: maximum zoom to show individuals
+                          targetZoom = Math.min(expansionZoom + 1, 16);
+                        }
+                        
+                        // Ensure meaningful zoom increase
+                        targetZoom = Math.max(targetZoom, currentZoom + 1);
+                        targetZoom = Math.min(targetZoom, 18);
+                        
+                        console.log(`Intelligent expansion: ${properties.point_count} communities, ${currentZoom} → ${targetZoom} (optimal: ${expansionZoom})`);
+                        
+                        // Smooth transition with enhanced easing
                         map.setView([lat, lng], targetZoom, {
                           animate: true,
-                          duration: 0.8,
-                          easeLinearity: 0.5
+                          duration: 1.2, // Longer duration for smoother feel
+                          easeLinearity: 0.3, // More pronounced easing curve
+                          noMoveStart: false
                         });
                         
-                        console.log(`Zooming to cluster ${properties.cluster_id} from ${currentZoom} to ${targetZoom} (expansion: ${expansionZoom})`);
-                        
-                        // Force refresh cluster data after zoom
+                        // Progressive data refresh with transition states
                         setTimeout(() => {
+                          setTransitionState('complete');
                           handleZoomChange(targetZoom);
-                        }, 900);
+                          
+                          // Clear expansion state after transition
+                          setTimeout(() => {
+                            setExpandingCluster(null);
+                            setTransitionState('idle');
+                          }, 300);
+                        }, 1300); // Slightly longer than animation duration
                       }
                       
-                      // Call optional callback
-                      onClusterClick?.(properties.cluster_id, lat, lng, data.expansionZoom);
+                      // Call optional callback with enhanced data
+                      onClusterClick?.(properties.cluster_id, lat, lng, {
+                        expansionZoom: data.expansionZoom,
+                        targetZoom,
+                        pointCount: properties.point_count,
+                        transitionDuration: 1200
+                      });
                       
                     } catch (error) {
-                      console.error('Error expanding cluster:', error);
-                      // Fallback: intelligent zoom based on cluster size
+                      console.error('Error in intelligent cluster expansion:', error);
+                      
+                      // Enhanced fallback with smooth transitions
                       const mapContainer = document.querySelector('.leaflet-container') as any;
                       if (mapContainer && mapContainer._leaflet_map) {
                         const map = mapContainer._leaflet_map;
-                        // Zoom more for smaller clusters, less for larger ones
-                        const zoomIncrease = properties.point_count > 100 ? 2 : 
-                                           properties.point_count > 50 ? 3 : 
-                                           properties.point_count > 10 ? 4 : 5;
+                        
+                        // Intelligent fallback zoom based on cluster characteristics
+                        let zoomIncrease;
+                        if (properties.point_count > 1000) zoomIncrease = 2;
+                        else if (properties.point_count > 100) zoomIncrease = 3;
+                        else if (properties.point_count > 50) zoomIncrease = 4;
+                        else if (properties.point_count > 10) zoomIncrease = 5;
+                        else zoomIncrease = 6;
+                        
                         const targetZoom = Math.min(currentZoom + zoomIncrease, 18);
+                        
                         map.setView([lat, lng], targetZoom, {
                           animate: true,
-                          duration: 0.8,
-                          easeLinearity: 0.5
+                          duration: 1.0,
+                          easeLinearity: 0.4
                         });
-                        console.log(`Fallback zoom for cluster with ${properties.point_count} communities to level ${targetZoom}`);
                         
-                        // Force refresh cluster data after zoom
+                        console.log(`Fallback intelligent expansion: ${properties.point_count} communities to zoom ${targetZoom}`);
+                        
+                        // Fallback data refresh
                         setTimeout(() => {
+                          setTransitionState('complete');
                           handleZoomChange(targetZoom);
-                        }, 900);
+                          setTimeout(() => {
+                            setExpandingCluster(null);
+                            setTransitionState('idle');
+                          }, 200);
+                        }, 1100);
                       }
                     }
                   }
                 }}
               >
                 <Popup>
-                  <div className="p-3 text-center">
-                    <h4 className="font-bold text-lg">{properties.point_count} Communities</h4>
-                    <p className="text-sm text-gray-600 mb-2">Click cluster to zoom in and explore</p>
-                    <div className="text-xs text-gray-500">
-                      Zoom level: {currentZoom}
+                  <div className="p-4 text-center">
+                    <h4 className="font-bold text-lg mb-1">{properties.point_count} Communities</h4>
+                    {isExpanding ? (
+                      <div className="text-sm text-blue-600 mb-2 flex items-center justify-center gap-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                        Intelligent expansion in progress...
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-600 mb-2">Click for intelligent cluster expansion</p>
+                    )}
+                    <div className="text-xs text-gray-500 space-y-1">
+                      <div>Current zoom: {currentZoom}</div>
+                      <div className="text-xs text-blue-500">
+                        {properties.point_count > 1000 ? 'Large cluster - conservative expansion' :
+                         properties.point_count > 100 ? 'Medium cluster - moderate expansion' :
+                         properties.point_count > 10 ? 'Small cluster - aggressive expansion' :
+                         'Micro cluster - maximum detail expansion'}
+                      </div>
                     </div>
                   </div>
                 </Popup>

@@ -199,7 +199,40 @@ class SuperclusterService {
 
   async getClusterExpansionZoom(clusterId: number): Promise<number> {
     await this.initialize();
-    return this.index.getClusterExpansionZoom(clusterId);
+    
+    try {
+      // Get the base expansion zoom from supercluster
+      const baseExpansionZoom = this.index.getClusterExpansionZoom(clusterId);
+      
+      // Get cluster children to analyze density
+      const children = this.index.getChildren(clusterId);
+      const childCount = children.length;
+      
+      // Intelligent expansion algorithm based on cluster characteristics
+      let intelligentZoom = baseExpansionZoom;
+      
+      if (childCount > 1000) {
+        // Very dense clusters: conservative expansion
+        intelligentZoom = Math.min(baseExpansionZoom, baseExpansionZoom + 1);
+      } else if (childCount > 100) {
+        // Dense clusters: moderate expansion
+        intelligentZoom = Math.min(baseExpansionZoom + 1, baseExpansionZoom + 2);
+      } else if (childCount > 10) {
+        // Medium clusters: normal expansion
+        intelligentZoom = baseExpansionZoom;
+      } else {
+        // Sparse clusters: aggressive expansion to show individuals
+        intelligentZoom = Math.min(baseExpansionZoom + 2, 16);
+      }
+      
+      console.log(`Intelligent expansion for cluster ${clusterId}: ${childCount} children, base: ${baseExpansionZoom}, intelligent: ${intelligentZoom}`);
+      
+      return intelligentZoom;
+    } catch (error) {
+      console.error('Error in intelligent expansion:', error);
+      // Fallback to base implementation
+      return this.index.getClusterExpansionZoom(clusterId);
+    }
   }
 
   async getClusterChildren(clusterId: number): Promise<ClusterFeature[]> {

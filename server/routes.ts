@@ -1351,13 +1351,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/communities/clusters/:clusterId/expansion-zoom', async (req, res) => {
     try {
       const clusterId = parseInt(req.params.clusterId);
+      
+      // Get intelligent expansion zoom with cluster analysis
       const expansionZoom = await superclusterService.getClusterExpansionZoom(clusterId);
       
-      res.json({ expansionZoom });
+      // Get additional cluster metadata for enhanced expansion decisions
+      const children = await superclusterService.getClusterChildren(clusterId);
+      const pointCount = children.length;
+      
+      // Calculate expansion characteristics
+      const expansionType = pointCount > 1000 ? 'conservative' :
+                           pointCount > 100 ? 'moderate' :
+                           pointCount > 10 ? 'normal' : 'aggressive';
+      
+      res.json({ 
+        expansionZoom,
+        pointCount,
+        expansionType,
+        transitionDuration: 1200,
+        easeType: 'cubic-bezier(0.4, 0, 0.2, 1)'
+      });
     } catch (error) {
-      console.error('Cluster expansion zoom error:', error);
+      console.error('Intelligent cluster expansion error:', error);
       res.status(500).json({ 
-        error: 'Failed to get expansion zoom',
+        error: 'Failed to get intelligent expansion data',
         message: error instanceof Error ? error.message : 'Unknown error'
       });
     }
