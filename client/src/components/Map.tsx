@@ -94,7 +94,7 @@ function MapBoundsHandler({
   onZoomChange 
 }: { 
   onBoundsChange: (bounds: LatLngBounds) => void;
-  onZoomChange: (zoom: number) => void;
+  onZoomChange: (zoom?: number) => void;
 }) {
   const map = useMap();
   const [initialized, setInitialized] = useState(false);
@@ -175,9 +175,11 @@ export default function Map({
     onBoundsChange?.(bounds);
   }, [onBoundsChange]);
 
-  // Handle zoom change
-  const handleZoomChange = useCallback((zoomLevel: number) => {
-    setCurrentZoom(zoomLevel);
+  // Handle zoom change - can be called with or without parameter
+  const handleZoomChange = useCallback((zoomLevel?: number) => {
+    if (zoomLevel !== undefined) {
+      setCurrentZoom(zoomLevel);
+    }
   }, []);
 
   // Track current zoom level for supercluster
