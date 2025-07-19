@@ -581,7 +581,7 @@ export default function MapSearch() {
       {/* Map Container */}
       <div className="flex-1">
         {viewMode === 'map' ? (
-          <div className="h-full">
+          <div className="h-full" style={{ minHeight: '600px' }}>
             <Map
               center={mapCenter}
               zoom={mapZoom}

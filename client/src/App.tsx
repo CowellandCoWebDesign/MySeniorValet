@@ -7,6 +7,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { DisclaimerBanner } from "@/components/disclaimer-banner";
 import { MascotProvider } from "@/components/mascot";
 import { ThemeProvider } from "@/components/theme-provider";
+
+// Import Leaflet CSS globally for map functionality
+import 'leaflet/dist/leaflet.css';
 import Home from "@/pages/home";
 import TrueViewHome from "@/pages/trueview-home";
 import Claim from "@/pages/claim";

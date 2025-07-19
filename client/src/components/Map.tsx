@@ -2,6 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip } from 'react-leaflet';
 import { Icon, LatLngBounds, LatLng } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+
+// Import Leaflet CSS explicitly
+import 'leaflet/dist/leaflet.css';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Star, MapPin, Phone, Globe, Heart, ExternalLink, Zap, Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -327,8 +330,11 @@ export default function Map({
 
   console.log('Map render - isLoading:', isLoading, 'error:', error, 'clusterData:', !!clusterData);
   
+  // Force minimum height if percentage height
+  const mapHeight = height === '100%' ? '600px' : height;
+  
   return (
-    <div className="w-full flex" style={{ height }}>
+    <div className="w-full flex" style={{ height: mapHeight, minHeight: '600px' }}>
       {/* Performance Monitor Dashboard */}
       {process.env.NODE_ENV === 'development' && (
         <div className="performance-monitor">
@@ -346,6 +352,14 @@ export default function Map({
       {/* Map Container */}
       <div className="flex-1 relative" style={{ minHeight: '400px' }}>
         {console.log('Map container rendering, height:', height)}
+        {/* Debug overlay */}
+        <div style={{ position: 'absolute', top: 10, left: 10, background: 'white', padding: '10px', zIndex: 1000, border: '1px solid black' }}>
+          <div>Map Debug Info:</div>
+          <div>Container Height: {mapHeight}</div>
+          <div>Clusters Loaded: {clusterData?.features?.length || 0}</div>
+          <div>Map Center: {center.join(', ')}</div>
+          <div>Zoom: {zoom}</div>
+        </div>
         {/* Transition overlay for smooth expansion effects */}
         {transitionState === 'expanding' && (
           <div className="map-transition-overlay active">
@@ -359,14 +373,16 @@ export default function Map({
             </div>
           </div>
         )}
+
         <MapContainer
           center={center}
           zoom={zoom}
           minZoom={3}
           maxZoom={18}
           bounds={[[14.0, -170.0], [70.0, -50.0]]} // Full North America including Alaska and Mexico
-          style={{ height: '100%', width: '100%' }}
+          style={{ height: '100%', width: '100%', backgroundColor: '#f0f0f0', minHeight: '500px' }}
           className="rounded-lg"
+          key={`map-${center[0]}-${center[1]}-${zoom}`}
         >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
