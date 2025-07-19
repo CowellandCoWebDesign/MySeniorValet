@@ -132,14 +132,19 @@ function MapBoundsHandler({
   
   useEffect(() => {
     if (map && !initialized) {
+      console.log('MapBoundsHandler initializing, map ready:', !!map);
+      
       // Set up event handlers for map movement with better responsiveness
       map.on('moveend', handleBoundsChange);
       map.on('zoomend', handleZoomChange);
       map.on('drag', handleBoundsChange); // Update during drag for better UX
       
-      // Initial bounds and zoom
-      handleBoundsChange();
-      handleZoomChange();
+      // Force initial bounds and zoom
+      setTimeout(() => {
+        console.log('Setting initial bounds and zoom');
+        handleBoundsChange();
+        handleZoomChange();
+      }, 100);
       
       setInitialized(true);
     }
@@ -192,24 +197,6 @@ export default function Map({
 
   // Track current zoom level for supercluster
   const [currentZoom, setCurrentZoom] = useState(zoom);
-  
-  // Debug logging
-  useEffect(() => {
-    console.log('Map component mounted with initial zoom:', zoom, 'center:', center);
-  }, []);
-  
-  useEffect(() => {
-    console.log('Map bounds changed:', mapBounds);
-  }, [mapBounds]);
-  
-  useEffect(() => {
-    console.log('Cluster data state:', { 
-      isLoading, 
-      error, 
-      hasData: !!clusterData,
-      featureCount: clusterData?.features?.length || 0 
-    });
-  }, [isLoading, error, clusterData]);
   
   // Performance tracking state
   const [performanceMetrics, setPerformanceMetrics] = useState({
@@ -314,12 +301,32 @@ export default function Map({
     setSelectedCommunity(community);
     onCommunityClick?.(community);
   };
+  
+  // Debug logging
+  useEffect(() => {
+    console.log('Map component mounted with initial zoom:', zoom, 'center:', center);
+  }, []);
+  
+  useEffect(() => {
+    console.log('Map bounds changed:', mapBounds);
+  }, [mapBounds]);
+  
+  useEffect(() => {
+    console.log('Cluster data state:', { 
+      isLoading, 
+      error, 
+      hasData: !!clusterData,
+      featureCount: clusterData?.features?.length || 0 
+    });
+  }, [isLoading, error, clusterData]);
 
   const formatPrice = (priceRange: string) => {
     if (!priceRange) return 'Contact for pricing';
     return priceRange;
   };
 
+  console.log('Map render - isLoading:', isLoading, 'error:', error, 'clusterData:', !!clusterData);
+  
   return (
     <div className="w-full flex" style={{ height }}>
       {/* Performance Monitor Dashboard */}
@@ -337,7 +344,8 @@ export default function Map({
       )}
       
       {/* Map Container */}
-      <div className="flex-1 relative">
+      <div className="flex-1 relative" style={{ minHeight: '400px' }}>
+        {console.log('Map container rendering, height:', height)}
         {/* Transition overlay for smooth expansion effects */}
         {transitionState === 'expanding' && (
           <div className="map-transition-overlay active">
@@ -387,6 +395,11 @@ export default function Map({
         )}
         
         {/* Supercluster-powered markers and clusters */}
+        {console.log('Rendering markers:', { 
+          isLoading, 
+          hasError: !!error, 
+          featureCount: clusterData?.features?.length || 0 
+        })}
         {!isLoading && !error && clusterData?.features?.map((feature: any, index: number) => {
           const [lng, lat] = feature.geometry.coordinates;
           const { properties } = feature;

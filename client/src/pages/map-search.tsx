@@ -585,7 +585,7 @@ export default function MapSearch() {
             <Map
               center={mapCenter}
               zoom={mapZoom}
-              height="calc(100vh - 200px)"
+              height="100%"
               searchFilters={filters}
               onCommunityClick={handleCommunityClick}
               onBoundsChange={setMapBounds}
