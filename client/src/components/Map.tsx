@@ -231,16 +231,18 @@ export default function Map({
       {/* Map Container */}
       <div className="flex-1 relative">
         {/* Transition overlay for smooth expansion effects */}
-        <div className={`map-transition-overlay ${transitionState === 'expanding' ? 'active' : ''}`}>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg">
-              <div className="flex items-center gap-2 text-blue-600">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                <span className="text-sm font-medium">Intelligent expansion in progress...</span>
+        {transitionState === 'expanding' && (
+          <div className="map-transition-overlay active">
+            <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
+              <div className="bg-white/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg">
+                <div className="flex items-center gap-2 text-blue-600">
+                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
+                  <span className="text-xs font-medium">Expanding...</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
         <MapContainer
           center={center}
           zoom={zoom}
@@ -357,34 +359,31 @@ export default function Map({
                         // Smooth transition with enhanced easing
                         map.setView([lat, lng], targetZoom, {
                           animate: true,
-                          duration: 1.2, // Longer duration for smoother feel
-                          easeLinearity: 0.3, // More pronounced easing curve
-                          noMoveStart: false
+                          duration: 0.8, // Optimized duration for performance
+                          easeLinearity: 0.25
                         });
                         
                         // Progressive data refresh with transition states
                         setTimeout(() => {
                           setTransitionState('complete');
-                          handleZoomChange(targetZoom);
                           
-                          // Clear expansion state after transition
+                          // Clear expansion state and refresh data
                           setTimeout(() => {
                             setExpandingCluster(null);
                             setTransitionState('idle');
-                          }, 300);
-                        }, 1300); // Slightly longer than animation duration
+                            handleZoomChange(targetZoom);
+                          }, 100);
+                        }, 800); // Match animation duration
                       }
                       
                       // Call optional callback with enhanced data
-                      onClusterClick?.(properties.cluster_id, lat, lng, {
-                        expansionZoom: data.expansionZoom,
-                        targetZoom,
-                        pointCount: properties.point_count,
-                        transitionDuration: 1200
-                      });
+                      onClusterClick?.(properties.cluster_id, lat, lng, data.expansionZoom);
                       
                     } catch (error) {
                       console.error('Error in intelligent cluster expansion:', error);
+                      // Reset expansion state on error
+                      setExpandingCluster(null);
+                      setTransitionState('idle');
                       
                       // Enhanced fallback with smooth transitions
                       const mapContainer = document.querySelector('.leaflet-container') as any;
@@ -403,8 +402,8 @@ export default function Map({
                         
                         map.setView([lat, lng], targetZoom, {
                           animate: true,
-                          duration: 1.0,
-                          easeLinearity: 0.4
+                          duration: 0.8,
+                          easeLinearity: 0.25
                         });
                         
                         console.log(`Fallback intelligent expansion: ${properties.point_count} communities to zoom ${targetZoom}`);
@@ -412,12 +411,12 @@ export default function Map({
                         // Fallback data refresh
                         setTimeout(() => {
                           setTransitionState('complete');
-                          handleZoomChange(targetZoom);
                           setTimeout(() => {
                             setExpandingCluster(null);
                             setTransitionState('idle');
-                          }, 200);
-                        }, 1100);
+                            handleZoomChange(targetZoom);
+                          }, 100);
+                        }, 800);
                       }
                     }
                   }
