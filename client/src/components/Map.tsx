@@ -259,10 +259,10 @@ export default function Map({
       return data;
     },
     enabled: !!mapBounds || currentZoom > 0,
-    staleTime: 30000, // Reduced for more responsive viewport updates
+    staleTime: 5000, // Much shorter for responsive cluster expansion
     refetchOnWindowFocus: false,
     gcTime: 300000,
-    keepPreviousData: true
+    keepPreviousData: false // Ensure fresh data on expansion
   });
 
   const getIconForCommunity = (community: Community, isHovered = false, isPulsing = false) => {
@@ -445,11 +445,18 @@ export default function Map({
                         easeLinearity: 0.25
                       });
                       
-                      // Clear expansion state after animation
+                      // Clear expansion state and force data refresh after animation
                       setTimeout(() => {
                         setExpandingCluster(null);
                         setTransitionState('idle');
-                        handleZoomChange(targetZoom);
+                        
+                        // Force zoom state update to trigger new cluster fetch
+                        setCurrentZoom(targetZoom);
+                        
+                        // Also trigger bounds change to ensure fresh data
+                        const newBounds = map.getBounds();
+                        setMapBounds(newBounds);
+                        onBoundsChange?.(newBounds);
                       }, 600); // Match animation duration
                     }
                     
