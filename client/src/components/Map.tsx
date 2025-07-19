@@ -193,24 +193,24 @@ export default function Map({
     lastUpdate: Date.now()
   });
 
-  // Viewport-based optimization: Only render clusters in current view with buffer
+  // Strict viewport optimization: Only render what's visible with minimal buffer
   const getOptimizedBounds = useCallback((bounds: LatLngBounds | null) => {
     if (!bounds) {
-      // Use full North America bounds for initial load
+      // Smaller initial load area focused on continental US
       return {
-        west: -170.0, // Include Alaska
-        south: 14.0, // Include southern Mexico  
-        east: -50.0, // Include eastern Canada
-        north: 70.0 // Include northern Canada
+        west: -125.0, // West Coast
+        south: 25.0,  // Southern US border
+        east: -65.0,  // East Coast
+        north: 50.0   // Northern US border
       };
     }
 
     const sw = bounds.getSouthWest();
     const ne = bounds.getNorthEast();
     
-    // Add 20% buffer around viewport for smoother panning
-    const latBuffer = (ne.lat - sw.lat) * 0.2;
-    const lngBuffer = (ne.lng - sw.lng) * 0.2;
+    // Minimal 5% buffer for viewport-only display
+    const latBuffer = (ne.lat - sw.lat) * 0.05;
+    const lngBuffer = (ne.lng - sw.lng) * 0.05;
     
     return {
       west: Math.max(-180, sw.lng - lngBuffer),
@@ -259,10 +259,10 @@ export default function Map({
       return data;
     },
     enabled: !!mapBounds || currentZoom > 0,
-    staleTime: 5000, // Much shorter for responsive cluster expansion
+    staleTime: 0, // Real-time data for natural clustering
     refetchOnWindowFocus: false,
-    gcTime: 300000,
-    keepPreviousData: false // Ensure fresh data on expansion
+    gcTime: 60000, // Shorter cache for viewport optimization
+    keepPreviousData: false // Fresh data on every interaction
   });
 
   const getIconForCommunity = (community: Community, isHovered = false, isPulsing = false) => {
@@ -464,30 +464,7 @@ export default function Map({
                     onClusterClick?.(properties.cluster_id, lat, lng, currentZoom + 3);
                   }
                 }}
-              >
-                <Popup>
-                  <div className="p-4 text-center">
-                    <h4 className="font-bold text-lg mb-1">{properties.point_count} Communities</h4>
-                    {isExpanding ? (
-                      <div className="text-sm text-blue-600 mb-2 flex items-center justify-center gap-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                        Intelligent expansion in progress...
-                      </div>
-                    ) : (
-                      <p className="text-sm text-gray-600 mb-2">Click for intelligent cluster expansion</p>
-                    )}
-                    <div className="text-xs text-gray-500 space-y-1">
-                      <div>Current zoom: {currentZoom}</div>
-                      <div className="text-xs text-blue-500">
-                        {properties.point_count > 1000 ? 'Large cluster - conservative expansion' :
-                         properties.point_count > 100 ? 'Medium cluster - moderate expansion' :
-                         properties.point_count > 10 ? 'Small cluster - aggressive expansion' :
-                         'Micro cluster - maximum detail expansion'}
-                      </div>
-                    </div>
-                  </div>
-                </Popup>
-              </Marker>
+              />
             );
           }
 
