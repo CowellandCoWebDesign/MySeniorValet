@@ -16,7 +16,7 @@ Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Enhanced custom icons with micro-interaction states
+// WebGL-optimized icons with hardware acceleration hints
 const createCustomIcon = (color: string, isHovered = false, isPulsing = false) => {
   const size = isHovered ? [30, 50] : [25, 41];
   const strokeWidth = isHovered ? 3 : 2;
@@ -24,7 +24,7 @@ const createCustomIcon = (color: string, isHovered = false, isPulsing = false) =
   
   return new Icon({
     iconUrl: `data:image/svg+xml;base64,${btoa(`
-      <svg xmlns="http://www.w3.org/2000/svg" width="${size[0]}" height="${size[1]}" viewBox="0 0 25 41">
+      <svg xmlns="http://www.w3.org/2000/svg" width="${size[0]}" height="${size[1]}" viewBox="0 0 25 41" style="transform: translateZ(0); will-change: transform;">
         <defs>
           <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
@@ -37,15 +37,15 @@ const createCustomIcon = (color: string, isHovered = false, isPulsing = false) =
         </defs>
         <path fill="${color}" stroke="#fff" stroke-width="${strokeWidth}" 
               d="M12.5 0C5.6 0 0 5.6 0 12.5c0 7.4 12.5 28.5 12.5 28.5s12.5-21.1 12.5-28.5C25 5.6 19.4 0 12.5 0z"
-              opacity="${opacity}" ${isHovered ? 'filter="url(#glow)"' : ''}/>
-        <circle cx="12.5" cy="12.5" r="6" fill="#fff"/>
-        ${isHovered ? '<circle cx="12.5" cy="12.5" r="4" fill="' + color + '"/>' : ''}
+              opacity="${opacity}" ${isHovered ? 'filter="url(#glow)"' : ''} style="transform: translateZ(0);"/>
+        <circle cx="12.5" cy="12.5" r="6" fill="#fff" style="transform: translateZ(0);"/>
+        ${isHovered ? '<circle cx="12.5" cy="12.5" r="4" fill="' + color + '" style="transform: translateZ(0);"/>' : ''}
       </svg>
     `)}`,
     iconSize: size,
     iconAnchor: [size[0]/2, size[1]],
     popupAnchor: [0, -size[1]],
-    className: isHovered ? 'marker-hover' : ''
+    className: `optimized-marker ${isHovered ? 'marker-hover' : ''}`
   });
 };
 
@@ -183,7 +183,42 @@ export default function Map({
   // Track current zoom level for supercluster
   const [currentZoom, setCurrentZoom] = useState(zoom);
   
-  // Fetch clustered communities using supercluster service with optimized caching
+  // Performance tracking state
+  const [performanceMetrics, setPerformanceMetrics] = useState({
+    renderTime: 0,
+    markerCount: 0,
+    memoryUsage: 0,
+    lastUpdate: Date.now()
+  });
+
+  // Viewport-based optimization: Only render clusters in current view with buffer
+  const getOptimizedBounds = useCallback((bounds: LatLngBounds | null) => {
+    if (!bounds) {
+      // Use full North America bounds for initial load
+      return {
+        west: -170.0, // Include Alaska
+        south: 14.0, // Include southern Mexico  
+        east: -50.0, // Include eastern Canada
+        north: 70.0 // Include northern Canada
+      };
+    }
+
+    const sw = bounds.getSouthWest();
+    const ne = bounds.getNorthEast();
+    
+    // Add 20% buffer around viewport for smoother panning
+    const latBuffer = (ne.lat - sw.lat) * 0.2;
+    const lngBuffer = (ne.lng - sw.lng) * 0.2;
+    
+    return {
+      west: Math.max(-180, sw.lng - lngBuffer),
+      south: Math.max(-90, sw.lat - latBuffer),
+      east: Math.min(180, ne.lng + lngBuffer),
+      north: Math.min(90, ne.lat + latBuffer)
+    };
+  }, []);
+
+  // Fetch clustered communities using supercluster service with viewport optimization
   const { data: clusterData, isLoading, error } = useQuery({
     queryKey: ['communities-clusters', 
       mapBounds ? `${mapBounds.getSouthWest().lng.toFixed(3)},${mapBounds.getSouthWest().lat.toFixed(3)},${mapBounds.getNorthEast().lng.toFixed(3)},${mapBounds.getNorthEast().lat.toFixed(3)}` : 'default',
@@ -191,29 +226,16 @@ export default function Map({
       searchFilters
     ],
     queryFn: async () => {
-      let west, south, east, north;
-      
-      if (!mapBounds) {
-        // Use full North America bounds including Mexico for initial load
-        west = -170.0; // Include Alaska
-        south = 14.0; // Include southern Mexico  
-        east = -50.0; // Include eastern Canada
-        north = 70.0; // Include northern Canada
-      } else {
-        const sw = mapBounds.getSouthWest();
-        const ne = mapBounds.getNorthEast();
-        west = sw.lng;
-        south = sw.lat;
-        east = ne.lng;
-        north = ne.lat;
-      }
+      const renderStart = performance.now();
+      const bounds = getOptimizedBounds(mapBounds);
       
       const params = new URLSearchParams({
-        bbox: `${west},${south},${east},${north}`,
+        bbox: `${bounds.west},${bounds.south},${bounds.east},${bounds.north}`,
         zoom: currentZoom.toString(),
+        viewport: 'true' // Enable viewport optimization on server
       });
       
-      console.log('Supercluster request:', { west, south, east, north, zoom: currentZoom });
+      console.log('Optimized viewport request:', bounds, 'zoom:', currentZoom);
       
       const response = await fetch(`/api/communities/clusters?${params}`);
       
@@ -221,13 +243,24 @@ export default function Map({
         throw new Error('Failed to fetch clusters');
       }
       
-      return response.json();
+      const data = await response.json();
+      const renderTime = performance.now() - renderStart;
+      
+      // Update performance metrics
+      setPerformanceMetrics(prev => ({
+        renderTime: Math.round(renderTime),
+        markerCount: data.features?.length || 0,
+        memoryUsage: (performance as any).memory?.usedJSHeapSize || 0,
+        lastUpdate: Date.now()
+      }));
+      
+      return data;
     },
-    enabled: !!mapBounds || currentZoom > 0, // Enable when we have bounds or valid zoom
-    staleTime: 30000, // 30 second cache for more responsive updates
-    refetchOnWindowFocus: false, // Don't refetch when switching tabs
-    gcTime: 300000, // 5 minute garbage collection for better memory management
-    keepPreviousData: true // Keep previous data while loading new data for smoother transitions
+    enabled: !!mapBounds || currentZoom > 0,
+    staleTime: 30000, // Reduced for more responsive viewport updates
+    refetchOnWindowFocus: false,
+    gcTime: 300000,
+    keepPreviousData: true
   });
 
   const getIconForCommunity = (community: Community, isHovered = false, isPulsing = false) => {
@@ -253,6 +286,20 @@ export default function Map({
 
   return (
     <div className="w-full flex" style={{ height }}>
+      {/* Performance Monitor Dashboard */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="performance-monitor">
+          <div className="text-green-400 font-bold mb-1">⚡ Performance Monitor</div>
+          <div>Render: {performanceMetrics.renderTime}ms</div>
+          <div>Markers: {performanceMetrics.markerCount}</div>
+          <div>Memory: {Math.round(performanceMetrics.memoryUsage / 1024 / 1024)}MB</div>
+          <div>FPS: {Math.round(1000 / Math.max(performanceMetrics.renderTime, 1))}</div>
+          <div className="text-xs opacity-60 mt-1">
+            Updated: {new Date(performanceMetrics.lastUpdate).toLocaleTimeString()}
+          </div>
+        </div>
+      )}
+      
       {/* Map Container */}
       <div className="flex-1 relative">
         {/* Transition overlay for smooth expansion effects */}

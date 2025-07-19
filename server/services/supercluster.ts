@@ -66,13 +66,13 @@ class SuperclusterService {
 
   constructor() {
     this.index = new Supercluster({
-      radius: 60,        // Smaller radius for more granular clustering
-      maxZoom: 17,       // Higher max zoom to allow individual markers at city level
+      radius: 50,        // Optimized radius for 25K+ points
+      maxZoom: 18,       // Higher max zoom for individual markers
       minZoom: 0,        
-      minPoints: 2,      // Lower threshold for easier cluster breakdown
+      minPoints: 3,      // Optimized clustering threshold for North America scale
       generateId: true,  
       extent: 512,       
-      nodeSize: 64,      
+      nodeSize: 32,      // Optimized for memory efficiency
     });
   }
 
@@ -170,9 +170,11 @@ class SuperclusterService {
       const clusters = this.index.getClusters(bbox, zoom);
       const processingTime = Date.now() - startTime;
       
-      // Log performance if slow
-      if (processingTime > 100) {
-        console.log(`Slow cluster query: ${processingTime}ms for ${clusters.length} features at zoom ${zoom}`);
+      // Performance monitoring and optimization alerts
+      if (processingTime > 50) {
+        console.log(`⚠️  Cluster performance alert: ${processingTime}ms for ${clusters.length} features at zoom ${zoom}. Consider viewport optimization.`);
+      } else if (processingTime > 100) {
+        console.log(`🚨 Slow cluster query: ${processingTime}ms for ${clusters.length} features at zoom ${zoom}. Optimization required.`);
       }
       
       // Convert to our ClusterFeature format
