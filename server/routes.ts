@@ -1300,7 +1300,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('Supercluster request received:', req.query);
       
-      const { bbox, zoom = 1 } = req.query;
+      const { bbox, zoom = 3 } = req.query;
       
       // Validate required parameters
       if (!bbox || typeof bbox !== 'string') {

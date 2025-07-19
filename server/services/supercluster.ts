@@ -66,13 +66,13 @@ class SuperclusterService {
 
   constructor() {
     this.index = new Supercluster({
-      radius: 40,        // Smaller radius for better individual community visibility
-      maxZoom: 18,       // Higher zoom for maximum detail at close range
+      radius: 120,       // Much larger radius for aggressive clustering at low zoom
+      maxZoom: 14,       // Lower max zoom to force clustering at higher zoom levels
       minZoom: 0,        
-      minPoints: 2,      // Lower threshold for better Mexico/sparse area visibility
+      minPoints: 10,     // Much higher threshold to prevent individual markers at low zoom
       generateId: true,  
-      extent: 512,       // Larger extent for better performance
-      nodeSize: 64,      // Optimized node size for faster queries
+      extent: 512,       
+      nodeSize: 64,      
     });
   }
 

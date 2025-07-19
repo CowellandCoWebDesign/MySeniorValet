@@ -137,7 +137,7 @@ export default function Map({
   onClusterClick,
   height = '600px',
   center = [39.8283, -98.5795], // Geographic center of US
-  zoom = 4
+  zoom = 3
 }: MapProps) {
   const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
