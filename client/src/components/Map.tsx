@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip } from 'react-leaflet';
 import { Icon, LatLngBounds, LatLng } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useQuery } from '@tanstack/react-query';
-import { Star, MapPin, Phone, Globe, Heart, ExternalLink } from 'lucide-react';
+import { Star, MapPin, Phone, Globe, Heart, ExternalLink, Zap, Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -16,18 +16,38 @@ Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Custom icons for different community types
-const createCustomIcon = (color: string) => new Icon({
-  iconUrl: `data:image/svg+xml;base64,${btoa(`
-    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="41" viewBox="0 0 25 41">
-      <path fill="${color}" stroke="#fff" stroke-width="2" d="M12.5 0C5.6 0 0 5.6 0 12.5c0 7.4 12.5 28.5 12.5 28.5s12.5-21.1 12.5-28.5C25 5.6 19.4 0 12.5 0z"/>
-      <circle cx="12.5" cy="12.5" r="6" fill="#fff"/>
-    </svg>
-  `)}`,
-  iconSize: [25, 41],
-  iconAnchor: [12.5, 41],
-  popupAnchor: [0, -41],
-});
+// Enhanced custom icons with micro-interaction states
+const createCustomIcon = (color: string, isHovered = false, isPulsing = false) => {
+  const size = isHovered ? [30, 50] : [25, 41];
+  const strokeWidth = isHovered ? 3 : 2;
+  const opacity = isPulsing ? 0.8 : 1;
+  
+  return new Icon({
+    iconUrl: `data:image/svg+xml;base64,${btoa(`
+      <svg xmlns="http://www.w3.org/2000/svg" width="${size[0]}" height="${size[1]}" viewBox="0 0 25 41">
+        <defs>
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+            <feMerge> 
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/> 
+            </feMerge>
+          </filter>
+          <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite" ${!isPulsing ? 'begin="indefinite"' : ''}/>
+        </defs>
+        <path fill="${color}" stroke="#fff" stroke-width="${strokeWidth}" 
+              d="M12.5 0C5.6 0 0 5.6 0 12.5c0 7.4 12.5 28.5 12.5 28.5s12.5-21.1 12.5-28.5C25 5.6 19.4 0 12.5 0z"
+              opacity="${opacity}" ${isHovered ? 'filter="url(#glow)"' : ''}/>
+        <circle cx="12.5" cy="12.5" r="6" fill="#fff"/>
+        ${isHovered ? '<circle cx="12.5" cy="12.5" r="4" fill="' + color + '"/>' : ''}
+      </svg>
+    `)}`,
+    iconSize: size,
+    iconAnchor: [size[0]/2, size[1]],
+    popupAnchor: [0, -size[1]],
+    className: isHovered ? 'marker-hover' : ''
+  });
+};
 
 const communityIcon = createCustomIcon('#1e40af'); // Blue
 const assistedLivingIcon = createCustomIcon('#16a34a'); // Green
@@ -144,6 +164,10 @@ export default function Map({
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
   const [expandingCluster, setExpandingCluster] = useState<number | null>(null);
   const [transitionState, setTransitionState] = useState<'idle' | 'expanding' | 'complete'>('idle');
+  const [hoveredCluster, setHoveredCluster] = useState<number | null>(null);
+  const [hoveredCommunity, setHoveredCommunity] = useState<number | null>(null);
+  const [pulsingMarkers, setPulsingMarkers] = useState<Set<number>>(new Set());
+  const [animatingClusters, setAnimatingClusters] = useState<Set<number>>(new Set());
 
   // Handle map bounds change
   const handleBoundsChange = useCallback((bounds: LatLngBounds) => {
@@ -206,14 +230,15 @@ export default function Map({
     keepPreviousData: true // Keep previous data while loading new data for smoother transitions
   });
 
-  const getIconForCommunity = (community: Community) => {
+  const getIconForCommunity = (community: Community, isHovered = false, isPulsing = false) => {
     const careTypes = community.careTypes || [];
+    let baseColor = '#1e40af'; // Blue
     
-    if (careTypes.includes('Memory Care')) return memoryCareIcon;
-    if (careTypes.includes('Assisted Living')) return assistedLivingIcon;
-    if (careTypes.includes('Independent Living')) return independentIcon;
+    if (careTypes.includes('Memory Care')) baseColor = '#dc2626'; // Red
+    else if (careTypes.includes('Assisted Living')) baseColor = '#16a34a'; // Green
+    else if (careTypes.includes('Independent Living')) baseColor = '#7c3aed'; // Purple
     
-    return communityIcon;
+    return createCustomIcon(baseColor, isHovered, isPulsing);
   };
 
   const handleCommunityClick = (community: Community) => {
@@ -271,8 +296,15 @@ export default function Map({
             const isExpanding = expandingCluster === properties.cluster_id;
             const expandingSize = isExpanding ? size * 1.1 : size;
             
-            // Enhanced cluster styling with expansion states
-            const clusterColor = isExpanding ? '#3b82f6' : '#1e40af';
+            // Enhanced cluster styling with hover and expansion states
+            const isHovered = hoveredCluster === properties.cluster_id;
+            const isAnimating = animatingClusters.has(properties.cluster_id);
+            const clusterColor = isExpanding ? '#3b82f6' : isHovered ? '#2563eb' : '#1e40af';
+            const hoverGlow = isHovered ? `
+              <circle cx="${expandingSize/2}" cy="${expandingSize/2}" r="${expandingSize/2 + 2}" fill="none" stroke="#fbbf24" stroke-width="2" opacity="0.6">
+                <animate attributeName="stroke-opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+              </circle>
+            ` : '';
             const pulseEffect = isExpanding ? `
               <circle cx="${expandingSize/2}" cy="${expandingSize/2}" r="${expandingSize/2 - 2}" fill="${clusterColor}" stroke="#fff" stroke-width="3" opacity="0.8">
                 <animate attributeName="r" values="${expandingSize/2 - 2};${expandingSize/2 + 4};${expandingSize/2 - 2}" dur="1.5s" repeatCount="indefinite"/>
@@ -283,9 +315,10 @@ export default function Map({
             const clusterIcon = new Icon({
               iconUrl: `data:image/svg+xml;base64,${btoa(`
                 <svg xmlns="http://www.w3.org/2000/svg" width="${expandingSize}" height="${expandingSize}" viewBox="0 0 ${expandingSize} ${expandingSize}">
+                  ${hoverGlow}
                   ${pulseEffect}
-                  <circle cx="${expandingSize/2}" cy="${expandingSize/2}" r="${expandingSize/2 - 2}" fill="${clusterColor}" stroke="#fff" stroke-width="3"/>
-                  <circle cx="${expandingSize/2}" cy="${expandingSize/2}" r="${expandingSize/2 - 6}" fill="rgba(59, 130, 246, 0.3)" stroke="none"/>
+                  <circle cx="${expandingSize/2}" cy="${expandingSize/2}" r="${expandingSize/2 - 2}" fill="${clusterColor}" stroke="#fff" stroke-width="${isHovered ? 4 : 3}"/>
+                  <circle cx="${expandingSize/2}" cy="${expandingSize/2}" r="${expandingSize/2 - 6}" fill="rgba(59, 130, 246, ${isHovered ? 0.5 : 0.3})" stroke="none"/>
                   <text x="${expandingSize/2}" y="${expandingSize/2 + 4}" text-anchor="middle" fill="#fff" font-size="${Math.min(12, expandingSize/4)}" font-weight="bold">
                     ${properties.point_count_abbreviated}
                   </text>
@@ -308,6 +341,18 @@ export default function Map({
                 position={[lat, lng]}
                 icon={clusterIcon}
                 eventHandlers={{
+                  mouseover: () => {
+                    setHoveredCluster(properties.cluster_id);
+                    setAnimatingClusters(prev => new Set([...prev, properties.cluster_id]));
+                  },
+                  mouseout: () => {
+                    setHoveredCluster(null);
+                    setAnimatingClusters(prev => {
+                      const newSet = new Set(prev);
+                      newSet.delete(properties.cluster_id);
+                      return newSet;
+                    });
+                  },
                   click: async () => {
                     console.log('Intelligent cluster expansion:', properties.cluster_id, 'with', properties.point_count, 'communities');
                     
@@ -476,11 +521,39 @@ export default function Map({
             <Marker
               key={`community-${properties.id}`}
               position={[lat, lng]}
-              icon={getIconForCommunity(community)}
+              icon={getIconForCommunity(community, hoveredCommunity === community.id, pulsingMarkers.has(community.id))}
               eventHandlers={{
-                click: () => handleCommunityClick(community)
+                click: () => {
+                  handleCommunityClick(community);
+                  setPulsingMarkers(prev => new Set([...prev, community.id]));
+                  // Remove pulse after animation
+                  setTimeout(() => {
+                    setPulsingMarkers(prev => {
+                      const newSet = new Set(prev);
+                      newSet.delete(community.id);
+                      return newSet;
+                    });
+                  }, 2000);
+                },
+                mouseover: () => {
+                  setHoveredCommunity(community.id);
+                },
+                mouseout: () => {
+                  setHoveredCommunity(null);
+                }
               }}
             >
+              {/* Enhanced tooltip for hover states */}
+              {hoveredCommunity === community.id && (
+                <Tooltip permanent>
+                  <div className="bg-white/95 backdrop-blur-sm rounded-lg p-2 shadow-lg border">
+                    <div className="font-semibold text-sm">{community.name}</div>
+                    <div className="text-xs text-gray-600">{community.city}, {community.state}</div>
+                    <div className="text-xs text-blue-600 font-medium">{formatPrice(community.priceRange)}</div>
+                  </div>
+                </Tooltip>
+              )}
+              
               <Popup>
                 <div className="w-80 p-4">
                   <div className="flex items-start justify-between mb-2">

@@ -375,6 +375,121 @@
     animation: sparkle 1.5s ease-in-out infinite;
   }
 
+  /* Enhanced map transition overlay styles for micro-interactions */
+  .map-transition-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    pointer-events: none;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .map-transition-overlay.active {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Enhanced cluster marker animations */
+  .cluster-marker {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+  }
+  
+  .cluster-marker:hover {
+    transform: scale(1.1);
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.2));
+  }
+  
+  .cluster-marker.expanding {
+    animation: cluster-pulse 1.5s ease-in-out infinite;
+  }
+  
+  .cluster-marker.cluster-hover {
+    transform: scale(1.15);
+    filter: drop-shadow(0 12px 24px rgba(0,0,0,0.3)) brightness(1.1);
+  }
+  
+  .cluster-marker.cluster-animating {
+    animation: cluster-float 2s ease-in-out infinite alternate;
+  }
+  
+  @keyframes cluster-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.9; }
+  }
+  
+  @keyframes cluster-float {
+    0% { transform: translateY(0px) scale(1); }
+    100% { transform: translateY(-3px) scale(1.02); }
+  }
+  
+  @keyframes pulse-ring {
+    0% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.1); opacity: 0.4; }
+    100% { transform: scale(1.2); opacity: 0; }
+  }
+  
+  /* Enhanced marker hover states */
+  .marker-hover {
+    animation: marker-bounce 0.6s ease-in-out;
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.2));
+  }
+  
+  @keyframes marker-bounce {
+    0%, 100% { transform: translateY(0); }
+    25% { transform: translateY(-8px); }
+    50% { transform: translateY(-4px); }
+    75% { transform: translateY(-2px); }
+  }
+  
+  /* Leaflet popup enhancements for micro-interactions */
+  .leaflet-popup-content-wrapper {
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+    animation: popup-slide-up 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .leaflet-popup-tip {
+    box-shadow: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.95);
+  }
+  
+  @keyframes popup-slide-up {
+    0% { 
+      transform: translateY(10px) scale(0.95); 
+      opacity: 0; 
+    }
+    100% { 
+      transform: translateY(0) scale(1); 
+      opacity: 1; 
+    }
+  }
+  
+  /* Tooltip enhancements */
+  .leaflet-tooltip {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(8px);
+    animation: tooltip-fade-in 0.2s ease-out;
+  }
+  
+  @keyframes tooltip-fade-in {
+    0% { opacity: 0; transform: scale(0.9); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+
   .animate-gradient {
     background-size: 200% 200%;
     animation: gradient-shift 3s ease infinite;
