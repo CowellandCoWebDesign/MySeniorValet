@@ -129,13 +129,13 @@ function MapBoundsHandler({
         clearTimeout(window.mapBoundsTimeout);
         window.mapBoundsTimeout = setTimeout(() => {
           const bounds = map.getBounds();
-          onBoundsChange(bounds);
-          console.log('handleBoundsChange called with bounds:', {
+          console.log('MapBoundsHandler calling onBoundsChange with bounds:', {
             west: bounds.getWest().toFixed(3),
             east: bounds.getEast().toFixed(3),
             south: bounds.getSouth().toFixed(3),
             north: bounds.getNorth().toFixed(3)
           });
+          onBoundsChange(bounds);
         }, 150); // Faster response for enterprise UX
       }
     } catch (error) {
@@ -217,12 +217,13 @@ export default function Map({
 
   // Handle map bounds change
   const handleBoundsChange = useCallback((bounds: LatLngBounds) => {
-    console.log('handleBoundsChange called with bounds:', {
-      west: bounds.getWest().toFixed(3),
-      east: bounds.getEast().toFixed(3),
-      south: bounds.getSouth().toFixed(3),
-      north: bounds.getNorth().toFixed(3)
+    const newBoundsString = `${bounds.getWest().toFixed(4)},${bounds.getSouth().toFixed(4)},${bounds.getEast().toFixed(4)},${bounds.getNorth().toFixed(4)}`;
+    
+    console.log('Map component handleBoundsChange:', {
+      new: newBoundsString,
+      timestamp: Date.now()
     });
+    
     setMapBounds(bounds);
     onBoundsChange?.(bounds);
   }, [onBoundsChange]);
@@ -354,7 +355,12 @@ export default function Map({
   // Enterprise-level cluster data fetching with optimized performance
   const { data: clusterData, isLoading, error, refetch } = useQuery({
     queryKey: ['communities-clusters', 
-      mapBounds ? `${mapBounds.getSouthWest().lng.toFixed(4)},${mapBounds.getSouthWest().lat.toFixed(4)},${mapBounds.getNorthEast().lng.toFixed(4)},${mapBounds.getNorthEast().lat.toFixed(4)}` : 'default',
+      mapBounds ? {
+        west: mapBounds.getWest().toFixed(4),
+        east: mapBounds.getEast().toFixed(4),
+        south: mapBounds.getSouth().toFixed(4),
+        north: mapBounds.getNorth().toFixed(4)
+      } : 'default',
       Math.floor(currentZoom), 
       searchFilters
     ],
@@ -427,8 +433,18 @@ export default function Map({
   }, []);
   
   useEffect(() => {
-    console.log('Map bounds changed:', mapBounds);
-  }, [mapBounds]);
+    if (mapBounds) {
+      console.log('Map bounds state updated:', {
+        west: mapBounds.getWest().toFixed(4),
+        east: mapBounds.getEast().toFixed(4),
+        south: mapBounds.getSouth().toFixed(4),
+        north: mapBounds.getNorth().toFixed(4),
+        timestamp: Date.now()
+      });
+      // Force query to refetch with new bounds
+      queryClient.invalidateQueries({ queryKey: ['communities-clusters'] });
+    }
+  }, [mapBounds, queryClient]);
   
   useEffect(() => {
     console.log('Cluster data state:', { 
