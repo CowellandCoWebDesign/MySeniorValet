@@ -225,13 +225,13 @@ export default function MapTutorial({ isVisible, onClose, onComplete }: MapTutor
       
       {/* Tutorial Card */}
       <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
-        <Card className="w-full max-w-lg mx-4 shadow-2xl border-2 border-blue-200">
+        <Card className="w-full max-w-lg mx-4 shadow-2xl border-2 border-blue-200 dark:border-blue-700 bg-white dark:bg-gray-900">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {currentTutorialStep.icon}
                 <div>
-                  <CardTitle className="text-xl font-bold text-gray-800">
+                  <CardTitle className="text-xl font-bold text-gray-800 dark:text-white">
                     {currentTutorialStep.title}
                   </CardTitle>
                   <Badge variant="secondary" className="mt-1">
@@ -243,7 +243,7 @@ export default function MapTutorial({ isVisible, onClose, onComplete }: MapTutor
                 variant="ghost"
                 size="sm"
                 onClick={handleSkip}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
                 <X className="w-5 h-5" />
               </Button>
@@ -252,7 +252,7 @@ export default function MapTutorial({ isVisible, onClose, onComplete }: MapTutor
           
           <CardContent className="space-y-6">
             {/* Progress Bar */}
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
               <div 
                 className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                 style={{ width: `${((currentStep + 1) / tutorialSteps.length) * 100}%` }}
@@ -261,24 +261,24 @@ export default function MapTutorial({ isVisible, onClose, onComplete }: MapTutor
             
             {/* Description */}
             <div className="space-y-4">
-              <p className="text-gray-700 text-base leading-relaxed">
+              <p className="text-gray-700 dark:text-gray-300 text-base leading-relaxed">
                 {currentTutorialStep.description}
               </p>
               
               {/* Action Instructions */}
-              <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
-                <p className="font-semibold text-blue-800 text-sm">
+              <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg border-l-4 border-blue-400 dark:border-blue-500">
+                <p className="font-semibold text-blue-800 dark:text-blue-200 text-sm">
                   Next Action:
                 </p>
-                <p className="text-blue-700 text-base">
+                <p className="text-blue-700 dark:text-blue-300 text-base">
                   {currentTutorialStep.action}
                 </p>
               </div>
               
               {/* Helpful Tip */}
               {currentTutorialStep.tip && (
-                <div className="bg-green-50 p-3 rounded-lg border border-green-200">
-                  <p className="text-green-700 text-sm">
+                <div className="bg-green-50 dark:bg-green-900/30 p-3 rounded-lg border border-green-200 dark:border-green-700">
+                  <p className="text-green-700 dark:text-green-300 text-sm">
                     <span className="font-semibold">💡 Tip:</span> {currentTutorialStep.tip}
                   </p>
                 </div>
@@ -301,7 +301,7 @@ export default function MapTutorial({ isVisible, onClose, onComplete }: MapTutor
                 <Button
                   variant="ghost"
                   onClick={handleSkip}
-                  className="text-gray-500"
+                  className="text-gray-500 dark:text-gray-400"
                 >
                   Skip Tutorial
                 </Button>
@@ -320,7 +320,7 @@ export default function MapTutorial({ isVisible, onClose, onComplete }: MapTutor
       </div>
       
       {/* CSS for pulse animation */}
-      <style jsx>{`
+      <style>{`
         @keyframes pulse {
           0% {
             box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);

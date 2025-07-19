@@ -74,6 +74,7 @@ function Router() {
       <Route path="/" component={TrueViewHome} />
       <Route path="/search" component={MapSearch} />
       <Route path="/map" component={MapSearch} />
+      <Route path="/map-search" component={MapSearch} />
       {/* Rentals route removed - redirect to search */}
       {/* MapboxTest route removed */}
       {/* Map test routes removed */}

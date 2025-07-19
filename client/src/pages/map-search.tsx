@@ -76,7 +76,11 @@ export default function MapSearch() {
   useEffect(() => {
     if (!hasSeenTutorial && viewMode === 'map') {
       const timer = setTimeout(() => {
-        setShowTutorial(true);
+        try {
+          setShowTutorial(true);
+        } catch (error) {
+          console.error('Error showing tutorial:', error);
+        }
       }, 2000); // Show tutorial after 2 seconds for first-time users
       return () => clearTimeout(timer);
     }
@@ -94,6 +98,7 @@ export default function MapSearch() {
   
   // Debug log
   console.log('Map Search Component - showBottomPanel:', showBottomPanel, 'viewMode:', viewMode);
+  console.log('Tutorial state - hasSeenTutorial:', hasSeenTutorial, 'showTutorial:', showTutorial);
   
   // Fetch communities within map bounds for list view
   const { data: mapCommunities = [], isLoading: isLoadingCommunities } = useQuery({
@@ -554,15 +559,17 @@ export default function MapSearch() {
       {/* Map Container */}
       <div className="flex-1">
         {viewMode === 'map' ? (
-          <Map
-            center={mapCenter}
-            zoom={mapZoom}
-            height="calc(100vh - 200px)"
-            searchFilters={filters}
-            onCommunityClick={handleCommunityClick}
-            onBoundsChange={setMapBounds}
-            onClusterClick={handleClusterClick}
-          />
+          <div className="h-full">
+            <Map
+              center={mapCenter}
+              zoom={mapZoom}
+              height="calc(100vh - 200px)"
+              searchFilters={filters}
+              onCommunityClick={handleCommunityClick}
+              onBoundsChange={setMapBounds}
+              onClusterClick={handleClusterClick}
+            />
+          </div>
         ) : (
           <div className="p-4">
             {/* List View Header */}
@@ -1110,11 +1117,13 @@ export default function MapSearch() {
       )}
 
       {/* Map Navigation Tutorial */}
-      <MapTutorial
-        isVisible={showTutorial}
-        onClose={() => setShowTutorial(false)}
-        onComplete={handleTutorialComplete}
-      />
+      {showTutorial && (
+        <MapTutorial
+          isVisible={showTutorial}
+          onClose={() => setShowTutorial(false)}
+          onComplete={handleTutorialComplete}
+        />
+      )}
     </div>
   );
 }
