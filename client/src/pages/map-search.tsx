@@ -157,7 +157,7 @@ export default function MapSearch() {
         return [];
       }
     },
-    enabled: !!mapBounds && viewMode === 'list',
+    enabled: !!mapBounds && showBottomPanel, // Enable when bottom panel is shown
     staleTime: 30000, // Cache for 30 seconds
     retry: 1, // Only retry once on failure
   });
@@ -186,7 +186,7 @@ export default function MapSearch() {
         return [];
       }
     },
-    enabled: !!mapBounds && viewMode === 'list' && showExpandedSearch,
+    enabled: !!mapBounds && showBottomPanel && showExpandedSearch,
     staleTime: 30000,
     retry: 1,
   });

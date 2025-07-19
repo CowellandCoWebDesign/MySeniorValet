@@ -872,10 +872,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Order by distance from center of viewed area for most relevant results
+      // Using simple Euclidean distance formula for ordering
       query = query.orderBy(
-        sql`ST_Distance(
-          ${communities.location},
-          ST_SetSRID(ST_MakePoint(${centerLng}, ${centerLat}), 4326)::geography
+        sql`SQRT(
+          POWER(${communities.latitude} - ${centerLat}, 2) + 
+          POWER(${communities.longitude} - ${centerLng}, 2)
         )`
       );
 
@@ -922,19 +923,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const radiusMeters = parseFloat(radius as string) * 1000;
       
       // Build query to find nearest communities within radius
+      // Using simple distance calculation without PostGIS
+      const centerLat = parseFloat(lat as string);
+      const centerLng = parseFloat(lng as string);
+      
+      // Approximate degrees per km (rough estimation)
+      const kmToDegrees = parseFloat(radius as string) / 111.0;
+      
       const query = db.select()
         .from(communities)
         .where(
-          sql`ST_DWithin(
-            ${communities.location},
-            ST_SetSRID(ST_MakePoint(${parseFloat(lng as string)}, ${parseFloat(lat as string)}), 4326)::geography,
-            ${radiusMeters}
-          )`
+          and(
+            sql`${communities.latitude} BETWEEN ${centerLat - kmToDegrees} AND ${centerLat + kmToDegrees}`,
+            sql`${communities.longitude} BETWEEN ${centerLng - kmToDegrees} AND ${centerLng + kmToDegrees}`
+          )
         )
         .orderBy(
-          sql`ST_Distance(
-            ${communities.location},
-            ST_SetSRID(ST_MakePoint(${parseFloat(lng as string)}, ${parseFloat(lat as string)}), 4326)::geography
+          sql`SQRT(
+            POWER(${communities.latitude} - ${centerLat}, 2) + 
+            POWER(${communities.longitude} - ${centerLng}, 2)
           )`
         )
         .limit(parseInt(limit as string));
