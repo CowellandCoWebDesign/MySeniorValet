@@ -423,7 +423,7 @@ export default function MapSearch() {
               }`}
             />
             {/* Autocomplete suggestions */}
-            {showSuggestions && searchQuery.length > 0 && (
+            {showSuggestions && searchQuery.length > 1 && (
               <div className={`absolute top-full left-0 right-0 mt-1 rounded-md shadow-lg z-50 max-h-60 overflow-auto ${
                 isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'
               } border`}>
@@ -675,6 +675,298 @@ export default function MapSearch() {
             onClusterClick={handleClusterClick}
           />
         </div>
+      </div>
+                {!mapBounds ? 'Move the map to view communities in this area' : 
+                 isLoadingCommunities ? 'Loading...' : `${mapCommunities.length} communities found`}
+              </p>
+            </div>
+            
+            {/* Communities List */}
+            {isLoadingCommunities ? (
+              <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 animate-pulse">
+                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-2 w-3/4"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                  </div>
+                ))}
+              </div>
+            ) : !mapBounds ? (
+              <div className="text-center py-8">
+                <MapIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-600 dark:text-gray-400">Switch to map view first</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  Move around the map to set the area, then switch back to list view
+                </p>
+              </div>
+            ) : mapCommunities.length === 0 ? (
+              <div className="text-center py-8">
+                <List className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-600 dark:text-gray-400">No communities found in current area</p>
+                <p className="text-sm text-gray-500 mt-2 mb-4">
+                  Would you like to see the closest available communities?
+                </p>
+                
+                {!showExpandedSearch ? (
+                  <Button
+                    onClick={() => setShowExpandedSearch(true)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    Show Closest Communities
+                  </Button>
+                ) : isLoadingExpanded ? (
+                  <div className="flex items-center gap-2 justify-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                    <span className="text-gray-600 dark:text-gray-400">Finding closest communities...</span>
+                  </div>
+                ) : expandedCommunities.length > 0 ? (
+                  <div className="mt-6">
+                    <div className="text-center mb-4">
+                      <h4 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-2">Closest Available Communities</h4>
+                      <Button
+                        onClick={() => setShowExpandedSearch(false)}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs"
+                      >
+                        Hide Expanded Results
+                      </Button>
+                    </div>
+                    <div className="space-y-4">
+                      {expandedCommunities.map((community, index) => (
+                        <Card key={community.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group border-gray-200 dark:border-gray-700">
+                          <div className="flex">
+                            {/* Image Section */}
+                            <div className="relative w-32 h-32 bg-gradient-to-br from-orange-50 to-red-100 flex items-center justify-center flex-shrink-0">
+                              <div className="w-16 h-16 bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-full flex items-center justify-center">
+                                <Home className="w-8 h-8 text-orange-600" />
+                              </div>
+                              
+                              {/* Distance Badge */}
+                              <Badge className="absolute top-2 right-2 bg-orange-500 text-white text-xs px-2 py-1 font-medium">
+                                Nearby
+                              </Badge>
+                            </div>
+                            
+                            {/* Content Section */}
+                            <CardContent className="p-4 flex-1">
+                              {/* Community Name */}
+                              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1 line-clamp-1">
+                                {community.name}
+                              </h3>
+                              
+                              {/* Location */}
+                              <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                <MapPin className="w-3 h-3" />
+                                {community.address}, {community.city}, {community.state} {community.zipCode}
+                              </div>
+                              
+                              {/* Action Button */}
+                              <div className="flex justify-end">
+                                <Button 
+                                  size="sm" 
+                                  className="gradient-primary hover:opacity-90 text-white border-0"
+                                  onClick={() => handleCommunityClick(community)}
+                                >
+                                  <ExternalLink className="w-3 h-3 mr-1" />
+                                  View Details
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center mt-4">
+                    <p className="text-gray-500 mb-2">No communities found in the expanded search area.</p>
+                    <Button
+                      onClick={() => setShowExpandedSearch(false)}
+                      variant="outline"
+                      size="sm"
+                    >
+                      Try Different Location
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {mapCommunities.map((community, index) => (
+                  <Card key={community.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group border-gray-200 dark:border-gray-700 animate-fade-in-up" style={{animationDelay: `${index * 0.05}s`}}>
+                    <div className="flex">
+                      {/* Image Section */}
+                      <div className="relative w-32 h-32 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center flex-shrink-0">
+                        <div className="w-16 h-16 bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-full flex items-center justify-center">
+                          <Home className="w-8 h-8 text-blue-600" />
+                        </div>
+                        
+                        {/* Heart Icon */}
+                        <div className="absolute top-2 right-2">
+                          <div className="w-6 h-6 bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-full flex items-center justify-center">
+                            <Heart className="w-3 h-3 text-gray-600 dark:text-gray-400 hover:text-red-500 transition-colors" />
+                          </div>
+                        </div>
+                        
+                        {/* Availability Badge */}
+                        {index % 3 === 0 && (
+                          <Badge className="absolute bottom-2 left-2 bg-green-600 text-white text-xs px-2 py-1 font-medium">
+                            🟢 Available
+                          </Badge>
+                        )}
+                        {index % 3 === 1 && (
+                          <Badge className="absolute bottom-2 left-2 bg-orange-600 text-white text-xs px-2 py-1 font-medium">
+                            🟡 Waitlist
+                          </Badge>
+                        )}
+                        {index % 3 === 2 && (
+                          <Badge className="absolute bottom-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
+                            📞 Call
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      {/* Content Section */}
+                      <CardContent className="p-4 flex-1">
+                        {/* Pricing - Top Priority */}
+                        <div className="mb-2">
+                          <div className="text-lg font-bold text-gray-900 dark:text-white">
+                            {typeof community.priceRange === 'string' 
+                              ? community.priceRange 
+                              : community.priceRange?.min && community.priceRange?.max
+                              ? `$${community.priceRange.min.toLocaleString()}`
+                              : '$3,800'}
+                            {!community.claimed && (
+                              <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
+                            )}
+                            <span className="text-xs text-gray-500 ml-1">per month</span>
+                          </div>
+                          
+                          {/* Care Type & Location */}
+                          <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
+                            {community.careTypes?.length > 0 ? 
+                              `${community.careTypes[0]} • Premium Care` : 
+                              'Assisted Living • Featured Community'
+                            }
+                          </div>
+                        </div>
+                        
+                        {/* Community Name */}
+                        <div className="text-sm font-medium text-gray-900 dark:text-white mb-1 line-clamp-1">
+                          {community.name}
+                        </div>
+                        
+                        {/* Address */}
+                        <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1 mb-2 flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          {community.address}, {community.city}, {community.state} {community.zipCode}
+                        </div>
+                        
+                        {/* Rating & Reviews */}
+                        {community.rating > 0 && (
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="flex items-center gap-1">
+                              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                              <span className="text-xs font-medium">{community.rating}</span>
+                            </div>
+                            <span className="text-xs text-gray-600 dark:text-gray-400">
+                              ({community.reviewCount} reviews)
+                            </span>
+                            <div className="flex items-center gap-1 ml-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-xs text-blue-600 hover:text-blue-800 p-0 h-auto"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.open(`https://www.google.com/search?q=${encodeURIComponent(community.name + ' ' + community.city + ' reviews')}`, '_blank');
+                                }}
+                              >
+                                Google
+                              </Button>
+                              <span className="text-xs text-gray-400">•</span>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-xs text-red-600 hover:text-red-800 p-0 h-auto"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.open(`https://www.yelp.com/search?find_desc=${encodeURIComponent(community.name)}&find_loc=${encodeURIComponent(community.city + ', ' + community.state)}`, '_blank');
+                                }}
+                              >
+                                Yelp
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Premium Badges */}
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          {index % 4 === 0 && (
+                            <Badge className="text-white text-xs px-2 py-1 font-medium bg-purple-600/90">
+                              🏆 Featured
+                            </Badge>
+                          )}
+                          {index % 4 === 1 && (
+                            <Badge className="text-white text-xs px-2 py-1 font-medium bg-indigo-600/90">
+                              ⭐ Premium
+                            </Badge>
+                          )}
+                          {index % 4 === 2 && (
+                            <Badge className="text-white text-xs px-2 py-1 font-medium bg-violet-600/90">
+                              🎯 Top Rated
+                            </Badge>
+                          )}
+                          {index % 4 === 3 && (
+                            <Badge className="text-white text-xs px-2 py-1 font-medium bg-pink-600/90">
+                              💎 Exclusive
+                            </Badge>
+                          )}
+                          
+                          {/* Pricing Badge */}
+                          {community.claimed ? (
+                            <Badge className="text-white text-xs px-2 py-1 font-medium bg-green-600/90">
+                              📊 Live Pricing
+                            </Badge>
+                          ) : (
+                            <Badge className="text-white text-xs px-2 py-1 font-medium bg-orange-600/90">
+                              📈 Estimated Pricing
+                            </Badge>
+                          )}
+                        </div>
+                        
+                        {/* Action Buttons */}
+                        <div className="flex gap-2">
+                          <Button 
+                            size="sm" 
+                            className="flex-1 gradient-primary hover:opacity-90 text-white border-0"
+                            onClick={() => handleCommunityClick(community)}
+                          >
+                            <ExternalLink className="w-3 h-3 mr-1" />
+                            View Details
+                          </Button>
+                          
+                          {community.phone && (
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              className="border-blue-200 text-blue-600 hover:bg-blue-50"
+                              onClick={() => window.open(`tel:${community.phone}`)}
+                            >
+                              <Phone className="w-3 h-3" />
+                            </Button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Enhanced Bottom Slide Panel - Fixed visibility */}

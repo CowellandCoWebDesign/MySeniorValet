@@ -159,8 +159,11 @@ function MapBoundsHandler({
       
       // Set up event handlers for map movement with better responsiveness
       map.on('moveend', handleBoundsChange);
-      map.on('zoomend', handleZoomChange);
-      map.on('drag', handleBoundsChange); // Update during drag for better UX
+      map.on('zoomend', () => {
+        handleZoomChange();
+        handleBoundsChange(); // Also trigger bounds update on zoom
+      });
+      map.on('dragend', handleBoundsChange); // Update after drag completes
       
       // Force initial bounds and zoom
       setTimeout(() => {
@@ -175,8 +178,8 @@ function MapBoundsHandler({
     return () => {
       if (map) {
         map.off('moveend', handleBoundsChange);
-        map.off('zoomend', handleZoomChange);
-        map.off('drag', handleBoundsChange);
+        map.off('zoomend');
+        map.off('dragend', handleBoundsChange);
         clearTimeout(window.mapBoundsTimeout);
       }
     };
@@ -349,7 +352,7 @@ export default function Map({
   // Enterprise-level cluster data fetching with optimized performance
   const { data: clusterData, isLoading, error, refetch } = useQuery({
     queryKey: ['communities-clusters', 
-      mapBounds ? `${mapBounds.getSouthWest().lng.toFixed(2)},${mapBounds.getSouthWest().lat.toFixed(2)},${mapBounds.getNorthEast().lng.toFixed(2)},${mapBounds.getNorthEast().lat.toFixed(2)}` : 'default',
+      mapBounds ? `${mapBounds.getSouthWest().lng.toFixed(3)},${mapBounds.getSouthWest().lat.toFixed(3)},${mapBounds.getNorthEast().lng.toFixed(3)},${mapBounds.getNorthEast().lat.toFixed(3)}` : 'default',
       Math.floor(currentZoom), 
       searchFilters
     ],
@@ -394,9 +397,10 @@ export default function Map({
     enabled: !!mapBounds && currentZoom >= 0,
     staleTime: 0, // Real-time data for natural clustering
     refetchOnWindowFocus: false,
-    gcTime: 60000, // Shorter cache for viewport optimization
+    gcTime: 0, // No cache - always fresh data when bounds change
     keepPreviousData: false, // Fresh data on every interaction
-    refetchInterval: false // No auto-refresh
+    refetchInterval: false, // No auto-refresh
+    retry: 1 // Only retry once on failure
   });
 
   const getIconForCommunity = (community: Community, isHovered = false, isPulsing = false) => {
