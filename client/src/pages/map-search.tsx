@@ -87,9 +87,19 @@ export default function MapSearch() {
   }, [hasSeenTutorial, viewMode]);
 
   const handleTutorialComplete = () => {
-    localStorage.setItem('map-tutorial-completed', 'true');
-    setHasSeenTutorial(true);
-    setShowTutorial(false);
+    console.log('handleTutorialComplete called');
+    try {
+      localStorage.setItem('map-tutorial-completed', 'true');
+      console.log('Tutorial completion saved to localStorage');
+      
+      setHasSeenTutorial(true);
+      console.log('hasSeenTutorial set to true');
+      
+      setShowTutorial(false);
+      console.log('showTutorial set to false');
+    } catch (error) {
+      console.error('Error in handleTutorialComplete:', error);
+    }
   };
 
   const handleStartTutorial = () => {

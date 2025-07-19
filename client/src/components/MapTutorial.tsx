@@ -124,12 +124,25 @@ export default function MapTutorial({ isVisible, onClose, onComplete }: MapTutor
   const isFirstStep = currentStep === 0;
 
   const handleNext = () => {
+    console.log('Tutorial handleNext called - isLastStep:', isLastStep, 'currentStep:', currentStep, 'totalSteps:', tutorialSteps.length);
+    
     if (isLastStep) {
-      setIsCompleted(true);
-      onComplete();
-      onClose();
+      console.log('Tutorial completion sequence starting...');
+      try {
+        setIsCompleted(true);
+        console.log('Tutorial marked as completed');
+        
+        onComplete();
+        console.log('Tutorial onComplete callback called');
+        
+        onClose();
+        console.log('Tutorial onClose callback called');
+      } catch (error) {
+        console.error('Error during tutorial completion:', error);
+      }
     } else {
       setCurrentStep(prev => prev + 1);
+      console.log('Tutorial advancing to step:', currentStep + 1);
     }
   };
 
@@ -307,7 +320,10 @@ export default function MapTutorial({ isVisible, onClose, onComplete }: MapTutor
                 </Button>
                 
                 <Button
-                  onClick={handleNext}
+                  onClick={() => {
+                    console.log('Tutorial button clicked - isLastStep:', isLastStep);
+                    handleNext();
+                  }}
                   className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
                 >
                   {isLastStep ? 'Finish' : 'Next'}
