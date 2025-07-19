@@ -130,7 +130,7 @@ function MapBoundsHandler({
         window.mapBoundsTimeout = setTimeout(() => {
           const bounds = map.getBounds();
           onBoundsChange(bounds);
-          console.log('Map bounds updated:', {
+          console.log('handleBoundsChange called with bounds:', {
             west: bounds.getWest().toFixed(3),
             east: bounds.getEast().toFixed(3),
             south: bounds.getSouth().toFixed(3),
@@ -164,6 +164,7 @@ function MapBoundsHandler({
         handleBoundsChange(); // Also trigger bounds update on zoom
       });
       map.on('dragend', handleBoundsChange); // Update after drag completes
+      map.on('drag', handleBoundsChange); // Also update during drag for immediate response
       
       // Force initial bounds and zoom
       setTimeout(() => {
@@ -180,6 +181,7 @@ function MapBoundsHandler({
         map.off('moveend', handleBoundsChange);
         map.off('zoomend');
         map.off('dragend', handleBoundsChange);
+        map.off('drag', handleBoundsChange);
         clearTimeout(window.mapBoundsTimeout);
       }
     };
@@ -352,7 +354,7 @@ export default function Map({
   // Enterprise-level cluster data fetching with optimized performance
   const { data: clusterData, isLoading, error, refetch } = useQuery({
     queryKey: ['communities-clusters', 
-      mapBounds ? `${mapBounds.getSouthWest().lng.toFixed(3)},${mapBounds.getSouthWest().lat.toFixed(3)},${mapBounds.getNorthEast().lng.toFixed(3)},${mapBounds.getNorthEast().lat.toFixed(3)}` : 'default',
+      mapBounds ? `${mapBounds.getSouthWest().lng.toFixed(4)},${mapBounds.getSouthWest().lat.toFixed(4)},${mapBounds.getNorthEast().lng.toFixed(4)},${mapBounds.getNorthEast().lat.toFixed(4)}` : 'default',
       Math.floor(currentZoom), 
       searchFilters
     ],

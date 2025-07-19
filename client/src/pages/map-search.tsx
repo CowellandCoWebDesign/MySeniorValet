@@ -128,7 +128,7 @@ export default function MapSearch() {
   // Fetch communities within map bounds for list view
   const { data: mapCommunities = [], isLoading: isLoadingCommunities } = useQuery({
     queryKey: ['communities-map-bounds', 
-      mapBounds ? `${mapBounds.getSouthWest().lng.toFixed(3)},${mapBounds.getSouthWest().lat.toFixed(3)},${mapBounds.getNorthEast().lng.toFixed(3)},${mapBounds.getNorthEast().lat.toFixed(3)}` : 'null',
+      mapBounds ? `${mapBounds.getSouthWest().lng.toFixed(4)},${mapBounds.getSouthWest().lat.toFixed(4)},${mapBounds.getNorthEast().lng.toFixed(4)},${mapBounds.getNorthEast().lat.toFixed(4)}` : 'null',
       filters
     ],
     queryFn: async () => {
