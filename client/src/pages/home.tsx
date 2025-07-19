@@ -94,7 +94,7 @@ export default function Home() {
 
           {/* Explore Communities Button */}
           <div className="max-w-2xl mx-auto mb-6">
-            <Link href="/explore">
+            <Link href="/map-search">
               <Button 
                 variant="outline" 
                 size="lg" 

@@ -171,9 +171,14 @@ export default function Map({
   onBoundsChange, 
   onClusterClick,
   height = '600px',
-  center = [39.8283, -98.5795], // Geographic center of US
-  zoom = 3
+  center: initialCenter,
+  zoom: initialZoom
 }: MapProps) {
+  // Start with city-level zoom (no clusters), default to major city
+  const [center, setCenter] = useState<[number, number]>(initialCenter || [34.0522, -118.2437]); // Default: Los Angeles
+  const [zoom, setZoom] = useState(initialZoom || 12); // City-level zoom (12-14 is city level)
+  const [locationPermissionStatus, setLocationPermissionStatus] = useState<'prompt' | 'granted' | 'denied' | 'checking'>('checking');
+  const [hasRequestedLocation, setHasRequestedLocation] = useState(false);
   const queryClient = useQueryClient();
   const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
@@ -200,6 +205,48 @@ export default function Map({
 
   // Track current zoom level for supercluster
   const [currentZoom, setCurrentZoom] = useState(zoom);
+  
+  // Check for geolocation permission on mount
+  useEffect(() => {
+    if (!hasRequestedLocation && 'geolocation' in navigator) {
+      // Check permission status if available
+      if ('permissions' in navigator) {
+        navigator.permissions.query({ name: 'geolocation' }).then((result) => {
+          setLocationPermissionStatus(result.state as any);
+          
+          // If already granted, get user location
+          if (result.state === 'granted') {
+            getUserLocation();
+          }
+        });
+      } else {
+        setLocationPermissionStatus('prompt');
+      }
+    }
+  }, [hasRequestedLocation]);
+  
+  const getUserLocation = () => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setCenter([latitude, longitude]);
+        setZoom(13); // City-level zoom when we have user location
+        setLocationPermissionStatus('granted');
+        setHasRequestedLocation(true);
+      },
+      (error) => {
+        console.log('Location access denied or error:', error);
+        setLocationPermissionStatus('denied');
+        setHasRequestedLocation(true);
+        // Keep default location (Los Angeles)
+      }
+    );
+  };
+  
+  const handleLocationRequest = () => {
+    setHasRequestedLocation(true);
+    getUserLocation();
+  };
   
   // Performance tracking state
   const [performanceMetrics, setPerformanceMetrics] = useState({
@@ -351,15 +398,38 @@ export default function Map({
       
       {/* Map Container */}
       <div className="flex-1 relative" style={{ minHeight: '400px' }}>
-        {console.log('Map container rendering, height:', height)}
-        {/* Debug overlay */}
-        <div style={{ position: 'absolute', top: 10, left: 10, background: 'white', padding: '10px', zIndex: 1000, border: '1px solid black' }}>
-          <div>Map Debug Info:</div>
-          <div>Container Height: {mapHeight}</div>
-          <div>Clusters Loaded: {clusterData?.features?.length || 0}</div>
-          <div>Map Center: {center.join(', ')}</div>
-          <div>Zoom: {zoom}</div>
-        </div>
+        {/* Location Permission Prompt */}
+        {locationPermissionStatus === 'prompt' && !hasRequestedLocation && (
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1100] bg-white rounded-lg shadow-lg p-4 max-w-sm">
+            <div className="flex items-start gap-3">
+              <div className="bg-blue-100 rounded-full p-2">
+                <MapPin className="h-5 w-5 text-blue-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-gray-900 mb-1">Find Communities Near You</h3>
+                <p className="text-sm text-gray-600 mb-3">
+                  Allow location access to see senior living communities in your area
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleLocationRequest}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    size="sm"
+                  >
+                    Allow Location
+                  </Button>
+                  <Button
+                    onClick={() => setHasRequestedLocation(true)}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Skip
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Transition overlay for smooth expansion effects */}
         {transitionState === 'expanding' && (
           <div className="map-transition-overlay active">
@@ -376,13 +446,14 @@ export default function Map({
 
         <MapContainer
           center={center}
-          zoom={zoom}
-          minZoom={3}
-          maxZoom={18}
-          bounds={[[14.0, -170.0], [70.0, -50.0]]} // Full North America including Alaska and Mexico
+          zoom={currentZoom}
+          minZoom={6}  // State-level zoom limit - prevents excessive clustering
+          maxZoom={18} // Street-level detail
+          maxBounds={[[14.0, -170.0], [70.0, -50.0]]} // Full North America including Alaska and Mexico
+          maxBoundsViscosity={1.0} // Prevents panning outside bounds
           style={{ height: '100%', width: '100%', backgroundColor: '#f0f0f0', minHeight: '500px' }}
           className="rounded-lg"
-          key={`map-${center[0]}-${center[1]}-${zoom}`}
+          key={`map-${center[0]}-${center[1]}-${currentZoom}`}
         >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

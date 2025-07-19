@@ -57,8 +57,8 @@ export default function MapSearch() {
     budget: 'Any Budget',
     availability: 'All Status'
   });
-  const [mapCenter, setMapCenter] = useState<[number, number]>([37.0, -119.0]); // California center
-  const [mapZoom, setMapZoom] = useState(6);
+  const [mapCenter, setMapCenter] = useState<[number, number]>([34.0522, -118.2437]); // Los Angeles - city center
+  const [mapZoom, setMapZoom] = useState(12); // City-level zoom (12-14 shows individual locations)
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
   const [mapBounds, setMapBounds] = useState<any>(null);
   const [showBottomPanel, setShowBottomPanel] = useState(false);
