@@ -1359,10 +1359,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const children = await superclusterService.getClusterChildren(clusterId);
       const pointCount = children.length;
       
-      // Calculate expansion characteristics
-      const expansionType = pointCount > 1000 ? 'conservative' :
-                           pointCount > 100 ? 'moderate' :
-                           pointCount > 10 ? 'normal' : 'aggressive';
+      // Calculate expansion characteristics for granular clustering
+      const expansionType = pointCount > 500 ? 'conservative' :
+                           pointCount > 50 ? 'moderate' :
+                           pointCount > 10 ? 'normal' :
+                           pointCount > 3 ? 'aggressive' : 'maximum';
       
       res.json({ 
         expansionZoom,

@@ -334,24 +334,27 @@ export default function Map({
                         // Intelligent zoom calculation based on cluster characteristics
                         const expansionZoom = data.expansionZoom || currentZoom + 3;
                         
-                        // Smart zoom targeting based on cluster density
+                        // Optimized zoom targeting for granular clustering
                         let targetZoom;
-                        if (properties.point_count > 1000) {
+                        if (properties.point_count > 500) {
                           // Very large clusters: conservative zoom
-                          targetZoom = Math.min(expansionZoom, currentZoom + 2);
-                        } else if (properties.point_count > 100) {
+                          targetZoom = Math.min(expansionZoom + 1, currentZoom + 2);
+                        } else if (properties.point_count > 50) {
                           // Large clusters: moderate zoom
-                          targetZoom = Math.min(expansionZoom, currentZoom + 3);
+                          targetZoom = Math.min(expansionZoom + 1, currentZoom + 3);
                         } else if (properties.point_count > 10) {
-                          // Medium clusters: aggressive zoom
-                          targetZoom = Math.min(expansionZoom, currentZoom + 4);
+                          // Medium clusters: normal zoom
+                          targetZoom = Math.min(expansionZoom + 2, currentZoom + 4);
+                        } else if (properties.point_count > 3) {
+                          // Small clusters: aggressive zoom
+                          targetZoom = Math.min(expansionZoom + 3, currentZoom + 5);
                         } else {
-                          // Small clusters: maximum zoom to show individuals
-                          targetZoom = Math.min(expansionZoom + 1, 16);
+                          // Very small clusters: maximum zoom to show individuals
+                          targetZoom = Math.min(expansionZoom + 4, 18);
                         }
                         
-                        // Ensure meaningful zoom increase
-                        targetZoom = Math.max(targetZoom, currentZoom + 1);
+                        // Ensure meaningful zoom increase for granular breakdown
+                        targetZoom = Math.max(targetZoom, currentZoom + 2);
                         targetZoom = Math.min(targetZoom, 18);
                         
                         console.log(`Intelligent expansion: ${properties.point_count} communities, ${currentZoom} → ${targetZoom} (optimal: ${expansionZoom})`);

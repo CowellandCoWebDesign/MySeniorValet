@@ -66,10 +66,10 @@ class SuperclusterService {
 
   constructor() {
     this.index = new Supercluster({
-      radius: 120,       // Much larger radius for aggressive clustering at low zoom
-      maxZoom: 14,       // Lower max zoom to force clustering at higher zoom levels
+      radius: 60,        // Smaller radius for more granular clustering
+      maxZoom: 17,       // Higher max zoom to allow individual markers at city level
       minZoom: 0,        
-      minPoints: 10,     // Much higher threshold to prevent individual markers at low zoom
+      minPoints: 2,      // Lower threshold for easier cluster breakdown
       generateId: true,  
       extent: 512,       
       nodeSize: 64,      
@@ -213,16 +213,19 @@ class SuperclusterService {
       
       if (childCount > 1000) {
         // Very dense clusters: conservative expansion
-        intelligentZoom = Math.min(baseExpansionZoom, baseExpansionZoom + 1);
+        intelligentZoom = Math.min(baseExpansionZoom + 1, 12);
       } else if (childCount > 100) {
         // Dense clusters: moderate expansion
-        intelligentZoom = Math.min(baseExpansionZoom + 1, baseExpansionZoom + 2);
-      } else if (childCount > 10) {
+        intelligentZoom = Math.min(baseExpansionZoom + 2, 14);
+      } else if (childCount > 20) {
         // Medium clusters: normal expansion
-        intelligentZoom = baseExpansionZoom;
+        intelligentZoom = Math.min(baseExpansionZoom + 2, 15);
+      } else if (childCount > 5) {
+        // Small clusters: aggressive expansion
+        intelligentZoom = Math.min(baseExpansionZoom + 3, 17);
       } else {
-        // Sparse clusters: aggressive expansion to show individuals
-        intelligentZoom = Math.min(baseExpansionZoom + 2, 16);
+        // Very small clusters: maximum expansion to show individuals
+        intelligentZoom = Math.min(baseExpansionZoom + 4, 18);
       }
       
       console.log(`Intelligent expansion for cluster ${clusterId}: ${childCount} children, base: ${baseExpansionZoom}, intelligent: ${intelligentZoom}`);
