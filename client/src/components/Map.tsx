@@ -11,6 +11,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
+// Extend window interface for map reference
+declare global {
+  interface Window {
+    leafletMap?: any;
+  }
+}
+
 // Fix for default markers in Leaflet
 delete (Icon.Default.prototype as any)._getIconUrl;
 Icon.Default.mergeOptions({
@@ -56,6 +63,19 @@ const communityIcon = createCustomIcon('#1e40af'); // Blue
 const assistedLivingIcon = createCustomIcon('#16a34a'); // Green
 const memoryCareIcon = createCustomIcon('#dc2626'); // Red
 const independentIcon = createCustomIcon('#7c3aed'); // Purple
+
+// Map Events component to access the map instance
+const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady }) => {
+  const map = useMap();
+  
+  useEffect(() => {
+    if (map) {
+      onMapReady(map);
+    }
+  }, [map, onMapReady]);
+  
+  return null;
+};
 
 interface Community {
   id: number;
@@ -192,6 +212,7 @@ export default function Map({
   const [hoveredCommunity, setHoveredCommunity] = useState<number | null>(null);
   const [pulsingMarkers, setPulsingMarkers] = useState<Set<number>>(new Set());
   const [animatingClusters, setAnimatingClusters] = useState<Set<number>>(new Set());
+  const [mapInstance, setMapInstance] = useState<any>(null);
 
   // Handle map bounds change
   const handleBoundsChange = useCallback((bounds: LatLngBounds) => {
@@ -436,22 +457,32 @@ export default function Map({
       
       {/* Map Container */}
       <div className="flex-1 relative" style={{ minHeight: '400px' }}>
-        {/* Manual Location Button - Always visible for re-requesting location */}
+        {/* Compact Location Button */}
         <div className="absolute top-4 right-4 z-[1000]">
           <Button
             onClick={() => {
+              // In Replit environment, geolocation is blocked
+              // Show the permission prompt instead
               localStorage.removeItem('map-location-requested');
               setHasRequestedLocation(false);
               setLocationPermissionStatus('prompt');
             }}
             variant="outline"
-            size="sm"
-            className="bg-white shadow-md hover:shadow-lg"
+            size="icon"
+            className="bg-white shadow-md hover:shadow-lg w-10 h-10 rounded-full"
+            title="Use My Location"
           >
-            <MapPin className="h-4 w-4 mr-2" />
-            Use My Location
+            <MapPin className="h-5 w-5" />
           </Button>
         </div>
+        
+        {/* Debug Info */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="absolute top-20 right-4 z-[1000] bg-black/80 text-white text-xs p-2 rounded">
+            <div>Permission: {locationPermissionStatus}</div>
+            <div>Requested: {hasRequestedLocation ? 'yes' : 'no'}</div>
+          </div>
+        )}
         
         {/* Location Permission Prompt */}
         {locationPermissionStatus === 'prompt' && !hasRequestedLocation && (
@@ -508,8 +539,11 @@ export default function Map({
           maxBoundsViscosity={1.0} // Prevents panning outside bounds
           style={{ height: '100%', width: '100%', backgroundColor: '#f0f0f0', minHeight: '500px' }}
           className="rounded-lg"
-          key={`map-${center[0]}-${center[1]}-${currentZoom}`}
         >
+        <MapEvents onMapReady={(map) => {
+          setMapInstance(map);
+          window.leafletMap = map;
+        }} />
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -623,57 +657,59 @@ export default function Map({
                     setExpandingCluster(properties.cluster_id);
                     setTransitionState('expanding');
                     
-                    // Get map instance for expansion
-                    const mapContainer = document.querySelector('.leaflet-container') as any;
-                    if (mapContainer && mapContainer._leaflet_map) {
-                      const map = mapContainer._leaflet_map;
-                      
-                      // Intelligent zoom calculation based on cluster size
-                      let zoomIncrease;
-                      if (properties.point_count > 1000) {
-                        zoomIncrease = 2; // Conservative for very large clusters
-                      } else if (properties.point_count > 100) {
-                        zoomIncrease = 3; // Moderate for large clusters
-                      } else if (properties.point_count > 50) {
-                        zoomIncrease = 4; // Good for medium clusters
-                      } else if (properties.point_count > 10) {
-                        zoomIncrease = 5; // Aggressive for small clusters
-                      } else {
-                        zoomIncrease = 6; // Maximum for tiny clusters
-                      }
-                      
-                      const targetZoom = Math.min(currentZoom + zoomIncrease, 18);
-                      
-                      console.log(`Cluster expansion: ${properties.point_count} communities, zoom ${currentZoom} → ${targetZoom}`);
-                      console.log('Current center:', map.getCenter(), 'Target center:', [lat, lng]);
-                      
-                      // Smooth transition to cluster center with higher zoom
-                      map.setView([lat, lng], targetZoom, {
-                        animate: true,
-                        duration: 0.6,
-                        easeLinearity: 0.25
-                      });
-                      
-                      // Enterprise-level state management after expansion
-                      setTimeout(() => {
-                        // Clear expansion state
-                        setExpandingCluster(null);
-                        setTransitionState('idle');
-                        
-                        // Force immediate state updates to trigger re-render
-                        setCurrentZoom(targetZoom);
-                        setCenter([lat, lng]);
-                        
-                        // Manually trigger bounds change to fetch new data
-                        const newBounds = map.getBounds();
-                        handleBoundsChange(newBounds);
-                        
-                        // Force immediate query refresh using queryClient
-                        queryClient.invalidateQueries({ 
-                          queryKey: ['communities-clusters']
-                        });
-                      }, 650); // Slightly longer than animation for stability
+                    // Use the stored map instance
+                    if (!mapInstance) {
+                      console.error('Map instance not available for cluster expansion');
+                      setExpandingCluster(null);
+                      setTransitionState('idle');
+                      return;
                     }
+                    
+                    // Intelligent zoom calculation based on cluster size
+                    let zoomIncrease;
+                    if (properties.point_count > 1000) {
+                      zoomIncrease = 2; // Conservative for very large clusters
+                    } else if (properties.point_count > 100) {
+                      zoomIncrease = 3; // Moderate for large clusters
+                    } else if (properties.point_count > 50) {
+                      zoomIncrease = 4; // Good for medium clusters
+                    } else if (properties.point_count > 10) {
+                      zoomIncrease = 5; // Aggressive for small clusters
+                    } else {
+                      zoomIncrease = 6; // Maximum for tiny clusters
+                    }
+                    
+                    const targetZoom = Math.min(currentZoom + zoomIncrease, 18);
+                    
+                    console.log(`Cluster expansion: ${properties.point_count} communities, zoom ${currentZoom} → ${targetZoom}`);
+                    console.log('Current center:', mapInstance.getCenter(), 'Target center:', [lat, lng]);
+                    console.log('Map instance:', mapInstance, 'flyTo method:', mapInstance.flyTo);
+                    
+                    // Smooth transition to cluster center with higher zoom
+                    mapInstance.flyTo([lat, lng], targetZoom, {
+                      animate: true,
+                      duration: 0.8
+                    });
+                    
+                    // Enterprise-level state management after expansion
+                    setTimeout(() => {
+                      // Clear expansion state
+                      setExpandingCluster(null);
+                      setTransitionState('idle');
+                      
+                      // Force immediate state updates to trigger re-render
+                      setCurrentZoom(targetZoom);
+                      setCenter([lat, lng]);
+                      
+                      // Manually trigger bounds change to fetch new data
+                      const newBounds = mapInstance.getBounds();
+                      handleBoundsChange(newBounds);
+                      
+                      // Force immediate query refresh using queryClient
+                      queryClient.invalidateQueries({ 
+                        queryKey: ['communities-clusters']
+                      });
+                    }, 650); // Slightly longer than animation for stability
                     
                     // Call optional callback
                     onClusterClick?.(properties.cluster_id, lat, lng, currentZoom + 3);
