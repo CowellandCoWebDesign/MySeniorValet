@@ -178,7 +178,10 @@ export default function Map({
   const [center, setCenter] = useState<[number, number]>(initialCenter || [34.0522, -118.2437]); // Default: Los Angeles
   const [zoom, setZoom] = useState(initialZoom || 12); // City-level zoom (12-14 is city level)
   const [locationPermissionStatus, setLocationPermissionStatus] = useState<'prompt' | 'granted' | 'denied' | 'checking'>('checking');
-  const [hasRequestedLocation, setHasRequestedLocation] = useState(false);
+  const [hasRequestedLocation, setHasRequestedLocation] = useState(() => {
+    // Check if user has already made a decision about location
+    return localStorage.getItem('map-location-requested') === 'true';
+  });
   const queryClient = useQueryClient();
   const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
@@ -208,44 +211,79 @@ export default function Map({
   
   // Check for geolocation permission on mount
   useEffect(() => {
-    if (!hasRequestedLocation && 'geolocation' in navigator) {
+    console.log('Location permission check:', { hasRequestedLocation, hasGeolocation: 'geolocation' in navigator });
+    
+    if ('geolocation' in navigator) {
       // Check permission status if available
       if ('permissions' in navigator) {
         navigator.permissions.query({ name: 'geolocation' }).then((result) => {
+          console.log('Permission status:', result.state);
           setLocationPermissionStatus(result.state as any);
           
-          // If already granted, get user location
-          if (result.state === 'granted') {
+          // If already granted, get user location automatically
+          if (result.state === 'granted' && !hasRequestedLocation) {
             getUserLocation();
+          } else if (result.state === 'prompt') {
+            // Show prompt for user decision
+            setLocationPermissionStatus('prompt');
           }
+        }).catch((error) => {
+          console.log('Permissions API error:', error);
+          // If permissions API fails, show prompt
+          setLocationPermissionStatus('prompt');
         });
       } else {
+        // Browser doesn't support permissions API, show prompt
         setLocationPermissionStatus('prompt');
       }
     }
-  }, [hasRequestedLocation]);
+  }, []);
   
   const getUserLocation = () => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
+        console.log('User location obtained:', latitude, longitude);
+        
+        // Update map center and zoom
         setCenter([latitude, longitude]);
         setZoom(13); // City-level zoom when we have user location
+        setCurrentZoom(13);
         setLocationPermissionStatus('granted');
         setHasRequestedLocation(true);
+        
+        // Force map update with new location
+        setTimeout(() => {
+          const map = mapRef.current;
+          if (map) {
+            map.setView([latitude, longitude], 13, { animate: true });
+          }
+        }, 100);
       },
       (error) => {
-        console.log('Location access denied or error:', error);
+        console.error('Location access error:', error.message);
         setLocationPermissionStatus('denied');
         setHasRequestedLocation(true);
         // Keep default location (Los Angeles)
+      },
+      {
+        enableHighAccuracy: false,
+        timeout: 10000,
+        maximumAge: 300000 // 5 minutes cache
       }
     );
   };
   
   const handleLocationRequest = () => {
     setHasRequestedLocation(true);
+    localStorage.setItem('map-location-requested', 'true');
     getUserLocation();
+  };
+  
+  const handleSkipLocation = () => {
+    setHasRequestedLocation(true);
+    localStorage.setItem('map-location-requested', 'true');
+    setLocationPermissionStatus('denied');
   };
   
   // Performance tracking state
@@ -398,9 +436,26 @@ export default function Map({
       
       {/* Map Container */}
       <div className="flex-1 relative" style={{ minHeight: '400px' }}>
+        {/* Manual Location Button - Always visible for re-requesting location */}
+        <div className="absolute top-4 right-4 z-[1000]">
+          <Button
+            onClick={() => {
+              localStorage.removeItem('map-location-requested');
+              setHasRequestedLocation(false);
+              setLocationPermissionStatus('prompt');
+            }}
+            variant="outline"
+            size="sm"
+            className="bg-white shadow-md hover:shadow-lg"
+          >
+            <MapPin className="h-4 w-4 mr-2" />
+            Use My Location
+          </Button>
+        </div>
+        
         {/* Location Permission Prompt */}
         {locationPermissionStatus === 'prompt' && !hasRequestedLocation && (
-          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1100] bg-white rounded-lg shadow-lg p-4 max-w-sm">
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1100] bg-white rounded-lg shadow-lg p-4 max-w-sm" style={{ zIndex: 9999 }}>
             <div className="flex items-start gap-3">
               <div className="bg-blue-100 rounded-full p-2">
                 <MapPin className="h-5 w-5 text-blue-600" />
@@ -419,7 +474,7 @@ export default function Map({
                     Allow Location
                   </Button>
                   <Button
-                    onClick={() => setHasRequestedLocation(true)}
+                    onClick={handleSkipLocation}
                     variant="outline"
                     size="sm"
                   >
@@ -590,6 +645,7 @@ export default function Map({
                       const targetZoom = Math.min(currentZoom + zoomIncrease, 18);
                       
                       console.log(`Cluster expansion: ${properties.point_count} communities, zoom ${currentZoom} → ${targetZoom}`);
+                      console.log('Current center:', map.getCenter(), 'Target center:', [lat, lng]);
                       
                       // Smooth transition to cluster center with higher zoom
                       map.setView([lat, lng], targetZoom, {
@@ -606,15 +662,11 @@ export default function Map({
                         
                         // Force immediate state updates to trigger re-render
                         setCurrentZoom(targetZoom);
+                        setCenter([lat, lng]);
                         
-                        // Get fresh bounds and trigger complete update cycle
+                        // Manually trigger bounds change to fetch new data
                         const newBounds = map.getBounds();
-                        setMapBounds(newBounds);
-                        
-                        // Ensure all callbacks fire
-                        if (onBoundsChange) {
-                          onBoundsChange(newBounds);
-                        }
+                        handleBoundsChange(newBounds);
                         
                         // Force immediate query refresh using queryClient
                         queryClient.invalidateQueries({ 
