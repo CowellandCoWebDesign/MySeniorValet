@@ -141,13 +141,17 @@ export default function MapSearch() {
   
   // Fetch communities within map bounds for list view
   const { data: mapCommunities = [], isLoading: isLoadingCommunities, isFetching: isFetchingCommunities, refetch: refetchCommunities } = useQuery({
-    queryKey: ['communities-map-bounds', mapBounds ? `${mapBounds.getSouthWest().lng.toFixed(4)},${mapBounds.getSouthWest().lat.toFixed(4)},${mapBounds.getNorthEast().lng.toFixed(4)},${mapBounds.getNorthEast().lat.toFixed(4)}` : 'no-bounds'],
+    queryKey: ['communities-map-bounds', mapBounds ? `${mapBounds.getSouthWest().lng.toFixed(6)},${mapBounds.getSouthWest().lat.toFixed(6)},${mapBounds.getNorthEast().lng.toFixed(6)},${mapBounds.getNorthEast().lat.toFixed(6)}` : 'no-bounds'],
     queryFn: async () => {
       if (!mapBounds) return [];
       
       try {
         const sw = mapBounds.getSouthWest();
         const ne = mapBounds.getNorthEast();
+        
+        // Add a minimal buffer (0.5%) for very close zoom to ensure edge communities are included
+        const latBuffer = (ne.lat - sw.lat) * 0.005;
+        const lngBuffer = (ne.lng - sw.lng) * 0.005;
         
         console.log('Fetching communities for bounds:', {
           sw: { lat: sw.lat, lng: sw.lng },
@@ -156,10 +160,10 @@ export default function MapSearch() {
         });
         
         const params = new URLSearchParams({
-          swLat: sw.lat.toString(),
-          swLng: sw.lng.toString(),
-          neLat: ne.lat.toString(),
-          neLng: ne.lng.toString(),
+          swLat: (sw.lat - latBuffer).toString(),
+          swLng: (sw.lng - lngBuffer).toString(),
+          neLat: (ne.lat + latBuffer).toString(),
+          neLng: (ne.lng + lngBuffer).toString(),
           limit: '100',
           ...(filters.careType !== 'All Types' && { careType: filters.careType }),
           ...(filters.minRating > 0 && { minRating: filters.minRating.toString() }),
@@ -218,13 +222,21 @@ export default function MapSearch() {
     communities: mapCommunities.slice(0, 3).map(c => c.name)
   });
 
+  // State to track if we're waiting for initial load
+  const [isInitialLoad, setIsInitialLoad] = useState(false);
+
   // Force initial load when panel opens
   useEffect(() => {
-    if (showBottomPanel && mapBounds && mapCommunities.length === 0 && !isLoadingCommunities) {
-      console.log('Panel opened but no communities loaded, forcing refetch...');
-      refetchCommunities();
+    if (showBottomPanel && mapBounds) {
+      if (mapCommunities.length === 0 && !isLoadingCommunities && !isFetchingCommunities) {
+        console.log('Panel opened but no communities loaded, forcing refetch...');
+        setIsInitialLoad(true);
+        refetchCommunities().finally(() => {
+          setIsInitialLoad(false);
+        });
+      }
     }
-  }, [showBottomPanel, mapBounds, mapCommunities.length, isLoadingCommunities, refetchCommunities]);
+  }, [showBottomPanel, mapBounds, mapCommunities.length, isLoadingCommunities, isFetchingCommunities, refetchCommunities]);
 
   // Fetch expanded search results when no communities in current view
   const { data: expandedCommunities = [], isLoading: isLoadingExpanded } = useQuery({
@@ -830,7 +842,7 @@ export default function MapSearch() {
                 </p>
               </div>
             </div>
-          ) : isLoadingCommunities ? (
+          ) : (isLoadingCommunities || isFetchingCommunities || isInitialLoad) ? (
             <div className="space-y-4">
               {/* Playful loading animation */}
               <div className="text-center py-8">
@@ -1005,11 +1017,17 @@ export default function MapSearch() {
               if (!showBottomPanel) {
                 setPanelHeight(70); // Set to 70% when opening
                 setShowBottomPanel(true);
+                // Set initial load state immediately if no communities loaded
+                if (mapCommunities.length === 0 && mapBounds) {
+                  setIsInitialLoad(true);
+                }
                 // Force immediate refetch when opening panel
                 setTimeout(() => {
                   console.log('Forcing refetch after panel open...');
-                  refetchCommunities();
-                }, 200);
+                  refetchCommunities().finally(() => {
+                    setIsInitialLoad(false);
+                  });
+                }, 100);
               } else {
                 setShowBottomPanel(false);
               }
