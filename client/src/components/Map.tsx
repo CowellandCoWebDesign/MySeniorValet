@@ -707,6 +707,11 @@ export default function Map({
               }
             } catch (error) {
               console.error('Error getting initial bounds:', error);
+              // Log more detailed error information
+              if (error instanceof Error) {
+                console.error('Error message:', error.message);
+                console.error('Error stack:', error.stack);
+              }
             }
           }, 200); // Increased delay for better stability
         }} />
