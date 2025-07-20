@@ -286,7 +286,7 @@ export default function Map({
     }
   }, []);
 
-  // Add global error handler for Leaflet errors
+  // Add global error handler for Leaflet errors and patch getPosition
   useEffect(() => {
     const handleError = (e: ErrorEvent) => {
       if (e.message && e.message.includes('_leaflet_pos')) {
@@ -297,8 +297,33 @@ export default function Map({
       }
     };
     
-    window.addEventListener('error', handleError);
-    return () => window.removeEventListener('error', handleError);
+    const handleUnhandledRejection = (e: PromiseRejectionEvent) => {
+      if (e.reason && e.reason.message && e.reason.message.includes('_leaflet_pos')) {
+        console.error('Caught unhandled Leaflet rejection:', e.reason);
+        e.preventDefault();
+        return false;
+      }
+    };
+    
+    // Patch Leaflet's getPosition function to handle undefined elements
+    if (window.L && window.L.DomUtil) {
+      const originalGetPosition = window.L.DomUtil.getPosition;
+      window.L.DomUtil.getPosition = function(el: any) {
+        if (!el || !el._leaflet_pos) {
+          console.warn('Element has no _leaflet_pos, returning default position');
+          return window.L.point(0, 0);
+        }
+        return originalGetPosition.call(this, el);
+      };
+    }
+    
+    window.addEventListener('error', handleError, true);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection, true);
+    
+    return () => {
+      window.removeEventListener('error', handleError, true);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection, true);
+    };
   }, []);
   
   const getUserLocation = () => {
@@ -664,16 +689,22 @@ export default function Map({
                 position={[lat, lng]}
                 icon={clusterIcon}
                 eventHandlers={{
-                  mouseover: () => {
+                  mouseover: (e) => {
                     try {
-                      setHoveredCluster(properties.cluster_id);
+                      // Check if the marker element exists
+                      if (e && e.target && e.target._icon) {
+                        setHoveredCluster(properties.cluster_id);
+                      }
                     } catch (error) {
                       console.error('Cluster mouseover error:', error);
                     }
                   },
-                  mouseout: () => {
+                  mouseout: (e) => {
                     try {
-                      setHoveredCluster(null);
+                      // Check if the marker element exists
+                      if (e && e.target && e.target._icon) {
+                        setHoveredCluster(null);
+                      }
                     } catch (error) {
                       console.error('Cluster mouseout error:', error);
                     }
@@ -685,8 +716,9 @@ export default function Map({
                         e.originalEvent.preventDefault();
                       }
                       
-                      if (!mapInstance) {
-                        console.error('Map instance not available');
+                      // Check if the marker element and map exist
+                      if (!mapInstance || !e.target || !e.target._icon) {
+                        console.error('Map instance or marker not available');
                         return;
                       }
                       
@@ -740,14 +772,18 @@ export default function Map({
                       e.originalEvent.stopPropagation();
                       e.originalEvent.preventDefault();
                     }
-                    handleCommunityClick(community);
+                    // Check if the marker element exists
+                    if (e && e.target && e.target._icon) {
+                      handleCommunityClick(community);
+                    }
                   } catch (error) {
                     console.error('Community click error:', error);
                   }
                 },
                 mouseover: (e) => {
                   try {
-                    if (e && e.target) {
+                    // Check if the marker element exists
+                    if (e && e.target && e.target._icon) {
                       setHoveredCommunity(community.id);
                     }
                   } catch (error) {
@@ -756,7 +792,8 @@ export default function Map({
                 },
                 mouseout: (e) => {
                   try {
-                    if (e && e.target) {
+                    // Check if the marker element exists
+                    if (e && e.target && e.target._icon) {
                       setHoveredCommunity(null);
                     }
                   } catch (error) {
@@ -776,7 +813,7 @@ export default function Map({
                 </Tooltip>
               )}
               
-              <Popup className="community-popup" closeButton={true} autoPan={true}>
+              <Popup className="community-popup" closeButton={true} autoPan={false} autoClose={false}>
                 <div className="w-80 p-4">
                   <div className="flex items-start justify-between mb-2">
                     <h3 className="font-bold text-lg leading-tight">{community.name}</h3>
