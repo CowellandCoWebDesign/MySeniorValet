@@ -230,22 +230,27 @@ export default function MapSearch() {
     isLoading: isLoadingCommunities,
     hasBounds: !!mapBounds,
     showBottomPanel,
-    communities: mapCommunities.slice(0, 3).map(c => c.name)
+    communities: mapCommunities.slice(0, 3).map(c => c.name),
+    boundsKey: boundsKey,
+    isFetching: isFetchingCommunities
   });
 
   // State to track if we're waiting for initial load
   const [isInitialLoad, setIsInitialLoad] = useState(false);
 
-  // Force refetch when panel opens
+  // Force refetch when panel opens or bounds change
   useEffect(() => {
     if (showBottomPanel && mapBounds && !isLoadingCommunities) {
-      console.log('Panel is open with bounds, triggering refetch...');
+      console.log('Bounds changed or panel opened, triggering refetch...', {
+        boundsKey,
+        showBottomPanel
+      });
       setIsInitialLoad(true);
       refetchCommunities().finally(() => {
         setIsInitialLoad(false);
       });
     }
-  }, [showBottomPanel]);
+  }, [showBottomPanel, boundsKey]); // Add boundsKey as dependency
 
   // Fetch expanded search results when no communities in current view
   const { data: expandedCommunities = [], isLoading: isLoadingExpanded } = useQuery({
