@@ -142,8 +142,7 @@ export default function MapSearch() {
   const { data: mapCommunities = [], isLoading: isLoadingCommunities } = useQuery({
     queryKey: ['communities-map-bounds', 
       mapBounds ? `${mapBounds.getSouthWest().lng.toFixed(4)},${mapBounds.getSouthWest().lat.toFixed(4)},${mapBounds.getNorthEast().lng.toFixed(4)},${mapBounds.getNorthEast().lat.toFixed(4)}` : 'null',
-      filters,
-      showBottomPanel // Add showBottomPanel to query key so it refetches when panel opens
+      filters
     ],
     queryFn: async () => {
       if (!mapBounds) return [];
@@ -214,7 +213,9 @@ export default function MapSearch() {
   console.log('Communities fetched:', {
     count: mapCommunities.length,
     isLoading: isLoadingCommunities,
-    hasBounds: !!mapBounds
+    hasBounds: !!mapBounds,
+    showBottomPanel,
+    communities: mapCommunities.slice(0, 3).map(c => c.name)
   });
 
   // Fetch expanded search results when no communities in current view
