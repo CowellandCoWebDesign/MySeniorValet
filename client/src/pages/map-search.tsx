@@ -169,11 +169,24 @@ export default function MapSearch() {
         });
         
         console.log('Making spatial search request to:', `/api/communities/search/spatial?${params}`);
-        const response = await fetch(`/api/communities/search/spatial?${params}`);
+        console.log('Window origin:', window.location.origin);
+        
+        const response = await fetch(`/api/communities/search/spatial?${params}`, {
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
         
         if (!response.ok) {
-          console.error('Spatial search failed:', response.status, response.statusText);
-          throw new Error('Failed to fetch communities');
+          console.error('Spatial search failed:', {
+            status: response.status, 
+            statusText: response.statusText,
+            url: response.url,
+            origin: window.location.origin,
+            href: window.location.href
+          });
+          throw new Error(`Failed to fetch communities: ${response.status} ${response.statusText}`);
         }
         
         const data = await response.json();
@@ -201,7 +214,8 @@ export default function MapSearch() {
   console.log('Communities fetched:', {
     count: mapCommunities.length,
     isLoading: isLoadingCommunities,
-    hasBounds: !!mapBounds
+    hasBounds: !!mapBounds,
+    error: communitiesError?.message || null
   });
 
   // Fetch expanded search results when no communities in current view

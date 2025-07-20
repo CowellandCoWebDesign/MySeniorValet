@@ -268,16 +268,23 @@ export function securityLogger(req: Request, res: Response, next: NextFunction) 
 
 // CORS configuration for production
 export function corsPolicy(req: Request, res: Response, next: NextFunction) {
-  const allowedOrigins = [
-    'https://7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway.replit.dev',
-    'http://localhost:5000',
-    'http://127.0.0.1:5000'
-  ];
-  
   const origin = req.headers.origin;
   
-  if (origin && allowedOrigins.includes(origin)) {
+  // Allow all Replit domains and local development
+  const isAllowedOrigin = origin && (
+    origin.includes('.replit.dev') ||
+    origin.includes('.repl.co') ||
+    origin.includes('localhost') ||
+    origin.includes('127.0.0.1') ||
+    origin === 'https://mysensorvital.com' || 
+    origin === 'https://www.mysensorvital.com'
+  );
+  
+  if (isAllowedOrigin) {
     res.setHeader('Access-Control-Allow-Origin', origin);
+  } else if (!origin) {
+    // Allow requests with no origin (like from the same domain)
+    res.setHeader('Access-Control-Allow-Origin', '*');
   }
   
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
