@@ -285,6 +285,21 @@ export default function Map({
       }
     }
   }, []);
+
+  // Add global error handler for Leaflet errors
+  useEffect(() => {
+    const handleError = (e: ErrorEvent) => {
+      if (e.message && e.message.includes('_leaflet_pos')) {
+        console.error('Caught Leaflet position error:', e.message);
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    };
+    
+    window.addEventListener('error', handleError);
+    return () => window.removeEventListener('error', handleError);
+  }, []);
   
   const getUserLocation = () => {
     navigator.geolocation.getCurrentPosition(
@@ -650,30 +665,42 @@ export default function Map({
                 icon={clusterIcon}
                 eventHandlers={{
                   mouseover: () => {
-                    setHoveredCluster(properties.cluster_id);
+                    try {
+                      setHoveredCluster(properties.cluster_id);
+                    } catch (error) {
+                      console.error('Cluster mouseover error:', error);
+                    }
                   },
                   mouseout: () => {
-                    setHoveredCluster(null);
+                    try {
+                      setHoveredCluster(null);
+                    } catch (error) {
+                      console.error('Cluster mouseout error:', error);
+                    }
                   },
                   click: (e) => {
-                    if (e && e.originalEvent) {
-                      e.originalEvent.stopPropagation();
-                      e.originalEvent.preventDefault();
+                    try {
+                      if (e && e.originalEvent) {
+                        e.originalEvent.stopPropagation();
+                        e.originalEvent.preventDefault();
+                      }
+                      
+                      if (!mapInstance) {
+                        console.error('Map instance not available');
+                        return;
+                      }
+                      
+                      // Simple zoom in by 3 levels to expand cluster
+                      const newZoom = Math.min(currentZoom + 3, 18);
+                      
+                      // Fly to cluster center and zoom in
+                      mapInstance.flyTo([lat, lng], newZoom, {
+                        animate: true,
+                        duration: 0.5
+                      });
+                    } catch (error) {
+                      console.error('Cluster click error:', error);
                     }
-                    
-                    if (!mapInstance) {
-                      console.error('Map instance not available');
-                      return;
-                    }
-                    
-                    // Simple zoom in by 3 levels to expand cluster
-                    const newZoom = Math.min(currentZoom + 3, 18);
-                    
-                    // Fly to cluster center and zoom in
-                    mapInstance.flyTo([lat, lng], newZoom, {
-                      animate: true,
-                      duration: 0.5
-                    });
                   }
                 }}
               />
@@ -708,20 +735,32 @@ export default function Map({
               icon={getIconForCommunity(community, hoveredCommunity === community.id, false)}
               eventHandlers={{
                 click: (e) => {
-                  if (e && e.originalEvent) {
-                    e.originalEvent.stopPropagation();
-                    e.originalEvent.preventDefault();
+                  try {
+                    if (e && e.originalEvent) {
+                      e.originalEvent.stopPropagation();
+                      e.originalEvent.preventDefault();
+                    }
+                    handleCommunityClick(community);
+                  } catch (error) {
+                    console.error('Community click error:', error);
                   }
-                  handleCommunityClick(community);
                 },
                 mouseover: (e) => {
-                  if (e && e.target) {
-                    setHoveredCommunity(community.id);
+                  try {
+                    if (e && e.target) {
+                      setHoveredCommunity(community.id);
+                    }
+                  } catch (error) {
+                    console.error('Community mouseover error:', error);
                   }
                 },
                 mouseout: (e) => {
-                  if (e && e.target) {
-                    setHoveredCommunity(null);
+                  try {
+                    if (e && e.target) {
+                      setHoveredCommunity(null);
+                    }
+                  } catch (error) {
+                    console.error('Community mouseout error:', error);
                   }
                 }
               }}

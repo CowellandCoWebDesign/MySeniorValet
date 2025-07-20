@@ -272,6 +272,14 @@ This file contains the current technical architecture, key components, and essen
 - List panel now shows community count and properly updates when panning the map
 - Floating blue button correctly toggles the community list panel with smooth animations
 
+**LEAFLET ERROR CRASH PREVENTION**: Comprehensive error handling implemented to prevent "_leaflet_pos" crashes (January 20, 2025):
+- Created MapErrorBoundary component for graceful error recovery with user-friendly error messages
+- Wrapped Map component with error boundary in map-search page
+- Added try-catch blocks to all marker and cluster event handlers (click, mouseover, mouseout)
+- Implemented global error handler to catch and suppress Leaflet position errors
+- All event handlers now properly check for undefined objects before accessing properties
+- Error boundary provides "Reload Map" button for quick recovery if crash occurs
+
 **SENIOR ACCESSIBILITY IMPROVEMENTS**: Balanced text sizes for optimal senior readability without breaking mobile layout. Changed HTML base font from 16px to 17px (mobile) and 18px (desktop) after user feedback about horizontal scrolling. Homepage feature cards maintained at text-lg/text-sm for proper mobile fit. Fixed dark mode visibility issues in community profiles by adding proper dark mode classes to contact section text (Director name, title, phone, response time). Platform achieves balance between senior accessibility and mobile responsiveness. (January 19, 2025)
 
 **COMPREHENSIVE SECURITY HARDENING COMPLETED**: Successfully implemented real-time security monitoring system with threat detection, IP blocking, and automated response capabilities. Enhanced security middleware with expanded injection pattern detection (SQL, XSS, command, LDAP, NoSQL), comprehensive security audit logging, and automated IP blocking for critical threats. Created SecurityMonitor class with live threat analysis, SecurityTraceAnalyzer script detecting 7 active threats (4 critical, 1 high, 1 medium, 1 low), and admin endpoints for security dashboard, user tracing, and IP management. System now provides real-time protection against injection attacks with immediate threat response and comprehensive security reporting (July 16, 2025)
