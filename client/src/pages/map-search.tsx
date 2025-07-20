@@ -140,8 +140,13 @@ export default function MapSearch() {
   });
   
   // Fetch communities within map bounds for list view
+  // Create a stable bounds key for query caching
+  const boundsKey = mapBounds 
+    ? `${mapBounds.getSouthWest().lng.toFixed(4)},${mapBounds.getSouthWest().lat.toFixed(4)},${mapBounds.getNorthEast().lng.toFixed(4)},${mapBounds.getNorthEast().lat.toFixed(4)}`
+    : 'no-bounds';
+
   const { data: mapCommunities = [], isLoading: isLoadingCommunities, isFetching: isFetchingCommunities, refetch: refetchCommunities } = useQuery({
-    queryKey: ['communities-map-bounds', mapBounds ? 'has-bounds' : 'no-bounds'],
+    queryKey: ['communities-map-bounds', boundsKey],
     queryFn: async () => {
       if (!mapBounds) return [];
       
@@ -149,14 +154,20 @@ export default function MapSearch() {
         const sw = mapBounds.getSouthWest();
         const ne = mapBounds.getNorthEast();
         
-        // Add a minimal buffer (0.5%) for very close zoom to ensure edge communities are included
-        const latBuffer = (ne.lat - sw.lat) * 0.005;
-        const lngBuffer = (ne.lng - sw.lng) * 0.005;
+        // No buffer - use exact viewport bounds for precise list synchronization
+        const latBuffer = 0;
+        const lngBuffer = 0;
         
-        console.log('Fetching communities for bounds:', {
+        console.log('Fetching communities for exact bounds:', {
           sw: { lat: sw.lat, lng: sw.lng },
           ne: { lat: ne.lat, lng: ne.lng },
-          showBottomPanel
+          showBottomPanel,
+          actualBounds: {
+            swLat: sw.lat - latBuffer,
+            swLng: sw.lng - lngBuffer,
+            neLat: ne.lat + latBuffer,
+            neLng: ne.lng + lngBuffer
+          }
         });
         
         const params = new URLSearchParams({
