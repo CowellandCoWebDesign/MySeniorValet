@@ -70,7 +70,20 @@ const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady })
   
   useEffect(() => {
     if (map) {
-      onMapReady(map);
+      // Wait for map to be fully loaded before calling onMapReady
+      const checkMapLoaded = () => {
+        if (map._loaded) {
+          onMapReady(map);
+        } else {
+          // Listen for the load event
+          map.once('load', () => {
+            onMapReady(map);
+          });
+        }
+      };
+      
+      // Check immediately in case map is already loaded
+      checkMapLoaded();
     }
   }, [map, onMapReady]);
   
@@ -124,18 +137,42 @@ function MapBoundsHandler({
   
   const handleBoundsChange = useCallback(() => {
     try {
-      if (map && map.getBounds) {
+      if (map && typeof map.getBounds === 'function') {
         // Enterprise-level debouncing for optimal performance
         clearTimeout(window.mapBoundsTimeout);
         window.mapBoundsTimeout = setTimeout(() => {
-          const bounds = map.getBounds();
-          console.log('MapBoundsHandler calling onBoundsChange with bounds:', {
-            west: bounds.getWest().toFixed(3),
-            east: bounds.getEast().toFixed(3),
-            south: bounds.getSouth().toFixed(3),
-            north: bounds.getNorth().toFixed(3)
-          });
-          onBoundsChange(bounds);
+          try {
+            // Check if map still exists and has a container
+            if (!map || !map.getContainer || !map.getContainer()) {
+              console.warn('Map container not ready');
+              return;
+            }
+            
+            let bounds;
+            try {
+              bounds = map.getBounds();
+            } catch (boundsError) {
+              console.warn('Failed to get bounds:', boundsError);
+              return;
+            }
+            
+            if (bounds && typeof bounds.getWest === 'function' && typeof bounds.getEast === 'function' && 
+                typeof bounds.getSouth === 'function' && typeof bounds.getNorth === 'function') {
+              try {
+                console.log('MapBoundsHandler calling onBoundsChange with bounds:', {
+                  west: bounds.getWest().toFixed(3),
+                  east: bounds.getEast().toFixed(3),
+                  south: bounds.getSouth().toFixed(3),
+                  north: bounds.getNorth().toFixed(3)
+                });
+                onBoundsChange(bounds);
+              } catch (accessError) {
+                console.warn('Failed to access bounds properties:', accessError);
+              }
+            }
+          } catch (innerError) {
+            console.warn('Error in bounds timeout:', innerError);
+          }
         }, 150); // Faster response for enterprise UX
       }
     } catch (error) {
@@ -305,16 +342,51 @@ export default function Map({
       }
     };
     
-    // Patch Leaflet's getPosition function to handle undefined elements
+    // Comprehensive Leaflet DOM patching to prevent _leaflet_pos errors
     if (window.L && window.L.DomUtil) {
+      // Patch getPosition
       const originalGetPosition = window.L.DomUtil.getPosition;
       window.L.DomUtil.getPosition = function(el: any) {
         if (!el || !el._leaflet_pos) {
           console.warn('Element has no _leaflet_pos, returning default position');
           return window.L.point(0, 0);
         }
-        return originalGetPosition.call(this, el);
+        try {
+          return originalGetPosition.call(this, el);
+        } catch (e) {
+          console.warn('Error in getPosition:', e);
+          return window.L.point(0, 0);
+        }
       };
+      
+      // Patch setPosition
+      const originalSetPosition = window.L.DomUtil.setPosition;
+      window.L.DomUtil.setPosition = function(el: any, point: any) {
+        if (!el || !point) {
+          console.warn('Invalid element or point for setPosition');
+          return;
+        }
+        try {
+          return originalSetPosition.call(this, el, point);
+        } catch (e) {
+          console.warn('Error in setPosition:', e);
+        }
+      };
+      
+      // Patch getTranslateString for older browsers
+      if (window.L.DomUtil.getTranslateString) {
+        const originalGetTranslateString = window.L.DomUtil.getTranslateString;
+        window.L.DomUtil.getTranslateString = function(point: any) {
+          if (!point || typeof point.x !== 'number' || typeof point.y !== 'number') {
+            return 'translate3d(0px, 0px, 0px)';
+          }
+          try {
+            return originalGetTranslateString.call(this, point);
+          } catch (e) {
+            return 'translate3d(0px, 0px, 0px)';
+          }
+        };
+      }
     }
     
     window.addEventListener('error', handleError, true);
@@ -618,12 +690,25 @@ export default function Map({
           window.leafletMap = map;
           // Trigger initial bounds after map is ready
           setTimeout(() => {
-            const bounds = map.getBounds();
-            if (bounds && onBoundsChange) {
-              console.log('Setting initial bounds from map ready:', bounds);
-              handleBoundsChange(bounds);
+            try {
+              // Check if map and getBounds method exist
+              if (map && typeof map.getBounds === 'function' && map.getContainer && map.getContainer()) {
+                // Additional safety check to ensure map is fully initialized
+                if (map._loaded === false) {
+                  console.warn('Map not fully loaded yet, waiting...');
+                  return;
+                }
+                
+                const bounds = map.getBounds();
+                if (bounds && onBoundsChange && bounds.isValid && bounds.isValid()) {
+                  console.log('Setting initial bounds from map ready:', bounds);
+                  handleBoundsChange(bounds);
+                }
+              }
+            } catch (error) {
+              console.error('Error getting initial bounds:', error);
             }
-          }, 100);
+          }, 200); // Increased delay for better stability
         }} />
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
