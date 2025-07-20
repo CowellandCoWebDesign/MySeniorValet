@@ -52,6 +52,7 @@ import Services from "@/pages/services";
 import CommunityPaymentProgram from "@/pages/community-payment-program";
 import NotFound from "@/pages/not-found";
 import QuizPage from "@/pages/quiz";
+import TestDebug from "@/pages/test-debug";
 
 function Router() {
   const [location] = useLocation();
@@ -105,6 +106,7 @@ function Router() {
       <Route path="/services" component={Services} />
       <Route path="/community-payment-program" component={CommunityPaymentProgram} />
       <Route path="/quiz" component={QuizPage} />
+      <Route path="/test-debug" component={TestDebug} />
       <Route component={NotFound} />
     </Switch>
   );

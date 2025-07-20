@@ -167,7 +167,7 @@ export default function MapSearch() {
         return [];
       }
     },
-    enabled: !!mapBounds && showBottomPanel, // Enable when bottom panel is shown
+    enabled: !!mapBounds, // Always fetch when we have bounds
     staleTime: 0, // No cache - always fresh data
     gcTime: 0, // No garbage collection time
     retry: 1, // Only retry once on failure

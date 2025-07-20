@@ -439,8 +439,12 @@ export default function Map({
   };
 
   const handleCommunityClick = (community: Community) => {
-    setSelectedCommunity(community);
-    onCommunityClick?.(community);
+    try {
+      setSelectedCommunity(community);
+      onCommunityClick?.(community);
+    } catch (error) {
+      console.error('Error handling community click:', error);
+    }
   };
   
   // Debug logging
@@ -694,11 +698,12 @@ export default function Map({
 
           return (
             <Marker
-              key={`community-${properties.id}`}
+              key={`community-${properties.id}-${lat}-${lng}`}
               position={[lat, lng]}
               icon={getIconForCommunity(community, hoveredCommunity === community.id, false)}
               eventHandlers={{
-                click: () => {
+                click: (e) => {
+                  e.originalEvent.stopPropagation();
                   handleCommunityClick(community);
                 },
                 mouseover: () => {
@@ -711,7 +716,7 @@ export default function Map({
             >
               {/* Enhanced tooltip for hover states */}
               {hoveredCommunity === community.id && (
-                <Tooltip permanent>
+                <Tooltip permanent direction="top" offset={[0, -10]}>
                   <div className="bg-white/95 backdrop-blur-sm rounded-lg p-2 shadow-lg border">
                     <div className="font-semibold text-sm">{community.name}</div>
                     <div className="text-xs text-gray-600">{community.city}, {community.state}</div>
@@ -720,14 +725,15 @@ export default function Map({
                 </Tooltip>
               )}
               
-              <Popup>
+              <Popup className="community-popup" closeButton={true} autoPan={true}>
                 <div className="w-80 p-4">
                   <div className="flex items-start justify-between mb-2">
                     <h3 className="font-bold text-lg leading-tight">{community.name}</h3>
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         const newFavorites = new Set(favorites);
                         if (favorites.has(community.id)) {
                           newFavorites.delete(community.id);
@@ -788,7 +794,10 @@ export default function Map({
                     <Button 
                       className="w-full mt-2" 
                       size="sm"
-                      onClick={() => handleCommunityClick(community)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCommunityClick(community);
+                      }}
                     >
                       <ExternalLink className="w-4 h-4 mr-2" />
                       View Details

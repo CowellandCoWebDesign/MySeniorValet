@@ -263,6 +263,15 @@ This file contains the current technical architecture, key components, and essen
 
 **MEMORY OPTIMIZATION AND REDUNDANT SYSTEM CLEANUP**: Consolidated redundant map-search systems to use only the working /search endpoint. Removed duplicate map-search files (map-search-broken.tsx, map-search-clean.tsx). Implemented memory management in Supercluster service with MAX_INDEXES limit of 3 to prevent memory overload, automatic cleanup of least recently used indexes every 5 minutes, and proper tracking of last access times. Fixed rate limiting issues by excluding /clusters endpoint from rate limiting middleware in both server/index.ts and server/routes.ts to prevent 429 errors during continuous map panning. System now handles extensive map interaction without running out of memory or hitting rate limits. (January 20, 2025)
 
+**MAP SEARCH DEBUGGING AND FIXES**: Fixed multiple issues with map search functionality (January 20, 2025):
+- Fixed list toggle functionality by removing the `showBottomPanel` dependency from community query - list now properly loads when map bounds change
+- Enhanced marker click handling with proper event propagation stopping to prevent Leaflet "_leaflet_pos" errors
+- Added unique keys to markers including coordinates to prevent React key conflicts during re-renders
+- Improved popup configuration with `autoPan` and proper class names for better stability
+- Created debug test page at `/test-debug` to help verify API endpoints and functionality
+- List panel now shows community count and properly updates when panning the map
+- Floating blue button correctly toggles the community list panel with smooth animations
+
 **SENIOR ACCESSIBILITY IMPROVEMENTS**: Balanced text sizes for optimal senior readability without breaking mobile layout. Changed HTML base font from 16px to 17px (mobile) and 18px (desktop) after user feedback about horizontal scrolling. Homepage feature cards maintained at text-lg/text-sm for proper mobile fit. Fixed dark mode visibility issues in community profiles by adding proper dark mode classes to contact section text (Director name, title, phone, response time). Platform achieves balance between senior accessibility and mobile responsiveness. (January 19, 2025)
 
 **COMPREHENSIVE SECURITY HARDENING COMPLETED**: Successfully implemented real-time security monitoring system with threat detection, IP blocking, and automated response capabilities. Enhanced security middleware with expanded injection pattern detection (SQL, XSS, command, LDAP, NoSQL), comprehensive security audit logging, and automated IP blocking for critical threats. Created SecurityMonitor class with live threat analysis, SecurityTraceAnalyzer script detecting 7 active threats (4 critical, 1 high, 1 medium, 1 low), and admin endpoints for security dashboard, user tracing, and IP management. System now provides real-time protection against injection attacks with immediate threat response and comprehensive security reporting (July 16, 2025)
