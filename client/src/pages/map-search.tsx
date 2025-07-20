@@ -12,6 +12,7 @@ import Map from '@/components/Map';
 import MapTutorial from '@/components/MapTutorial';
 import MapErrorBoundary from '@/components/MapErrorBoundary';
 import { useQuery } from '@tanstack/react-query';
+import { queryClient } from '@/lib/queryClient';
 
 interface Community {
   id: number;
@@ -200,10 +201,12 @@ export default function MapSearch() {
         return [];
       }
     },
-    enabled: !!mapBounds, // Fetch when we have bounds (needed for list view)
+    enabled: !!mapBounds && showBottomPanel, // Only fetch when panel is open AND we have bounds
     staleTime: 0, // No cache - always fresh data
     gcTime: 0, // No garbage collection time
     retry: 1, // Only retry once on failure
+    refetchOnMount: 'always', // Always refetch when component mounts
+    refetchOnWindowFocus: false,
   });
 
   // State for expanded search
@@ -217,6 +220,16 @@ export default function MapSearch() {
     showBottomPanel,
     communities: mapCommunities.slice(0, 3).map(c => c.name)
   });
+
+  // Force refetch when bounds change and panel is open
+  useEffect(() => {
+    if (showBottomPanel && mapBounds) {
+      console.log('Map bounds changed while panel is open, refetching communities...');
+      queryClient.invalidateQueries({ 
+        queryKey: ['communities-map-bounds'] 
+      });
+    }
+  }, [mapBounds, showBottomPanel]);
 
   // Fetch expanded search results when no communities in current view
   const { data: expandedCommunities = [], isLoading: isLoadingExpanded } = useQuery({
