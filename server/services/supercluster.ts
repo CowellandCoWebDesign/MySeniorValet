@@ -57,7 +57,7 @@ interface ClusterFeature {
 }
 
 class SuperclusterService {
-  private index: Supercluster;
+  private indexes: Map<string, Supercluster> = new Map();
   private isInitialized = false;
   private lastInitTime = 0;
   private readonly CACHE_DURATION = 60 * 60 * 1000; // 1 hour - longer cache for better performance
@@ -65,15 +65,85 @@ class SuperclusterService {
   private initializationPromise: Promise<void> | null = null;
 
   constructor() {
-    this.index = new Supercluster({
-      radius: 80,        // Larger radius for cleaner city-level view
-      maxZoom: 16,       // Stop clustering at zoom 16 (street level)
-      minZoom: 0,        
-      minPoints: 8,      // Only cluster when 8+ communities are close
-      generateId: true,  
-      extent: 512,       
-      nodeSize: 64,      // Standard node size
-    });
+    // We'll create indexes on demand based on zoom level
+  }
+
+  private getClusterConfig(zoom: number): Supercluster.Options {
+    // Zoom-based clustering configuration
+    if (zoom >= 12) {
+      // City view and closer - NO CLUSTERING
+      return {
+        radius: 0,         // No clustering
+        maxZoom: 16,
+        minZoom: 0,
+        minPoints: 999999, // Effectively disable clustering
+        generateId: true,
+        extent: 512,
+        nodeSize: 64,
+      };
+    } else if (zoom >= 10) {
+      // Regional view - light clustering
+      return {
+        radius: 30,        // Small radius
+        maxZoom: 16,
+        minZoom: 0,
+        minPoints: 5,      // Only cluster when 5+ communities
+        generateId: true,
+        extent: 512,
+        nodeSize: 64,
+      };
+    } else if (zoom >= 8) {
+      // State view - moderate clustering
+      return {
+        radius: 50,        // Medium radius
+        maxZoom: 16,
+        minZoom: 0,
+        minPoints: 4,      // Cluster 4+ communities
+        generateId: true,
+        extent: 512,
+        nodeSize: 64,
+      };
+    } else if (zoom >= 5) {
+      // Multi-state view - heavy clustering
+      return {
+        radius: 80,        // Large radius
+        maxZoom: 16,
+        minZoom: 0,
+        minPoints: 3,      // Cluster 3+ communities
+        generateId: true,
+        extent: 512,
+        nodeSize: 64,
+      };
+    } else {
+      // Country view - maximum clustering
+      return {
+        radius: 120,       // Maximum radius
+        maxZoom: 16,
+        minZoom: 0,
+        minPoints: 2,      // Cluster any 2+ communities
+        generateId: true,
+        extent: 512,
+        nodeSize: 64,
+      };
+    }
+  }
+
+  private getOrCreateIndex(zoom: number): Supercluster {
+    const zoomKey = `zoom_${zoom}`;
+    
+    if (!this.indexes.has(zoomKey)) {
+      const config = this.getClusterConfig(zoom);
+      const index = new Supercluster(config);
+      
+      // Load features if we have them cached
+      if (this.featuresCache) {
+        index.load(this.featuresCache);
+      }
+      
+      this.indexes.set(zoomKey, index);
+    }
+    
+    return this.indexes.get(zoomKey)!;
   }
 
   async initialize(): Promise<void> {
@@ -140,8 +210,8 @@ class SuperclusterService {
       // Cache features for future use
       this.featuresCache = features;
       
-      // Load features into Supercluster
-      this.index.load(features);
+      // Clear existing indexes to reload with new data
+      this.indexes.clear();
       
       this.isInitialized = true;
       this.lastInitTime = Date.now();
@@ -165,44 +235,31 @@ class SuperclusterService {
     }
 
     try {
-      // DISABLE CLUSTERING AT CITY LEVEL (zoom 12+)
-      if (zoom >= 12) {
-        // Return individual communities without clustering
-        const startTime = Date.now();
-        
-        // Get all features within bounds without clustering
-        const allFeatures = this.featuresCache || [];
-        const [west, south, east, north] = bbox;
-        
-        // Filter features within the bounding box
-        const featuresInBounds = allFeatures.filter(feature => {
-          const [lng, lat] = feature.geometry.coordinates;
-          return lng >= west && lng <= east && lat >= south && lat <= north;
-        });
-        
-        const processingTime = Date.now() - startTime;
-        console.log(`City view (zoom ${zoom}): returning ${featuresInBounds.length} individual communities in ${processingTime}ms`);
-        console.log(`Bounds: [${west.toFixed(4)}, ${south.toFixed(4)}, ${east.toFixed(4)}, ${north.toFixed(4)}]`);
-        
-        // Convert to ClusterFeature format without clustering
-        const result: ClusterFeature[] = featuresInBounds.map(feature => ({
-          type: 'Feature',
-          geometry: feature.geometry,
-          properties: {
-            cluster: false,
-            ...feature.properties
-          }
-        }));
-        
-        return result;
-      }
-      
-      // Only use clustering for zoom levels below 12
       const startTime = Date.now();
-      const clusters = this.index.getClusters(bbox, zoom);
+      const [west, south, east, north] = bbox;
+      
+      // Get the appropriate index for this zoom level
+      const index = this.getOrCreateIndex(zoom);
+      
+      // Get clusters from the zoom-specific index
+      const clusters = index.getClusters(bbox, zoom);
       const processingTime = Date.now() - startTime;
       
-      console.log(`Zoom ${zoom}: returned ${clusters.length} clusters/points in ${processingTime}ms`);
+      // Log clustering behavior
+      const config = this.getClusterConfig(zoom);
+      if (zoom >= 12) {
+        console.log(`City view (zoom ${zoom}): NO CLUSTERING - returning ${clusters.length} individual communities in ${processingTime}ms`);
+      } else if (zoom >= 10) {
+        console.log(`Regional view (zoom ${zoom}): LIGHT clustering (radius ${config.radius}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
+      } else if (zoom >= 8) {
+        console.log(`State view (zoom ${zoom}): MODERATE clustering (radius ${config.radius}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
+      } else if (zoom >= 5) {
+        console.log(`Multi-state view (zoom ${zoom}): HEAVY clustering (radius ${config.radius}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
+      } else {
+        console.log(`Country view (zoom ${zoom}): MAXIMUM clustering (radius ${config.radius}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
+      }
+      
+      console.log(`Bounds: [${west.toFixed(4)}, ${south.toFixed(4)}, ${east.toFixed(4)}, ${north.toFixed(4)}]`);
       
       // Convert to our ClusterFeature format
       const result: ClusterFeature[] = clusters.map(cluster => ({
@@ -226,15 +283,18 @@ class SuperclusterService {
     }
   }
 
-  async getClusterExpansionZoom(clusterId: number): Promise<number> {
+  async getClusterExpansionZoom(clusterId: number, currentZoom: number): Promise<number> {
     await this.initialize();
     
     try {
+      // Get the appropriate index for current zoom level
+      const index = this.getOrCreateIndex(currentZoom);
+      
       // Get the base expansion zoom from supercluster
-      const baseExpansionZoom = this.index.getClusterExpansionZoom(clusterId);
+      const baseExpansionZoom = index.getClusterExpansionZoom(clusterId);
       
       // Get cluster children to analyze density
-      const children = this.index.getChildren(clusterId);
+      const children = index.getChildren(clusterId);
       const childCount = children.length;
       
       // Intelligent expansion algorithm based on cluster characteristics
@@ -262,42 +322,38 @@ class SuperclusterService {
       return intelligentZoom;
     } catch (error) {
       console.error('Error in intelligent expansion:', error);
-      // Fallback to base implementation
-      return this.index.getClusterExpansionZoom(clusterId);
+      // Fallback to safe zoom
+      return Math.min(currentZoom + 2, 16);
     }
   }
 
   /**
    * Get cluster children for expansion analysis
    */
-  async getClusterChildren(clusterId: number): Promise<any[]> {
+  async getClusterChildren(clusterId: number, currentZoom: number): Promise<ClusterFeature[]> {
     await this.initialize();
     
     try {
-      return this.index.getChildren(clusterId);
+      const index = this.getOrCreateIndex(currentZoom);
+      const children = index.getChildren(clusterId);
+      
+      return children.map(child => ({
+        type: 'Feature',
+        geometry: child.geometry,
+        properties: child.properties.cluster ? {
+          cluster: true,
+          cluster_id: child.properties.cluster_id,
+          point_count: child.properties.point_count,
+          point_count_abbreviated: this.abbreviateNumber(child.properties.point_count || 0)
+        } : {
+          cluster: false,
+          ...child.properties
+        }
+      }));
     } catch (error) {
       console.error('Error getting cluster children:', error);
       return [];
     }
-  }
-
-  async getClusterChildren(clusterId: number): Promise<ClusterFeature[]> {
-    await this.initialize();
-    const children = this.index.getChildren(clusterId);
-    
-    return children.map(child => ({
-      type: 'Feature',
-      geometry: child.geometry,
-      properties: child.properties.cluster ? {
-        cluster: true,
-        cluster_id: child.properties.cluster_id,
-        point_count: child.properties.point_count,
-        point_count_abbreviated: this.abbreviateNumber(child.properties.point_count || 0)
-      } : {
-        cluster: false,
-        ...child.properties
-      }
-    }));
   }
 
   private abbreviateNumber(num: number): string {
