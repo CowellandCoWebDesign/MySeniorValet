@@ -141,7 +141,7 @@ export default function MapSearch() {
   
   // Fetch communities within map bounds for list view
   const { data: mapCommunities = [], isLoading: isLoadingCommunities, isFetching: isFetchingCommunities, refetch: refetchCommunities } = useQuery({
-    queryKey: ['communities-map-bounds', mapBounds ? `${mapBounds.getSouthWest().lng.toFixed(6)},${mapBounds.getSouthWest().lat.toFixed(6)},${mapBounds.getNorthEast().lng.toFixed(6)},${mapBounds.getNorthEast().lat.toFixed(6)}` : 'no-bounds'],
+    queryKey: ['communities-map-bounds', mapBounds ? 'has-bounds' : 'no-bounds'],
     queryFn: async () => {
       if (!mapBounds) return [];
       
@@ -225,18 +225,13 @@ export default function MapSearch() {
   // State to track if we're waiting for initial load
   const [isInitialLoad, setIsInitialLoad] = useState(false);
 
-  // Force initial load when panel opens
+  // Force refetch when panel opens or bounds change
   useEffect(() => {
     if (showBottomPanel && mapBounds) {
-      if (mapCommunities.length === 0 && !isLoadingCommunities && !isFetchingCommunities) {
-        console.log('Panel opened but no communities loaded, forcing refetch...');
-        setIsInitialLoad(true);
-        refetchCommunities().finally(() => {
-          setIsInitialLoad(false);
-        });
-      }
+      console.log('Panel is open with bounds, triggering refetch...');
+      refetchCommunities();
     }
-  }, [showBottomPanel, mapBounds, mapCommunities.length, isLoadingCommunities, isFetchingCommunities, refetchCommunities]);
+  }, [showBottomPanel, mapBounds, refetchCommunities]);
 
   // Fetch expanded search results when no communities in current view
   const { data: expandedCommunities = [], isLoading: isLoadingExpanded } = useQuery({
@@ -842,7 +837,7 @@ export default function MapSearch() {
                 </p>
               </div>
             </div>
-          ) : (isLoadingCommunities || isFetchingCommunities || isInitialLoad) ? (
+          ) : (isLoadingCommunities || isFetchingCommunities) ? (
             <div className="space-y-4">
               {/* Playful loading animation */}
               <div className="text-center py-8">
@@ -1017,17 +1012,6 @@ export default function MapSearch() {
               if (!showBottomPanel) {
                 setPanelHeight(70); // Set to 70% when opening
                 setShowBottomPanel(true);
-                // Set initial load state immediately if no communities loaded
-                if (mapCommunities.length === 0 && mapBounds) {
-                  setIsInitialLoad(true);
-                }
-                // Force immediate refetch when opening panel
-                setTimeout(() => {
-                  console.log('Forcing refetch after panel open...');
-                  refetchCommunities().finally(() => {
-                    setIsInitialLoad(false);
-                  });
-                }, 100);
               } else {
                 setShowBottomPanel(false);
               }
