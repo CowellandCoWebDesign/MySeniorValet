@@ -79,6 +79,14 @@ app.use((req, res, next) => {
     });
   });
 
+  // Initialize supercluster service (non-blocking)
+  import('./services/supercluster').then(({ superclusterService }) => {
+    console.log('Initializing Supercluster service...');
+    superclusterService.initialize().catch(error => {
+      console.error('Failed to initialize Supercluster service:', error);
+    });
+  });
+
   // Enhanced error handling middleware
   app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

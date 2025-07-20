@@ -200,7 +200,7 @@ export default function Map({
   zoom: initialZoom
 }: MapProps) {
   // Start with city-level zoom (no clusters), default to major city
-  const [center, setCenter] = useState<[number, number]>(initialCenter || [34.0522, -118.2437]); // Default: Los Angeles
+  const [center, setCenter] = useState<[number, number]>(initialCenter || [37.7749, -122.4194]); // Default: San Francisco
   const [zoom, setZoom] = useState(initialZoom || 12); // City-level zoom (12-14 is city level)
   const [locationPermissionStatus, setLocationPermissionStatus] = useState<'prompt' | 'granted' | 'denied' | 'checking'>('checking');
   const [hasRequestedLocation, setHasRequestedLocation] = useState(() => {
@@ -208,7 +208,10 @@ export default function Map({
     return localStorage.getItem('map-location-requested') === 'true';
   });
   const queryClient = useQueryClient();
+  
+  // Initialize map bounds
   const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
+  
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
   const [hoveredCluster, setHoveredCluster] = useState<number | null>(null);
@@ -403,10 +406,10 @@ export default function Map({
       return data;
     },
     enabled: !!mapBounds && currentZoom >= 0,
-    staleTime: 0, // Real-time data for natural clustering
+    staleTime: 5000, // Keep data fresh for 5 seconds
     refetchOnWindowFocus: false,
-    gcTime: 0, // No cache - always fresh data when bounds change
-    keepPreviousData: false, // Fresh data on every interaction
+    gcTime: 60000, // Keep data in cache for 1 minute to prevent flashing
+    refetchOnMount: 'always',
     refetchInterval: false, // No auto-refresh
     retry: 1 // Only retry once on failure
   });
@@ -441,10 +444,8 @@ export default function Map({
         north: mapBounds.getNorth().toFixed(4),
         timestamp: Date.now()
       });
-      // Force query to refetch with new bounds
-      queryClient.invalidateQueries({ queryKey: ['communities-clusters'] });
     }
-  }, [mapBounds, queryClient]);
+  }, [mapBounds]);
   
   useEffect(() => {
     console.log('Cluster data state:', { 
@@ -558,6 +559,14 @@ export default function Map({
         <MapEvents onMapReady={(map) => {
           setMapInstance(map);
           window.leafletMap = map;
+          // Trigger initial bounds after map is ready
+          setTimeout(() => {
+            const bounds = map.getBounds();
+            if (bounds && onBoundsChange) {
+              console.log('Setting initial bounds from map ready:', bounds);
+              handleBoundsChange(bounds);
+            }
+          }, 100);
         }} />
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

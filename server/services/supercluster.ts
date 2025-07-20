@@ -182,6 +182,7 @@ class SuperclusterService {
         
         const processingTime = Date.now() - startTime;
         console.log(`City view (zoom ${zoom}): returning ${featuresInBounds.length} individual communities in ${processingTime}ms`);
+        console.log(`Bounds: [${west.toFixed(4)}, ${south.toFixed(4)}, ${east.toFixed(4)}, ${north.toFixed(4)}]`);
         
         // Convert to ClusterFeature format without clustering
         const result: ClusterFeature[] = featuresInBounds.map(feature => ({

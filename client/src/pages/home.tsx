@@ -136,42 +136,42 @@ export default function Home() {
           
           {/* Compact Feature Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            <div className="group bg-white hover:bg-green-50/50 border border-green-200/60 rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-all duration-300">
-              <div className="w-14 h-14 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                <DollarSign className="text-green-600 h-6 w-6" />
+            <div className="group bg-white dark:bg-gray-800 hover:bg-green-50/50 dark:hover:bg-green-900/20 border border-green-200/60 dark:border-green-700/40 rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-all duration-300">
+              <div className="w-14 h-14 bg-gradient-to-br from-green-100 to-green-200 dark:from-green-800 dark:to-green-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                <DollarSign className="text-green-600 dark:text-green-400 h-6 w-6" />
               </div>
-              <h3 className="text-lg font-bold text-green-900 mb-3">Transparent Pricing</h3>
-              <p className="text-green-700 text-sm leading-relaxed">
+              <h3 className="text-lg font-bold text-green-900 dark:text-green-100 mb-3">Transparent Pricing</h3>
+              <p className="text-green-700 dark:text-green-300 text-sm leading-relaxed">
                 See real monthly costs, special offers, and pricing updates. No surprises or hidden fees.
               </p>
             </div>
             
-            <div className="group bg-white hover:bg-yellow-50/50 border border-yellow-200/60 rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-all duration-300">
-              <div className="w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Star className="text-yellow-600 h-6 w-6" />
+            <div className="group bg-white dark:bg-gray-800 hover:bg-yellow-50/50 dark:hover:bg-yellow-900/20 border border-yellow-200/60 dark:border-yellow-700/40 rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-all duration-300">
+              <div className="w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-800 dark:to-yellow-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Star className="text-yellow-600 dark:text-yellow-400 h-6 w-6" />
               </div>
-              <h3 className="text-lg font-bold text-yellow-900 mb-3">Authentic Reviews</h3>
-              <p className="text-yellow-700 text-sm leading-relaxed">
+              <h3 className="text-lg font-bold text-yellow-900 dark:text-yellow-100 mb-3">Authentic Reviews</h3>
+              <p className="text-yellow-700 dark:text-yellow-300 text-sm leading-relaxed">
                 Read real Google reviews and family experiences to understand what life is really like.
               </p>
             </div>
             
-            <div className="group bg-white hover:bg-blue-50/50 border border-blue-200/60 rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-all duration-300">
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Clock className="text-blue-600 h-6 w-6" />
+            <div className="group bg-white dark:bg-gray-800 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 border border-blue-200/60 dark:border-blue-700/40 rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-all duration-300">
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-800 dark:to-blue-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Clock className="text-blue-600 dark:text-blue-400 h-6 w-6" />
               </div>
-              <h3 className="text-lg font-bold text-blue-900 mb-3">Live Availability</h3>
-              <p className="text-blue-700 text-sm leading-relaxed">
+              <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">Live Availability</h3>
+              <p className="text-blue-700 dark:text-blue-300 text-sm leading-relaxed">
                 Check real-time availability and unit counts. Know exactly what's open right now.
               </p>
             </div>
             
-            <div className="group bg-white hover:bg-purple-50/50 border border-purple-200/60 rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-all duration-300">
-              <div className="w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Activity className="text-purple-600 h-6 w-6" />
+            <div className="group bg-white dark:bg-gray-800 hover:bg-purple-50/50 dark:hover:bg-purple-900/20 border border-purple-200/60 dark:border-purple-700/40 rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-all duration-300">
+              <div className="w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Activity className="text-purple-600 dark:text-purple-400 h-6 w-6" />
               </div>
-              <h3 className="text-lg font-bold text-purple-900 mb-3">Rich Amenities</h3>
-              <p className="text-purple-700 text-sm leading-relaxed">
+              <h3 className="text-lg font-bold text-purple-900 dark:text-purple-100 mb-3">Rich Amenities</h3>
+              <p className="text-purple-700 dark:text-purple-300 text-sm leading-relaxed">
                 Explore pools, fitness centers, dining options, and activities that make a difference.
               </p>
             </div>

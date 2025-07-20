@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -57,7 +57,7 @@ export default function MapSearch() {
     budget: 'Any Budget',
     availability: 'All Status'
   });
-  const [mapCenter, setMapCenter] = useState<[number, number]>([34.0522, -118.2437]); // Los Angeles - city center
+  const [mapCenter, setMapCenter] = useState<[number, number]>([37.7749, -122.4194]); // San Francisco - city center
   const [mapZoom, setMapZoom] = useState(12); // City-level zoom (12-14 shows individual locations)
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
   const [mapBounds, setMapBounds] = useState<any>(null);
@@ -138,6 +138,11 @@ export default function MapSearch() {
         const sw = mapBounds.getSouthWest();
         const ne = mapBounds.getNorthEast();
         
+        console.log('Fetching communities for bounds:', {
+          sw: { lat: sw.lat, lng: sw.lng },
+          ne: { lat: ne.lat, lng: ne.lng }
+        });
+        
         const params = new URLSearchParams({
           swLat: sw.lat.toString(),
           swLng: sw.lng.toString(),
@@ -154,7 +159,9 @@ export default function MapSearch() {
           throw new Error('Failed to fetch communities');
         }
         
-        return response.json();
+        const data = await response.json();
+        console.log('Received communities:', data.length);
+        return data;
       } catch (error) {
         console.warn('Error fetching communities:', error);
         return [];
@@ -270,6 +277,12 @@ export default function MapSearch() {
     setSelectedCommunity(community);
     setLocation(`/communities/${community.id}`);
   };
+  
+  // Handle map bounds change with proper debugging
+  const handleMapBoundsChange = useCallback((bounds: any) => {
+    console.log('Map bounds changed in MapSearch:', bounds);
+    setMapBounds(bounds);
+  }, []);
 
   const handleClusterClick = (clusterId: number, lat: number, lng: number, zoomLevel: number) => {
     // FIXED: Do not switch to list view automatically on cluster clicks
@@ -682,7 +695,7 @@ export default function MapSearch() {
             height="100%"
             searchFilters={filters}
             onCommunityClick={handleCommunityClick}
-            onBoundsChange={setMapBounds}
+            onBoundsChange={handleMapBoundsChange}
             onClusterClick={handleClusterClick}
           />
         </div>
