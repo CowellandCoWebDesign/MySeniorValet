@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -145,6 +145,9 @@ export default function MapSearch() {
     ? `${mapBounds.getSouthWest().lng.toFixed(4)},${mapBounds.getSouthWest().lat.toFixed(4)},${mapBounds.getNorthEast().lng.toFixed(4)},${mapBounds.getNorthEast().lat.toFixed(4)}`
     : 'no-bounds';
 
+  // Use state to store communities to ensure updates
+  const [localCommunities, setLocalCommunities] = useState<Community[]>([]);
+  
   const { data: mapCommunities = [], isLoading: isLoadingCommunities, isFetching: isFetchingCommunities, refetch: refetchCommunities } = useQuery({
     queryKey: ['communities-map-bounds', boundsKey],
     queryFn: async () => {
@@ -204,9 +207,13 @@ export default function MapSearch() {
         const data = await response.json();
         console.log('Spatial search response:', {
           count: data.length,
-          firstCommunity: data[0] ? data[0].name : 'none',
-          allNames: data.slice(0, 5).map((c: any) => c.name)
+          firstCommunity: data[0] ? `${data[0].name} (${data[0].city})` : 'none',
+          allNames: data.slice(0, 5).map((c: any) => `${c.name} (${c.city})`),
+          boundsKey
         });
+        // Update local state immediately
+        setLocalCommunities(data);
+        console.log('Updated localCommunities with', data.length, 'communities');
         return data;
       } catch (error) {
         console.error('Error fetching communities:', error);
@@ -224,33 +231,47 @@ export default function MapSearch() {
   // State for expanded search
   const [showExpandedSearch, setShowExpandedSearch] = useState(false);
   
-  // Debug communities after query
-  console.log('Communities fetched:', {
-    count: mapCommunities.length,
-    isLoading: isLoadingCommunities,
-    hasBounds: !!mapBounds,
-    showBottomPanel,
-    communities: mapCommunities.slice(0, 3).map(c => c.name),
-    boundsKey: boundsKey,
-    isFetching: isFetchingCommunities
-  });
+  // Sync local state with query data
+  useEffect(() => {
+    if (mapCommunities.length > 0) {
+      setLocalCommunities(mapCommunities);
+    }
+  }, [mapCommunities]);
+
+  // Debug logging at render time
+  useEffect(() => {
+    console.log('Communities state updated:', {
+      localCount: localCommunities.length,
+      mapCount: mapCommunities.length,
+      isLoading: isLoadingCommunities,
+      hasBounds: !!mapBounds,
+      showBottomPanel,
+      localCommunities: localCommunities.slice(0, 3).map(c => `${c.name} (${c.city})`),
+      mapCommunities: mapCommunities.slice(0, 3).map(c => `${c.name} (${c.city})`),
+      boundsKey: boundsKey,
+      isFetching: isFetchingCommunities
+    });
+  }, [localCommunities, mapCommunities, isLoadingCommunities, mapBounds, showBottomPanel, boundsKey, isFetchingCommunities]);
 
   // State to track if we're waiting for initial load
   const [isInitialLoad, setIsInitialLoad] = useState(false);
+  const [isMapMoving, setIsMapMoving] = useState(false);
 
-  // Force refetch when panel opens or bounds change
+  // Force refetch when bounds change
+  const prevBoundsRef = useRef(boundsKey);
   useEffect(() => {
-    if (showBottomPanel && mapBounds && !isLoadingCommunities) {
-      console.log('Bounds changed or panel opened, triggering refetch...', {
-        boundsKey,
-        showBottomPanel
+    if (mapBounds && showBottomPanel && prevBoundsRef.current !== boundsKey) {
+      console.log('Bounds actually changed, forcing refetch...', {
+        prevBounds: prevBoundsRef.current,
+        newBounds: boundsKey,
+        showBottomPanel,
+        timestamp: Date.now()
       });
-      setIsInitialLoad(true);
-      refetchCommunities().finally(() => {
-        setIsInitialLoad(false);
-      });
+      prevBoundsRef.current = boundsKey;
+      // Force an immediate refetch when bounds change
+      refetchCommunities();
     }
-  }, [showBottomPanel, boundsKey]); // Add boundsKey as dependency
+  }, [boundsKey, showBottomPanel, refetchCommunities]);
 
   // Fetch expanded search results when no communities in current view
   const { data: expandedCommunities = [], isLoading: isLoadingExpanded } = useQuery({
@@ -359,6 +380,9 @@ export default function MapSearch() {
     console.log('Map bounds changed in MapSearch:', bounds);
     console.log('Setting mapBounds state, current communities:', mapCommunities.length);
     setMapBounds(bounds);
+    // Set map moving state for immediate loading feedback
+    setIsMapMoving(true);
+    setTimeout(() => setIsMapMoving(false), 1000); // Clear after debounce
   }, [mapCommunities.length]);
 
   const handleClusterClick = (clusterId: number, lat: number, lng: number, zoomLevel: number) => {
@@ -822,12 +846,12 @@ export default function MapSearch() {
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100 flex items-center gap-2">
               🏠 {!mapBounds ? 'Position map to see communities' : 
-               isLoadingCommunities ? 'Loading communities...' : 
-               `${mapCommunities.length} Communities Found`}
-              {isFetchingCommunities && !isLoadingCommunities && (
+               isLoadingCommunities || isFetchingCommunities ? 'Loading communities...' : 
+               `${localCommunities.length} Communities Found`}
+              {(isLoadingCommunities || isFetchingCommunities) && (
                 <div className="inline-flex items-center gap-1 text-sm font-normal text-blue-600 dark:text-blue-400">
                   <div className="w-3 h-3 border-2 border-blue-600 dark:border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-                  Updating...
+                  Loading...
                 </div>
               )}
             </h3>
@@ -856,7 +880,7 @@ export default function MapSearch() {
                 </p>
               </div>
             </div>
-          ) : (isLoadingCommunities || isFetchingCommunities || isInitialLoad) ? (
+          ) : (isLoadingCommunities || isFetchingCommunities || isInitialLoad || isMapMoving || (mapBounds && localCommunities.length === 0)) ? (
             <div className="space-y-4">
               {/* Playful loading animation */}
               <div className="text-center py-8">
@@ -884,7 +908,7 @@ export default function MapSearch() {
                 </div>
               ))}
             </div>
-          ) : mapCommunities.length === 0 ? (
+          ) : localCommunities.length === 0 ? (
             <div className="text-center py-12">
               <div className="bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/20 dark:to-red-900/20 rounded-2xl p-8 mx-4">
                 <MapIcon className="w-16 h-16 mx-auto text-orange-500 mb-4" />
@@ -898,7 +922,7 @@ export default function MapSearch() {
             </div>
           ) : (
             <div className="space-y-3">
-              {mapCommunities.map((community, index) => (
+              {localCommunities.map((community, index) => (
                 <div
                   key={community.id}
                   className="bg-gradient-to-r from-white to-blue-50/50 dark:from-gray-800 dark:to-blue-900/20 rounded-xl border-2 border-blue-200/50 dark:border-blue-700/50 p-5 cursor-pointer hover:shadow-xl hover:scale-[1.02] transition-all duration-300 hover:border-blue-400 dark:hover:border-blue-500"
@@ -1013,6 +1037,16 @@ export default function MapSearch() {
           )}
         </div>
       </div>
+
+      {/* Map Loading Indicator */}
+      {viewMode === 'map' && (isMapMoving || isFetchingCommunities) && (
+        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-[1001]">
+          <div className="bg-blue-600 text-white px-6 py-3 rounded-full shadow-lg flex items-center gap-3">
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <span className="font-medium">{isMapMoving ? 'Map moving...' : 'Loading communities...'}</span>
+          </div>
+        </div>
+      )}
 
       {/* Enhanced Floating Action Button with Toggle Functionality */}
       {viewMode === 'map' && (

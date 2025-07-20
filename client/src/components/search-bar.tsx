@@ -101,9 +101,9 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
                 type="text"
                 placeholder="Try 'San Francisco' or 'Memory Care'"
                 className="pl-10"
-                value={searchParams.location}
+                value={locationQuery}
                 onChange={(e) => handleLocationInputChange(e.target.value)}
-                onFocus={() => setShowSuggestions(locationQuery.length >= 2)}
+                onFocus={() => locationQuery.length >= 2 && setShowSuggestions(true)}
                 autoComplete="off"
               />
               
