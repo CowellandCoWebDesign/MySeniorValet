@@ -4,6 +4,45 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Senior-friendly base font sizes */
+@layer base {
+  html {
+    font-size: 18px; /* Increase base font size from 16px to 18px for better readability */
+  }
+  
+  @media (min-width: 768px) {
+    html {
+      font-size: 20px; /* Even larger on desktop screens */
+    }
+  }
+  
+  /* Ensure minimum readable sizes */
+  body {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  
+  /* Larger text for important elements */
+  h1 { font-size: 2.5rem; }
+  h2 { font-size: 2rem; }
+  h3 { font-size: 1.75rem; }
+  h4 { font-size: 1.5rem; }
+  h5 { font-size: 1.25rem; }
+  h6 { font-size: 1.125rem; }
+  
+  /* Ensure buttons and inputs are readable */
+  button, input, select, textarea {
+    font-size: 1rem;
+    min-height: 3rem;
+  }
+  
+  /* Card text should be clearly readable */
+  .card-text {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+}
+
 /* Leaflet Map Container Fix */
 .leaflet-container {
   height: 100% !important;

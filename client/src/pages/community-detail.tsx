@@ -835,26 +835,26 @@ Let me know what you think!`;
                         })()}
                       </div>
                       <div className="flex-1">
-                        <h4 className="text-xl font-bold text-gray-900">
+                        <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                           {(() => {
                             const names = ['Sarah Martinez', 'Jennifer Collins', 'Michael Thompson', 'Lisa Rodriguez', 'David Chen', 'Amanda Wilson', 'Robert Johnson', 'Maria Garcia', 'James Anderson', 'Patricia Brown'];
                             return names[community.id % names.length];
                           })()}
                         </h4>
-                        <p className="text-gray-600 font-medium">Director of Sales</p>
+                        <p className="text-gray-600 dark:text-gray-300 font-medium">Director of Sales</p>
                         <div className="flex items-center mt-2">
-                          <Phone className="w-4 h-4 text-blue-600 mr-2" />
-                          <span className="text-gray-700 font-medium">
+                          <Phone className="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2" />
+                          <span className="text-gray-700 dark:text-gray-200 font-medium">
                             {community.phone || generatePhoneNumber(community.state, community.id)}
                           </span>
                         </div>
                       </div>
                     </div>
                     
-                    <div className="bg-blue-50 p-4 rounded-lg mb-4">
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mb-4">
                       <div className="flex items-center">
-                        <Clock className="w-5 h-5 text-blue-600 mr-2" />
-                        <span className="text-blue-900 font-medium">Usually responds within 2 hours</span>
+                        <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" />
+                        <span className="text-blue-900 dark:text-blue-300 font-medium">Usually responds within 2 hours</span>
                       </div>
                     </div>
                     

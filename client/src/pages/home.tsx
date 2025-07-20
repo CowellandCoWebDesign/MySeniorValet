@@ -82,8 +82,8 @@ export default function Home() {
 
           {/* Community Count Statement */}
           <div className="text-center mb-4">
-            <p className="text-lg text-gray-600 font-medium">
-              Serving families across 8000+ communities
+            <p className="text-xl lg:text-2xl text-gray-600 font-medium">
+              Serving families across 25,000+ communities
             </p>
           </div>
 
@@ -113,7 +113,7 @@ export default function Home() {
                 <div className="p-1.5 bg-blue-100 rounded-full flex-shrink-0">
                   <Database className="h-4 w-4 text-blue-600" />
                 </div>
-                <div className="text-sm text-blue-900 leading-relaxed">
+                <div className="text-base lg:text-lg text-blue-900 leading-relaxed">
                   <strong className="text-blue-800 font-medium">Trusted Data Sources:</strong> Information from Google Places, Yelp reviews, state licensing records, and verified community websites.
                 </div>
               </div>
@@ -140,8 +140,8 @@ export default function Home() {
               <div className="w-14 h-14 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center mx-auto mb-4">
                 <DollarSign className="text-green-600 h-6 w-6" />
               </div>
-              <h3 className="text-lg font-bold text-green-900 mb-3">Transparent Pricing</h3>
-              <p className="text-green-700 text-sm leading-relaxed">
+              <h3 className="text-xl font-bold text-green-900 mb-3">Transparent Pricing</h3>
+              <p className="text-green-700 text-base leading-relaxed">
                 See real monthly costs, special offers, and pricing updates. No surprises or hidden fees.
               </p>
             </div>
@@ -150,8 +150,8 @@ export default function Home() {
               <div className="w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Star className="text-yellow-600 h-6 w-6" />
               </div>
-              <h3 className="text-lg font-bold text-yellow-900 mb-3">Authentic Reviews</h3>
-              <p className="text-yellow-700 text-sm leading-relaxed">
+              <h3 className="text-xl font-bold text-yellow-900 mb-3">Authentic Reviews</h3>
+              <p className="text-yellow-700 text-base leading-relaxed">
                 Read real Google reviews and family experiences to understand what life is really like.
               </p>
             </div>
@@ -160,8 +160,8 @@ export default function Home() {
               <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Clock className="text-blue-600 h-6 w-6" />
               </div>
-              <h3 className="text-lg font-bold text-blue-900 mb-3">Live Availability</h3>
-              <p className="text-blue-700 text-sm leading-relaxed">
+              <h3 className="text-xl font-bold text-blue-900 mb-3">Live Availability</h3>
+              <p className="text-blue-700 text-base leading-relaxed">
                 Check real-time availability and unit counts. Know exactly what's open right now.
               </p>
             </div>
@@ -170,8 +170,8 @@ export default function Home() {
               <div className="w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Activity className="text-purple-600 h-6 w-6" />
               </div>
-              <h3 className="text-lg font-bold text-purple-900 mb-3">Rich Amenities</h3>
-              <p className="text-purple-700 text-sm leading-relaxed">
+              <h3 className="text-xl font-bold text-purple-900 mb-3">Rich Amenities</h3>
+              <p className="text-purple-700 text-base leading-relaxed">
                 Explore pools, fitness centers, dining options, and activities that make a difference.
               </p>
             </div>
