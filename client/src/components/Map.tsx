@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip } from 'react-leaflet';
 import { Icon, LatLngBounds, LatLng } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -218,7 +218,10 @@ export default function Map({
   const [hoveredCommunity, setHoveredCommunity] = useState<number | null>(null);
   const [mapInstance, setMapInstance] = useState<any>(null);
 
-  // Handle map bounds change
+  // Debounce timer ref
+  const boundsDebounceTimer = useRef<NodeJS.Timeout | null>(null);
+  
+  // Handle map bounds change with debouncing
   const handleBoundsChange = useCallback((bounds: LatLngBounds) => {
     const newBoundsString = `${bounds.getWest().toFixed(4)},${bounds.getSouth().toFixed(4)},${bounds.getEast().toFixed(4)},${bounds.getNorth().toFixed(4)}`;
     
@@ -227,8 +230,18 @@ export default function Map({
       timestamp: Date.now()
     });
     
+    // Clear existing timer
+    if (boundsDebounceTimer.current) {
+      clearTimeout(boundsDebounceTimer.current);
+    }
+    
+    // Update bounds immediately for responsive feel
     setMapBounds(bounds);
-    onBoundsChange?.(bounds);
+    
+    // Debounce the callback to prevent excessive API calls
+    boundsDebounceTimer.current = setTimeout(() => {
+      onBoundsChange?.(bounds);
+    }, 300); // 300ms debounce
   }, [onBoundsChange]);
 
   // Handle zoom change - can be called with or without parameter
