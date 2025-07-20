@@ -63,9 +63,13 @@ class SuperclusterService {
   private readonly CACHE_DURATION = 60 * 60 * 1000; // 1 hour - longer cache for better performance
   private featuresCache: GeoJSONFeature[] | null = null;
   private initializationPromise: Promise<void> | null = null;
+  private readonly MAX_INDEXES = 3; // Limit zoom indexes to prevent memory overload
+  private lastAccessTime: Map<string, number> = new Map(); // Track last access time for cleanup
 
   constructor() {
     // We'll create indexes on demand based on zoom level
+    // Set up periodic cleanup to free memory
+    setInterval(() => this.cleanupOldIndexes(), 5 * 60 * 1000); // Clean up every 5 minutes
   }
 
   private getClusterConfig(zoom: number): Supercluster.Options {
@@ -132,6 +136,11 @@ class SuperclusterService {
     const zoomKey = `zoom_${zoom}`;
     
     if (!this.indexes.has(zoomKey)) {
+      // Check if we need to clean up before creating new index
+      if (this.indexes.size >= this.MAX_INDEXES) {
+        this.cleanupOldIndexes();
+      }
+      
       const config = this.getClusterConfig(zoom);
       const index = new Supercluster(config);
       
@@ -141,9 +150,33 @@ class SuperclusterService {
       }
       
       this.indexes.set(zoomKey, index);
+      this.lastAccessTime.set(zoomKey, Date.now());
+      
+      console.log(`Created new ${zoomKey} index with radius=${config.radius}, maxZoom=${config.maxZoom}`);
+      console.log(`Total indexes in memory: ${this.indexes.size}`);
+    } else {
+      // Update last access time
+      this.lastAccessTime.set(zoomKey, Date.now());
     }
     
     return this.indexes.get(zoomKey)!;
+  }
+  
+  private cleanupOldIndexes(): void {
+    const now = Date.now();
+    const CLEANUP_THRESHOLD = 5 * 60 * 1000; // 5 minutes
+    
+    // Find least recently used indexes
+    const sortedIndexes = Array.from(this.lastAccessTime.entries())
+      .sort((a, b) => a[1] - b[1]);
+    
+    // Remove oldest indexes
+    while (this.indexes.size > this.MAX_INDEXES - 1 && sortedIndexes.length > 0) {
+      const [oldestKey, lastAccess] = sortedIndexes.shift()!;
+      this.indexes.delete(oldestKey);
+      this.lastAccessTime.delete(oldestKey);
+      console.log(`Cleaned up old index: ${oldestKey} (last accessed ${Math.round((now - lastAccess) / 1000)}s ago)`);
+    }
   }
 
   async initialize(): Promise<void> {
@@ -371,6 +404,12 @@ class SuperclusterService {
     this.lastInitTime = 0;
     this.featuresCache = null;
     this.initializationPromise = null;
+    
+    // Clear all indexes to free memory
+    this.indexes.clear();
+    this.lastAccessTime.clear();
+    console.log('Cleared all supercluster indexes from memory');
+    
     await this.initialize();
   }
 }
