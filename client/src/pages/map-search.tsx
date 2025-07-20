@@ -140,7 +140,7 @@ export default function MapSearch() {
   });
   
   // Fetch communities within map bounds for list view
-  const { data: mapCommunities = [], isLoading: isLoadingCommunities, refetch: refetchCommunities } = useQuery({
+  const { data: mapCommunities = [], isLoading: isLoadingCommunities, isFetching: isFetchingCommunities, refetch: refetchCommunities } = useQuery({
     queryKey: ['communities-map-bounds'],
     queryFn: async () => {
       if (!mapBounds) return [];
@@ -149,17 +149,33 @@ export default function MapSearch() {
         const sw = mapBounds.getSouthWest();
         const ne = mapBounds.getNorthEast();
         
+        // Add a small buffer (5%) to ensure edge communities are included
+        const latBuffer = (ne.lat - sw.lat) * 0.05;
+        const lngBuffer = (ne.lng - sw.lng) * 0.05;
+        
+        const bufferedSw = {
+          lat: sw.lat - latBuffer,
+          lng: sw.lng - lngBuffer
+        };
+        
+        const bufferedNe = {
+          lat: ne.lat + latBuffer,
+          lng: ne.lng + lngBuffer
+        };
+        
         console.log('Fetching communities for bounds:', {
           sw: { lat: sw.lat, lng: sw.lng },
           ne: { lat: ne.lat, lng: ne.lng },
+          bufferedSw,
+          bufferedNe,
           showBottomPanel
         });
         
         const params = new URLSearchParams({
-          swLat: sw.lat.toString(),
-          swLng: sw.lng.toString(),
-          neLat: ne.lat.toString(),
-          neLng: ne.lng.toString(),
+          swLat: bufferedSw.lat.toString(),
+          swLng: bufferedSw.lng.toString(),
+          neLat: bufferedNe.lat.toString(),
+          neLng: bufferedNe.lng.toString(),
           limit: '100',
           ...(filters.careType !== 'All Types' && { careType: filters.careType }),
           ...(filters.minRating > 0 && { minRating: filters.minRating.toString() }),
@@ -806,10 +822,16 @@ export default function MapSearch() {
         {/* Panel Header - Enhanced visibility */}
         <div className="px-4 pb-3 border-b-2 border-blue-200 dark:border-blue-700 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100">
+            <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100 flex items-center gap-2">
               🏠 {!mapBounds ? 'Position map to see communities' : 
                isLoadingCommunities ? 'Loading communities...' : 
                `${mapCommunities.length} Communities Found`}
+              {isFetchingCommunities && !isLoadingCommunities && (
+                <div className="inline-flex items-center gap-1 text-sm font-normal text-blue-600 dark:text-blue-400">
+                  <div className="w-3 h-3 border-2 border-blue-600 dark:border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                  Updating...
+                </div>
+              )}
             </h3>
             <Button
               variant="ghost"
@@ -838,7 +860,25 @@ export default function MapSearch() {
             </div>
           ) : isLoadingCommunities ? (
             <div className="space-y-4">
-              {[...Array(4)].map((_, i) => (
+              {/* Playful loading animation */}
+              <div className="text-center py-8">
+                <div className="relative inline-block">
+                  <div className="w-16 h-16 border-4 border-blue-200 dark:border-blue-700 rounded-full animate-spin"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse"></div>
+                  </div>
+                </div>
+                <p className="mt-4 text-blue-600 dark:text-blue-400 font-medium animate-pulse">
+                  Finding communities in this area...
+                </p>
+                <div className="flex justify-center gap-1 mt-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
+                  <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{animationDelay: '200ms'}}></div>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '400ms'}}></div>
+                </div>
+              </div>
+              {/* Skeleton cards */}
+              {[...Array(3)].map((_, i) => (
                 <div key={i} className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-4 animate-pulse border border-blue-200 dark:border-blue-700">
                   <div className="h-6 bg-blue-200 dark:bg-blue-700 rounded-lg mb-3"></div>
                   <div className="h-4 bg-blue-150 dark:bg-blue-600 rounded mb-2 w-3/4"></div>
