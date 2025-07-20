@@ -78,10 +78,11 @@ export default function MapSearch() {
   // Debug mapBounds changes
   useEffect(() => {
     console.log('MapBounds updated:', mapBounds ? 'bounds set' : 'bounds null');
-    if (mapBounds) {
+    if (mapBounds && typeof mapBounds === 'string') {
+      const [west, south, east, north] = mapBounds.split(',').map(Number);
       console.log('MapBounds details:', {
-        sw: mapBounds.getSouthWest(),
-        ne: mapBounds.getNorthEast()
+        sw: { lat: south, lng: west },
+        ne: { lat: north, lng: east }
       });
     }
   }, [mapBounds]);
@@ -154,14 +155,9 @@ export default function MapSearch() {
       try {
         // Parse bounds string
         let sw, ne;
-        if (typeof mapBounds === 'string') {
-          const [west, south, east, north] = mapBounds.split(',').map(Number);
-          sw = { lat: south, lng: west };
-          ne = { lat: north, lng: east };
-        } else {
-          sw = mapBounds.getSouthWest();
-          ne = mapBounds.getNorthEast();
-        }
+        const [west, south, east, north] = mapBounds.split(',').map(Number);
+        sw = { lat: south, lng: west };
+        ne = { lat: north, lng: east };
         
         // No buffer - use exact viewport bounds for precise list synchronization
         const latBuffer = 0;
