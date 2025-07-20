@@ -23,8 +23,15 @@ app.use(securityHeaders);
 app.use(securityLogger);
 app.use(enhanceSessionSecurity);
 
-// Apply rate limiting only to API routes
-app.use('/api', createRateLimit());
+// Apply rate limiting only to API routes (excluding map operations)
+app.use('/api', (req, res, next) => {
+  // Skip rate limiting for map operations
+  if (req.path.startsWith('/communities/clusters') || 
+      req.path.startsWith('/communities/spatial')) {
+    return next();
+  }
+  return createRateLimit()(req, res, next);
+});
 
 // Basic parsing middleware
 app.use(express.json({ limit: '10mb' }));
