@@ -140,11 +140,8 @@ export default function MapSearch() {
   });
   
   // Fetch communities within map bounds for list view
-  const { data: mapCommunities = [], isLoading: isLoadingCommunities } = useQuery({
-    queryKey: ['communities-map-bounds', 
-      mapBounds ? `${mapBounds.getSouthWest().lng.toFixed(4)},${mapBounds.getSouthWest().lat.toFixed(4)},${mapBounds.getNorthEast().lng.toFixed(4)},${mapBounds.getNorthEast().lat.toFixed(4)}` : 'null',
-      filters
-    ],
+  const { data: mapCommunities = [], isLoading: isLoadingCommunities, refetch: refetchCommunities } = useQuery({
+    queryKey: ['communities-map-bounds'],
     queryFn: async () => {
       if (!mapBounds) return [];
       
@@ -231,14 +228,15 @@ export default function MapSearch() {
       
       if (prevBounds && prevBounds !== currentBounds) {
         console.log('Map bounds changed while panel is open, refetching communities...');
-        queryClient.invalidateQueries({ 
-          queryKey: ['communities-map-bounds'] 
-        });
+        console.log('Previous bounds:', prevBounds);
+        console.log('Current bounds:', currentBounds);
+        // Directly refetch instead of invalidating
+        refetchCommunities();
       }
       
       setPrevBounds(currentBounds);
     }
-  }, [mapBounds, showBottomPanel, prevBounds]);
+  }, [mapBounds, showBottomPanel, prevBounds, refetchCommunities]);
 
   // Fetch expanded search results when no communities in current view
   const { data: expandedCommunities = [], isLoading: isLoadingExpanded } = useQuery({
@@ -995,6 +993,10 @@ export default function MapSearch() {
               setShowBottomPanel(!showBottomPanel);
               if (!showBottomPanel) {
                 setPanelHeight(70); // Set to 70% when opening
+                // Force immediate refetch when opening panel
+                setTimeout(() => {
+                  refetchCommunities();
+                }, 100);
               }
             }}
             className={`relative transition-all duration-300 transform hover:scale-105 group w-14 h-14 rounded-full shadow-lg hover:shadow-xl ${
