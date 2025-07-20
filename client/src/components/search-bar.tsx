@@ -84,7 +84,7 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
       if (searchParams.careType !== 'All Types') params.set('careType', searchParams.careType);
       if (searchParams.budget !== 'Any Budget') params.set('budget', searchParams.budget);
       
-      setLocation(`/map?${params.toString()}`);
+      setLocation(`/search?${params.toString()}`);
     }
   };
 

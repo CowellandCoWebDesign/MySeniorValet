@@ -47,7 +47,7 @@ export default function MapSearch() {
   
   // Get search query from URL parameters
   const urlParams = new URLSearchParams(window.location.search);
-  const initialQuery = urlParams.get('q') || '';
+  const initialQuery = urlParams.get('location') || urlParams.get('q') || '';
   
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
@@ -299,41 +299,8 @@ export default function MapSearch() {
     retry: 1,
   });
 
-  // Handle initial search query from URL
-  useEffect(() => {
-    if (initialQuery) {
-      handleLocationSearch(initialQuery);
-    }
-  }, [initialQuery]);
-
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
-
-  // Debounced search suggestions
-  useEffect(() => {
-    const fetchSuggestions = async () => {
-      if (searchQuery.length < 2) {
-        setSuggestions([]);
-        return;
-      }
-      
-      setLoadingSuggestions(true);
-      try {
-        const response = await fetch(`/api/search/suggestions?q=${encodeURIComponent(searchQuery)}`);
-        if (response.ok) {
-          const data = await response.json();
-          setSuggestions(data.slice(0, 8));
-        }
-      } catch (error) {
-        console.error('Error fetching suggestions:', error);
-      } finally {
-        setLoadingSuggestions(false);
-      }
-    };
-
-    const debounceTimer = setTimeout(fetchSuggestions, 300);
-    return () => clearTimeout(debounceTimer);
-  }, [searchQuery]);
 
   const handleLocationSearch = async (location: string) => {
     // Try to geocode the location
@@ -369,6 +336,39 @@ export default function MapSearch() {
       setMapZoom(location.toLowerCase() === 'california' ? 6 : 12);
     }
   };
+
+  // Handle initial search query from URL
+  useEffect(() => {
+    if (initialQuery) {
+      handleLocationSearch(initialQuery);
+    }
+  }, []); // Only run once on mount
+
+  // Debounced search suggestions
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (searchQuery.length < 2) {
+        setSuggestions([]);
+        return;
+      }
+      
+      setLoadingSuggestions(true);
+      try {
+        const response = await fetch(`/api/search/suggestions?q=${encodeURIComponent(searchQuery)}`);
+        if (response.ok) {
+          const data = await response.json();
+          setSuggestions(data.slice(0, 8));
+        }
+      } catch (error) {
+        console.error('Error fetching suggestions:', error);
+      } finally {
+        setLoadingSuggestions(false);
+      }
+    };
+
+    const debounceTimer = setTimeout(fetchSuggestions, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery]);
 
   const handleCommunityClick = (community: Community) => {
     setSelectedCommunity(community);
