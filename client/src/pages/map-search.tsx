@@ -141,9 +141,7 @@ export default function MapSearch() {
   
   // Fetch communities within map bounds for list view
   // Create a stable bounds key for query caching
-  const boundsKey = mapBounds 
-    ? `${mapBounds.getSouthWest().lng.toFixed(4)},${mapBounds.getSouthWest().lat.toFixed(4)},${mapBounds.getNorthEast().lng.toFixed(4)},${mapBounds.getNorthEast().lat.toFixed(4)}`
-    : 'no-bounds';
+  const boundsKey = mapBounds || 'no-bounds';
 
   // Use state to store communities to ensure updates
   const [localCommunities, setLocalCommunities] = useState<Community[]>([]);
@@ -154,8 +152,16 @@ export default function MapSearch() {
       if (!mapBounds) return [];
       
       try {
-        const sw = mapBounds.getSouthWest();
-        const ne = mapBounds.getNorthEast();
+        // Parse bounds string
+        let sw, ne;
+        if (typeof mapBounds === 'string') {
+          const [west, south, east, north] = mapBounds.split(',').map(Number);
+          sw = { lat: south, lng: west };
+          ne = { lat: north, lng: east };
+        } else {
+          sw = mapBounds.getSouthWest();
+          ne = mapBounds.getNorthEast();
+        }
         
         // No buffer - use exact viewport bounds for precise list synchronization
         const latBuffer = 0;
@@ -208,13 +214,12 @@ export default function MapSearch() {
         console.log('Spatial search response:', {
           count: data.length,
           firstCommunity: data[0] ? `${data[0].name} (${data[0].city})` : 'none',
-          allNames: data.slice(0, 5).map((c: any) => `${c.name} (${c.city})`),
-          boundsKey
+          allNames: data.slice(0, 5).map((c: any) => `${c.name} (${c.city})`)
         });
         // Update local state immediately
-        setLocalCommunities(data);
-        console.log('Updated localCommunities with', data.length, 'communities');
-        return data;
+        setLocalCommunities(data || []);
+        console.log('Updated localCommunities with', (data || []).length, 'communities');
+        return data || [];
       } catch (error) {
         console.error('Error fetching communities:', error);
         return [];
@@ -233,8 +238,12 @@ export default function MapSearch() {
   
   // Sync local state with query data
   useEffect(() => {
-    if (mapCommunities.length > 0) {
+    if (mapCommunities && mapCommunities.length > 0) {
+      console.log('Syncing mapCommunities to localCommunities:', mapCommunities.length);
       setLocalCommunities(mapCommunities);
+    } else if (mapCommunities && mapCommunities.length === 0) {
+      console.log('Map returned 0 communities, clearing local state');
+      setLocalCommunities([]);
     }
   }, [mapCommunities]);
 
@@ -248,10 +257,10 @@ export default function MapSearch() {
       showBottomPanel,
       localCommunities: localCommunities.slice(0, 3).map(c => `${c.name} (${c.city})`),
       mapCommunities: mapCommunities.slice(0, 3).map(c => `${c.name} (${c.city})`),
-      boundsKey: boundsKey,
+      boundsKey: mapBounds || 'no-bounds',
       isFetching: isFetchingCommunities
     });
-  }, [localCommunities, mapCommunities, isLoadingCommunities, mapBounds, showBottomPanel, boundsKey, isFetchingCommunities]);
+  }, [localCommunities, mapCommunities, isLoadingCommunities, mapBounds, showBottomPanel, isFetchingCommunities]);
 
   // State to track if we're waiting for initial load
   const [isInitialLoad, setIsInitialLoad] = useState(false);
@@ -280,10 +289,10 @@ export default function MapSearch() {
       if (!mapBounds) return [];
       
       try {
-        // Get center of current map view
-        const center = mapBounds.getCenter();
-        const centerLat = center.lat;
-        const centerLng = center.lng;
+        // Parse the bounds string to get center
+        const [west, south, east, north] = mapBounds.split(',').map(Number);
+        const centerLat = (south + north) / 2;
+        const centerLng = (west + east) / 2;
         
         // Search for closest communities within a larger radius (100km)
         const response = await fetch(`/api/communities/search/nearest?lat=${centerLat}&lng=${centerLng}&radius=100&limit=20`);
@@ -377,13 +386,30 @@ export default function MapSearch() {
   
   // Handle map bounds change with proper debugging
   const handleMapBoundsChange = useCallback((bounds: any) => {
-    console.log('Map bounds changed in MapSearch:', bounds);
-    console.log('Setting mapBounds state, current communities:', mapCommunities.length);
-    setMapBounds(bounds);
-    // Set map moving state for immediate loading feedback
-    setIsMapMoving(true);
-    setTimeout(() => setIsMapMoving(false), 1000); // Clear after debounce
-  }, [mapCommunities.length]);
+    try {
+      console.log('Map bounds changed in MapSearch:', bounds);
+      
+      // Convert Leaflet bounds to string format
+      let boundsStr = '';
+      if (bounds && typeof bounds.getWest === 'function') {
+        // It's a Leaflet bounds object
+        boundsStr = `${bounds.getWest()},${bounds.getSouth()},${bounds.getEast()},${bounds.getNorth()}`;
+      } else if (typeof bounds === 'string') {
+        // Already a string
+        boundsStr = bounds;
+      }
+      
+      if (boundsStr) {
+        console.log('Setting mapBounds state:', boundsStr);
+        setMapBounds(boundsStr);
+        // Set map moving state for immediate loading feedback
+        setIsMapMoving(true);
+        setTimeout(() => setIsMapMoving(false), 500); // Clear after debounce
+      }
+    } catch (error) {
+      console.error('Error handling bounds change:', error);
+    }
+  }, []);
 
   const handleClusterClick = (clusterId: number, lat: number, lng: number, zoomLevel: number) => {
     // FIXED: Do not switch to list view automatically on cluster clicks
@@ -880,7 +906,7 @@ export default function MapSearch() {
                 </p>
               </div>
             </div>
-          ) : (isLoadingCommunities || isFetchingCommunities || isInitialLoad || isMapMoving || (mapBounds && localCommunities.length === 0)) ? (
+          ) : (isLoadingCommunities || isFetchingCommunities || isInitialLoad || isMapMoving) ? (
             <div className="space-y-4">
               {/* Playful loading animation */}
               <div className="text-center py-8">

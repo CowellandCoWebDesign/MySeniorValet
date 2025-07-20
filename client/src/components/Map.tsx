@@ -26,6 +26,17 @@ Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
+// Patch Leaflet DOM utilities to handle missing _leaflet_pos
+if (typeof window !== 'undefined' && window.L) {
+  const originalGetPosition = window.L.DomUtil.getPosition;
+  window.L.DomUtil.getPosition = function(el: any) {
+    if (!el || !el._leaflet_pos) {
+      return window.L.point(0, 0);
+    }
+    return originalGetPosition.call(this, el);
+  };
+}
+
 // WebGL-optimized icons with hardware acceleration hints
 const createCustomIcon = (color: string, isHovered = false, isPulsing = false) => {
   const size = isHovered ? [30, 50] : [25, 41];
@@ -67,16 +78,19 @@ const independentIcon = createCustomIcon('#7c3aed'); // Purple
 // Map Events component to access the map instance
 const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady }) => {
   const map = useMap();
+  const [mapReady, setMapReady] = useState(false);
   
   useEffect(() => {
-    if (map) {
+    if (map && !mapReady) {
       // Wait for map to be fully loaded before calling onMapReady
       const checkMapLoaded = () => {
         if (map._loaded) {
+          setMapReady(true);
           onMapReady(map);
         } else {
           // Listen for the load event
           map.once('load', () => {
+            setMapReady(true);
             onMapReady(map);
           });
         }
@@ -85,7 +99,7 @@ const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady })
       // Check immediately in case map is already loaded
       checkMapLoaded();
     }
-  }, [map, onMapReady]);
+  }, [map, mapReady, onMapReady]);
   
   return null;
 };
@@ -685,7 +699,7 @@ export default function Map({
           style={{ height: '100%', width: '100%', backgroundColor: '#f0f0f0', minHeight: '500px' }}
           className="rounded-lg"
         >
-        <MapEvents onMapReady={(map) => {
+        <MapEvents onMapReady={useCallback((map) => {
           setMapInstance(map);
           window.leafletMap = map;
           // Trigger initial bounds after map is ready
@@ -714,7 +728,7 @@ export default function Map({
               }
             }
           }, 200); // Increased delay for better stability
-        }} />
+        }, [])} />
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
