@@ -135,8 +135,7 @@ export default function MapSearch() {
     mapCenter, 
     mapZoom, 
     hasFilters: Object.keys(filters).length > 0,
-    mapBounds: mapBounds ? 'set' : 'null',
-    mapCommunitiesCount: mapCommunities.length
+    mapBounds: mapBounds ? 'set' : 'null'
   });
   
   // Fetch communities within map bounds for list view
@@ -197,6 +196,13 @@ export default function MapSearch() {
 
   // State for expanded search
   const [showExpandedSearch, setShowExpandedSearch] = useState(false);
+  
+  // Debug communities after query
+  console.log('Communities fetched:', {
+    count: mapCommunities.length,
+    isLoading: isLoadingCommunities,
+    hasBounds: !!mapBounds
+  });
 
   // Fetch expanded search results when no communities in current view
   const { data: expandedCommunities = [], isLoading: isLoadingExpanded } = useQuery({
