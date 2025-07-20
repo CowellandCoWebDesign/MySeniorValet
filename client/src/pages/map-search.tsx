@@ -246,8 +246,8 @@ export default function MapSearch() {
       isLoading: isLoadingCommunities,
       hasBounds: !!mapBounds,
       showBottomPanel,
-      localCommunities: localCommunities.slice(0, 3).map(c => `${c.name} (${c.city})`),
-      mapCommunities: mapCommunities.slice(0, 3).map(c => `${c.name} (${c.city})`),
+      localCommunities: localCommunities.slice(0, 3).map((c: Community) => `${c.name} (${c.city})`),
+      mapCommunities: mapCommunities.slice(0, 3).map((c: Community) => `${c.name} (${c.city})`),
       boundsKey: boundsKey,
       isFetching: isFetchingCommunities
     });
@@ -1019,14 +1019,12 @@ export default function MapSearch() {
                     <div className="text-right pl-2">
                       <div className="bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/40 rounded-lg p-3 border border-green-200 dark:border-green-700">
                         <div className="text-lg font-bold text-green-800 dark:text-green-200">
-                          {typeof community.priceRange === 'string' 
-                            ? community.priceRange 
-                            : community.priceRange?.min 
+                          {community.priceRange && typeof community.priceRange === 'object' && 'min' in community.priceRange
                             ? `$${community.priceRange.min.toLocaleString()}`
                             : '$3,800'}
                         </div>
                         <div className="text-xs text-green-600 dark:text-green-400">
-                          {!community.claimed ? 'estimated' : 'live pricing'}
+                          estimated
                         </div>
                       </div>
                     </div>
