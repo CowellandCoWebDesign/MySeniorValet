@@ -10,6 +10,7 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from 
 import { Separator } from '@/components/ui/separator';
 import Map from '@/components/Map';
 import MapTutorial from '@/components/MapTutorial';
+import MapErrorBoundary from '@/components/MapErrorBoundary';
 import { useQuery } from '@tanstack/react-query';
 
 interface Community {
@@ -689,15 +690,17 @@ export default function MapSearch() {
       {/* Map Container - Always show map */}
       <div className="flex-1">
         <div className="h-full" style={{ minHeight: '600px' }}>
-          <Map
-            center={mapCenter}
-            zoom={mapZoom}
-            height="100%"
-            searchFilters={filters}
-            onCommunityClick={handleCommunityClick}
-            onBoundsChange={handleMapBoundsChange}
-            onClusterClick={handleClusterClick}
-          />
+          <MapErrorBoundary>
+            <Map
+              center={mapCenter}
+              zoom={mapZoom}
+              height="100%"
+              searchFilters={filters}
+              onCommunityClick={handleCommunityClick}
+              onBoundsChange={handleMapBoundsChange}
+              onClusterClick={handleClusterClick}
+            />
+          </MapErrorBoundary>
         </div>
       </div>
 

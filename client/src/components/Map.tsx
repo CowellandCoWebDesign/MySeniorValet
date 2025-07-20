@@ -655,7 +655,12 @@ export default function Map({
                   mouseout: () => {
                     setHoveredCluster(null);
                   },
-                  click: () => {
+                  click: (e) => {
+                    if (e && e.originalEvent) {
+                      e.originalEvent.stopPropagation();
+                      e.originalEvent.preventDefault();
+                    }
+                    
                     if (!mapInstance) {
                       console.error('Map instance not available');
                       return;
@@ -703,14 +708,21 @@ export default function Map({
               icon={getIconForCommunity(community, hoveredCommunity === community.id, false)}
               eventHandlers={{
                 click: (e) => {
-                  e.originalEvent.stopPropagation();
+                  if (e && e.originalEvent) {
+                    e.originalEvent.stopPropagation();
+                    e.originalEvent.preventDefault();
+                  }
                   handleCommunityClick(community);
                 },
-                mouseover: () => {
-                  setHoveredCommunity(community.id);
+                mouseover: (e) => {
+                  if (e && e.target) {
+                    setHoveredCommunity(community.id);
+                  }
                 },
-                mouseout: () => {
-                  setHoveredCommunity(null);
+                mouseout: (e) => {
+                  if (e && e.target) {
+                    setHoveredCommunity(null);
+                  }
                 }
               }}
             >
