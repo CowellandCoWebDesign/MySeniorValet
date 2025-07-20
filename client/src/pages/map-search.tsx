@@ -141,14 +141,11 @@ export default function MapSearch() {
   });
   
   // Fetch communities within map bounds for list view
-  // Create a stable bounds key for query caching
-  const boundsKey = mapBounds || 'no-bounds';
-
   // Use state to store communities to ensure updates
   const [localCommunities, setLocalCommunities] = useState<Community[]>([]);
   
   const { data: mapCommunities = [], isLoading: isLoadingCommunities, isFetching: isFetchingCommunities, refetch: refetchCommunities } = useQuery({
-    queryKey: ['communities-map-bounds', boundsKey],
+    queryKey: ['communities-map-bounds', mapBounds],
     queryFn: async () => {
       if (!mapBounds) return [];
       
@@ -253,7 +250,7 @@ export default function MapSearch() {
       showBottomPanel,
       localCommunities: localCommunities.slice(0, 3).map(c => `${c.name} (${c.city})`),
       mapCommunities: mapCommunities.slice(0, 3).map(c => `${c.name} (${c.city})`),
-      boundsKey: mapBounds || 'no-bounds',
+      boundsKey: mapBounds,
       isFetching: isFetchingCommunities
     });
   }, [localCommunities, mapCommunities, isLoadingCommunities, mapBounds, showBottomPanel, isFetchingCommunities]);
@@ -263,20 +260,20 @@ export default function MapSearch() {
   const [isMapMoving, setIsMapMoving] = useState(false);
 
   // Force refetch when bounds change
-  const prevBoundsRef = useRef(boundsKey);
+  const prevBoundsRef = useRef(mapBounds);
   useEffect(() => {
-    if (mapBounds && showBottomPanel && prevBoundsRef.current !== boundsKey) {
+    if (mapBounds && showBottomPanel && prevBoundsRef.current !== mapBounds) {
       console.log('Bounds actually changed, forcing refetch...', {
         prevBounds: prevBoundsRef.current,
-        newBounds: boundsKey,
+        newBounds: mapBounds,
         showBottomPanel,
         timestamp: Date.now()
       });
-      prevBoundsRef.current = boundsKey;
+      prevBoundsRef.current = mapBounds;
       // Force an immediate refetch when bounds change
       refetchCommunities();
     }
-  }, [boundsKey, showBottomPanel, refetchCommunities]);
+  }, [mapBounds, showBottomPanel, refetchCommunities]);
 
   // Fetch expanded search results when no communities in current view
   const { data: expandedCommunities = [], isLoading: isLoadingExpanded } = useQuery({
