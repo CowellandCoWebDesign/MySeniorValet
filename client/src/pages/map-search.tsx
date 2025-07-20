@@ -229,16 +229,22 @@ export default function MapSearch() {
   // State for expanded search
   const [showExpandedSearch, setShowExpandedSearch] = useState(false);
   
-  // Sync local state with query data
+  // Sync local state with query data and auto-show panel when data loads
   useEffect(() => {
     if (mapCommunities && mapCommunities.length > 0) {
       console.log('Syncing mapCommunities to localCommunities:', mapCommunities.length);
       setLocalCommunities(mapCommunities);
+      // Auto-show the panel when we have communities
+      if (!showBottomPanel) {
+        console.log('Auto-showing bottom panel because we have communities');
+        setShowBottomPanel(true);
+        setPanelHeight(70);
+      }
     } else if (mapCommunities && mapCommunities.length === 0) {
       console.log('Map returned 0 communities, clearing local state');
       setLocalCommunities([]);
     }
-  }, [mapCommunities]);
+  }, [mapCommunities, showBottomPanel]);
 
   // Debug logging at render time
   useEffect(() => {
@@ -259,14 +265,13 @@ export default function MapSearch() {
   const [isInitialLoad, setIsInitialLoad] = useState(false);
   const [isMapMoving, setIsMapMoving] = useState(false);
 
-  // Force refetch when bounds change
+  // Force refetch when bounds change - removed showBottomPanel dependency
   const prevBoundsRef = useRef(mapBounds);
   useEffect(() => {
-    if (mapBounds && showBottomPanel && prevBoundsRef.current !== mapBounds) {
+    if (mapBounds && prevBoundsRef.current !== mapBounds) {
       console.log('Bounds actually changed, forcing refetch...', {
         prevBounds: prevBoundsRef.current,
         newBounds: mapBounds,
-        showBottomPanel,
         timestamp: Date.now()
       });
       prevBoundsRef.current = mapBounds;
