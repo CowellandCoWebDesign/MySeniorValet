@@ -214,8 +214,7 @@ export default function MapSearch() {
   console.log('Communities fetched:', {
     count: mapCommunities.length,
     isLoading: isLoadingCommunities,
-    hasBounds: !!mapBounds,
-    error: communitiesError?.message || null
+    hasBounds: !!mapBounds
   });
 
   // Fetch expanded search results when no communities in current view
