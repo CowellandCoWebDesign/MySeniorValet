@@ -164,7 +164,7 @@ export default function MapSearch() {
           swLng: (sw.lng - lngBuffer).toString(),
           neLat: (ne.lat + latBuffer).toString(),
           neLng: (ne.lng + lngBuffer).toString(),
-          limit: '100',
+          limit: '500',
           ...(filters.careType !== 'All Types' && { careType: filters.careType }),
           ...(filters.minRating > 0 && { minRating: filters.minRating.toString() }),
         });
@@ -225,13 +225,16 @@ export default function MapSearch() {
   // State to track if we're waiting for initial load
   const [isInitialLoad, setIsInitialLoad] = useState(false);
 
-  // Force refetch when panel opens or bounds change
+  // Force refetch when panel opens
   useEffect(() => {
-    if (showBottomPanel && mapBounds) {
+    if (showBottomPanel && mapBounds && !isLoadingCommunities) {
       console.log('Panel is open with bounds, triggering refetch...');
-      refetchCommunities();
+      setIsInitialLoad(true);
+      refetchCommunities().finally(() => {
+        setIsInitialLoad(false);
+      });
     }
-  }, [showBottomPanel, mapBounds, refetchCommunities]);
+  }, [showBottomPanel]);
 
   // Fetch expanded search results when no communities in current view
   const { data: expandedCommunities = [], isLoading: isLoadingExpanded } = useQuery({
@@ -837,7 +840,7 @@ export default function MapSearch() {
                 </p>
               </div>
             </div>
-          ) : (isLoadingCommunities || isFetchingCommunities) ? (
+          ) : (isLoadingCommunities || isFetchingCommunities || isInitialLoad) ? (
             <div className="space-y-4">
               {/* Playful loading animation */}
               <div className="text-center py-8">
