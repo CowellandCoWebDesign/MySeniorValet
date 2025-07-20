@@ -276,8 +276,8 @@ export function corsPolicy(req: Request, res: Response, next: NextFunction) {
     origin.includes('.repl.co') ||
     origin.includes('localhost') ||
     origin.includes('127.0.0.1') ||
-    origin === 'https://mysensorvital.com' || 
-    origin === 'https://www.mysensorvital.com'
+    origin === 'https://myseniorvalet.com' || 
+    origin === 'https://www.myseniorvalet.com'
   );
   
   if (isAllowedOrigin) {
