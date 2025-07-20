@@ -509,10 +509,10 @@ export default function Map({
             }}
             variant="outline"
             size="icon"
-            className="bg-white shadow-md hover:shadow-lg w-10 h-10 rounded-full"
+            className="bg-white dark:bg-gray-800 shadow-md hover:shadow-lg w-10 h-10 rounded-full"
             title="Use My Location"
           >
-            <MapPin className="h-5 w-5" />
+            <MapPin className="h-5 w-5 text-gray-700 dark:text-gray-300" />
           </Button>
         </div>
         
@@ -742,8 +742,8 @@ export default function Map({
                   </div>
                   
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <MapPin className="w-4 h-4" />
+                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                      <MapPin className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                       <span>{community.address}, {community.city}, {community.state}</span>
                     </div>
                     
