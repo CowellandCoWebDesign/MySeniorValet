@@ -526,14 +526,14 @@ export default function Map({
         
         {/* Location Permission Prompt */}
         {locationPermissionStatus === 'prompt' && !hasRequestedLocation && (
-          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1100] bg-white rounded-lg shadow-lg p-4 max-w-sm" style={{ zIndex: 9999 }}>
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1100] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 max-w-sm" style={{ zIndex: 9999 }}>
             <div className="flex items-start gap-3">
-              <div className="bg-blue-100 rounded-full p-2">
-                <MapPin className="h-5 w-5 text-blue-600" />
+              <div className="bg-blue-100 dark:bg-blue-900 rounded-full p-2">
+                <MapPin className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-900 mb-1">Find Communities Near You</h3>
-                <p className="text-sm text-gray-600 mb-3">
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Find Communities Near You</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
                   Allow location access to see senior living communities in your area
                 </p>
                 <div className="flex gap-2">
