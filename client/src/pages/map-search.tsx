@@ -141,7 +141,7 @@ export default function MapSearch() {
   
   // Fetch communities within map bounds for list view
   const { data: mapCommunities = [], isLoading: isLoadingCommunities, isFetching: isFetchingCommunities, refetch: refetchCommunities } = useQuery({
-    queryKey: ['communities-map-bounds'],
+    queryKey: ['communities-map-bounds', mapBounds ? `${mapBounds.getSouthWest().lng.toFixed(4)},${mapBounds.getSouthWest().lat.toFixed(4)},${mapBounds.getNorthEast().lng.toFixed(4)},${mapBounds.getNorthEast().lat.toFixed(4)}` : 'no-bounds'],
     queryFn: async () => {
       if (!mapBounds) return [];
       
@@ -149,33 +149,17 @@ export default function MapSearch() {
         const sw = mapBounds.getSouthWest();
         const ne = mapBounds.getNorthEast();
         
-        // Add a small buffer (5%) to ensure edge communities are included
-        const latBuffer = (ne.lat - sw.lat) * 0.05;
-        const lngBuffer = (ne.lng - sw.lng) * 0.05;
-        
-        const bufferedSw = {
-          lat: sw.lat - latBuffer,
-          lng: sw.lng - lngBuffer
-        };
-        
-        const bufferedNe = {
-          lat: ne.lat + latBuffer,
-          lng: ne.lng + lngBuffer
-        };
-        
         console.log('Fetching communities for bounds:', {
           sw: { lat: sw.lat, lng: sw.lng },
           ne: { lat: ne.lat, lng: ne.lng },
-          bufferedSw,
-          bufferedNe,
           showBottomPanel
         });
         
         const params = new URLSearchParams({
-          swLat: bufferedSw.lat.toString(),
-          swLng: bufferedSw.lng.toString(),
-          neLat: bufferedNe.lat.toString(),
-          neLng: bufferedNe.lng.toString(),
+          swLat: sw.lat.toString(),
+          swLng: sw.lng.toString(),
+          neLat: ne.lat.toString(),
+          neLng: ne.lng.toString(),
           limit: '100',
           ...(filters.careType !== 'All Types' && { careType: filters.careType }),
           ...(filters.minRating > 0 && { minRating: filters.minRating.toString() }),
@@ -234,25 +218,13 @@ export default function MapSearch() {
     communities: mapCommunities.slice(0, 3).map(c => c.name)
   });
 
-  // Track previous bounds to detect real changes
-  const [prevBounds, setPrevBounds] = useState<string | null>(null);
-  
-  // Force refetch when bounds change significantly and panel is open
+  // Force initial load when panel opens
   useEffect(() => {
-    if (showBottomPanel && mapBounds) {
-      const currentBounds = `${mapBounds.getSouthWest().lng.toFixed(4)},${mapBounds.getSouthWest().lat.toFixed(4)},${mapBounds.getNorthEast().lng.toFixed(4)},${mapBounds.getNorthEast().lat.toFixed(4)}`;
-      
-      if (prevBounds && prevBounds !== currentBounds) {
-        console.log('Map bounds changed while panel is open, refetching communities...');
-        console.log('Previous bounds:', prevBounds);
-        console.log('Current bounds:', currentBounds);
-        // Directly refetch instead of invalidating
-        refetchCommunities();
-      }
-      
-      setPrevBounds(currentBounds);
+    if (showBottomPanel && mapBounds && mapCommunities.length === 0 && !isLoadingCommunities) {
+      console.log('Panel opened but no communities loaded, forcing refetch...');
+      refetchCommunities();
     }
-  }, [mapBounds, showBottomPanel, prevBounds, refetchCommunities]);
+  }, [showBottomPanel, mapBounds, mapCommunities.length, isLoadingCommunities, refetchCommunities]);
 
   // Fetch expanded search results when no communities in current view
   const { data: expandedCommunities = [], isLoading: isLoadingExpanded } = useQuery({
@@ -1030,13 +1002,16 @@ export default function MapSearch() {
           <Button
             onClick={() => {
               console.log(`Floating button clicked! ${showBottomPanel ? 'Closing' : 'Opening'} list view...`);
-              setShowBottomPanel(!showBottomPanel);
               if (!showBottomPanel) {
                 setPanelHeight(70); // Set to 70% when opening
+                setShowBottomPanel(true);
                 // Force immediate refetch when opening panel
                 setTimeout(() => {
+                  console.log('Forcing refetch after panel open...');
                   refetchCommunities();
-                }, 100);
+                }, 200);
+              } else {
+                setShowBottomPanel(false);
               }
             }}
             className={`relative transition-all duration-300 transform hover:scale-105 group w-14 h-14 rounded-full shadow-lg hover:shadow-xl ${
