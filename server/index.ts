@@ -25,9 +25,9 @@ app.use(enhanceSessionSecurity);
 
 // Apply rate limiting only to API routes (excluding map operations)
 app.use('/api', (req, res, next) => {
-  // Skip rate limiting for map operations
-  if (req.path.startsWith('/communities/clusters') || 
-      req.path.startsWith('/communities/spatial')) {
+  // Skip rate limiting for map operations and clusters
+  if (req.path.includes('/clusters') || 
+      req.path.includes('/spatial')) {
     return next();
   }
   return createRateLimit()(req, res, next);

@@ -308,10 +308,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Permissive rate limiting for authentication endpoints (using new authLimiter)
   app.use('/api/auth', createRateLimitMiddleware(authLimiter)); // Very permissive for auth
   
-  // Moderate rate limiting for API endpoints (except spatial search)
+  // Moderate rate limiting for API endpoints (except spatial search and clusters)
   app.use('/api', (req, res, next) => {
-    if (req.path.includes('/spatial') || req.path.endsWith('/spatial')) {
-      return next(); // Skip rate limiting for spatial search
+    if (req.path.includes('/spatial') || 
+        req.path.includes('/clusters') || 
+        req.path.endsWith('/spatial')) {
+      return next(); // Skip rate limiting for spatial search and clusters
     }
     return createRateLimit(50)(req, res, next);
   });
