@@ -201,7 +201,7 @@ export default function MapSearch() {
         return [];
       }
     },
-    enabled: !!mapBounds && showBottomPanel, // Only fetch when panel is open AND we have bounds
+    enabled: !!mapBounds, // Fetch when we have bounds
     staleTime: 0, // No cache - always fresh data
     gcTime: 0, // No garbage collection time
     retry: 1, // Only retry once on failure
@@ -221,15 +221,24 @@ export default function MapSearch() {
     communities: mapCommunities.slice(0, 3).map(c => c.name)
   });
 
-  // Force refetch when bounds change and panel is open
+  // Track previous bounds to detect real changes
+  const [prevBounds, setPrevBounds] = useState<string | null>(null);
+  
+  // Force refetch when bounds change significantly and panel is open
   useEffect(() => {
     if (showBottomPanel && mapBounds) {
-      console.log('Map bounds changed while panel is open, refetching communities...');
-      queryClient.invalidateQueries({ 
-        queryKey: ['communities-map-bounds'] 
-      });
+      const currentBounds = `${mapBounds.getSouthWest().lng.toFixed(4)},${mapBounds.getSouthWest().lat.toFixed(4)},${mapBounds.getNorthEast().lng.toFixed(4)},${mapBounds.getNorthEast().lat.toFixed(4)}`;
+      
+      if (prevBounds && prevBounds !== currentBounds) {
+        console.log('Map bounds changed while panel is open, refetching communities...');
+        queryClient.invalidateQueries({ 
+          queryKey: ['communities-map-bounds'] 
+        });
+      }
+      
+      setPrevBounds(currentBounds);
     }
-  }, [mapBounds, showBottomPanel]);
+  }, [mapBounds, showBottomPanel, prevBounds]);
 
   // Fetch expanded search results when no communities in current view
   const { data: expandedCommunities = [], isLoading: isLoadingExpanded } = useQuery({
