@@ -74,6 +74,17 @@ export default function MapSearch() {
     setHasSeenTutorial(!!hasSeenTutorialBefore);
   }, []);
 
+  // Debug mapBounds changes
+  useEffect(() => {
+    console.log('MapBounds updated:', mapBounds ? 'bounds set' : 'bounds null');
+    if (mapBounds) {
+      console.log('MapBounds details:', {
+        sw: mapBounds.getSouthWest(),
+        ne: mapBounds.getNorthEast()
+      });
+    }
+  }, [mapBounds]);
+
   // Auto-show tutorial for first-time users
   useEffect(() => {
     if (!hasSeenTutorial && viewMode === 'map') {
@@ -123,14 +134,17 @@ export default function MapSearch() {
   console.log('Map Search state:', { 
     mapCenter, 
     mapZoom, 
-    hasFilters: Object.keys(filters).length > 0 
+    hasFilters: Object.keys(filters).length > 0,
+    mapBounds: mapBounds ? 'set' : 'null',
+    mapCommunitiesCount: mapCommunities.length
   });
   
   // Fetch communities within map bounds for list view
   const { data: mapCommunities = [], isLoading: isLoadingCommunities } = useQuery({
     queryKey: ['communities-map-bounds', 
       mapBounds ? `${mapBounds.getSouthWest().lng.toFixed(4)},${mapBounds.getSouthWest().lat.toFixed(4)},${mapBounds.getNorthEast().lng.toFixed(4)},${mapBounds.getNorthEast().lat.toFixed(4)}` : 'null',
-      filters
+      filters,
+      showBottomPanel // Add showBottomPanel to query key so it refetches when panel opens
     ],
     queryFn: async () => {
       if (!mapBounds) return [];
@@ -141,7 +155,8 @@ export default function MapSearch() {
         
         console.log('Fetching communities for bounds:', {
           sw: { lat: sw.lat, lng: sw.lng },
-          ne: { lat: ne.lat, lng: ne.lng }
+          ne: { lat: ne.lat, lng: ne.lng },
+          showBottomPanel
         });
         
         const params = new URLSearchParams({
@@ -154,21 +169,27 @@ export default function MapSearch() {
           ...(filters.minRating > 0 && { minRating: filters.minRating.toString() }),
         });
         
+        console.log('Making spatial search request to:', `/api/communities/search/spatial?${params}`);
         const response = await fetch(`/api/communities/search/spatial?${params}`);
         
         if (!response.ok) {
+          console.error('Spatial search failed:', response.status, response.statusText);
           throw new Error('Failed to fetch communities');
         }
         
         const data = await response.json();
-        console.log('Received communities:', data.length);
+        console.log('Spatial search response:', {
+          count: data.length,
+          firstCommunity: data[0] ? data[0].name : 'none',
+          allNames: data.slice(0, 5).map((c: any) => c.name)
+        });
         return data;
       } catch (error) {
-        console.warn('Error fetching communities:', error);
+        console.error('Error fetching communities:', error);
         return [];
       }
     },
-    enabled: !!mapBounds, // Always fetch when we have bounds
+    enabled: !!mapBounds, // Fetch when we have bounds (needed for list view)
     staleTime: 0, // No cache - always fresh data
     gcTime: 0, // No garbage collection time
     retry: 1, // Only retry once on failure
@@ -282,8 +303,9 @@ export default function MapSearch() {
   // Handle map bounds change with proper debugging
   const handleMapBoundsChange = useCallback((bounds: any) => {
     console.log('Map bounds changed in MapSearch:', bounds);
+    console.log('Setting mapBounds state, current communities:', mapCommunities.length);
     setMapBounds(bounds);
-  }, []);
+  }, [mapCommunities.length]);
 
   const handleClusterClick = (clusterId: number, lat: number, lng: number, zoomLevel: number) => {
     // FIXED: Do not switch to list view automatically on cluster clicks
