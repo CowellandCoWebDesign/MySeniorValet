@@ -617,8 +617,8 @@ export default function Map({
       
       {/* Map Container */}
       <div className="flex-1 relative" style={{ minHeight: '400px' }}>
-        {/* Compact Location Button */}
-        <div className="absolute top-4 right-4 z-[1000]">
+        {/* Compact Location Button - Moved to bottom-left */}
+        <div className="absolute bottom-4 left-4 z-[1000]">
           <Button
             onClick={() => {
               // In Replit environment, geolocation is blocked
