@@ -144,9 +144,10 @@ const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady })
               }
             });
 
+            // Create custom container for full-width geocoder
             const geocoderControl = new (window as any).L.Control.Geocoder({
               geocoder: nominatimGeocoder,
-              position: 'topleft', // Back to standard position
+              position: 'topleft', // We'll override this with CSS
               placeholder: 'Search any city, state, or address in North America...',
               errorMessage: 'Location not found - try a different search term',
               showUniqueResult: false,

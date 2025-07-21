@@ -944,16 +944,18 @@
 }
 
 .leaflet-control-geocoder {
-  /* Extended width search bar spanning most of the top */
-  width: 80vw !important; /* 80% of viewport width */
-  max-width: 800px !important;
-  border: none !important;
-  border-radius: 16px !important;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
-  background-color: #ffffff !important;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-  margin: 16px !important;
+  /* Full width search bar at the very top */
+  position: absolute !important;
+  top: 15px !important;
+  left: 20px !important;
+  right: 20px !important;
+  width: calc(100% - 40px) !important;
+  max-width: none !important;
   z-index: 1000 !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+  border: 2px solid #e5e7eb !important;
+  border-radius: 12px !important;
+  background-color: #ffffff !important;
 }
 
 .leaflet-control-geocoder-form input {
@@ -1116,9 +1118,18 @@
 
 
 
-/* Adjust zoom controls to not overlap with extended search bar */
+/* Adjust all controls to be under the full-width search bar */
+.leaflet-control-container .leaflet-top.leaflet-left {
+  margin-top: 80px !important; /* Space for full-width search bar */
+}
+
+.leaflet-control-container .leaflet-top.leaflet-right {
+  margin-top: 80px !important; /* Space for full-width search bar */
+}
+
+/* Zoom controls adjustment */
 .leaflet-control-zoom {
-  margin-top: 90px !important; /* Move down to avoid search bar */
+  margin-top: 10px !important;
 }
 
 /* Dark mode enhancements for controls */
