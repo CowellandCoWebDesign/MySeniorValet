@@ -2,6 +2,7 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Home, Menu, Search, MapPin, Building2, Shield, HelpCircle } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function Header() {
   const [location] = useLocation();
@@ -56,6 +57,7 @@ export function Header() {
             </nav>
           </div>
           <div className="flex items-center space-x-3">
+            <ThemeToggle />
             <Link to="/community-portal" className="hidden lg:block">
               <Button variant="ghost" className="text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 font-medium">
                 <Building2 className="h-4 w-4 mr-2" />
@@ -104,6 +106,10 @@ export function Header() {
                     })}
                   </nav>
                   <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
+                    <div className="flex items-center justify-between px-4 py-2">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Theme</span>
+                      <ThemeToggle />
+                    </div>
                     <Link to="/community-portal">
                       <Button variant="outline" className="w-full justify-start">
                         <Building2 className="h-4 w-4 mr-2" />

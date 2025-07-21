@@ -203,16 +203,16 @@
 }
 
 :root {
-  --background: hsl(220, 30%, 98%);
-  --foreground: hsl(222, 84%, 4.9%);
-  --muted: hsl(220, 25%, 92%);
-  --muted-foreground: hsl(215, 16%, 46.9%);
-  --popover: hsl(220, 30%, 97%);
-  --popover-foreground: hsl(222, 84%, 4.9%);
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(222, 47%, 11%);
+  --muted: hsl(210, 40%, 96%);
+  --muted-foreground: hsl(215, 16%, 30%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(222, 47%, 11%);
   --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(222, 84%, 4.9%);
-  --border: hsl(220, 20%, 88%);
-  --input: hsl(220, 20%, 90%);
+  --card-foreground: hsl(222, 47%, 11%);
+  --border: hsl(214, 32%, 91%);
+  --input: hsl(214, 32%, 91%);
   --primary: hsl(215, 28%, 17%);
   --primary-foreground: hsl(45, 50%, 96%);
   --secondary: hsl(45, 100%, 51%);
@@ -221,7 +221,7 @@
   --accent-foreground: hsl(45, 50%, 96%);
   --destructive: hsl(0, 84%, 60%);
   --destructive-foreground: hsl(210, 40%, 98%);
-  --ring: hsl(222, 84%, 4.9%);
+  --ring: hsl(215, 28%, 17%);
   --radius: 0.5rem;
   --myseniorvalet-navy: hsl(215, 28%, 17%);
   --myseniorvalet-gold: hsl(45, 100%, 51%);

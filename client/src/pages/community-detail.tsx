@@ -767,10 +767,10 @@ Let me know what you think!`;
                           'Contact for Pricing'
                         }
                         {!community.claimed && (
-                          <span className="text-sm text-gray-500 ml-2 font-normal">est.</span>
+                          <span className="text-sm text-gray-500 dark:text-gray-400 ml-2 font-normal">est.</span>
                         )}
                       </div>
-                      <div className="text-sm text-gray-600">per month starting rate</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">per month starting rate</div>
                     </div>
                     
                     {/* Availability Status */}
@@ -781,8 +781,8 @@ Let me know what you think!`;
                           community.id % 3 === 1 ? 'bg-yellow-500' : 'bg-orange-500'
                         }`}></div>
                         <span className={`text-sm font-medium ${
-                          community.id % 3 === 0 ? 'text-green-700' : 
-                          community.id % 3 === 1 ? 'text-yellow-700' : 'text-orange-700'
+                          community.id % 3 === 0 ? 'text-green-700 dark:text-green-400' : 
+                          community.id % 3 === 1 ? 'text-yellow-700 dark:text-yellow-400' : 'text-orange-700 dark:text-orange-400'
                         }`}>
                           {community.id % 3 === 0 ? 'Move-in Ready' : 
                            community.id % 3 === 1 ? 'Limited Availability' : 'Waitlist Available'}
@@ -804,7 +804,7 @@ Let me know what you think!`;
                            </Button>
                           }
                         </div>
-                        <div className="text-xs text-blue-700">
+                        <div className="text-xs text-blue-700 dark:text-blue-300">
                           Updated {community.id % 2 === 0 ? 'today' : 'yesterday'}
                         </div>
                       </div>
