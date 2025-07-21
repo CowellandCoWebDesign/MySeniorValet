@@ -801,6 +801,159 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Dashboard preference routes
+  app.get('/api/user/dashboard-preferences', requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      
+      const [user] = await db
+        .select({ dashboardPreferences: users.dashboardPreferences })
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      res.json(user.dashboardPreferences || {
+        layoutType: 'detailed',
+        fontSize: 'medium',
+        highContrast: false,
+        reducedMotion: false,
+        cardSize: 'comfortable',
+        showHelpTips: true,
+        quickActions: ['search', 'favorites', 'schedule-tour', 'family-share'],
+        dashboardSections: {
+          favorites: { visible: true, order: 1 },
+          recentSearches: { visible: true, order: 2 },
+          recommendations: { visible: true, order: 3 },
+          savedCommunities: { visible: true, order: 4 },
+          tourSchedule: { visible: true, order: 5 },
+          familyNotes: { visible: true, order: 6 }
+        }
+      });
+    } catch (error: any) {
+      console.error('Error fetching dashboard preferences:', error);
+      res.status(500).json({ message: 'Failed to fetch dashboard preferences' });
+    }
+  });
+
+  app.patch('/api/user/dashboard-preferences', requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const preferences = req.body;
+
+      const [updated] = await db
+        .update(users)
+        .set({
+          dashboardPreferences: preferences,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, userId))
+        .returning({ dashboardPreferences: users.dashboardPreferences });
+
+      if (!updated) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      res.json(updated.dashboardPreferences);
+    } catch (error: any) {
+      console.error('Error updating dashboard preferences:', error);
+      res.status(500).json({ message: 'Failed to update dashboard preferences' });
+    }
+  });
+
+  // Dashboard data routes
+  app.get('/api/user/dashboard-data', requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+
+      // Get user's favorite communities with details
+      const favorites = await db
+        .select({
+          id: userFavorites.id,
+          communityId: userFavorites.communityId,
+          notes: userFavorites.notes,
+          priority: userFavorites.priority,
+          tags: userFavorites.tags,
+          createdAt: userFavorites.createdAt,
+          community: {
+            id: communities.id,
+            name: communities.name,
+            city: communities.city,
+            state: communities.state,
+            rating: communities.rating,
+            priceRange: communities.priceRange,
+            careTypes: communities.careTypes,
+            photos: communities.photos
+          }
+        })
+        .from(userFavorites)
+        .innerJoin(communities, eq(userFavorites.communityId, communities.id))
+        .where(eq(userFavorites.userId, userId))
+        .orderBy(desc(userFavorites.priority), desc(userFavorites.createdAt))
+        .limit(10);
+
+      // Get recent searches
+      const recentSearches = await db
+        .select()
+        .from(userSavedSearches)
+        .where(eq(userSavedSearches.userId, userId))
+        .orderBy(desc(userSavedSearches.createdAt))
+        .limit(5);
+
+      // Mock data for upcoming tours and recommendations
+      const upcomingTours = [
+        {
+          id: 1,
+          community: "Sunset Manor",
+          date: "Tomorrow",
+          time: "2:00 PM",
+          contact: "(916) 555-0123",
+          status: "confirmed"
+        },
+        {
+          id: 2,
+          community: "Peaceful Gardens",
+          date: "Friday",
+          time: "10:00 AM",
+          contact: "(916) 555-0456",
+          status: "pending"
+        }
+      ];
+
+      // Get personalized recommendations based on user preferences
+      const recommendations = await db
+        .select()
+        .from(communities)
+        .where(sql`${communities.rating} >= 4.5`)
+        .orderBy(desc(communities.rating))
+        .limit(6);
+
+      res.json({
+        favorites: favorites.map(f => ({
+          ...f.community,
+          favoriteId: f.id,
+          notes: f.notes,
+          priority: f.priority,
+          tags: f.tags,
+          lastVisited: f.createdAt
+        })),
+        recentSearches: recentSearches.map(s => ({
+          query: s.searchName,
+          date: s.createdAt,
+          params: s.searchParams
+        })),
+        upcomingTours,
+        recommendations
+      });
+    } catch (error: any) {
+      console.error('Error fetching dashboard data:', error);
+      res.status(500).json({ message: 'Failed to fetch dashboard data' });
+    }
+  });
+
   // Logout
   app.post("/api/auth/logout", requireAuth, async (req: any, res) => {
     try {

@@ -46,6 +46,39 @@ export const users = pgTable("users", {
     messageAlerts: true,
     reviewReminders: false,
   }),
+  dashboardPreferences: json("dashboard_preferences").$type<{
+    layoutType: 'simple' | 'detailed' | 'visual';
+    fontSize: 'small' | 'medium' | 'large' | 'extra-large';
+    highContrast: boolean;
+    reducedMotion: boolean;
+    cardSize: 'compact' | 'comfortable' | 'spacious';
+    showHelpTips: boolean;
+    quickActions: string[];
+    dashboardSections: {
+      favorites: { visible: boolean; order: number };
+      recentSearches: { visible: boolean; order: number };
+      recommendations: { visible: boolean; order: number };
+      savedCommunities: { visible: boolean; order: number };
+      tourSchedule: { visible: boolean; order: number };
+      familyNotes: { visible: boolean; order: number };
+    };
+  }>().default({
+    layoutType: 'detailed',
+    fontSize: 'medium',
+    highContrast: false,
+    reducedMotion: false,
+    cardSize: 'comfortable',
+    showHelpTips: true,
+    quickActions: ['search', 'favorites', 'schedule-tour', 'family-share'],
+    dashboardSections: {
+      favorites: { visible: true, order: 1 },
+      recentSearches: { visible: true, order: 2 },
+      recommendations: { visible: true, order: 3 },
+      savedCommunities: { visible: true, order: 4 },
+      tourSchedule: { visible: true, order: 5 },
+      familyNotes: { visible: true, order: 6 }
+    }
+  }),
   emailVerified: boolean("email_verified").default(false),
   emailVerificationToken: text("email_verification_token"),
   passwordResetToken: text("password_reset_token"),

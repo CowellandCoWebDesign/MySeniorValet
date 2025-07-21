@@ -407,6 +407,23 @@ export default function Dashboard() {
               </div>
             </CardContent>
           </Card>
+
+          <Link href="/personalized-dashboard">
+            <Card className="hover:shadow-md transition-shadow cursor-pointer group border-2 border-blue-200 bg-blue-50">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                    <Sparkles className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Memory-Friendly Dashboard</h3>
+                    <p className="text-sm text-gray-600">Personalized for seniors</p>
+                    <Badge variant="secondary" className="mt-1 text-xs">NEW</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
 
         {/* MAIN CONTENT TABS */}
