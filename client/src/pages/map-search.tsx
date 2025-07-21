@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useLocation } from 'wouter';
 import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -141,16 +141,22 @@ export default function MapSearch() {
   });
   
   // Fetch communities within map bounds for list view
-  // Create a stable bounds key for query caching
-  const boundsKey = mapBounds 
-    ? `${mapBounds.getSouthWest().lng.toFixed(4)},${mapBounds.getSouthWest().lat.toFixed(4)},${mapBounds.getNorthEast().lng.toFixed(4)},${mapBounds.getNorthEast().lat.toFixed(4)}`
-    : 'no-bounds';
+  // Create a stable bounds key for query caching - use higher precision for better accuracy
+  const boundsKey = useMemo(() => {
+    if (!mapBounds) return 'no-bounds';
+    
+    const sw = mapBounds.getSouthWest();
+    const ne = mapBounds.getNorthEast();
+    
+    // Use 6 decimal places for precise bounds tracking
+    return `${sw.lng.toFixed(6)},${sw.lat.toFixed(6)},${ne.lng.toFixed(6)},${ne.lat.toFixed(6)}`;
+  }, [mapBounds]);
 
-  // Use state to store communities to ensure updates
-  const [localCommunities, setLocalCommunities] = useState<Community[]>([]);
+  // Use direct query data instead of local state to prevent stale data
+  // Remove local state management that was causing ordering issues
   
   const { data: mapCommunities = [], isLoading: isLoadingCommunities, isFetching: isFetchingCommunities, refetch: refetchCommunities } = useQuery({
-    queryKey: ['communities-map-bounds', boundsKey, showBottomPanel],
+    queryKey: ['communities-map-bounds', boundsKey, showBottomPanel, filters.careType, filters.minRating],
     queryFn: async () => {
       // If we're showing the bottom panel but no bounds yet, fetch default San Francisco area
       if (!mapBounds && showBottomPanel) {
@@ -238,8 +244,9 @@ export default function MapSearch() {
         console.log('Spatial search response:', {
           count: data.length,
           firstCommunity: data[0] ? `${data[0].name} (${data[0].city})` : 'none',
-          allNames: data.slice(0, 5).map((c: any) => `${c.name} (${c.city})`),
-          boundsKey
+          allNames: data.slice(0, 10).map((c: any) => `${c.name} (${c.city})`),
+          boundsKey,
+          timestamp: Date.now()
         });
         return data;
       } catch (error) {
@@ -248,65 +255,49 @@ export default function MapSearch() {
       }
     },
     enabled: showBottomPanel || !!mapBounds, // Fetch when showing list OR when we have bounds
-    staleTime: 0, // No cache - always fresh data
-    gcTime: 0, // No garbage collection time
-    retry: 1, // Only retry once on failure
-    refetchOnMount: 'always', // Always refetch when component mounts
+    staleTime: 10000, // Cache for 10 seconds to prevent excessive requests
+    gcTime: 30000, // Keep in cache for 30 seconds
+    retry: 2, // Retry twice on failure
+    refetchOnMount: false, // Don't always refetch on mount
     refetchOnWindowFocus: false,
   });
 
   // State for expanded search
   const [showExpandedSearch, setShowExpandedSearch] = useState(false);
   
-  // Clear local communities immediately when bounds change to prevent showing stale data
-  useEffect(() => {
-    if (showBottomPanel && mapBounds && prevBoundsRef.current !== boundsKey) {
-      // Clear local communities immediately to avoid showing stale data
-      setLocalCommunities([]);
-    }
-  }, [boundsKey, showBottomPanel, mapBounds]);
+  // Remove complex local state management - use query data directly
 
-  // Sync local state with query data
-  useEffect(() => {
-    if (mapCommunities.length > 0) {
-      setLocalCommunities(mapCommunities);
-    }
-  }, [mapCommunities]);
-
-  // Debug logging at render time
+  // Debug logging for communities
   useEffect(() => {
     console.log('Communities state updated:', {
-      localCount: localCommunities.length,
       mapCount: mapCommunities.length,
       isLoading: isLoadingCommunities,
       hasBounds: !!mapBounds,
       showBottomPanel,
-      localCommunities: localCommunities.slice(0, 3).map((c: Community) => `${c.name} (${c.city})`),
       mapCommunities: mapCommunities.slice(0, 3).map((c: Community) => `${c.name} (${c.city})`),
       boundsKey: boundsKey,
       isFetching: isFetchingCommunities
     });
-  }, [localCommunities, mapCommunities, isLoadingCommunities, mapBounds, showBottomPanel, boundsKey, isFetchingCommunities]);
+  }, [mapCommunities, isLoadingCommunities, mapBounds, showBottomPanel, boundsKey, isFetchingCommunities]);
 
   // State to track if we're waiting for initial load
   const [isInitialLoad, setIsInitialLoad] = useState(false);
   const [isMapMoving, setIsMapMoving] = useState(false);
 
-  // Force refetch when bounds change
+  // Track bounds changes for forced refetch
   const prevBoundsRef = useRef(boundsKey);
   useEffect(() => {
     if (mapBounds && showBottomPanel && prevBoundsRef.current !== boundsKey) {
-      console.log('Bounds actually changed, forcing refetch...', {
+      console.log('Bounds changed, will refetch on next query...', {
         prevBounds: prevBoundsRef.current,
         newBounds: boundsKey,
         showBottomPanel,
         timestamp: Date.now()
       });
       prevBoundsRef.current = boundsKey;
-      // Force an immediate refetch when bounds change
-      refetchCommunities();
+      // Let React Query handle the refetch automatically via key change
     }
-  }, [boundsKey, showBottomPanel, refetchCommunities]);
+  }, [boundsKey, showBottomPanel]);
 
   // Fetch expanded search results when no communities in current view
   const { data: expandedCommunities = [], isLoading: isLoadingExpanded } = useQuery({
@@ -788,11 +779,9 @@ export default function MapSearch() {
                   onClick={() => {
                     setViewMode('map'); // Stay in map mode
                     setShowBottomPanel(true); // Open bottom panel for list
-                    // If no bounds yet, force initial default load
-                    if (!mapBounds) {
-                      console.log('List clicked but no bounds, triggering community fetch...');
-                      refetchCommunities();
-                    }
+                    // Force refresh communities when list is opened
+                    console.log('List clicked, refreshing communities...');
+                    refetchCommunities();
                   }}
                   className={`relative transition-all duration-300 ${
                     showBottomPanel 
@@ -1139,7 +1128,7 @@ export default function MapSearch() {
             <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100 flex items-center gap-2">
               🏠 {!mapBounds ? 'Position map to see communities' : 
                isLoadingCommunities || isFetchingCommunities ? 'Loading communities...' : 
-               `${localCommunities.length} Communities Found`}
+               `${mapCommunities.length} Communities Found`}
               {(isLoadingCommunities || isFetchingCommunities) && (
                 <div className="inline-flex items-center gap-1 text-sm font-normal text-blue-600 dark:text-blue-400">
                   <div className="w-3 h-3 border-2 border-blue-600 dark:border-blue-400 border-t-transparent rounded-full animate-spin"></div>
@@ -1214,8 +1203,20 @@ export default function MapSearch() {
             </div>
           ) : (
             <div className="space-y-3">
-              {/* Use mapCommunities directly for immediate updates instead of localCommunities */}
-              {mapCommunities.map((community, index) => (
+              {/* Use mapCommunities directly for immediate updates - sorted by distance from map center */}
+              {mapCommunities
+                .sort((a, b) => {
+                  // Sort by distance from map center if bounds available
+                  if (mapBounds) {
+                    const center = mapBounds.getCenter();
+                    const distA = Math.sqrt(Math.pow(a.latitude - center.lat, 2) + Math.pow(a.longitude - center.lng, 2));
+                    const distB = Math.sqrt(Math.pow(b.latitude - center.lat, 2) + Math.pow(b.longitude - center.lng, 2));
+                    return distA - distB;
+                  }
+                  // Fallback to alphabetical by name
+                  return a.name.localeCompare(b.name);
+                })
+                .map((community, index) => (
                 <div
                   key={community.id}
                   className="bg-gradient-to-r from-white to-blue-50/50 dark:from-gray-800 dark:to-blue-900/20 rounded-xl border-2 border-blue-200/50 dark:border-blue-700/50 p-5 cursor-pointer hover:shadow-xl hover:scale-[1.02] transition-all duration-300 hover:border-blue-400 dark:hover:border-blue-500"
