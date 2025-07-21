@@ -935,7 +935,7 @@ export default function MapSearch() {
                 </p>
               </div>
             </div>
-          ) : (isLoadingCommunities || isFetchingCommunities || isInitialLoad || isMapMoving || (mapBounds && localCommunities.length === 0)) ? (
+          ) : (isLoadingCommunities || isFetchingCommunities || isInitialLoad || isMapMoving) ? (
             <div className="space-y-4">
               {/* Playful loading animation */}
               <div className="text-center py-8">
@@ -963,7 +963,7 @@ export default function MapSearch() {
                 </div>
               ))}
             </div>
-          ) : localCommunities.length === 0 ? (
+          ) : mapCommunities.length === 0 ? (
             <div className="text-center py-12">
               <div className="bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/20 dark:to-red-900/20 rounded-2xl p-8 mx-4">
                 <MapIcon className="w-16 h-16 mx-auto text-orange-500 mb-4" />
@@ -977,7 +977,7 @@ export default function MapSearch() {
             </div>
           ) : (
             <div className="space-y-3">
-              {localCommunities.map((community, index) => (
+              {mapCommunities.map((community, index) => (
                 <div
                   key={community.id}
                   className="bg-gradient-to-r from-white to-blue-50/50 dark:from-gray-800 dark:to-blue-900/20 rounded-xl border-2 border-blue-200/50 dark:border-blue-700/50 p-5 cursor-pointer hover:shadow-xl hover:scale-[1.02] transition-all duration-300 hover:border-blue-400 dark:hover:border-blue-500"
