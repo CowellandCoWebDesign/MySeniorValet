@@ -270,39 +270,42 @@ export default function MapSearch() {
   // State for expanded search
   const [showExpandedSearch, setShowExpandedSearch] = useState(false);
   
-  // Clear local communities immediately when bounds change and set loading state
+  // Set loading state when bounds change
   useEffect(() => {
     if (mapBounds && prevBoundsRef.current !== boundsKey && prevBoundsRef.current !== 'no-bounds') {
-      // Clear local communities immediately to avoid showing stale data
-      setLocalCommunities([]);
       setIsMapMoving(true);
-      console.log('Map bounds changed - clearing stale data and setting loading state');
+      console.log('Map bounds changed - setting loading state', {
+        newBounds: boundsKey,
+        prevBounds: prevBoundsRef.current
+      });
     }
   }, [boundsKey, mapBounds]);
 
-  // Sync local state with query data and clear loading state
+  // Clear loading state when communities are loaded
   useEffect(() => {
-    if (mapCommunities.length > 0) {
-      setLocalCommunities(mapCommunities);
+    if (mapCommunities.length > 0 || (!isLoadingCommunities && mapBounds)) {
       setIsMapMoving(false);
-      console.log('New communities loaded - clearing loading state');
+      console.log('Communities loaded or loading complete', {
+        count: mapCommunities.length,
+        firstCommunity: mapCommunities[0]?.name,
+        firstCity: mapCommunities[0]?.city,
+        isLoading: isLoadingCommunities
+      });
     }
-  }, [mapCommunities]);
+  }, [mapCommunities, isLoadingCommunities, mapBounds]);
 
   // Debug logging at render time
   useEffect(() => {
     console.log('Communities state updated:', {
-      localCount: localCommunities.length,
       mapCount: mapCommunities.length,
       isLoading: isLoadingCommunities,
       hasBounds: !!mapBounds,
       showBottomPanel,
-      localCommunities: localCommunities.slice(0, 3).map((c: Community) => `${c.name} (${c.city})`),
       mapCommunities: mapCommunities.slice(0, 3).map((c: Community) => `${c.name} (${c.city})`),
       boundsKey: boundsKey,
       isFetching: isFetchingCommunities
     });
-  }, [localCommunities, mapCommunities, isLoadingCommunities, mapBounds, showBottomPanel, boundsKey, isFetchingCommunities]);
+  }, [mapCommunities, isLoadingCommunities, mapBounds, showBottomPanel, boundsKey, isFetchingCommunities]);
 
   // State to track if we're waiting for initial load (already declared above)
 
@@ -326,6 +329,14 @@ export default function MapSearch() {
       console.log('Initial bounds set:', boundsKey);
     }
   }, [boundsKey, mapBounds, refetchCommunities]);
+
+  // Ensure loading state is cleared when panel opens with data
+  useEffect(() => {
+    if (showBottomPanel && mapCommunities.length > 0) {
+      setIsMapMoving(false);
+      console.log('List panel open with communities - clearing loading state');
+    }
+  }, [showBottomPanel, mapCommunities.length]);
 
   // Fetch expanded search results when no communities in current view
   const { data: expandedCommunities = [], isLoading: isLoadingExpanded } = useQuery({
