@@ -1023,6 +1023,43 @@ export const leasingApplications = pgTable("leasing_applications", {
   applicantDateOfBirth: date("applicant_date_of_birth"),
   applicantSSN: text("applicant_ssn"), // Encrypted
   
+  // Co-Applicant Information (if applicable)
+  coApplicantFirstName: text("co_applicant_first_name"),
+  coApplicantLastName: text("co_applicant_last_name"),
+  coApplicantEmail: text("co_applicant_email"),
+  coApplicantPhone: text("co_applicant_phone"),
+  coApplicantDateOfBirth: date("co_applicant_date_of_birth"),
+  coApplicantSSN: text("co_applicant_ssn"), // Encrypted
+  
+  // Emergency Contact Information
+  emergencyContactName: text("emergency_contact_name").notNull(),
+  emergencyContactRelationship: text("emergency_contact_relationship"),
+  emergencyContactPhone: text("emergency_contact_phone").notNull(),
+  emergencyContactEmail: text("emergency_contact_email"),
+  emergencyContactAddress: text("emergency_contact_address"),
+  
+  // Secondary Emergency Contact
+  secondaryEmergencyContactName: text("secondary_emergency_contact_name"),
+  secondaryEmergencyContactPhone: text("secondary_emergency_contact_phone"),
+  secondaryEmergencyContactEmail: text("secondary_emergency_contact_email"),
+  
+  // Background Check Information
+  backgroundCheckConsent: boolean("background_check_consent").default(false),
+  backgroundCheckProvider: text("background_check_provider"), // "Checkr", "GoodHire", "Sterling", etc.
+  backgroundCheckRequestId: text("background_check_request_id"),
+  backgroundCheckStatus: text("background_check_status", {
+    enum: ["Not Started", "Pending", "In Progress", "Completed", "Failed", "Expired"]
+  }).default("Not Started"),
+  backgroundCheckCompletedAt: timestamp("background_check_completed_at"),
+  backgroundCheckResults: jsonb("background_check_results").$type<{
+    criminalRecord?: string;
+    creditScore?: number;
+    evictionHistory?: boolean;
+    sexOffenderRegistry?: boolean;
+    verificationStatus?: string;
+    reportUrl?: string;
+  }>(),
+  
   // Care Recipient (if different from applicant)
   residentFirstName: text("resident_first_name"),
   residentLastName: text("resident_last_name"),
@@ -1058,11 +1095,6 @@ export const leasingApplications = pgTable("leasing_applications", {
     petBreed?: string;
     petWeight?: number;
   }>(),
-  
-  // Emergency Contact
-  emergencyContactName: text("emergency_contact_name"),
-  emergencyContactPhone: text("emergency_contact_phone"),
-  emergencyContactRelationship: text("emergency_contact_relationship"),
   
   // DocuSign Integration
   docusignEnvelopeId: text("docusign_envelope_id"),

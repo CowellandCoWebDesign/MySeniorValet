@@ -73,7 +73,24 @@ import { nationwidePricingResearch } from "./nationwide-pricing-research";
 import { ServiceListingClassifier } from "./service-listing-classifier";
 import { affiliateTracker } from "./affiliate-tracking";
 import { enhancedPlatformStats } from "./enhanced-platform-stats";
+import multer from "multer";
 import { realDataAnalyzer } from "./real-data-analyzer";
+
+// Configure multer for file uploads
+const multerStorage = multer.memoryStorage();
+const upload = multer({ 
+  storage: multerStorage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'application/pdf') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only PDF files are allowed') as any);
+    }
+  }
+});
 
 // Authentication middleware function
 const isAuthenticated = (req: any, res: any, next: any) => {
@@ -1584,6 +1601,291 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Community detail error:', error);
       res.status(500).json({ message: 'Failed to fetch community details' });
+    }
+  });
+
+  // Resident Onboarding API
+  app.post('/api/resident/onboarding', async (req, res) => {
+    try {
+      const onboardingData = req.body;
+      
+      // Create leasing application with all resident data
+      const applicationData = {
+        communityId: onboardingData.communityId || 1, // Default for now
+        status: "Submitted" as const,
+        applicantFirstName: onboardingData.firstName,
+        applicantLastName: onboardingData.lastName,
+        applicantEmail: onboardingData.email,
+        applicantPhone: onboardingData.phone,
+        applicantDateOfBirth: onboardingData.dateOfBirth,
+        applicantSSN: onboardingData.ssn, // Would be encrypted in production
+        
+        // Co-applicant if provided
+        coApplicantFirstName: onboardingData.coApplicantFirstName,
+        coApplicantLastName: onboardingData.coApplicantLastName,
+        coApplicantEmail: onboardingData.coApplicantEmail,
+        coApplicantPhone: onboardingData.coApplicantPhone,
+        coApplicantDateOfBirth: onboardingData.coApplicantDateOfBirth,
+        coApplicantSSN: onboardingData.coApplicantSSN,
+        
+        // Emergency contacts
+        emergencyContactName: onboardingData.emergencyContactName,
+        emergencyContactRelationship: onboardingData.emergencyContactRelationship,
+        emergencyContactPhone: onboardingData.emergencyContactPhone,
+        emergencyContactEmail: onboardingData.emergencyContactEmail,
+        emergencyContactAddress: onboardingData.emergencyContactAddress,
+        
+        secondaryEmergencyContactName: onboardingData.secondaryEmergencyContactName,
+        secondaryEmergencyContactPhone: onboardingData.secondaryEmergencyContactPhone,
+        secondaryEmergencyContactEmail: onboardingData.secondaryEmergencyContactEmail,
+        
+        // Background check
+        backgroundCheckConsent: onboardingData.backgroundCheckConsent,
+        backgroundCheckProvider: onboardingData.backgroundCheckProvider,
+        
+        submittedAt: new Date(),
+      };
+      
+      // In production, this would save to database
+      // For now, return success
+      res.json({
+        success: true,
+        applicationId: Math.floor(Math.random() * 10000),
+        message: "Onboarding application submitted successfully",
+      });
+    } catch (error) {
+      console.error('Onboarding error:', error);
+      res.status(500).json({ message: 'Failed to submit onboarding application' });
+    }
+  });
+
+  // Background Check API
+  app.post('/api/background-check/initiate', async (req, res) => {
+    try {
+      const { applicationId, provider } = req.body;
+      
+      // Import background check service
+      const { backgroundCheckService } = await import('./background-check-service');
+      
+      // Mock applicant info for demo
+      const result = await backgroundCheckService.initiateCheck({
+        applicationId,
+        provider,
+        applicantInfo: {
+          firstName: "John",
+          lastName: "Doe",
+          email: "john.doe@example.com",
+          ssn: "123-45-6789",
+          dateOfBirth: "1950-01-01",
+          currentAddress: "123 Main St, Anytown, CA 12345",
+        },
+      });
+      
+      res.json({
+        success: true,
+        requestId: result.requestId,
+        estimatedCompletion: result.estimatedCompletion,
+        affiliateEarnings: backgroundCheckService.calculateAffiliateEarnings(provider),
+      });
+    } catch (error) {
+      console.error('Background check error:', error);
+      res.status(500).json({ message: 'Failed to initiate background check' });
+    }
+  });
+
+  // Get background check providers
+  app.get('/api/background-check/providers', async (req, res) => {
+    try {
+      const { backgroundCheckService } = await import('./background-check-service');
+      const providers = await backgroundCheckService.getProviderDetails();
+      res.json(providers);
+    } catch (error) {
+      console.error('Provider fetch error:', error);
+      res.status(500).json({ message: 'Failed to fetch providers' });
+    }
+  });
+
+  // Lease Upload API
+  app.post('/api/lease/upload', upload.single('lease'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+      }
+      
+      const { applicationId } = req.body;
+      
+      // In production, this would save file to S3 or similar
+      // For now, return mock response
+      const leaseDocument = {
+        id: Math.floor(Math.random() * 10000),
+        filename: req.file.originalname,
+        uploadedAt: new Date().toISOString(),
+        status: "uploaded",
+        applicationId: parseInt(applicationId),
+      };
+      
+      res.json({
+        success: true,
+        document: leaseDocument,
+      });
+    } catch (error) {
+      console.error('Lease upload error:', error);
+      res.status(500).json({ message: 'Failed to upload lease document' });
+    }
+  });
+
+  // AI Lease Analysis API
+  app.post('/api/lease/:documentId/analyze', async (req, res) => {
+    try {
+      const documentId = parseInt(req.params.documentId);
+      
+      // Mock AI analysis results
+      const analysisResults = {
+        rentAmount: 3500,
+        leaseStartDate: "2025-02-01",
+        leaseEndDate: "2026-01-31",
+        unitNumber: "204B",
+        securityDeposit: 3500,
+        petPolicy: "Allowed with $500 deposit",
+        utilities: ["Water", "Trash", "Sewer"],
+        specialClauses: [
+          "No smoking policy",
+          "Quiet hours 10pm-7am",
+          "Guest parking available",
+        ],
+        requiredSignatures: 3,
+      };
+      
+      res.json({
+        success: true,
+        documentId,
+        status: "analyzed",
+        aiAnalysis: analysisResults,
+      });
+    } catch (error) {
+      console.error('Lease analysis error:', error);
+      res.status(500).json({ message: 'Failed to analyze lease document' });
+    }
+  });
+
+  // Prepare DocuSign API
+  app.post('/api/lease/:documentId/prepare-docusign', async (req, res) => {
+    try {
+      const documentId = parseInt(req.params.documentId);
+      const { residentInfo, applicationId } = req.body;
+      
+      // Mock DocuSign preparation
+      res.json({
+        success: true,
+        documentId,
+        status: "prepared",
+        docusignReady: true,
+        signatureFields: [
+          { page: 1, x: 100, y: 700, type: "resident" },
+          { page: 8, x: 100, y: 200, type: "community" },
+          { page: 8, x: 300, y: 200, type: "witness" },
+        ],
+      });
+    } catch (error) {
+      console.error('DocuSign preparation error:', error);
+      res.status(500).json({ message: 'Failed to prepare DocuSign document' });
+    }
+  });
+
+  // Send DocuSign API
+  app.post('/api/lease/:documentId/send-docusign', async (req, res) => {
+    try {
+      const documentId = parseInt(req.params.documentId);
+      
+      // Mock DocuSign sending
+      const envelopeId = `ENV_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      res.json({
+        success: true,
+        documentId,
+        status: "sent",
+        docusignEnvelopeId: envelopeId,
+        sentAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error('DocuSign send error:', error);
+      res.status(500).json({ message: 'Failed to send DocuSign document' });
+    }
+  });
+
+  // Get lease documents for application
+  app.get('/api/applications/:applicationId/lease-documents', async (req, res) => {
+    try {
+      const applicationId = parseInt(req.params.applicationId);
+      
+      // Mock lease documents
+      const documents = [
+        {
+          id: 1001,
+          filename: "Standard_Lease_Agreement.pdf",
+          uploadedAt: new Date(Date.now() - 3600000).toISOString(),
+          status: "analyzed",
+          aiAnalysis: {
+            rentAmount: 3500,
+            leaseStartDate: "2025-02-01",
+            leaseEndDate: "2026-01-31",
+            unitNumber: "204B",
+            securityDeposit: 3500,
+            petPolicy: "Allowed with $500 deposit",
+            utilities: ["Water", "Trash", "Sewer"],
+            requiredSignatures: 3,
+          },
+        },
+      ];
+      
+      res.json(documents);
+    } catch (error) {
+      console.error('Lease documents fetch error:', error);
+      res.status(500).json({ message: 'Failed to fetch lease documents' });
+    }
+  });
+
+  // Get resident info for application
+  app.get('/api/applications/:applicationId/resident', async (req, res) => {
+    try {
+      const applicationId = parseInt(req.params.applicationId);
+      
+      // Mock resident info
+      const residentInfo = {
+        id: applicationId,
+        firstName: "Mary",
+        lastName: "Johnson",
+        email: "mary.johnson@example.com",
+        phone: "(555) 123-4567",
+        emergencyContact: {
+          name: "John Johnson",
+          phone: "(555) 987-6543",
+        },
+      };
+      
+      res.json(residentInfo);
+    } catch (error) {
+      console.error('Resident info fetch error:', error);
+      res.status(500).json({ message: 'Failed to fetch resident information' });
+    }
+  });
+
+  // Payment setup for ACH
+  app.post('/api/payment/setup-ach', requireSimpleAuth, async (req, res) => {
+    try {
+      const { bankName, accountNumber, routingNumber, accountType } = req.body;
+      const userId = req.user.id;
+      
+      // In production, this would securely store encrypted bank details
+      // and set up ACH with payment processor
+      res.json({
+        success: true,
+        message: "ACH payment method added successfully",
+        paymentMethodId: `ach_${Date.now()}`,
+      });
+    } catch (error) {
+      console.error('ACH setup error:', error);
+      res.status(500).json({ message: 'Failed to setup ACH payment' });
     }
   });
 
