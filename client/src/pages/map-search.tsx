@@ -70,10 +70,10 @@ export default function MapSearch() {
   const [hasSeenTutorial, setHasSeenTutorial] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  // Check if user has seen tutorial before (localStorage)
+  // Tutorial disabled - keeping localStorage check for compatibility
   useEffect(() => {
     const hasSeenTutorialBefore = localStorage.getItem('map-tutorial-completed');
-    setHasSeenTutorial(!!hasSeenTutorialBefore);
+    setHasSeenTutorial(true); // Always mark as seen to disable tutorial
   }, []);
 
   // Debug mapBounds changes
@@ -87,19 +87,19 @@ export default function MapSearch() {
     }
   }, [mapBounds]);
 
-  // Auto-show tutorial for first-time users
-  useEffect(() => {
-    if (!hasSeenTutorial && viewMode === 'map') {
-      const timer = setTimeout(() => {
-        try {
-          setShowTutorial(true);
-        } catch (error) {
-          console.error('Error showing tutorial:', error);
-        }
-      }, 2000); // Show tutorial after 2 seconds for first-time users
-      return () => clearTimeout(timer);
-    }
-  }, [hasSeenTutorial, viewMode]);
+  // Tutorial auto-show disabled
+  // useEffect(() => {
+  //   if (!hasSeenTutorial && viewMode === 'map') {
+  //     const timer = setTimeout(() => {
+  //       try {
+  //         setShowTutorial(true);
+  //       } catch (error) {
+  //         console.error('Error showing tutorial:', error);
+  //       }
+  //     }, 2000); // Show tutorial after 2 seconds for first-time users
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [hasSeenTutorial, viewMode]);
 
   const handleTutorialComplete = () => {
     console.log('handleTutorialComplete called');
@@ -1141,7 +1141,8 @@ export default function MapSearch() {
       )}
 
       {/* Map Navigation Tutorial */}
-      {showTutorial && (
+      {/* Tutorial disabled - component removed */}
+      {/* {showTutorial && (
         <MapTutorial
           isVisible={showTutorial}
           onClose={() => {
@@ -1154,7 +1155,7 @@ export default function MapSearch() {
           }}
           onComplete={handleTutorialComplete}
         />
-      )}
+      )} */}
     </div>
   );
 }
