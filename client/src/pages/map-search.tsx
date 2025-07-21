@@ -296,15 +296,24 @@ export default function MapSearch() {
 
   // Debug logging at render time
   useEffect(() => {
-    console.log('Communities state updated:', {
+    console.log('🔥 CRITICAL DEBUG - Communities state updated:', {
       mapCount: mapCommunities.length,
       isLoading: isLoadingCommunities,
       hasBounds: !!mapBounds,
       showBottomPanel,
-      mapCommunities: mapCommunities.slice(0, 3).map((c: Community) => `${c.name} (${c.city})`),
+      mapCommunities: mapCommunities.slice(0, 5).map((c: Community) => `${c.name} (${c.city})`),
       boundsKey: boundsKey,
-      isFetching: isFetchingCommunities
+      isFetching: isFetchingCommunities,
+      timestamp: Date.now()
     });
+    
+    if (showBottomPanel) {
+      console.log('🔥 LIST IS OPEN - Showing communities:', {
+        totalCount: mapCommunities.length,
+        cities: Array.from(new Set(mapCommunities.map(c => c.city))),
+        firstFew: mapCommunities.slice(0, 3).map(c => c.name)
+      });
+    }
   }, [mapCommunities, isLoadingCommunities, mapBounds, showBottomPanel, boundsKey, isFetchingCommunities]);
 
   // State to track if we're waiting for initial load (already declared above)
