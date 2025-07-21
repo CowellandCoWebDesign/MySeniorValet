@@ -61,9 +61,14 @@ const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady })
     if (map) {
       // Wait for map to be fully loaded before adding controls
       const initializeEnhancedControls = () => {
+        // Prevent duplicate controls by checking if they already exist
+        if (map._controlsInitialized) {
+          return;
+        }
+        
         try {
           // 1. Fullscreen Control - Essential for seniors who need larger viewing areas
-          if ((window as any).L?.Control?.Fullscreen) {
+          if ((window as any).L?.Control?.Fullscreen && !map._fullscreenControl) {
             const fullscreenControl = new (window as any).L.Control.Fullscreen({
               title: {
                 'false': 'View Fullscreen',
@@ -71,10 +76,11 @@ const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady })
               }
             });
             map.addControl(fullscreenControl);
+            map._fullscreenControl = fullscreenControl;
           }
           
-          // 2. Location Control - GPS assistance for seniors
-          if ((window as any).L?.Control?.Locate) {
+          // 2. Location Control - GPS assistance for seniors  
+          if ((window as any).L?.Control?.Locate && !map._locateControl) {
             const locateControl = new (window as any).L.Control.Locate({
               position: 'bottomleft',
               drawCircle: true,
@@ -107,10 +113,11 @@ const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady })
               }
             });
             map.addControl(locateControl);
+            map._locateControl = locateControl;
           }
           
           // 3. Scale Control - Distance reference for seniors
-          if ((window as any).L?.Control?.Scale) {
+          if ((window as any).L?.Control?.Scale && !map._scaleControl) {
             const scaleControl = new (window as any).L.Control.Scale({
               position: 'bottomright',
               maxWidth: 150,
@@ -119,10 +126,11 @@ const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady })
               updateWhenIdle: false
             });
             map.addControl(scaleControl);
+            map._scaleControl = scaleControl;
           }
           
           // 4. Enhanced Geocoder Control - Better search functionality
-          if ((window as any).L?.Control?.Geocoder) {
+          if ((window as any).L?.Control?.Geocoder && !map._geocoderControl) {
             const geocoder = new (window as any).L.Control.Geocoder.nominatim({
               geocodingQueryParams: {
                 countrycodes: 'us,ca,mx,pr', // North American focus
@@ -155,7 +163,11 @@ const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady })
             });
             
             map.addControl(geocoderControl);
+            map._geocoderControl = geocoderControl;
           }
+          
+          // Mark controls as initialized
+          map._controlsInitialized = true;
           
         } catch (error) {
           console.warn('Some enhanced map controls could not be loaded:', error);
@@ -713,19 +725,7 @@ export default function Map({
   
   return (
     <div className="w-full flex" style={{ height: mapHeight, minHeight: '600px' }}>
-      {/* Performance Monitor Dashboard */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="performance-monitor">
-          <div className="text-green-400 font-bold mb-1">⚡ Performance Monitor</div>
-          <div>Render: {performanceMetrics.renderTime}ms</div>
-          <div>Markers: {performanceMetrics.markerCount}</div>
-          <div>Memory: {Math.round(performanceMetrics.memoryUsage / 1024 / 1024)}MB</div>
-          <div>FPS: {Math.round(1000 / Math.max(performanceMetrics.renderTime, 1))}</div>
-          <div className="text-xs opacity-60 mt-1">
-            Updated: {new Date(performanceMetrics.lastUpdate).toLocaleTimeString()}
-          </div>
-        </div>
-      )}
+      {/* Performance monitor removed per user request */}
       
       {/* Map Container */}
       <div className="flex-1 relative" style={{ minHeight: '400px' }}>
