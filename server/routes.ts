@@ -1019,51 +1019,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`Bounds: [${swLngFloat}, ${swLatFloat}, ${neLngFloat}, ${neLatFloat}]`);
       
-      // OPTIMIZED: Build efficient query with indexed columns first
-      let query = db.select().from(communities);
+      // ULTRA-OPTIMIZED: Fast spatial search with minimal overhead
+      console.log(`⚡ Starting optimized spatial search for bounds [${swLngFloat}, ${swLatFloat}, ${neLngFloat}, ${neLatFloat}]`);
       
-      // Primary spatial filter - use database indices
-      query = query.where(
-        and(
-          between(communities.latitude, swLatFloat, neLatFloat),
-          between(communities.longitude, swLngFloat, neLngFloat)
-        )
-      );
-
-      // Additional filters applied after spatial filter
+      // Use raw SQL for maximum performance - bypass ORM overhead
+      const sqlQuery = `
+        SELECT id, name, address, city, state, "zipCode", latitude, longitude, 
+               "careTypes", rating, "reviewCount", phone, website, "priceRange", 
+               availability, photos, description, "phoneFormatted", "communityType",
+               amenities, "medicalRestrictions", "unitTypes", "floorPlans"
+        FROM communities 
+        WHERE latitude BETWEEN $1 AND $2 
+          AND longitude BETWEEN $3 AND $4
+        ${careType && careType !== 'All Types' ? `AND $5 = ANY("careTypes")` : ''}
+        ${minRating ? `AND rating >= ${parseFloat(minRating as string)}` : ''}
+        ORDER BY ABS(latitude - $${careType && careType !== 'All Types' ? '6' : '5'}) + ABS(longitude - $${careType && careType !== 'All Types' ? '7' : '6'})
+        LIMIT $${careType && careType !== 'All Types' ? '8' : '7'}
+      `;
+      
+      const params = [
+        swLatFloat, 
+        neLatFloat, 
+        swLngFloat, 
+        neLngFloat,
+        centerLat,
+        centerLng,
+        parseInt(limit as string)
+      ];
+      
       if (careType && careType !== 'All Types') {
-        query = query.where(sql`${careType} = ANY(${communities.careTypes})`);
+        params.splice(4, 0, careType); // Insert careType at position 4
       }
       
-      if (minRating) {
-        query = query.where(gte(communities.rating, parseFloat(minRating as string)));
-      }
-
-      if (amenities && Array.isArray(amenities)) {
-        for (const amenity of amenities) {
-          query = query.where(sql`${amenity} = ANY(${communities.amenities})`);
-        }
-      }
-
-      // OPTIMIZED: Simplified distance ordering for better performance
-      query = query.orderBy(
-        sql`ABS(${communities.latitude} - ${centerLat}) + ABS(${communities.longitude} - ${centerLng})`
-      );
-
-      // Add limit
-      query = query.limit(parseInt(limit as string));
-
-      // Execute query with timeout protection
+      // Execute optimized query with aggressive timeout
       const result = await Promise.race([
-        query,
+        db.execute(sql.raw(sqlQuery, params)),
         new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Query timeout after 6 seconds')), 6000)
+          setTimeout(() => reject(new Error('Query timeout after 2 seconds')), 2000)
         )
-      ]) as any[];
+      ]) as any;
       
-      console.log(`PostGIS spatial search returned ${result.length} communities in ${Date.now() - startTime}ms`);
+      const communities = result.rows || result; // Handle both execute() and select() result formats
+      console.log(`✅ PostGIS spatial search returned ${communities.length} communities in ${Date.now() - startTime}ms`);
       
-      res.json(result);
+      res.json(communities);
     } catch (error) {
       console.error('PostGIS spatial search error:', error);
       res.status(500).json({ 

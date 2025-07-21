@@ -293,7 +293,7 @@ export default function MapSearch() {
         throw error; // Re-throw to trigger React Query error handling
       }
     },
-    enabled: showBottomPanel || !!mapBounds, // Fetch when showing list OR when we have bounds
+    enabled: (showBottomPanel && !!mapBounds) || (!!mapBounds && !showBottomPanel), // Always fetch when we have bounds
     staleTime: 5000, // Cache for 5 seconds to prevent excessive requests
     gcTime: 15000, // Keep in cache for 15 seconds
     retry: 1, // Only retry once on failure - faster timeout
@@ -678,34 +678,54 @@ export default function MapSearch() {
     setLocation(`/communities/${community.id}`);
   };
   
-  // Handle map bounds change with proper debugging
+  // Handle map bounds change with enhanced debugging and forced refresh
   const handleMapBoundsChange = useCallback((bounds: any) => {
-    console.log('Map bounds changed in MapSearch:', bounds);
-    console.log('Setting mapBounds state, current communities:', mapCommunities.length);
+    console.log('🗺️ MAP BOUNDS CHANGE DETECTED:', {
+      bounds: bounds ? `${bounds.getSouthWest().lng},${bounds.getSouthWest().lat},${bounds.getNorthEast().lng},${bounds.getNorthEast().lat}` : 'null',
+      previousBounds: mapBounds ? `${mapBounds.getSouthWest().lng},${mapBounds.getSouthWest().lat},${mapBounds.getNorthEast().lng},${mapBounds.getNorthEast().lat}` : 'null',
+      showBottomPanel,
+      currentCommunities: mapCommunities.length,
+      timestamp: Date.now()
+    });
     
-    // Clear communities immediately to prevent showing stale data
-    // No local state management needed - query will refresh automatically
-    
-    setMapBounds(bounds);
-    // Set map moving state for immediate loading feedback
-    setIsMapMoving(true);
-    setTimeout(() => setIsMapMoving(false), 1500); // Clear after debounce
-  }, [mapCommunities.length, showBottomPanel]);
+    if (bounds) {
+      setMapBounds(bounds);
+      setIsMapMoving(true);
+      
+      // Force query invalidation to ensure fresh data
+      if (showBottomPanel) {
+        queryClient.invalidateQueries({ queryKey: ['communities-spatial'] });
+      }
+      
+      setTimeout(() => setIsMapMoving(false), 800); // Shorter timeout for better UX
+    }
+  }, [mapBounds, showBottomPanel, mapCommunities.length, queryClient]);
 
-  // Force initial bounds when map center changes from search
+  // Force initial bounds when map center changes from search OR panel opens
   useEffect(() => {
-    if (hasSearched && !mapBounds) {
-      console.log('Search completed but no bounds yet, waiting for map to initialize...');
+    if ((hasSearched && !mapBounds) || (showBottomPanel && !mapBounds)) {
+      console.log('🚀 FORCING INITIAL LOAD:', { hasSearched, showBottomPanel, mapBounds: !!mapBounds });
       // Force a small delay to ensure map is ready
       setTimeout(() => {
         if (!mapBounds) {
-          console.log('Forcing map to report bounds...');
+          console.log('⚡ Forcing map to report bounds for initial load...');
           // Force map to report its bounds by triggering a minimal change
           setMapZoom(prev => prev === 12 ? 12.01 : 12);
         }
-      }, 500);
+      }, 200); // Reduced delay for faster initial load
     }
-  }, [hasSearched, mapBounds]);
+  }, [hasSearched, mapBounds, showBottomPanel]);
+
+  // Force query when panel opens with existing bounds
+  useEffect(() => {
+    if (showBottomPanel && mapBounds && mapCommunities.length === 0) {
+      console.log('🔄 PANEL OPENED WITH BOUNDS - FORCING QUERY:', {
+        mapBounds: `${mapBounds.getSouthWest().lng},${mapBounds.getSouthWest().lat},${mapBounds.getNorthEast().lng},${mapBounds.getNorthEast().lat}`,
+        timestamp: Date.now()
+      });
+      queryClient.invalidateQueries({ queryKey: ['communities-spatial'] });
+    }
+  }, [showBottomPanel, mapBounds, mapCommunities.length, queryClient]);
 
   const handleClusterClick = (clusterId: number, lat: number, lng: number, zoomLevel: number) => {
     // FIXED: Do not switch to list view automatically on cluster clicks
@@ -1169,17 +1189,27 @@ export default function MapSearch() {
         {/* Panel Header - Enhanced visibility */}
         <div className="px-4 pb-3 border-b-2 border-blue-200 dark:border-blue-700 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100 flex items-center gap-2">
-              🏠 {!mapBounds ? 'Position map to see communities' : 
-               isLoadingCommunities || isFetchingCommunities ? 'Loading communities...' : 
-               `${mapCommunities.length} Communities Found`}
-              {(isLoadingCommunities || isFetchingCommunities) && (
-                <div className="inline-flex items-center gap-1 text-sm font-normal text-blue-600 dark:text-blue-400">
-                  <div className="w-3 h-3 border-2 border-blue-600 dark:border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-                  Loading...
-                </div>
-              )}
-            </h3>
+            <div className="flex flex-col gap-2">
+              <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100 flex items-center gap-2">
+                🏠 {!mapBounds ? 'Position map to see communities' : 
+                 isLoadingCommunities || isFetchingCommunities ? 'Loading communities...' : 
+                 `${mapCommunities.length} Communities Found`}
+                {(isLoadingCommunities || isFetchingCommunities) && (
+                  <div className="inline-flex items-center gap-1 text-sm font-normal text-blue-600 dark:text-blue-400">
+                    <div className="w-3 h-3 border-2 border-blue-600 dark:border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                    Loading...
+                  </div>
+                )}
+              </h3>
+              {/* DEBUG PERFORMANCE MONITOR - VISIBLE TO USER */}
+              <div className="text-xs text-gray-600 dark:text-gray-400 font-mono bg-yellow-100 dark:bg-yellow-900/20 p-2 rounded border border-yellow-300 dark:border-yellow-700">
+                <div className="font-semibold text-yellow-800 dark:text-yellow-200 mb-1">🐛 DEBUG MONITOR:</div>
+                <div>📍 Bounds: {mapBounds ? `${mapBounds.getSouthWest().lat.toFixed(4)}, ${mapBounds.getSouthWest().lng.toFixed(4)} → ${mapBounds.getNorthEast().lat.toFixed(4)}, ${mapBounds.getNorthEast().lng.toFixed(4)}` : 'NOT SET'}</div>
+                <div>🔑 Query Key: {boundsKey || 'NONE'}</div>
+                <div>📊 Panel: {showBottomPanel ? 'OPEN' : 'CLOSED'} | Loading: {isLoadingCommunities ? 'YES' : 'NO'} | Fetching: {isFetchingCommunities ? 'YES' : 'NO'}</div>
+                <div>🏠 Communities: {mapCommunities.length} | Error: {communitiesError ? 'ERROR!' : 'OK'}</div>
+              </div>
+            </div>
             <Button
               variant="ghost"
               size="sm"
