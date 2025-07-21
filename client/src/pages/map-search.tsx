@@ -60,8 +60,8 @@ export default function MapSearch() {
     budget: 'Any Budget',
     availability: 'All Status'
   });
-  const [mapCenter, setMapCenter] = useState<[number, number]>([39.8283, -98.5795]); // Center of USA for better default view
-  const [mapZoom, setMapZoom] = useState(6); // State-level zoom to show clustering
+  const [mapCenter, setMapCenter] = useState<[number, number]>([37.7749, -122.4194]); // San Francisco - city center
+  const [mapZoom, setMapZoom] = useState(12); // City-level zoom (12-14 shows individual locations)
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
   const [mapBounds, setMapBounds] = useState<any>(null);
   const [showBottomPanel, setShowBottomPanel] = useState(false);

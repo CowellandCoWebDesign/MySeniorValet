@@ -26,34 +26,36 @@ Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Zillow-style community dots
+// WebGL-optimized icons with hardware acceleration hints
 const createCustomIcon = (color: string, isHovered = false, isPulsing = false) => {
-  const size = isHovered ? 16 : 12;
-  const borderWidth = 2;
-  const opacity = isHovered ? 1 : 0.9;
+  const size = isHovered ? [30, 50] : [25, 41];
+  const strokeWidth = isHovered ? 3 : 2;
+  const opacity = isPulsing ? 0.8 : 1;
   
   return new Icon({
     iconUrl: `data:image/svg+xml;base64,${btoa(`
-      <svg xmlns="http://www.w3.org/2000/svg" width="${size + 4}" height="${size + 4}" viewBox="0 0 ${size + 4} ${size + 4}">
+      <svg xmlns="http://www.w3.org/2000/svg" width="${size[0]}" height="${size[1]}" viewBox="0 0 25 41" style="transform: translateZ(0); will-change: transform;">
         <defs>
-          <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-            <feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.3"/>
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+            <feMerge> 
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/> 
+            </feMerge>
           </filter>
-          ${isPulsing ? `<animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>` : ''}
+          <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite" ${!isPulsing ? 'begin="indefinite"' : ''}/>
         </defs>
-        <circle cx="${(size + 4)/2}" cy="${(size + 4)/2}" r="${size/2}" 
-          fill="${color}" 
-          stroke="#fff" 
-          stroke-width="${borderWidth}"
-          filter="url(#shadow)"
-          opacity="${opacity}"
-        />
+        <path fill="${color}" stroke="#fff" stroke-width="${strokeWidth}" 
+              d="M12.5 0C5.6 0 0 5.6 0 12.5c0 7.4 12.5 28.5 12.5 28.5s12.5-21.1 12.5-28.5C25 5.6 19.4 0 12.5 0z"
+              opacity="${opacity}" ${isHovered ? 'filter="url(#glow)"' : ''} style="transform: translateZ(0);"/>
+        <circle cx="12.5" cy="12.5" r="6" fill="#fff" style="transform: translateZ(0);"/>
+        ${isHovered ? '<circle cx="12.5" cy="12.5" r="4" fill="' + color + '" style="transform: translateZ(0);"/>' : ''}
       </svg>
     `)}`,
-    iconSize: [size + 4, size + 4],
-    iconAnchor: [(size + 4)/2, (size + 4)/2],
-    popupAnchor: [0, -(size + 4)/2],
-    className: `zillow-marker ${isHovered ? 'marker-hover' : ''}`
+    iconSize: size,
+    iconAnchor: [size[0]/2, size[1]],
+    popupAnchor: [0, -size[1]],
+    className: `optimized-marker ${isHovered ? 'marker-hover' : ''}`
   });
 };
 
@@ -562,8 +564,12 @@ export default function Map({
   });
 
   const getIconForCommunity = (community: Community, isHovered = false, isPulsing = false) => {
-    // Zillow-style blue dots for all communities
-    const baseColor = isHovered ? '#2563eb' : '#3b82f6'; // Brighter blue on hover
+    const careTypes = community.careTypes || [];
+    let baseColor = '#1e40af'; // Blue
+    
+    if (careTypes.includes('Memory Care')) baseColor = '#dc2626'; // Red
+    else if (careTypes.includes('Assisted Living')) baseColor = '#16a34a'; // Green
+    else if (careTypes.includes('Independent Living')) baseColor = '#7c3aed'; // Purple
     
     return createCustomIcon(baseColor, isHovered, isPulsing);
   };
@@ -769,49 +775,26 @@ export default function Map({
           const [lng, lat] = feature.geometry.coordinates;
           const { properties } = feature;
           
-          // Handle cluster markers (multiple communities) - Zillow style without numbers
+          // Handle cluster markers (multiple communities)
           if (properties.cluster) {
-            // Zillow-style cluster sizing based on point count
-            let size = 24; // Small cluster
-            let innerSize = 16;
-            let borderWidth = 3;
-            
-            if (properties.point_count >= 50) {
-              size = 40; // Large cluster
-              innerSize = 32;
-              borderWidth = 4;
-            } else if (properties.point_count >= 10) {
-              size = 32; // Medium cluster
-              innerSize = 24;
-              borderWidth = 3;
-            }
-            
+            // Simple cluster icon
+            const size = Math.min(40 + Math.log10(properties.point_count || 1) * 8, 60);
             const isHovered = hoveredCluster === properties.cluster_id;
-            const clusterColor = isHovered ? '#2563eb' : '#3b82f6';
-            const borderColor = isHovered ? '#1e40af' : '#fff';
+            const clusterColor = isHovered ? '#2563eb' : '#1e40af';
             
-            // Create Zillow-style cluster without numbers
             const clusterIcon = new Icon({
               iconUrl: `data:image/svg+xml;base64,${btoa(`
                 <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-                  <defs>
-                    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-                      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.3"/>
-                    </filter>
-                  </defs>
-                  <circle cx="${size/2}" cy="${size/2}" r="${innerSize/2}" 
-                    fill="${clusterColor}" 
-                    stroke="${borderColor}" 
-                    stroke-width="${borderWidth}"
-                    filter="url(#shadow)"
-                    opacity="${isHovered ? '1' : '0.9'}"
-                  />
+                  <circle cx="${size/2}" cy="${size/2}" r="${size/2 - 2}" fill="${clusterColor}" stroke="#fff" stroke-width="3"/>
+                  <text x="${size/2}" y="${size/2 + 4}" text-anchor="middle" fill="#fff" font-size="${Math.min(12, size/4)}" font-weight="bold">
+                    ${properties.point_count_abbreviated}
+                  </text>
                 </svg>
               `)}`,
               iconSize: [size, size],
               iconAnchor: [size/2, size/2],
               popupAnchor: [0, -size/2],
-              className: `zillow-cluster-marker ${isHovered ? 'cluster-hover' : ''}`
+              className: `cluster-marker`
             });
 
             return (
