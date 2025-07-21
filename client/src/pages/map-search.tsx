@@ -251,7 +251,7 @@ export default function MapSearch() {
         return [];
       }
     },
-    enabled: showBottomPanel || !!mapBounds, // Fetch when showing list OR when we have bounds
+    enabled: !!mapBounds, // Always fetch when we have map bounds
     staleTime: 0, // No cache - always fresh data
     gcTime: 0, // No garbage collection time
     retry: 1, // Only retry once on failure
@@ -1216,7 +1216,7 @@ export default function MapSearch() {
                 </div>
               ))}
             </div>
-          ) : mapCommunities.length === 0 ? (
+          ) : (!mapCommunities || mapCommunities.length === 0) ? (
             <div className="text-center py-12">
               <div className="bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/20 dark:to-red-900/20 rounded-2xl p-8 mx-4">
                 <MapIcon className="w-16 h-16 mx-auto text-orange-500 mb-4" />
@@ -1373,6 +1373,11 @@ export default function MapSearch() {
               if (!showBottomPanel) {
                 setPanelHeight(70); // Set to 70% when opening
                 setShowBottomPanel(true);
+                // Force refetch when opening list view
+                if (mapBounds) {
+                  console.log('Forcing community refetch on list open...');
+                  refetchCommunities();
+                }
               } else {
                 setShowBottomPanel(false);
               }
