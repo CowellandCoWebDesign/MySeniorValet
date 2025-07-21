@@ -4,7 +4,7 @@
 
 ## Overview
 
-MySeniorValet is a full-stack senior living community search platform that prioritizes pricing transparency, real-time availability, and trusted reviews. The platform helps families make informed decisions by providing comprehensive community information including amenities, services, medical restrictions, and verified review sources. Key features include interactive map visualization, detailed community profiles with availability tracking, and a claim system for community owners.
+MySeniorValet is a comprehensive senior living transparency platform focused on real pricing, costs, and availability research, followed by complete post-move services including bill payment and account management. The platform enables senior living communities to become tech-professional by providing unified resident onboarding systems that reduce the need for multiple management platforms. Key features include transparent pricing research, professional move coordination, ongoing resident services, and community technology solutions.
 
 ## System Architecture
 

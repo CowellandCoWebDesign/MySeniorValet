@@ -41,12 +41,12 @@ export default function Home() {
         <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 lg:mb-12">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-display font-bold text-gray-900 mb-6 leading-tight">
-              Find Senior Living with{" "}
-              <span className="text-primary bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Transparent Pricing</span> &{" "}
-              <span className="bg-gradient-to-r from-indigo-600 to-purple-700 bg-clip-text text-transparent">Live Availability</span>
+              Senior Living{" "}
+              <span className="text-primary bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Transparency</span> &{" "}
+              <span className="bg-gradient-to-r from-indigo-600 to-purple-700 bg-clip-text text-transparent">Complete Care</span>
             </h1>
             <p className="text-lg lg:text-xl text-gray-700 max-w-3xl mx-auto mb-8 leading-relaxed">
-              Get real pricing, read authentic reviews, check live availability, and explore amenities to make confident decisions for your family.
+              Research with real pricing and availability, then get complete post-move services including bill payment and account management. We help communities become tech-professional with unified resident onboarding.
             </p>
             
             {/* Optimized Feature Pills */}
@@ -56,14 +56,14 @@ export default function Home() {
                   <div className="p-1 bg-blue-100 rounded-full relative z-10">
                     <DollarSign className="text-blue-600 h-4 w-4" />
                   </div>
-                  <span className="text-sm font-semibold text-blue-800 relative z-10">Real Pricing</span>
+                  <span className="text-sm font-semibold text-blue-800 relative z-10">Real Transparency</span>
                   <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-400 rounded-full opacity-0 group-hover:opacity-100 animate-ping"></div>
                 </div>
-                <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-md px-4 py-2 rounded-xl shadow-md border border-yellow-200/50 hover:shadow-lg transition-all duration-300 group relative overflow-hidden">
-                  <div className="p-1 bg-yellow-100 rounded-full">
-                    <Star className="text-yellow-500 h-4 w-4" />
+                <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-md px-4 py-2 rounded-xl shadow-md border border-green-200/50 hover:shadow-lg transition-all duration-300 group relative overflow-hidden">
+                  <div className="p-1 bg-green-100 rounded-full">
+                    <Users className="text-green-600 h-4 w-4" />
                   </div>
-                  <span className="text-sm font-semibold text-yellow-800">Trusted Reviews</span>
+                  <span className="text-sm font-semibold text-green-800">Post-Move Services</span>
                 </div>
                 <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-md px-4 py-2 rounded-xl shadow-md border border-blue-200/50 hover:shadow-lg transition-shadow duration-300">
                   <div className="p-1 bg-blue-100 rounded-full">
@@ -73,9 +73,9 @@ export default function Home() {
                 </div>
                 <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-md px-4 py-2 rounded-xl shadow-md border border-purple-200/50 hover:shadow-lg transition-shadow duration-300">
                   <div className="p-1 bg-purple-100 rounded-full">
-                    <Activity className="text-purple-600 h-4 w-4" />
+                    <Wifi className="text-purple-600 h-4 w-4" />
                   </div>
-                  <span className="text-sm font-semibold text-purple-800">Rich Amenities</span>
+                  <span className="text-sm font-semibold text-purple-800">Tech-Professional Communities</span>
                 </div>
             </div>
           </div>

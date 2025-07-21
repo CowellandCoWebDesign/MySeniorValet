@@ -6,9 +6,15 @@
 
 ## 🎯 **PLATFORM MISSION & CORE VALUE PROPOSITION**
 
-MySeniorValet is a revolutionary senior living discovery platform that eliminates the "call for pricing" problem through intelligent transparency. We provide complete end-to-end concierge services including live pricing, unit availability, move coordination, and prescription delivery across 25,782+ communities spanning North America (US, Canada, Mexico, Puerto Rico).
+MySeniorValet's mission is **senior transparency of real pricing, costs, and real availability** of the senior housing market. We provide comprehensive senior housing research followed by essential post-move services including bill payment and account management for new residents. Our platform enables senior living communities to become tech-professional in the industry, reducing the need for multiple systems to onboard new residents.
 
-**Unique Positioning**: The only platform that provides REAL pricing estimates for ALL communities, never forcing families to "call for pricing."
+**Complete Service Journey**:
+1. **Pre-Move**: Transparent pricing research and availability tracking across 25,782+ communities
+2. **Move Coordination**: Professional relocation and setup services  
+3. **Post-Move**: Bill payment, account management, and ongoing resident support
+4. **Community Tech Solutions**: Unified resident onboarding and management systems
+
+**Unique Positioning**: The only platform providing end-to-end senior living transparency from initial research through ongoing resident services, eliminating "call for pricing" and creating tech-professional community management.
 
 ---
 
@@ -253,23 +259,27 @@ CREATE INDEX communities_pricing_idx ON communities(pricing_last_updated);
 ## 💰 **BUSINESS MODEL & MONETIZATION**
 
 ### **Revenue Streams**
-1. **Transaction Fees**: $1.95 per successful community connection
-2. **Premium Listings**: Enhanced visibility for claimed communities
-3. **Advertising Revenue**: Targeted senior living service ads
-4. **Data Licensing**: Anonymized market insights to industry
+1. **Research & Placement Fees**: $1.95 per successful community connection
+2. **Post-Move Services**: Monthly bill payment and account management fees
+3. **Community Tech Solutions**: SaaS subscriptions for resident onboarding systems
+4. **Premium Community Services**: Enhanced visibility and management tools for communities
+5. **Move Coordination Services**: Professional relocation and setup service fees
+6. **Data Licensing**: Anonymized market transparency insights to industry
 
 ### **Target Markets**
-- **Primary**: Adult children (45-65) seeking care for parents
-- **Secondary**: Seniors (65+) seeking independent/assisted living
-- **Tertiary**: Healthcare professionals and social workers
-- **B2B**: Senior living communities and healthcare networks
+- **Primary**: Adult children (45-65) seeking transparent pricing and care coordination for parents
+- **Secondary**: Seniors (65+) needing comprehensive move and post-move support services
+- **Tertiary**: Healthcare professionals requiring transparent pricing data
+- **B2B Primary**: Senior living communities needing tech-professional resident onboarding systems
+- **B2B Secondary**: Property management companies requiring unified resident management
 
 ### **Competitive Advantages**
-1. **Pricing Transparency**: Only platform eliminating "call for pricing"
-2. **Comprehensive Coverage**: 25,782 communities vs competitors' thousands
-3. **Government Data**: Official, verified information sources
-4. **Senior Accessibility**: Purpose-built for aging population
-5. **Family Collaboration**: Unique multi-user decision support
+1. **Complete Transparency**: Real pricing, costs, and availability - never "call for pricing"
+2. **End-to-End Service**: From research through post-move account management
+3. **Community Tech Integration**: Unified resident onboarding reduces multiple systems
+4. **Comprehensive Coverage**: 25,782 communities with government-verified data
+5. **Senior Accessibility**: Purpose-built for aging population needs
+6. **Professional Move Coordination**: White-glove relocation and setup services
 
 ---
 
