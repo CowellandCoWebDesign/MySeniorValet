@@ -66,6 +66,11 @@ export default function MapSearch() {
   const [mapBounds, setMapBounds] = useState<any>(null);
   const [showBottomPanel, setShowBottomPanel] = useState(false);
   const [panelHeight, setPanelHeight] = useState(70); // Percentage of screen height - increased for better visibility
+  const [localCommunities, setLocalCommunities] = useState<Community[]>([]);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [isMapMoving, setIsMapMoving] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const [hasSeenTutorial, setHasSeenTutorial] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -146,8 +151,7 @@ export default function MapSearch() {
     ? `${mapBounds.getSouthWest().lng.toFixed(4)},${mapBounds.getSouthWest().lat.toFixed(4)},${mapBounds.getNorthEast().lng.toFixed(4)},${mapBounds.getNorthEast().lat.toFixed(4)}`
     : 'no-bounds';
 
-  // Use state to store communities to ensure updates
-  const [localCommunities, setLocalCommunities] = useState<Community[]>([]);
+  // Use state to store communities to ensure updates (declared above)
   
   const { data: mapCommunities = [], isLoading: isLoadingCommunities, isFetching: isFetchingCommunities, refetch: refetchCommunities } = useQuery({
     queryKey: ['communities-map-bounds', boundsKey, showBottomPanel],
@@ -288,9 +292,7 @@ export default function MapSearch() {
     });
   }, [localCommunities, mapCommunities, isLoadingCommunities, mapBounds, showBottomPanel, boundsKey, isFetchingCommunities]);
 
-  // State to track if we're waiting for initial load
-  const [isInitialLoad, setIsInitialLoad] = useState(false);
-  const [isMapMoving, setIsMapMoving] = useState(false);
+  // State to track if we're waiting for initial load (already declared above)
 
   // Force refetch when bounds change
   const prevBoundsRef = useRef(boundsKey);
@@ -334,8 +336,7 @@ export default function MapSearch() {
     retry: 1,
   });
 
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  // suggestions and loadingSuggestions already declared above
 
   const handleLocationSearch = async (location: string) => {
     if (!location || location.trim() === '') return;
@@ -641,21 +642,22 @@ export default function MapSearch() {
     setLocation(`/communities/${community.id}`);
   };
   
-  // Handle map bounds change with proper debugging
+  // Handle map bounds change with proper debugging and stale data prevention
   const handleMapBoundsChange = useCallback((bounds: any) => {
     console.log('Map bounds changed in MapSearch:', bounds);
-    console.log('Setting mapBounds state, current communities:', mapCommunities.length);
+    console.log('Setting mapBounds state, current communities:', mapCommunities?.length || 0);
     
     // Clear communities immediately to prevent showing stale data
     if (showBottomPanel) {
+      console.log('Clearing local communities to prevent stale data');
       setLocalCommunities([]);
     }
     
     setMapBounds(bounds);
     // Set map moving state for immediate loading feedback
     setIsMapMoving(true);
-    setTimeout(() => setIsMapMoving(false), 1500); // Clear after debounce
-  }, [mapCommunities.length, showBottomPanel]);
+    setTimeout(() => setIsMapMoving(false), 2000); // Clear after data loads
+  }, [showBottomPanel]);
 
   // Force initial bounds when map center changes from search
   useEffect(() => {
@@ -1080,7 +1082,7 @@ export default function MapSearch() {
       </div>
 
       {/* Map Container - Always show map */}
-      <div className="flex-1">
+      <div className="flex-1 relative">
         <div className="h-full" style={{ minHeight: '600px' }}>
           <MapErrorBoundary>
             <Map
@@ -1094,6 +1096,16 @@ export default function MapSearch() {
             />
           </MapErrorBoundary>
         </div>
+        
+        {/* Floating Location Change Indicator */}
+        {(isMapMoving || isLoadingCommunities || isFetchingCommunities) && (
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[999] bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 animate-pulse">
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <span className="text-sm font-medium">
+              {isMapMoving ? 'Map moving...' : 'Loading communities...'}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Enhanced Bottom Slide Panel - Fixed visibility */}
@@ -1138,12 +1150,12 @@ export default function MapSearch() {
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100 flex items-center gap-2">
               🏠 {!mapBounds ? 'Position map to see communities' : 
-               isLoadingCommunities || isFetchingCommunities ? 'Loading communities...' : 
-               `${localCommunities.length} Communities Found`}
-              {(isLoadingCommunities || isFetchingCommunities) && (
+               isLoadingCommunities || isFetchingCommunities || isMapMoving || isInitialLoad ? 'Updating location...' : 
+               `${mapCommunities?.length || 0} Communities Found`}
+              {(isLoadingCommunities || isFetchingCommunities || isMapMoving || isInitialLoad) && (
                 <div className="inline-flex items-center gap-1 text-sm font-normal text-blue-600 dark:text-blue-400">
                   <div className="w-3 h-3 border-2 border-blue-600 dark:border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-                  Loading...
+                  {isMapMoving ? 'Moving...' : 'Loading...'}
                 </div>
               )}
             </h3>
@@ -1215,7 +1227,7 @@ export default function MapSearch() {
           ) : (
             <div className="space-y-3">
               {/* Use mapCommunities directly for immediate updates instead of localCommunities */}
-              {mapCommunities.map((community, index) => (
+              {mapCommunities.map((community: Community, index: number) => (
                 <div
                   key={community.id}
                   className="bg-gradient-to-r from-white to-blue-50/50 dark:from-gray-800 dark:to-blue-900/20 rounded-xl border-2 border-blue-200/50 dark:border-blue-700/50 p-5 cursor-pointer hover:shadow-xl hover:scale-[1.02] transition-all duration-300 hover:border-blue-400 dark:hover:border-blue-500"
@@ -1236,7 +1248,7 @@ export default function MapSearch() {
                           {/* Care Types */}
                           {community.careTypes && community.careTypes.length > 0 && (
                             <div className="flex flex-wrap gap-1 mb-3">
-                              {community.careTypes.slice(0, 2).map((type, typeIndex) => (
+                              {community.careTypes.slice(0, 2).map((type: string, typeIndex: number) => (
                                 <span key={typeIndex} className="px-2 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 text-xs rounded-full font-medium">
                                   {type}
                                 </span>
