@@ -73,6 +73,7 @@
     "ioredis": "^5.6.1",
     "jsonwebtoken": "^9.0.2",
     "leaflet": "^1.9.4",
+    "leaflet.markercluster": "^1.5.3",
     "lucide-react": "^0.453.0",
     "memoizee": "^0.4.17",
     "memorystore": "^1.6.7",
