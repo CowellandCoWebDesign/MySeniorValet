@@ -22,7 +22,7 @@ export function Header() {
       <div className="absolute top-0 right-1/4 w-24 h-16 bg-gradient-to-r from-cyan-400/10 to-teal-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
       
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-12">
           <div className="flex items-center space-x-8">
             <Link href="/" className="flex items-center space-x-3 group" aria-label="MySeniorValet Home - Senior Living Community Search">
               <div className="relative w-10 h-10 bg-gradient-to-br from-blue-600 via-purple-600 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 overflow-hidden" aria-hidden="true">

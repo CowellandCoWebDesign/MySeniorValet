@@ -642,7 +642,7 @@ export default function MapSearch() {
       </div>
 
       {/* Filters Bar */}
-      <div className={`border-b p-4 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}>
+      <div className={`border-b p-2 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}>
         <div className="flex items-center gap-2 overflow-x-auto">
           <Drawer>
             <DrawerTrigger asChild>

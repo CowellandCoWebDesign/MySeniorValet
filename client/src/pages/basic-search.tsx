@@ -906,7 +906,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
         
         {/* Expanded Filter Panel */}
         {showFilters && (
-          <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+          <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
             {/* Care Types */}
             <div className="mb-4">
               <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">CARE TYPES</h3>

@@ -296,27 +296,27 @@ export default function SearchWorking() {
       {/* Header */}
       <div className="sticky top-0 bg-white z-30 border-b border-gray-200">
         {/* Search Bar */}
-        <div className="px-4 py-3">
+        <div className="px-4 py-2">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               type="text"
               placeholder="Senior living communities, city, region"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-12 h-12 text-base border-gray-300 rounded-lg"
+              className="pl-9 pr-12 h-9 text-sm border-gray-300 rounded-lg"
             />
             <Button 
               size="sm" 
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white px-3"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white px-2 h-7"
             >
-              <Filter className="w-4 h-4" />
+              <Filter className="w-3 h-3" />
             </Button>
           </div>
         </div>
 
         {/* Filter Pills */}
-        <div className="px-4 pb-3 flex space-x-3 overflow-x-auto">
+        <div className="px-4 pb-2 flex space-x-2 overflow-x-auto">
           <Button
             variant="outline"
             className="flex-shrink-0 border-blue-600 text-blue-600 hover:bg-blue-50"

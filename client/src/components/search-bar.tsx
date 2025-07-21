@@ -90,8 +90,8 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-8 border border-gray-200 dark:border-gray-700">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4 md:p-5 border border-gray-200 dark:border-gray-700">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4">
           <div className="md:col-span-2">
             <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Location</Label>
             <div className="relative">
