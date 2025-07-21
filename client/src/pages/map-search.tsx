@@ -241,9 +241,6 @@ export default function MapSearch() {
           allNames: data.slice(0, 5).map((c: any) => `${c.name} (${c.city})`),
           boundsKey
         });
-        // Update local state immediately
-        setLocalCommunities(data);
-        console.log('Updated localCommunities with', data.length, 'communities');
         return data;
       } catch (error) {
         console.error('Error fetching communities:', error);
@@ -261,6 +258,14 @@ export default function MapSearch() {
   // State for expanded search
   const [showExpandedSearch, setShowExpandedSearch] = useState(false);
   
+  // Clear local communities immediately when bounds change to prevent showing stale data
+  useEffect(() => {
+    if (showBottomPanel && mapBounds && prevBoundsRef.current !== boundsKey) {
+      // Clear local communities immediately to avoid showing stale data
+      setLocalCommunities([]);
+    }
+  }, [boundsKey, showBottomPanel, mapBounds]);
+
   // Sync local state with query data
   useEffect(() => {
     if (mapCommunities.length > 0) {
@@ -352,16 +357,49 @@ export default function MapSearch() {
     }
 
     
-    // Fallback to manual mapping
+    // Fallback to comprehensive location mapping
     const locationMap: Record<string, [number, number]> = {
+      // California Major Cities
       'san francisco': [37.7749, -122.4194],
       'los angeles': [34.0522, -118.2437],
       'sacramento': [38.5816, -121.4944],
       'san diego': [32.7157, -117.1611],
       'fresno': [36.7378, -119.7871],
       'san jose': [37.3382, -121.8863],
-      'california': [36.7783, -119.4179],
+      'oakland': [37.8044, -122.2711],
+      'bakersfield': [35.3733, -119.0187],
+      'anaheim': [33.8366, -117.9143],
+      'santa ana': [33.7456, -117.8678],
+      'riverside': [33.9806, -117.3755],
+      'stockton': [37.9577, -121.2908],
+      'irvine': [33.6846, -117.8265],
+      'chula vista': [32.6401, -117.0842],
+      'fremont': [37.5483, -121.9886],
+      'santa barbara': [34.4208, -119.6982],
       'redding': [40.5865, -122.3917],
+      // States
+      'california': [36.7783, -119.4179],
+      'texas': [31.9686, -99.9018],
+      'florida': [27.7663, -81.6868],
+      'new york': [42.1657, -74.9481],
+      'nevada': [38.4199, -116.4069],
+      'arizona': [33.7712, -111.3877],
+      // Major US Cities
+      'new york city': [40.7128, -74.0060],
+      'chicago': [41.8781, -87.6298],
+      'houston': [29.7604, -95.3698],
+      'phoenix': [33.4484, -112.0740],
+      'philadelphia': [39.9526, -75.1652],
+      'san antonio': [29.4241, -98.4936],
+      'dallas': [32.7767, -96.7970],
+      'austin': [30.2672, -97.7431],
+      'miami': [25.7617, -80.1918],
+      'seattle': [47.6062, -122.3321],
+      'denver': [39.7392, -104.9903],
+      'boston': [42.3601, -71.0589],
+      'atlanta': [33.7490, -84.3880],
+      'las vegas': [36.1699, -115.1398],
+      'portland': [45.5152, -122.6784],
     };
     
     const coords = locationMap[location.toLowerCase()];
@@ -414,11 +452,17 @@ export default function MapSearch() {
   const handleMapBoundsChange = useCallback((bounds: any) => {
     console.log('Map bounds changed in MapSearch:', bounds);
     console.log('Setting mapBounds state, current communities:', mapCommunities.length);
+    
+    // Clear communities immediately to prevent showing stale data
+    if (showBottomPanel) {
+      setLocalCommunities([]);
+    }
+    
     setMapBounds(bounds);
     // Set map moving state for immediate loading feedback
     setIsMapMoving(true);
-    setTimeout(() => setIsMapMoving(false), 1000); // Clear after debounce
-  }, [mapCommunities.length]);
+    setTimeout(() => setIsMapMoving(false), 1500); // Clear after debounce
+  }, [mapCommunities.length, showBottomPanel]);
 
   // Force initial bounds when map center changes from search
   useEffect(() => {
@@ -977,6 +1021,7 @@ export default function MapSearch() {
             </div>
           ) : (
             <div className="space-y-3">
+              {/* Use mapCommunities directly for immediate updates instead of localCommunities */}
               {mapCommunities.map((community, index) => (
                 <div
                   key={community.id}
