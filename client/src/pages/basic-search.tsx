@@ -10,7 +10,12 @@ import SlidePanel from "@/components/SlidePanel";
 import BottomNavigation from "@/components/BottomNavigation";
 import { TransparencyBadgeList } from "@/components/TransparencyBadge";
 import { SearchingMascot } from "@/components/mascot";
-// Map imports removed - ready for fresh implementation
+// Map imports - GeoJSON integration following Leaflet documentation
+import { MapContainer, TileLayer, GeoJSON, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import Map from "@/components/Map";
+import { useDebounce } from "@/hooks/useDebounce";
 
 // Care type icons and colors mapping
 const careTypeConfig = {
@@ -178,7 +183,12 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
     { value: 'distance', label: 'Distance', description: 'Closest to you first' }
   ];
 
-  // Map bounds state removed - ready for fresh implementation
+  // Map state for list synchronization - following GeoJSON patterns
+  const [mapBounds, setMapBounds] = useState<L.LatLngBounds | null>(null);
+  const [mapCenter, setMapCenter] = useState<[number, number]>([37.7749, -122.4194]); // SF default
+  const [mapZoom, setMapZoom] = useState(10);
+  const [showMap, setShowMap] = useState(true);
+  const [showBottomPanel, setShowBottomPanel] = useState(false);
 
   // Handle tab change for bottom navigation
   const handleTabChange = (tabId: string) => {
@@ -234,7 +244,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
     retry: 2, // Retry on failure
     staleTime: 30 * 1000, // Cache for 30 seconds for faster subsequent searches
     refetchOnWindowFocus: false, // Don't refetch when window gains focus
-    keepPreviousData: true, // Keep previous data while loading new data
+    placeholderData: (prev) => prev, // Keep previous data while loading new data
   });
 
   // Extract communities array from search response (now returns direct array, not paginated)
@@ -306,7 +316,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
   };
 
   // Filter communities based on search query, filters, and map bounds
-  const filteredCommunities = communities?.filter((community: any) => {
+  const filteredCommunities = (communities || []).filter((community: any) => {
     // Search query filter
     const searchMatch = !searchQuery || 
       community.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -987,7 +997,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
         )}
       </div>
 
-      {/* Map View - Removed for fresh implementation */}
+      {/* Map View - GeoJSON Integration following Leaflet documentation */}
       <div className="flex-1 relative" style={{ height: 'calc(100vh - 160px)' }}>
           {/* Map Loading State - Only show for initial load */}
           {isLoading && !communitiesResponse && (
@@ -1009,28 +1019,26 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             </div>
           )}
           
-          <div className="w-full h-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-            <div className="text-center">
-              <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-4">Map View Coming Soon</h2>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">Map functionality temporarily disabled for fresh implementation</p>
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 max-w-md">
-                <h3 className="text-lg font-medium mb-2">Search Results</h3>
-                <p className="text-gray-600 dark:text-gray-400">{sortedCommunities.length} communities found</p>
-                <div className="mt-4 space-y-2 max-h-48 overflow-y-auto">
-                  {sortedCommunities.slice(0, 5).map(community => (
-                    <div key={community.id} className="p-2 bg-gray-50 dark:bg-gray-800 rounded text-sm">
-                      <div className="font-medium">{community.name}</div>
-                      <div className="text-gray-600 dark:text-gray-400">{community.city}, {community.state}</div>
-                    </div>
-                  ))}
-                  {sortedCommunities.length > 5 && (
-                    <div className="text-gray-500 text-sm">
-                      and {sortedCommunities.length - 5} more communities...
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+          {/* Map Component with GeoJSON Data */}
+          <Map
+            center={mapCenter}
+            zoom={mapZoom}
+            communities={sortedCommunities}
+            onBoundsChange={setMapBounds}
+            onCommunityClick={(community) => {
+              window.location.href = `/community/${community.id}`;
+            }}
+            className="w-full h-full"
+          />
+          
+          {/* Floating List Toggle Button - Blue circle following map-search pattern */}
+          <div className="absolute bottom-20 right-4 z-20">
+            <Button
+              onClick={() => setShowBottomPanel(!showBottomPanel)}
+              className="w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg p-0 flex items-center justify-center"
+            >
+              {showBottomPanel ? <X className="w-5 h-5" /> : <List className="w-5 h-5" />}
+            </Button>
           </div>
 
           {/* Save Search Button - Enhanced */}
@@ -1044,15 +1052,17 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             </Button>
           </div>
 
-          {/* Optimized Slide Panel with Virtualization */}
-          <SlidePanel
-            communities={visibleCommunities}
-            sortBy={sortBy}
-            setSortBy={setSortBy}
-            isLoading={isLoading}
-            initialHeight={slidePanelHeight}
-            autoExpand={!!(debouncedSearchQuery || urlSearchQuery) && visibleCommunities.length > 0}
-          />
+          {/* List Panel - Conditional based on showBottomPanel state */}
+          {showBottomPanel && (
+            <SlidePanel
+              communities={visibleCommunities}
+              sortBy={sortBy}
+              setSortBy={setSortBy}
+              isLoading={isLoading}
+              initialHeight={slidePanelHeight}
+              autoExpand={!!(debouncedSearchQuery || urlSearchQuery) && visibleCommunities.length > 0}
+            />
+          )}
           {/* Bottom Navigation */}
           <BottomNavigation 
             activeTab={activeTab} 
