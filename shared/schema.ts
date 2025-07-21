@@ -85,6 +85,7 @@ export const users = pgTable("users", {
   passwordResetExpires: timestamp("password_reset_expires"),
   lastLoginAt: timestamp("last_login_at"),
   isActive: boolean("is_active").default(true),
+  stripeCustomerId: text("stripe_customer_id"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -799,6 +800,57 @@ export const userActivity = pgTable("user_activity", {
   }>().default({}),
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+// Payment transactions table for Stripe integration
+export const paymentTransactions = pgTable("payment_transactions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  
+  // Stripe fields
+  stripePaymentIntentId: text("stripe_payment_intent_id").unique(),
+  stripeChargeId: text("stripe_charge_id"),
+  stripeCustomerId: text("stripe_customer_id"),
+  
+  // Transaction details
+  paymentType: text("payment_type", {
+    enum: ["tour", "application", "deposit", "document", "priority_support"]
+  }).notNull(),
+  amount: integer("amount").notNull(), // Always 195 cents ($1.95)
+  currency: text("currency").default("usd"),
+  processingFee: integer("processing_fee").default(195), // Our fee
+  netAmount: integer("net_amount").default(0), // Always 0 as we don't handle actual payments
+  
+  // Status
+  status: text("status", {
+    enum: ["pending", "processing", "completed", "failed", "refunded", "cancelled"]
+  }).default("pending"),
+  
+  // Metadata
+  metadata: jsonb("metadata").$type<{
+    communityName?: string;
+    description?: string;
+    originalAmount?: number;
+    userEmail?: string;
+    userName?: string;
+    notes?: string;
+  }>().default({}),
+  
+  // Error handling
+  errorCode: text("error_code"),
+  errorMessage: text("error_message"),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+  refundedAt: timestamp("refunded_at"),
+}, (table) => [
+  index("payment_transactions_user_idx").on(table.userId),
+  index("payment_transactions_community_idx").on(table.communityId),
+  index("payment_transactions_status_idx").on(table.status),
+  index("payment_transactions_created_idx").on(table.createdAt),
+]);
 
 // Community Claims - Operator verification system
 export const communityClaims = pgTable("community_claims", {

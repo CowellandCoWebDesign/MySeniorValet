@@ -38,6 +38,8 @@ import {
   getSecurityEvents, 
   generateSecurityReport 
 } from "./security-admin-endpoints";
+import { stripePaymentService } from "./stripe-payments";
+import Stripe from "stripe";
 
 // Scalable infrastructure imports
 import { searchCache, communityCache, apiCache } from "./infrastructure/cache";
@@ -1709,6 +1711,92 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Badges error:', error);
       res.status(500).json({ message: 'Failed to fetch badges' });
+    }
+  });
+
+  // ========== PAYMENT PROCESSING ENDPOINTS ==========
+  
+  // Create payment intent for $1.95 transaction fee
+  app.post("/api/payments/create-intent", requireSimpleAuth, async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const { communityId, paymentType, metadata } = req.body;
+
+      if (!communityId || !paymentType) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      const result = await stripePaymentService.createPaymentIntent({
+        userId,
+        communityId,
+        paymentType,
+        amount: 195, // Fixed $1.95 fee
+        metadata
+      });
+
+      res.json(result);
+    } catch (error) {
+      console.error("Payment intent creation error:", error);
+      res.status(500).json({ message: "Failed to create payment intent" });
+    }
+  });
+
+  // Record payment transaction
+  app.post("/api/payments/record-transaction", requireSimpleAuth, async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const { paymentIntentId, communityId, paymentType, amount, status } = req.body;
+
+      const transaction = await stripePaymentService.recordTransaction({
+        paymentIntentId,
+        userId,
+        communityId,
+        paymentType,
+        amount,
+        status,
+        metadata: {}
+      });
+
+      res.json(transaction);
+    } catch (error) {
+      console.error("Transaction recording error:", error);
+      res.status(500).json({ message: "Failed to record transaction" });
+    }
+  });
+
+  // Get payment history
+  app.get("/api/payments/history", requireSimpleAuth, async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const limit = parseInt(req.query.limit as string) || 20;
+      const transactions = await stripePaymentService.getTransactionHistory(userId, limit);
+
+      res.json(transactions);
+    } catch (error) {
+      console.error("Transaction history error:", error);
+      res.status(500).json({ message: "Failed to fetch transaction history" });
+    }
+  });
+
+  // Stripe webhook for payment confirmations
+  app.post("/api/stripe/webhook", express.raw({ type: 'application/json' }), async (req, res) => {
+    const sig = req.headers['stripe-signature'];
+    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    if (!sig || !endpointSecret) {
+      return res.status(400).send('Webhook signature missing');
+    }
+
+    try {
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', { apiVersion: '2023-10-16' });
+      const event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+      
+      await stripePaymentService.handleWebhook(event);
+      
+      res.json({ received: true });
+    } catch (err: any) {
+      console.error('Webhook error:', err.message);
+      res.status(400).send(`Webhook Error: ${err.message}`);
     }
   });
 
