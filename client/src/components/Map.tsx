@@ -114,7 +114,7 @@ const MapEvents: React.FC<{
         map.off('load', handleLoad);
       };
     }
-  }, [map, onMapReady, onBoundsChange]);
+  }, [map]); // CRITICAL: Remove onBoundsChange from dependencies to prevent infinite loop
 
   // Wait for map to be fully loaded before adding controls
   useEffect(() => {

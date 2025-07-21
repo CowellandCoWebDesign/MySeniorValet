@@ -17,7 +17,7 @@ import {
   pendingCommunities
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, or, desc, inArray, sql, between, gte } from "drizzle-orm";
+import { eq, and, or, desc, inArray, sql, between, gte, lte } from "drizzle-orm";
 import { careTypeClassifier } from './care-type-classifier';
 import { dataQualityEnhancement } from './data-quality-enhancement';
 import { enhancedSearchService } from "./enhanced-search-service";
@@ -1022,47 +1022,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // ULTRA-OPTIMIZED: Fast spatial search with minimal overhead
       console.log(`⚡ Starting optimized spatial search for bounds [${swLngFloat}, ${swLatFloat}, ${neLngFloat}, ${neLatFloat}]`);
       
-      // Use raw SQL for maximum performance - bypass ORM overhead
-      const sqlQuery = `
-        SELECT id, name, address, city, state, "zipCode", latitude, longitude, 
-               "careTypes", rating, "reviewCount", phone, website, "priceRange", 
-               availability, photos, description, "phoneFormatted", "communityType",
-               amenities, "medicalRestrictions", "unitTypes", "floorPlans"
-        FROM communities 
-        WHERE latitude BETWEEN $1 AND $2 
-          AND longitude BETWEEN $3 AND $4
-        ${careType && careType !== 'All Types' ? `AND $5 = ANY("careTypes")` : ''}
-        ${minRating ? `AND rating >= ${parseFloat(minRating as string)}` : ''}
-        ORDER BY ABS(latitude - $${careType && careType !== 'All Types' ? '6' : '5'}) + ABS(longitude - $${careType && careType !== 'All Types' ? '7' : '6'})
-        LIMIT $${careType && careType !== 'All Types' ? '8' : '7'}
-      `;
-      
-      const params = [
-        swLatFloat, 
-        neLatFloat, 
-        swLngFloat, 
-        neLngFloat,
-        centerLat,
-        centerLng,
-        parseInt(limit as string)
+      // Use Drizzle ORM for proper schema compatibility with actual database columns
+      let whereConditions = [
+        gte(communities.latitude, swLatFloat),
+        lte(communities.latitude, neLatFloat),
+        gte(communities.longitude, swLngFloat),
+        lte(communities.longitude, neLngFloat)
       ];
-      
+
+      // Add care type filter if specified
       if (careType && careType !== 'All Types') {
-        params.splice(4, 0, careType); // Insert careType at position 4
+        whereConditions.push(sql`${careType} = ANY(${communities.careTypes})`);
       }
+
+      // Add rating filter if specified
+      if (minRating) {
+        whereConditions.push(gte(communities.rating, parseFloat(minRating as string)));
+      }
+
+      const query = db.select({
+        id: communities.id,
+        name: communities.name,
+        address: communities.address,
+        city: communities.city,
+        state: communities.state,
+        zipCode: communities.zipCode,
+        latitude: communities.latitude,
+        longitude: communities.longitude,
+        careTypes: communities.careTypes,
+        rating: communities.rating,
+        reviewCount: communities.reviewCount,
+        phone: communities.phone,
+        website: communities.website,
+        priceRange: communities.priceRange,
+        availabilityStatus: communities.availabilityStatus,
+        photos: communities.photos,
+        description: communities.description,
+        phoneFormatted: communities.phone,
+        communityType: communities.facilityType,
+        amenities: communities.amenities,
+        medicalRestrictions: communities.medicalRestrictions,
+        unitTypes: communities.unitTypes,
+        floorPlans: communities.priceRange
+      }).from(communities)
+        .where(and(...whereConditions))
+        .limit(parseInt(limit as string));
       
-      // Execute optimized query with aggressive timeout
+      console.log('Executing Drizzle ORM spatial query...');
+      
       const result = await Promise.race([
-        db.execute(sql.raw(sqlQuery, params)),
+        query,
         new Promise((_, reject) => 
           setTimeout(() => reject(new Error('Query timeout after 2 seconds')), 2000)
         )
       ]) as any;
       
-      const communities = result.rows || result; // Handle both execute() and select() result formats
-      console.log(`✅ PostGIS spatial search returned ${communities.length} communities in ${Date.now() - startTime}ms`);
+      const communitiesData = Array.isArray(result) ? result : result.rows || [];
+      console.log(`✅ PostGIS spatial search returned ${communitiesData.length} communities in ${Date.now() - startTime}ms`);
       
-      res.json(communities);
+      res.json(communitiesData);
     } catch (error) {
       console.error('PostGIS spatial search error:', error);
       res.status(500).json({ 
