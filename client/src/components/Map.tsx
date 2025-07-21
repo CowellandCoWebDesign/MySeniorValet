@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip, LayersControl } from 'react-leaflet';
 import { Icon, LatLngBounds, LatLng } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet-providers';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Star, MapPin, Phone, Globe, Heart, ExternalLink, Zap, Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +13,7 @@ import { Card, CardContent } from '@/components/ui/card';
 declare global {
   interface Window {
     leafletMap?: any;
+    mapBoundsTimeout?: NodeJS.Timeout;
   }
 }
 
@@ -52,7 +54,7 @@ const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady })
     if (map) {
       // Wait for map to be fully loaded before calling onMapReady
       const checkMapLoaded = () => {
-        if (map._loaded) {
+        if ((map as any)._loaded) {
           onMapReady(map);
         } else {
           // Listen for the load event
@@ -378,9 +380,9 @@ export default function Map({
       };
       
       // Patch getTranslateString for older browsers
-      if (window.L.DomUtil.getTranslateString) {
-        const originalGetTranslateString = window.L.DomUtil.getTranslateString;
-        window.L.DomUtil.getTranslateString = function(point: any) {
+      if ((window as any).L?.DomUtil?.getTranslateString) {
+        const originalGetTranslateString = (window as any).L.DomUtil.getTranslateString;
+        (window as any).L.DomUtil.getTranslateString = function(point: any) {
           if (!point || typeof point.x !== 'number' || typeof point.y !== 'number') {
             return 'translate3d(0px, 0px, 0px)';
           }
@@ -417,9 +419,8 @@ export default function Map({
         
         // Force map update with new location
         setTimeout(() => {
-          const map = mapRef.current;
-          if (map) {
-            map.setView([latitude, longitude], 13, { animate: true });
+          if (window.leafletMap) {
+            window.leafletMap.setView([latitude, longitude], 13, { animate: true });
           }
         }, 100);
       },
@@ -718,10 +719,50 @@ export default function Map({
             }
           }, 200); // Increased delay for better stability
         }} />
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
+        
+        {/* Professional Basemap Selection */}
+        <LayersControl position="topright">
+          {/* Default OpenStreetMap - Clean and readable */}
+          <LayersControl.BaseLayer checked name="Street Map (Default)">
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            />
+          </LayersControl.BaseLayer>
+
+          {/* Esri World Street Map - Professional and clean */}
+          <LayersControl.BaseLayer name="Professional Streets">
+            <TileLayer
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}"
+              attribution='&copy; <a href="https://www.esri.com/">Esri</a>, HERE, Garmin, USGS, Intermap, INCREMENT P, NRCan, Esri Japan, METI, Esri China (Hong Kong), Esri Korea, Esri (Thailand), NGCC, © OpenStreetMap contributors, and the GIS User Community'
+            />
+          </LayersControl.BaseLayer>
+
+          {/* CartoDB Positron - Clean, minimal design perfect for senior users */}
+          <LayersControl.BaseLayer name="Clean & Simple">
+            <TileLayer
+              url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+              subdomains="abcd"
+            />
+          </LayersControl.BaseLayer>
+
+          {/* Esri World Imagery with Labels - Satellite view */}
+          <LayersControl.BaseLayer name="Satellite View">
+            <TileLayer
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+              attribution='&copy; <a href="https://www.esri.com/">Esri</a>, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            />
+          </LayersControl.BaseLayer>
+
+          {/* OpenTopoMap - Topographic style for rural areas */}
+          <LayersControl.BaseLayer name="Topographic">
+            <TileLayer
+              url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+              attribution='Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+            />
+          </LayersControl.BaseLayer>
+        </LayersControl>
         
         <MapBoundsHandler onBoundsChange={handleBoundsChange} onZoomChange={handleZoomChange} />
         
