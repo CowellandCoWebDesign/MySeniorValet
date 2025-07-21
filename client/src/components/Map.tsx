@@ -84,7 +84,7 @@ const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady })
           // 2. Location Control - GPS assistance for seniors  
           if ((window as any).L?.Control?.Locate && !map._locateControl) {
             const locateControl = new (window as any).L.Control.Locate({
-              position: 'topright', // Move to top right
+              position: 'topright', // Top right, will be positioned below search bar
               drawCircle: true,
               follow: true,
               setView: true,
@@ -121,7 +121,7 @@ const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady })
           // 3. Scale Control - Distance reference for seniors
           if ((window as any).L?.Control?.Scale && !map._scaleControl) {
             const scaleControl = new (window as any).L.Control.Scale({
-              position: 'bottomright', // Keep at bottom right
+              position: 'bottomleft', // Move to bottom left to avoid right side crowding
               maxWidth: 150,
               metric: true,
               imperial: true,
