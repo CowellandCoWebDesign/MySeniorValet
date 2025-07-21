@@ -28,10 +28,10 @@ export default function AffordableHousing() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="text-gray-600 mt-4">Loading affordable housing facilities...</p>
+          <p className="text-gray-600 dark:text-gray-300 mt-4">Loading affordable housing facilities...</p>
         </div>
       </div>
     );
@@ -52,9 +52,9 @@ export default function AffordableHousing() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <div className="bg-white shadow">
+      <div className="bg-white dark:bg-gray-800 shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-6">
             <div className="flex items-center gap-4 mb-4">
@@ -68,8 +68,8 @@ export default function AffordableHousing() {
             <div className="flex items-center gap-4">
               <Building2 className="h-8 w-8 text-blue-600" />
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">HUD Affordable Housing</h1>
-                <p className="text-gray-600 mt-1">Section 202 & 811 Government-Subsidized Housing</p>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">HUD Affordable Housing</h1>
+                <p className="text-gray-600 dark:text-gray-300 mt-1">Section 202 & 811 Government-Subsidized Housing</p>
               </div>
             </div>
           </div>
@@ -91,7 +91,7 @@ export default function AffordableHousing() {
       {/* State Filter */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
         <div className="flex gap-2 items-center">
-          <span className="text-gray-700 font-medium">Filter by state:</span>
+          <span className="text-gray-700 dark:text-gray-300 font-medium">Filter by state:</span>
           {states.map((state) => (
             <Button
               key={state}

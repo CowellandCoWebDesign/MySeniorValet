@@ -82,7 +82,7 @@ export default function Home() {
 
           {/* Community Count Statement */}
           <div className="text-center mb-4">
-            <p className="text-xl lg:text-2xl text-gray-600 font-medium">
+            <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-300 font-medium">
               Serving families across 25,000+ communities
             </p>
           </div>
@@ -123,13 +123,13 @@ export default function Home() {
       </section>
 
       {/* Features Section - Compact */}
-      <section className="py-12 lg:py-16 bg-gradient-to-b from-gray-50 to-white">
+      <section className="py-12 lg:py-16 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-2xl lg:text-3xl font-display font-bold text-gray-900 mb-4 leading-tight">
+            <h2 className="text-2xl lg:text-3xl font-display font-bold text-gray-900 dark:text-white mb-4 leading-tight">
               Why TrueView is Different
             </h2>
-            <p className="text-base lg:text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base lg:text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
               We aggregate data from multiple trusted sources including Google, Yelp, state agencies, and community websites to give you the complete picture.
             </p>
           </div>
@@ -180,10 +180,10 @@ export default function Home() {
 
 
           {/* Compact Data Collection Section */}
-          <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 lg:p-8 shadow-lg border border-blue-100/50">
+          <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 rounded-2xl p-6 lg:p-8 shadow-lg border border-blue-100/50 dark:border-gray-600">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
               <div>
-                <h3 className="text-xl lg:text-2xl font-display font-bold text-gray-900 mb-6 leading-tight">
+                <h3 className="text-xl lg:text-2xl font-display font-bold text-gray-900 dark:text-white mb-6 leading-tight">
                   How Our Data Collection Works
                 </h3>
                 <div className="space-y-4">
@@ -192,8 +192,8 @@ export default function Home() {
                       <span className="text-white text-sm font-bold">1</span>
                     </div>
                     <div>
-                      <h4 className="text-base font-semibold text-gray-900 mb-1">Multi-Source Aggregation</h4>
-                      <p className="text-gray-700 text-sm leading-relaxed">We collect data from Google Places, Yelp, state licensing databases, and official community websites.</p>
+                      <h4 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-1">Multi-Source Aggregation</h4>
+                      <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">We collect data from Google Places, Yelp, state licensing databases, and official community websites.</p>
                     </div>
                   </div>
                   <div className="flex items-start space-x-3">
@@ -201,8 +201,8 @@ export default function Home() {
                       <span className="text-white text-sm font-bold">2</span>
                     </div>
                     <div>
-                      <h4 className="text-base font-semibold text-gray-900 mb-1">Data Verification</h4>
-                      <p className="text-gray-700 text-sm leading-relaxed">Information is cross-referenced across multiple sources and validated before being displayed.</p>
+                      <h4 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-1">Data Verification</h4>
+                      <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">Information is cross-referenced across multiple sources and validated before being displayed.</p>
                     </div>
                   </div>
                   <div className="flex items-start space-x-3">
@@ -210,8 +210,8 @@ export default function Home() {
                       <span className="text-white text-sm font-bold">3</span>
                     </div>
                     <div>
-                      <h4 className="text-base font-semibold text-gray-900 mb-1">Real-Time Updates</h4>
-                      <p className="text-gray-700 text-sm leading-relaxed">Changes are immediately reflected in search results and community profiles for the most current information.</p>
+                      <h4 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-1">Real-Time Updates</h4>
+                      <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">Changes are immediately reflected in search results and community profiles for the most current information.</p>
                     </div>
                   </div>
                 </div>
@@ -229,7 +229,7 @@ export default function Home() {
       </section>
 
       {/* Compact CTA Section */}
-      <section className="py-12 lg:py-16 bg-gradient-to-b from-white to-gray-50">
+      <section className="py-12 lg:py-16 bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-blue-700 rounded-2xl overflow-hidden shadow-xl">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">

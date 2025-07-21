@@ -95,7 +95,7 @@ export default function ClaimCommunity() {
 
   if (!communityId) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
         <div className="max-w-2xl mx-auto px-4">
           <Card>
             <CardHeader>
@@ -105,7 +105,7 @@ export default function ClaimCommunity() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
                 No community specified for claiming. Please navigate to a community page and click "Claim This Community".
               </p>
               <Link to="/search">

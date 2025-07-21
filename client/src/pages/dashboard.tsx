@@ -212,7 +212,7 @@ export default function Dashboard() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your dashboard...</p>
+          <p className="text-gray-600 dark:text-gray-300">Loading your dashboard...</p>
         </div>
       </div>
     );
@@ -237,9 +237,9 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* HEADER */}
-      <div className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
@@ -253,7 +253,7 @@ export default function Dashboard() {
               </Link>
               <div className="hidden md:flex items-center space-x-1">
                 <span className="text-gray-400">•</span>
-                <span className="text-gray-700 font-medium">Dashboard</span>
+                <span className="text-gray-700 dark:text-gray-300 font-medium">Dashboard</span>
               </div>
             </div>
             
@@ -270,10 +270,10 @@ export default function Dashboard() {
                   {userInitials}
                 </div>
                 <div className="hidden md:block">
-                  <div className="text-sm font-medium text-gray-700">
+                  <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     {user?.firstName || 'User'}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
                     Premium Member
                   </div>
                 </div>
@@ -282,7 +282,7 @@ export default function Dashboard() {
                   size="sm"
                   onClick={handleLogout}
                   disabled={logout.isPending}
-                  className="text-gray-600 hover:text-gray-900"
+                  className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
                 >
                   <LogOut className="h-4 w-4" />
                 </Button>

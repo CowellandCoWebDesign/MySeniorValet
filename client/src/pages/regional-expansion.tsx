@@ -72,34 +72,34 @@ export default function RegionalExpansion() {
 
   const getMarketSizeColor = (size: string) => {
     switch (size) {
-      case "Urban": return "bg-red-100 text-red-800";
-      case "Suburban": return "bg-yellow-100 text-yellow-800";
-      case "Rural": return "bg-green-100 text-green-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "Urban": return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+      case "Suburban": return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+      case "Rural": return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+      default: return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200";
     }
   };
 
   const getVerificationColor = (level: string) => {
     switch (level) {
-      case "High": return "bg-green-100 text-green-800";
-      case "Medium": return "bg-yellow-100 text-yellow-800";
-      case "Low": return "bg-red-100 text-red-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "High": return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+      case "Medium": return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+      case "Low": return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+      default: return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200";
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
       <Header />
       
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
           {/* Header Section */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
               🌍 Regional Expansion Dashboard
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
               Strategic expansion to 7 target counties across Northern California with enhanced 
               data collection and multi-source verification.
             </p>
@@ -125,7 +125,7 @@ export default function RegionalExpansion() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold text-blue-600 mb-2">7</div>
-                    <p className="text-sm text-gray-600">Counties across Bay Area, Sacramento, and North Coast</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Counties across Bay Area, Sacramento, and North Coast</p>
                   </CardContent>
                 </Card>
 
@@ -138,7 +138,7 @@ export default function RegionalExpansion() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold text-green-600 mb-2">6</div>
-                    <p className="text-sm text-gray-600">Query types per region with deduplication</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Query types per region with deduplication</p>
                   </CardContent>
                 </Card>
 
@@ -151,7 +151,7 @@ export default function RegionalExpansion() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold text-purple-600 mb-2">10K+</div>
-                    <p className="text-sm text-gray-600">Potential users in target demographics</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Potential users in target demographics</p>
                   </CardContent>
                 </Card>
               </div>
@@ -172,7 +172,7 @@ export default function RegionalExpansion() {
                 {countiesLoading ? (
                   <div className="col-span-full text-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                    <p className="mt-2 text-gray-600">Loading target counties...</p>
+                    <p className="mt-2 text-gray-600 dark:text-gray-300">Loading target counties...</p>
                   </div>
                 ) : (
                   counties.map((county) => (
@@ -191,7 +191,7 @@ export default function RegionalExpansion() {
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <div>
-                          <p className="font-medium text-sm text-gray-700 mb-2">Primary Cities:</p>
+                          <p className="font-medium text-sm text-gray-700 dark:text-gray-300 mb-2">Primary Cities:</p>
                           <div className="flex flex-wrap gap-1">
                             {county.primaryCities.map((city) => (
                               <Badge key={city} variant="outline" className="text-xs">
@@ -203,11 +203,11 @@ export default function RegionalExpansion() {
 
                         <div className="grid grid-cols-2 gap-4 text-sm">
                           <div>
-                            <span className="text-gray-600">Priority:</span>
+                            <span className="text-gray-600 dark:text-gray-300">Priority:</span>
                             <div className="font-semibold text-lg">{county.priority}/10</div>
                           </div>
                           <div>
-                            <span className="text-gray-600">Search Radius:</span>
+                            <span className="text-gray-600 dark:text-gray-300">Search Radius:</span>
                             <div className="font-semibold text-lg">{county.searchRadius}km</div>
                           </div>
                         </div>
@@ -226,23 +226,23 @@ export default function RegionalExpansion() {
                         </Button>
 
                         {selectedCounty === county.county && countyStats && (
-                          <div className="mt-4 p-4 bg-gray-50 rounded-lg space-y-2">
-                            <h4 className="font-medium text-gray-900">Current Statistics</h4>
+                          <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-2">
+                            <h4 className="font-medium text-gray-900 dark:text-gray-100">Current Statistics</h4>
                             <div className="grid grid-cols-2 gap-2 text-sm">
                               <div>
-                                <span className="text-gray-600">Total Communities:</span>
+                                <span className="text-gray-600 dark:text-gray-300">Total Communities:</span>
                                 <div className="font-semibold">{countyStats.statistics.totalCommunities}</div>
                               </div>
                               <div>
-                                <span className="text-gray-600">New (24h):</span>
+                                <span className="text-gray-600 dark:text-gray-300">New (24h):</span>
                                 <div className="font-semibold text-green-600">{countyStats.statistics.newCommunities}</div>
                               </div>
                               <div>
-                                <span className="text-gray-600">Enriched (24h):</span>
+                                <span className="text-gray-600 dark:text-gray-300">Enriched (24h):</span>
                                 <div className="font-semibold text-blue-600">{countyStats.statistics.enrichedCommunities}</div>
                               </div>
                               <div>
-                                <span className="text-gray-600">Verification:</span>
+                                <span className="text-gray-600 dark:text-gray-300">Verification:</span>
                                 <div className="font-semibold">{countyStats.statistics.verificationLevel}%</div>
                               </div>
                             </div>
