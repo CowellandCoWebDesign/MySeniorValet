@@ -944,13 +944,13 @@
 }
 
 .leaflet-control-geocoder {
-  /* Position at top center and make it much wider */
+  /* Full width search bar at the very top */
   position: absolute !important;
   top: 15px !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  width: 600px !important;
-  max-width: 85vw !important;
+  left: 20px !important;
+  right: 20px !important;
+  width: calc(100% - 40px) !important;
+  max-width: none !important;
   z-index: 1000 !important;
   box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
   border: 2px solid #e5e7eb !important;
@@ -1114,6 +1114,35 @@
   font-weight: 500 !important;
   color: #6b7280 !important;
   line-height: 1 !important;
+}
+
+/* Custom topcenter position for full-width geocoder */
+.leaflet-topcenter {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  z-index: 1000;
+}
+
+/* Adjust other controls to be under the full-width search bar */
+.leaflet-control-container .leaflet-top.leaflet-left {
+  margin-top: 80px !important; /* Space for full-width search bar */
+}
+
+.leaflet-control-container .leaflet-top.leaflet-right {
+  margin-top: 80px !important; /* Space for full-width search bar */
+}
+
+/* Community count display adjustment */
+.community-count-display {
+  margin-top: 80px !important; /* Move down to accommodate search bar */
+}
+
+/* Zoom controls adjustment */
+.leaflet-control-zoom {
+  margin-top: 10px !important;
 }
 
 /* Dark mode enhancements for controls */
