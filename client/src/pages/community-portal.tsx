@@ -25,7 +25,8 @@ import {
   Eye,
   Settings,
   X,
-  FileSignature
+  FileSignature,
+  Home
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
@@ -835,6 +836,14 @@ export default function CommunityPortal() {
               <Button variant="outline" className="h-auto p-4 flex flex-col items-center">
                 <Calendar className="w-6 h-6 mb-2" />
                 <span>Availability</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="h-auto p-4 flex flex-col items-center"
+                onClick={() => window.location.href = '/tenant-portal'}
+              >
+                <Home className="w-6 h-6 mb-2" />
+                <span>Tenant Portal</span>
               </Button>
             </div>
           </CardContent>

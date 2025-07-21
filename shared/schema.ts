@@ -1151,6 +1151,70 @@ export const leasingTasks = pgTable("leasing_tasks", {
   index("leasing_tasks_status_idx").on(table.status),
 ]);
 
+// Tenant payments table for tracking all payment transactions
+export const tenantPayments = pgTable("tenant_payments", {
+  id: serial("id").primaryKey(),
+  tenantId: integer("tenant_id").references(() => users.id).notNull(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  leaseId: integer("lease_id").references(() => leaseAgreements.id),
+  paymentType: varchar("payment_type", { length: 50 }).notNull(), // deposit, moveIn, rent, fee, other
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  processingFee: decimal("processing_fee", { precision: 10, scale: 2 }).notNull().default('0'),
+  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
+  status: varchar("status", { length: 50 }).notNull().default("pending"), // pending, processing, completed, failed, refunded
+  paymentMethod: varchar("payment_method", { length: 50 }), // card, ach, check
+  processorTransactionId: varchar("processor_transaction_id", { length: 255 }),
+  processorResponse: jsonb("processor_response"),
+  dueDate: date("due_date"),
+  paidAt: timestamp("paid_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("tenant_payments_tenant_idx").on(table.tenantId),
+  index("tenant_payments_community_idx").on(table.communityId),
+  index("tenant_payments_lease_idx").on(table.leaseId),
+  index("tenant_payments_status_idx").on(table.status),
+]);
+
+// Tenant move-in checklist items
+export const tenantMoveInChecklist = pgTable("tenant_move_in_checklist", {
+  id: serial("id").primaryKey(),
+  tenantId: integer("tenant_id").references(() => users.id).notNull(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  leaseId: integer("lease_id").references(() => leaseAgreements.id),
+  task: varchar("task", { length: 255 }).notNull(),
+  category: varchar("category", { length: 100 }), // documents, payments, coordination, inspection
+  completed: boolean("completed").default(false),
+  completedAt: timestamp("completed_at"),
+  dueDate: date("due_date"),
+  priority: varchar("priority", { length: 20 }).default("medium"), // low, medium, high, critical
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("tenant_checklist_tenant_idx").on(table.tenantId),
+  index("tenant_checklist_community_idx").on(table.communityId),
+  index("tenant_checklist_completed_idx").on(table.completed),
+]);
+
+// Vendor connections for move-in services
+export const vendorConnections = pgTable("vendor_connections", {
+  id: serial("id").primaryKey(),
+  vendorName: varchar("vendor_name", { length: 255 }).notNull(),
+  serviceType: varchar("service_type", { length: 100 }).notNull(), // moving, furniture, cleaning, utilities
+  contactEmail: varchar("contact_email", { length: 255 }),
+  contactPhone: varchar("contact_phone", { length: 20 }),
+  website: varchar("website", { length: 255 }),
+  description: text("description"),
+  serviceAreas: text("service_areas").array(),
+  specialRates: boolean("special_rates").default(false),
+  rating: decimal("rating", { precision: 3, scale: 2 }),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("vendor_connections_service_type_idx").on(table.serviceType),
+  index("vendor_connections_active_idx").on(table.isActive),
+]);
+
 // Operator Team Members
 export const operatorTeamMembers = pgTable("operator_team_members", {
   id: serial("id").primaryKey(),

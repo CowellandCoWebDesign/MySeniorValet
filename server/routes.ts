@@ -1759,6 +1759,171 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ========== TENANT PORTAL ENDPOINTS ==========
+  
+  // Get tenant's lease information
+  app.get('/api/tenant/lease', requireSimpleAuth, async (req, res) => {
+    try {
+      const userId = req.user.id;
+      
+      // Mock data for now - will be replaced with real database queries
+      const leaseInfo = {
+        communityName: 'Sunset Gardens Senior Living',
+        unitNumber: '205A',
+        leaseStart: '2025-01-01',
+        leaseEnd: '2025-12-31',
+        monthlyRent: 3500,
+        depositAmount: 7000,
+        depositPaid: false,
+        moveInCosts: 1500,
+        moveInPaid: false,
+        nextRentDue: 'February 1, 2025'
+      };
+      
+      res.json(leaseInfo);
+    } catch (error) {
+      console.error('Tenant lease error:', error);
+      res.status(500).json({ message: 'Failed to fetch lease information' });
+    }
+  });
+  
+  // Get tenant's payment history
+  app.get('/api/tenant/payments', requireSimpleAuth, async (req, res) => {
+    try {
+      const userId = req.user.id;
+      
+      // Mock data for now
+      const paymentHistory = [
+        {
+          id: 1,
+          type: 'rent',
+          amount: 3500,
+          date: '2025-01-01',
+          status: 'completed',
+          transactionId: 'TRX-001'
+        }
+      ];
+      
+      res.json(paymentHistory);
+    } catch (error) {
+      console.error('Payment history error:', error);
+      res.status(500).json({ message: 'Failed to fetch payment history' });
+    }
+  });
+  
+  // Get upcoming payments
+  app.get('/api/tenant/payments/upcoming', requireSimpleAuth, async (req, res) => {
+    try {
+      const userId = req.user.id;
+      
+      // Mock data for now
+      const upcomingPayments = [
+        {
+          id: 1,
+          type: 'deposit',
+          amount: 7000,
+          dueDate: '2025-01-25',
+          status: 'pending'
+        },
+        {
+          id: 2,
+          type: 'moveIn',
+          amount: 1500,
+          dueDate: '2025-01-30',
+          status: 'pending'
+        },
+        {
+          id: 3,
+          type: 'rent',
+          amount: 3500,
+          dueDate: '2025-02-01',
+          status: 'upcoming'
+        }
+      ];
+      
+      res.json(upcomingPayments);
+    } catch (error) {
+      console.error('Upcoming payments error:', error);
+      res.status(500).json({ message: 'Failed to fetch upcoming payments' });
+    }
+  });
+  
+  // Get move-in checklist
+  app.get('/api/tenant/move-in-checklist', requireSimpleAuth, async (req, res) => {
+    try {
+      const userId = req.user.id;
+      
+      // Mock data for now
+      const checklist = [
+        {
+          id: 1,
+          task: 'Submit security deposit',
+          completed: false,
+          dueDate: '2025-01-25'
+        },
+        {
+          id: 2,
+          task: 'Complete background check',
+          completed: true,
+          dueDate: '2025-01-20'
+        },
+        {
+          id: 3,
+          task: 'Sign lease agreement',
+          completed: false,
+          dueDate: '2025-01-27'
+        },
+        {
+          id: 4,
+          task: 'Schedule move-in inspection',
+          completed: false,
+          dueDate: '2025-01-30'
+        },
+        {
+          id: 5,
+          task: 'Set up utilities transfer',
+          completed: false,
+          dueDate: '2025-01-28'
+        }
+      ];
+      
+      res.json(checklist);
+    } catch (error) {
+      console.error('Move-in checklist error:', error);
+      res.status(500).json({ message: 'Failed to fetch checklist' });
+    }
+  });
+  
+  // Process payment (redirect to payment processor)
+  app.post('/api/tenant/payments/process', requireSimpleAuth, async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const { type, amount, communityId } = req.body;
+      
+      // Calculate transaction fee (2.9% + $0.30)
+      const processingFee = (amount * 0.029) + 0.30;
+      const totalAmount = amount + processingFee;
+      
+      // TODO: Integrate with actual payment processor (Stripe, Square, etc.)
+      // For now, return mock payment session
+      const paymentSession = {
+        sessionId: `pay_${Date.now()}`,
+        paymentUrl: 'https://checkout.stripe.com/example', // Would be real Stripe URL
+        amount: amount,
+        processingFee: processingFee,
+        totalAmount: totalAmount,
+        type: type,
+        communityId: communityId,
+        expiresAt: new Date(Date.now() + 30 * 60 * 1000) // 30 minutes
+      };
+      
+      res.json(paymentSession);
+    } catch (error) {
+      console.error('Payment processing error:', error);
+      res.status(500).json({ message: 'Failed to process payment' });
+    }
+  });
+
   // Get pricing research data for a community
   app.get('/api/communities/:id/pricing-research', async (req, res) => {
     try {
