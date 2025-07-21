@@ -259,6 +259,7 @@ export default function MapSearch() {
       }
     },
     enabled: !!mapBounds, // Always fetch when we have map bounds
+    notifyOnChangeProps: ['data', 'error', 'isLoading'], // React to data changes
     staleTime: 0, // No cache - always fresh data
     gcTime: 0, // No garbage collection time
     retry: 1, // Only retry once on failure
@@ -271,13 +272,13 @@ export default function MapSearch() {
   
   // Clear local communities immediately when bounds change and set loading state
   useEffect(() => {
-    if (showBottomPanel && mapBounds && prevBoundsRef.current !== boundsKey) {
+    if (mapBounds && prevBoundsRef.current !== boundsKey && prevBoundsRef.current !== 'no-bounds') {
       // Clear local communities immediately to avoid showing stale data
       setLocalCommunities([]);
       setIsMapMoving(true);
       console.log('Map bounds changed - clearing stale data and setting loading state');
     }
-  }, [boundsKey, showBottomPanel, mapBounds]);
+  }, [boundsKey, mapBounds]);
 
   // Sync local state with query data and clear loading state
   useEffect(() => {
@@ -308,8 +309,9 @@ export default function MapSearch() {
   // Force refetch when bounds change
   const prevBoundsRef = useRef(boundsKey);
   useEffect(() => {
-    if (mapBounds && showBottomPanel && prevBoundsRef.current !== boundsKey) {
-      console.log('Bounds actually changed, forcing refetch...', {
+    // Always refetch when bounds change, regardless of panel state
+    if (mapBounds && prevBoundsRef.current !== boundsKey && prevBoundsRef.current !== 'no-bounds') {
+      console.log('Bounds changed, forcing community refetch...', {
         prevBounds: prevBoundsRef.current,
         newBounds: boundsKey,
         showBottomPanel,
@@ -318,8 +320,12 @@ export default function MapSearch() {
       prevBoundsRef.current = boundsKey;
       // Force an immediate refetch when bounds change
       refetchCommunities();
+    } else if (mapBounds && prevBoundsRef.current === 'no-bounds') {
+      // Initial bounds set
+      prevBoundsRef.current = boundsKey;
+      console.log('Initial bounds set:', boundsKey);
     }
-  }, [boundsKey, showBottomPanel, refetchCommunities]);
+  }, [boundsKey, mapBounds, refetchCommunities]);
 
   // Fetch expanded search results when no communities in current view
   const { data: expandedCommunities = [], isLoading: isLoadingExpanded } = useQuery({
