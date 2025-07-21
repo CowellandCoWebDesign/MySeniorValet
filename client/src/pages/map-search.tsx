@@ -1180,6 +1180,9 @@ export default function MapSearch() {
               🏠 {!mapBounds ? 'Position map to see communities' : 
                isLoadingCommunities || isFetchingCommunities || isMapMoving || isInitialLoad ? 'Updating location...' : 
                `${mapCommunities?.length || 0} Communities Found`}
+              <span className="text-xs font-normal text-blue-600 dark:text-blue-400">
+                {mapCommunities?.length > 0 ? `(${mapCommunities[0]?.city || 'Unknown'})` : ''}
+              </span>
               {(isLoadingCommunities || isFetchingCommunities || isMapMoving || isInitialLoad) && (
                 <div className="inline-flex items-center gap-1 text-sm font-normal text-blue-600 dark:text-blue-400">
                   <div className="w-3 h-3 border-2 border-blue-600 dark:border-blue-400 border-t-transparent rounded-full animate-spin"></div>
@@ -1254,6 +1257,17 @@ export default function MapSearch() {
             </div>
           ) : (
             <div className="grid gap-6">
+              {/* Debug Information */}
+              <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg">
+                <div className="text-sm text-yellow-800 dark:text-yellow-200">
+                  <div>🔍 Debug Info:</div>
+                  <div>• Total communities: {mapCommunities.length}</div>
+                  <div>• Bounds key: {boundsKey}</div>
+                  <div>• Is loading: {isLoadingCommunities ? 'Yes' : 'No'}</div>
+                  <div>• Cities shown: {Array.from(new Set(mapCommunities.map(c => c.city))).join(', ')}</div>
+                </div>
+              </div>
+              
               {/* Beautiful Community Cards - Matching Homepage Style */}
               {mapCommunities.map((community: Community, index: number) => (
                 <div
