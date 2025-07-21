@@ -53,13 +53,72 @@ const assistedLivingIcon = createSimpleIcon('#16a34a'); // Green
 const memoryCareIcon = createSimpleIcon('#dc2626'); // Red
 const independentIcon = createSimpleIcon('#7c3aed'); // Purple
 
-// Enhanced Map Events component with senior-friendly controls
-const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady }) => {
+// Enhanced Map Events component following official Leaflet documentation patterns
+const MapEvents: React.FC<{ 
+  onMapReady: (map: any) => void;
+  onBoundsChange: (bounds: LatLngBounds) => void;
+}> = ({ onMapReady, onBoundsChange }) => {
   const map = useMap();
   
   useEffect(() => {
     if (map) {
-      // Wait for map to be fully loaded before adding controls
+      // CRITICAL: Implement proper Leaflet event handlers per official documentation
+      const handleMoveEnd = () => {
+        const bounds = map.getBounds();
+        if (bounds && bounds.isValid()) {
+          console.log('📍 OFFICIAL LEAFLET moveend EVENT:', {
+            bounds: `${bounds.getSouthWest().lng},${bounds.getSouthWest().lat},${bounds.getNorthEast().lng},${bounds.getNorthEast().lat}`,
+            center: map.getCenter(),
+            zoom: map.getZoom(),
+            timestamp: Date.now()
+          });
+          onBoundsChange(bounds);
+        }
+      };
+
+      const handleZoomEnd = () => {
+        const bounds = map.getBounds();
+        if (bounds && bounds.isValid()) {
+          console.log('🔍 OFFICIAL LEAFLET zoomend EVENT:', {
+            zoom: map.getZoom(),
+            bounds: `${bounds.getSouthWest().lng},${bounds.getSouthWest().lat},${bounds.getNorthEast().lng},${bounds.getNorthEast().lat}`,
+            timestamp: Date.now()
+          });
+          onBoundsChange(bounds);
+        }
+      };
+
+      const handleLoad = () => {
+        console.log('🗺️ MAP LOAD EVENT - Initial bounds available');
+        const bounds = map.getBounds();
+        if (bounds && bounds.isValid()) {
+          onBoundsChange(bounds);
+        }
+        onMapReady(map);
+      };
+
+      // Register official Leaflet event listeners per documentation
+      map.on('moveend', handleMoveEnd);
+      map.on('zoomend', handleZoomEnd);
+      map.on('load', handleLoad);
+
+      // Check if map is already loaded (fallback)
+      if ((map as any)._loaded) {
+        handleLoad();
+      }
+
+      // Cleanup function for event listeners
+      return () => {
+        map.off('moveend', handleMoveEnd);
+        map.off('zoomend', handleZoomEnd);
+        map.off('load', handleLoad);
+      };
+    }
+  }, [map, onMapReady, onBoundsChange]);
+
+  // Wait for map to be fully loaded before adding controls
+  useEffect(() => {
+    if (map) {
       const initializeEnhancedControls = () => {
         // Prevent duplicate controls by checking if they already exist
         if (map._controlsInitialized) {
@@ -801,36 +860,13 @@ export default function Map({
           style={{ height: '100%', width: '100%', backgroundColor: '#f0f0f0', minHeight: '500px' }}
           className="rounded-lg"
         >
-        <MapEvents onMapReady={(map) => {
-          setMapInstance(map);
-          window.leafletMap = map;
-          // Trigger initial bounds after map is ready
-          setTimeout(() => {
-            try {
-              // Check if map and getBounds method exist
-              if (map && typeof map.getBounds === 'function' && map.getContainer && map.getContainer()) {
-                // Additional safety check to ensure map is fully initialized
-                if (map._loaded === false) {
-                  console.warn('Map not fully loaded yet, waiting...');
-                  return;
-                }
-                
-                const bounds = map.getBounds();
-                if (bounds && onBoundsChange && bounds.isValid && bounds.isValid()) {
-                  console.log('Setting initial bounds from map ready:', bounds);
-                  handleBoundsChange(bounds);
-                }
-              }
-            } catch (error) {
-              console.error('Error getting initial bounds:', error);
-              // Log more detailed error information
-              if (error instanceof Error) {
-                console.error('Error message:', error.message);
-                console.error('Error stack:', error.stack);
-              }
-            }
-          }, 200); // Increased delay for better stability
-        }} />
+        <MapEvents 
+          onMapReady={(map) => {
+            setMapInstance(map);
+            window.leafletMap = map;
+          }} 
+          onBoundsChange={handleBoundsChange}
+        />
         
         {/* Professional Basemap Selection */}
         <LayersControl position="topright">
