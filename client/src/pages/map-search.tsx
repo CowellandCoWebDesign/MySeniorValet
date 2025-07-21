@@ -52,6 +52,7 @@ export default function MapSearch() {
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [isDarkMode, setIsDarkMode] = useState(true); // Default to dark mode for eye comfort
+  const [hasSearched, setHasSearched] = useState(false);
   const [filters, setFilters] = useState<SearchFilters>({
     careType: 'All Types',
     minRating: 0,
@@ -149,8 +150,37 @@ export default function MapSearch() {
   const [localCommunities, setLocalCommunities] = useState<Community[]>([]);
   
   const { data: mapCommunities = [], isLoading: isLoadingCommunities, isFetching: isFetchingCommunities, refetch: refetchCommunities } = useQuery({
-    queryKey: ['communities-map-bounds', boundsKey],
+    queryKey: ['communities-map-bounds', boundsKey, showBottomPanel],
     queryFn: async () => {
+      // If we're showing the bottom panel but no bounds yet, fetch default San Francisco area
+      if (!mapBounds && showBottomPanel) {
+        console.log('No bounds yet, fetching default San Francisco area communities...');
+        const params = new URLSearchParams({
+          swLat: '37.7000',
+          swLng: '-122.5200',
+          neLat: '37.8200',
+          neLng: '-122.3800',
+          limit: '500',
+          ...(filters.careType !== 'All Types' && { careType: filters.careType }),
+          ...(filters.minRating > 0 && { minRating: filters.minRating.toString() }),
+        });
+        
+        const response = await fetch(`/api/communities/search/spatial?${params}`, {
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch communities: ${response.statusText}`);
+        }
+        
+        const communities = await response.json();
+        console.log('Fetched default area communities:', communities.length);
+        return communities;
+      }
+      
       if (!mapBounds) return [];
       
       try {
@@ -220,7 +250,7 @@ export default function MapSearch() {
         return [];
       }
     },
-    enabled: !!mapBounds, // Fetch when we have bounds
+    enabled: showBottomPanel || !!mapBounds, // Fetch when showing list OR when we have bounds
     staleTime: 0, // No cache - always fresh data
     gcTime: 0, // No garbage collection time
     retry: 1, // Only retry once on failure
@@ -303,6 +333,9 @@ export default function MapSearch() {
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
   const handleLocationSearch = async (location: string) => {
+    if (!location || location.trim() === '') return;
+    
+    setHasSearched(true);
     // Try to geocode the location
     try {
       const response = await fetch(`/api/communities/search/enhanced?location=${encodeURIComponent(location)}&limit=1`);
@@ -328,6 +361,7 @@ export default function MapSearch() {
       'fresno': [36.7378, -119.7871],
       'san jose': [37.3382, -121.8863],
       'california': [36.7783, -119.4179],
+      'redding': [40.5865, -122.3917],
     };
     
     const coords = locationMap[location.toLowerCase()];
@@ -339,10 +373,11 @@ export default function MapSearch() {
 
   // Handle initial search query from URL
   useEffect(() => {
-    if (initialQuery) {
+    if (initialQuery && !hasSearched) {
+      console.log('Performing initial search for:', initialQuery);
       handleLocationSearch(initialQuery);
     }
-  }, []); // Only run once on mount
+  }, [initialQuery, hasSearched]); // Run when these dependencies change
 
   // Debounced search suggestions
   useEffect(() => {
@@ -384,6 +419,21 @@ export default function MapSearch() {
     setIsMapMoving(true);
     setTimeout(() => setIsMapMoving(false), 1000); // Clear after debounce
   }, [mapCommunities.length]);
+
+  // Force initial bounds when map center changes from search
+  useEffect(() => {
+    if (hasSearched && !mapBounds) {
+      console.log('Search completed but no bounds yet, waiting for map to initialize...');
+      // Force a small delay to ensure map is ready
+      setTimeout(() => {
+        if (!mapBounds) {
+          console.log('Forcing map to report bounds...');
+          // Force map to report its bounds by triggering a minimal change
+          setMapZoom(prev => prev === 12 ? 12.01 : 12);
+        }
+      }, 500);
+    }
+  }, [hasSearched, mapBounds]);
 
   const handleClusterClick = (clusterId: number, lat: number, lng: number, zoomLevel: number) => {
     // FIXED: Do not switch to list view automatically on cluster clicks
@@ -501,6 +551,11 @@ export default function MapSearch() {
                   onClick={() => {
                     setViewMode('map'); // Stay in map mode
                     setShowBottomPanel(true); // Open bottom panel for list
+                    // If no bounds yet, force initial default load
+                    if (!mapBounds) {
+                      console.log('List clicked but no bounds, triggering community fetch...');
+                      refetchCommunities();
+                    }
                   }}
                   className={`relative transition-all duration-300 ${
                     showBottomPanel 

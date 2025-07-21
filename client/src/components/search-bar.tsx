@@ -84,7 +84,7 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
       if (searchParams.careType !== 'All Types') params.set('careType', searchParams.careType);
       if (searchParams.budget !== 'Any Budget') params.set('budget', searchParams.budget);
       
-      setLocation(`/search?${params.toString()}`);
+      setLocation(`/map-search?${params.toString()}`);
     }
   };
 
@@ -104,6 +104,12 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
                 value={locationQuery}
                 onChange={(e) => handleLocationInputChange(e.target.value)}
                 onFocus={() => locationQuery.length >= 2 && setShowSuggestions(true)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleSearch();
+                  }
+                }}
                 autoComplete="off"
               />
               

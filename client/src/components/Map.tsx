@@ -203,12 +203,36 @@ function MapBoundsHandler({
       map.on('dragend', handleBoundsChange); // Update after drag completes
       map.on('drag', handleBoundsChange); // Also update during drag for immediate response
       
-      // Force initial bounds and zoom
-      setTimeout(() => {
-        console.log('Setting initial bounds and zoom');
-        handleBoundsChange();
-        handleZoomChange();
-      }, 100);
+      // Force initial bounds and zoom with multiple attempts
+      const attemptInitialBounds = (attempts = 0) => {
+        if (attempts > 5) {
+          console.warn('Failed to set initial bounds after 5 attempts');
+          return;
+        }
+        
+        setTimeout(() => {
+          try {
+            if (map && map.getBounds) {
+              console.log(`Setting initial bounds and zoom (attempt ${attempts + 1})`);
+              handleBoundsChange();
+              handleZoomChange();
+              
+              // Verify bounds were set
+              const bounds = map.getBounds();
+              if (!bounds) {
+                attemptInitialBounds(attempts + 1);
+              }
+            } else {
+              attemptInitialBounds(attempts + 1);
+            }
+          } catch (error) {
+            console.warn('Error setting initial bounds:', error);
+            attemptInitialBounds(attempts + 1);
+          }
+        }, 100 * (attempts + 1)); // Increase delay with each attempt
+      };
+      
+      attemptInitialBounds();
       
       setInitialized(true);
     }
