@@ -1247,8 +1247,12 @@ export default function MapSearch() {
                             alt={`${community.name} photo`}
                             className="w-full h-full object-cover"
                             onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = 'none';
-                              (e.target as HTMLImageElement).nextElementSibling!.style.display = 'flex';
+                              const target = e.target as HTMLImageElement;
+                              const nextSibling = target.nextElementSibling as HTMLDivElement;
+                              if (target && nextSibling) {
+                                target.style.display = 'none';
+                                nextSibling.style.display = 'flex';
+                              }
                             }}
                           />
                           <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/40 dark:to-purple-900/40 hidden items-center justify-center">

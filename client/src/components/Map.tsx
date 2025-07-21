@@ -57,28 +57,7 @@ const independentIcon = createSimpleIcon('#7c3aed'); // Purple
 const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady }) => {
   const map = useMap();
   
-  // Extend Leaflet to support custom topcenter position
-  useEffect(() => {
-    if ((window as any).L && !((window as any).L.Control.prototype._extendedPositions)) {
-      // Add custom topcenter position to Leaflet
-      const originalSetPosition = (window as any).L.Control.prototype.setPosition;
-      (window as any).L.Control.prototype.setPosition = function (position: string) {
-        if (position === 'topcenter') {
-          // Create a custom position container if it doesn't exist
-          if (!this._map._controlCorners['topcenter']) {
-            const container = this._map._controlContainer;
-            const corner = (window as any).L.DomUtil.create('div', 'leaflet-topcenter', container);
-            this._map._controlCorners['topcenter'] = corner;
-          }
-          this._position = position;
-          this.addTo(this._map);
-          return this;
-        }
-        return originalSetPosition.call(this, position);
-      };
-      (window as any).L.Control.prototype._extendedPositions = true;
-    }
-  }, [map]);
+
   
   useEffect(() => {
     if (map) {
@@ -105,7 +84,7 @@ const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady })
           // 2. Location Control - GPS assistance for seniors  
           if ((window as any).L?.Control?.Locate && !map._locateControl) {
             const locateControl = new (window as any).L.Control.Locate({
-              position: 'topleft', // Move to top left under search bar
+              position: 'topright', // Move to top right
               drawCircle: true,
               follow: true,
               setView: true,
@@ -142,7 +121,7 @@ const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady })
           // 3. Scale Control - Distance reference for seniors
           if ((window as any).L?.Control?.Scale && !map._scaleControl) {
             const scaleControl = new (window as any).L.Control.Scale({
-              position: 'topright', // Move to top right under search bar
+              position: 'bottomright', // Keep at bottom right
               maxWidth: 150,
               metric: true,
               imperial: true,
@@ -167,7 +146,7 @@ const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady })
 
             const geocoderControl = new (window as any).L.Control.Geocoder({
               geocoder: nominatimGeocoder,
-              position: 'topcenter', // Custom position for full width
+              position: 'topleft', // Back to standard position
               placeholder: 'Search any city, state, or address in North America...',
               errorMessage: 'Location not found - try a different search term',
               showUniqueResult: false,

@@ -944,18 +944,16 @@
 }
 
 .leaflet-control-geocoder {
-  /* Full width search bar at the very top */
-  position: absolute !important;
-  top: 15px !important;
-  left: 20px !important;
-  right: 20px !important;
-  width: calc(100% - 40px) !important;
-  max-width: none !important;
-  z-index: 1000 !important;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
-  border: 2px solid #e5e7eb !important;
-  border-radius: 12px !important;
+  /* Extended width search bar spanning most of the top */
+  width: 80vw !important; /* 80% of viewport width */
+  max-width: 800px !important;
+  border: none !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
   background-color: #ffffff !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  margin: 16px !important;
+  z-index: 1000 !important;
 }
 
 .leaflet-control-geocoder-form input {
@@ -1116,33 +1114,11 @@
   line-height: 1 !important;
 }
 
-/* Custom topcenter position for full-width geocoder */
-.leaflet-topcenter {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  text-align: center;
-  z-index: 1000;
-}
 
-/* Adjust other controls to be under the full-width search bar */
-.leaflet-control-container .leaflet-top.leaflet-left {
-  margin-top: 80px !important; /* Space for full-width search bar */
-}
 
-.leaflet-control-container .leaflet-top.leaflet-right {
-  margin-top: 80px !important; /* Space for full-width search bar */
-}
-
-/* Community count display adjustment */
-.community-count-display {
-  margin-top: 80px !important; /* Move down to accommodate search bar */
-}
-
-/* Zoom controls adjustment */
+/* Adjust zoom controls to not overlap with extended search bar */
 .leaflet-control-zoom {
-  margin-top: 10px !important;
+  margin-top: 90px !important; /* Move down to avoid search bar */
 }
 
 /* Dark mode enhancements for controls */
