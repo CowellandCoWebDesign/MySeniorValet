@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip, LayersControl 
 import { Icon, LatLngBounds, LatLng } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-providers';
+import { applyLeafletPatches, setupLeafletErrorHandler } from '@/utils/leaflet-patches';
 // Import enhanced Leaflet plugins for senior-friendly features
 import 'leaflet.fullscreen/Control.FullScreen.css';
 import 'leaflet.fullscreen';
@@ -61,6 +62,10 @@ const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady })
   
   useEffect(() => {
     if (map) {
+      // Apply Leaflet patches to prevent _leaflet_pos errors
+      applyLeafletPatches();
+      setupLeafletErrorHandler();
+
       // Wait for map to be fully loaded before adding controls
       const initializeEnhancedControls = () => {
         // Prevent duplicate controls by checking if they already exist
