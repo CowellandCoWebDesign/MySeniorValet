@@ -198,6 +198,42 @@ const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady })
             map._geocoderControl = geocoderControl;
           }
           
+          // 5. Custom MySeniorValet Branding Control - Bottom attribution
+          if (!map._brandingControl) {
+            const BrandingControl = (window as any).L.Control.extend({
+              onAdd: function(map: any) {
+                const div = (window as any).L.DomUtil.create('div', 'leaflet-control-branding');
+                div.innerHTML = `
+                  <div class="branding-content">
+                    <div class="brand-logo">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" fill="#3b82f6"/>
+                      </svg>
+                    </div>
+                    <div class="brand-text">
+                      <span class="brand-name">MySeniorValet</span>
+                      <span class="brand-tagline">Senior Living Search</span>
+                    </div>
+                  </div>
+                `;
+                
+                // Prevent map interactions when clicking on branding
+                (window as any).L.DomEvent.disableClickPropagation(div);
+                (window as any).L.DomEvent.disableScrollPropagation(div);
+                
+                return div;
+              },
+              
+              onRemove: function(map: any) {
+                // cleanup if needed
+              }
+            });
+            
+            const brandingControl = new BrandingControl({ position: 'bottomleft' });
+            map.addControl(brandingControl);
+            map._brandingControl = brandingControl;
+          }
+
           // Mark controls as initialized
           map._controlsInitialized = true;
           
