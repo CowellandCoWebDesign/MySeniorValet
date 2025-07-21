@@ -301,7 +301,7 @@ export default function MapSearch() {
       isLoading: isLoadingCommunities,
       hasBounds: !!mapBounds,
       showBottomPanel,
-      mapCommunities: mapCommunities.slice(0, 5).map((c: Community) => `${c.name} (${c.city})`),
+      mapCommunities: mapCommunities.slice(0, 5).map((c: any) => `${c.name} (${c.city})`),
       boundsKey: boundsKey,
       isFetching: isFetchingCommunities,
       timestamp: Date.now()
@@ -310,8 +310,8 @@ export default function MapSearch() {
     if (showBottomPanel) {
       console.log('🔥 LIST IS OPEN - Showing communities:', {
         totalCount: mapCommunities.length,
-        cities: Array.from(new Set(mapCommunities.map(c => c.city))),
-        firstFew: mapCommunities.slice(0, 3).map(c => c.name)
+        cities: Array.from(new Set(mapCommunities.map((c: any) => c.city))),
+        firstFew: mapCommunities.slice(0, 3).map((c: any) => c.name)
       });
     }
   }, [mapCommunities, isLoadingCommunities, mapBounds, showBottomPanel, boundsKey, isFetchingCommunities]);
@@ -1273,12 +1273,12 @@ export default function MapSearch() {
                   <div>• Total communities: {mapCommunities.length}</div>
                   <div>• Bounds key: {boundsKey}</div>
                   <div>• Is loading: {isLoadingCommunities ? 'Yes' : 'No'}</div>
-                  <div>• Cities shown: {Array.from(new Set(mapCommunities.map(c => c.city))).join(', ')}</div>
+                  <div>• Cities shown: {Array.from(new Set(mapCommunities.map((c: any) => c.city))).join(', ')}</div>
                 </div>
               </div>
               
               {/* Beautiful Community Cards - Matching Homepage Style */}
-              {mapCommunities.map((community: Community, index: number) => (
+              {mapCommunities.map((community: any, index: number) => (
                 <div
                   key={community.id}
                   className="group bg-white dark:bg-gray-800 hover:bg-gradient-to-br hover:from-blue-50/50 hover:to-purple-50/50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 border border-gray-200/60 dark:border-gray-700/40 hover:border-blue-300/60 dark:hover:border-blue-600/40 rounded-xl p-6 cursor-pointer hover:shadow-lg hover:shadow-blue-100/20 dark:hover:shadow-blue-900/20 transition-all duration-300 transform hover:scale-[1.02]"
@@ -1375,7 +1375,7 @@ export default function MapSearch() {
                         {/* Price Range */}
                         {community.priceRange && (
                           <div className="text-sm font-bold text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-lg border border-green-200/50 dark:border-green-700/30">
-                            {typeof community.priceRange === 'object' && community.priceRange.min && community.priceRange.max 
+                            {typeof community.priceRange === 'object' && community.priceRange?.min && community.priceRange?.max 
                               ? `$${community.priceRange.min.toLocaleString()} - $${community.priceRange.max.toLocaleString()}`
                               : typeof community.priceRange === 'string' 
                               ? community.priceRange
