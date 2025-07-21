@@ -2,9 +2,6 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip } from 'react-leaflet';
 import { Icon, LatLngBounds, LatLng } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-
-// Import Leaflet CSS explicitly
-import 'leaflet/dist/leaflet.css';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Star, MapPin, Phone, Globe, Heart, ExternalLink, Zap, Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -18,51 +15,34 @@ declare global {
   }
 }
 
-// Fix for default markers in Leaflet
+// Fix for default markers in Leaflet - Following Leaflet best practices
 delete (Icon.Default.prototype as any)._getIconUrl;
 Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
-// WebGL-optimized icons with hardware acceleration hints
-const createCustomIcon = (color: string, isHovered = false, isPulsing = false) => {
-  const size = isHovered ? [30, 50] : [25, 41];
-  const strokeWidth = isHovered ? 3 : 2;
-  const opacity = isPulsing ? 0.8 : 1;
-  
+// Simplified icons following Leaflet documentation best practices
+const createSimpleIcon = (color: string) => {
   return new Icon({
     iconUrl: `data:image/svg+xml;base64,${btoa(`
-      <svg xmlns="http://www.w3.org/2000/svg" width="${size[0]}" height="${size[1]}" viewBox="0 0 25 41" style="transform: translateZ(0); will-change: transform;">
-        <defs>
-          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-            <feMerge> 
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/> 
-            </feMerge>
-          </filter>
-          <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite" ${!isPulsing ? 'begin="indefinite"' : ''}/>
-        </defs>
-        <path fill="${color}" stroke="#fff" stroke-width="${strokeWidth}" 
-              d="M12.5 0C5.6 0 0 5.6 0 12.5c0 7.4 12.5 28.5 12.5 28.5s12.5-21.1 12.5-28.5C25 5.6 19.4 0 12.5 0z"
-              opacity="${opacity}" ${isHovered ? 'filter="url(#glow)"' : ''} style="transform: translateZ(0);"/>
-        <circle cx="12.5" cy="12.5" r="6" fill="#fff" style="transform: translateZ(0);"/>
-        ${isHovered ? '<circle cx="12.5" cy="12.5" r="4" fill="' + color + '" style="transform: translateZ(0);"/>' : ''}
+      <svg xmlns="http://www.w3.org/2000/svg" width="25" height="41" viewBox="0 0 25 41">
+        <path fill="${color}" stroke="#fff" stroke-width="2" 
+              d="M12.5 0C5.6 0 0 5.6 0 12.5c0 7.4 12.5 28.5 12.5 28.5s12.5-21.1 12.5-28.5C25 5.6 19.4 0 12.5 0z"/>
+        <circle cx="12.5" cy="12.5" r="6" fill="#fff"/>
       </svg>
     `)}`,
-    iconSize: size,
-    iconAnchor: [size[0]/2, size[1]],
-    popupAnchor: [0, -size[1]],
-    className: `optimized-marker ${isHovered ? 'marker-hover' : ''}`
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [0, -41],
   });
 };
 
-const communityIcon = createCustomIcon('#1e40af'); // Blue
-const assistedLivingIcon = createCustomIcon('#16a34a'); // Green
-const memoryCareIcon = createCustomIcon('#dc2626'); // Red
-const independentIcon = createCustomIcon('#7c3aed'); // Purple
+const communityIcon = createSimpleIcon('#1e40af'); // Blue
+const assistedLivingIcon = createSimpleIcon('#16a34a'); // Green
+const memoryCareIcon = createSimpleIcon('#dc2626'); // Red
+const independentIcon = createSimpleIcon('#7c3aed'); // Purple
 
 // Map Events component to access the map instance
 const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady }) => {
@@ -565,13 +545,12 @@ export default function Map({
 
   const getIconForCommunity = (community: Community, isHovered = false, isPulsing = false) => {
     const careTypes = community.careTypes || [];
-    let baseColor = '#1e40af'; // Blue
     
-    if (careTypes.includes('Memory Care')) baseColor = '#dc2626'; // Red
-    else if (careTypes.includes('Assisted Living')) baseColor = '#16a34a'; // Green
-    else if (careTypes.includes('Independent Living')) baseColor = '#7c3aed'; // Purple
+    if (careTypes.includes('Memory Care')) return memoryCareIcon;
+    if (careTypes.includes('Assisted Living')) return assistedLivingIcon;
+    if (careTypes.includes('Independent Living')) return independentIcon;
     
-    return createCustomIcon(baseColor, isHovered, isPulsing);
+    return communityIcon;
   };
 
   const handleCommunityClick = (community: Community) => {

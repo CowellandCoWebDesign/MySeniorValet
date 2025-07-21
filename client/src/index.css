@@ -275,7 +275,20 @@
   }
 }
 
-/* Map styles removed - ready for fresh implementation */
+/* Essential Leaflet map styles - Following Leaflet documentation best practices */
+.leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+  min-height: 400px;
+  background: #f8f9fa;
+}
+
+.map-container {
+  height: 100%;
+  width: 100%;
+  min-height: 400px;
+  position: relative;
+}
 
 .dark {
   --background: hsl(222, 84%, 4.9%);
