@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useLocation } from 'wouter';
 import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle, Building2 } from 'lucide-react';
 import { applyLeafletPatches, setupLeafletErrorHandler } from '@/utils/leaflet-patches';
@@ -154,9 +154,14 @@ export default function MapSearch() {
   
   // Fetch communities within map bounds for list view
   // Create a stable bounds key for query caching
-  const boundsKey = mapBounds 
-    ? `${mapBounds.getSouthWest().lng.toFixed(4)},${mapBounds.getSouthWest().lat.toFixed(4)},${mapBounds.getNorthEast().lng.toFixed(4)},${mapBounds.getNorthEast().lat.toFixed(4)}`
-    : 'no-bounds';
+  const boundsKey = useMemo(() => {
+    if (!mapBounds) return 'no-bounds';
+    const sw = mapBounds.getSouthWest();
+    const ne = mapBounds.getNorthEast();
+    const key = `${sw.lng.toFixed(4)},${sw.lat.toFixed(4)},${ne.lng.toFixed(4)},${ne.lat.toFixed(4)}`;
+    console.log('🔑 NEW BOUNDS KEY GENERATED:', key);
+    return key;
+  }, [mapBounds]);
 
   // Use state to store communities to ensure updates (declared above)
   
