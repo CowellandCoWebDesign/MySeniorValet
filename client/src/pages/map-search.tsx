@@ -286,7 +286,7 @@ export default function MapSearch() {
         console.error('💥 COMMUNITY FETCH ERROR:', {
           error: error?.message || 'Unknown error',
           boundsKey,
-          totalTime: errorTime - (startTime || Date.now()),
+          totalTime: errorTime - startTime,
           timestamp: errorTime,
           stack: error?.stack
         });
@@ -1393,7 +1393,7 @@ export default function MapSearch() {
                       <div className="bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/40 rounded-lg p-3 border border-green-200 dark:border-green-700">
                         <div className="text-lg font-bold text-green-800 dark:text-green-200">
                           {community.priceRange && typeof community.priceRange === 'object' && 'min' in community.priceRange
-                            ? `$${community.priceRange.min.toLocaleString()}`
+                            ? `$${(community.priceRange as any).min.toLocaleString()}`
                             : '$3,800'}
                         </div>
                         <div className="text-xs text-green-600 dark:text-green-400">

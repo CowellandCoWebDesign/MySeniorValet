@@ -121,13 +121,13 @@ const MapEvents: React.FC<{
     if (map) {
       const initializeEnhancedControls = () => {
         // Prevent duplicate controls by checking if they already exist
-        if (map._controlsInitialized) {
+        if ((map as any)._controlsInitialized) {
           return;
         }
         
         try {
           // 1. Fullscreen Control - Essential for seniors who need larger viewing areas
-          if ((window as any).L?.Control?.Fullscreen && !map._fullscreenControl) {
+          if ((window as any).L?.Control?.Fullscreen && !(map as any)._fullscreenControl) {
             const fullscreenControl = new (window as any).L.Control.Fullscreen({
               title: {
                 'false': 'View Fullscreen',
@@ -135,11 +135,11 @@ const MapEvents: React.FC<{
               }
             });
             map.addControl(fullscreenControl);
-            map._fullscreenControl = fullscreenControl;
+            (map as any)._fullscreenControl = fullscreenControl;
           }
           
           // 2. Location Control - GPS assistance for seniors  
-          if ((window as any).L?.Control?.Locate && !map._locateControl) {
+          if ((window as any).L?.Control?.Locate && !(map as any)._locateControl) {
             const locateControl = new (window as any).L.Control.Locate({
               position: 'bottomleft',
               drawCircle: true,
@@ -172,11 +172,11 @@ const MapEvents: React.FC<{
               }
             });
             map.addControl(locateControl);
-            map._locateControl = locateControl;
+            (map as any)._locateControl = locateControl;
           }
           
           // 3. Scale Control - Distance reference for seniors
-          if ((window as any).L?.Control?.Scale && !map._scaleControl) {
+          if ((window as any).L?.Control?.Scale && !(map as any)._scaleControl) {
             const scaleControl = new (window as any).L.Control.Scale({
               position: 'bottomright',
               maxWidth: 150,
@@ -185,11 +185,11 @@ const MapEvents: React.FC<{
               updateWhenIdle: false
             });
             map.addControl(scaleControl);
-            map._scaleControl = scaleControl;
+            (map as any)._scaleControl = scaleControl;
           }
           
           // 4. Enhanced Geocoder Control - Better search functionality
-          if ((window as any).L?.Control?.Geocoder && !map._geocoderControl) {
+          if ((window as any).L?.Control?.Geocoder && !(map as any)._geocoderControl) {
             const geocoder = new (window as any).L.Control.Geocoder.nominatim({
               geocodingQueryParams: {
                 countrycodes: 'us,ca,mx,pr', // North American focus
@@ -222,11 +222,11 @@ const MapEvents: React.FC<{
             });
             
             map.addControl(geocoderControl);
-            map._geocoderControl = geocoderControl;
+            (map as any)._geocoderControl = geocoderControl;
           }
           
           // Mark controls as initialized
-          map._controlsInitialized = true;
+          (map as any)._controlsInitialized = true;
           
         } catch (error) {
           console.warn('Some enhanced map controls could not be loaded:', error);
