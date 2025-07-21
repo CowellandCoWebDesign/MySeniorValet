@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation } from 'wouter';
-import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle, Building2 } from 'lucide-react';
-import { applyLeafletPatches, setupLeafletErrorHandler } from '@/utils/leaflet-patches';
+import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -46,12 +45,6 @@ interface SearchFilters {
 export default function MapSearch() {
   const [, setLocation] = useLocation();
   
-  // Apply Leaflet patches on component mount to prevent errors
-  useEffect(() => {
-    applyLeafletPatches();
-    setupLeafletErrorHandler();
-  }, []);
-  
   // Get search query from URL parameters
   const urlParams = new URLSearchParams(window.location.search);
   const initialQuery = urlParams.get('location') || urlParams.get('q') || '';
@@ -73,11 +66,6 @@ export default function MapSearch() {
   const [mapBounds, setMapBounds] = useState<any>(null);
   const [showBottomPanel, setShowBottomPanel] = useState(false);
   const [panelHeight, setPanelHeight] = useState(70); // Percentage of screen height - increased for better visibility
-  const [localCommunities, setLocalCommunities] = useState<Community[]>([]);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
-  const [isMapMoving, setIsMapMoving] = useState(false);
-  const [isInitialLoad, setIsInitialLoad] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const [hasSeenTutorial, setHasSeenTutorial] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -154,16 +142,12 @@ export default function MapSearch() {
   
   // Fetch communities within map bounds for list view
   // Create a stable bounds key for query caching
-  const boundsKey = useMemo(() => {
-    if (!mapBounds) return 'no-bounds';
-    const sw = mapBounds.getSouthWest();
-    const ne = mapBounds.getNorthEast();
-    const key = `${sw.lng.toFixed(4)},${sw.lat.toFixed(4)},${ne.lng.toFixed(4)},${ne.lat.toFixed(4)}`;
-    console.log('🔑 NEW BOUNDS KEY GENERATED:', key);
-    return key;
-  }, [mapBounds]);
+  const boundsKey = mapBounds 
+    ? `${mapBounds.getSouthWest().lng.toFixed(4)},${mapBounds.getSouthWest().lat.toFixed(4)},${mapBounds.getNorthEast().lng.toFixed(4)},${mapBounds.getNorthEast().lat.toFixed(4)}`
+    : 'no-bounds';
 
-  // Use state to store communities to ensure updates (declared above)
+  // Use state to store communities to ensure updates
+  const [localCommunities, setLocalCommunities] = useState<Community[]>([]);
   
   const { data: mapCommunities = [], isLoading: isLoadingCommunities, isFetching: isFetchingCommunities, refetch: refetchCommunities } = useQuery({
     queryKey: ['communities-map-bounds', boundsKey, showBottomPanel],
@@ -263,8 +247,7 @@ export default function MapSearch() {
         return [];
       }
     },
-    enabled: !!mapBounds, // Always fetch when we have map bounds
-    notifyOnChangeProps: ['data', 'error', 'isLoading'], // React to data changes
+    enabled: showBottomPanel || !!mapBounds, // Fetch when showing list OR when we have bounds
     staleTime: 0, // No cache - always fresh data
     gcTime: 0, // No garbage collection time
     retry: 1, // Only retry once on failure
@@ -275,60 +258,45 @@ export default function MapSearch() {
   // State for expanded search
   const [showExpandedSearch, setShowExpandedSearch] = useState(false);
   
-  // Set loading state when bounds change
+  // Clear local communities immediately when bounds change to prevent showing stale data
   useEffect(() => {
-    if (mapBounds && prevBoundsRef.current !== boundsKey && prevBoundsRef.current !== 'no-bounds') {
-      setIsMapMoving(true);
-      console.log('Map bounds changed - setting loading state', {
-        newBounds: boundsKey,
-        prevBounds: prevBoundsRef.current
-      });
+    if (showBottomPanel && mapBounds && prevBoundsRef.current !== boundsKey) {
+      // Clear local communities immediately to avoid showing stale data
+      setLocalCommunities([]);
     }
-  }, [boundsKey, mapBounds]);
+  }, [boundsKey, showBottomPanel, mapBounds]);
 
-  // Clear loading state when communities are loaded
+  // Sync local state with query data
   useEffect(() => {
-    if (mapCommunities.length > 0 || (!isLoadingCommunities && mapBounds)) {
-      setIsMapMoving(false);
-      console.log('Communities loaded or loading complete', {
-        count: mapCommunities.length,
-        firstCommunity: mapCommunities[0]?.name,
-        firstCity: mapCommunities[0]?.city,
-        isLoading: isLoadingCommunities
-      });
+    if (mapCommunities.length > 0) {
+      setLocalCommunities(mapCommunities);
     }
-  }, [mapCommunities, isLoadingCommunities, mapBounds]);
+  }, [mapCommunities]);
 
   // Debug logging at render time
   useEffect(() => {
-    console.log('🔥 CRITICAL DEBUG - Communities state updated:', {
+    console.log('Communities state updated:', {
+      localCount: localCommunities.length,
       mapCount: mapCommunities.length,
       isLoading: isLoadingCommunities,
       hasBounds: !!mapBounds,
       showBottomPanel,
-      mapCommunities: mapCommunities.slice(0, 5).map((c: any) => `${c.name} (${c.city})`),
+      localCommunities: localCommunities.slice(0, 3).map((c: Community) => `${c.name} (${c.city})`),
+      mapCommunities: mapCommunities.slice(0, 3).map((c: Community) => `${c.name} (${c.city})`),
       boundsKey: boundsKey,
-      isFetching: isFetchingCommunities,
-      timestamp: Date.now()
+      isFetching: isFetchingCommunities
     });
-    
-    if (showBottomPanel) {
-      console.log('🔥 LIST IS OPEN - Showing communities:', {
-        totalCount: mapCommunities.length,
-        cities: Array.from(new Set(mapCommunities.map((c: any) => c.city))),
-        firstFew: mapCommunities.slice(0, 3).map((c: any) => c.name)
-      });
-    }
-  }, [mapCommunities, isLoadingCommunities, mapBounds, showBottomPanel, boundsKey, isFetchingCommunities]);
+  }, [localCommunities, mapCommunities, isLoadingCommunities, mapBounds, showBottomPanel, boundsKey, isFetchingCommunities]);
 
-  // State to track if we're waiting for initial load (already declared above)
+  // State to track if we're waiting for initial load
+  const [isInitialLoad, setIsInitialLoad] = useState(false);
+  const [isMapMoving, setIsMapMoving] = useState(false);
 
   // Force refetch when bounds change
   const prevBoundsRef = useRef(boundsKey);
   useEffect(() => {
-    // Always refetch when bounds change, regardless of panel state
-    if (mapBounds && prevBoundsRef.current !== boundsKey && prevBoundsRef.current !== 'no-bounds') {
-      console.log('Bounds changed, forcing community refetch...', {
+    if (mapBounds && showBottomPanel && prevBoundsRef.current !== boundsKey) {
+      console.log('Bounds actually changed, forcing refetch...', {
         prevBounds: prevBoundsRef.current,
         newBounds: boundsKey,
         showBottomPanel,
@@ -337,20 +305,8 @@ export default function MapSearch() {
       prevBoundsRef.current = boundsKey;
       // Force an immediate refetch when bounds change
       refetchCommunities();
-    } else if (mapBounds && prevBoundsRef.current === 'no-bounds') {
-      // Initial bounds set
-      prevBoundsRef.current = boundsKey;
-      console.log('Initial bounds set:', boundsKey);
     }
-  }, [boundsKey, mapBounds, refetchCommunities]);
-
-  // Ensure loading state is cleared when panel opens with data
-  useEffect(() => {
-    if (showBottomPanel && mapCommunities.length > 0) {
-      setIsMapMoving(false);
-      console.log('List panel open with communities - clearing loading state');
-    }
-  }, [showBottomPanel, mapCommunities.length]);
+  }, [boundsKey, showBottomPanel, refetchCommunities]);
 
   // Fetch expanded search results when no communities in current view
   const { data: expandedCommunities = [], isLoading: isLoadingExpanded } = useQuery({
@@ -378,7 +334,8 @@ export default function MapSearch() {
     retry: 1,
   });
 
-  // suggestions and loadingSuggestions already declared above
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
   const handleLocationSearch = async (location: string) => {
     if (!location || location.trim() === '') return;
@@ -684,22 +641,21 @@ export default function MapSearch() {
     setLocation(`/communities/${community.id}`);
   };
   
-  // Handle map bounds change with proper debugging and stale data prevention
+  // Handle map bounds change with proper debugging
   const handleMapBoundsChange = useCallback((bounds: any) => {
     console.log('Map bounds changed in MapSearch:', bounds);
-    console.log('Setting mapBounds state, current communities:', mapCommunities?.length || 0);
+    console.log('Setting mapBounds state, current communities:', mapCommunities.length);
     
     // Clear communities immediately to prevent showing stale data
     if (showBottomPanel) {
-      console.log('Clearing local communities to prevent stale data');
       setLocalCommunities([]);
     }
     
     setMapBounds(bounds);
     // Set map moving state for immediate loading feedback
     setIsMapMoving(true);
-    setTimeout(() => setIsMapMoving(false), 2000); // Clear after data loads
-  }, [showBottomPanel]);
+    setTimeout(() => setIsMapMoving(false), 1500); // Clear after debounce
+  }, [mapCommunities.length, showBottomPanel]);
 
   // Force initial bounds when map center changes from search
   useEffect(() => {
@@ -1124,7 +1080,7 @@ export default function MapSearch() {
       </div>
 
       {/* Map Container - Always show map */}
-      <div className="flex-1 relative">
+      <div className="flex-1">
         <div className="h-full" style={{ minHeight: '600px' }}>
           <MapErrorBoundary>
             <Map
@@ -1138,16 +1094,6 @@ export default function MapSearch() {
             />
           </MapErrorBoundary>
         </div>
-        
-        {/* Floating Location Change Indicator */}
-        {(isMapMoving || isLoadingCommunities || isFetchingCommunities) && (
-          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[999] bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 animate-pulse">
-            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            <span className="text-sm font-medium">
-              {isMapMoving ? 'Map moving...' : 'Loading communities...'}
-            </span>
-          </div>
-        )}
       </div>
 
       {/* Enhanced Bottom Slide Panel - Fixed visibility */}
@@ -1192,15 +1138,12 @@ export default function MapSearch() {
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100 flex items-center gap-2">
               🏠 {!mapBounds ? 'Position map to see communities' : 
-               isLoadingCommunities || isFetchingCommunities || isMapMoving || isInitialLoad ? 'Updating location...' : 
-               `${mapCommunities?.length || 0} Communities Found`}
-              <span className="text-xs font-normal text-blue-600 dark:text-blue-400">
-                {mapCommunities?.length > 0 ? `(${mapCommunities[0]?.city || 'Unknown'})` : ''}
-              </span>
-              {(isLoadingCommunities || isFetchingCommunities || isMapMoving || isInitialLoad) && (
+               isLoadingCommunities || isFetchingCommunities ? 'Loading communities...' : 
+               `${localCommunities.length} Communities Found`}
+              {(isLoadingCommunities || isFetchingCommunities) && (
                 <div className="inline-flex items-center gap-1 text-sm font-normal text-blue-600 dark:text-blue-400">
                   <div className="w-3 h-3 border-2 border-blue-600 dark:border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-                  {isMapMoving ? 'Moving...' : 'Loading...'}
+                  Loading...
                 </div>
               )}
             </h3>
@@ -1257,7 +1200,7 @@ export default function MapSearch() {
                 </div>
               ))}
             </div>
-          ) : (!mapCommunities || mapCommunities.length === 0) ? (
+          ) : mapCommunities.length === 0 ? (
             <div className="text-center py-12">
               <div className="bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/20 dark:to-red-900/20 rounded-2xl p-8 mx-4">
                 <MapIcon className="w-16 h-16 mx-auto text-orange-500 mb-4" />
@@ -1270,124 +1213,112 @@ export default function MapSearch() {
               </div>
             </div>
           ) : (
-            <div className="grid gap-6">
-              {/* Debug Information */}
-              <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg">
-                <div className="text-sm text-yellow-800 dark:text-yellow-200">
-                  <div>🔍 Debug Info:</div>
-                  <div>• Total communities: {mapCommunities.length}</div>
-                  <div>• Bounds key: {boundsKey}</div>
-                  <div>• Is loading: {isLoadingCommunities ? 'Yes' : 'No'}</div>
-                  <div>• Cities shown: {Array.from(new Set(mapCommunities.map((c: any) => c.city))).join(', ')}</div>
-                </div>
-              </div>
-              
-              {/* Beautiful Community Cards - Matching Homepage Style */}
-              {mapCommunities.map((community: any, index: number) => (
+            <div className="space-y-3">
+              {/* Use mapCommunities directly for immediate updates instead of localCommunities */}
+              {mapCommunities.map((community, index) => (
                 <div
                   key={community.id}
-                  className="group bg-white dark:bg-gray-800 hover:bg-gradient-to-br hover:from-blue-50/50 hover:to-purple-50/50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 border border-gray-200/60 dark:border-gray-700/40 hover:border-blue-300/60 dark:hover:border-blue-600/40 rounded-xl p-6 cursor-pointer hover:shadow-lg hover:shadow-blue-100/20 dark:hover:shadow-blue-900/20 transition-all duration-300 transform hover:scale-[1.02]"
+                  className="bg-gradient-to-r from-white to-blue-50/50 dark:from-gray-800 dark:to-blue-900/20 rounded-xl border-2 border-blue-200/50 dark:border-blue-700/50 p-5 cursor-pointer hover:shadow-xl hover:scale-[1.02] transition-all duration-300 hover:border-blue-400 dark:hover:border-blue-500"
                   onClick={() => handleCommunityClick(community)}
                 >
-                  <div className="flex items-start gap-4">
-                    {/* Photo Thumbnail */}
-                    <div className="relative">
-                      {community.photos && community.photos.length > 0 ? (
-                        <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/40 dark:to-purple-900/40 rounded-xl overflow-hidden border border-blue-200/50 dark:border-blue-700/50">
-                          <img 
-                            src={community.photos[0]} 
-                            alt={`${community.name} photo`}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              const nextSibling = target.nextElementSibling as HTMLDivElement;
-                              if (target && nextSibling) {
-                                target.style.display = 'none';
-                                nextSibling.style.display = 'flex';
-                              }
-                            }}
-                          />
-                          <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/40 dark:to-purple-900/40 hidden items-center justify-center">
-                            <Building2 className="w-6 h-6 text-blue-500 dark:text-blue-400" />
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 pr-4">
+                      <div className="flex items-start gap-3">
+                        <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <div className="flex-1">
+                          <h4 className="font-bold text-lg text-gray-900 dark:text-white dark:text-white line-clamp-2 mb-1">
+                            {community.name}
+                          </h4>
+                          <p className="text-sm text-blue-700 dark:text-blue-300 line-clamp-1 mb-3">
+                            📍 {community.address}, {community.city}, {community.state}
+                          </p>
+                          
+                          {/* Care Types */}
+                          {community.careTypes && community.careTypes.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mb-3">
+                              {community.careTypes.slice(0, 2).map((type, typeIndex) => (
+                                <span key={typeIndex} className="px-2 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 text-xs rounded-full font-medium">
+                                  {type}
+                                </span>
+                              ))}
+                              {community.careTypes.length > 2 && (
+                                <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-200 text-xs rounded-full font-medium">
+                                  +{community.careTypes.length - 2} more
+                                </span>
+                              )}
+                            </div>
+                          )}
+                          
+                          {/* Rating and Availability */}
+                          <div className="flex items-center gap-4 mb-3">
+                            {community.rating > 0 && (
+                              <div className="flex items-center gap-1">
+                                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                <span className="text-sm font-bold text-gray-900 dark:text-white dark:text-white">
+                                  {community.rating}
+                                </span>
+                                <span className="text-xs text-gray-500">
+                                  ({community.reviewCount || 0} reviews)
+                                </span>
+                              </div>
+                            )}
+                            
+                            {community.availability && (
+                              <div className={`px-2 py-1 rounded-full text-xs font-bold ${
+                                community.availability === 'Available' 
+                                  ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200'
+                                  : community.availability === 'Limited'
+                                  ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200'
+                                  : 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200'
+                              }`}>
+                                {community.availability}
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Action Buttons */}
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0 font-medium"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCommunityClick(community);
+                              }}
+                            >
+                              <ExternalLink className="w-3 h-3 mr-1" />
+                              View Details
+                            </Button>
+                            
+                            {community.phone && (
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                className="border-blue-300 text-blue-600 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-400 dark:hover:bg-blue-900/20"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.open(`tel:${community.phone}`);
+                                }}
+                              >
+                                <Phone className="w-3 h-3" />
+                              </Button>
+                            )}
                           </div>
                         </div>
-                      ) : (
-                        <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/40 dark:to-purple-900/40 rounded-xl flex items-center justify-center border border-blue-200/50 dark:border-blue-700/50">
-                          <Building2 className="w-6 h-6 text-blue-500 dark:text-blue-400" />
-                        </div>
-                      )}
+                      </div>
                     </div>
                     
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-lg text-gray-900 dark:text-white mb-2 line-clamp-1 group-hover:text-blue-900 dark:group-hover:text-blue-100 transition-colors">
-                        {community.name}
-                      </h4>
-                      
-                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-1 flex items-center gap-1">
-                        <MapIcon className="w-3 h-3 text-blue-500 flex-shrink-0" />
-                        {community.address}, {community.city}, {community.state}
-                      </p>
-                          
-                      {/* Care Types */}
-                      {community.careTypes && community.careTypes.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 mb-3">
-                          {community.careTypes.slice(0, 2).map((type: string, typeIndex: number) => (
-                            <span key={typeIndex} className="px-2.5 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs rounded-full font-medium border border-blue-200/50 dark:border-blue-700/30">
-                              {type}
-                            </span>
-                          ))}
-                          {community.careTypes.length > 2 && (
-                            <span className="px-2.5 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs rounded-full font-medium border border-purple-200/50 dark:border-purple-700/30">
-                              +{community.careTypes.length - 2} more
-                            </span>
-                          )}
+                    {/* Price Display */}
+                    <div className="text-right pl-2">
+                      <div className="bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/40 rounded-lg p-3 border border-green-200 dark:border-green-700">
+                        <div className="text-lg font-bold text-green-800 dark:text-green-200">
+                          {community.priceRange && typeof community.priceRange === 'object' && 'min' in community.priceRange
+                            ? `$${community.priceRange.min.toLocaleString()}`
+                            : '$3,800'}
                         </div>
-                      )}
-                      
-                      {/* Rating, Price, and Availability */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          {/* Rating */}
-                          {community.rating > 0 && (
-                            <div className="flex items-center gap-1">
-                              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                              <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                                {community.rating}
-                              </span>
-                              <span className="text-xs text-gray-500 dark:text-gray-400">
-                                ({community.reviewCount || 0})
-                              </span>
-                            </div>
-                          )}
-                          
-                          {/* Availability */}
-                          {community.availability && (
-                            <div className="flex items-center gap-1.5">
-                              <div className={`w-2.5 h-2.5 rounded-full ${
-                                community.availability === 'Available' ? 'bg-green-500' :
-                                community.availability === 'Limited' ? 'bg-yellow-500' :
-                                community.availability === 'Waitlist' ? 'bg-orange-500' :
-                                'bg-gray-400'
-                              }`}></div>
-                              <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
-                                {community.availability}
-                              </span>
-                            </div>
-                          )}
+                        <div className="text-xs text-green-600 dark:text-green-400">
+                          estimated
                         </div>
-                        
-                        {/* Price Range */}
-                        {community.priceRange && (
-                          <div className="text-sm font-bold text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-lg border border-green-200/50 dark:border-green-700/30">
-                            {typeof community.priceRange === 'object' && community.priceRange?.min && community.priceRange?.max 
-                              ? `$${community.priceRange.min.toLocaleString()} - $${community.priceRange.max.toLocaleString()}`
-                              : typeof community.priceRange === 'string' 
-                              ? community.priceRange
-                              : 'Contact for Pricing'
-                            }
-                          </div>
-                        )}
                       </div>
                     </div>
                   </div>
@@ -1425,11 +1356,6 @@ export default function MapSearch() {
               if (!showBottomPanel) {
                 setPanelHeight(70); // Set to 70% when opening
                 setShowBottomPanel(true);
-                // Force refetch when opening list view
-                if (mapBounds) {
-                  console.log('Forcing community refetch on list open...');
-                  refetchCommunities();
-                }
               } else {
                 setShowBottomPanel(false);
               }

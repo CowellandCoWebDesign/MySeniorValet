@@ -3,7 +3,6 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip, LayersControl 
 import { Icon, LatLngBounds, LatLng } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-providers';
-import { applyLeafletPatches, setupLeafletErrorHandler } from '@/utils/leaflet-patches';
 // Import enhanced Leaflet plugins for senior-friendly features
 import 'leaflet.fullscreen/Control.FullScreen.css';
 import 'leaflet.fullscreen';
@@ -58,14 +57,8 @@ const independentIcon = createSimpleIcon('#7c3aed'); // Purple
 const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady }) => {
   const map = useMap();
   
-
-  
   useEffect(() => {
     if (map) {
-      // Apply Leaflet patches to prevent _leaflet_pos errors
-      applyLeafletPatches();
-      setupLeafletErrorHandler();
-
       // Wait for map to be fully loaded before adding controls
       const initializeEnhancedControls = () => {
         // Prevent duplicate controls by checking if they already exist
@@ -89,7 +82,7 @@ const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady })
           // 2. Location Control - GPS assistance for seniors  
           if ((window as any).L?.Control?.Locate && !map._locateControl) {
             const locateControl = new (window as any).L.Control.Locate({
-              position: 'topright', // Top right, will be positioned below search bar
+              position: 'bottomleft',
               drawCircle: true,
               follow: true,
               setView: true,
@@ -126,7 +119,7 @@ const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady })
           // 3. Scale Control - Distance reference for seniors
           if ((window as any).L?.Control?.Scale && !map._scaleControl) {
             const scaleControl = new (window as any).L.Control.Scale({
-              position: 'bottomleft', // Move to bottom left to avoid right side crowding
+              position: 'bottomright',
               maxWidth: 150,
               metric: true,
               imperial: true,
@@ -136,114 +129,43 @@ const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady })
             map._scaleControl = scaleControl;
           }
           
-          // 4. Enhanced Main Search Bar - Professional geocoder control
+          // 4. Enhanced Geocoder Control - Better search functionality
           if ((window as any).L?.Control?.Geocoder && !map._geocoderControl) {
-            // Create custom geocoder with multiple providers for comprehensive coverage
-            const nominatimGeocoder = new (window as any).L.Control.Geocoder.nominatim({
+            const geocoder = new (window as any).L.Control.Geocoder.nominatim({
               geocodingQueryParams: {
-                countrycodes: 'us,ca,mx,pr', // MySeniorValet coverage area
+                countrycodes: 'us,ca,mx,pr', // North American focus
                 bounded: 1,
                 addressdetails: 1,
-                limit: 8,
-                format: 'json'
+                limit: 5
               }
             });
-
-            // Create custom container for full-width geocoder
+            
             const geocoderControl = new (window as any).L.Control.Geocoder({
-              geocoder: nominatimGeocoder,
-              position: 'topleft', // We'll override this with CSS
-              placeholder: 'Search any city, state, or address in North America...',
-              errorMessage: 'Location not found - try a different search term',
-              showUniqueResult: false,
+              geocoder: geocoder,
+              position: 'topleft',
+              placeholder: 'Search places...',
+              errorMessage: 'Location not found',
+              showUniqueResult: true,
               showResultIcons: true,
-              suggestMinLength: 2,
-              suggestTimeout: 300,
-              queryMinLength: 2,
-              defaultMarkGeocode: false,
-              collapsed: false, // Keep search bar always visible
-              expand: 'click'
+              suggestMinLength: 3,
+              suggestTimeout: 250,
+              queryMinLength: 3,
+              defaultMarkGeocode: false
             }).on('markgeocode', function(e: any) {
-              // Enhanced geocoding result handling
-              try {
-                const result = e.geocode;
-                console.log('Geocoder result:', result);
-                
-                if (result.bbox) {
-                  // Use bounding box for better area coverage
-                  const bbox = result.bbox;
-                  map.fitBounds([
-                    [bbox._southWest.lat, bbox._southWest.lng],
-                    [bbox._northEast.lat, bbox._northEast.lng]
-                  ], {
-                    padding: [20, 20]
-                  });
-                } else if (result.center) {
-                  // Fallback to center point with appropriate zoom
-                  const zoom = result.name.includes(',') ? 
-                    (result.name.split(',').length > 2 ? 14 : 12) : 10; // City vs state vs address
-                  map.setView([result.center.lat, result.center.lng], zoom);
-                }
-                
-                // Optional: Add temporary marker for search result
-                if (result.center) {
-                  const marker = (window as any).L.marker([result.center.lat, result.center.lng])
-                    .addTo(map)
-                    .bindPopup(`<b>${result.name}</b><br>Search Result`)
-                    .openPopup();
-                  
-                  // Remove marker after 5 seconds
-                  setTimeout(() => {
-                    map.removeLayer(marker);
-                  }, 5000);
-                }
-              } catch (error) {
-                console.error('Error handling geocoder result:', error);
-              }
+              const bbox = e.geocode.bbox;
+              const poly = (window as any).L.polygon([
+                bbox.getSouthEast(),
+                bbox.getNorthEast(),
+                bbox.getNorthWest(),
+                bbox.getSouthWest()
+              ]).addTo(map);
+              map.fitBounds(poly.getBounds());
             });
             
             map.addControl(geocoderControl);
             map._geocoderControl = geocoderControl;
           }
           
-          // 5. Custom MySeniorValet Branding Control - Bottom attribution
-          if (!map._brandingControl) {
-            const BrandingControl = (window as any).L.Control.extend({
-              onAdd: function(map: any) {
-                const div = (window as any).L.DomUtil.create('div', 'leaflet-control-branding');
-                div.innerHTML = `
-                  <div class="branding-content">
-                    <div class="brand-logo">
-                      <div class="logo-gradient">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" fill="currentColor"/>
-                        </svg>
-                      </div>
-                    </div>
-                    <div class="brand-text">
-                      <span class="brand-name">MySeniorValet</span>
-                      <span class="brand-tagline">Your Personal Senior Living Concierge</span>
-                    </div>
-                  </div>
-                `;
-                
-                // Prevent map interactions when clicking on branding
-                (window as any).L.DomEvent.disableClickPropagation(div);
-                (window as any).L.DomEvent.disableScrollPropagation(div);
-                
-                return div;
-              },
-              
-              onRemove: function(map: any) {
-                // cleanup if needed
-              }
-            });
-            
-            const brandingControl = new BrandingControl({ position: 'bottomleft' });
-            map.addControl(brandingControl);
-            map._brandingControl = brandingControl;
-          }
-
           // Mark controls as initialized
           map._controlsInitialized = true;
           
