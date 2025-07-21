@@ -3,6 +3,13 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip, LayersControl 
 import { Icon, LatLngBounds, LatLng } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-providers';
+// Import enhanced Leaflet plugins for senior-friendly features
+import 'leaflet.fullscreen/Control.FullScreen.css';
+import 'leaflet.fullscreen';
+import 'leaflet.locatecontrol/dist/L.Control.Locate.css';
+import 'leaflet.locatecontrol';
+import 'leaflet-control-geocoder/dist/Control.Geocoder.css';
+import 'leaflet-control-geocoder';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Star, MapPin, Phone, Globe, Heart, ExternalLink, Zap, Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -46,20 +53,125 @@ const assistedLivingIcon = createSimpleIcon('#16a34a'); // Green
 const memoryCareIcon = createSimpleIcon('#dc2626'); // Red
 const independentIcon = createSimpleIcon('#7c3aed'); // Purple
 
-// Map Events component to access the map instance
+// Enhanced Map Events component with senior-friendly controls
 const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady }) => {
   const map = useMap();
   
   useEffect(() => {
     if (map) {
-      // Wait for map to be fully loaded before calling onMapReady
+      // Wait for map to be fully loaded before adding controls
+      const initializeEnhancedControls = () => {
+        try {
+          // 1. Fullscreen Control - Essential for seniors who need larger viewing areas
+          if ((window as any).L?.Control?.Fullscreen) {
+            const fullscreenControl = new (window as any).L.Control.Fullscreen({
+              title: {
+                'false': 'View Fullscreen',
+                'true': 'Exit Fullscreen'
+              }
+            });
+            map.addControl(fullscreenControl);
+          }
+          
+          // 2. Location Control - GPS assistance for seniors
+          if ((window as any).L?.Control?.Locate) {
+            const locateControl = new (window as any).L.Control.Locate({
+              position: 'bottomleft',
+              drawCircle: true,
+              follow: true,
+              setView: true,
+              keepCurrentZoomLevel: true,
+              markerStyle: {
+                weight: 2,
+                opacity: 0.9,
+                fillOpacity: 0.15
+              },
+              circleStyle: {
+                weight: 2,
+                clickable: false
+              },
+              icon: 'fa fa-location-arrow',
+              iconLoading: 'fa fa-spinner fa-spin',
+              metric: true,
+              strings: {
+                title: "Show me where I am",
+                popup: "You are within {distance} {unit} from this point",
+                outsideMapBoundsMsg: "You seem located outside the boundaries of the map"
+              },
+              locateOptions: {
+                maxZoom: 16,
+                watch: true,
+                enableHighAccuracy: true,
+                maximumAge: 60000,
+                timeout: 15000
+              }
+            });
+            map.addControl(locateControl);
+          }
+          
+          // 3. Scale Control - Distance reference for seniors
+          if ((window as any).L?.Control?.Scale) {
+            const scaleControl = new (window as any).L.Control.Scale({
+              position: 'bottomright',
+              maxWidth: 150,
+              metric: true,
+              imperial: true,
+              updateWhenIdle: false
+            });
+            map.addControl(scaleControl);
+          }
+          
+          // 4. Enhanced Geocoder Control - Better search functionality
+          if ((window as any).L?.Control?.Geocoder) {
+            const geocoder = new (window as any).L.Control.Geocoder.nominatim({
+              geocodingQueryParams: {
+                countrycodes: 'us,ca,mx,pr', // North American focus
+                bounded: 1,
+                addressdetails: 1,
+                limit: 5
+              }
+            });
+            
+            const geocoderControl = new (window as any).L.Control.Geocoder({
+              geocoder: geocoder,
+              position: 'topleft',
+              placeholder: 'Search places...',
+              errorMessage: 'Location not found',
+              showUniqueResult: true,
+              showResultIcons: true,
+              suggestMinLength: 3,
+              suggestTimeout: 250,
+              queryMinLength: 3,
+              defaultMarkGeocode: false
+            }).on('markgeocode', function(e: any) {
+              const bbox = e.geocode.bbox;
+              const poly = (window as any).L.polygon([
+                bbox.getSouthEast(),
+                bbox.getNorthEast(),
+                bbox.getNorthWest(),
+                bbox.getSouthWest()
+              ]).addTo(map);
+              map.fitBounds(poly.getBounds());
+            });
+            
+            map.addControl(geocoderControl);
+          }
+          
+        } catch (error) {
+          console.warn('Some enhanced map controls could not be loaded:', error);
+        }
+      };
+
       const checkMapLoaded = () => {
         if ((map as any)._loaded) {
           onMapReady(map);
+          // Initialize enhanced controls after map is ready
+          setTimeout(initializeEnhancedControls, 500);
         } else {
           // Listen for the load event
           map.once('load', () => {
             onMapReady(map);
+            setTimeout(initializeEnhancedControls, 500);
           });
         }
       };
