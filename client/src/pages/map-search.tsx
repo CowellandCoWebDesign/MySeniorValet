@@ -262,18 +262,22 @@ export default function MapSearch() {
   // State for expanded search
   const [showExpandedSearch, setShowExpandedSearch] = useState(false);
   
-  // Clear local communities immediately when bounds change to prevent showing stale data
+  // Clear local communities immediately when bounds change and set loading state
   useEffect(() => {
     if (showBottomPanel && mapBounds && prevBoundsRef.current !== boundsKey) {
       // Clear local communities immediately to avoid showing stale data
       setLocalCommunities([]);
+      setIsMapMoving(true);
+      console.log('Map bounds changed - clearing stale data and setting loading state');
     }
   }, [boundsKey, showBottomPanel, mapBounds]);
 
-  // Sync local state with query data
+  // Sync local state with query data and clear loading state
   useEffect(() => {
     if (mapCommunities.length > 0) {
       setLocalCommunities(mapCommunities);
+      setIsMapMoving(false);
+      console.log('New communities loaded - clearing loading state');
     }
   }, [mapCommunities]);
 
@@ -1324,7 +1328,7 @@ export default function MapSearch() {
                     <div className="text-right pl-2">
                       <div className="bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/40 rounded-lg p-3 border border-green-200 dark:border-green-700">
                         <div className="text-lg font-bold text-green-800 dark:text-green-200">
-                          {community.priceRange && typeof community.priceRange === 'object' && 'min' in community.priceRange
+                          {community.priceRange && typeof community.priceRange === 'object' && 'min' in community.priceRange && typeof community.priceRange.min === 'number'
                             ? `$${community.priceRange.min.toLocaleString()}`
                             : '$3,800'}
                         </div>

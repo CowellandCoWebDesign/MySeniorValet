@@ -129,37 +129,69 @@ const MapEvents: React.FC<{ onMapReady: (map: any) => void }> = ({ onMapReady })
             map._scaleControl = scaleControl;
           }
           
-          // 4. Enhanced Geocoder Control - Better search functionality
+          // 4. Enhanced Main Search Bar - Professional geocoder control
           if ((window as any).L?.Control?.Geocoder && !map._geocoderControl) {
-            const geocoder = new (window as any).L.Control.Geocoder.nominatim({
+            // Create custom geocoder with multiple providers for comprehensive coverage
+            const nominatimGeocoder = new (window as any).L.Control.Geocoder.nominatim({
               geocodingQueryParams: {
-                countrycodes: 'us,ca,mx,pr', // North American focus
+                countrycodes: 'us,ca,mx,pr', // MySeniorValet coverage area
                 bounded: 1,
                 addressdetails: 1,
-                limit: 5
+                limit: 8,
+                format: 'json'
               }
             });
-            
+
             const geocoderControl = new (window as any).L.Control.Geocoder({
-              geocoder: geocoder,
-              position: 'topleft',
-              placeholder: 'Search places...',
-              errorMessage: 'Location not found',
-              showUniqueResult: true,
+              geocoder: nominatimGeocoder,
+              position: 'topright',
+              placeholder: 'Search any city, state, or address in North America...',
+              errorMessage: 'Location not found - try a different search term',
+              showUniqueResult: false,
               showResultIcons: true,
-              suggestMinLength: 3,
-              suggestTimeout: 250,
-              queryMinLength: 3,
-              defaultMarkGeocode: false
+              suggestMinLength: 2,
+              suggestTimeout: 300,
+              queryMinLength: 2,
+              defaultMarkGeocode: false,
+              collapsed: false, // Keep search bar always visible
+              expand: 'click'
             }).on('markgeocode', function(e: any) {
-              const bbox = e.geocode.bbox;
-              const poly = (window as any).L.polygon([
-                bbox.getSouthEast(),
-                bbox.getNorthEast(),
-                bbox.getNorthWest(),
-                bbox.getSouthWest()
-              ]).addTo(map);
-              map.fitBounds(poly.getBounds());
+              // Enhanced geocoding result handling
+              try {
+                const result = e.geocode;
+                console.log('Geocoder result:', result);
+                
+                if (result.bbox) {
+                  // Use bounding box for better area coverage
+                  const bbox = result.bbox;
+                  map.fitBounds([
+                    [bbox._southWest.lat, bbox._southWest.lng],
+                    [bbox._northEast.lat, bbox._northEast.lng]
+                  ], {
+                    padding: [20, 20]
+                  });
+                } else if (result.center) {
+                  // Fallback to center point with appropriate zoom
+                  const zoom = result.name.includes(',') ? 
+                    (result.name.split(',').length > 2 ? 14 : 12) : 10; // City vs state vs address
+                  map.setView([result.center.lat, result.center.lng], zoom);
+                }
+                
+                // Optional: Add temporary marker for search result
+                if (result.center) {
+                  const marker = (window as any).L.marker([result.center.lat, result.center.lng])
+                    .addTo(map)
+                    .bindPopup(`<b>${result.name}</b><br>Search Result`)
+                    .openPopup();
+                  
+                  // Remove marker after 5 seconds
+                  setTimeout(() => {
+                    map.removeLayer(marker);
+                  }, 5000);
+                }
+              } catch (error) {
+                console.error('Error handling geocoder result:', error);
+              }
             });
             
             map.addControl(geocoderControl);
