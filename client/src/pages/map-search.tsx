@@ -1328,7 +1328,12 @@ export default function MapSearch() {
                         {/* Price Range */}
                         {community.priceRange && (
                           <div className="text-sm font-bold text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-lg border border-green-200/50 dark:border-green-700/30">
-                            {community.priceRange}
+                            {typeof community.priceRange === 'object' && community.priceRange.min && community.priceRange.max 
+                              ? `$${community.priceRange.min.toLocaleString()} - $${community.priceRange.max.toLocaleString()}`
+                              : typeof community.priceRange === 'string' 
+                              ? community.priceRange
+                              : 'Contact for Pricing'
+                            }
                           </div>
                         )}
                       </div>
