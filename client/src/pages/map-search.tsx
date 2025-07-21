@@ -155,7 +155,7 @@ export default function MapSearch() {
   // Use direct query data instead of local state to prevent stale data
   // Remove local state management that was causing ordering issues
   
-  const { data: mapCommunities = [], isLoading: isLoadingCommunities, isFetching: isFetchingCommunities, refetch: refetchCommunities } = useQuery({
+  const { data: mapCommunities = [], isLoading: isLoadingCommunities, isFetching: isFetchingCommunities, refetch: refetchCommunities, error: communitiesError } = useQuery<Community[]>({
     queryKey: ['communities-map-bounds', boundsKey, showBottomPanel, filters.careType, filters.minRating],
     queryFn: async () => {
       // If we're showing the bottom panel but no bounds yet, fetch default San Francisco area
@@ -190,6 +190,14 @@ export default function MapSearch() {
       if (!mapBounds) return [];
       
       try {
+        const startTime = Date.now();
+        console.log('🚀 STARTING COMMUNITY FETCH:', { 
+          boundsKey, 
+          showBottomPanel, 
+          timestamp: startTime,
+          mapBounds: mapBounds ? 'present' : 'missing' 
+        });
+        
         const sw = mapBounds.getSouthWest();
         const ne = mapBounds.getNorthEast();
         
@@ -197,7 +205,7 @@ export default function MapSearch() {
         const latBuffer = 0;
         const lngBuffer = 0;
         
-        console.log('Fetching communities for exact bounds:', {
+        console.log('📍 BOUNDS DATA:', {
           sw: { lat: sw.lat, lng: sw.lng },
           ne: { lat: ne.lat, lng: ne.lng },
           showBottomPanel,
@@ -219,47 +227,79 @@ export default function MapSearch() {
           ...(filters.minRating > 0 && { minRating: filters.minRating.toString() }),
         });
         
-        console.log('Making spatial search request to:', `/api/communities/search/spatial?${params}`);
-        console.log('Window origin:', window.location.origin);
+        const requestUrl = `/api/communities/search/spatial?${params}`;
+        console.log('🌐 MAKING SPATIAL REQUEST:', {
+          url: requestUrl,
+          origin: window.location.origin,
+          requestStartTime: Date.now()
+        });
         
-        const response = await fetch(`/api/communities/search/spatial?${params}`, {
+        const fetchStartTime = Date.now();
+        const response = await fetch(requestUrl, {
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
-          }
+          },
+          signal: AbortSignal.timeout(7000) // 7 second timeout for individual requests
+        });
+        
+        const fetchEndTime = Date.now();
+        console.log('⏱️ FETCH COMPLETED:', {
+          duration: fetchEndTime - fetchStartTime,
+          status: response.status,
+          ok: response.ok
         });
         
         if (!response.ok) {
-          console.error('Spatial search failed:', {
+          const errorDetails = {
             status: response.status, 
             statusText: response.statusText,
             url: response.url,
             origin: window.location.origin,
-            href: window.location.href
-          });
+            href: window.location.href,
+            fetchDuration: fetchEndTime - fetchStartTime
+          };
+          console.error('❌ SPATIAL SEARCH FAILED:', errorDetails);
           throw new Error(`Failed to fetch communities: ${response.status} ${response.statusText}`);
         }
         
+        const parseStartTime = Date.now();
         const data = await response.json();
-        console.log('Spatial search response:', {
+        const parseEndTime = Date.now();
+        
+        const totalTime = parseEndTime - startTime;
+        console.log('✅ SPATIAL SEARCH SUCCESS:', {
           count: data.length,
           firstCommunity: data[0] ? `${data[0].name} (${data[0].city})` : 'none',
           allNames: data.slice(0, 10).map((c: any) => `${c.name} (${c.city})`),
           boundsKey,
-          timestamp: Date.now()
+          timing: {
+            total: totalTime,
+            fetch: fetchEndTime - fetchStartTime,
+            parse: parseEndTime - parseStartTime
+          },
+          timestamp: parseEndTime
         });
         return data;
-      } catch (error) {
-        console.error('Error fetching communities:', error);
-        return [];
+      } catch (error: any) {
+        const errorTime = Date.now();
+        console.error('💥 COMMUNITY FETCH ERROR:', {
+          error: error?.message || 'Unknown error',
+          boundsKey,
+          totalTime: errorTime - (startTime || Date.now()),
+          timestamp: errorTime,
+          stack: error?.stack
+        });
+        throw error; // Re-throw to trigger React Query error handling
       }
     },
     enabled: showBottomPanel || !!mapBounds, // Fetch when showing list OR when we have bounds
-    staleTime: 10000, // Cache for 10 seconds to prevent excessive requests
-    gcTime: 30000, // Keep in cache for 30 seconds
-    retry: 2, // Retry twice on failure
+    staleTime: 5000, // Cache for 5 seconds to prevent excessive requests
+    gcTime: 15000, // Keep in cache for 15 seconds
+    retry: 1, // Only retry once on failure - faster timeout
     refetchOnMount: false, // Don't always refetch on mount
     refetchOnWindowFocus: false,
+    // timeout: 8000, // 8 second timeout for queries - not supported in React Query
   });
 
   // State for expanded search
@@ -267,18 +307,24 @@ export default function MapSearch() {
   
   // Remove complex local state management - use query data directly
 
-  // Debug logging for communities
+  // Aggressive debug logging for communities
   useEffect(() => {
-    console.log('Communities state updated:', {
+    console.log('🔄 COMMUNITIES STATE UPDATE:', {
       mapCount: mapCommunities.length,
       isLoading: isLoadingCommunities,
+      isFetching: isFetchingCommunities,
       hasBounds: !!mapBounds,
       showBottomPanel,
-      mapCommunities: mapCommunities.slice(0, 3).map((c: Community) => `${c.name} (${c.city})`),
+      error: communitiesError ? communitiesError.message : null,
+      mapCommunities: mapCommunities.slice(0, 5).map((c: Community) => `${c.name} (${c.city})`),
       boundsKey: boundsKey,
-      isFetching: isFetchingCommunities
+      timestamp: Date.now()
     });
-  }, [mapCommunities, isLoadingCommunities, mapBounds, showBottomPanel, boundsKey, isFetchingCommunities]);
+    
+    if (communitiesError) {
+      console.error('🚨 COMMUNITIES ERROR DETAILS:', communitiesError);
+    }
+  }, [mapCommunities, isLoadingCommunities, isFetchingCommunities, mapBounds, showBottomPanel, boundsKey, communitiesError]);
 
   // State to track if we're waiting for initial load
   const [isInitialLoad, setIsInitialLoad] = useState(false);
@@ -638,9 +684,7 @@ export default function MapSearch() {
     console.log('Setting mapBounds state, current communities:', mapCommunities.length);
     
     // Clear communities immediately to prevent showing stale data
-    if (showBottomPanel) {
-      setLocalCommunities([]);
-    }
+    // No local state management needed - query will refresh automatically
     
     setMapBounds(bounds);
     // Set map moving state for immediate loading feedback
@@ -1172,8 +1216,13 @@ export default function MapSearch() {
                   </div>
                 </div>
                 <p className="mt-4 text-blue-600 dark:text-blue-400 font-medium animate-pulse">
-                  Finding communities in this area...
+                  {isFetchingCommunities ? 'Searching 25,782 communities...' : 'Finding communities in this area...'}
                 </p>
+                {isFetchingCommunities && (
+                  <div className="mt-2 text-xs text-blue-500 dark:text-blue-400">
+                    Large spatial database query in progress (may take up to 8 seconds)
+                  </div>
+                )}
                 <div className="flex justify-center gap-1 mt-2">
                   <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
                   <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{animationDelay: '200ms'}}></div>
@@ -1205,7 +1254,7 @@ export default function MapSearch() {
             <div className="space-y-3">
               {/* Use mapCommunities directly for immediate updates - sorted by distance from map center */}
               {mapCommunities
-                .sort((a, b) => {
+                .sort((a: Community, b: Community) => {
                   // Sort by distance from map center if bounds available
                   if (mapBounds) {
                     const center = mapBounds.getCenter();
@@ -1216,7 +1265,7 @@ export default function MapSearch() {
                   // Fallback to alphabetical by name
                   return a.name.localeCompare(b.name);
                 })
-                .map((community, index) => (
+                .map((community: Community, index: number) => (
                 <div
                   key={community.id}
                   className="bg-gradient-to-r from-white to-blue-50/50 dark:from-gray-800 dark:to-blue-900/20 rounded-xl border-2 border-blue-200/50 dark:border-blue-700/50 p-5 cursor-pointer hover:shadow-xl hover:scale-[1.02] transition-all duration-300 hover:border-blue-400 dark:hover:border-blue-500"
@@ -1237,7 +1286,7 @@ export default function MapSearch() {
                           {/* Care Types */}
                           {community.careTypes && community.careTypes.length > 0 && (
                             <div className="flex flex-wrap gap-1 mb-3">
-                              {community.careTypes.slice(0, 2).map((type, typeIndex) => (
+                              {community.careTypes.slice(0, 2).map((type: string, typeIndex: number) => (
                                 <span key={typeIndex} className="px-2 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 text-xs rounded-full font-medium">
                                   {type}
                                 </span>

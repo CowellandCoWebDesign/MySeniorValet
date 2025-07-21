@@ -17,7 +17,7 @@ import {
   pendingCommunities
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, or, desc, inArray, sql } from "drizzle-orm";
+import { eq, and, or, desc, inArray, sql, between, gte } from "drizzle-orm";
 import { careTypeClassifier } from './care-type-classifier';
 import { dataQualityEnhancement } from './data-quality-enhancement';
 import { enhancedSearchService } from "./enhanced-search-service";
@@ -1009,56 +1009,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const startTime = Date.now();
       
-      // Build base spatial query
-      let query = db.select().from(communities);
-      const conditions = [];
-
-      // PostGIS spatial query - find communities within exact bounding box
-      const centerLat = (parseFloat(swLat as string) + parseFloat(neLat as string)) / 2;
-      const centerLng = (parseFloat(swLng as string) + parseFloat(neLng as string)) / 2;
+      // OPTIMIZED: Parse coordinates once
+      const swLatFloat = parseFloat(swLat as string);
+      const swLngFloat = parseFloat(swLng as string);
+      const neLatFloat = parseFloat(neLat as string);
+      const neLngFloat = parseFloat(neLng as string);
+      const centerLat = (swLatFloat + neLatFloat) / 2;
+      const centerLng = (swLngFloat + neLngFloat) / 2;
       
-      // Use precise bounding box filtering instead of radius-based search
-      conditions.push(
-        sql`${communities.latitude} BETWEEN ${parseFloat(swLat as string)} AND ${parseFloat(neLat as string)}`
-      );
-      conditions.push(
-        sql`${communities.longitude} BETWEEN ${parseFloat(swLng as string)} AND ${parseFloat(neLng as string)}`
+      console.log(`Bounds: [${swLngFloat}, ${swLatFloat}, ${neLngFloat}, ${neLatFloat}]`);
+      
+      // OPTIMIZED: Build efficient query with indexed columns first
+      let query = db.select().from(communities);
+      
+      // Primary spatial filter - use database indices
+      query = query.where(
+        and(
+          between(communities.latitude, swLatFloat, neLatFloat),
+          between(communities.longitude, swLngFloat, neLngFloat)
+        )
       );
 
-      // Additional filters
+      // Additional filters applied after spatial filter
       if (careType && careType !== 'All Types') {
-        conditions.push(sql`${careType} = ANY(${communities.careTypes})`);
+        query = query.where(sql`${careType} = ANY(${communities.careTypes})`);
       }
       
       if (minRating) {
-        conditions.push(sql`${communities.rating} >= ${parseFloat(minRating as string)}`);
+        query = query.where(gte(communities.rating, parseFloat(minRating as string)));
       }
 
       if (amenities && Array.isArray(amenities)) {
         for (const amenity of amenities) {
-          conditions.push(sql`${amenity} = ANY(${communities.amenities})`);
+          query = query.where(sql`${amenity} = ANY(${communities.amenities})`);
         }
       }
 
-      // Apply all conditions
-      if (conditions.length > 0) {
-        query = query.where(sql`${sql.join(conditions, sql` AND `)}`);
-      }
-
-      // Order by distance from center of viewed area for most relevant results
-      // Using simple Euclidean distance formula for ordering
+      // OPTIMIZED: Simplified distance ordering for better performance
       query = query.orderBy(
-        sql`SQRT(
-          POWER(${communities.latitude} - ${centerLat}, 2) + 
-          POWER(${communities.longitude} - ${centerLng}, 2)
-        )`
+        sql`ABS(${communities.latitude} - ${centerLat}) + ABS(${communities.longitude} - ${centerLng})`
       );
 
       // Add limit
       query = query.limit(parseInt(limit as string));
 
-      // Execute query
-      const result = await query;
+      // Execute query with timeout protection
+      const result = await Promise.race([
+        query,
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Query timeout after 6 seconds')), 6000)
+        )
+      ]) as any[];
       
       console.log(`PostGIS spatial search returned ${result.length} communities in ${Date.now() - startTime}ms`);
       
