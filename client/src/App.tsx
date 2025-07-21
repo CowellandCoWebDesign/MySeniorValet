@@ -44,6 +44,7 @@ import Testimonials from "@/pages/testimonials";
 import Help from "@/pages/help";
 import CareGuide from "@/pages/care-guide";
 import CommunityPortal from "@/pages/community-portal";
+import CommunityLeasing from "@/pages/community-leasing";
 import AISupport from "@/pages/ai-support";
 import AllInOnePlanner from "@/pages/all-in-one-planner";
 import Costs from "@/pages/costs";
@@ -99,6 +100,7 @@ function Router() {
       <Route path="/help" component={Help} />
       <Route path="/care-guide" component={CareGuide} />
       <Route path="/community-portal" component={CommunityPortal} />
+      <Route path="/community-portal/:id/leasing" component={CommunityLeasing} />
       <Route path="/support" component={AISupport} />
       <Route path="/ai-support" component={AISupport} />
       <Route path="/all-in-one-planner" component={AllInOnePlanner} />

@@ -1559,6 +1559,206 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ========== LEASING MANAGEMENT ENDPOINTS ==========
+  
+  // Get leasing applications for a community
+  app.get('/api/communities/:id/leasing/applications', requireSimpleAuth, async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const userId = req.user.id;
+      
+      // Check if user has permission to view this community's applications
+      const [claimedCommunity] = await db
+        .select()
+        .from(claimedCommunities)
+        .where(and(
+          eq(claimedCommunities.communityId, communityId),
+          eq(claimedCommunities.ownerId, userId)
+        ));
+      
+      if (!claimedCommunity) {
+        return res.status(403).json({ message: 'Not authorized to view applications' });
+      }
+      
+      // Mock data for now - will be replaced with real database queries
+      const applications = [
+        {
+          id: 1,
+          communityId,
+          applicantFirstName: 'John',
+          applicantLastName: 'Smith',
+          applicantEmail: 'john.smith@example.com',
+          applicantPhone: '(555) 123-4567',
+          careLevel: 'Assisted Living',
+          preferredMoveInDate: '2025-02-15',
+          status: 'Under Review',
+          docusignStatus: 'Not Started',
+          submittedAt: new Date('2025-01-15'),
+        },
+        {
+          id: 2,
+          communityId,
+          applicantFirstName: 'Mary',
+          applicantLastName: 'Johnson',
+          applicantEmail: 'mary.johnson@example.com',
+          applicantPhone: '(555) 987-6543',
+          careLevel: 'Memory Care',
+          preferredMoveInDate: '2025-03-01',
+          status: 'Documents Requested',
+          docusignStatus: 'Sent',
+          submittedAt: new Date('2025-01-10'),
+        },
+      ];
+      
+      res.json(applications);
+    } catch (error) {
+      console.error('Leasing applications error:', error);
+      res.status(500).json({ message: 'Failed to fetch applications' });
+    }
+  });
+  
+  // Get lease agreements for a community
+  app.get('/api/communities/:id/leasing/agreements', requireSimpleAuth, async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const userId = req.user.id;
+      
+      // Check if user has permission
+      const [claimedCommunity] = await db
+        .select()
+        .from(claimedCommunities)
+        .where(and(
+          eq(claimedCommunities.communityId, communityId),
+          eq(claimedCommunities.ownerId, userId)
+        ));
+      
+      if (!claimedCommunity) {
+        return res.status(403).json({ message: 'Not authorized to view leases' });
+      }
+      
+      // Mock data for now
+      const leases = [
+        {
+          id: 1,
+          communityId,
+          leaseNumber: 'LS-2025-001',
+          unitNumber: '205A',
+          unitType: 'One Bedroom',
+          monthlyRent: 4500,
+          status: 'Active',
+          leaseStartDate: '2025-01-01',
+          leaseEndDate: '2025-12-31',
+        },
+      ];
+      
+      res.json(leases);
+    } catch (error) {
+      console.error('Lease agreements error:', error);
+      res.status(500).json({ message: 'Failed to fetch leases' });
+    }
+  });
+  
+  // Get leasing tasks for a community
+  app.get('/api/communities/:id/leasing/tasks', requireSimpleAuth, async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const userId = req.user.id;
+      
+      // Check if user has permission
+      const [claimedCommunity] = await db
+        .select()
+        .from(claimedCommunities)
+        .where(and(
+          eq(claimedCommunities.communityId, communityId),
+          eq(claimedCommunities.ownerId, userId)
+        ));
+      
+      if (!claimedCommunity) {
+        return res.status(403).json({ message: 'Not authorized to view tasks' });
+      }
+      
+      // Mock data for now
+      const tasks = [
+        {
+          id: 1,
+          communityId,
+          taskType: 'Background Check',
+          taskTitle: 'Complete background verification',
+          priority: 'High',
+          status: 'Pending',
+          dueDate: '2025-01-25',
+        },
+      ];
+      
+      res.json(tasks);
+    } catch (error) {
+      console.error('Leasing tasks error:', error);
+      res.status(500).json({ message: 'Failed to fetch tasks' });
+    }
+  });
+  
+  // Get DocuSign templates for a community
+  app.get('/api/communities/:id/docusign/templates', requireSimpleAuth, async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const userId = req.user.id;
+      
+      // Check if user has permission
+      const [claimedCommunity] = await db
+        .select()
+        .from(claimedCommunities)
+        .where(and(
+          eq(claimedCommunities.communityId, communityId),
+          eq(claimedCommunities.ownerId, userId)
+        ));
+      
+      if (!claimedCommunity) {
+        return res.status(403).json({ message: 'Not authorized to view templates' });
+      }
+      
+      // Mock data for now
+      const templates = [];
+      
+      res.json(templates);
+    } catch (error) {
+      console.error('DocuSign templates error:', error);
+      res.status(500).json({ message: 'Failed to fetch templates' });
+    }
+  });
+  
+  // Create new lease application
+  app.post('/api/communities/:id/leasing/applications', requireSimpleAuth, async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const userId = req.user.id;
+      const applicationData = req.body;
+      
+      // Check if user has permission
+      const [claimedCommunity] = await db
+        .select()
+        .from(claimedCommunities)
+        .where(and(
+          eq(claimedCommunities.communityId, communityId),
+          eq(claimedCommunities.ownerId, userId)
+        ));
+      
+      if (!claimedCommunity) {
+        return res.status(403).json({ message: 'Not authorized to create applications' });
+      }
+      
+      // TODO: Insert into leasingApplications table
+      // For now, return success
+      res.json({ 
+        success: true, 
+        message: 'Application created successfully',
+        applicationId: Math.floor(Math.random() * 1000) 
+      });
+    } catch (error) {
+      console.error('Create application error:', error);
+      res.status(500).json({ message: 'Failed to create application' });
+    }
+  });
+
   // Get pricing research data for a community
   app.get('/api/communities/:id/pricing-research', async (req, res) => {
     try {

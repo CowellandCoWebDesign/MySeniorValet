@@ -24,9 +24,10 @@ import {
   Upload,
   Eye,
   Settings,
-  X
+  X,
+  FileSignature
 } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 
 export default function CommunityPortal() {
   const [currentStep, setCurrentStep] = useState('landing');
@@ -822,6 +823,14 @@ export default function CommunityPortal() {
               <Button variant="outline" className="h-auto p-4 flex flex-col items-center">
                 <Building className="w-6 h-6 mb-2" />
                 <span>Unit Types</span>
+              </Button>
+              <Button 
+                className="h-auto p-4 flex flex-col items-center bg-blue-600 hover:bg-blue-700 text-white"
+                disabled
+              >
+                <FileSignature className="w-6 h-6 mb-2" />
+                <span>Leasing</span>
+                <Badge className="mt-1 text-xs">Coming Soon</Badge>
               </Button>
               <Button variant="outline" className="h-auto p-4 flex flex-col items-center">
                 <Calendar className="w-6 h-6 mb-2" />

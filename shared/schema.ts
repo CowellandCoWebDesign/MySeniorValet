@@ -919,6 +919,238 @@ export const claimedCommunities = pgTable("claimed_communities", {
   index("claimed_communities_subscription_idx").on(table.subscriptionStatus),
 ]);
 
+// Leasing Applications
+export const leasingApplications = pgTable("leasing_applications", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  userId: integer("user_id").references(() => users.id),
+  
+  // Application Status
+  status: text("status", {
+    enum: ["Draft", "Submitted", "Under Review", "Documents Requested", "Approved", "Rejected", "Cancelled", "Expired"]
+  }).default("Draft"),
+  
+  // Applicant Information
+  applicantFirstName: text("applicant_first_name").notNull(),
+  applicantLastName: text("applicant_last_name").notNull(),
+  applicantEmail: text("applicant_email").notNull(),
+  applicantPhone: text("applicant_phone").notNull(),
+  applicantDateOfBirth: date("applicant_date_of_birth"),
+  applicantSSN: text("applicant_ssn"), // Encrypted
+  
+  // Care Recipient (if different from applicant)
+  residentFirstName: text("resident_first_name"),
+  residentLastName: text("resident_last_name"),
+  residentDateOfBirth: date("resident_date_of_birth"),
+  residentRelationship: text("resident_relationship"),
+  
+  // Care Needs
+  careLevel: text("care_level", {
+    enum: ["Independent Living", "Assisted Living", "Memory Care", "Skilled Nursing"]
+  }).notNull(),
+  medicalConditions: text("medical_conditions").array().default([]),
+  medications: text("medications").array().default([]),
+  mobilityLevel: text("mobility_level"),
+  specialNeeds: text("special_needs"),
+  
+  // Financial Information
+  monthlyIncome: decimal("monthly_income", { precision: 10, scale: 2 }),
+  incomeSources: jsonb("income_sources").$type<Array<{
+    source: string;
+    amount: number;
+    verified: boolean;
+  }>>().default([]),
+  hasLongTermCareInsurance: boolean("has_long_term_care_insurance").default(false),
+  insuranceProvider: text("insurance_provider"),
+  
+  // Unit Preferences
+  preferredMoveInDate: date("preferred_move_in_date"),
+  preferredUnitType: text("preferred_unit_type"),
+  preferredFloor: text("preferred_floor"),
+  petInfo: jsonb("pet_info").$type<{
+    hasPets: boolean;
+    petType?: string;
+    petBreed?: string;
+    petWeight?: number;
+  }>(),
+  
+  // Emergency Contact
+  emergencyContactName: text("emergency_contact_name"),
+  emergencyContactPhone: text("emergency_contact_phone"),
+  emergencyContactRelationship: text("emergency_contact_relationship"),
+  
+  // DocuSign Integration
+  docusignEnvelopeId: text("docusign_envelope_id"),
+  docusignStatus: text("docusign_status", {
+    enum: ["Not Started", "Sent", "Delivered", "Signed", "Completed", "Declined", "Voided"]
+  }).default("Not Started"),
+  docusignSentAt: timestamp("docusign_sent_at"),
+  docusignCompletedAt: timestamp("docusign_completed_at"),
+  
+  // Documents
+  documents: jsonb("documents").$type<Array<{
+    type: string; // "ID", "Income Verification", "Medical Records", "Insurance Card"
+    filename: string;
+    uploadedAt: string;
+    verified: boolean;
+    verifiedBy?: number;
+    verifiedAt?: string;
+  }>>().default([]),
+  
+  // Internal Notes
+  internalNotes: text("internal_notes"),
+  assignedTo: integer("assigned_to").references(() => users.id),
+  
+  // Timestamps
+  submittedAt: timestamp("submitted_at"),
+  reviewedAt: timestamp("reviewed_at"),
+  reviewedBy: integer("reviewed_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("leasing_applications_community_idx").on(table.communityId),
+  index("leasing_applications_user_idx").on(table.userId),
+  index("leasing_applications_status_idx").on(table.status),
+  index("leasing_applications_docusign_idx").on(table.docusignEnvelopeId),
+]);
+
+// Lease Agreements
+export const leaseAgreements = pgTable("lease_agreements", {
+  id: serial("id").primaryKey(),
+  applicationId: integer("application_id").references(() => leasingApplications.id).notNull(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  residentId: integer("resident_id").references(() => users.id),
+  
+  // Lease Details
+  leaseNumber: text("lease_number").notNull().unique(),
+  unitNumber: text("unit_number").notNull(),
+  unitType: text("unit_type").notNull(),
+  
+  // Lease Terms
+  leaseStartDate: date("lease_start_date").notNull(),
+  leaseEndDate: date("lease_end_date"),
+  leaseTermMonths: integer("lease_term_months").default(12),
+  
+  // Financial Terms
+  monthlyRent: decimal("monthly_rent", { precision: 10, scale: 2 }).notNull(),
+  communityFee: decimal("community_fee", { precision: 10, scale: 2 }).default("0"),
+  securityDeposit: decimal("security_deposit", { precision: 10, scale: 2 }).default("0"),
+  petDeposit: decimal("pet_deposit", { precision: 10, scale: 2 }).default("0"),
+  
+  // Care Level Pricing
+  careLevelFee: decimal("care_level_fee", { precision: 10, scale: 2 }).default("0"),
+  additionalServicesFees: jsonb("additional_services_fees").$type<Array<{
+    service: string;
+    fee: number;
+    frequency: string; // "monthly", "one-time", "as-needed"
+  }>>().default([]),
+  
+  // Payment Terms
+  paymentDueDay: integer("payment_due_day").default(1),
+  lateFeeAmount: decimal("late_fee_amount", { precision: 10, scale: 2 }).default("50"),
+  lateFeeGracePeriod: integer("late_fee_grace_period").default(5),
+  
+  // DocuSign
+  docusignEnvelopeId: text("docusign_envelope_id"),
+  docusignStatus: text("docusign_status", {
+    enum: ["Draft", "Sent", "Delivered", "Signed", "Completed", "Declined", "Voided"]
+  }).default("Draft"),
+  signedDate: timestamp("signed_date"),
+  
+  // Status
+  status: text("status", {
+    enum: ["Draft", "Pending Signature", "Active", "Expired", "Terminated", "Renewed"]
+  }).default("Draft"),
+  
+  // Move-in Checklist
+  moveInChecklistCompleted: boolean("move_in_checklist_completed").default(false),
+  moveInDate: date("move_in_date"),
+  moveInInspectionNotes: text("move_in_inspection_notes"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("lease_agreements_application_idx").on(table.applicationId),
+  index("lease_agreements_community_idx").on(table.communityId),
+  index("lease_agreements_resident_idx").on(table.residentId),
+  index("lease_agreements_status_idx").on(table.status),
+]);
+
+// DocuSign Templates
+export const docusignTemplates = pgTable("docusign_templates", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id),
+  
+  // Template Information
+  templateName: text("template_name").notNull(),
+  templateType: text("template_type", {
+    enum: ["Lease Agreement", "Application", "Addendum", "Move-in Checklist", "Financial Agreement", "HIPAA Release", "Custom"]
+  }).notNull(),
+  docusignTemplateId: text("docusign_template_id").notNull(),
+  
+  // Configuration
+  isActive: boolean("is_active").default(true),
+  isDefault: boolean("is_default").default(false),
+  requiredFields: jsonb("required_fields").$type<Array<{
+    fieldName: string;
+    fieldType: string;
+    required: boolean;
+    defaultValue?: string;
+  }>>().default([]),
+  
+  // Versioning
+  version: integer("version").default(1),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("docusign_templates_community_idx").on(table.communityId),
+  index("docusign_templates_type_idx").on(table.templateType),
+]);
+
+// Leasing Tasks & Workflow
+export const leasingTasks = pgTable("leasing_tasks", {
+  id: serial("id").primaryKey(),
+  applicationId: integer("application_id").references(() => leasingApplications.id),
+  leaseId: integer("lease_id").references(() => leaseAgreements.id),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  
+  // Task Details
+  taskType: text("task_type", {
+    enum: ["Application Review", "Document Collection", "Background Check", "Financial Verification", "Medical Review", "Unit Assignment", "Lease Preparation", "Move-in Coordination", "Follow-up", "Custom"]
+  }).notNull(),
+  taskTitle: text("task_title").notNull(),
+  taskDescription: text("task_description"),
+  
+  // Assignment
+  assignedTo: integer("assigned_to").references(() => users.id),
+  assignedBy: integer("assigned_by").references(() => users.id),
+  
+  // Status
+  status: text("status", {
+    enum: ["Pending", "In Progress", "Waiting", "Completed", "Cancelled", "Overdue"]
+  }).default("Pending"),
+  priority: text("priority", {
+    enum: ["Low", "Medium", "High", "Urgent"]
+  }).default("Medium"),
+  
+  // Timing
+  dueDate: timestamp("due_date"),
+  completedAt: timestamp("completed_at"),
+  completedBy: integer("completed_by").references(() => users.id),
+  
+  // Notes
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("leasing_tasks_application_idx").on(table.applicationId),
+  index("leasing_tasks_lease_idx").on(table.leaseId),
+  index("leasing_tasks_assigned_idx").on(table.assignedTo),
+  index("leasing_tasks_status_idx").on(table.status),
+]);
+
 // Operator Team Members
 export const operatorTeamMembers = pgTable("operator_team_members", {
   id: serial("id").primaryKey(),
@@ -1313,6 +1545,83 @@ export const operatorTeamMembersRelations = relations(operatorTeamMembers, ({ on
   inviter: one(users, {
     fields: [operatorTeamMembers.invitedBy],
     references: [users.id],
+  }),
+}));
+
+// Leasing Management Relations
+export const leasingApplicationsRelations = relations(leasingApplications, ({ one, many }) => ({
+  community: one(communities, {
+    fields: [leasingApplications.communityId],
+    references: [communities.id],
+  }),
+  user: one(users, {
+    fields: [leasingApplications.userId],
+    references: [users.id],
+  }),
+  assignedUser: one(users, {
+    fields: [leasingApplications.assignedTo],
+    references: [users.id],
+    relationName: "assignedApplications",
+  }),
+  reviewer: one(users, {
+    fields: [leasingApplications.reviewedBy],
+    references: [users.id],
+    relationName: "reviewedApplications",
+  }),
+  leaseAgreements: many(leaseAgreements),
+  tasks: many(leasingTasks),
+}));
+
+export const leaseAgreementsRelations = relations(leaseAgreements, ({ one, many }) => ({
+  application: one(leasingApplications, {
+    fields: [leaseAgreements.applicationId],
+    references: [leasingApplications.id],
+  }),
+  community: one(communities, {
+    fields: [leaseAgreements.communityId],
+    references: [communities.id],
+  }),
+  resident: one(users, {
+    fields: [leaseAgreements.residentId],
+    references: [users.id],
+  }),
+  tasks: many(leasingTasks),
+}));
+
+export const docusignTemplatesRelations = relations(docusignTemplates, ({ one }) => ({
+  community: one(communities, {
+    fields: [docusignTemplates.communityId],
+    references: [communities.id],
+  }),
+}));
+
+export const leasingTasksRelations = relations(leasingTasks, ({ one }) => ({
+  application: one(leasingApplications, {
+    fields: [leasingTasks.applicationId],
+    references: [leasingApplications.id],
+  }),
+  lease: one(leaseAgreements, {
+    fields: [leasingTasks.leaseId],
+    references: [leaseAgreements.id],
+  }),
+  community: one(communities, {
+    fields: [leasingTasks.communityId],
+    references: [communities.id],
+  }),
+  assignedUser: one(users, {
+    fields: [leasingTasks.assignedTo],
+    references: [users.id],
+    relationName: "assignedTasks",
+  }),
+  assignedByUser: one(users, {
+    fields: [leasingTasks.assignedBy],
+    references: [users.id],
+    relationName: "createdTasks",
+  }),
+  completedByUser: one(users, {
+    fields: [leasingTasks.completedBy],
+    references: [users.id],
+    relationName: "completedTasks",
   }),
 }));
 
@@ -1770,6 +2079,55 @@ export const userSupportResourceInteractionsRelations = relations(userSupportRes
 export const insertSupportResourceCategorySchema = createInsertSchema(supportResourceCategories);
 export const insertSupportResourceSchema = createInsertSchema(supportResources);
 export const insertUserSupportResourceInteractionSchema = createInsertSchema(userSupportResourceInteractions);
+
+// Leasing Management Insert schemas and types
+export const insertLeasingApplicationSchema = createInsertSchema(leasingApplications).omit({
+  id: true,
+  status: true,
+  docusignStatus: true,
+  docusignSentAt: true,
+  docusignCompletedAt: true,
+  submittedAt: true,
+  reviewedAt: true,
+  reviewedBy: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertLeaseAgreementSchema = createInsertSchema(leaseAgreements).omit({
+  id: true,
+  status: true,
+  docusignStatus: true,
+  signedDate: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertDocusignTemplateSchema = createInsertSchema(docusignTemplates).omit({
+  id: true,
+  version: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertLeasingTaskSchema = createInsertSchema(leasingTasks).omit({
+  id: true,
+  status: true,
+  completedAt: true,
+  completedBy: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Leasing Management Types
+export type LeasingApplication = typeof leasingApplications.$inferSelect;
+export type InsertLeasingApplication = z.infer<typeof insertLeasingApplicationSchema>;
+export type LeaseAgreement = typeof leaseAgreements.$inferSelect;
+export type InsertLeaseAgreement = z.infer<typeof insertLeaseAgreementSchema>;
+export type DocusignTemplate = typeof docusignTemplates.$inferSelect;
+export type InsertDocusignTemplate = z.infer<typeof insertDocusignTemplateSchema>;
+export type LeasingTask = typeof leasingTasks.$inferSelect;
+export type InsertLeasingTask = z.infer<typeof insertLeasingTaskSchema>;
 
 // Support Resource Types
 export type SupportResourceCategory = typeof supportResourceCategories.$inferSelect;
