@@ -1080,26 +1080,38 @@
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  width: 24px !important;
-  height: 24px !important;
+}
+
+.logo-gradient {
+  width: 32px !important;
+  height: 32px !important;
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 50%, #06b6d4 100%) !important;
+  border-radius: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: white !important;
 }
 
 .brand-text {
   display: flex !important;
   flex-direction: column !important;
-  gap: 2px !important;
+  gap: 1px !important;
 }
 
 .brand-name {
   font-size: 14px !important;
-  font-weight: 600 !important;
-  color: #1f2937 !important;
+  font-weight: 700 !important;
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
   line-height: 1 !important;
 }
 
 .brand-tagline {
-  font-size: 11px !important;
-  font-weight: 400 !important;
+  font-size: 10px !important;
+  font-weight: 500 !important;
   color: #6b7280 !important;
   line-height: 1 !important;
 }
@@ -1153,13 +1165,16 @@
 }
 
 .dark .brand-name {
-  color: #f9fafb !important;
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
 }
 
 .dark .brand-tagline {
   color: #9ca3af !important;
 }
 
-.dark .brand-logo svg path {
-  fill: #60a5fa !important;
+.dark .logo-gradient {
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #22d3ee 100%) !important;
 }
