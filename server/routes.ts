@@ -1153,6 +1153,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Geocode location endpoint
+  app.get('/api/geocode/location', async (req, res) => {
+    try {
+      const location = req.query.location as string;
+      
+      if (!location) {
+        return res.status(400).json({ error: 'Location parameter is required' });
+      }
+      
+      // Check if it's in our static location map first
+      const locationMap: Record<string, [number, number]> = {
+        // Florida cities
+        'panama city': [30.1588, -85.6602],
+        'panama city florida': [30.1588, -85.6602],
+        'tallahassee': [30.4383, -84.2807],
+        'gainesville': [29.6516, -82.3248],
+        'fort lauderdale': [26.1224, -80.1373],
+        'orlando': [28.5383, -81.3792],
+        'pensacola': [30.4213, -87.2169],
+        'fort myers': [26.6406, -81.8723],
+        'naples': [26.1420, -81.7948],
+        'daytona beach': [29.2108, -81.0228],
+        'sarasota': [27.3364, -82.5307],
+        'jacksonville': [30.3322, -81.6557],
+        'miami': [25.7617, -80.1918],
+        'tampa': [27.9506, -82.4572],
+        // Add more as needed
+      };
+      
+      const normalizedLocation = location.toLowerCase().trim();
+      if (locationMap[normalizedLocation]) {
+        const [lat, lng] = locationMap[normalizedLocation];
+        return res.json({
+          location: location,
+          coordinates: { lat, lng },
+          source: 'static'
+        });
+      }
+      
+      // If not found in static map, return not found
+      // In production, you would call a real geocoding API here
+      res.status(404).json({ 
+        error: 'Location not found',
+        suggestion: 'Try searching for a major city or ZIP code'
+      });
+      
+    } catch (error) {
+      console.error('Geocode error:', error);
+      res.status(500).json({ error: 'Failed to geocode location' });
+    }
+  });
+
   // Enhanced search with ZIP code intelligence  
   app.get('/api/communities/search/enhanced', async (req, res) => {
     try {
@@ -1169,6 +1221,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       const result = await enhancedSearchService.searchCommunities(searchParams);
+      
+      // Try to geocode the location if a location was provided
+      if (searchParams.location) {
+        try {
+          // Simple geocoding from our static map
+          const locationMap: Record<string, [number, number]> = {
+            'panama city': [30.1588, -85.6602],
+            'panama city florida': [30.1588, -85.6602],
+            'panama city, florida': [30.1588, -85.6602],
+            'panama city fl': [30.1588, -85.6602],
+            'panama city, fl': [30.1588, -85.6602],
+          };
+          
+          const normalizedLocation = searchParams.location.toLowerCase().trim();
+          if (locationMap[normalizedLocation]) {
+            const [lat, lng] = locationMap[normalizedLocation];
+            result.searchMetadata.coordinates = { lat, lng };
+            console.log('Added coordinates to metadata:', { lat, lng });
+          }
+        } catch (e) {
+          console.error('Error adding coordinates:', e);
+        }
+      }
       
       console.log(`Enhanced search returned ${result.communities.length} communities with metadata:`, result.searchMetadata);
       

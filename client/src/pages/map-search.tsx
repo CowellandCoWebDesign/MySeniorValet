@@ -378,12 +378,31 @@ export default function MapSearch() {
     if (!location || location.trim() === '') return;
     
     setHasSearched(true);
-    // Try to geocode the location
+    console.log('🔍 Searching for location:', location);
+    
+    // Try to geocode the location using enhanced API
     try {
       const response = await fetch(`/api/communities/search/enhanced?location=${encodeURIComponent(location)}&limit=1`);
+      console.log('Enhanced API response status:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('Enhanced API data:', data);
+        
+        // Check if we have communities with coordinates
+        if (data.communities && data.communities.length > 0) {
+          const firstCommunity = data.communities[0];
+          if (firstCommunity.latitude && firstCommunity.longitude) {
+            console.log('Using first community coordinates:', firstCommunity);
+            setMapCenter([firstCommunity.latitude, firstCommunity.longitude]);
+            setMapZoom(data.searchMetadata?.searchType === 'state' ? 8 : 12);
+            return;
+          }
+        }
+        
+        // Check if metadata has coordinates (future enhancement)
         if (data.searchMetadata?.coordinates) {
+          console.log('Setting map center to:', data.searchMetadata.coordinates);
           setMapCenter([data.searchMetadata.coordinates.lat, data.searchMetadata.coordinates.lng]);
           setMapZoom(data.searchMetadata.searchType === 'state' ? 8 : 12);
           return;
@@ -392,6 +411,8 @@ export default function MapSearch() {
     } catch (error) {
       console.error('Error searching location:', error);
     }
+    
+    console.log('Enhanced API failed, falling back to location map...');
 
     
     // Fallback to comprehensive North American location mapping
@@ -516,6 +537,41 @@ export default function MapSearch() {
       'st louis': [38.6270, -90.1994],
       'cincinnati': [39.1031, -84.5120],
       'pittsburgh': [40.4406, -79.9959],
+      
+      // Additional Florida Cities
+      'panama city': [30.1588, -85.6602],
+      'panama city florida': [30.1588, -85.6602],
+      'tallahassee': [30.4383, -84.2807],
+      'gainesville': [29.6516, -82.3248],
+      'fort lauderdale': [26.1224, -80.1373],
+      'orlando': [28.5383, -81.3792],
+      'pensacola': [30.4213, -87.2169],
+      'fort myers': [26.6406, -81.8723],
+      'naples': [26.1420, -81.7948],
+      'daytona beach': [29.2108, -81.0228],
+      'sarasota': [27.3364, -82.5307],
+      'west palm beach': [26.7153, -80.0534],
+      'clearwater': [27.9659, -82.8001],
+      'lakeland': [28.0395, -81.9498],
+      'palm bay': [28.0345, -80.5887],
+      'st petersburg': [27.7676, -82.6403],
+      'cape coral': [26.5629, -81.9495],
+      'port st lucie': [27.2730, -80.3582],
+      'ocala': [29.1872, -82.1401],
+      'kissimmee': [28.2920, -81.4076],
+      'bradenton': [27.4989, -82.5748],
+      'boca raton': [26.3683, -80.1289],
+      'melbourne': [28.0836, -80.6081],
+      'palm beach': [26.7056, -80.0364],
+      'deltona': [28.9005, -81.2637],
+      'vero beach': [27.6386, -80.3973],
+      'jupiter': [26.9342, -80.0942],
+      'delray beach': [26.4615, -80.0728],
+      'venice': [27.0998, -82.4543],
+      'titusville': [28.6122, -80.8076],
+      'sanford': [28.8028, -81.2690],
+      'bonita springs': [26.3398, -81.7787],
+      'palm coast': [29.5497, -81.2234],
       
       // === CANADA ===
       // Major Canadian Provinces/Territories (all covered by MySeniorValet)

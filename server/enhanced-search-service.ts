@@ -11,7 +11,7 @@ export interface SearchResult {
   communities: Community[];
   searchMetadata: {
     originalQuery: string;
-    searchType: 'exact' | 'expanded' | 'fallback' | 'nearby';
+    searchType: 'exact' | 'expanded' | 'fallback' | 'nearby' | 'error';
     zipExpansion?: {
       originalZip: string;
       expandedZips: string[];
@@ -20,6 +20,10 @@ export interface SearchResult {
     suggestions?: string[];
     totalResults: number;
     searchRadius?: number;
+    coordinates?: {
+      lat: number;
+      lng: number;
+    };
   };
 }
 
