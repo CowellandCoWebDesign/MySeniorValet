@@ -59,7 +59,7 @@ export function Header() {
           <div className="flex items-center space-x-3">
             <ThemeToggle />
             <Link to="/community-portal" className="hidden lg:block">
-              <Button variant="ghost" className="text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 font-medium">
+              <Button variant="ghost" className="text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700 font-medium">
                 <Building2 className="h-4 w-4 mr-2" />
                 Community Portal
               </Button>

@@ -5,7 +5,7 @@ import { PremiumImage } from "@/components/premium-image";
 import { PricingBreakdown } from "@/components/pricing-breakdown";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Shield, FolderSync, MapPin, Database, Tag, Map, Check, Star, DollarSign, Clock, Users, Wifi, Car, Activity, MapIcon } from "lucide-react";
+import { Shield, FolderSync, MapPin, Database, Tag, Map, Check, Star, DollarSign, Clock, Users, Wifi, Car, Activity, MapIcon, Building } from "lucide-react";
 import { Link } from "wouter";
 import { GreetingMascot } from "@/components/mascot";
 
@@ -92,8 +92,8 @@ export default function Home() {
             <SearchBar />
           </div>
 
-          {/* Explore Communities Button */}
-          <div className="max-w-2xl mx-auto mb-6">
+          {/* Action Buttons */}
+          <div className="max-w-2xl mx-auto mb-6 space-y-3">
             <Link href="/map-search">
               <Button 
                 variant="outline" 
@@ -102,6 +102,17 @@ export default function Home() {
               >
                 <MapIcon className="mr-2 h-5 w-5" />
                 Explore All Communities on Map
+              </Button>
+            </Link>
+            
+            {/* For Communities Button */}
+            <Link href="/community-portal">
+              <Button 
+                size="lg" 
+                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300"
+              >
+                <Building className="mr-2 h-5 w-5" />
+                For Communities - Manage Your Profile
               </Button>
             </Link>
           </div>
