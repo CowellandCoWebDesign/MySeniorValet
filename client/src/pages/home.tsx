@@ -22,8 +22,8 @@ export default function Home() {
       <div className="relative z-10">
         <Header />
       
-      {/* Hero Section - Optimized Sizing */}
-      <section className="relative py-12 lg:py-20 overflow-hidden min-h-[80vh] flex items-center">
+      {/* Hero Section - Optimized for Senior Accessibility */}
+      <section className="relative py-16 lg:py-24 overflow-hidden min-h-[85vh] flex items-center justify-center">
         {/* Hero Background Image - Unsplash Exemption */}
         <div className="absolute inset-0">
           <PremiumImage 
@@ -39,50 +39,50 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-white/85 via-white/70 to-white/50"></div>
         </div>
         <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8 lg:mb-12">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-display font-bold text-gray-900 mb-6 leading-tight">
+          <div className="text-center mb-10 lg:mb-16">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-display font-bold text-gray-900 mb-8 leading-tight">
               Senior Living{" "}
               <span className="text-primary bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Transparency</span> &{" "}
               <span className="bg-gradient-to-r from-indigo-600 to-purple-700 bg-clip-text text-transparent">Complete Care</span>
             </h1>
-            <p className="text-lg lg:text-xl text-gray-700 max-w-3xl mx-auto mb-8 leading-relaxed">
+            <p className="text-xl lg:text-2xl xl:text-3xl text-gray-700 max-w-4xl mx-auto mb-10 leading-relaxed font-medium">
               Research with real pricing and availability, then get complete post-move services including bill payment and account management. We help communities become tech-professional with unified resident onboarding.
             </p>
             
-            {/* Optimized Feature Pills */}
-            <div className="flex flex-wrap justify-center gap-2 lg:gap-3 mb-8">
-                <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-md px-4 py-2 rounded-xl shadow-md border border-blue-200/50 hover:shadow-lg transition-all duration-300 group relative overflow-hidden">
+            {/* Enhanced Feature Pills - Larger for Seniors */}
+            <div className="flex flex-wrap justify-center gap-3 lg:gap-4 mb-10">
+                <div className="flex items-center space-x-3 bg-white/90 backdrop-blur-md px-6 py-3 rounded-xl shadow-md border border-blue-200/50 hover:shadow-lg transition-all duration-300 group relative overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-indigo-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="p-1 bg-blue-100 rounded-full relative z-10">
-                    <DollarSign className="text-blue-600 h-4 w-4" />
+                  <div className="p-2 bg-blue-100 rounded-full relative z-10">
+                    <DollarSign className="text-blue-600 h-5 w-5" />
                   </div>
-                  <span className="text-sm font-semibold text-blue-800 relative z-10">Real Transparency</span>
+                  <span className="text-base lg:text-lg font-semibold text-blue-800 relative z-10">Real Transparency</span>
                   <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-400 rounded-full opacity-0 group-hover:opacity-100 animate-ping"></div>
                 </div>
-                <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-md px-4 py-2 rounded-xl shadow-md border border-green-200/50 hover:shadow-lg transition-all duration-300 group relative overflow-hidden">
-                  <div className="p-1 bg-green-100 rounded-full">
-                    <Users className="text-green-600 h-4 w-4" />
+                <div className="flex items-center space-x-3 bg-white/90 backdrop-blur-md px-6 py-3 rounded-xl shadow-md border border-green-200/50 hover:shadow-lg transition-all duration-300 group relative overflow-hidden">
+                  <div className="p-2 bg-green-100 rounded-full">
+                    <Users className="text-green-600 h-5 w-5" />
                   </div>
-                  <span className="text-sm font-semibold text-green-800">Post-Move Services</span>
+                  <span className="text-base lg:text-lg font-semibold text-green-800">Post-Move Services</span>
                 </div>
-                <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-md px-4 py-2 rounded-xl shadow-md border border-blue-200/50 hover:shadow-lg transition-shadow duration-300">
-                  <div className="p-1 bg-blue-100 rounded-full">
-                    <Clock className="text-blue-600 h-4 w-4" />
+                <div className="flex items-center space-x-3 bg-white/90 backdrop-blur-md px-6 py-3 rounded-xl shadow-md border border-blue-200/50 hover:shadow-lg transition-shadow duration-300">
+                  <div className="p-2 bg-blue-100 rounded-full">
+                    <Clock className="text-blue-600 h-5 w-5" />
                   </div>
-                  <span className="text-sm font-semibold text-blue-800">Live Availability</span>
+                  <span className="text-base lg:text-lg font-semibold text-blue-800">Live Availability</span>
                 </div>
-                <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-md px-4 py-2 rounded-xl shadow-md border border-purple-200/50 hover:shadow-lg transition-shadow duration-300">
-                  <div className="p-1 bg-purple-100 rounded-full">
-                    <Wifi className="text-purple-600 h-4 w-4" />
+                <div className="flex items-center space-x-3 bg-white/90 backdrop-blur-md px-6 py-3 rounded-xl shadow-md border border-purple-200/50 hover:shadow-lg transition-shadow duration-300">
+                  <div className="p-2 bg-purple-100 rounded-full">
+                    <Wifi className="text-purple-600 h-5 w-5" />
                   </div>
-                  <span className="text-sm font-semibold text-purple-800">Tech-Professional Communities</span>
+                  <span className="text-base lg:text-lg font-semibold text-purple-800">Tech-Professional Communities</span>
                 </div>
             </div>
           </div>
 
           {/* Community Count Statement */}
-          <div className="text-center mb-4">
-            <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-300 font-medium">
+          <div className="text-center mb-6">
+            <p className="text-2xl lg:text-3xl text-gray-600 dark:text-gray-300 font-medium">
               Serving families across 25,000+ communities
             </p>
           </div>
@@ -118,14 +118,14 @@ export default function Home() {
           </div>
           
           {/* Data Integrity Notice */}
-          <div className="max-w-2xl mx-auto">
-            <div className="bg-white/90 backdrop-blur-md border border-blue-200/60 rounded-xl p-4 shadow-md">
-              <div className="flex items-start space-x-3">
-                <div className="p-1.5 bg-blue-100 rounded-full flex-shrink-0">
-                  <Database className="h-4 w-4 text-blue-600" />
+          <div className="max-w-3xl mx-auto">
+            <div className="bg-white/90 backdrop-blur-md border border-blue-200/60 rounded-xl p-6 shadow-md">
+              <div className="flex items-start space-x-4">
+                <div className="p-2 bg-blue-100 rounded-full flex-shrink-0">
+                  <Database className="h-6 w-6 text-blue-600" />
                 </div>
-                <div className="text-base lg:text-lg text-blue-900 leading-relaxed">
-                  <strong className="text-blue-800 font-medium">Trusted Data Sources:</strong> Information from Google Places, Yelp reviews, state licensing records, and verified community websites.
+                <div className="text-lg lg:text-xl text-blue-900 leading-relaxed">
+                  <strong className="text-blue-800 font-semibold">Trusted Data Sources:</strong> Information from Google Places, Yelp reviews, state licensing records, and verified community websites.
                 </div>
               </div>
             </div>
@@ -133,56 +133,56 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section - Compact */}
-      <section className="py-12 lg:py-16 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+      {/* Features Section - Senior-Friendly Sizing */}
+      <section className="py-16 lg:py-20 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl lg:text-3xl font-display font-bold text-gray-900 dark:text-white mb-4 leading-tight">
-              Why TrueView is Different
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-4xl xl:text-5xl font-display font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+              Why MySeniorValet is Different
             </h2>
-            <p className="text-base lg:text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg lg:text-xl xl:text-2xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed">
               We aggregate data from multiple trusted sources including Google, Yelp, state agencies, and community websites to give you the complete picture.
             </p>
           </div>
           
-          {/* Compact Feature Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            <div className="group bg-white dark:bg-gray-800 hover:bg-green-50/50 dark:hover:bg-green-900/20 border border-green-200/60 dark:border-green-700/40 rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-all duration-300">
-              <div className="w-14 h-14 bg-gradient-to-br from-green-100 to-green-200 dark:from-green-800 dark:to-green-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                <DollarSign className="text-green-600 dark:text-green-400 h-6 w-6" />
+          {/* Enhanced Feature Cards - Larger Text for Seniors */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+            <div className="group bg-white dark:bg-gray-800 hover:bg-green-50/50 dark:hover:bg-green-900/20 border border-green-200/60 dark:border-green-700/40 rounded-xl p-8 text-center shadow-md hover:shadow-lg transition-all duration-300">
+              <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-green-200 dark:from-green-800 dark:to-green-700 rounded-full flex items-center justify-center mx-auto mb-6">
+                <DollarSign className="text-green-600 dark:text-green-400 h-8 w-8" />
               </div>
-              <h3 className="text-lg font-bold text-green-900 dark:text-green-100 mb-3">Transparent Pricing</h3>
-              <p className="text-green-700 dark:text-green-300 text-sm leading-relaxed">
+              <h3 className="text-xl lg:text-2xl font-bold text-green-900 dark:text-green-100 mb-4">Transparent Pricing</h3>
+              <p className="text-green-700 dark:text-green-300 text-base lg:text-lg leading-relaxed">
                 See real monthly costs, special offers, and pricing updates. No surprises or hidden fees.
               </p>
             </div>
             
-            <div className="group bg-white dark:bg-gray-800 hover:bg-yellow-50/50 dark:hover:bg-yellow-900/20 border border-yellow-200/60 dark:border-yellow-700/40 rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-all duration-300">
-              <div className="w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-800 dark:to-yellow-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Star className="text-yellow-600 dark:text-yellow-400 h-6 w-6" />
+            <div className="group bg-white dark:bg-gray-800 hover:bg-yellow-50/50 dark:hover:bg-yellow-900/20 border border-yellow-200/60 dark:border-yellow-700/40 rounded-xl p-8 text-center shadow-md hover:shadow-lg transition-all duration-300">
+              <div className="w-16 h-16 bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-800 dark:to-yellow-700 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Star className="text-yellow-600 dark:text-yellow-400 h-8 w-8" />
               </div>
-              <h3 className="text-lg font-bold text-yellow-900 dark:text-yellow-100 mb-3">Authentic Reviews</h3>
-              <p className="text-yellow-700 dark:text-yellow-300 text-sm leading-relaxed">
+              <h3 className="text-xl lg:text-2xl font-bold text-yellow-900 dark:text-yellow-100 mb-4">Authentic Reviews</h3>
+              <p className="text-yellow-700 dark:text-yellow-300 text-base lg:text-lg leading-relaxed">
                 Read real Google reviews and family experiences to understand what life is really like.
               </p>
             </div>
             
-            <div className="group bg-white dark:bg-gray-800 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 border border-blue-200/60 dark:border-blue-700/40 rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-all duration-300">
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-800 dark:to-blue-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Clock className="text-blue-600 dark:text-blue-400 h-6 w-6" />
+            <div className="group bg-white dark:bg-gray-800 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 border border-blue-200/60 dark:border-blue-700/40 rounded-xl p-8 text-center shadow-md hover:shadow-lg transition-all duration-300">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-800 dark:to-blue-700 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Clock className="text-blue-600 dark:text-blue-400 h-8 w-8" />
               </div>
-              <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">Live Availability</h3>
-              <p className="text-blue-700 dark:text-blue-300 text-sm leading-relaxed">
+              <h3 className="text-xl lg:text-2xl font-bold text-blue-900 dark:text-blue-100 mb-4">Live Availability</h3>
+              <p className="text-blue-700 dark:text-blue-300 text-base lg:text-lg leading-relaxed">
                 Check real-time availability and unit counts. Know exactly what's open right now.
               </p>
             </div>
             
-            <div className="group bg-white dark:bg-gray-800 hover:bg-purple-50/50 dark:hover:bg-purple-900/20 border border-purple-200/60 dark:border-purple-700/40 rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-all duration-300">
-              <div className="w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Activity className="text-purple-600 dark:text-purple-400 h-6 w-6" />
+            <div className="group bg-white dark:bg-gray-800 hover:bg-purple-50/50 dark:hover:bg-purple-900/20 border border-purple-200/60 dark:border-purple-700/40 rounded-xl p-8 text-center shadow-md hover:shadow-lg transition-all duration-300">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-700 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Activity className="text-purple-600 dark:text-purple-400 h-8 w-8" />
               </div>
-              <h3 className="text-lg font-bold text-purple-900 dark:text-purple-100 mb-3">Rich Amenities</h3>
-              <p className="text-purple-700 dark:text-purple-300 text-sm leading-relaxed">
+              <h3 className="text-xl lg:text-2xl font-bold text-purple-900 dark:text-purple-100 mb-4">Rich Amenities</h3>
+              <p className="text-purple-700 dark:text-purple-300 text-base lg:text-lg leading-relaxed">
                 Explore pools, fitness centers, dining options, and activities that make a difference.
               </p>
             </div>
@@ -190,39 +190,39 @@ export default function Home() {
 
 
 
-          {/* Compact Data Collection Section */}
-          <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 rounded-2xl p-6 lg:p-8 shadow-lg border border-blue-100/50 dark:border-gray-600">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          {/* Enhanced Data Collection Section - Senior-Friendly */}
+          <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 rounded-2xl p-8 lg:p-12 shadow-lg border border-blue-100/50 dark:border-gray-600">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div>
-                <h3 className="text-xl lg:text-2xl font-display font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+                <h3 className="text-2xl lg:text-3xl xl:text-4xl font-display font-bold text-gray-900 dark:text-white mb-8 leading-tight">
                   How Our Data Collection Works
                 </h3>
-                <div className="space-y-4">
-                  <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mt-1 shadow-md">
-                      <span className="text-white text-sm font-bold">1</span>
+                <div className="space-y-6">
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mt-1 shadow-md">
+                      <span className="text-white text-lg font-bold">1</span>
                     </div>
                     <div>
-                      <h4 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-1">Multi-Source Aggregation</h4>
-                      <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">We collect data from Google Places, Yelp, state licensing databases, and official community websites.</p>
+                      <h4 className="text-lg lg:text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Multi-Source Aggregation</h4>
+                      <p className="text-gray-700 dark:text-gray-300 text-base lg:text-lg leading-relaxed">We collect data from Google Places, Yelp, state licensing databases, and official community websites.</p>
                     </div>
                   </div>
-                  <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mt-1 shadow-md">
-                      <span className="text-white text-sm font-bold">2</span>
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mt-1 shadow-md">
+                      <span className="text-white text-lg font-bold">2</span>
                     </div>
                     <div>
-                      <h4 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-1">Data Verification</h4>
-                      <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">Information is cross-referenced across multiple sources and validated before being displayed.</p>
+                      <h4 className="text-lg lg:text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Data Verification</h4>
+                      <p className="text-gray-700 dark:text-gray-300 text-base lg:text-lg leading-relaxed">Information is cross-referenced across multiple sources and validated before being displayed.</p>
                     </div>
                   </div>
-                  <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mt-1 shadow-md">
-                      <span className="text-white text-sm font-bold">3</span>
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mt-1 shadow-md">
+                      <span className="text-white text-lg font-bold">3</span>
                     </div>
                     <div>
-                      <h4 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-1">Real-Time Updates</h4>
-                      <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">Changes are immediately reflected in search results and community profiles for the most current information.</p>
+                      <h4 className="text-lg lg:text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Real-Time Updates</h4>
+                      <p className="text-gray-700 dark:text-gray-300 text-base lg:text-lg leading-relaxed">Changes are immediately reflected in search results and community profiles for the most current information.</p>
                     </div>
                   </div>
                 </div>
