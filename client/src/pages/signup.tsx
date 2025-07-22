@@ -88,21 +88,21 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-green-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
           <Link href="/">
-            <div className="inline-flex items-center space-x-2 text-2xl font-bold text-blue-600 mb-2 hover:text-blue-700 transition-colors">
+            <div className="inline-flex items-center space-x-2 text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
               <Heart className="h-8 w-8" />
               <span>MySeniorValet</span>
             </div>
           </Link>
-          <h1 className="text-2xl font-semibold text-gray-900 mb-2">Create your account</h1>
-          <p className="text-gray-600">Start your journey to finding the perfect senior community</p>
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">Create your account</h1>
+          <p className="text-gray-600 dark:text-gray-300">Start your journey to finding the perfect senior community</p>
         </div>
 
-        <Card className="border-0 shadow-lg">
+        <Card className="border-0 shadow-lg dark:bg-gray-900 dark:border dark:border-gray-700">
           <CardHeader>
             <CardTitle>Sign Up</CardTitle>
             <CardDescription>
@@ -296,10 +296,10 @@ export default function SignupPage() {
             </Form>
 
             <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 Already have an account?{" "}
                 <Link href="/login">
-                  <span className="font-medium text-blue-600 hover:text-blue-500">
+                  <span className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300">
                     Sign in
                   </span>
                 </Link>
@@ -307,14 +307,14 @@ export default function SignupPage() {
             </div>
 
             <div className="mt-4 text-center">
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 By creating an account, you agree to our{" "}
                 <Link href="/terms">
-                  <span className="text-blue-600 hover:text-blue-500">Terms of Service</span>
+                  <span className="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300">Terms of Service</span>
                 </Link>{" "}
                 and{" "}
                 <Link href="/privacy">
-                  <span className="text-blue-600 hover:text-blue-500">Privacy Policy</span>
+                  <span className="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300">Privacy Policy</span>
                 </Link>
               </p>
             </div>
@@ -323,8 +323,8 @@ export default function SignupPage() {
 
         {/* Trust Indicators */}
         <div className="mt-8 text-center">
-          <p className="text-xs text-gray-500 mb-4">Trusted by families nationwide</p>
-          <div className="flex justify-center items-center space-x-6 text-gray-400">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Trusted by families nationwide</p>
+          <div className="flex justify-center items-center space-x-6 text-gray-400 dark:text-gray-500">
             <div className="flex items-center space-x-1">
               <Shield className="h-4 w-4" />
               <span className="text-xs">Secure & Private</span>

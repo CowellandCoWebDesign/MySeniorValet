@@ -154,15 +154,15 @@ export default function CommunityDashboardModern() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Modern Top Navigation */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-200">
+      <nav className="sticky top-0 z-50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700">
         <div className="px-4">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 rounded-lg hover:bg-gray-100 lg:hidden"
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 lg:hidden"
               >
                 {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
@@ -175,7 +175,7 @@ export default function CommunityDashboardModern() {
                   <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                     Community Dashboard
                   </span>
-                  <p className="text-sm text-gray-500">Sunrise Senior Living</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Sunrise Senior Living</p>
                 </div>
               </div>
             </div>
@@ -218,7 +218,7 @@ export default function CommunityDashboardModern() {
 
       <div className="flex">
         {/* Modern Sidebar */}
-        <aside className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 bg-white border-r border-gray-200 h-[calc(100vh-64px)] sticky top-16 overflow-hidden`}>
+        <aside className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 h-[calc(100vh-64px)] sticky top-16 overflow-hidden`}>
           <div className="p-4 space-y-2">
             {sidebarItems.map((item) => (
               <button
@@ -226,8 +226,8 @@ export default function CommunityDashboardModern() {
                 onClick={() => setActiveTab(item.id)}
                 className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
                   activeTab === item.id
-                    ? 'bg-gradient-to-r from-blue-50 to-purple-50 text-blue-600 font-medium'
-                    : 'hover:bg-gray-50 text-gray-700'
+                    ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-600 dark:text-blue-400 font-medium'
+                    : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
                 }`}
               >
                 <div className="flex items-center space-x-3">
@@ -243,7 +243,7 @@ export default function CommunityDashboardModern() {
             ))}
           </div>
 
-          <div className="absolute bottom-0 left-0 right-0 p-4 border-t">
+          <div className="absolute bottom-0 left-0 right-0 p-4 border-t dark:border-gray-700">
             <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0">
               <CardContent className="p-4">
                 <div className="flex items-center space-x-2 mb-2">
@@ -262,81 +262,81 @@ export default function CommunityDashboardModern() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-6 overflow-y-auto">
+        <main className="flex-1 p-6 overflow-y-auto bg-gray-50 dark:bg-gray-900">
           {activeTab === "overview" && (
             <div className="space-y-6">
               {/* Stats Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+                <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow dark:bg-gray-800 dark:border dark:border-gray-700">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <Eye className="w-6 h-6 text-blue-600" />
+                      <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                        <Eye className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                       </div>
                       <Badge variant="secondary" className="bg-green-100 text-green-700">
                         <ArrowUp className="w-3 h-3 mr-1" />
                         12.5%
                       </Badge>
                     </div>
-                    <h3 className="text-3xl font-bold mb-1">2,847</h3>
-                    <p className="text-gray-600">Profile Views</p>
+                    <h3 className="text-3xl font-bold mb-1 dark:text-white">2,847</h3>
+                    <p className="text-gray-600 dark:text-gray-400">Profile Views</p>
                   </CardContent>
                 </Card>
 
-                <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+                <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow dark:bg-gray-800 dark:border dark:border-gray-700">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <Users className="w-6 h-6 text-purple-600" />
+                      <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                        <Users className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                       </div>
                       <Badge variant="secondary" className="bg-green-100 text-green-700">
                         <ArrowUp className="w-3 h-3 mr-1" />
                         8.3%
                       </Badge>
                     </div>
-                    <h3 className="text-3xl font-bold mb-1">47</h3>
-                    <p className="text-gray-600">Family Inquiries</p>
+                    <h3 className="text-3xl font-bold mb-1 dark:text-white">47</h3>
+                    <p className="text-gray-600 dark:text-gray-400">Family Inquiries</p>
                   </CardContent>
                 </Card>
 
-                <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+                <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow dark:bg-gray-800 dark:border dark:border-gray-700">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                        <Calendar className="w-6 h-6 text-green-600" />
+                      <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                        <Calendar className="w-6 h-6 text-green-600 dark:text-green-400" />
                       </div>
                       <Badge variant="secondary" className="bg-red-100 text-red-700">
                         <ArrowDown className="w-3 h-3 mr-1" />
                         2.1%
                       </Badge>
                     </div>
-                    <h3 className="text-3xl font-bold mb-1">23</h3>
-                    <p className="text-gray-600">Tours Scheduled</p>
+                    <h3 className="text-3xl font-bold mb-1 dark:text-white">23</h3>
+                    <p className="text-gray-600 dark:text-gray-400">Tours Scheduled</p>
                   </CardContent>
                 </Card>
 
-                <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+                <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow dark:bg-gray-800 dark:border dark:border-gray-700">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                        <Star className="w-6 h-6 text-orange-600" />
+                      <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                        <Star className="w-6 h-6 text-orange-600 dark:text-orange-400" />
                       </div>
                       <Badge variant="secondary" className="bg-gray-100 text-gray-700">
                         <span className="text-xs">Stable</span>
                       </Badge>
                     </div>
-                    <h3 className="text-3xl font-bold mb-1">4.8</h3>
-                    <p className="text-gray-600">Average Rating</p>
+                    <h3 className="text-3xl font-bold mb-1 dark:text-white">4.8</h3>
+                    <p className="text-gray-600 dark:text-gray-400">Average Rating</p>
                   </CardContent>
                 </Card>
               </div>
 
               {/* Traffic Sources & Recent Activity */}
               <div className="grid md:grid-cols-2 gap-6">
-                <Card className="border-0 shadow-lg">
+                <Card className="border-0 shadow-lg dark:bg-gray-800 dark:border dark:border-gray-700">
                   <CardHeader>
-                    <CardTitle>Traffic Sources</CardTitle>
-                    <CardDescription>Where your visitors come from</CardDescription>
+                    <CardTitle className="dark:text-white">Traffic Sources</CardTitle>
+                    <CardDescription className="dark:text-gray-400">Where your visitors come from</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
@@ -344,11 +344,11 @@ export default function CommunityDashboardModern() {
                         <div key={index} className="flex items-center justify-between">
                           <div className="flex items-center space-x-3">
                             <Globe className="w-5 h-5 text-gray-400" />
-                            <span className="font-medium">{source.source}</span>
+                            <span className="font-medium dark:text-white">{source.source}</span>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <span className="text-sm text-gray-600">{source.visitors}</span>
-                            <div className="w-24 bg-gray-200 rounded-full h-2">
+                            <span className="text-sm text-gray-600 dark:text-gray-400">{source.visitors}</span>
+                            <div className="w-24 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                               <div 
                                 className="bg-gradient-to-r from-blue-600 to-purple-600 h-2 rounded-full"
                                 style={{ width: `${source.percentage}%` }}
@@ -361,32 +361,32 @@ export default function CommunityDashboardModern() {
                   </CardContent>
                 </Card>
 
-                <Card className="border-0 shadow-lg">
+                <Card className="border-0 shadow-lg dark:bg-gray-800 dark:border dark:border-gray-700">
                   <CardHeader>
-                    <CardTitle>Recent Activity</CardTitle>
-                    <CardDescription>Latest updates and events</CardDescription>
+                    <CardTitle className="dark:text-white">Recent Activity</CardTitle>
+                    <CardDescription className="dark:text-gray-400">Latest updates and events</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
                       <div className="flex items-start space-x-3">
                         <div className="w-2 h-2 bg-green-500 rounded-full mt-2" />
                         <div className="flex-1">
-                          <p className="text-sm font-medium">New inquiry from Sarah Johnson</p>
-                          <p className="text-xs text-gray-500">Assisted Living - 2 hours ago</p>
+                          <p className="text-sm font-medium dark:text-white">New inquiry from Sarah Johnson</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Assisted Living - 2 hours ago</p>
                         </div>
                       </div>
                       <div className="flex items-start space-x-3">
                         <div className="w-2 h-2 bg-blue-500 rounded-full mt-2" />
                         <div className="flex-1">
-                          <p className="text-sm font-medium">Tour scheduled for Friday</p>
-                          <p className="text-xs text-gray-500">Memory Care - 5 hours ago</p>
+                          <p className="text-sm font-medium dark:text-white">Tour scheduled for Friday</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Memory Care - 5 hours ago</p>
                         </div>
                       </div>
                       <div className="flex items-start space-x-3">
                         <div className="w-2 h-2 bg-purple-500 rounded-full mt-2" />
                         <div className="flex-1">
-                          <p className="text-sm font-medium">Photos updated</p>
-                          <p className="text-xs text-gray-500">Gallery - 1 day ago</p>
+                          <p className="text-sm font-medium dark:text-white">Photos updated</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Gallery - 1 day ago</p>
                         </div>
                       </div>
                     </div>
@@ -395,10 +395,10 @@ export default function CommunityDashboardModern() {
               </div>
 
               {/* Quick Actions */}
-              <Card className="border-0 shadow-lg">
+              <Card className="border-0 shadow-lg dark:bg-gray-800 dark:border dark:border-gray-700">
                 <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
-                  <CardDescription>Manage your community profile</CardDescription>
+                  <CardTitle className="dark:text-white">Quick Actions</CardTitle>
+                  <CardDescription className="dark:text-gray-400">Manage your community profile</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

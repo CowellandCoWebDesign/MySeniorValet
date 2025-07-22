@@ -82,9 +82,9 @@ export default function CommunityPortalModern() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
       {/* Modern Navigation */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-200">
+      <nav className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center space-x-3">
@@ -103,7 +103,7 @@ export default function CommunityPortalModern() {
                   <Button 
                     variant="ghost" 
                     onClick={() => setLocation('/community-dashboard/123')}
-                    className="text-gray-700 hover:text-blue-600"
+                    className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
                   >
                     <Settings className="w-4 h-4 mr-2" />
                     Dashboard
@@ -121,7 +121,7 @@ export default function CommunityPortalModern() {
                   <Button 
                     variant="ghost" 
                     onClick={() => setLocation('/login')}
-                    className="text-gray-700 hover:text-blue-600"
+                    className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
                   >
                     Sign In
                   </Button>
@@ -140,15 +140,15 @@ export default function CommunityPortalModern() {
 
       {/* Hero Section */}
       <section className="relative py-20 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 opacity-70" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-950 dark:via-purple-950 dark:to-pink-950 opacity-70 dark:opacity-30" />
         <div className="relative max-w-7xl mx-auto">
           <div className="text-center space-y-8">
-            <div className="inline-flex items-center bg-blue-100 text-blue-800 rounded-full px-4 py-2 text-sm font-medium">
+            <div className="inline-flex items-center bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 rounded-full px-4 py-2 text-sm font-medium">
               <Rocket className="w-4 h-4 mr-2" />
               Trusted by 25,000+ Senior Living Communities
             </div>
             
-            <h1 className="text-5xl md:text-6xl font-bold leading-tight">
+            <h1 className="text-5xl md:text-6xl font-bold leading-tight text-gray-900 dark:text-white">
               Grow Your Community
               <br />
               <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
@@ -156,7 +156,7 @@ export default function CommunityPortalModern() {
               </span>
             </h1>
             
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
               Join thousands of senior living communities using MySeniorValet's powerful platform 
               to increase occupancy, streamline operations, and deliver exceptional family experiences.
             </p>
@@ -189,7 +189,7 @@ export default function CommunityPortalModern() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 px-4 bg-white">
+      <section className="py-16 px-4 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
@@ -197,8 +197,8 @@ export default function CommunityPortalModern() {
                 <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   {stat.value}
                 </div>
-                <div className="text-gray-600 mt-2">{stat.label}</div>
-                <div className="text-sm text-green-600 mt-1">{stat.trend}</div>
+                <div className="text-gray-600 dark:text-gray-300 mt-2">{stat.label}</div>
+                <div className="text-sm text-green-600 dark:text-green-400 mt-1">{stat.trend}</div>
               </div>
             ))}
           </div>
@@ -206,16 +206,16 @@ export default function CommunityPortalModern() {
       </section>
 
       {/* Features Grid */}
-      <section id="features" className="py-20 px-4 bg-gray-50">
+      <section id="features" className="py-20 px-4 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Everything You Need to Succeed</h2>
-            <p className="text-xl text-gray-600">Powerful tools designed for senior living communities</p>
+            <h2 className="text-4xl font-bold mb-4 text-gray-900 dark:text-white">Everything You Need to Succeed</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300">Powerful tools designed for senior living communities</p>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, index) => (
-              <Card key={index} className="group hover:shadow-xl transition-all duration-300 border-0">
+              <Card key={index} className="group hover:shadow-xl transition-all duration-300 border-0 dark:bg-gray-900">
                 <CardHeader>
                   <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${feature.color} p-2.5 text-white mb-4`}>
                     {feature.icon}
@@ -223,7 +223,7 @@ export default function CommunityPortalModern() {
                   <CardTitle className="text-xl">{feature.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600">{feature.description}</p>
+                  <p className="text-gray-600 dark:text-gray-300">{feature.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -232,11 +232,11 @@ export default function CommunityPortalModern() {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-20 px-4 bg-white">
+      <section className="py-20 px-4 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-4xl font-bold mb-6">
+              <h2 className="text-4xl font-bold mb-6 text-gray-900 dark:text-white">
                 Why Communities Choose
                 <br />
                 <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -252,10 +252,10 @@ export default function CommunityPortalModern() {
                   "Get dedicated support from senior living experts"
                 ].map((benefit, index) => (
                   <div key={index} className="flex items-start space-x-3">
-                    <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check className="w-4 h-4 text-green-600" />
+                    <div className="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
                     </div>
-                    <span className="text-gray-700">{benefit}</span>
+                    <span className="text-gray-700 dark:text-gray-300">{benefit}</span>
                   </div>
                 ))}
               </div>
@@ -270,34 +270,34 @@ export default function CommunityPortalModern() {
             
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-4">
-                <Card className="border-0 shadow-lg">
+                <Card className="border-0 shadow-lg dark:bg-gray-800">
                   <CardContent className="p-6">
-                    <BarChart className="w-8 h-8 text-blue-600 mb-3" />
-                    <h4 className="font-semibold mb-2">Performance Tracking</h4>
-                    <p className="text-sm text-gray-600">Monitor your community's visibility and engagement</p>
+                    <BarChart className="w-8 h-8 text-blue-600 dark:text-blue-400 mb-3" />
+                    <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">Performance Tracking</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Monitor your community's visibility and engagement</p>
                   </CardContent>
                 </Card>
-                <Card className="border-0 shadow-lg">
+                <Card className="border-0 shadow-lg dark:bg-gray-800">
                   <CardContent className="p-6">
-                    <MessageSquare className="w-8 h-8 text-purple-600 mb-3" />
-                    <h4 className="font-semibold mb-2">Direct Messaging</h4>
-                    <p className="text-sm text-gray-600">Connect instantly with interested families</p>
+                    <MessageSquare className="w-8 h-8 text-purple-600 dark:text-purple-400 mb-3" />
+                    <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">Direct Messaging</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Connect instantly with interested families</p>
                   </CardContent>
                 </Card>
               </div>
               <div className="space-y-4 mt-8">
-                <Card className="border-0 shadow-lg">
+                <Card className="border-0 shadow-lg dark:bg-gray-800">
                   <CardContent className="p-6">
-                    <FileText className="w-8 h-8 text-green-600 mb-3" />
-                    <h4 className="font-semibold mb-2">Digital Leasing</h4>
-                    <p className="text-sm text-gray-600">Streamline move-ins with e-signatures</p>
+                    <FileText className="w-8 h-8 text-green-600 dark:text-green-400 mb-3" />
+                    <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">Digital Leasing</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Streamline move-ins with e-signatures</p>
                   </CardContent>
                 </Card>
-                <Card className="border-0 shadow-lg">
+                <Card className="border-0 shadow-lg dark:bg-gray-800">
                   <CardContent className="p-6">
-                    <DollarSign className="w-8 h-8 text-orange-600 mb-3" />
-                    <h4 className="font-semibold mb-2">Payment Processing</h4>
-                    <p className="text-sm text-gray-600">Collect rent and fees seamlessly</p>
+                    <DollarSign className="w-8 h-8 text-orange-600 dark:text-orange-400 mb-3" />
+                    <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">Payment Processing</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Collect rent and fees seamlessly</p>
                   </CardContent>
                 </Card>
               </div>
@@ -307,23 +307,23 @@ export default function CommunityPortalModern() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 px-4 bg-gradient-to-br from-blue-50 to-purple-50">
+      <section className="py-20 px-4 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-12">Success Stories</h2>
+          <h2 className="text-4xl font-bold text-center mb-12 text-gray-900 dark:text-white">Success Stories</h2>
           <div className="grid md:grid-cols-2 gap-8">
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="border-0 shadow-lg">
+              <Card key={index} className="border-0 shadow-lg dark:bg-gray-900">
                 <CardContent className="p-8">
                   <div className="flex mb-4">
                     {[...Array(5)].map((_, i) => (
                       <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
-                  <p className="text-lg italic mb-6">"{testimonial.quote}"</p>
+                  <p className="text-lg italic mb-6 text-gray-800 dark:text-gray-200">"{testimonial.quote}"</p>
                   <div>
-                    <p className="font-semibold">{testimonial.author}</p>
-                    <p className="text-sm text-gray-600">{testimonial.role}</p>
-                    <p className="text-sm text-blue-600">{testimonial.community}</p>
+                    <p className="font-semibold text-gray-900 dark:text-white">{testimonial.author}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{testimonial.role}</p>
+                    <p className="text-sm text-blue-600 dark:text-blue-400">{testimonial.community}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -363,7 +363,7 @@ export default function CommunityPortalModern() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-4 bg-gray-900 text-gray-400">
+      <footer className="py-12 px-4 bg-gray-900 dark:bg-gray-950 text-gray-400">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
@@ -398,7 +398,7 @@ export default function CommunityPortalModern() {
               </ul>
             </div>
           </div>
-          <div className="mt-8 pt-8 border-t border-gray-800 text-center text-sm">
+          <div className="mt-8 pt-8 border-t border-gray-800 dark:border-gray-700 text-center text-sm">
             <p>&copy; 2025 MySeniorValet. All rights reserved.</p>
           </div>
         </div>
