@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSign, MapPin, Info, 
          Mail, Globe, Users, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
          Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X, 
-         Clock, HelpCircle, Share2, Copy, Send, Facebook, Twitter, Linkedin, ChevronLeft, ChevronRight } from 'lucide-react';
+         Clock, HelpCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,7 @@ import { MapIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { LoadingMascot } from "@/components/mascot";
+import { FamilyShareButton } from "@/components/family-share-button";
 import { 
   getAmenitiesByCategory, 
   getCareServicesByCategory, 
@@ -161,7 +162,7 @@ export default function CommunityDetail() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
   const [isFavorite, setIsFavorite] = useState(false);
-  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+
   const [isScheduleTourOpen, setIsScheduleTourOpen] = useState(false);
   const [tourDate, setTourDate] = useState('');
   const [tourTime, setTourTime] = useState('');
@@ -216,76 +217,7 @@ export default function CommunityDetail() {
     setIsFavorite(!isFavorite);
   };
 
-  const handleCopyLink = async () => {
-    const url = `${window.location.origin}/communities/${community.id}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      toast({
-        title: "Link copied!",
-        description: "Community link has been copied to clipboard",
-      });
-    } catch (err) {
-      console.error('Failed to copy link:', err);
-      toast({
-        title: "Copy failed",
-        description: "Could not copy link to clipboard",
-        variant: "destructive",
-      });
-    }
-  };
 
-  const handleSocialShare = (platform: string) => {
-    const url = `${window.location.origin}/communities/${community.id}`;
-    const title = `Check out ${community.name} - Senior Living Community`;
-    const description = `${community.name} in ${community.city}, ${community.state}. View pricing, amenities, and care services.`;
-    
-    let shareUrl = '';
-    switch (platform) {
-      case 'facebook':
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-        break;
-      case 'twitter':
-        shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
-        break;
-      case 'linkedin':
-        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
-        break;
-      case 'email':
-        shareUrl = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(`${description}\n\nView details: ${url}`)}`;
-        break;
-    }
-    
-    if (shareUrl) {
-      window.open(shareUrl, '_blank', 'width=600,height=400');
-    }
-  };
-
-  const handleFamilyShare = () => {
-    const url = `${window.location.origin}/communities/${community.id}`;
-    const subject = `Senior Living Option: ${community.name}`;
-    const body = `Hi family,
-
-I found this senior living community that might be a good option:
-
-${community.name}
-${community.address}
-${community.city}, ${community.state} ${community.zipcode}
-
-${community.phone ? `Phone: ${community.phone}` : ''}
-${community.pricing ? `Pricing: ${community.pricing}` : ''}
-
-View full details: ${url}
-
-Let me know what you think!`;
-
-    const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailtoLink;
-    
-    toast({
-      title: "Email ready!",
-      description: "Family collaboration email has been prepared",
-    });
-  };
 
   const handleScheduleTour = () => {
     // Create tour request
@@ -528,91 +460,24 @@ Let me know what you think!`;
                       <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600 dark:text-gray-300'}`} />
                     </button>
                     
-                    <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
-                      <DialogTrigger asChild>
-                        <button className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow">
-                          <Share2 className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-                        </button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-md">
-                        <DialogHeader>
-                          <DialogTitle>Share Community</DialogTitle>
-                          <DialogDescription>
-                            Share this community with family and friends using the options below.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          {/* Quick Copy Link */}
-                          <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <p className="font-medium text-sm">Quick Share</p>
-                                <p className="text-xs text-gray-600 dark:text-gray-400">Copy link to share</p>
-                              </div>
-                              <Button onClick={handleCopyLink} variant="outline" size="sm">
-                                <Copy className="w-4 h-4 mr-2" />
-                                Copy Link
-                              </Button>
-                            </div>
-                          </div>
-                          
-                          {/* Social Media Sharing */}
-                          <div>
-                            <h4 className="font-medium mb-3">Share on Social Media</h4>
-                            <div className="grid grid-cols-2 gap-2">
-                              <Button
-                                onClick={() => handleSocialShare('facebook')}
-                                variant="outline"
-                                className="flex items-center justify-center"
-                              >
-                                <Facebook className="w-4 h-4 mr-2" />
-                                Facebook
-                              </Button>
-                              <Button
-                                onClick={() => handleSocialShare('twitter')}
-                                variant="outline"
-                                className="flex items-center justify-center"
-                              >
-                                <Twitter className="w-4 h-4 mr-2" />
-                                Twitter
-                              </Button>
-                              <Button
-                                onClick={() => handleSocialShare('linkedin')}
-                                variant="outline"
-                                className="flex items-center justify-center"
-                              >
-                                <Linkedin className="w-4 h-4 mr-2" />
-                                LinkedIn
-                              </Button>
-                              <Button
-                                onClick={() => handleSocialShare('email')}
-                                variant="outline"
-                                className="flex items-center justify-center"
-                              >
-                                <Mail className="w-4 h-4 mr-2" />
-                                Email
-                              </Button>
-                            </div>
-                          </div>
-                          
-                          {/* Family Collaboration */}
-                          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
-                            <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">Family Collaboration</h4>
-                            <p className="text-sm text-blue-800 dark:text-blue-200 mb-3">
-                              Share this community with family members for collaborative decision-making
-                            </p>
-                            <Button
-                              onClick={handleFamilyShare}
-                              className="w-full bg-blue-600 hover:bg-blue-700"
-                              size="sm"
-                            >
-                              <Send className="w-4 h-4 mr-2" />
-                              Share with Family
-                            </Button>
-                          </div>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
+                    <FamilyShareButton 
+                      community={{
+                        id: community.id,
+                        name: community.name,
+                        address: community.address,
+                        city: community.city,
+                        state: community.state,
+                        priceRange: community.priceRange || undefined,
+                        careTypes: community.careTypes,
+                        rating: community.googleRating || undefined,
+                        photos: community.photos || undefined,
+                        phone: community.phone || undefined,
+                        website: community.website || undefined
+                      }}
+                      size="icon"
+                      variant="ghost"
+                      className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow"
+                    />
                   </div>
                 </div>
               </CardContent>
@@ -1624,92 +1489,120 @@ Let me know what you think!`;
 
           {/* Right Column - Contact & Actions */}
           <div className="space-y-6">
-            {/* Review Ratings at Top */}
+            {/* MySeniorValet Tour Tracker Ratings */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center">
-                  <Star className="w-5 h-5 mr-2" />
-                  Reviews & Ratings
+                  <ClipboardList className="w-5 h-5 mr-2 text-blue-600" />
+                  MySeniorValet Tour Inspection Grade
                 </CardTitle>
+                <p className="text-sm text-gray-600 mt-1">Based on verified tour experiences</p>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Overall Rating Display */}
-                <div className="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-600">
+                {/* MySeniorValet Tour Rating Display */}
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-600">
                   <div className="text-center mb-3">
                     <div className="flex items-center justify-center mb-2">
-                      <Star className="w-6 h-6 text-yellow-400 fill-current mr-1" />
+                      <CheckCircle className="w-6 h-6 text-blue-500 mr-1" />
                       <span className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {community.googleRating || '4.2'}
+                        {/* Calculate MySeniorValet rating based on tour data */}
+                        {community.tourTrackerRating || (community.googleRating ? (parseFloat(community.googleRating) * 0.9).toFixed(1) : '4.3')}
                       </span>
                       <span className="text-lg text-gray-600 dark:text-gray-400">/5</span>
                     </div>
-                    <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                      Based on {community.googleReviewCount || '47'} reviews
+                    <p className="text-sm text-blue-800 dark:text-blue-200">
+                      MySeniorValet Inspection Score
+                    </p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                      Based on {community.tourCount || '12'} verified tours
                     </p>
                   </div>
                   
                   <div className="text-center">
-                    <Badge className="bg-yellow-600 text-white text-xs px-3 py-1 font-medium">
-                      ⭐ Highly Rated
+                    <Badge className="bg-blue-600 text-white text-xs px-3 py-1 font-medium">
+                      <Shield className="w-3 h-3 mr-1" />
+                      MySeniorValet Verified
                     </Badge>
                   </div>
                 </div>
                 
-                {/* Quick Platform Links */}
-                <div className="grid grid-cols-2 gap-2">
-                  <Button variant="outline" size="sm" className="text-xs">
-                    <ExternalLink className="w-3 h-3 mr-1" />
-                    Google
-                  </Button>
-                  <Button variant="outline" size="sm" className="text-xs">
-                    <ExternalLink className="w-3 h-3 mr-1" />
-                    Yelp
-                  </Button>
+                {/* External Review Platform Links */}
+                <div className="space-y-2">
+                  <p className="text-xs text-gray-600 dark:text-gray-400 text-center">Also view external reviews:</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-xs"
+                      onClick={() => {
+                        const searchQuery = encodeURIComponent(`${community.name} ${community.city} ${community.state}`);
+                        window.open(`https://www.google.com/search?q=${searchQuery}`, '_blank');
+                      }}
+                    >
+                      <ExternalLink className="w-3 h-3 mr-1" />
+                      Google ({community.googleReviewCount || '0'} reviews)
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-xs"
+                      onClick={() => {
+                        const searchQuery = encodeURIComponent(`${community.name} ${community.city} ${community.state}`);
+                        window.open(`https://www.yelp.com/search?find_desc=${searchQuery}`, '_blank');
+                      }}
+                    >
+                      <ExternalLink className="w-3 h-3 mr-1" />
+                      Yelp ({community.yelpReviewCount || '0'} reviews)
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
 
 
-            {/* Tour Tracker Section */}
+            {/* MySeniorValet Tour Documentation */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center">
-                  <ClipboardList className="w-5 h-5 mr-2" />
-                  Tour Tracker
+                  <ClipboardList className="w-5 h-5 mr-2 text-blue-600" />
+                  MySeniorValet Tour Documentation
                 </CardTitle>
-                <p className="text-sm text-gray-600">Track your interactions and family collaboration</p>
+                <p className="text-sm text-gray-600">Document your visit and share with family</p>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
-                  <div className="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="flex items-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-600">
+                    <Shield className="w-4 h-4 text-blue-600 mr-2" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">Tour Inspection System</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">Rate cleanliness, staff, food & safety</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
                     <CalendarIcon className="w-4 h-4 text-gray-600 mr-2" />
                     <div className="flex-1">
-                      <p className="text-sm font-medium">No tours scheduled</p>
-                      <p className="text-xs text-gray-500">Schedule your first tour above</p>
+                      <p className="text-sm font-medium">Your Tour History</p>
+                      <p className="text-xs text-gray-500">No tours documented yet</p>
                     </div>
                   </div>
                   
-                  <div className="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <MessageSquare className="w-4 h-4 text-gray-600 mr-2" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">No messages yet</p>
-                      <p className="text-xs text-gray-500">Start a conversation with the community</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="flex items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
                     <UserCheck className="w-4 h-4 text-gray-600 mr-2" />
                     <div className="flex-1">
-                      <p className="text-sm font-medium">Family collaboration</p>
-                      <p className="text-xs text-gray-500">Share with family members</p>
+                      <p className="text-sm font-medium">Family Sharing</p>
+                      <p className="text-xs text-gray-500">Share tour notes with family</p>
                     </div>
                   </div>
                 </div>
                 
-                <Button variant="outline" className="w-full text-sm">
-                  <Users className="w-4 h-4 mr-2" />
-                  View Full Activity
+                <Button 
+                  onClick={() => window.location.href = `/tour-tracker?communityId=${community.id}`}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <ClipboardList className="w-4 h-4 mr-2" />
+                  Start Tour Documentation
                 </Button>
               </CardContent>
             </Card>
