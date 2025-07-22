@@ -680,20 +680,20 @@ export default function CommunityDetail() {
                       
                       {/* Unit Vacancy Information */}
                       <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-700">
-                        <div className="text-sm text-blue-900 dark:text-blue-100 font-medium mb-1">
+                        <div className="text-sm text-blue-900 dark:text-blue-200 font-medium mb-1">
                           {community.id % 3 === 0 ? `${2 + (community.id % 4)} units available` : 
                            community.id % 3 === 1 ? `${1 + (community.id % 2)} units available` : 
                            <Button 
                              variant="outline" 
                              size="sm" 
                              onClick={() => setIsWaitlistOpen(true)}
-                             className="text-xs py-1 px-2 h-6 border-blue-300 dark:border-blue-600 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/20"
+                             className="text-xs py-1 px-2 h-6 border-blue-300 dark:border-blue-600 text-blue-800 dark:text-blue-200 hover:bg-blue-100 dark:hover:bg-blue-800/30"
                            >
                              Join waitlist
                            </Button>
                           }
                         </div>
-                        <div className="text-xs text-blue-700 dark:text-blue-300">
+                        <div className="text-xs text-blue-800 dark:text-blue-200">
                           Updated {community.id % 2 === 0 ? 'today' : 'yesterday'}
                         </div>
                       </div>
@@ -743,7 +743,7 @@ export default function CommunityDetail() {
                     <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mb-4">
                       <div className="flex items-center">
                         <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" />
-                        <span className="text-blue-900 dark:text-blue-300 font-medium">Usually responds within 2 hours</span>
+                        <span className="text-blue-800 dark:text-blue-200 font-medium">Usually responds within 2 hours</span>
                       </div>
                     </div>
                     

@@ -143,7 +143,7 @@ export default function CommunityPortalModern() {
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-950 dark:via-purple-950 dark:to-pink-950 opacity-70 dark:opacity-30" />
         <div className="relative max-w-7xl mx-auto">
           <div className="text-center space-y-8">
-            <div className="inline-flex items-center bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 rounded-full px-4 py-2 text-sm font-medium">
+            <div className="inline-flex items-center bg-blue-100 dark:bg-blue-900/50 text-blue-900 dark:text-blue-100 rounded-full px-4 py-2 text-sm font-medium">
               <Rocket className="w-4 h-4 mr-2" />
               Trusted by 25,000+ Senior Living Communities
             </div>

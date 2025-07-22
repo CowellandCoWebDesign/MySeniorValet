@@ -189,8 +189,8 @@ export default function MapSearch() {
       
       if (!mapBounds) return [];
       
+      const startTime = Date.now();
       try {
-        const startTime = Date.now();
         console.log('🚀 STARTING COMMUNITY FETCH:', { 
           boundsKey, 
           showBottomPanel, 
@@ -1190,7 +1190,7 @@ export default function MapSearch() {
         <div className="px-4 pb-3 border-b-2 border-blue-200 dark:border-blue-700 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
           <div className="flex items-center justify-between">
             <div className="flex flex-col gap-2">
-              <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100 flex items-center gap-2">
+              <h3 className="text-xl font-bold text-blue-800 dark:text-blue-200 flex items-center gap-2">
                 🏠 {!mapBounds ? 'Position map to see communities' : 
                  isLoadingCommunities || isFetchingCommunities ? 'Loading communities...' : 
                  `${mapCommunities.length} Communities Found`}
@@ -1227,10 +1227,10 @@ export default function MapSearch() {
             <div className="text-center py-12">
               <div className="bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 rounded-2xl p-8 mx-4">
                 <MapIcon className="w-16 h-16 mx-auto text-blue-500 mb-4" />
-                <h4 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                <h4 className="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-2">
                   Explore Communities on Map
                 </h4>
-                <p className="text-blue-700 dark:text-blue-300">
+                <p className="text-blue-700 dark:text-blue-200">
                   Pan and zoom the map to discover senior living communities in your area
                 </p>
               </div>
