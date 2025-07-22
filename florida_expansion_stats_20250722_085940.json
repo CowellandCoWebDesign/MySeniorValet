@@ -1,0 +1,27 @@
+{
+  "counties_processed": 12,
+  "total_facilities": 1710,
+  "processing_errors": 0,
+  "start_time": "2025-07-22T08:57:20.272182",
+  "end_time": "2025-07-22T08:59:40.722340",
+  "target_counties": 12,
+  "coverage_improvement": {
+    "before": "22/67 counties (33%)",
+    "after": "34/67 counties (50.7%)",
+    "new_facilities": 1710,
+    "major_areas_added": [
+      "Miami-Dade",
+      "Broward",
+      "Palm Beach",
+      "Orange",
+      "Hillsborough",
+      "Pinellas",
+      "Sumter",
+      "Sarasota",
+      "Lee",
+      "Collier",
+      "Charlotte",
+      "Manatee"
+    ]
+  }
+}
