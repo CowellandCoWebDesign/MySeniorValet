@@ -1625,38 +1625,38 @@ export default function CommunityDetail() {
 
 
 
-            {/* MySeniorValet Tour Documentation */}
-            <Card>
+            {/* Tour Tracker - Family Visit Documentation */}
+            <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-blue-200 dark:border-blue-600">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center">
                   <ClipboardList className="w-5 h-5 mr-2 text-blue-600" />
-                  MySeniorValet Tour Documentation
+                  Tour Tracker™
                 </CardTitle>
-                <p className="text-sm text-gray-600">Document your visit and share with family</p>
+                <p className="text-sm text-blue-700 dark:text-blue-300">Document your family visit</p>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
-                  <div className="flex items-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-600">
+                  <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-600">
                     <Shield className="w-4 h-4 text-blue-600 mr-2" />
                     <div className="flex-1">
-                      <p className="text-sm font-medium">Tour Inspection System</p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">Rate cleanliness, staff, food & safety</p>
+                      <p className="text-sm font-medium">Inspection Checklist</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">Pass/fail criteria for key areas</p>
                     </div>
                   </div>
                   
-                  <div className="flex items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <CalendarIcon className="w-4 h-4 text-gray-600 mr-2" />
+                  <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-600">
+                    <Star className="w-4 h-4 text-blue-600 mr-2" />
                     <div className="flex-1">
-                      <p className="text-sm font-medium">Your Tour History</p>
-                      <p className="text-xs text-gray-500">No tours documented yet</p>
+                      <p className="text-sm font-medium">Rate During Visit</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">Cleanliness, staff, food, safety</p>
                     </div>
                   </div>
                   
-                  <div className="flex items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <UserCheck className="w-4 h-4 text-gray-600 mr-2" />
+                  <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-600">
+                    <UserCheck className="w-4 h-4 text-blue-600 mr-2" />
                     <div className="flex-1">
-                      <p className="text-sm font-medium">Family Sharing</p>
-                      <p className="text-xs text-gray-500">Share tour notes with family</p>
+                      <p className="text-sm font-medium">Family Collaboration</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">Share photos & notes instantly</p>
                     </div>
                   </div>
                 </div>
@@ -1668,6 +1668,10 @@ export default function CommunityDetail() {
                   <ClipboardList className="w-4 h-4 mr-2" />
                   Start Tour Documentation
                 </Button>
+                
+                <p className="text-xs text-center text-blue-700 dark:text-blue-300">
+                  Your tour data contributes to our composite ratings
+                </p>
               </CardContent>
             </Card>
           </div>
