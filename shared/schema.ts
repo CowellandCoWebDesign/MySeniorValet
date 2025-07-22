@@ -87,7 +87,6 @@ export const users = pgTable("users", {
   passwordResetExpires: timestamp("password_reset_expires"),
   lastLoginAt: timestamp("last_login_at"),
   isActive: boolean("is_active").default(true),
-  stripeCustomerId: text("stripe_customer_id"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -426,7 +425,6 @@ export const communities = pgTable("communities", {
   subscriptionTier: text("subscription_tier", {
     enum: ["free", "standard", "featured", "platinum"]
   }).default("free"),
-  stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
   stripePriceId: text("stripe_price_id"),
   billingStatus: text("billing_status", {

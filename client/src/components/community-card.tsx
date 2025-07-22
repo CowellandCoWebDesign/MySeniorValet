@@ -100,25 +100,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
     }));
   };
 
-  const handleShare = async () => {
-    const shareData = {
-      title: `${community.name} - Senior Living Community`,
-      text: `Check out ${community.name} in ${community.city}, ${community.state}. ${community.description || 'A quality senior living community.'}`,
-      url: `${window.location.origin}/community/${community.id}`
-    };
 
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        // Fallback to clipboard
-        await navigator.clipboard.writeText(shareData.url);
-        // Could show a toast here
-      }
-    } catch (error) {
-      console.error('Error sharing:', error);
-    }
-  };
 
   const getPriceTransparency = () => {
     if (!community.priceRange) return null;
@@ -203,17 +185,26 @@ export function CommunityCard({ community }: CommunityCardProps) {
                 <Heart className="h-5 w-5 text-red-500/70 hover:text-red-500 hover:fill-red-500/20 transition-all duration-300" />
               </button>
               
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleShare();
-                }}
-                className="p-2 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-white/90 dark:hover:bg-gray-700/90 transition-all duration-300 group shadow-lg transform hover:scale-110 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 delay-75"
-                aria-label="Share community"
-              >
-                <Share className="h-5 w-5 text-blue-500/70 hover:text-blue-500 transition-all duration-300" />
-              </button>
+              <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                <FamilyShareButton 
+                  community={{
+                    id: community.id,
+                    name: community.name,
+                    address: community.address,
+                    city: community.city,
+                    state: community.state,
+                    priceRange: community.priceRange || undefined,
+                    careTypes: community.careTypes,
+                    rating: community.googleRating || undefined,
+                    photos: community.photos || undefined,
+                    phone: community.phone || undefined,
+                    website: community.website || undefined
+                  }}
+                  size="icon"
+                  variant="ghost"
+                  className="p-2 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-white/90 dark:hover:bg-gray-700/90 transition-all duration-300 group shadow-lg transform hover:scale-110 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 delay-75"
+                />
+              </div>
             </div>
 
           {/* OVERLAY BADGES */}

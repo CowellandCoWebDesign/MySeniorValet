@@ -81,9 +81,9 @@ export default function FamilyCollaborationPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Navigation Bar */}
-      <div className="bg-white border-b border-gray-200 p-4">
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
         <div className="flex space-x-3">
           <Button 
             variant="ghost" 
@@ -152,17 +152,17 @@ export default function FamilyCollaborationPage() {
       {/* Demo Section */}
       <div className="max-w-7xl mx-auto px-4 py-16">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
             See It In Action
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             Try our family sharing features with this sample community
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
           {/* Sample Community Card */}
-          <Card className="shadow-lg border-0 bg-white">
+          <Card className="shadow-lg border-0 bg-white dark:bg-gray-800">
             <CardHeader className="pb-4">
               <div className="flex items-center space-x-4">
                 <img 
@@ -171,8 +171,8 @@ export default function FamilyCollaborationPage() {
                   className="w-16 h-16 rounded-lg object-cover"
                 />
                 <div>
-                  <CardTitle className="text-xl">{sampleCommunity.name}</CardTitle>
-                  <p className="text-gray-600">{sampleCommunity.city}, {sampleCommunity.state}</p>
+                  <CardTitle className="text-xl dark:text-white">{sampleCommunity.name}</CardTitle>
+                  <p className="text-gray-600 dark:text-gray-400">{sampleCommunity.city}, {sampleCommunity.state}</p>
                 </div>
               </div>
             </CardHeader>
@@ -187,7 +187,7 @@ export default function FamilyCollaborationPage() {
               </div>
               
               <div className="space-y-2">
-                <p className="text-sm text-gray-600">Care Types:</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Care Types:</p>
                 <div className="flex flex-wrap gap-2">
                   {sampleCommunity.careTypes.map((type, index) => (
                     <Badge key={index} variant="outline" className="text-xs">
@@ -209,19 +209,19 @@ export default function FamilyCollaborationPage() {
 
           {/* Features Overview */}
           <div className="space-y-6">
-            <h3 className="text-2xl font-bold text-gray-900">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
               Multiple Ways to Share
             </h3>
             
             <div className="space-y-4">
               {features.map((feature, index) => (
-                <div key={index} className="flex items-start space-x-4 p-4 bg-white rounded-lg shadow-sm border border-gray-100">
+                <div key={index} className="flex items-start space-x-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
                   <div className="flex-shrink-0">
                     {feature.icon}
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">{feature.title}</h4>
-                    <p className="text-gray-600 text-sm mb-2">{feature.description}</p>
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-1">{feature.title}</h4>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm mb-2">{feature.description}</p>
                     <Badge variant="secondary" className="text-xs">
                       {feature.highlight}
                     </Badge>

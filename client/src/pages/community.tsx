@@ -11,6 +11,7 @@ import { Link } from "wouter";
 import type { Community } from "@shared/schema";
 import { FlagListingDialog } from "@/components/flag-listing-dialog";
 import { PhotoCarousel } from "@/components/photo-carousel";
+import { FamilyShareButton } from "@/components/family-share-button";
 
 export default function CommunityPage() {
   const [, params] = useRoute("/community/:id");
@@ -314,7 +315,10 @@ export default function CommunityPage() {
               <p className="text-gray-600 mb-3">
                 If you believe this listing was incorrectly classified, please let us know.
               </p>
-              <FlagListingDialog communityId={community?.id || 0} />
+              <FlagListingDialog 
+                communityId={community?.id || 0} 
+                communityName={community?.name || 'Unknown Community'} 
+              />
             </CardContent>
           </Card>
         </div>
@@ -433,9 +437,23 @@ export default function CommunityPage() {
                     <Button variant="outline" size="sm">
                       <Heart className="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" size="sm">
-                      <Share className="h-4 w-4" />
-                    </Button>
+                    <FamilyShareButton 
+                      community={{
+                        id: community.id,
+                        name: community.name,
+                        address: community.address,
+                        city: community.city,
+                        state: community.state,
+                        priceRange: community.priceRange || undefined,
+                        careTypes: community.careTypes,
+                        rating: community.googleRating || undefined,
+                        photos: community.photos || undefined,
+                        phone: community.phone || undefined,
+                        website: community.website || undefined
+                      }}
+                      size="sm"
+                      variant="outline"
+                    />
                     <FlagListingDialog 
                       communityId={community.id} 
                       communityName={community.name} 
@@ -1109,39 +1127,39 @@ export default function CommunityPage() {
                 {/* Pricing - Business Rule Compliant */}
                 {community.priceRange && (
                   <div className={`border rounded-lg p-4 mb-6 ${
-                    community.claimed ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'
+                    community.claimedByBy ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'
                   }`}>
                     <div className="flex items-center space-x-2 mb-2">
                       <DollarSign className={`h-5 w-5 ${
-                        community.claimed ? 'text-green-600' : 'text-blue-600'
+                        community.claimedBy ? 'text-green-600' : 'text-blue-600'
                       }`} />
                       <span className={`font-semibold ${
-                        community.claimed ? 'text-green-900' : 'text-blue-900'
+                        community.claimedBy ? 'text-green-900' : 'text-blue-900'
                       }`}>
-                        {community.claimed ? 'Live Pricing' : 'Estimated Pricing'}
+                        {community.claimedBy ? 'Live Pricing' : 'Estimated Pricing'}
                       </span>
-                      {community.claimed && (
+                      {community.claimedBy && (
                         <Badge className="bg-green-600 text-white text-xs">
                           Claimed Community
                         </Badge>
                       )}
                     </div>
                     <div className={`text-2xl font-bold ${
-                      community.claimed ? 'text-green-900' : 'text-blue-900'
+                      community.claimedBy ? 'text-green-900' : 'text-blue-900'
                     }`}>
                       ${community.priceRange.min.toLocaleString()} - ${community.priceRange.max.toLocaleString()}
-                      {!community.claimed && (
+                      {!community.claimedBy && (
                         <span className="text-sm text-blue-600 ml-2 font-normal">est.</span>
                       )}
                     </div>
                     <div className={`text-sm ${
-                      community.claimed ? 'text-green-700' : 'text-blue-700'
+                      community.claimedBy ? 'text-green-700' : 'text-blue-700'
                     }`}>
-                      per month {community.claimed ? '(verified)' : '(market estimate)'}
+                      per month {community.claimedBy ? '(verified)' : '(market estimate)'}
                     </div>
                     
                     {/* Special Offers - Only for claimed communities */}
-                    {community.claimed && community.pricingDetails?.specialOffers && community.pricingDetails.specialOffers.length > 0 && (
+                    {community.claimedBy && community.pricingDetails?.specialOffers && community.pricingDetails.specialOffers.length > 0 && (
                       <div className="mt-3 pt-3 border-t border-green-200">
                         {community.pricingDetails.specialOffers.map((offer, index) => (
                           <div key={index} className="bg-red-100 border border-red-200 rounded p-2">
@@ -1156,16 +1174,16 @@ export default function CommunityPage() {
 
                 {/* ADDITIONAL PRICING DETAILS - Business Rule Compliant */}
                 <div className={`border rounded-lg p-4 mb-6 ${
-                  community.claimed ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'
+                  community.claimedBy ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'
                 }`}>
                   <div className="flex items-center space-x-2 mb-4">
                     <Home className={`h-5 w-5 ${
-                      community.claimed ? 'text-green-600' : 'text-yellow-600'
+                      community.claimedBy ? 'text-green-600' : 'text-yellow-600'
                     }`} />
                     <span className={`font-semibold ${
-                      community.claimed ? 'text-green-900' : 'text-yellow-900'
+                      community.claimedBy ? 'text-green-900' : 'text-yellow-900'
                     }`}>
-                      {community.claimed ? 'Verified Pricing Details' : 'Estimated Pricing Information'}
+                      {community.claimedBy ? 'Verified Pricing Details' : 'Estimated Pricing Information'}
                     </span>
                   </div>
                   
@@ -1173,23 +1191,23 @@ export default function CommunityPage() {
                   {community.priceRange && (
                     <div className="mb-4">
                       <div className={`text-lg font-semibold mb-2 ${
-                        community.claimed ? 'text-green-900' : 'text-yellow-900'
+                        community.claimedBy ? 'text-green-900' : 'text-yellow-900'
                       }`}>
-                        {community.claimed ? 'Current Monthly Cost' : 'Typical Monthly Cost'}: ${community.priceRange.min?.toLocaleString()} - ${community.priceRange.max?.toLocaleString()}
-                        {!community.claimed && (
+                        {community.claimedBy ? 'Current Monthly Cost' : 'Typical Monthly Cost'}: ${community.priceRange.min?.toLocaleString()} - ${community.priceRange.max?.toLocaleString()}
+                        {!community.claimedBy && (
                           <span className="text-sm text-yellow-600 ml-2 font-normal">est.</span>
                         )}
                       </div>
                       <div className={`text-sm ${
-                        community.claimed ? 'text-green-700' : 'text-yellow-700'
+                        community.claimedBy ? 'text-green-700' : 'text-yellow-700'
                       }`}>
-                        {community.claimed ? 'Verified pricing based on care level and unit type' : 'Based on care level and unit type (market estimate)'}
+                        {community.claimedBy ? 'Verified pricing based on care level and unit type' : 'Based on care level and unit type (market estimate)'}
                       </div>
                     </div>
                   )}
 
                   {/* Move-In Costs - Only for claimed communities */}
-                  {community.claimed && (
+                  {community.claimedBy && (
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div className="bg-white border border-green-200 rounded p-3">
                         <div className="text-sm font-medium text-green-900">Community Fee</div>
@@ -1208,24 +1226,24 @@ export default function CommunityPage() {
 
                   {/* Verification Notice */}
                   <div className={`border rounded p-3 ${
-                    community.claimed 
+                    community.claimedBy 
                       ? 'bg-green-100 border-green-200' 
                       : 'bg-orange-100 border-orange-200'
                   }`}>
                     <div className="flex items-center space-x-2 mb-2">
                       <AlertCircle className={`h-4 w-4 ${
-                        community.claimed ? 'text-green-600' : 'text-orange-600'
+                        community.claimedBy ? 'text-green-600' : 'text-orange-600'
                       }`} />
                       <span className={`text-sm font-medium ${
-                        community.claimed ? 'text-green-900' : 'text-orange-900'
+                        community.claimedBy ? 'text-green-900' : 'text-orange-900'
                       }`}>
-                        {community.claimed ? 'Verified Community Information' : 'Pending Community Verification'}
+                        {community.claimedBy ? 'Verified Community Information' : 'Pending Community Verification'}
                       </span>
                     </div>
                     <div className={`text-xs ${
-                      community.claimed ? 'text-green-700' : 'text-orange-700'
+                      community.claimedBy ? 'text-green-700' : 'text-orange-700'
                     }`}>
-                      {community.claimed 
+                      {community.claimedBy 
                         ? 'This community has been verified and is actively managed by the community team. Pricing and availability information is current and accurate.'
                         : 'Exact pricing, current specials, and available units are being verified directly with the community. Prices shown are typical ranges and may vary based on care needs and current promotions.'
                       }
@@ -1233,9 +1251,9 @@ export default function CommunityPage() {
                   </div>
 
                   <div className={`mt-4 text-xs text-center ${
-                    community.claimed ? 'text-green-600' : 'text-blue-600'
+                    community.claimedBy ? 'text-green-600' : 'text-blue-600'
                   }`}>
-                    {community.claimed 
+                    {community.claimedBy 
                       ? 'Contact the community for immediate availability and to schedule a tour.'
                       : 'Contact the community for current pricing and availability information.'
                     }
