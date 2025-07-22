@@ -90,7 +90,7 @@ class RealHUDAPICollector:
         attrs = feature.get('attributes', {})
         geometry = feature.get('geometry', {})
         
-        # Extract property details using correct field names with null safety
+        # Extract comprehensive property details using correct field names with null safety
         property_data = {
             'name': (attrs.get('PROPERTY_NAME_TEXT') or '').strip(),
             'address': (attrs.get('ADDRESS_LINE1_TEXT') or '').strip(),
@@ -99,12 +99,93 @@ class RealHUDAPICollector:
             'zip_code': str(attrs.get('MGMT_CONTACT_ZIP_CODE') or '').strip(),
             'county': (attrs.get('COUNTY_NAME') or '').strip(),
             'phone': (attrs.get('PROPERTY_ON_SITE_PHONE_NUMBER') or '').strip(),
-            'total_units': attrs.get('TOTAL_ASSISTED_UNIT_COUNT') or 0,
             'latitude': geometry.get('y'),
             'longitude': geometry.get('x'),
             'property_type': property_type,
+            'source': f'HUD Official API - {property_type}',
+            
+            # HUD Property ID and Basic Unit Data
             'hud_property_id': str(attrs.get('PROPERTY_ID') or ''),
-            'source': f'HUD Official API - {property_type}'
+            'total_units_hud': attrs.get('TOTAL_UNIT_COUNT') or 0,
+            'total_assisted_units': attrs.get('TOTAL_ASSISTED_UNIT_COUNT') or 0,
+            'maximum_contract_units': attrs.get('MAXIMUM_CONTRACT_UNIT_COUNT') or 0,
+            'available_units_hud': attrs.get('TOTAL_AVBL_UNITS') or 0,
+            'market_rate_units': attrs.get('UNIT_MRKT_RENT_CNT') or 0,
+            
+            # HUD Occupancy Data (hyper valuable for filtering!)
+            'occupancy_rate_hud': attrs.get('PCT_OCCUPIED') or 0,
+            'reported_occupancy': attrs.get('PCT_REPORTED') or 0,
+            'move_in_rate': attrs.get('PCT_MOVEIN') or 0,
+            'people_per_unit': attrs.get('PEOPLE_PER_UNIT') or 0,
+            'total_people': attrs.get('PEOPLE_TOTAL') or 0,
+            
+            # HUD Financial Data (critical for pricing!)
+            'rent_per_month': attrs.get('RENT_PER_MONTH') or 0,
+            'spending_per_month': attrs.get('SPENDING_PER_MONTH') or 0,
+            'household_income': attrs.get('HH_INCOME') or 0,
+            'person_income': attrs.get('PERSON_INCOME') or 0,
+            'is_rent_supplement': attrs.get('IS_RENT_SUPPLEMENT_IND') == 'Y',
+            'rent_to_fmr_ratio': attrs.get('RENT_TO_FMR_RATIO1') or 0,
+            
+            # HUD Income Demographics (valuable filtering!)
+            'income_lt_5k_pct': attrs.get('PCT_LT5K') or 0,
+            'income_5k_10k_pct': attrs.get('PCT_5K_LT10K') or 0,
+            'income_10k_15k_pct': attrs.get('PCT_10K_LT15K') or 0,
+            'income_15k_20k_pct': attrs.get('PCT_15K_LT20K') or 0,
+            'income_over_20k_pct': attrs.get('PCT_GE20K') or 0,
+            'wage_major_pct': attrs.get('PCT_WAGE_MAJOR') or 0,
+            'welfare_major_pct': attrs.get('PCT_WELFARE_MAJOR') or 0,
+            'other_major_pct': attrs.get('PCT_OTHER_MAJOR') or 0,
+            
+            # HUD Age Demographics (essential for seniors!)
+            'age_62_plus_pct': attrs.get('PCT_AGE62PLUS') or 0,
+            'age_85_plus_pct': attrs.get('PCT_AGE85PLUS') or 0,
+            'age_under_24_head_pct': attrs.get('PCT_LT24_HEAD') or 0,
+            'age_25_50_pct': attrs.get('PCT_AGE25_50') or 0,
+            'age_51_61_pct': attrs.get('PCT_AGE51_61') or 0,
+            'elderly_percent': attrs.get('ELDLY_PRCNT') or 0,
+            
+            # HUD Disability Demographics (care matching!)
+            'disabled_under_62_pct': attrs.get('PCT_DISABLED_LT62') or 0,
+            'disabled_over_62_pct': attrs.get('PCT_DISABLED_GE62') or 0,
+            'disabled_all_pct': attrs.get('PCT_DISABLED_ALL') or 0,
+            'two_adults_pct': attrs.get('PCT_2ADULTS') or 0,
+            'one_adult_pct': attrs.get('PCT_1ADULT') or 0,
+            'female_head_pct': attrs.get('PCT_FEMALE_HEAD') or 0,
+            'female_head_child_pct': attrs.get('PCT_FEMALE_HEAD_CHILD') or 0,
+            
+            # HUD Racial/Ethnic Demographics
+            'minority_percent': attrs.get('PCT_MINORITY') or 0,
+            'black_percent': attrs.get('PCT_BLACK') or 0,
+            'native_american_percent': attrs.get('PCT_NATIVE_AMERICAN') or 0,
+            'asian_percent': attrs.get('PCT_ASIAN') or 0,
+            'hispanic_percent': attrs.get('PCT_HISPANIC') or 0,
+            
+            # HUD Management and Contact Data
+            'management_company': (attrs.get('MGMT_AGENT_ORG_NAME') or '').strip(),
+            'management_contact': (attrs.get('MGMT_CONTACT_FULL_NAME') or '').strip(),
+            'management_phone': (attrs.get('MGMT_CONTACT_MAIN_PHN_NBR') or '').strip(),
+            'management_email': (attrs.get('MGMT_CONTACT_EMAIL_TEXT') or '').strip(),
+            'hub_name': (attrs.get('HUB_NAME_TEXT') or '').strip(),
+            'servicing_site': (attrs.get('SERVICING_SITE_NAME_TEXT') or '').strip(),
+            'project_manager': (attrs.get('PROJECT_MANAGER_NAME_TEXT') or '').strip(),
+            'property_category': (attrs.get('PROPERTY_CATEGORY_NAME') or '').strip(),
+            'client_group': (attrs.get('CLIENT_GROUP_NAME') or '').strip(),
+            
+            # HUD Dates and Timeline
+            'occupancy_date': attrs.get('OCCUPANCY_DATE'),
+            'last_reac_inspection': attrs.get('REAC_LAST_INSPECTION_DATE'),
+            'last_data_update': attrs.get('LAST_UPDT_DTTM'),
+            'months_waiting': attrs.get('MONTHS_WAITING') or 0,
+            'months_from_move_in': attrs.get('MONTHS_FROM_MOVEIN') or 0,
+            
+            # HUD Unit Mix (filtering by unit types!)
+            'studio_units_pct': attrs.get('PCT_BED1') or 0,
+            'one_bedroom_pct': attrs.get('PCT_BED2') or 0,
+            'two_bedroom_pct': attrs.get('PCT_BED3') or 0,
+            'over_housed_pct': attrs.get('PCT_OVERHOUSED') or 0,
+            'utility_allowance_pct': attrs.get('PCT_UTILITY_ALLOW') or 0,
+            'avg_utility_allowance': attrs.get('AVE_UTIL_ALLOW') or 0,
         }
         
         return property_data
@@ -149,13 +230,33 @@ class RealHUDAPICollector:
                     insert_sql = """
                         INSERT INTO communities (
                             name, address, city, state, zip_code, county, care_types,
-                            latitude, longitude, phone, is_verified, description, is_licensed
+                            latitude, longitude, phone, is_verified, description, is_licensed,
+                            hud_property_id, total_units_hud, total_assisted_units, 
+                            occupancy_rate_hud, rent_per_month, age_62_plus_pct, 
+                            elderly_percent, management_company, management_contact,
+                            management_phone, management_email
                         ) VALUES (
-                            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                         )
                     """
                     
-                    description = f"HUD {prop['property_type']} housing for seniors 62+ in {prop['city']}, {prop['state']} with {prop['total_units']} units. Official HUD property ID: {prop['hud_property_id']}"
+                    # Build enhanced description with rich HUD data
+                    units = prop.get('total_units_hud', 0)
+                    occupancy = prop.get('occupancy_rate_hud', 0)
+                    senior_pct = prop.get('age_62_plus_pct', 0)
+                    rent = prop.get('rent_per_month', 0)
+                    
+                    description = f"HUD {prop['property_type']} housing for seniors 62+ in {prop['city']}, {prop['state']}"
+                    if units > 0:
+                        description += f" with {units} units"
+                    if occupancy > 0:
+                        description += f", {occupancy}% occupied"
+                    if senior_pct > 0:
+                        description += f", {senior_pct}% senior residents"
+                    if rent > 0:
+                        description += f", avg rent ${rent}/month"
+                    description += f". Official HUD ID: {prop['hud_property_id']}"
                     
                     cursor.execute(insert_sql, (
                         prop['name'],
@@ -170,11 +271,24 @@ class RealHUDAPICollector:
                         prop['phone'],
                         True,  # Verified (HUD official source)
                         description,
-                        False  # Unlicensed (HUD housing)
+                        False,  # Unlicensed (HUD housing)
+                        prop['hud_property_id'], 
+                        prop.get('total_units_hud', 0), 
+                        prop.get('total_assisted_units', 0), 
+                        prop.get('occupancy_rate_hud', 0),
+                        prop.get('rent_per_month', 0), 
+                        prop.get('age_62_plus_pct', 0),
+                        prop.get('elderly_percent', 0), 
+                        prop.get('management_company', ''),
+                        prop.get('management_contact', ''), 
+                        prop.get('management_phone', ''),
+                        prop.get('management_email', '')
                     ))
                     
                     added_count += 1
-                    print(f"  ✅ Added: {prop['name']} - {prop['total_units']} units in {prop['county']} County")
+                    units = prop.get('total_units_hud', 0)
+                    occupancy = prop.get('occupancy_rate_hud', 0)
+                    print(f"  ✅ Added: {prop['name']} - {units} units ({occupancy}% occupancy) in {prop['county']} County")
                     
                 except Exception as e:
                     logger.error(f"Error inserting {prop['name']}: {str(e)}")

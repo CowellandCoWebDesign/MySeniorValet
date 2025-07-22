@@ -464,6 +464,87 @@ export const communities = pgTable("communities", {
   acceptsHudVouchers: boolean("accepts_hud_vouchers").default(false),
   isVeteranFriendly: boolean("is_veteran_friendly").default(false),
   
+  // HUD API Comprehensive Data Fields - Rich property information from official HUD APIs
+  hudPropertyId: text("hud_property_id"), // Official HUD Property ID
+  totalUnitsHud: integer("total_units_hud"), // TOTAL_UNIT_COUNT from HUD
+  totalAssistedUnits: integer("total_assisted_units"), // TOTAL_ASSISTED_UNIT_COUNT
+  maximumContractUnits: integer("maximum_contract_units"), // MAXIMUM_CONTRACT_UNIT_COUNT
+  availableUnitsHud: integer("available_units_hud"), // TOTAL_AVBL_UNITS
+  marketRateUnits: integer("market_rate_units"), // UNIT_MRKT_RENT_CNT
+  occupancyRateHud: decimal("occupancy_rate_hud", { precision: 5, scale: 2 }), // PCT_OCCUPIED
+  reportedOccupancy: decimal("reported_occupancy", { precision: 5, scale: 2 }), // PCT_REPORTED
+  moveInRate: decimal("move_in_rate", { precision: 5, scale: 2 }), // PCT_MOVEIN
+  peoplePerUnit: decimal("people_per_unit", { precision: 5, scale: 2 }), // PEOPLE_PER_UNIT
+  totalPeople: integer("total_people"), // PEOPLE_TOTAL
+  
+  // HUD Rent and Financial Data - Critical for filtering and comparison
+  rentPerMonth: decimal("rent_per_month", { precision: 10, scale: 2 }), // RENT_PER_MONTH
+  spendingPerMonth: decimal("spending_per_month", { precision: 10, scale: 2 }), // SPENDING_PER_MONTH
+  householdIncome: decimal("household_income", { precision: 10, scale: 2 }), // HH_INCOME
+  personIncome: decimal("person_income", { precision: 10, scale: 2 }), // PERSON_INCOME
+  isRentSupplement: boolean("is_rent_supplement"), // IS_RENT_SUPPLEMENT_IND
+  rentToFmrRatio: decimal("rent_to_fmr_ratio", { precision: 5, scale: 2 }), // RENT_TO_FMR_RATIO1
+  
+  // HUD Income Demographics - Valuable for targeting and filtering
+  incomeLessThan5k: decimal("income_lt_5k_pct", { precision: 5, scale: 2 }), // PCT_LT5K
+  income5kTo10k: decimal("income_5k_10k_pct", { precision: 5, scale: 2 }), // PCT_5K_LT10K
+  income10kTo15k: decimal("income_10k_15k_pct", { precision: 5, scale: 2 }), // PCT_10K_LT15K
+  income15kTo20k: decimal("income_15k_20k_pct", { precision: 5, scale: 2 }), // PCT_15K_LT20K
+  incomeOver20k: decimal("income_over_20k_pct", { precision: 5, scale: 2 }), // PCT_GE20K
+  wageMajorSource: decimal("wage_major_pct", { precision: 5, scale: 2 }), // PCT_WAGE_MAJOR
+  welfareMajorSource: decimal("welfare_major_pct", { precision: 5, scale: 2 }), // PCT_WELFARE_MAJOR
+  otherMajorSource: decimal("other_major_pct", { precision: 5, scale: 2 }), // PCT_OTHER_MAJOR
+  
+  // HUD Age Demographics - Essential for senior living targeting
+  age62Plus: decimal("age_62_plus_pct", { precision: 5, scale: 2 }), // PCT_AGE62PLUS
+  age85Plus: decimal("age_85_plus_pct", { precision: 5, scale: 2 }), // PCT_AGE85PLUS
+  ageUnder24Head: decimal("age_under_24_head_pct", { precision: 5, scale: 2 }), // PCT_LT24_HEAD
+  age25To50: decimal("age_25_50_pct", { precision: 5, scale: 2 }), // PCT_AGE25_50
+  age51To61: decimal("age_51_61_pct", { precision: 5, scale: 2 }), // PCT_AGE51_61
+  elderlyPercent: decimal("elderly_percent", { precision: 5, scale: 2 }), // ELDLY_PRCNT
+  
+  // HUD Disability and Family Demographics - Important for care matching
+  disabledUnder62: decimal("disabled_under_62_pct", { precision: 5, scale: 2 }), // PCT_DISABLED_LT62
+  disabledOver62: decimal("disabled_over_62_pct", { precision: 5, scale: 2 }), // PCT_DISABLED_GE62
+  disabledAll: decimal("disabled_all_pct", { precision: 5, scale: 2 }), // PCT_DISABLED_ALL
+  twoAdults: decimal("two_adults_pct", { precision: 5, scale: 2 }), // PCT_2ADULTS
+  oneAdult: decimal("one_adult_pct", { precision: 5, scale: 2 }), // PCT_1ADULT
+  femaleHead: decimal("female_head_pct", { precision: 5, scale: 2 }), // PCT_FEMALE_HEAD
+  femaleHeadWithChildren: decimal("female_head_child_pct", { precision: 5, scale: 2 }), // PCT_FEMALE_HEAD_CHILD
+  
+  // HUD Racial/Ethnic Demographics - For diversity and compliance reporting
+  minorityPercent: decimal("minority_percent", { precision: 5, scale: 2 }), // PCT_MINORITY
+  blackPercent: decimal("black_percent", { precision: 5, scale: 2 }), // PCT_BLACK
+  nativeAmericanPercent: decimal("native_american_percent", { precision: 5, scale: 2 }), // PCT_NATIVE_AMERICAN
+  asianPercent: decimal("asian_percent", { precision: 5, scale: 2 }), // PCT_ASIAN
+  hispanicPercent: decimal("hispanic_percent", { precision: 5, scale: 2 }), // PCT_HISPANIC
+  
+  // HUD Management and Property Details - Contact and operational info
+  managementCompany: text("management_company"), // MGMT_AGENT_ORG_NAME
+  managementContact: text("management_contact"), // MGMT_CONTACT_FULL_NAME
+  managementPhone: text("management_phone"), // MGMT_CONTACT_MAIN_PHN_NBR
+  managementEmail: text("management_email"), // MGMT_CONTACT_EMAIL_TEXT
+  hubName: text("hub_name"), // HUB_NAME_TEXT
+  servicingSite: text("servicing_site"), // SERVICING_SITE_NAME_TEXT
+  projectManager: text("project_manager"), // PROJECT_MANAGER_NAME_TEXT
+  propertyCategory: text("property_category"), // PROPERTY_CATEGORY_NAME
+  clientGroup: text("client_group"), // CLIENT_GROUP_NAME
+  
+  // HUD Dates and Timeline Data - Operational history
+  occupancyDate: date("occupancy_date"), // OCCUPANCY_DATE
+  lastReacInspection: date("last_reac_inspection"), // REAC_LAST_INSPECTION_DATE
+  lastDataUpdate: date("last_data_update"), // LAST_UPDT_DTTM
+  monthsWaiting: decimal("months_waiting", { precision: 5, scale: 2 }), // MONTHS_WAITING
+  monthsFromMoveIn: decimal("months_from_move_in", { precision: 5, scale: 2 }), // MONTHS_FROM_MOVEIN
+  
+  // HUD Unit Mix and Housing Details - Unit composition for filtering
+  studioUnits: decimal("studio_units_pct", { precision: 5, scale: 2 }), // PCT_BED1 (studio/1br)
+  oneBedroomUnits: decimal("one_bedroom_pct", { precision: 5, scale: 2 }), // PCT_BED2
+  twoBedroomUnits: decimal("two_bedroom_pct", { precision: 5, scale: 2 }), // PCT_BED3
+  overHousedPercent: decimal("over_housed_pct", { precision: 5, scale: 2 }), // PCT_OVERHOUSED
+  utilityAllowancePercent: decimal("utility_allowance_pct", { precision: 5, scale: 2 }), // PCT_UTILITY_ALLOW
+  averageUtilityAllowance: decimal("avg_utility_allowance", { precision: 10, scale: 2 }), // AVE_UTIL_ALLOW
+  
   // Extended Tier System fields (extending existing isClaimed)
   claimApprovalStatus: text("claim_approval_status", { 
     enum: ["Pending", "Approved", "Rejected", "Under Review"] 
