@@ -1,0 +1,27 @@
+   county   
+------------
+ Bay
+ Calhoun
+ Columbia
+ Dixie
+ Escambia
+ Franklin
+ Gadsden
+ Gulf
+ Hamilton
+ Holmes
+ Jackson
+ Jefferson
+ Lafayette
+ Leon
+ Liberty
+ Okaloosa
+ Santa Rosa
+ Suwannee
+ Taylor
+ Wakulla
+ Walton
+ Washington
+ 
+(23 rows)
+
