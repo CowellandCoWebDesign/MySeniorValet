@@ -174,7 +174,12 @@ export default function CommunityPortalModern() {
                 size="lg"
                 variant="outline"
                 className="border-2 px-8 py-6 text-lg"
-                onClick={() => setLocation('#features')}
+                onClick={() => {
+                  const featuresSection = document.getElementById('features');
+                  if (featuresSection) {
+                    featuresSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
               >
                 Explore Features
               </Button>
@@ -345,7 +350,7 @@ export default function CommunityPortalModern() {
             <Button 
               size="lg"
               variant="outline"
-              className="border-white text-white hover:bg-white/10 px-8 py-6 text-lg"
+              className="border-2 border-white text-white hover:bg-white/20 hover:border-white px-8 py-6 text-lg"
               onClick={() => setLocation('/contact')}
             >
               Schedule a Demo

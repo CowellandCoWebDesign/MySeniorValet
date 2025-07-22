@@ -6,7 +6,7 @@ export async function createDemoUser() {
   try {
     // Check if demo user already exists (using raw SQL to match current database structure)
     const existingUser = await db.execute(
-      sql`SELECT id, username FROM users WHERE username = 'demo@trueview.com'`
+      sql`SELECT id, username FROM users WHERE username = 'demo@myseniorvalet.com'`
     );
     
     if (existingUser.rows.length > 0) {
@@ -19,7 +19,7 @@ export async function createDemoUser() {
 
     // Create demo user (using raw SQL to match current database structure)
     const result = await db.execute(
-      sql`INSERT INTO users (username, password) VALUES ('demo@trueview.com', ${hashedPassword}) RETURNING id, username`
+      sql`INSERT INTO users (username, password) VALUES ('demo@myseniorvalet.com', ${hashedPassword}) RETURNING id, username`
     );
 
     const demoUser = result.rows[0];
