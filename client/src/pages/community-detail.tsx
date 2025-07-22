@@ -5,6 +5,7 @@ import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSig
          Mail, Globe, Users, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
          Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X, 
          Clock, HelpCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import type { Community } from '@shared/schema';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -159,7 +160,7 @@ const HeroPhotoCarousel = ({ photos, communityName }: { photos: string[], commun
 };
 
 // Calculate composite rating from tour data and external reviews
-const calculateCompositeRating = (community: any): string => {
+const calculateCompositeRating = (community: Community): string => {
   // Weight factors for different rating sources
   const weights = {
     tourScore: 0.5,      // 50% weight for MySeniorValet tour scores
@@ -167,10 +168,10 @@ const calculateCompositeRating = (community: any): string => {
     yelpScore: 0.2       // 20% weight for Yelp reviews
   };
   
-  // Get individual scores
-  const tourScore = parseFloat(community.tourAverageRating || '4.5');
-  const googleScore = parseFloat(community.googleRating || '4.2');
-  const yelpScore = parseFloat(community.yelpRating || '4.0');
+  // Get individual scores - tour properties will be added to schema
+  const tourScore = parseFloat((community as any).tourAverageRating || '4.5');
+  const googleScore = parseFloat(community.googleRating?.toString() || '4.2');
+  const yelpScore = parseFloat((community as any).yelpRating || '4.0');
   
   // Calculate weighted average
   const compositeScore = 
@@ -211,7 +212,7 @@ export default function CommunityDetail() {
     }
   }, [id, setLocation]);
 
-  const { data: community, isLoading, error } = useQuery({
+  const { data: community, isLoading, error } = useQuery<Community>({
     queryKey: [`/api/communities/${id}`],
     enabled: !!id && id !== '-1' && !isNaN(Number(id)),
   });
@@ -654,7 +655,7 @@ export default function CommunityDetail() {
                           `$${community.priceRange.min.toLocaleString()} - $${community.priceRange.max.toLocaleString()}` : 
                           'Contact for Pricing'
                         }
-                        {!community.claimed && (
+                        {!community.claimedBy && (
                           <span className="text-sm text-gray-500 dark:text-gray-400 ml-2 font-normal">est.</span>
                         )}
                       </div>
@@ -969,7 +970,7 @@ export default function CommunityDetail() {
                       <div className="text-right ml-4">
                         <div className="text-2xl font-bold text-blue-600">
                           ${unit.price.toLocaleString()}
-                          {!community.claimed && (
+                          {!community.claimedBy && (
                             <span className="text-sm text-gray-500 ml-1 font-normal">est.</span>
                           )}
                         </div>
@@ -1530,12 +1531,12 @@ export default function CommunityDetail() {
                       <Shield className="w-6 h-6 text-blue-500 mr-1" />
                       <span className="text-3xl font-bold text-gray-900 dark:text-white">
                         {/* Calculate composite score from multiple sources */}
-                        {community.compositeRating || calculateCompositeRating(community)}
+                        {(community as any).compositeRating || calculateCompositeRating(community)}
                       </span>
                       <span className="text-lg text-gray-600 dark:text-gray-400">/5</span>
                     </div>
                     <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                      Based on {community.tourCount || '8'} family tours + {parseInt(community.googleReviewCount || '0') + parseInt(community.yelpReviewCount || '0')} online reviews
+                      Based on {(community as any).tourCount || '8'} family tours + {parseInt(community.googleReviewCount?.toString() || '0') + parseInt(community.yelpReviewCount?.toString() || '0')} online reviews
                     </p>
                   </div>
                   
@@ -1543,7 +1544,7 @@ export default function CommunityDetail() {
                   <div className="grid grid-cols-3 gap-2 text-xs">
                     <div className="text-center">
                       <p className="text-gray-600 dark:text-gray-400">Tour Score</p>
-                      <p className="font-semibold">{community.tourAverageRating || '4.5'}/5</p>
+                      <p className="font-semibold">{(community as any).tourAverageRating || '4.5'}/5</p>
                     </div>
                     <div className="text-center">
                       <p className="text-gray-600 dark:text-gray-400">Google</p>
@@ -1565,19 +1566,19 @@ export default function CommunityDetail() {
                   <div className="space-y-1 text-xs">
                     <div className="flex items-center">
                       <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
-                      <span>Cleanliness: {community.tourCleanlinessScore || '4.6'}/5</span>
+                      <span>Cleanliness: {(community as any).tourCleanlinessScore || '4.6'}/5</span>
                     </div>
                     <div className="flex items-center">
                       <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
-                      <span>Staff Interaction: {community.tourStaffScore || '4.8'}/5</span>
+                      <span>Staff Interaction: {(community as any).tourStaffScore || '4.8'}/5</span>
                     </div>
                     <div className="flex items-center">
                       <CheckCircle className="w-3 h-3 mr-1 text-yellow-500" />
-                      <span>Food Quality: {community.tourFoodScore || '4.2'}/5</span>
+                      <span>Food Quality: {(community as any).tourFoodScore || '4.2'}/5</span>
                     </div>
                     <div className="flex items-center">
                       <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
-                      <span>Safety Features: {community.tourSafetyScore || '4.7'}/5</span>
+                      <span>Safety Features: {(community as any).tourSafetyScore || '4.7'}/5</span>
                     </div>
                   </div>
                 </div>
@@ -1591,8 +1592,9 @@ export default function CommunityDetail() {
                       size="sm" 
                       className="text-xs"
                       onClick={() => {
-                        const searchQuery = encodeURIComponent(`${community.name} ${community.city} ${community.state}`);
-                        window.open(`https://www.google.com/search?q=${searchQuery}`, '_blank');
+                        // Use Google Maps search for more accurate business results
+                        const searchQuery = encodeURIComponent(`${community.name} ${community.address} ${community.city} ${community.state} ${community.zipCode}`);
+                        window.open(`https://www.google.com/maps/search/${searchQuery}`, '_blank');
                       }}
                     >
                       <ExternalLink className="w-3 h-3 mr-1" />
@@ -1603,8 +1605,10 @@ export default function CommunityDetail() {
                       size="sm" 
                       className="text-xs"
                       onClick={() => {
-                        const searchQuery = encodeURIComponent(`${community.name} ${community.city} ${community.state}`);
-                        window.open(`https://www.yelp.com/search?find_desc=${searchQuery}`, '_blank');
+                        // For Yelp, use location parameter for better results
+                        const businessName = encodeURIComponent(community.name);
+                        const location = encodeURIComponent(`${community.city}, ${community.state} ${community.zipCode}`);
+                        window.open(`https://www.yelp.com/search?find_desc=${businessName}&find_loc=${location}`, '_blank');
                       }}
                     >
                       <ExternalLink className="w-3 h-3 mr-1" />
