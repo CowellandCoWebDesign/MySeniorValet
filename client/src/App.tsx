@@ -60,6 +60,7 @@ import NotFound from "@/pages/not-found";
 import QuizPage from "@/pages/quiz";
 import TestDebug from "@/pages/test-debug";
 import TestMapViews from "@/pages/test-map-views";
+import AuthDebug from "@/pages/auth-debug";
 
 function Router() {
   const [location] = useLocation();
@@ -121,6 +122,7 @@ function Router() {
       <Route path="/quiz" component={QuizPage} />
       <Route path="/test-debug" component={TestDebug} />
       <Route path="/test-map-views" component={TestMapViews} />
+      <Route path="/auth-debug" component={AuthDebug} />
       <Route component={NotFound} />
     </Switch>
   );
