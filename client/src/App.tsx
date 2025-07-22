@@ -45,6 +45,7 @@ import Testimonials from "@/pages/testimonials";
 import Help from "@/pages/help";
 import CareGuide from "@/pages/care-guide";
 import CommunityPortal from "@/pages/community-portal";
+import CommunityDashboard from "@/pages/community-dashboard";
 import CommunityLeasing from "@/pages/community-leasing";
 import TenantPortal from "@/pages/tenant-portal";
 import AISupport from "@/pages/ai-support";
@@ -105,6 +106,7 @@ function Router() {
       <Route path="/help" component={Help} />
       <Route path="/care-guide" component={CareGuide} />
       <Route path="/community-portal" component={CommunityPortal} />
+      <Route path="/community-dashboard/:id" component={CommunityDashboard} />
       <Route path="/community-portal/:id/leasing" component={CommunityLeasing} />
       <Route path="/tenant-portal" component={TenantPortal} />
       <Route path="/support" component={AISupport} />

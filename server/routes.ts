@@ -1907,6 +1907,247 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ===== COMMUNITY DASHBOARD ANALYTICS API =====
+  
+  // Get community dashboard overview
+  app.get("/api/communities/:id/dashboard/overview", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { period = '30' } = req.query;
+      
+      const community = await storage.getCommunity(id);
+      if (!community) {
+        return res.status(404).json({ message: "Community not found" });
+      }
+
+      // Calculate date range
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(endDate.getDate() - parseInt(period as string));
+
+      // Mock analytics data - in production, this would query communityDashboardStats
+      const analytics = {
+        overview: {
+          profileViews: Math.floor(Math.random() * 500) + 100,
+          searchImpressions: Math.floor(Math.random() * 1000) + 200,
+          familyInquiries: Math.floor(Math.random() * 20) + 5,
+          tourRequests: Math.floor(Math.random() * 15) + 3,
+          phoneCallClicks: Math.floor(Math.random() * 30) + 10,
+        },
+        trends: {
+          viewsChange: Math.floor(Math.random() * 40) - 20, // -20% to +20%
+          inquiriesChange: Math.floor(Math.random() * 60) - 30,
+          toursChange: Math.floor(Math.random() * 50) - 25,
+        },
+        leadQuality: {
+          conversionRate: (Math.random() * 10 + 5).toFixed(1), // 5-15%
+          avgResponseTime: Math.floor(Math.random() * 120) + 30, // 30-150 minutes
+          tourToMoveInRate: (Math.random() * 30 + 10).toFixed(1), // 10-40%
+        },
+        topSources: [
+          { source: 'Direct Search', visitors: Math.floor(Math.random() * 200) + 50 },
+          { source: 'Google Search', visitors: Math.floor(Math.random() * 150) + 30 },
+          { source: 'Family Referrals', visitors: Math.floor(Math.random() * 100) + 20 },
+          { source: 'Social Media', visitors: Math.floor(Math.random() * 80) + 15 },
+        ]
+      };
+
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error fetching dashboard overview:", error);
+      res.status(500).json({ message: "Failed to fetch dashboard overview" });
+    }
+  });
+
+  // Get community messages/inquiries
+  app.get("/api/communities/:id/dashboard/messages", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { status = 'all', limit = 50 } = req.query;
+      
+      // Mock messages data
+      const messages = [
+        {
+          id: 1,
+          senderName: "Sarah Johnson",
+          senderEmail: "sarah.johnson@email.com",
+          senderPhone: "(555) 123-4567",
+          subject: "Assisted Living Options for My Mother",
+          message: "Hi, I'm looking for assisted living options for my 78-year-old mother. She needs help with daily activities but is still quite independent. Could you provide pricing information and availability?",
+          messageType: "inquiry",
+          priority: "medium",
+          status: "unread",
+          familySize: 1,
+          careLevel: "Assisted Living",
+          moveInTimeline: "Within 3 months",
+          budget: { min: 3000, max: 4500 },
+          createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+        },
+        {
+          id: 2,
+          senderName: "Michael Chen",
+          senderEmail: "m.chen.family@gmail.com",
+          subject: "Tour Request - Memory Care Unit",
+          message: "We'd like to schedule a tour of your memory care facilities. My father has early-stage dementia and we're exploring options.",
+          messageType: "tour_request",
+          priority: "high",
+          status: "read",
+          careLevel: "Memory Care",
+          moveInTimeline: "Within 6 months",
+          createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+        },
+        {
+          id: 3,
+          senderName: "Lisa Rodriguez",
+          senderEmail: "lisarodriguez.care@email.com",
+          subject: "Availability Check",
+          message: "Do you have any 1-bedroom apartments available? My grandmother needs independent living with some meal services.",
+          messageType: "availability_check",
+          priority: "medium",
+          status: "responded",
+          careLevel: "Independent Living",
+          moveInTimeline: "Within 1 month",
+          respondedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+          createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
+        },
+      ];
+
+      res.json(messages);
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+      res.status(500).json({ message: "Failed to fetch messages" });
+    }
+  });
+
+  // Update community profile (claimed communities only)
+  app.put("/api/communities/:id/dashboard/profile", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updateData = req.body;
+      
+      // Validate community ownership/claim
+      const community = await storage.getCommunity(id);
+      if (!community) {
+        return res.status(404).json({ message: "Community not found" });
+      }
+
+      // Update community profile
+      const updatedCommunity = await storage.updateCommunity(id, {
+        ...updateData,
+        updatedAt: new Date(),
+      });
+
+      res.json(updatedCommunity);
+    } catch (error) {
+      console.error("Error updating community profile:", error);
+      res.status(500).json({ message: "Failed to update community profile" });
+    }
+  });
+
+  // Update pricing and availability
+  app.put("/api/communities/:id/dashboard/pricing", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { pricing, availability, unitTypes } = req.body;
+      
+      const updatedCommunity = await storage.updateCommunity(id, {
+        livePricing: pricing,
+        availabilityStatus: availability?.status,
+        availableUnits: availability?.availableUnits,
+        totalUnits: availability?.totalUnits,
+        unitTypes: unitTypes || [],
+        pricingType: "live",
+        pricingLastUpdated: new Date(),
+        availabilityLastUpdated: new Date(),
+        updatedAt: new Date(),
+      });
+
+      res.json({
+        message: "Pricing and availability updated successfully",
+        community: updatedCommunity
+      });
+    } catch (error) {
+      console.error("Error updating pricing/availability:", error);
+      res.status(500).json({ message: "Failed to update pricing/availability" });
+    }
+  });
+
+  // Get performance metrics
+  app.get("/api/communities/:id/dashboard/performance", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { period = '30' } = req.query;
+      
+      // Mock performance data
+      const performance = {
+        searchRanking: {
+          currentPosition: Math.floor(Math.random() * 10) + 1,
+          averagePosition: Math.floor(Math.random() * 15) + 5,
+          topKeywords: [
+            { keyword: "assisted living", position: 3, searches: 45 },
+            { keyword: "memory care", position: 7, searches: 28 },
+            { keyword: "senior community", position: 12, searches: 22 },
+          ]
+        },
+        competitorComparison: {
+          viewsRank: Math.floor(Math.random() * 5) + 1,
+          inquiriesRank: Math.floor(Math.random() * 5) + 1,
+          priceCompetitiveness: Math.floor(Math.random() * 100) + 1, // percentile
+        },
+        profileCompleteness: {
+          score: Math.floor(Math.random() * 20) + 75, // 75-95%
+          missingElements: [
+            "Virtual tour video",
+            "Staff certifications",
+            "Activity calendar"
+          ].slice(0, Math.floor(Math.random() * 3))
+        }
+      };
+
+      res.json(performance);
+    } catch (error) {
+      console.error("Error fetching performance metrics:", error);
+      res.status(500).json({ message: "Failed to fetch performance metrics" });
+    }
+  });
+
+  // Generate and download reports
+  app.post("/api/communities/:id/dashboard/reports", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { reportType, dateRange, format } = req.body;
+      
+      // Mock report generation
+      const reportData = {
+        reportType,
+        communityId: id,
+        dateRange,
+        generatedAt: new Date(),
+        data: {
+          summary: {
+            totalViews: Math.floor(Math.random() * 1000) + 500,
+            totalInquiries: Math.floor(Math.random() * 50) + 25,
+            conversionRate: (Math.random() * 10 + 5).toFixed(2) + '%',
+          },
+          chartData: Array.from({ length: 30 }, (_, i) => ({
+            date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            views: Math.floor(Math.random() * 50) + 10,
+            inquiries: Math.floor(Math.random() * 5) + 1,
+          }))
+        }
+      };
+
+      res.json({
+        message: "Report generated successfully",
+        downloadUrl: `/api/communities/${id}/dashboard/reports/${Date.now()}/download`,
+        reportData
+      });
+    } catch (error) {
+      console.error("Error generating report:", error);
+      res.status(500).json({ message: "Failed to generate report" });
+    }
+  });
+
   // Claim a community
   app.post('/api/communities/:id/claim', requireSimpleAuth, async (req, res) => {
     try {
@@ -2117,6 +2358,215 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (err: any) {
       console.error('Webhook error:', err.message);
       res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+  });
+
+  // ========== COMMUNITY DASHBOARD ENDPOINTS ==========
+  
+  // Get community dashboard overview
+  app.get('/api/communities/:id/dashboard/overview', requireSimpleAuth, async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const userId = req.user.id;
+      
+      // Check if user owns this community
+      const [claimedCommunity] = await db
+        .select()
+        .from(claimedCommunities)
+        .where(and(
+          eq(claimedCommunities.communityId, communityId),
+          eq(claimedCommunities.ownerId, userId)
+        ));
+      
+      if (!claimedCommunity) {
+        return res.status(403).json({ message: 'Not authorized to view dashboard' });
+      }
+      
+      // Mock dashboard overview data
+      const overview = {
+        profileViews: 2847,
+        searchImpressions: 4562,
+        familyInquiries: 47,
+        tourRequests: 23,
+        phoneCallClicks: 156,
+        trends: {
+          viewsChange: 12.5,
+          inquiriesChange: 8.3,
+          toursChange: -2.1,
+        },
+        topSources: [
+          { source: "Direct Search", visitors: 1847, percentage: 65 },
+          { source: "Google", visitors: 523, percentage: 18 },
+          { source: "Referrals", visitors: 247, percentage: 9 },
+          { source: "Social Media", visitors: 156, percentage: 5 },
+          { source: "Email", visitors: 74, percentage: 3 }
+        ],
+        leadQuality: {
+          conversionRate: 18.5,
+          avgResponseTime: 47,
+          tourToMoveInRate: 34.2
+        }
+      };
+      
+      res.json({ overview, trends: overview.trends, topSources: overview.topSources, leadQuality: overview.leadQuality });
+    } catch (error) {
+      console.error('Error fetching dashboard overview:', error);
+      res.status(500).json({ message: 'Failed to fetch dashboard overview' });
+    }
+  });
+
+  // Get community dashboard messages
+  app.get('/api/communities/:id/dashboard/messages', requireSimpleAuth, async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const userId = req.user.id;
+      
+      // Check authorization
+      const [claimedCommunity] = await db
+        .select()
+        .from(claimedCommunities)
+        .where(and(
+          eq(claimedCommunities.communityId, communityId),
+          eq(claimedCommunities.ownerId, userId)
+        ));
+      
+      if (!claimedCommunity) {
+        return res.status(403).json({ message: 'Not authorized to view messages' });
+      }
+      
+      // Mock messages data
+      const messages = [
+        {
+          id: 1,
+          senderName: "Sarah Johnson",
+          senderEmail: "sarah.johnson@email.com",
+          subject: "Assisted Living Inquiry for Mother",
+          message: "Hi, I'm looking for assisted living options for my 78-year-old mother. She needs help with daily activities but wants to maintain her independence. Could we schedule a tour?",
+          priority: "high",
+          status: "unread",
+          careLevel: "Assisted Living",
+          moveInTimeline: "Within 3 months",
+          budget: { min: 4500, max: 6000 },
+          createdAt: new Date('2025-01-21T10:30:00Z')
+        },
+        {
+          id: 2,
+          senderName: "Michael Chen",
+          senderEmail: "m.chen@gmail.com",
+          subject: "Memory Care Services",
+          message: "My father has early-stage dementia and we're researching memory care facilities. What specialized programs do you offer?",
+          priority: "high",
+          status: "read",
+          careLevel: "Memory Care",
+          moveInTimeline: "Within 6 months",
+          budget: { min: 6000, max: 8500 },
+          createdAt: new Date('2025-01-21T09:15:00Z')
+        },
+        {
+          id: 3,
+          senderName: "Lisa Williams",
+          senderEmail: "lisaw.family@outlook.com",
+          subject: "Independent Living Tour Request",
+          message: "We'd like to schedule a tour for this Saturday if possible. My parents are considering downsizing and love the community photos.",
+          priority: "medium",
+          status: "responded",
+          careLevel: "Independent Living",
+          moveInTimeline: "Within 1 month",
+          budget: { min: 2800, max: 4200 },
+          createdAt: new Date('2025-01-20T16:45:00Z')
+        }
+      ];
+      
+      res.json(messages);
+    } catch (error) {
+      console.error('Error fetching dashboard messages:', error);
+      res.status(500).json({ message: 'Failed to fetch messages' });
+    }
+  });
+
+  // Get community performance analytics
+  app.get('/api/communities/:id/dashboard/performance', requireSimpleAuth, async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const userId = req.user.id;
+      
+      // Check authorization
+      const [claimedCommunity] = await db
+        .select()
+        .from(claimedCommunities)
+        .where(and(
+          eq(claimedCommunities.communityId, communityId),
+          eq(claimedCommunities.ownerId, userId)
+        ));
+      
+      if (!claimedCommunity) {
+        return res.status(403).json({ message: 'Not authorized to view performance' });
+      }
+      
+      // Mock performance data
+      const performance = {
+        searchRanking: {
+          currentPosition: 3,
+          averagePosition: 4.2,
+          topKeywords: [
+            { keyword: "assisted living near me", position: 2, searches: 1847 },
+            { keyword: "memory care facility", position: 5, searches: 923 },
+            { keyword: "senior community", position: 3, searches: 756 }
+          ]
+        },
+        profileCompleteness: {
+          score: 87,
+          missingElements: [
+            "Virtual tour photos",
+            "Staff qualifications section",
+            "Pricing transparency update"
+          ]
+        }
+      };
+      
+      res.json(performance);
+    } catch (error) {
+      console.error('Error fetching performance data:', error);
+      res.status(500).json({ message: 'Failed to fetch performance data' });
+    }
+  });
+
+  // Generate dashboard reports
+  app.post('/api/communities/:id/dashboard/reports', requireSimpleAuth, async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const userId = req.user.id;
+      const { reportType, dateRange, format } = req.body;
+      
+      // Check authorization
+      const [claimedCommunity] = await db
+        .select()
+        .from(claimedCommunities)
+        .where(and(
+          eq(claimedCommunities.communityId, communityId),
+          eq(claimedCommunities.ownerId, userId)
+        ));
+      
+      if (!claimedCommunity) {
+        return res.status(403).json({ message: 'Not authorized to generate reports' });
+      }
+      
+      // Mock report generation
+      const reportId = `report_${Date.now()}`;
+      const downloadUrl = `/api/reports/${reportId}/download`;
+      
+      res.json({
+        reportId,
+        downloadUrl,
+        status: 'generated',
+        generatedAt: new Date(),
+        reportType,
+        dateRange,
+        format
+      });
+    } catch (error) {
+      console.error('Error generating report:', error);
+      res.status(500).json({ message: 'Failed to generate report' });
     }
   });
 

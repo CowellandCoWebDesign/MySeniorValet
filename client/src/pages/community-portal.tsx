@@ -813,13 +813,16 @@ export default function CommunityPortal() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
+              <Button 
+                className="h-auto p-4 flex flex-col items-center bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                onClick={() => window.location.href = '/community-dashboard/123'}
+              >
+                <Settings className="w-6 h-6 mb-2" />
+                <span>Dashboard</span>
+              </Button>
               <Button variant="outline" className="h-auto p-4 flex flex-col items-center">
                 <Edit className="w-6 h-6 mb-2" />
                 <span>Update Info</span>
-              </Button>
-              <Button variant="outline" className="h-auto p-4 flex flex-col items-center">
-                <Camera className="w-6 h-6 mb-2" />
-                <span>Manage Photos</span>
               </Button>
               <Button variant="outline" className="h-auto p-4 flex flex-col items-center">
                 <Building className="w-6 h-6 mb-2" />
