@@ -9748,6 +9748,383 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ===============================
+  // STRIPE SUBSCRIPTION ENDPOINTS
+  // ===============================
+  
+  // Initialize Stripe products on first setup
+  app.post('/api/admin/stripe/init', async (req, res) => {
+    try {
+      const { stripeService } = await import('./stripe-service');
+      await stripeService.initializeProducts();
+      res.json({ success: true, message: 'Stripe products initialized successfully' });
+    } catch (error) {
+      console.error('Error initializing Stripe products:', error);
+      res.status(500).json({ error: 'Failed to initialize Stripe products' });
+    }
+  });
+
+  // Get available subscription tiers and add-ons
+  app.get('/api/stripe/products', async (req, res) => {
+    try {
+      const { stripeService } = await import('./stripe-service');
+      const products = await stripeService.getActiveProducts();
+      res.json(products);
+    } catch (error) {
+      console.error('Error fetching Stripe products:', error);
+      res.status(500).json({ error: 'Failed to fetch products' });
+    }
+  });
+
+  // Create checkout session for community subscription
+  app.post('/api/stripe/checkout', async (req, res) => {
+    try {
+      const { communityId, priceId } = req.body;
+      
+      if (!communityId || !priceId) {
+        return res.status(400).json({ error: 'Community ID and price ID required' });
+      }
+
+      const { stripeService } = await import('./stripe-service');
+      const successUrl = `${req.protocol}://${req.get('host')}/community-dashboard/success?session_id={CHECKOUT_SESSION_ID}`;
+      const cancelUrl = `${req.protocol}://${req.get('host')}/community-dashboard/pricing`;
+      
+      const session = await stripeService.createCheckoutSession(
+        parseInt(communityId), 
+        priceId, 
+        successUrl, 
+        cancelUrl
+      );
+      
+      res.json({ sessionUrl: session.url });
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      res.status(500).json({ error: 'Failed to create checkout session' });
+    }
+  });
+
+  // Create customer portal session
+  app.post('/api/stripe/portal', async (req, res) => {
+    try {
+      const { customerId } = req.body;
+      
+      if (!customerId) {
+        return res.status(400).json({ error: 'Customer ID required' });
+      }
+
+      const { stripeService } = await import('./stripe-service');
+      const returnUrl = `${req.protocol}://${req.get('host')}/community-dashboard`;
+      
+      const session = await stripeService.createPortalSession(customerId, returnUrl);
+      res.json({ portalUrl: session.url });
+    } catch (error) {
+      console.error('Error creating portal session:', error);
+      res.status(500).json({ error: 'Failed to create portal session' });
+    }
+  });
+
+  // Get community subscription details
+  app.get('/api/communities/:id/subscription', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) {
+        return res.status(400).json({ error: 'Invalid community ID' });
+      }
+
+      const { stripeService } = await import('./stripe-service');
+      const subscription = await stripeService.getCommunitySubscription(communityId);
+      res.json(subscription || { tier: 'free', status: 'active' });
+    } catch (error) {
+      console.error('Error fetching subscription:', error);
+      res.status(500).json({ error: 'Failed to fetch subscription' });
+    }
+  });
+
+  // Check if community has specific feature access
+  app.get('/api/communities/:id/features/:feature', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const featureName = req.params.feature;
+      
+      if (isNaN(communityId)) {
+        return res.status(400).json({ error: 'Invalid community ID' });
+      }
+
+      const { stripeService } = await import('./stripe-service');
+      const hasAccess = await stripeService.hasFeature(communityId, featureName);
+      res.json({ hasAccess, feature: featureName });
+    } catch (error) {
+      console.error('Error checking feature access:', error);
+      res.status(500).json({ error: 'Failed to check feature access' });
+    }
+  });
+
+  // Stripe webhook handler
+  app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+    try {
+      const sig = req.headers['stripe-signature'] as string;
+      const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+      
+      if (!endpointSecret) {
+        console.error('Stripe webhook secret not configured');
+        return res.status(400).send('Webhook secret not configured');
+      }
+
+      let event;
+      try {
+        const stripe = (await import('stripe')).default;
+        const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY!, {
+          apiVersion: "2024-11-20.acacia",
+        });
+        
+        event = stripeInstance.webhooks.constructEvent(req.body, sig, endpointSecret);
+      } catch (err) {
+        console.error('Webhook signature verification failed:', err);
+        return res.status(400).send(`Webhook Error: ${err}`);
+      }
+
+      const { stripeService } = await import('./stripe-service');
+      await stripeService.handleWebhook(event.type, event.data.object);
+
+      res.json({ received: true });
+    } catch (error) {
+      console.error('Error processing webhook:', error);
+      res.status(500).json({ error: 'Webhook processing failed' });
+    }
+  });
+
+  // ===============================
+  // TOUR TRACKER ENDPOINTS
+  // ===============================
+
+  // Get communities for tour selection (user's favorites + recently viewed)
+  app.get('/api/user/tour-communities', isAuthenticated, async (req, res) => {
+    try {
+      // Get user's favorite communities
+      const favoriteIds = await db
+        .select({ communityId: userFavorites.communityId })
+        .from(userFavorites)
+        .where(eq(userFavorites.userId, req.user.id))
+        .limit(20);
+      
+      if (favoriteIds.length === 0) {
+        // If no favorites, return some popular communities for selection
+        const popularCommunities = await db
+          .select()
+          .from(communities)
+          .where(sql`rating >= 4.0`)
+          .orderBy(desc(communities.rating))
+          .limit(10);
+        
+        return res.json(popularCommunities);
+      }
+      
+      const communityIdsList = favoriteIds.map(f => f.communityId);
+      const favoriteCommunities = await db
+        .select()
+        .from(communities)
+        .where(inArray(communities.id, communityIdsList));
+      
+      res.json(favoriteCommunities);
+    } catch (error) {
+      console.error('Error fetching tour communities:', error);
+      res.status(500).json({ error: 'Failed to fetch communities' });
+    }
+  });
+
+  // Create new tour review
+  app.post('/api/tour-reviews', isAuthenticated, async (req, res) => {
+    try {
+      const { tourReviews, insertTourReviewSchema } = await import('@shared/schema');
+      
+      // Validate request body
+      const validatedData = insertTourReviewSchema.parse({
+        ...req.body,
+        userId: req.user.id,
+      });
+
+      const [tourReview] = await db
+        .insert(tourReviews)
+        .values(validatedData)
+        .returning();
+
+      res.json(tourReview);
+    } catch (error) {
+      console.error('Error creating tour review:', error);
+      res.status(500).json({ error: 'Failed to create tour review' });
+    }
+  });
+
+  // Get user's tour reviews
+  app.get('/api/tour-reviews', isAuthenticated, async (req, res) => {
+    try {
+      const { tourReviews } = await import('@shared/schema');
+      
+      const reviews = await db
+        .select()
+        .from(tourReviews)
+        .leftJoin(communities, eq(tourReviews.communityId, communities.id))
+        .where(eq(tourReviews.userId, req.user.id))
+        .orderBy(desc(tourReviews.createdAt));
+
+      const formattedReviews = reviews.map(row => ({
+        ...row.tour_reviews,
+        community: row.communities
+      }));
+
+      res.json(formattedReviews);
+    } catch (error) {
+      console.error('Error fetching tour reviews:', error);
+      res.status(500).json({ error: 'Failed to fetch tour reviews' });
+    }
+  });
+
+  // Get tour review by ID
+  app.get('/api/tour-reviews/:id', isAuthenticated, async (req, res) => {
+    try {
+      const reviewId = parseInt(req.params.id);
+      if (isNaN(reviewId)) {
+        return res.status(400).json({ error: 'Invalid review ID' });
+      }
+
+      const { tourReviews } = await import('@shared/schema');
+      
+      const [review] = await db
+        .select()
+        .from(tourReviews)
+        .leftJoin(communities, eq(tourReviews.communityId, communities.id))
+        .where(and(
+          eq(tourReviews.id, reviewId),
+          eq(tourReviews.userId, req.user.id)
+        ))
+        .limit(1);
+
+      if (!review) {
+        return res.status(404).json({ error: 'Tour review not found' });
+      }
+
+      const formattedReview = {
+        ...review.tour_reviews,
+        community: review.communities
+      };
+
+      res.json(formattedReview);
+    } catch (error) {
+      console.error('Error fetching tour review:', error);
+      res.status(500).json({ error: 'Failed to fetch tour review' });
+    }
+  });
+
+  // Update tour review
+  app.put('/api/tour-reviews/:id', isAuthenticated, async (req, res) => {
+    try {
+      const reviewId = parseInt(req.params.id);
+      if (isNaN(reviewId)) {
+        return res.status(400).json({ error: 'Invalid review ID' });
+      }
+
+      const { tourReviews } = await import('@shared/schema');
+      
+      // Verify ownership
+      const [existingReview] = await db
+        .select()
+        .from(tourReviews)
+        .where(and(
+          eq(tourReviews.id, reviewId),
+          eq(tourReviews.userId, req.user.id)
+        ))
+        .limit(1);
+
+      if (!existingReview) {
+        return res.status(404).json({ error: 'Tour review not found' });
+      }
+
+      const [updatedReview] = await db
+        .update(tourReviews)
+        .set({
+          ...req.body,
+          updatedAt: new Date(),
+        })
+        .where(eq(tourReviews.id, reviewId))
+        .returning();
+
+      res.json(updatedReview);
+    } catch (error) {
+      console.error('Error updating tour review:', error);
+      res.status(500).json({ error: 'Failed to update tour review' });
+    }
+  });
+
+  // Delete tour review
+  app.delete('/api/tour-reviews/:id', isAuthenticated, async (req, res) => {
+    try {
+      const reviewId = parseInt(req.params.id);
+      if (isNaN(reviewId)) {
+        return res.status(400).json({ error: 'Invalid review ID' });
+      }
+
+      const { tourReviews } = await import('@shared/schema');
+      
+      // Verify ownership and delete
+      const [deletedReview] = await db
+        .delete(tourReviews)
+        .where(and(
+          eq(tourReviews.id, reviewId),
+          eq(tourReviews.userId, req.user.id)
+        ))
+        .returning();
+
+      if (!deletedReview) {
+        return res.status(404).json({ error: 'Tour review not found' });
+      }
+
+      res.json({ success: true, message: 'Tour review deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting tour review:', error);
+      res.status(500).json({ error: 'Failed to delete tour review' });
+    }
+  });
+
+  // Get public tour reviews for a community
+  app.get('/api/communities/:id/tour-reviews', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) {
+        return res.status(400).json({ error: 'Invalid community ID' });
+      }
+
+      const { tourReviews } = await import('@shared/schema');
+      
+      const reviews = await db
+        .select()
+        .from(tourReviews)
+        .leftJoin(users, eq(tourReviews.userId, users.id))
+        .where(and(
+          eq(tourReviews.communityId, communityId),
+          eq(tourReviews.isPublic, true),
+          eq(tourReviews.moderationStatus, 'approved')
+        ))
+        .orderBy(desc(tourReviews.createdAt))
+        .limit(20);
+
+      const publicReviews = reviews.map(row => ({
+        ...row.tour_reviews,
+        user: row.users ? {
+          firstName: row.users.firstName,
+          lastName: row.users.lastName?.charAt(0) + '.',
+        } : null,
+        // Remove sensitive data
+        gpsLocation: undefined,
+        familyNotes: undefined,
+      }));
+
+      res.json(publicReviews);
+    } catch (error) {
+      console.error('Error fetching public tour reviews:', error);
+      res.status(500).json({ error: 'Failed to fetch public reviews' });
+    }
+  });
+
   // TODO: Initialize support resources after database migration is complete
   // await supportResourceService.seedInitialContent();
 

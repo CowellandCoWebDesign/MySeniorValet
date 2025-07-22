@@ -31,6 +31,8 @@ export const users = pgTable("users", {
     mustHaveFeatures?: string[];
     dealBreakers?: string[];
   }>().default({}),
+  stripeCustomerId: text("stripe_customer_id"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
   notifications: json("notifications").$type<{
     emailNotifications: boolean;
     smsNotifications: boolean;
@@ -420,6 +422,28 @@ export const communities = pgTable("communities", {
   // Performance optimization fields
   trendingScore: decimal("trending_score", { precision: 10, scale: 2 }).default("0"), // Pre-calculated trending score for fast sorting
   
+  // Subscription and billing fields for communities
+  subscriptionTier: text("subscription_tier", {
+    enum: ["free", "standard", "featured", "platinum"]
+  }).default("free"),
+  stripeCustomerId: text("stripe_customer_id"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  stripePriceId: text("stripe_price_id"),
+  billingStatus: text("billing_status", {
+    enum: ["active", "past_due", "canceled", "trialing", "incomplete"]
+  }).default("active"),
+  subscriptionEndsAt: timestamp("subscription_ends_at"),
+  trialEndsAt: timestamp("trial_ends_at"),
+  features: json("features").$type<string[]>().default([]),
+  activeAddOns: json("active_add_ons").$type<Array<{
+    id: string;
+    name: string;
+    type: string;
+    price: number;
+    status: string;
+    addedAt: string;
+  }>>().default([]),
+  
   // Veterans Housing / HUD-VASH fields
   facilityType: text("facility_type", { 
     enum: ["Senior Living", "HUD-VASH", "Affordable Senior", "VA CLC", "Veterans Housing"] 
@@ -446,24 +470,6 @@ export const communities = pgTable("communities", {
   claimApprovalStatus: text("claim_approval_status", { 
     enum: ["Pending", "Approved", "Rejected", "Under Review"] 
   }).default("Pending"),
-  
-  // Subscription & Tier Management
-  subscriptionTier: text("subscription_tier", { 
-    enum: ["Basic", "Verified Standard", "Enhanced Showcase", "Platinum Spotlight"] 
-  }).default("Basic"),
-  subscriptionStatus: text("subscription_status", { 
-    enum: ["Active", "Past Due", "Cancelled", "Trial", "Suspended"] 
-  }).default("Active"),
-  subscriptionStartDate: timestamp("subscription_start_date"),
-  subscriptionEndDate: timestamp("subscription_end_date"),
-  billingCycleStart: timestamp("billing_cycle_start"),
-  billingCycleEnd: timestamp("billing_cycle_end"),
-  
-  // Tier-specific limits and usage tracking
-  tierPhotoLimit: integer("tier_photo_limit").default(1),
-  tierVideoLimit: integer("tier_video_limit").default(0),
-  featuredUntil: timestamp("featured_until"),
-  spotlightPriority: integer("spotlight_priority").default(0),
   
   // Community-managed content (available based on tier)
   communityDescription: text("community_description"), // Community-written description
@@ -2430,3 +2436,204 @@ export const communityActivities = pgTable("community_activities", {
 export const insertCommunityActivitySchema = createInsertSchema(communityActivities);
 export type CommunityActivity = typeof communityActivities.$inferSelect;
 export type InsertCommunityActivity = typeof communityActivities.$inferInsert;
+
+// Stripe Products table - stores the 4 core tiers + add-ons
+export const stripeProducts = pgTable("stripe_products", {
+  id: serial("id").primaryKey(),
+  stripeProductId: text("stripe_product_id").notNull().unique(),
+  stripePriceId: text("stripe_price_id").notNull(),
+  name: text("name").notNull(),
+  description: text("description"),
+  tierLevel: text("tier_level", {
+    enum: ["free", "standard", "featured", "platinum"]
+  }),
+  billingType: text("billing_type", {
+    enum: ["none", "monthly", "yearly", "one_time"]
+  }).notNull(),
+  price: integer("price").notNull(), // in cents
+  currency: text("currency").default("usd"),
+  isActive: boolean("is_active").default(true),
+  isAddOn: boolean("is_add_on").default(false),
+  addOnType: text("add_on_type", {
+    enum: ["onboarding", "media", "exposure_boost", "visibility_ai"]
+  }),
+  features: json("features").$type<string[]>().default([]),
+  metadata: json("metadata").$type<Record<string, any>>().default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Community Subscriptions table - tracks active subscriptions
+export const communitySubscriptions = pgTable("community_subscriptions", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  stripeCustomerId: text("stripe_customer_id").notNull(),
+  stripeSubscriptionId: text("stripe_subscription_id").notNull(),
+  stripePriceId: text("stripe_price_id").notNull(),
+  productId: integer("product_id").references(() => stripeProducts.id),
+  status: text("status", {
+    enum: ["active", "past_due", "canceled", "trialing", "incomplete", "incomplete_expired"]
+  }).notNull(),
+  currentPeriodStart: timestamp("current_period_start"),
+  currentPeriodEnd: timestamp("current_period_end"),
+  trialStart: timestamp("trial_start"),
+  trialEnd: timestamp("trial_end"),
+  canceledAt: timestamp("canceled_at"),
+  cancelAtPeriodEnd: boolean("cancel_at_period_end").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Tour Reviews table - comprehensive tour tracking and review system
+export const tourReviews = pgTable("tour_reviews", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  tourType: text("tour_type", {
+    enum: ["virtual", "in_person", "self_guided", "family_visit"]
+  }).notNull(),
+  visitDate: timestamp("visit_date").notNull(),
+  duration: integer("duration_minutes"),
+  
+  // Location and GPS data
+  gpsLocation: json("gps_location").$type<{
+    latitude: number;
+    longitude: number;
+    accuracy: number;
+    timestamp: string;
+  }>(),
+  
+  // Comprehensive evaluation categories
+  cleanliness: json("cleanliness").$type<{
+    rating: number; // 1-5 stars
+    notes: string;
+    photos: string[];
+  }>(),
+  staff: json("staff").$type<{
+    rating: number;
+    notes: string;
+    staffMembersMet: string[];
+  }>(),
+  food: json("food").$type<{
+    rating: number;
+    notes: string;
+    mealsExperienced: string[];
+    photos: string[];
+  }>(),
+  amenities: json("amenities").$type<{
+    rating: number;
+    notes: string;
+    amenitiesUsed: string[];
+    photos: string[];
+  }>(),
+  safety: json("safety").$type<{
+    rating: number;
+    notes: string;
+    safetyFeatures: string[];
+  }>(),
+  overall: json("overall").$type<{
+    rating: number;
+    notes: string;
+    wouldRecommend: boolean;
+    highlights: string[];
+    concerns: string[];
+  }>(),
+  
+  // Family collaboration
+  familyMembers: json("family_members").$type<Array<{
+    name: string;
+    relationship: string;
+    present: boolean;
+  }>>().default([]),
+  familyNotes: text("family_notes"),
+  
+  // Review publication settings
+  isPublic: boolean("is_public").default(false),
+  isVerified: boolean("is_verified").default(false),
+  publishedAt: timestamp("published_at"),
+  moderationStatus: text("moderation_status", {
+    enum: ["pending", "approved", "rejected", "flagged"]
+  }).default("pending"),
+  
+  // Media attachments
+  photos: json("photos").$type<Array<{
+    url: string;
+    caption: string;
+    category: string;
+    timestamp: string;
+  }>>().default([]),
+  videos: json("videos").$type<Array<{
+    url: string;
+    caption: string;
+    duration: number;
+    timestamp: string;
+  }>>().default([]),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Feature access control utility types
+export const subscriptionTiers = {
+  free: {
+    name: "Free Listing",
+    price: 0,
+    features: ["basic_listing", "photo_upload", "license_verified"]
+  },
+  standard: {
+    name: "Standard",
+    price: 79,
+    features: ["pricing_display", "availability_display", "incentive_display", "5_photos", "basic_insights"]
+  },
+  featured: {
+    name: "Featured",
+    price: 149,
+    features: ["priority_placement", "featured_badge", "tour_tools", "unlimited_photos", "analytics_dashboard", "staff_profiles", "responsive_badge", "smart_lead_routing"]
+  },
+  platinum: {
+    name: "Platinum",
+    price: 249,
+    features: ["branding_customization", "api_sync", "admin_portal", "homepage_priority", "featured_badge", "priority_placement", "hipaa_intake"]
+  }
+} as const;
+
+export const addOnProducts = {
+  concierge_setup: {
+    name: "Concierge Setup",
+    price: 99,
+    type: "onboarding",
+    features: ["profile_setup", "photo_upload", "pricing_entry", "community_verification"]
+  },
+  verified_video: {
+    name: "Verified Video Upload",
+    price: 49,
+    type: "media", 
+    features: ["video_hosting", "verified_video_badge", "priority_in_search"]
+  },
+  boosted_spot: {
+    name: "Boosted Featured Spot",
+    price: 99,
+    type: "exposure_boost",
+    recurring: "monthly",
+    features: ["homepage_carousel", "category_top", "boosted_visibility"]
+  },
+  ai_smart_match: {
+    name: "AI Smart Match Boost",
+    price: 29,
+    type: "visibility_ai",
+    recurring: "monthly",
+    features: ["enhanced_matching", "user_context_priority", "tag_relevance_boost"]
+  }
+} as const;
+
+export const insertStripeProductSchema = createInsertSchema(stripeProducts);
+export type InsertStripeProduct = z.infer<typeof insertStripeProductSchema>;
+export type SelectStripeProduct = typeof stripeProducts.$inferSelect;
+
+export const insertCommunitySubscriptionSchema = createInsertSchema(communitySubscriptions);
+export type InsertCommunitySubscription = z.infer<typeof insertCommunitySubscriptionSchema>;
+export type SelectCommunitySubscription = typeof communitySubscriptions.$inferSelect;
+
+export const insertTourReviewSchema = createInsertSchema(tourReviews);
+export type InsertTourReview = z.infer<typeof insertTourReviewSchema>;
+export type SelectTourReview = typeof tourReviews.$inferSelect;

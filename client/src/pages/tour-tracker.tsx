@@ -1,288 +1,300 @@
-import { useState } from "react";
-import { useLocation, useParams, useRoute } from "wouter";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect, useRef } from 'react';
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-import { createTourSchema, type CreateTour, type Community } from "@shared/schema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { 
-  Camera, 
-  DollarSign, 
-  Users, 
-  MapPin, 
-  Calendar, 
-  Clock, 
-  Star, 
-  Plus, 
-  Minus,
-  Upload,
-  Save,
-  ArrowLeft,
-  AlertCircle,
-  CheckCircle,
-  FileImage,
-  Home,
-  Utensils,
-  Dumbbell,
-  Car,
-  X
-} from "lucide-react";
-import { format } from "date-fns";
-import ActivitiesCalendar from "@/components/activities-calendar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import { MapPin, Camera, Star, Users, Clock, Smartphone, CheckCircle, AlertCircle } from "lucide-react";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { Link } from "wouter";
 
-interface TourTrackerProps {
-  tourId?: string;
-  communityId?: string;
+interface Community {
+  id: number;
+  name: string;
+  address: string;
+  city: string;
+  state: string;
+  imageUrl?: string;
 }
 
-interface PhotoUpload {
-  file: File;
-  url: string;
-  caption?: string;
-  category: "unit" | "common_area" | "amenity" | "exterior" | "dining" | "activity" | "staff" | "document" | "other";
-  notes?: string;
+interface TourReview {
+  id: number;
+  communityId: number;
+  community?: Community;
+  tourType: string;
+  visitDate: string;
+  duration?: number;
+  cleanliness?: { rating: number; notes: string; photos: string[] };
+  staff?: { rating: number; notes: string; staffMembersMet: string[] };
+  food?: { rating: number; notes: string; mealsExperienced: string[]; photos: string[] };
+  amenities?: { rating: number; notes: string; amenitiesUsed: string[]; photos: string[] };
+  safety?: { rating: number; notes: string; safetyFeatures: string[] };
+  overall?: { rating: number; notes: string; wouldRecommend: boolean; highlights: string[]; concerns: string[] };
+  familyMembers?: Array<{ name: string; relationship: string; present: boolean }>;
+  familyNotes?: string;
+  isPublic: boolean;
+  photos: Array<{ url: string; caption: string; category: string; timestamp: string }>;
+  gpsLocation?: { latitude: number; longitude: number; accuracy: number; timestamp: string };
+  createdAt: string;
 }
 
-const photoCategoryIcons = {
-  unit: Home,
-  common_area: Users,
-  amenity: Dumbbell,
-  exterior: MapPin,
-  dining: Utensils,
-  activity: Star,
-  staff: Users,
-  document: FileImage,
-  other: Camera
+const StarRating = ({ rating, onRatingChange, disabled = false }: { 
+  rating: number; 
+  onRatingChange?: (rating: number) => void;
+  disabled?: boolean;
+}) => {
+  return (
+    <div className="flex gap-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <Star
+          key={star}
+          className={`h-5 w-5 cursor-pointer transition-colors ${
+            star <= rating 
+              ? "fill-yellow-400 text-yellow-400" 
+              : "text-gray-300 hover:text-yellow-300"
+          } ${disabled ? "cursor-default" : ""}`}
+          onClick={() => !disabled && onRatingChange?.(star)}
+        />
+      ))}
+    </div>
+  );
 };
 
-const photoCategoryLabels = {
-  unit: "Unit/Apartment",
-  common_area: "Common Areas",
-  amenity: "Amenities",
-  exterior: "Exterior/Grounds",
-  dining: "Dining Areas",
-  activity: "Activities",
-  staff: "Staff",
-  document: "Documents",
-  other: "Other"
-};
+const PhotoUpload = ({ 
+  photos, 
+  onPhotoAdd, 
+  category 
+}: { 
+  photos: Array<{ url: string; caption: string; category: string; timestamp: string }>; 
+  onPhotoAdd: (file: File, caption: string, category: string) => void;
+  category: string;
+}) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [caption, setCaption] = useState("");
 
-export default function TourTracker({ tourId, communityId }: TourTrackerProps) {
-  const { user, isAuthenticated } = useAuth();
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [location, setLocation] = useLocation();
-  const [currentTab, setCurrentTab] = useState("overview");
-  const [photos, setPhotos] = useState<PhotoUpload[]>([]);
-  const [unitsViewed, setUnitsViewed] = useState<any[]>([]);
-  const [followUpActions, setFollowUpActions] = useState<any[]>([]);
-  const [highlights, setHighlights] = useState<{
-    positives: string[];
-    concerns: string[];
-    standoutFeatures: string[];
-  }>({
-    positives: [],
-    concerns: [],
-    standoutFeatures: []
-  });
-
-  // Get route parameters
-  const [, params] = useRoute("/tour-tracker/:communityId");
-  const [, editParams] = useRoute("/edit-tour/:tourId");
-  
-  const routeCommunityId = params?.communityId || communityId;
-  const routeTourId = editParams?.tourId || tourId;
-
-  // Get community data
-  const { data: community } = useQuery({
-    queryKey: ["/api/communities", routeCommunityId],
-    enabled: !!routeCommunityId,
-  });
-
-  // Get tour data if editing
-  const { data: tour } = useQuery({
-    queryKey: ["/api/tours", routeTourId],
-    enabled: !!routeTourId,
-  });
-
-  const form = useForm<CreateTour>({
-    resolver: zodResolver(createTourSchema),
-    defaultValues: {
-      userId: user?.id || 0,
-      communityId: parseInt(routeCommunityId || "0"),
-      tourDate: new Date(),
-      tourType: "in_person",
-      tourExperienceType: "standard",
-      status: "completed",
-      attendeeCount: 1,
-      tourNotes: "",
-      overallRating: 5,
-      wouldRecommend: true,
-      likelihood: 8,
-      tourPhotos: [],
-      unitsViewed: [],
-      highlights: {
-        positives: [],
-        concerns: [],
-        standoutFeatures: []
-      },
-      pricingInfo: {
-        moveInCosts: {}
-      },
-      staffInteraction: {
-        professionalism: 5,
-        knowledgeLevel: 5,
-        responsiveness: 5
-      },
-      followUpActions: []
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      onPhotoAdd(file, caption, category);
+      setCaption("");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
+  };
+
+  const categoryPhotos = photos.filter(p => p.category === category);
+
+  return (
+    <div className="space-y-3">
+      <div className="flex gap-2">
+        <Input
+          placeholder="Photo caption (optional)"
+          value={caption}
+          onChange={(e) => setCaption(e.target.value)}
+          className="flex-1"
+        />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <Camera className="h-4 w-4 mr-2" />
+          Add Photo
+        </Button>
+      </div>
+      
+      {categoryPhotos.length > 0 && (
+        <div className="grid grid-cols-2 gap-2">
+          {categoryPhotos.map((photo, index) => (
+            <div key={index} className="relative group">
+              <img 
+                src={photo.url} 
+                alt={photo.caption || `${category} photo`}
+                className="w-full h-24 object-cover rounded-lg"
+              />
+              {photo.caption && (
+                <p className="text-xs text-gray-600 mt-1 truncate">{photo.caption}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default function TourTracker() {
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const { toast } = useToast();
+  const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
+  const [tourForm, setTourForm] = useState({
+    tourType: "",
+    visitDate: "",
+    duration: "",
+    cleanliness: { rating: 0, notes: "", photos: [] },
+    staff: { rating: 0, notes: "", staffMembersMet: [] },
+    food: { rating: 0, notes: "", mealsExperienced: [], photos: [] },
+    amenities: { rating: 0, notes: "", amenitiesUsed: [], photos: [] },
+    safety: { rating: 0, notes: "", safetyFeatures: [] },
+    overall: { rating: 0, notes: "", wouldRecommend: false, highlights: [], concerns: [] },
+    familyMembers: [],
+    familyNotes: "",
+    isPublic: false,
+  });
+  const [photos, setPhotos] = useState<Array<{ url: string; caption: string; category: string; timestamp: string }>>([]);
+  const [gpsLocation, setGpsLocation] = useState<{ latitude: number; longitude: number; accuracy: number } | null>(null);
+
+  // Fetch user communities (favorites/recently viewed)
+  const { data: communities = [] } = useQuery({
+    queryKey: ['/api/user/tour-communities'],
+    enabled: isAuthenticated,
   });
 
-  const saveTourMutation = useMutation({
-    mutationFn: async (data: CreateTour) => {
-      const endpoint = routeTourId ? `/api/tours/${routeTourId}` : "/api/tours";
-      const method = routeTourId ? "PUT" : "POST";
-      return await apiRequest(endpoint, {
-        method,
-        body: JSON.stringify(data)
-      });
+  // Fetch existing tour reviews
+  const { data: tourReviews = [], isLoading: reviewsLoading } = useQuery({
+    queryKey: ['/api/tour-reviews'],
+    enabled: isAuthenticated,
+  });
+
+  const createTourReviewMutation = useMutation({
+    mutationFn: async (reviewData: any) => {
+      return await apiRequest('POST', '/api/tour-reviews', reviewData);
     },
     onSuccess: () => {
       toast({
-        title: "Tour saved successfully!",
-        description: "Your tour information has been saved.",
+        title: "Tour Review Saved!",
+        description: "Your tour experience has been recorded successfully.",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/tours"] });
-      if (!routeTourId) {
-        setLocation("/dashboard");
-      }
+      queryClient.invalidateQueries({ queryKey: ['/api/tour-reviews'] });
+      resetForm();
     },
     onError: (error) => {
       toast({
-        title: "Error saving tour",
-        description: error.message,
+        title: "Error Saving Review",
+        description: "There was an issue saving your tour review. Please try again.",
         variant: "destructive",
       });
-    }
+    },
   });
 
-  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files) {
-      Array.from(files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const newPhoto: PhotoUpload = {
-            file,
-            url: e.target?.result as string,
-            category: "other",
-            caption: "",
-            notes: ""
-          };
-          setPhotos(prev => [...prev, newPhoto]);
-        };
-        reader.readAsDataURL(file);
-      });
+  // Get GPS location
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setGpsLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            accuracy: position.coords.accuracy,
+          });
+        },
+        (error) => {
+          console.warn("GPS location not available:", error);
+        }
+      );
     }
+  }, []);
+
+  const resetForm = () => {
+    setTourForm({
+      tourType: "",
+      visitDate: "",
+      duration: "",
+      cleanliness: { rating: 0, notes: "", photos: [] },
+      staff: { rating: 0, notes: "", staffMembersMet: [] },
+      food: { rating: 0, notes: "", mealsExperienced: [], photos: [] },
+      amenities: { rating: 0, notes: "", amenitiesUsed: [], photos: [] },
+      safety: { rating: 0, notes: "", safetyFeatures: [] },
+      overall: { rating: 0, notes: "", wouldRecommend: false, highlights: [], concerns: [] },
+      familyMembers: [],
+      familyNotes: "",
+      isPublic: false,
+    });
+    setPhotos([]);
+    setSelectedCommunity(null);
   };
 
-  const removePhoto = (index: number) => {
-    setPhotos(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const addUnit = () => {
-    setUnitsViewed(prev => [...prev, {
-      unitType: "",
-      price: 0,
-      availability: "",
-      impressions: "",
-      condition: "good"
-    }]);
-  };
-
-  const removeUnit = (index: number) => {
-    setUnitsViewed(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const addFollowUpAction = () => {
-    setFollowUpActions(prev => [...prev, {
-      action: "",
-      completed: false,
-      notes: ""
-    }]);
-  };
-
-  const removeFollowUpAction = (index: number) => {
-    setFollowUpActions(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const addHighlight = (type: "positives" | "concerns" | "standoutFeatures") => {
-    setHighlights(prev => ({
-      ...prev,
-      [type]: [...prev[type], ""]
-    }));
-  };
-
-  const removeHighlight = (type: "positives" | "concerns" | "standoutFeatures", index: number) => {
-    setHighlights(prev => ({
-      ...prev,
-      [type]: prev[type].filter((_, i) => i !== index)
-    }));
-  };
-
-  const onSubmit = (data: CreateTour) => {
-    // Add photos, units, and other dynamic data
-    const formData = {
-      ...data,
-      tourPhotos: photos.map(p => ({
-        url: p.url,
-        caption: p.caption,
-        category: p.category,
+  const handlePhotoAdd = (file: File, caption: string, category: string) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const newPhoto = {
+        url: e.target?.result as string,
+        caption,
+        category,
         timestamp: new Date().toISOString(),
-        notes: p.notes
-      })),
-      unitsViewed,
-      highlights,
-      followUpActions
+      };
+      setPhotos(prev => [...prev, newPhoto]);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const updateRating = (category: string, rating: number) => {
+    setTourForm(prev => ({
+      ...prev,
+      [category]: { ...prev[category], rating }
+    }));
+  };
+
+  const updateNotes = (category: string, notes: string) => {
+    setTourForm(prev => ({
+      ...prev,
+      [category]: { ...prev[category], notes }
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedCommunity) {
+      toast({
+        title: "Select Community",
+        description: "Please select a community for your tour review.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const reviewData = {
+      ...tourForm,
+      communityId: selectedCommunity.id,
+      duration: tourForm.duration ? parseInt(tourForm.duration) : null,
+      photos,
+      gpsLocation: gpsLocation ? {
+        ...gpsLocation,
+        timestamp: new Date().toISOString(),
+      } : null,
     };
 
-    saveTourMutation.mutate(formData);
+    createTourReviewMutation.mutate(reviewData);
   };
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="w-96">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-amber-500" />
-              Authentication Required
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground mb-4">
-              Please sign in to use the tour tracker.
+      <div className="container mx-auto px-4 py-8">
+        <Card>
+          <CardContent className="text-center py-12">
+            <h2 className="text-2xl font-bold mb-4">Sign In Required</h2>
+            <p className="text-gray-600 mb-6">
+              Please sign in to track your community tours and share your experiences.
             </p>
-            <Button onClick={() => setLocation("/login")} className="w-full">
-              Sign In
-            </Button>
+            <Link href="/login">
+              <Button>Sign In</Button>
+            </Link>
           </CardContent>
         </Card>
       </div>
@@ -290,982 +302,424 @@ export default function TourTracker({ tourId, communityId }: TourTrackerProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <div className="flex items-center gap-4 mb-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setLocation("/dashboard")}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Dashboard
-            </Button>
-            <Badge variant="outline" className="bg-blue-100 text-blue-800">
-              Tour Tracker
-            </Badge>
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                {routeTourId ? "Edit Tour" : "New Tour Tracker"}
-              </h1>
-              {community && (
-                <p className="text-lg text-gray-600 flex items-center gap-2">
-                  <MapPin className="w-5 h-5" />
-                  {community.name} - {community.city}, {community.state}
-                </p>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={() => form.handleSubmit(onSubmit)()}
-                disabled={saveTourMutation.isPending}
-                className="flex items-center gap-2"
-              >
-                <Save className="w-4 h-4" />
-                {saveTourMutation.isPending ? "Saving..." : "Save Tour"}
-              </Button>
-            </div>
-          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Tour Tracker</h1>
+          <p className="text-gray-600">
+            Document your community visits, share experiences with family, and help other families make informed decisions.
+          </p>
         </div>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-7">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="activities">Activities</TabsTrigger>
-              <TabsTrigger value="photos">Photos</TabsTrigger>
-              <TabsTrigger value="units">Units</TabsTrigger>
-              <TabsTrigger value="pricing">Pricing</TabsTrigger>
-              <TabsTrigger value="staff">Staff</TabsTrigger>
-              <TabsTrigger value="summary">Summary</TabsTrigger>
-            </TabsList>
+        <Tabs defaultValue="new-review" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="new-review">New Tour Review</TabsTrigger>
+            <TabsTrigger value="my-reviews">My Reviews ({tourReviews.length})</TabsTrigger>
+          </TabsList>
 
-            {/* Overview Tab */}
-            <TabsContent value="overview" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Calendar className="w-5 h-5" />
-                      Tour Details
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="tourDate">Tour Date</Label>
-                        <Input
-                          id="tourDate"
-                          type="datetime-local"
-                          {...form.register("tourDate")}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="tourType">Tour Type</Label>
-                        <Select
-                          value={form.watch("tourType")}
-                          onValueChange={(value) => form.setValue("tourType", value as any)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select tour type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="in_person">In-Person</SelectItem>
-                            <SelectItem value="virtual">Virtual</SelectItem>
-                            <SelectItem value="group">Group Tour</SelectItem>
-                            <SelectItem value="private">Private Tour</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="tourExperienceType">Tour Experience Type</Label>
-                      <Select
-                        value={form.watch("tourExperienceType")}
-                        onValueChange={(value) => form.setValue("tourExperienceType", value as any)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select experience type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="standard">Standard Tour</SelectItem>
-                          <SelectItem value="meal_tour">Meal Tour</SelectItem>
-                          <SelectItem value="event_tour">Event Tour</SelectItem>
-                          <SelectItem value="unit_focused">Unit Focused</SelectItem>
-                          <SelectItem value="open_house">Open House</SelectItem>
-                          <SelectItem value="activity_focused">Activity Focused</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <p className="text-sm text-gray-500 mt-1">
-                        Choose the type of tour experience that best fits your visit
-                      </p>
-                    </div>
-
-                    {form.watch("tourExperienceType") === "meal_tour" && (
-                      <div>
-                        <Label htmlFor="mealType">Meal Type</Label>
-                        <Select
-                          value={form.watch("mealType")}
-                          onValueChange={(value) => form.setValue("mealType", value as any)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select meal type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="breakfast">Breakfast</SelectItem>
-                            <SelectItem value="lunch">Lunch</SelectItem>
-                            <SelectItem value="dinner">Dinner</SelectItem>
-                            <SelectItem value="snack_time">Snack Time</SelectItem>
-                            <SelectItem value="happy_hour">Happy Hour</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
-
-                    {form.watch("tourExperienceType") === "event_tour" && (
-                      <div>
-                        <Label htmlFor="eventType">Event Type</Label>
-                        <Select
-                          value={form.watch("eventType")}
-                          onValueChange={(value) => form.setValue("eventType", value as any)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select event type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="live_entertainment">Live Entertainment</SelectItem>
-                            <SelectItem value="happy_hour">Happy Hour</SelectItem>
-                            <SelectItem value="bingo">Bingo</SelectItem>
-                            <SelectItem value="fundraiser">Fundraiser</SelectItem>
-                            <SelectItem value="holiday_celebration">Holiday Celebration</SelectItem>
-                            <SelectItem value="exercise_class">Exercise Class</SelectItem>
-                            <SelectItem value="art_activity">Art Activity</SelectItem>
-                            <SelectItem value="music_therapy">Music Therapy</SelectItem>
-                            <SelectItem value="social_hour">Social Hour</SelectItem>
-                            <SelectItem value="educational_seminar">Educational Seminar</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
-
-                    <div>
-                      <Label htmlFor="activityLevel">Community Activity Level</Label>
-                      <Select
-                        value={form.watch("activityLevel")}
-                        onValueChange={(value) => form.setValue("activityLevel", value as any)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select activity level" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="high">High Activity - Lots going on</SelectItem>
-                          <SelectItem value="medium">Medium Activity - Some activities</SelectItem>
-                          <SelectItem value="low">Low Activity - Quiet time</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <p className="text-sm text-gray-500 mt-1">
-                        How busy was the community during your visit?
-                      </p>
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="attendeeCount">Number of Attendees</Label>
-                      <Input
-                        id="attendeeCount"
-                        type="number"
-                        min="1"
-                        {...form.register("attendeeCount", { valueAsNumber: true })}
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="tourNotes">Tour Notes</Label>
-                      <Textarea
-                        id="tourNotes"
-                        rows={4}
-                        placeholder="General notes about the tour..."
-                        {...form.register("tourNotes")}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Star className="w-5 h-5" />
-                      Overall Impression
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label htmlFor="overallRating">Overall Rating (1-5)</Label>
-                      <Input
-                        id="overallRating"
-                        type="number"
-                        min="1"
-                        max="5"
-                        {...form.register("overallRating", { valueAsNumber: true })}
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="likelihood">Likelihood to Move In (1-10)</Label>
-                      <Input
-                        id="likelihood"
-                        type="number"
-                        min="1"
-                        max="10"
-                        {...form.register("likelihood", { valueAsNumber: true })}
-                      />
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id="wouldRecommend"
-                        {...form.register("wouldRecommend")}
-                      />
-                      <Label htmlFor="wouldRecommend">Would recommend to others</Label>
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="overallImpression">Overall Impression</Label>
-                      <Select
-                        value={form.watch("overallImpression")}
-                        onValueChange={(value) => form.setValue("overallImpression", value as any)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select impression" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="very_positive">Very Positive</SelectItem>
-                          <SelectItem value="positive">Positive</SelectItem>
-                          <SelectItem value="neutral">Neutral</SelectItem>
-                          <SelectItem value="negative">Negative</SelectItem>
-                          <SelectItem value="very_negative">Very Negative</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            {/* Activities Tab */}
-            <TabsContent value="activities" className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div>
-                  <ActivitiesCalendar 
-                    communityId={community?.id || 0}
-                    onTourTimeSelected={(date, time, activityLevel, suggestedExperience) => {
-                      // Auto-populate form fields based on selected activity
-                      form.setValue("tourDate", `${date}T${time}`);
-                      form.setValue("activityLevel", activityLevel as any);
-                      form.setValue("tourExperienceType", suggestedExperience as any);
-                      
-                      // Switch to overview tab to show updated form
-                      setCurrentTab("overview");
-                    }}
-                  />
-                </div>
-                
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Tour Experience Types</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-4">
-                      <div className="border rounded-lg p-4">
-                        <h4 className="font-medium text-gray-900 mb-2">Meal Tours</h4>
-                        <p className="text-sm text-gray-600 mb-2">
-                          Experience dining during breakfast, lunch, or dinner service
-                        </p>
-                        <div className="text-xs text-gray-500">
-                          ✓ Meet residents during social dining time<br/>
-                          ✓ Sample the food quality and service<br/>
-                          ✓ Observe community atmosphere during meals
-                        </div>
-                      </div>
-                      
-                      <div className="border rounded-lg p-4">
-                        <h4 className="font-medium text-gray-900 mb-2">Event Tours</h4>
-                        <p className="text-sm text-gray-600 mb-2">
-                          Visit during live entertainment, bingo, or special events
-                        </p>
-                        <div className="text-xs text-gray-500">
-                          ✓ See the community's vibrant social life<br/>
-                          ✓ Meet active, engaged residents<br/>
-                          ✓ Experience the energy and programming
-                        </div>
-                      </div>
-                      
-                      <div className="border rounded-lg p-4">
-                        <h4 className="font-medium text-gray-900 mb-2">Unit-Focused Tours</h4>
-                        <p className="text-sm text-gray-600 mb-2">
-                          Quiet time tours focusing on available units and facilities
-                        </p>
-                        <div className="text-xs text-gray-500">
-                          ✓ Detailed unit inspection without distractions<br/>
-                          ✓ In-depth facility tour and amenity review<br/>
-                          ✓ Quality time with staff for questions
-                        </div>
-                      </div>
-                      
-                      <div className="border rounded-lg p-4">
-                        <h4 className="font-medium text-gray-900 mb-2">Activity-Focused Tours</h4>
-                        <p className="text-sm text-gray-600 mb-2">
-                          Experience specific activities like exercise classes or therapy
-                        </p>
-                        <div className="text-xs text-gray-500">
-                          ✓ Observe care quality and resident engagement<br/>
-                          ✓ Meet therapy and activity staff<br/>
-                          ✓ Understand daily programming and schedules
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            {/* Photos Tab */}
-            <TabsContent value="photos" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Camera className="w-5 h-5" />
-                    Tour Photos
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="mb-6">
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                      <input
-                        type="file"
-                        multiple
-                        accept="image/*"
-                        onChange={handlePhotoUpload}
-                        className="hidden"
-                        id="photo-upload"
-                      />
-                      <Label htmlFor="photo-upload" className="cursor-pointer">
-                        <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                        <p className="text-lg font-medium text-gray-700">
-                          Click to upload photos
-                        </p>
-                        <p className="text-sm text-gray-500 mt-2">
-                          Upload photos from your tour (JPG, PNG, HEIC)
-                        </p>
-                      </Label>
-                    </div>
-                  </div>
-
-                  {photos.length > 0 && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {photos.map((photo, index) => (
-                        <div key={index} className="relative bg-white rounded-lg shadow-sm border">
-                          <img
-                            src={photo.url}
-                            alt={photo.caption || "Tour photo"}
-                            className="w-full h-48 object-cover rounded-t-lg"
-                          />
-                          <div className="p-4">
-                            <div className="space-y-2">
-                              <Select
-                                value={photo.category}
-                                onValueChange={(value) => {
-                                  const newPhotos = [...photos];
-                                  newPhotos[index].category = value as any;
-                                  setPhotos(newPhotos);
-                                }}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Category" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {Object.entries(photoCategoryLabels).map(([key, label]) => (
-                                    <SelectItem key={key} value={key}>
-                                      {label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              
-                              <Input
-                                placeholder="Caption..."
-                                value={photo.caption || ""}
-                                onChange={(e) => {
-                                  const newPhotos = [...photos];
-                                  newPhotos[index].caption = e.target.value;
-                                  setPhotos(newPhotos);
-                                }}
-                              />
-                              
-                              <Textarea
-                                placeholder="Notes about this photo..."
-                                value={photo.notes || ""}
-                                onChange={(e) => {
-                                  const newPhotos = [...photos];
-                                  newPhotos[index].notes = e.target.value;
-                                  setPhotos(newPhotos);
-                                }}
-                                rows={2}
-                              />
-                            </div>
-                          </div>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => removePhoto(index)}
-                            className="absolute top-2 right-2"
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Units Tab */}
-            <TabsContent value="units" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Home className="w-5 h-5" />
-                    Units Viewed
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="mb-4">
-                    <Button
-                      type="button"
-                      onClick={addUnit}
-                      className="flex items-center gap-2"
-                    >
-                      <Plus className="w-4 h-4" />
-                      Add Unit
-                    </Button>
-                  </div>
-
-                  {unitsViewed.length > 0 && (
-                    <div className="space-y-4">
-                      {unitsViewed.map((unit, index) => (
-                        <Card key={index} className="border-l-4 border-l-blue-500">
-                          <CardContent className="p-4">
-                            <div className="flex items-center justify-between mb-4">
-                              <h4 className="font-semibold">Unit {index + 1}</h4>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => removeUnit(index)}
-                              >
-                                <Minus className="w-4 h-4" />
-                              </Button>
-                            </div>
-                            
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                              <div>
-                                <Label>Unit Type</Label>
-                                <Input
-                                  placeholder="Studio, 1BR, 2BR..."
-                                  value={unit.unitType}
-                                  onChange={(e) => {
-                                    const newUnits = [...unitsViewed];
-                                    newUnits[index].unitType = e.target.value;
-                                    setUnitsViewed(newUnits);
-                                  }}
-                                />
-                              </div>
-                              
-                              <div>
-                                <Label>Price</Label>
-                                <Input
-                                  type="number"
-                                  placeholder="Monthly price"
-                                  value={unit.price}
-                                  onChange={(e) => {
-                                    const newUnits = [...unitsViewed];
-                                    newUnits[index].price = parseFloat(e.target.value);
-                                    setUnitsViewed(newUnits);
-                                  }}
-                                />
-                              </div>
-                              
-                              <div>
-                                <Label>Availability</Label>
-                                <Input
-                                  placeholder="Available now, 30 days..."
-                                  value={unit.availability}
-                                  onChange={(e) => {
-                                    const newUnits = [...unitsViewed];
-                                    newUnits[index].availability = e.target.value;
-                                    setUnitsViewed(newUnits);
-                                  }}
-                                />
-                              </div>
-                              
-                              <div>
-                                <Label>Condition</Label>
-                                <Select
-                                  value={unit.condition}
-                                  onValueChange={(value) => {
-                                    const newUnits = [...unitsViewed];
-                                    newUnits[index].condition = value;
-                                    setUnitsViewed(newUnits);
-                                  }}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="excellent">Excellent</SelectItem>
-                                    <SelectItem value="good">Good</SelectItem>
-                                    <SelectItem value="fair">Fair</SelectItem>
-                                    <SelectItem value="needs_improvement">Needs Improvement</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                            </div>
-                            
-                            <div className="mt-4">
-                              <Label>Impressions</Label>
-                              <Textarea
-                                placeholder="Your impressions of this unit..."
-                                value={unit.impressions}
-                                onChange={(e) => {
-                                  const newUnits = [...unitsViewed];
-                                  newUnits[index].impressions = e.target.value;
-                                  setUnitsViewed(newUnits);
-                                }}
-                                rows={3}
-                              />
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Pricing Tab */}
-            <TabsContent value="pricing" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <DollarSign className="w-5 h-5" />
-                      Quoted Pricing
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="priceMin">Minimum Price</Label>
-                        <Input
-                          id="priceMin"
-                          type="number"
-                          placeholder="3000"
-                          {...form.register("pricingInfo.quotedPrice.min", { valueAsNumber: true })}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="priceMax">Maximum Price</Label>
-                        <Input
-                          id="priceMax"
-                          type="number"
-                          placeholder="5000"
-                          {...form.register("pricingInfo.quotedPrice.max", { valueAsNumber: true })}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="careLevel">Care Level</Label>
-                      <Input
-                        id="careLevel"
-                        placeholder="Independent Living, Assisted Living..."
-                        {...form.register("pricingInfo.quotedPrice.careLevel")}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Move-In Costs</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="securityDeposit">Security Deposit</Label>
-                        <Input
-                          id="securityDeposit"
-                          type="number"
-                          placeholder="2000"
-                          {...form.register("pricingInfo.moveInCosts.securityDeposit", { valueAsNumber: true })}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="firstMonthRent">First Month Rent</Label>
-                        <Input
-                          id="firstMonthRent"
-                          type="number"
-                          placeholder="4000"
-                          {...form.register("pricingInfo.moveInCosts.firstMonthRent", { valueAsNumber: true })}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="applicationFee">Application Fee</Label>
-                        <Input
-                          id="applicationFee"
-                          type="number"
-                          placeholder="100"
-                          {...form.register("pricingInfo.moveInCosts.applicationFee", { valueAsNumber: true })}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="adminFee">Admin Fee</Label>
-                        <Input
-                          id="adminFee"
-                          type="number"
-                          placeholder="250"
-                          {...form.register("pricingInfo.moveInCosts.adminFee", { valueAsNumber: true })}
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Rent Increases</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="rentFrequency">Increase Frequency</Label>
-                    <Select
-                      value={form.watch("pricingInfo.rentIncrease.frequency")}
-                      onValueChange={(value) => form.setValue("pricingInfo.rentIncrease.frequency", value as any)}
-                    >
+          <TabsContent value="new-review">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Smartphone className="h-5 w-5" />
+                  Document Your Visit
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Community Selection */}
+                  <div className="space-y-2">
+                    <Label>Community Visited *</Label>
+                    <Select onValueChange={(value) => {
+                      const community = communities.find((c: Community) => c.id.toString() === value);
+                      setSelectedCommunity(community || null);
+                    }}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select frequency" />
+                        <SelectValue placeholder="Select a community..." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="annual">Annual</SelectItem>
-                        <SelectItem value="biannual">Biannual</SelectItem>
-                        <SelectItem value="as_needed">As Needed</SelectItem>
+                        {communities.map((community: Community) => (
+                          <SelectItem key={community.id} value={community.id.toString()}>
+                            {community.name} - {community.city}, {community.state}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
-                  
-                  <div>
-                    <Label htmlFor="averagePercentage">Average Percentage Increase</Label>
-                    <Input
-                      id="averagePercentage"
-                      type="number"
-                      placeholder="5"
-                      step="0.1"
-                      {...form.register("pricingInfo.rentIncrease.averagePercentage", { valueAsNumber: true })}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="nextIncrease">Next Planned Increase</Label>
-                    <Input
-                      id="nextIncrease"
-                      type="date"
-                      {...form.register("pricingInfo.rentIncrease.nextPlannedIncrease")}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
 
-            {/* Staff Tab */}
-            <TabsContent value="staff" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="w-5 h-5" />
-                    Staff Interaction
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="tourGuide">Tour Guide Name</Label>
-                    <Input
-                      id="tourGuide"
-                      placeholder="Staff member who gave the tour"
-                      {...form.register("staffInteraction.tourGuide")}
-                    />
-                  </div>
-                  
+                  {/* Visit Details */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <Label htmlFor="professionalism">Professionalism (1-5)</Label>
+                    <div className="space-y-2">
+                      <Label>Tour Type</Label>
+                      <Select onValueChange={(value) => setTourForm(prev => ({ ...prev, tourType: value }))}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select tour type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="in_person">In-Person Tour</SelectItem>
+                          <SelectItem value="virtual">Virtual Tour</SelectItem>
+                          <SelectItem value="self_guided">Self-Guided Visit</SelectItem>
+                          <SelectItem value="family_visit">Family Visit</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Visit Date</Label>
                       <Input
-                        id="professionalism"
-                        type="number"
-                        min="1"
-                        max="5"
-                        {...form.register("staffInteraction.professionalism", { valueAsNumber: true })}
+                        type="datetime-local"
+                        value={tourForm.visitDate}
+                        onChange={(e) => setTourForm(prev => ({ ...prev, visitDate: e.target.value }))}
                       />
                     </div>
-                    
-                    <div>
-                      <Label htmlFor="knowledgeLevel">Knowledge Level (1-5)</Label>
+
+                    <div className="space-y-2">
+                      <Label>Duration (minutes)</Label>
                       <Input
-                        id="knowledgeLevel"
                         type="number"
-                        min="1"
-                        max="5"
-                        {...form.register("staffInteraction.knowledgeLevel", { valueAsNumber: true })}
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="responsiveness">Responsiveness (1-5)</Label>
-                      <Input
-                        id="responsiveness"
-                        type="number"
-                        min="1"
-                        max="5"
-                        {...form.register("staffInteraction.responsiveness", { valueAsNumber: true })}
+                        placeholder="60"
+                        value={tourForm.duration}
+                        onChange={(e) => setTourForm(prev => ({ ...prev, duration: e.target.value }))}
                       />
                     </div>
                   </div>
-                  
-                  <div>
-                    <Label htmlFor="followUpCommitment">Follow-up Commitment</Label>
-                    <Textarea
-                      id="followUpCommitment"
-                      placeholder="What did the staff commit to following up on?"
-                      {...form.register("staffInteraction.followUpCommitment")}
-                      rows={3}
-                    />
+
+                  {gpsLocation && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-green-700">
+                        <MapPin className="h-4 w-4" />
+                        <span className="text-sm font-medium">Location Verified</span>
+                      </div>
+                      <p className="text-sm text-green-600 mt-1">
+                        GPS coordinates captured for visit verification
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Evaluation Categories */}
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-semibold">Rate Your Experience</h3>
+
+                    {/* Cleanliness */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Cleanliness & Maintenance</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <Label className="text-sm">Overall Rating</Label>
+                          <StarRating 
+                            rating={tourForm.cleanliness.rating} 
+                            onRatingChange={(rating) => updateRating('cleanliness', rating)}
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-sm">Notes</Label>
+                          <Textarea
+                            placeholder="Share your observations about cleanliness, upkeep, odors, etc."
+                            value={tourForm.cleanliness.notes}
+                            onChange={(e) => updateNotes('cleanliness', e.target.value)}
+                            rows={2}
+                          />
+                        </div>
+                        <PhotoUpload 
+                          photos={photos}
+                          onPhotoAdd={handlePhotoAdd}
+                          category="cleanliness"
+                        />
+                      </CardContent>
+                    </Card>
+
+                    {/* Staff */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Staff Interaction</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <Label className="text-sm">Overall Rating</Label>
+                          <StarRating 
+                            rating={tourForm.staff.rating} 
+                            onRatingChange={(rating) => updateRating('staff', rating)}
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-sm">Notes</Label>
+                          <Textarea
+                            placeholder="How were the staff members? Friendly, knowledgeable, attentive?"
+                            value={tourForm.staff.notes}
+                            onChange={(e) => updateNotes('staff', e.target.value)}
+                            rows={2}
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Food */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Food & Dining</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <Label className="text-sm">Overall Rating</Label>
+                          <StarRating 
+                            rating={tourForm.food.rating} 
+                            onRatingChange={(rating) => updateRating('food', rating)}
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-sm">Notes</Label>
+                          <Textarea
+                            placeholder="Food quality, variety, dining atmosphere, meal times..."
+                            value={tourForm.food.notes}
+                            onChange={(e) => updateNotes('food', e.target.value)}
+                            rows={2}
+                          />
+                        </div>
+                        <PhotoUpload 
+                          photos={photos}
+                          onPhotoAdd={handlePhotoAdd}
+                          category="food"
+                        />
+                      </CardContent>
+                    </Card>
+
+                    {/* Amenities */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Amenities & Activities</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <Label className="text-sm">Overall Rating</Label>
+                          <StarRating 
+                            rating={tourForm.amenities.rating} 
+                            onRatingChange={(rating) => updateRating('amenities', rating)}
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-sm">Notes</Label>
+                          <Textarea
+                            placeholder="Fitness center, activities room, library, outdoor spaces, programs..."
+                            value={tourForm.amenities.notes}
+                            onChange={(e) => updateNotes('amenities', e.target.value)}
+                            rows={2}
+                          />
+                        </div>
+                        <PhotoUpload 
+                          photos={photos}
+                          onPhotoAdd={handlePhotoAdd}
+                          category="amenities"
+                        />
+                      </CardContent>
+                    </Card>
+
+                    {/* Safety */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Safety & Security</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <Label className="text-sm">Overall Rating</Label>
+                          <StarRating 
+                            rating={tourForm.safety.rating} 
+                            onRatingChange={(rating) => updateRating('safety', rating)}
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-sm">Notes</Label>
+                          <Textarea
+                            placeholder="Emergency systems, security, accessibility, grab bars, lighting..."
+                            value={tourForm.safety.notes}
+                            onChange={(e) => updateNotes('safety', e.target.value)}
+                            rows={2}
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Overall Impression */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Overall Impression</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <Label className="text-sm">Overall Rating</Label>
+                          <StarRating 
+                            rating={tourForm.overall.rating} 
+                            onRatingChange={(rating) => updateRating('overall', rating)}
+                          />
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id="recommend"
+                            checked={tourForm.overall.wouldRecommend}
+                            onChange={(e) => setTourForm(prev => ({
+                              ...prev,
+                              overall: { ...prev.overall, wouldRecommend: e.target.checked }
+                            }))}
+                            className="rounded"
+                          />
+                          <Label htmlFor="recommend" className="text-sm">
+                            I would recommend this community to others
+                          </Label>
+                        </div>
+                        <div>
+                          <Label className="text-sm">Final Notes</Label>
+                          <Textarea
+                            placeholder="Your overall impression, any standout features, concerns, or final thoughts..."
+                            value={tourForm.overall.notes}
+                            onChange={(e) => updateNotes('overall', e.target.value)}
+                            rows={3}
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Family Notes */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Family Collaboration</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <Label className="text-sm">Family Notes</Label>
+                          <Textarea
+                            placeholder="Share thoughts for family members, questions to follow up on, or coordination notes..."
+                            value={tourForm.familyNotes}
+                            onChange={(e) => setTourForm(prev => ({ ...prev, familyNotes: e.target.value }))}
+                            rows={3}
+                          />
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id="public"
+                            checked={tourForm.isPublic}
+                            onChange={(e) => setTourForm(prev => ({ ...prev, isPublic: e.target.checked }))}
+                            className="rounded"
+                          />
+                          <Label htmlFor="public" className="text-sm">
+                            Make this review public to help other families (optional)
+                          </Label>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
 
-            {/* Summary Tab */}
-            <TabsContent value="summary" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="flex justify-end gap-3">
+                    <Button type="button" variant="outline" onClick={resetForm}>
+                      Reset Form
+                    </Button>
+                    <Button 
+                      type="submit" 
+                      disabled={createTourReviewMutation.isPending}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      {createTourReviewMutation.isPending ? "Saving..." : "Save Tour Review"}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="my-reviews">
+            <div className="space-y-4">
+              {reviewsLoading ? (
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-500" />
-                      Highlights
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <Label>Positives</Label>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => addHighlight("positives")}
-                        >
-                          <Plus className="w-4 h-4" />
-                        </Button>
-                      </div>
-                      {highlights.positives.map((positive, index) => (
-                        <div key={index} className="flex items-center gap-2">
-                          <Input
-                            placeholder="What did you like?"
-                            value={positive}
-                            onChange={(e) => {
-                              const newHighlights = { ...highlights };
-                              newHighlights.positives[index] = e.target.value;
-                              setHighlights(newHighlights);
-                            }}
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeHighlight("positives", index)}
-                          >
-                            <Minus className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <Label>Concerns</Label>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => addHighlight("concerns")}
-                        >
-                          <Plus className="w-4 h-4" />
-                        </Button>
-                      </div>
-                      {highlights.concerns.map((concern, index) => (
-                        <div key={index} className="flex items-center gap-2">
-                          <Input
-                            placeholder="What concerned you?"
-                            value={concern}
-                            onChange={(e) => {
-                              const newHighlights = { ...highlights };
-                              newHighlights.concerns[index] = e.target.value;
-                              setHighlights(newHighlights);
-                            }}
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeHighlight("concerns", index)}
-                          >
-                            <Minus className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <Label>Standout Features</Label>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => addHighlight("standoutFeatures")}
-                        >
-                          <Plus className="w-4 h-4" />
-                        </Button>
-                      </div>
-                      {highlights.standoutFeatures.map((feature, index) => (
-                        <div key={index} className="flex items-center gap-2">
-                          <Input
-                            placeholder="What stood out?"
-                            value={feature}
-                            onChange={(e) => {
-                              const newHighlights = { ...highlights };
-                              newHighlights.standoutFeatures[index] = e.target.value;
-                              setHighlights(newHighlights);
-                            }}
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeHighlight("standoutFeatures", index)}
-                          >
-                            <Minus className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
+                  <CardContent className="py-8 text-center">
+                    <p>Loading your tour reviews...</p>
                   </CardContent>
                 </Card>
-
+              ) : tourReviews.length === 0 ? (
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Clock className="w-5 h-5" />
-                      Follow-up Actions
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="mb-4">
-                      <Button
-                        type="button"
-                        onClick={addFollowUpAction}
-                        className="flex items-center gap-2"
-                      >
-                        <Plus className="w-4 h-4" />
-                        Add Action
-                      </Button>
-                    </div>
-
-                    {followUpActions.length > 0 && (
-                      <div className="space-y-4">
-                        {followUpActions.map((action, index) => (
-                          <Card key={index} className="border-l-4 border-l-yellow-500">
-                            <CardContent className="p-4">
-                              <div className="flex items-center justify-between mb-2">
-                                <h4 className="font-medium">Action {index + 1}</h4>
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => removeFollowUpAction(index)}
-                                >
-                                  <Minus className="w-4 h-4" />
-                                </Button>
-                              </div>
-                              
-                              <div className="space-y-2">
-                                <Input
-                                  placeholder="Action to take..."
-                                  value={action.action}
-                                  onChange={(e) => {
-                                    const newActions = [...followUpActions];
-                                    newActions[index].action = e.target.value;
-                                    setFollowUpActions(newActions);
-                                  }}
-                                />
-                                
-                                <Input
-                                  type="date"
-                                  placeholder="Due date"
-                                  value={action.dueDate}
-                                  onChange={(e) => {
-                                    const newActions = [...followUpActions];
-                                    newActions[index].dueDate = e.target.value;
-                                    setFollowUpActions(newActions);
-                                  }}
-                                />
-                                
-                                <div className="flex items-center space-x-2">
-                                  <input
-                                    type="checkbox"
-                                    checked={action.completed}
-                                    onChange={(e) => {
-                                      const newActions = [...followUpActions];
-                                      newActions[index].completed = e.target.checked;
-                                      setFollowUpActions(newActions);
-                                    }}
-                                  />
-                                  <Label>Completed</Label>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    )}
+                  <CardContent className="py-8 text-center">
+                    <h3 className="text-lg font-semibold mb-2">No Tour Reviews Yet</h3>
+                    <p className="text-gray-600 mb-4">
+                      Start documenting your community visits to build a comprehensive comparison.
+                    </p>
                   </CardContent>
                 </Card>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </form>
+              ) : (
+                tourReviews.map((review: TourReview) => (
+                  <Card key={review.id}>
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="text-lg">
+                            {review.community?.name || `Community #${review.communityId}`}
+                          </CardTitle>
+                          <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-4 w-4" />
+                              {new Date(review.visitDate).toLocaleDateString()}
+                            </span>
+                            <Badge variant="outline">{review.tourType.replace('_', ' ')}</Badge>
+                            {review.isPublic && <Badge className="bg-green-100 text-green-800">Public</Badge>}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <StarRating rating={review.overall?.rating || 0} disabled />
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
+                        <div className="text-center">
+                          <div className="font-medium">Cleanliness</div>
+                          <StarRating rating={review.cleanliness?.rating || 0} disabled />
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium">Staff</div>
+                          <StarRating rating={review.staff?.rating || 0} disabled />
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium">Food</div>
+                          <StarRating rating={review.food?.rating || 0} disabled />
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium">Amenities</div>
+                          <StarRating rating={review.amenities?.rating || 0} disabled />
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium">Safety</div>
+                          <StarRating rating={review.safety?.rating || 0} disabled />
+                        </div>
+                      </div>
+                      
+                      {review.overall?.notes && (
+                        <div className="bg-gray-50 rounded-lg p-3">
+                          <p className="text-sm">{review.overall.notes}</p>
+                        </div>
+                      )}
+                      
+                      {review.photos && review.photos.length > 0 && (
+                        <div className="mt-3">
+                          <p className="text-sm font-medium mb-2">Photos ({review.photos.length})</p>
+                          <div className="grid grid-cols-4 gap-2">
+                            {review.photos.slice(0, 4).map((photo, index) => (
+                              <img 
+                                key={index}
+                                src={photo.url} 
+                                alt={photo.caption || "Tour photo"}
+                                className="w-full h-16 object-cover rounded"
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
