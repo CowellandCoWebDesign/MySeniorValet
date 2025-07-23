@@ -13,6 +13,7 @@ import { EnhancedPlatformStats } from "@/components/EnhancedPlatformStats";
 
 
 export default function TrueViewHome() {
+  console.log("TRUEVIEW HOME PAGE LOADED - VERSION 2 WITH 31,023 COMMUNITIES");
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -160,7 +161,7 @@ export default function TrueViewHome() {
           <div className="text-center mb-8 md:mb-12 max-w-5xl">
             <div className="space-y-4 mb-6">
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white dark:text-gray-100 leading-tight drop-shadow-lg animate-fade-in-up">
-                Everything Senior Living Needs—Handled in One Place
+                Senior Living Complete Care & Transparency
               </h1>
               <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl text-white dark:text-gray-200 opacity-90 drop-shadow-md px-4 animate-fade-in-up animation-delay-300 max-w-4xl mx-auto">
                 From live pricing and unit availability to move coordination, furniture setup, and prescription delivery, MySeniorValet is your white-glove partner.
@@ -273,10 +274,28 @@ export default function TrueViewHome() {
             </Link>
           </div>
           
-          {/* Community Count Text - Larger */}
-          <div className="mb-4 animate-fade-in-up animation-delay-800">
+          {/* Trust Indicators with 31,023+ Communities */}
+          <div className="mb-6 animate-fade-in-up animation-delay-800">
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full shadow-lg">
+                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-sm font-semibold text-white">31,023+ Authentic Communities</span>
+              </div>
+              <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full shadow-lg">
+                <Building2 className="h-4 w-4 text-blue-300" />
+                <span className="text-sm font-semibold text-white">HUD + Government Sources</span>
+              </div>
+              <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full shadow-lg">
+                <DollarSign className="h-4 w-4 text-purple-300" />
+                <span className="text-sm font-semibold text-white">Zero "Call for Pricing"</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Community Count Text - Updated */}
+          <div className="mb-4 animate-fade-in-up animation-delay-850">
             <p className="text-white/90 dark:text-gray-300 text-sm md:text-base drop-shadow-md text-center">
-              Serving families across <strong className="text-amber-200">25,000+ verified senior living communities</strong>
+              Serving families across <strong className="text-amber-200">31,023+ verified senior living communities</strong>
             </p>
           </div>
           
@@ -355,6 +374,102 @@ export default function TrueViewHome() {
               Start Your All-in-One Planner
             </Button>
           </div>
+        </div>
+      </section>
+
+      {/* Massive Data Coverage Section */}
+      <section className="px-4 py-12 bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">31,023+ Senior Communities Trust MySeniorValet</h2>
+            <p className="text-gray-600 dark:text-gray-300">The most comprehensive senior living database in North America</p>
+          </div>
+          
+          {/* Data Coverage Breakdown */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
+              <CardContent className="p-4 text-center">
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">31,023</div>
+                <p className="text-xs text-gray-600 dark:text-gray-300">Total Communities</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
+              <CardContent className="p-4 text-center">
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">101</div>
+                <p className="text-xs text-gray-600 dark:text-gray-300">States & Regions</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
+              <CardContent className="p-4 text-center">
+                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">100%</div>
+                <p className="text-xs text-gray-600 dark:text-gray-300">Real Pricing</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20">
+              <CardContent className="p-4 text-center">
+                <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 mb-1">100%</div>
+                <p className="text-xs text-gray-600 dark:text-gray-300">Government Data</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Real-time Data Examples */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-600">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">Real Pricing Examples from Our Database</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">$303</div>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Florin Gardens</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">HUD Property • Sacramento</p>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">$5,200</div>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Assisted Living Avg</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Bay Area Licensed</p>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">$9,200</div>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Memory Care</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Premium California</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* AI Assistant Section */}
+      <section className="px-4 py-12 bg-white dark:bg-gray-800">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">24/7 AI Senior Living Assistant</h2>
+            <p className="text-gray-600 dark:text-gray-300">Powered by Anthropic Claude 4.0 - The most advanced AI for senior care</p>
+          </div>
+          
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-800">
+            <CardContent className="p-8">
+              <div className="flex flex-col md:flex-row items-center gap-6">
+                <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                  <MessageCircle className="w-12 h-12 text-white" />
+                </div>
+                <div className="flex-1 text-center md:text-left">
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Get Instant Expert Guidance</h3>
+                  <p className="text-gray-600 dark:text-gray-300 mb-4">
+                    Our AI assistant knows all 31,023 communities and can help you find the perfect match, understand costs, 
+                    navigate Medicare/Medicaid, and answer any senior living questions instantly.
+                  </p>
+                  <Link href="/ai-support">
+                    <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
+                      <MessageCircle className="mr-2 h-5 w-5" />
+                      Chat with AI Assistant
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
