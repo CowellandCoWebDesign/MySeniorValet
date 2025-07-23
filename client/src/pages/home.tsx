@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { EnhancedPlatformStats } from "@/components/EnhancedPlatformStats";
 
 export default function Home() {
+  console.log("HOME PAGE LOADED - VERSION 2 WITH 31,023 COMMUNITIES");
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
       {/* Enhanced Animated Background Elements */}
@@ -25,6 +26,11 @@ export default function Home() {
 
       <div className="relative z-10">
         <Header />
+        
+        {/* TEST BANNER - REMOVE AFTER VERIFICATION */}
+        <div className="bg-red-500 text-white text-center py-4 text-2xl font-bold">
+          HOMEPAGE UPDATED - 31,023 COMMUNITIES
+        </div>
 
         {/* Hero Section - Enhanced for Senior Accessibility */}
         <section className="relative py-16 lg:py-24 overflow-hidden min-h-[90vh] flex items-center justify-center">
