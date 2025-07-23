@@ -63,7 +63,7 @@ export function AuthenticImage({
   if (isLoading) {
     return (
       <div 
-        className={`bg-gradient-to-br from-blue-50 to-blue-100 animate-pulse ${className}`}
+        className={`bg-gradient-to-br from-blue-50 to-blue-100 ${className}`}
         style={{ width, height }}
       >
         <div className="w-full h-full flex items-center justify-center">

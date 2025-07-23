@@ -75,7 +75,7 @@ export function PremiumImage({
   if (isLoading) {
     return (
       <div 
-        className={`bg-gradient-to-br from-blue-100 to-purple-100 animate-pulse ${className}`}
+        className={`bg-gradient-to-br from-blue-100 to-purple-100 ${className}`}
         style={{ width, height }}
       >
         <div className="w-full h-full flex items-center justify-center">
@@ -111,7 +111,7 @@ export function PremiumImage({
       {/* Loading placeholder */}
       {!imageLoaded && (
         <div 
-          className={`absolute inset-0 bg-gradient-to-br from-blue-100 to-purple-100 animate-pulse ${className}`}
+          className={`absolute inset-0 bg-gradient-to-br from-blue-100 to-purple-100 ${className}`}
         >
           <div className="w-full h-full flex items-center justify-center">
             <div className="text-gray-500 text-sm">Loading...</div>

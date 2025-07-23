@@ -73,12 +73,9 @@ export function LoadingMascot({
         
         {/* Animated loading dots */}
         <div className="flex justify-center space-x-1">
-          <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" 
-               style={{ animationDelay: '0s' }} />
-          <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" 
-               style={{ animationDelay: '0.1s' }} />
-          <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" 
-               style={{ animationDelay: '0.2s' }} />
+          <div className="w-2 h-2 bg-blue-500 rounded-full" />
+          <div className="w-2 h-2 bg-blue-500 rounded-full" />
+          <div className="w-2 h-2 bg-blue-500 rounded-full" />
         </div>
       </div>
       
