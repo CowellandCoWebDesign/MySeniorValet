@@ -494,6 +494,12 @@ class IntelligentPricingService {
 
 export const intelligentPricingService = new IntelligentPricingService();
 
+// Export pricing update function for manual triggering
+export async function triggerPricingUpdate(): Promise<void> {
+  console.log('🎯 Manual pricing update triggered...');
+  await intelligentPricingService.updateAllCommunityPricing();
+}
+
 // Auto-update pricing on service startup - DISABLED to prevent infinite loops
 // setTimeout(async () => {
 //   console.log('🎯 WAR ON "CALL FOR PRICING" - Starting automatic pricing updates...');

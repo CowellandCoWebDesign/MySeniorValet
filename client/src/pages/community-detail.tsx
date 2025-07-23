@@ -68,68 +68,68 @@ const HeroPhotoCarousel = ({ photos, communityName }: { photos: string[], commun
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  
+
   const nextPhoto = () => {
     setCurrentIndex((prev) => (prev + 1) % photos.length);
   };
-  
+
   const prevPhoto = () => {
     setCurrentIndex((prev) => (prev - 1 + photos.length) % photos.length);
   };
-  
+
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStart(e.targetTouches[0].clientX);
     setIsDragging(true);
   };
-  
+
   const handleTouchMove = (e: React.TouchEvent) => {
     setTouchEnd(e.targetTouches[0].clientX);
   };
-  
+
   const handleTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
-    
+
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > 50;
     const isRightSwipe = distance < -50;
-    
+
     if (isLeftSwipe && photos.length > 1) {
       nextPhoto();
     }
     if (isRightSwipe && photos.length > 1) {
       prevPhoto();
     }
-    
+
     setIsDragging(false);
   };
-  
+
   const handleMouseDown = (e: React.MouseEvent) => {
     setTouchStart(e.clientX);
     setIsDragging(true);
   };
-  
+
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging) return;
     setTouchEnd(e.clientX);
   };
-  
+
   const handleMouseUp = () => {
     if (!touchStart || !touchEnd) return;
-    
+
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > 50;
     const isRightSwipe = distance < -50;
-    
+
     if (isLeftSwipe && photos.length > 1) {
       nextPhoto();
     }
     if (isRightSwipe && photos.length > 1) {
       prevPhoto();
     }
-    
+
     setIsDragging(false);
   };
-  
+
   return (
     <div 
       className="relative w-full h-full group cursor-grab active:cursor-grabbing"
@@ -147,7 +147,7 @@ const HeroPhotoCarousel = ({ photos, communityName }: { photos: string[], commun
         className="w-full h-full object-cover select-none"
         draggable={false}
       />
-      
+
       {/* Navigation arrows - only show if more than 1 photo */}
       {photos.length > 1 && (
         <>
@@ -163,7 +163,7 @@ const HeroPhotoCarousel = ({ photos, communityName }: { photos: string[], commun
           >
             <ChevronRight className="w-6 h-6 text-gray-700" />
           </button>
-          
+
           {/* Photo indicator dots */}
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
             {photos.map((_, index) => (
@@ -176,12 +176,12 @@ const HeroPhotoCarousel = ({ photos, communityName }: { photos: string[], commun
               />
             ))}
           </div>
-          
+
           {/* Photo counter */}
           <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm z-10">
             {currentIndex + 1} / {photos.length}
           </div>
-          
+
           {/* Swipe instruction on mobile */}
           <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-xs opacity-70 md:hidden">
             Swipe to browse photos
@@ -200,18 +200,18 @@ const calculateCompositeRating = (community: Community): string => {
     googleScore: 0.3,    // 30% weight for Google reviews
     yelpScore: 0.2       // 20% weight for Yelp reviews
   };
-  
+
   // Get individual scores - tour properties will be added to schema
   const tourScore = parseFloat((community as any).tourAverageRating || '4.5');
   const googleScore = parseFloat(community.googleRating?.toString() || '4.2');
   const yelpScore = parseFloat((community as any).yelpRating || '4.0');
-  
+
   // Calculate weighted average
   const compositeScore = 
     (tourScore * weights.tourScore) +
     (googleScore * weights.googleScore) +
     (yelpScore * weights.yelpScore);
-  
+
   return compositeScore.toFixed(1);
 };
 
@@ -288,16 +288,16 @@ export default function CommunityDetail() {
       phone: tourPhone,
       message: tourMessage
     };
-    
+
     // In a real app, this would send to the backend
     console.log('Tour request:', tourRequest);
-    
+
     // Show success message
     toast({
       title: "Tour Scheduled!",
       description: `We'll contact you at ${tourEmail} to confirm your tour on ${tourDate} at ${tourTime}`,
     });
-    
+
     // Reset form and close dialog
     setTourDate('');
     setTourTime('');
@@ -318,16 +318,16 @@ export default function CommunityDetail() {
       phone: waitlistPhone,
       preferences: waitlistPreferences
     };
-    
+
     // In a real app, this would send to the backend
     console.log('Waitlist request:', waitlistRequest);
-    
+
     // Show success message
     toast({
       title: "Added to Waitlist!",
       description: `${waitlistName} has been added to the waitlist. You'll be notified when units become available.`,
     });
-    
+
     // Reset form
     setWaitlistName('');
     setWaitlistEmail('');
@@ -346,9 +346,9 @@ export default function CommunityDetail() {
       const applianceOptions = ['Full-size refrigerator', 'Compact refrigerator', 'Mini fridge'];
       const counterOptions = ['Granite counters', 'Quartz counters', 'Laminate counters'];
       const stoveOptions = ['Full-size stove', 'Compact stove', 'Cooktop only', 'No stove (microwave only)'];
-      
+
       const unitId = community.id + unitIndex;
-      
+
       return {
         view: viewOptions[unitId % viewOptions.length],
         outdoor: balconyOptions[unitId % balconyOptions.length],
@@ -400,10 +400,10 @@ export default function CommunityDetail() {
 
     // Distribute available units across different unit types
     const unitsToShow = unitTypes.slice(0, 3); // Show 3 unit types
-    
+
     return unitsToShow.map((unit, index) => {
       let availableUnits = 0;
-      
+
       // Distribute the total available units across different types
       if (totalUnitsAvailable > 0) {
         if (index === 0) {
@@ -426,20 +426,20 @@ export default function CommunityDetail() {
           'HI': 900, 'NJ': 830, 'MD': 750, 'IL': 680, 'TX': 650,
           'FL': 680, 'NC': 620, 'GA': 600, 'AL': 580, 'MS': 550
         };
-        
+
         // Genworth 2024 assisted living costs (authentic market data)
         const genworth2024Data: Record<string, number> = {
           'CA': 6500, 'NY': 6800, 'MA': 9330, 'WA': 4176, 'CT': 6800,
           'HI': 7000, 'NJ': 7500, 'MD': 5800, 'IL': 5000, 'TX': 4200,
           'FL': 4500, 'NC': 4500, 'GA': 4200, 'AL': 3800, 'MS': 3200
         };
-        
+
         // Unit type adjustments from HUD Fair Market Rent standards
         const hudUnitAdjustments: Record<string, number> = {
           'Studio': 0.75, '1 Bedroom': 1.0, '2 Bedroom': 1.3, 
           '1 Bedroom + Den': 1.15, '3 Bedroom': 1.6
         };
-        
+
         // Use authentic community-specific data when available
         let basePrice;
         if (community.hudPropertyId && community.rentPerMonth && community.rentPerMonth > 0) {
@@ -452,13 +452,13 @@ export default function CommunityDetail() {
           // Use Genworth market data for non-HUD properties
           basePrice = genworth2024Data[state] || 3800;
         }
-          
+
         const unitMultiplier = hudUnitAdjustments[unitType] || 1.0;
         const authenticPrice = Math.round(basePrice * unitMultiplier);
-        
+
         return authenticPrice;
       };
-         
+
       const intelligentPrice = getIntelligentUnitPricing(unit.type, community.state);
 
       return {
@@ -485,7 +485,7 @@ export default function CommunityDetail() {
       AZ: ['480', '520', '602', '623', '928'],
       NV: ['702', '725', '775']
     };
-    
+
     const stateAreaCodes = areaCodes[state] || areaCodes.CA;
     const areaCode = stateAreaCodes[id % stateAreaCodes.length];
     const number = String(2000000 + (id * 13) % 8000000).padStart(7, '0');
@@ -549,7 +549,7 @@ export default function CommunityDetail() {
                       </div>
                     </div>
                   )}
-                  
+
                   {/* Action Buttons */}
                   <div className="absolute top-4 right-4 flex space-x-2">
                     <button
@@ -558,7 +558,7 @@ export default function CommunityDetail() {
                     >
                       <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600 dark:text-gray-300'}`} />
                     </button>
-                    
+
                     <FamilyShareButton 
                       community={{
                         id: community.id,
@@ -606,12 +606,12 @@ export default function CommunityDetail() {
                         {community.careTypes?.[0] || 'Senior Living'}
                       </Badge>
                     </div>
-                    
+
                     {/* Achievement Badges */}
                     <div className="flex items-center flex-wrap gap-2 mb-4">
                       {(() => {
                         const badges = [];
-                        
+
                         // Featured Community Badge (top communities)
                         if (community.id % 5 === 0) {
                           badges.push({
@@ -621,23 +621,23 @@ export default function CommunityDetail() {
                             type: 'featured'
                           });
                         }
-                        
+
                         // Pricing Transparency Badges
                         const hasBasicPricing = (community as any).monthlyRent || community.id;
                         const hasLivePricing = community.id % 2 === 0;
                         const hasMultipleCareTypes = community.careTypes && community.careTypes.length > 1;
                         const hasRecentUpdates = community.id % 3 === 0;
                         const hasSpecialRates = community.id % 4 === 0;
-                        
+
                         let totalPoints = 0;
-                        
+
                         // Calculate achievement level based on available data
                         if (hasBasicPricing) totalPoints += 10;
                         if (hasLivePricing) totalPoints += 25;
                         if (hasMultipleCareTypes) totalPoints += 25;
                         if (hasRecentUpdates) totalPoints += 40;
                         if (hasSpecialRates) totalPoints += 150;
-                        
+
                         // Determine pricing transparency badge level
                         if (totalPoints >= 250) {
                           badges.push({
@@ -675,7 +675,7 @@ export default function CommunityDetail() {
                             type: 'pricing'
                           });
                         }
-                        
+
                         // Quality Achievement Badges
                         if (parseFloat(community.googleRating || '4.2') >= 4.5) {
                           badges.push({
@@ -685,7 +685,7 @@ export default function CommunityDetail() {
                             type: 'quality'
                           });
                         }
-                        
+
                         // Special Recognition Badges
                         if (community.id % 7 === 0) {
                           badges.push({
@@ -695,7 +695,7 @@ export default function CommunityDetail() {
                             type: 'recognition'
                           });
                         }
-                        
+
                         if (community.id % 6 === 0) {
                           badges.push({
                             level: 'Verified',
@@ -704,7 +704,7 @@ export default function CommunityDetail() {
                             type: 'verification'
                           });
                         }
-                        
+
                         return badges.map((badge, index) => (
                           <div key={index} className={`px-3 py-1 rounded-full text-xs font-medium border ${badge.color} flex items-center flex-shrink-0`}>
                             <span className="mr-1">{badge.icon}</span>
@@ -734,7 +734,7 @@ export default function CommunityDetail() {
                       </div>
                       <div className="text-sm text-gray-600 dark:text-gray-400">per month starting rate</div>
                     </div>
-                    
+
                     {/* Availability Status */}
                     <div className="space-y-2">
                       <div className="flex items-center justify-end">
@@ -750,7 +750,7 @@ export default function CommunityDetail() {
                            community.id % 3 === 1 ? 'Limited Availability' : 'Waitlist Available'}
                         </span>
                       </div>
-                      
+
                       {/* Unit Vacancy Information */}
                       <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-700">
                         <div className="text-sm text-blue-900 dark:text-blue-200 font-medium mb-1">
@@ -784,7 +784,7 @@ export default function CommunityDetail() {
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Ready to Visit?</h3>
                     <p className="text-gray-600 dark:text-gray-300">Connect with our community team to schedule your tour</p>
                   </div>
-                  
+
                   {/* Sales Manager Info */}
                   <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-blue-200 dark:border-blue-700 mb-6">
                     <div className="flex items-center mb-4">
@@ -812,14 +812,14 @@ export default function CommunityDetail() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mb-4">
                       <div className="flex items-center">
                         <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" />
                         <span className="text-blue-800 dark:text-blue-200 font-medium">Usually responds within 2 hours</span>
                       </div>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <Dialog open={isScheduleTourOpen} onOpenChange={setIsScheduleTourOpen}>
                         <DialogTrigger asChild>
@@ -840,7 +840,7 @@ export default function CommunityDetail() {
                               <h4 className="font-medium text-blue-900 mb-1">{community.name}</h4>
                               <p className="text-sm text-blue-800">{community.city}, {community.state}</p>
                             </div>
-                            
+
                             <div className="grid grid-cols-2 gap-4">
                               <div>
                                 <Label htmlFor="tour-date">Preferred Date</Label>
@@ -862,7 +862,7 @@ export default function CommunityDetail() {
                                 />
                               </div>
                             </div>
-                            
+
                             <div>
                               <Label htmlFor="tour-name">Your Name</Label>
                               <Input
@@ -872,7 +872,7 @@ export default function CommunityDetail() {
                                 onChange={(e) => setTourName(e.target.value)}
                               />
                             </div>
-                            
+
                             <div className="grid grid-cols-2 gap-4">
                               <div>
                                 <Label htmlFor="tour-email">Email</Label>
@@ -895,7 +895,7 @@ export default function CommunityDetail() {
                                 />
                               </div>
                             </div>
-                            
+
                             <div>
                               <Label htmlFor="tour-message">Message (Optional)</Label>
                               <textarea
@@ -907,7 +907,7 @@ export default function CommunityDetail() {
                                 rows={3}
                               />
                             </div>
-                            
+
                             <Button 
                               onClick={handleScheduleTour}
                               className="w-full bg-blue-600 hover:bg-blue-700"
@@ -943,7 +943,7 @@ export default function CommunityDetail() {
                                 onChange={(e) => setWaitlistName(e.target.value)}
                               />
                             </div>
-                            
+
                             <div className="grid grid-cols-2 gap-4">
                               <div>
                                 <Label htmlFor="waitlist-email">Email</Label>
@@ -966,7 +966,7 @@ export default function CommunityDetail() {
                                 />
                               </div>
                             </div>
-                            
+
                             <div>
                               <Label htmlFor="waitlist-preferences">Preferred Unit Type & Other Preferences</Label>
                               <textarea
@@ -981,7 +981,7 @@ export default function CommunityDetail() {
                                 rows={3}
                               />
                             </div>
-                            
+
                             <Button 
                               onClick={handleWaitlistSubmit}
                               className="w-full bg-orange-600 hover:bg-orange-700"
@@ -993,7 +993,7 @@ export default function CommunityDetail() {
                           </div>
                         </DialogContent>
                       </Dialog>
-                      
+
                       <Button 
                         variant="outline" 
                         className="py-4 text-base font-semibold border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
@@ -1002,7 +1002,7 @@ export default function CommunityDetail() {
                         <Phone className="w-5 h-5 mr-2" />
                         Call Now
                       </Button>
-                      
+
                       <Button 
                         variant="outline" 
                         className="py-4 text-base font-semibold border-2 border-green-600 text-green-600 hover:bg-green-50"
@@ -1053,7 +1053,7 @@ export default function CommunityDetail() {
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* Expanded Unit Details */}
                     {expandedUnits.has(unit.id) && (
                       <div className="mt-4 pt-4 border-t border-gray-200">
@@ -1132,7 +1132,7 @@ export default function CommunityDetail() {
                         </div>
                       </div>
                     )}
-                    
+
                     <div className="flex justify-between items-center">
                       <div className="flex items-center">
                         {unit.available > 0 ? (
@@ -1151,7 +1151,7 @@ export default function CommunityDetail() {
                           </>
                         )}
                       </div>
-                      
+
                       <div className="flex gap-2">
                         {unit.available > 0 ? (
                           <>
@@ -1191,7 +1191,7 @@ export default function CommunityDetail() {
                             Join Waitlist
                           </Button>
                         )}
-                        
+
                         <Button
                           variant="outline"
                           onClick={() => {
@@ -1298,7 +1298,7 @@ export default function CommunityDetail() {
                           </ul>
                         </div>
                       </div>
-                      
+
                       {/* Amenities & Services Summary */}
                       <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mt-6">
                         <h4 className="font-medium text-blue-900 mb-3">Amenities & Services Summary</h4>
@@ -1306,7 +1306,7 @@ export default function CommunityDetail() {
                           {(() => {
                             const amenitiesData = Object.values(getAmenitiesByCategory()).flat();
                             const servicesData = Object.values(getCareServicesByCategory()).flat();
-                            
+
                             // Count by status
                             const amenityStats = {
                               confirmed: amenitiesData.filter(amenity => getAmenityStatus(community, amenity.id) === 'confirmed').length,
@@ -1314,14 +1314,14 @@ export default function CommunityDetail() {
                               notOffered: amenitiesData.filter(amenity => getAmenityStatus(community, amenity.id) === 'not-offered').length,
                               pending: amenitiesData.filter(amenity => getAmenityStatus(community, amenity.id) === 'pending').length
                             };
-                            
+
                             const serviceStats = {
                               confirmed: servicesData.filter(service => getCareServiceStatus(community, service.id) === 'confirmed').length,
                               reported: servicesData.filter(service => getCareServiceStatus(community, service.id) === 'reported').length,
                               notOffered: servicesData.filter(service => getCareServiceStatus(community, service.id) === 'not-offered').length,
                               pending: servicesData.filter(service => getCareServiceStatus(community, service.id) === 'pending').length
                             };
-                            
+
                             return (
                               <>
                                 <div className="bg-white p-3 rounded-lg">
@@ -1358,7 +1358,7 @@ export default function CommunityDetail() {
                                     <span>❓ {amenityStats.pending}</span>
                                   </div>
                                 </div>
-                                
+
                                 <div className="bg-white p-3 rounded-lg">
                                   <div className="flex items-center justify-between mb-2">
                                     <span className="text-sm text-gray-700">Care Services Status</span>
@@ -1406,7 +1406,7 @@ export default function CommunityDetail() {
                   <TabsContent value="amenities" className="space-y-4">
                     <div>
                       <h3 className="text-lg font-semibold mb-3">Amenities & Features</h3>
-                      
+
                       {/* Status Legend */}
                       <div className="bg-white p-4 rounded-lg border border-gray-200 mb-6">
                         <h4 className="font-medium text-gray-900 mb-3">Status Legend</h4>
@@ -1429,7 +1429,7 @@ export default function CommunityDetail() {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="space-y-6">
                         {Object.entries(getAmenitiesByCategory()).map(([category, amenities]) => (
                           <div key={category}>
@@ -1440,13 +1440,13 @@ export default function CommunityDetail() {
                               {amenities.map((amenity) => {
                                 const status = getAmenityStatus(community, amenity.id);
                                 const styling = getStatusStyling(status);
-                                
+
                                 const IconComponent = 
                                   styling.icon === 'check' ? CheckCircle :
                                   styling.icon === 'clock' ? Clock :
                                   styling.icon === 'x' ? X :
                                   HelpCircle;
-                                
+
                                 return (
                                   <div 
                                     key={amenity.id} 
@@ -1473,7 +1473,7 @@ export default function CommunityDetail() {
                   <TabsContent value="care" className="space-y-4">
                     <div>
                       <h3 className="text-lg font-semibold mb-3">Care Services</h3>
-                      
+
                       {/* Status Legend */}
                       <div className="bg-white p-4 rounded-lg border border-gray-200 mb-6">
                         <h4 className="font-medium text-gray-900 mb-3">Status Legend</h4>
@@ -1496,7 +1496,7 @@ export default function CommunityDetail() {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="space-y-6">
                         {Object.entries(getCareServicesByCategory()).map(([category, services]) => (
                           <div key={category}>
@@ -1507,13 +1507,13 @@ export default function CommunityDetail() {
                               {services.map((service) => {
                                 const status = getCareServiceStatus(community, service.id);
                                 const styling = getStatusStyling(status);
-                                
+
                                 const IconComponent = 
                                   styling.icon === 'check' ? CheckCircle :
                                   styling.icon === 'clock' ? Clock :
                                   styling.icon === 'x' ? X :
                                   HelpCircle;
-                                
+
                                 return (
                                   <div 
                                     key={service.id} 
@@ -1612,7 +1612,7 @@ export default function CommunityDetail() {
                       Based on {(community as any).tourCount || '8'} family tours + {parseInt(community.googleReviewCount?.toString() || '0') + parseInt(community.yelpReviewCount?.toString() || '0')} online reviews
                     </p>
                   </div>
-                  
+
                   {/* Score Breakdown */}
                   <div className="grid grid-cols-3 gap-2 text-xs">
                     <div className="text-center">
@@ -1629,7 +1629,7 @@ export default function CommunityDetail() {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Tour Inspection Highlights */}
                 <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
                   <h4 className="text-sm font-semibold mb-2 flex items-center">
@@ -1655,7 +1655,7 @@ export default function CommunityDetail() {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* External Review Platform Links */}
                 <div className="space-y-2">
                   <p className="text-xs text-gray-600 dark:text-gray-400 text-center">View detailed reviews on:</p>
@@ -1689,7 +1689,7 @@ export default function CommunityDetail() {
                     </Button>
                   </div>
                 </div>
-                
+
                 {/* MySeniorValet Verification Badge */}
                 <div className="text-center">
                   <Badge className="bg-blue-600 text-white text-xs px-3 py-1 font-medium">
@@ -1720,7 +1720,7 @@ export default function CommunityDetail() {
                       <p className="text-xs text-gray-600 dark:text-gray-400">Pass/fail criteria for key areas</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-600">
                     <Star className="w-4 h-4 text-blue-600 mr-2" />
                     <div className="flex-1">
@@ -1728,7 +1728,7 @@ export default function CommunityDetail() {
                       <p className="text-xs text-gray-600 dark:text-gray-400">Cleanliness, staff, food, safety</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-600">
                     <UserCheck className="w-4 h-4 text-blue-600 mr-2" />
                     <div className="flex-1">
@@ -1737,7 +1737,7 @@ export default function CommunityDetail() {
                     </div>
                   </div>
                 </div>
-                
+
                 <Button 
                   onClick={() => window.location.href = `/tour-tracker?communityId=${community.id}`}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white"
@@ -1745,7 +1745,7 @@ export default function CommunityDetail() {
                   <ClipboardList className="w-4 h-4 mr-2" />
                   Start Tour Documentation
                 </Button>
-                
+
                 <p className="text-xs text-center text-blue-700 dark:text-blue-300">
                   Your tour data contributes to our composite ratings
                 </p>
