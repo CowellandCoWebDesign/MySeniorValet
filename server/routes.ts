@@ -10339,6 +10339,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Development cache-busting endpoint
+  if (process.env.NODE_ENV === 'development') {
+    app.post('/api/dev/clear-all-caches', async (req, res) => {
+      try {
+        // Clear platform stats cache
+        await communityStatsCache.clearCache();
+        
+        // Clear other cache instances if they exist
+        try {
+          if (searchCache && typeof searchCache.clear === 'function') {
+            searchCache.clear();
+          }
+          if (communityCache && typeof communityCache.clear === 'function') {
+            communityCache.clear();
+          }
+          if (apiCache && typeof apiCache.clear === 'function') {
+            apiCache.clear();
+          }
+        } catch (cacheError) {
+          console.log('Some caches not available:', cacheError.message);
+        }
+        
+        res.json({ 
+          message: 'All development caches cleared',
+          timestamp: new Date().toISOString(),
+          cachesCleared: ['platform-stats', 'search', 'community', 'api']
+        });
+      } catch (error) {
+        console.error('Error clearing development caches:', error);
+        res.status(500).json({ message: 'Failed to clear caches' });
+      }
+    });
+  }
+
   // TODO: Initialize support resources after database migration is complete
   // await supportResourceService.seedInitialContent();
 

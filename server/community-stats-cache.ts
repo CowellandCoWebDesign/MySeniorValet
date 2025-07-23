@@ -22,6 +22,12 @@ class CommunityStatsCache {
    * Get cached community statistics
    */
   async getStats(): Promise<CommunityStats> {
+    // Skip cache in development for real-time updates
+    if (process.env.NODE_ENV === 'development') {
+      await this.refreshCache();
+      return this.stats!;
+    }
+
     // Return cached stats if valid and recent
     if (this.stats && this.isValidCache()) {
       return this.stats;
@@ -36,6 +42,12 @@ class CommunityStatsCache {
    * Get just the total count (fastest operation)
    */
   async getTotalCount(): Promise<number> {
+    // Skip cache in development for real-time updates
+    if (process.env.NODE_ENV === 'development') {
+      const result = await db.select({ count: sql<number>`count(*)` }).from(communities);
+      return result[0]?.count || 0;
+    }
+
     if (this.stats && this.isValidCache()) {
       return this.stats.totalCommunities;
     }

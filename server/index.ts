@@ -41,6 +41,20 @@ app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 app.use(sanitizeInput);
 app.use(sqlInjectionProtection);
 
+// Disable all caching for development
+if (process.env.NODE_ENV === 'development') {
+  app.use((req, res, next) => {
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+      'Surrogate-Control': 'no-store',
+      'X-Cache': 'disabled'
+    });
+    next();
+  });
+}
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
