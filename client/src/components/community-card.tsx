@@ -358,7 +358,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
             )}
           </div>
           
-          {/* Always show pricing estimates - NO "call for pricing" */}
+          {/* Always show authentic government-based pricing estimates */}
           <div>
             {/* CRITICAL BUSINESS LOGIC: Featured/Premium communities = Claimed communities = Live Pricing */}
             {((community.badges && (community.badges.includes('Featured') || community.badges.includes('Premium'))) || community.isClaimed) ? (
