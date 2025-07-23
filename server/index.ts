@@ -41,16 +41,14 @@ app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 app.use(sanitizeInput);
 app.use(sqlInjectionProtection);
 
-// Disable all caching for development
+// Development mode - disable ALL caching for immediate visibility
 if (process.env.NODE_ENV === 'development') {
   app.use((req, res, next) => {
-    res.set({
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Pragma': 'no-cache',
-      'Expires': '0',
-      'Surrogate-Control': 'no-store',
-      'X-Cache': 'disabled'
-    });
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    res.set('Surrogate-Control', 'no-store');
+    res.set('ETag', '');
     next();
   });
 }
@@ -87,7 +85,7 @@ app.use((req, res, next) => {
 
 (async () => {
   const server = await registerRoutes(app);
-  
+
   // Seed the database on startup (non-blocking)
   seedDatabase().catch(error => {
     console.error('Failed to seed database:', error);
@@ -111,7 +109,7 @@ app.use((req, res, next) => {
   // Enhanced error handling middleware
   app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
-    
+
     // Log security-relevant errors
     if (status === 401 || status === 403 || status === 429) {
       console.warn('Security Event:', {
@@ -123,17 +121,17 @@ app.use((req, res, next) => {
         timestamp: new Date().toISOString(),
       });
     }
-    
+
     // Don't expose sensitive error details in production
     const isDevelopment = app.get("env") === "development";
     const message = isDevelopment ? err.message : getSecureErrorMessage(status);
-    
+
     res.status(status).json({ 
       error: getErrorType(status),
       message,
       ...(isDevelopment && { stack: err.stack })
     });
-    
+
     // Log error for monitoring (don't throw to avoid crashing)
     if (status >= 500) {
       console.error('Server Error:', {
@@ -168,7 +166,7 @@ app.use((req, res, next) => {
       502: 'Service temporarily unavailable',
       503: 'Service temporarily unavailable',
     };
-    
+
     return messages[status] || 'An error occurred';
   }
 
