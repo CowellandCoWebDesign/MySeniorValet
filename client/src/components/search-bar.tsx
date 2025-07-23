@@ -99,7 +99,7 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
               <Input
                 ref={inputRef}
                 type="text"
-                placeholder="Try 'San Francisco' or 'Memory Care'"
+                placeholder="Search by community name or location..."
                 className="pl-10"
                 value={locationQuery}
                 onChange={(e) => handleLocationInputChange(e.target.value)}
@@ -127,6 +127,7 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
                       // Determine icon and color based on location type
                       const getLocationIcon = (type: string) => {
                         switch (type) {
+                          case 'community': return { icon: Home, color: 'red' };
                           case 'city': return { icon: MapPin, color: 'blue' };
                           case 'state': return { icon: MapPin, color: 'purple' };
                           case 'county': return { icon: MapPin, color: 'green' };
@@ -138,6 +139,7 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
                       
                       const { icon: Icon, color } = getLocationIcon(suggestion.type);
                       const colorClasses: Record<string, string> = {
+                        red: 'bg-red-100 text-red-600',
                         blue: 'bg-blue-100 text-blue-600',
                         purple: 'bg-purple-100 text-purple-600', 
                         green: 'bg-green-100 text-green-600',
@@ -159,7 +161,9 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
                               <span className="text-sm text-gray-900 dark:text-white font-medium">{suggestion.label}</span>
                               {suggestion.type && (
                                 <span className="text-xs text-gray-500 ml-2 capitalize">
-                                  {suggestion.type === 'zip_pattern' ? 'ZIP Area' : suggestion.type}
+                                  {suggestion.type === 'zip_pattern' ? 'ZIP Area' : 
+                                   suggestion.type === 'community' ? 'Senior Community' : 
+                                   suggestion.type}
                                 </span>
                               )}
                             </div>

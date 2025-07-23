@@ -4264,10 +4264,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Process database communities for different location types
       communities.forEach(community => {
+        const name = community.name?.toLowerCase() || '';
         const city = community.city?.toLowerCase() || '';
         const state = community.state?.toLowerCase() || '';
         const zipCode = community.zipCode || '';
         const county = community.county?.toLowerCase() || '';
+        
+        // Community name suggestions - HIGHEST PRIORITY
+        if (name && (name.startsWith(query) || name.includes(query))) {
+          const communityKey = `community_${community.id}`;
+          suggestions.set(communityKey, {
+            label: `${community.name} - ${community.city}, ${community.state}`,
+            value: community.name,
+            type: 'community',
+            priority: name.startsWith(query) ? 0 : 1 // Community names get highest priority
+          });
+        }
         
         // City, State suggestions
         if (city && state) {
@@ -4279,14 +4291,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
               label: cityState,
               value: cityState,
               type: 'city',
-              priority: 1
+              priority: 2
             });
           } else if (city.includes(query) || state.includes(query)) {
             suggestions.set(key, {
               label: cityState,
               value: cityState,
               type: 'city',
-              priority: 3
+              priority: 4
             });
           }
         }
