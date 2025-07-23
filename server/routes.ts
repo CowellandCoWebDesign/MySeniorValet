@@ -1234,18 +1234,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           // Simple geocoding from our static map
           const locationMap: Record<string, [number, number]> = {
+            // California cities
+            'alpine': [32.8352, -116.7664],
+            'alpine ca': [32.8352, -116.7664],
+            'alpine, ca': [32.8352, -116.7664],
+            'alpine california': [32.8352, -116.7664],
+            'alpine, california': [32.8352, -116.7664],
+            'san francisco': [37.7749, -122.4194],
+            'san francisco ca': [37.7749, -122.4194],
+            'san francisco, ca': [37.7749, -122.4194],
+            'los angeles': [34.0522, -118.2437],
+            'los angeles ca': [34.0522, -118.2437],
+            'los angeles, ca': [34.0522, -118.2437],
+            'san diego': [32.7157, -117.1611],
+            'san diego ca': [32.7157, -117.1611],
+            'san diego, ca': [32.7157, -117.1611],
+            'sacramento': [38.5816, -121.4944],
+            'sacramento ca': [38.5816, -121.4944],
+            'sacramento, ca': [38.5816, -121.4944],
+            'redding': [40.5865, -122.3917],
+            'redding ca': [40.5865, -122.3917],
+            'redding, ca': [40.5865, -122.3917],
+            // Florida cities
             'panama city': [30.1588, -85.6602],
             'panama city florida': [30.1588, -85.6602],
             'panama city, florida': [30.1588, -85.6602],
             'panama city fl': [30.1588, -85.6602],
             'panama city, fl': [30.1588, -85.6602],
+            'tallahassee': [30.4383, -84.2807],
+            'gainesville': [29.6516, -82.3248],
+            'orlando': [28.5383, -81.3792],
+            'miami': [25.7617, -80.1918],
+            'tampa': [27.9506, -82.4572],
+            'jacksonville': [30.3322, -81.6557],
+            // States
+            'california': [36.7783, -119.4179],
+            'ca': [36.7783, -119.4179],
+            'florida': [27.6648, -81.5158],
+            'fl': [27.6648, -81.5158],
+            'texas': [31.9686, -99.9018],
+            'tx': [31.9686, -99.9018],
           };
           
           const normalizedLocation = searchParams.location.toLowerCase().trim();
+          console.log('Checking location:', normalizedLocation, 'against map keys');
+          
           if (locationMap[normalizedLocation]) {
             const [lat, lng] = locationMap[normalizedLocation];
             result.searchMetadata.coordinates = { lat, lng };
             console.log('Added coordinates to metadata:', { lat, lng });
+          } else {
+            // Try partial matches for flexibility
+            const mapKey = Object.keys(locationMap).find(key => 
+              normalizedLocation.includes(key) || key.includes(normalizedLocation)
+            );
+            if (mapKey) {
+              const [lat, lng] = locationMap[mapKey];
+              result.searchMetadata.coordinates = { lat, lng };
+              console.log('Added coordinates (partial match) to metadata:', { lat, lng });
+            } else {
+              console.log('No coordinates found for location:', normalizedLocation);
+            }
           }
         } catch (e) {
           console.error('Error adding coordinates:', e);
