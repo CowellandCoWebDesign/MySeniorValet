@@ -608,23 +608,56 @@ export class DatabaseStorage implements IStorage {
       return cached;
     }
     
-    // Optimized query using pre-calculated trending_score
-    const result = await db.select()
-      .from(communities)
-      .where(and(
-        isNotNull(communities.latitude),
-        isNotNull(communities.longitude),
-        sql`${communities.trendingScore} > 0`
-      ))
-      .orderBy(
-        desc(communities.trendingScore),
-        desc(communities.id)
-      )
-      .limit(limit);
-    
-    // Cache for 5 minutes
-    await cache.set(cacheKey, result, 300);
-    return result;
+    try {
+      // Use raw SQL query to avoid complex field mapping issues
+      const result = await db.execute(sql`
+        SELECT id, name, city, state, latitude, longitude, 
+               care_types as "careTypes", price_range as "priceRange",
+               rating, review_count as "reviewCount", photos, description,
+               total_units as "totalUnits", availability_status as "availabilityStatus",
+               monthly_rent_range_start as "monthlyRentRangeStart",
+               monthly_rent_range_end as "monthlyRentRangeEnd",
+               hud_property_id as "hudPropertyId", price_tier as "priceTier",
+               size_category as "sizeCategory", occupancy_rate as "occupancyRate"
+        FROM communities 
+        WHERE latitude IS NOT NULL 
+        AND longitude IS NOT NULL 
+        AND trending_score > 0
+        ORDER BY trending_score DESC, id DESC
+        LIMIT ${limit}
+      `);
+      
+      const communities = (result as any).rows || (result as any);
+      
+      // Cache for 5 minutes
+      await cache.set(cacheKey, communities, 300);
+      return communities;
+    } catch (error) {
+      console.error('Error in getTrendingCommunities:', error);
+      // Fallback to basic communities
+      try {
+        const fallback = await db.execute(sql`
+          SELECT id, name, city, state, latitude, longitude, 
+                 care_types as "careTypes", price_range as "priceRange",
+                 rating, review_count as "reviewCount", photos, description,
+                 total_units as "totalUnits", availability_status as "availabilityStatus",
+                 monthly_rent_range_start as "monthlyRentRangeStart",
+                 monthly_rent_range_end as "monthlyRentRangeEnd",
+                 hud_property_id as "hudPropertyId", price_tier as "priceTier",
+                 size_category as "sizeCategory", occupancy_rate as "occupancyRate"
+          FROM communities 
+          WHERE latitude IS NOT NULL 
+          AND longitude IS NOT NULL
+          ORDER BY id DESC
+          LIMIT ${limit}
+        `);
+        
+        return (fallback as any).rows || (fallback as any);
+      } catch (fallbackError) {
+        console.error('Fallback also failed:', fallbackError);
+        return [];
+      }
+    }
   }
 
   async searchCommunities(params: SearchCommunity): Promise<Community[]> {
