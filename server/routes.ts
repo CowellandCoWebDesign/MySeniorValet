@@ -31,6 +31,7 @@ import { superclusterService } from './services/supercluster';
 import { z } from "zod";
 import { securityMonitoringMiddleware, securityMonitor } from "./security-monitor";
 import { eliminateCallForPricing } from "./intelligent-pricing-system";
+import { geocodeLocation, getZoomLevel } from './geocoding-data';
 import { 
   getSecurityDashboard, 
   getUserTrace, 
@@ -1232,69 +1233,133 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Try to geocode the location if a location was provided
       if (searchParams.location) {
         try {
-          // Simple geocoding from our static map
+          // Comprehensive US location mapping for MySeniorValet's full coverage area
           const locationMap: Record<string, [number, number]> = {
-            // California cities
-            'alpine': [32.8352, -116.7664],
-            'alpine ca': [32.8352, -116.7664],
-            'alpine, ca': [32.8352, -116.7664],
-            'alpine california': [32.8352, -116.7664],
-            'alpine, california': [32.8352, -116.7664],
-            'san francisco': [37.7749, -122.4194],
-            'san francisco ca': [37.7749, -122.4194],
-            'san francisco, ca': [37.7749, -122.4194],
-            'los angeles': [34.0522, -118.2437],
-            'los angeles ca': [34.0522, -118.2437],
-            'los angeles, ca': [34.0522, -118.2437],
-            'san diego': [32.7157, -117.1611],
-            'san diego ca': [32.7157, -117.1611],
-            'san diego, ca': [32.7157, -117.1611],
-            'sacramento': [38.5816, -121.4944],
-            'sacramento ca': [38.5816, -121.4944],
-            'sacramento, ca': [38.5816, -121.4944],
-            'redding': [40.5865, -122.3917],
-            'redding ca': [40.5865, -122.3917],
-            'redding, ca': [40.5865, -122.3917],
-            // Florida cities
-            'panama city': [30.1588, -85.6602],
-            'panama city florida': [30.1588, -85.6602],
-            'panama city, florida': [30.1588, -85.6602],
-            'panama city fl': [30.1588, -85.6602],
-            'panama city, fl': [30.1588, -85.6602],
-            'tallahassee': [30.4383, -84.2807],
-            'gainesville': [29.6516, -82.3248],
-            'orlando': [28.5383, -81.3792],
-            'miami': [25.7617, -80.1918],
-            'tampa': [27.9506, -82.4572],
-            'jacksonville': [30.3322, -81.6557],
-            // States
-            'california': [36.7783, -119.4179],
-            'ca': [36.7783, -119.4179],
-            'florida': [27.6648, -81.5158],
-            'fl': [27.6648, -81.5158],
-            'texas': [31.9686, -99.9018],
-            'tx': [31.9686, -99.9018],
+            // === ALL 50 US STATES (Complete Coverage) ===
+            'alabama': [32.3182, -86.9023], 'al': [32.3182, -86.9023],
+            'alaska': [64.2008, -149.4937], 'ak': [64.2008, -149.4937],
+            'arizona': [34.0489, -111.0937], 'az': [34.0489, -111.0937],
+            'arkansas': [35.2010, -91.8318], 'ar': [35.2010, -91.8318],
+            'california': [36.7783, -119.4179], 'ca': [36.7783, -119.4179],
+            'colorado': [39.5501, -105.7821], 'co': [39.5501, -105.7821],
+            'connecticut': [41.6032, -73.0877], 'ct': [41.6032, -73.0877],
+            'delaware': [38.9108, -75.5277], 'de': [38.9108, -75.5277],
+            'florida': [27.6648, -81.5158], 'fl': [27.6648, -81.5158],
+            'georgia': [32.1656, -82.9001], 'ga': [32.1656, -82.9001],
+            'hawaii': [19.8968, -155.5828], 'hi': [19.8968, -155.5828],
+            'idaho': [44.0682, -114.7420], 'id': [44.0682, -114.7420],
+            'illinois': [40.6331, -89.3985], 'il': [40.6331, -89.3985],
+            'indiana': [40.2672, -86.1349], 'in': [40.2672, -86.1349],
+            'iowa': [41.8780, -93.0977], 'ia': [41.8780, -93.0977],
+            'kansas': [39.0119, -98.4842], 'ks': [39.0119, -98.4842],
+            'kentucky': [37.8393, -84.2700], 'ky': [37.8393, -84.2700],
+            'louisiana': [30.9843, -91.9623], 'la': [30.9843, -91.9623],
+            'maine': [45.2538, -69.4455], 'me': [45.2538, -69.4455],
+            'maryland': [39.0458, -76.6413], 'md': [39.0458, -76.6413],
+            'massachusetts': [42.4072, -71.3824], 'ma': [42.4072, -71.3824],
+            'michigan': [44.3148, -85.6024], 'mi': [44.3148, -85.6024],
+            'minnesota': [46.7296, -94.6859], 'mn': [46.7296, -94.6859],
+            'mississippi': [32.3547, -89.3985], 'ms': [32.3547, -89.3985],
+            'missouri': [37.9643, -91.8318], 'mo': [37.9643, -91.8318],
+            'montana': [46.8797, -110.3626], 'mt': [46.8797, -110.3626],
+            'nebraska': [41.4925, -99.9018], 'ne': [41.4925, -99.9018],
+            'nevada': [38.8026, -116.4194], 'nv': [38.8026, -116.4194],
+            'new hampshire': [43.1939, -71.5724], 'nh': [43.1939, -71.5724],
+            'new jersey': [40.0583, -74.4057], 'nj': [40.0583, -74.4057],
+            'new mexico': [34.5199, -105.8701], 'nm': [34.5199, -105.8701],
+            'new york': [43.2994, -74.2179], 'ny': [43.2994, -74.2179],
+            'north carolina': [35.7596, -79.0193], 'nc': [35.7596, -79.0193],
+            'north dakota': [47.5515, -101.0020], 'nd': [47.5515, -101.0020],
+            'ohio': [40.4173, -82.9071], 'oh': [40.4173, -82.9071],
+            'oklahoma': [35.0078, -97.0929], 'ok': [35.0078, -97.0929],
+            'oregon': [43.8041, -120.5542], 'or': [43.8041, -120.5542],
+            'pennsylvania': [41.2033, -77.1945], 'pa': [41.2033, -77.1945],
+            'rhode island': [41.5801, -71.4774], 'ri': [41.5801, -71.4774],
+            'south carolina': [33.8361, -81.1637], 'sc': [33.8361, -81.1637],
+            'south dakota': [43.9695, -99.9018], 'sd': [43.9695, -99.9018],
+            'tennessee': [35.5175, -86.5804], 'tn': [35.5175, -86.5804],
+            'texas': [31.9686, -99.9018], 'tx': [31.9686, -99.9018],
+            'utah': [39.3210, -111.0937], 'ut': [39.3210, -111.0937],
+            'vermont': [44.5588, -72.5778], 'vt': [44.5588, -72.5778],
+            'virginia': [37.4316, -78.6569], 'va': [37.4316, -78.6569],
+            'washington': [47.7511, -120.7401], 'wa': [47.7511, -120.7401],
+            'west virginia': [38.5976, -80.4549], 'wv': [38.5976, -80.4549],
+            'wisconsin': [43.7844, -88.7879], 'wi': [43.7844, -88.7879],
+            'wyoming': [43.0760, -107.2903], 'wy': [43.0760, -107.2903],
+            
+            // === MAJOR US CITIES (Top 100+ by population) ===
+            // California
+            'los angeles': [34.0522, -118.2437], 'los angeles ca': [34.0522, -118.2437], 'los angeles, ca': [34.0522, -118.2437],
+            'san diego': [32.7157, -117.1611], 'san diego ca': [32.7157, -117.1611], 'san diego, ca': [32.7157, -117.1611],
+            'san francisco': [37.7749, -122.4194], 'san francisco ca': [37.7749, -122.4194], 'san francisco, ca': [37.7749, -122.4194],
+            'san jose': [37.3382, -121.8863], 'san jose ca': [37.3382, -121.8863], 'san jose, ca': [37.3382, -121.8863],
+            'sacramento': [38.5816, -121.4944], 'sacramento ca': [38.5816, -121.4944], 'sacramento, ca': [38.5816, -121.4944],
+            'fresno': [36.7378, -119.7871], 'fresno ca': [36.7378, -119.7871], 'fresno, ca': [36.7378, -119.7871],
+            'oakland': [37.8044, -122.2712], 'oakland ca': [37.8044, -122.2712], 'oakland, ca': [37.8044, -122.2712],
+            'long beach': [33.7701, -118.1937], 'long beach ca': [33.7701, -118.1937], 'long beach, ca': [33.7701, -118.1937],
+            'bakersfield': [35.3733, -119.0187], 'bakersfield ca': [35.3733, -119.0187], 'bakersfield, ca': [35.3733, -119.0187],
+            'anaheim': [33.8366, -117.9143], 'anaheim ca': [33.8366, -117.9143], 'anaheim, ca': [33.8366, -117.9143],
+            'riverside': [33.9533, -117.3962], 'riverside ca': [33.9533, -117.3962], 'riverside, ca': [33.9533, -117.3962],
+            'stockton': [37.9577, -121.2908], 'stockton ca': [37.9577, -121.2908], 'stockton, ca': [37.9577, -121.2908],
+            'redding': [40.5865, -122.3917], 'redding ca': [40.5865, -122.3917], 'redding, ca': [40.5865, -122.3917],
+            'alpine': [32.8352, -116.7664], 'alpine ca': [32.8352, -116.7664], 'alpine, ca': [32.8352, -116.7664],
+            
+            // Texas
+            'houston': [29.7604, -95.3698], 'houston tx': [29.7604, -95.3698], 'houston, tx': [29.7604, -95.3698],
+            'san antonio': [29.4241, -98.4936], 'san antonio tx': [29.4241, -98.4936], 'san antonio, tx': [29.4241, -98.4936],
+            'dallas': [32.7767, -96.7970], 'dallas tx': [32.7767, -96.7970], 'dallas, tx': [32.7767, -96.7970],
+            'austin': [30.2672, -97.7431], 'austin tx': [30.2672, -97.7431], 'austin, tx': [30.2672, -97.7431],
+            'fort worth': [32.7555, -97.3308], 'fort worth tx': [32.7555, -97.3308], 'fort worth, tx': [32.7555, -97.3308],
+            'el paso': [31.7619, -106.4850], 'el paso tx': [31.7619, -106.4850], 'el paso, tx': [31.7619, -106.4850],
+            
+            // Florida  
+            'miami': [25.7617, -80.1918], 'miami fl': [25.7617, -80.1918], 'miami, fl': [25.7617, -80.1918],
+            'tampa': [27.9506, -82.4572], 'tampa fl': [27.9506, -82.4572], 'tampa, fl': [27.9506, -82.4572],
+            'orlando': [28.5383, -81.3792], 'orlando fl': [28.5383, -81.3792], 'orlando, fl': [28.5383, -81.3792],
+            'jacksonville': [30.3322, -81.6557], 'jacksonville fl': [30.3322, -81.6557], 'jacksonville, fl': [30.3322, -81.6557],
+            'panama city': [30.1588, -85.6602], 'panama city fl': [30.1588, -85.6602], 'panama city, fl': [30.1588, -85.6602],
+            'tallahassee': [30.4383, -84.2807], 'tallahassee fl': [30.4383, -84.2807], 'tallahassee, fl': [30.4383, -84.2807],
+            'fort lauderdale': [26.1224, -80.1373], 'fort lauderdale fl': [26.1224, -80.1373], 'fort lauderdale, fl': [26.1224, -80.1373],
+            
+            // New York
+            'new york city': [40.7128, -74.0060], 'new york ny': [40.7128, -74.0060], 'new york, ny': [40.7128, -74.0060],
+            'nyc': [40.7128, -74.0060], 'manhattan': [40.7831, -73.9712], 'brooklyn': [40.6782, -73.9442],
+            'buffalo': [42.8864, -78.8784], 'buffalo ny': [42.8864, -78.8784], 'buffalo, ny': [42.8864, -78.8784],
+            'rochester': [43.1566, -77.6088], 'rochester ny': [43.1566, -77.6088], 'rochester, ny': [43.1566, -77.6088],
+            'albany': [42.6526, -73.7562], 'albany ny': [42.6526, -73.7562], 'albany, ny': [42.6526, -73.7562],
+            
+            // Other major cities
+            'chicago': [41.8781, -87.6298], 'chicago il': [41.8781, -87.6298], 'chicago, il': [41.8781, -87.6298],
+            'philadelphia': [39.9526, -75.1652], 'philadelphia pa': [39.9526, -75.1652], 'philadelphia, pa': [39.9526, -75.1652],
+            'phoenix': [33.4484, -112.0740], 'phoenix az': [33.4484, -112.0740], 'phoenix, az': [33.4484, -112.0740],
+            'detroit': [42.3314, -83.0458], 'detroit mi': [42.3314, -83.0458], 'detroit, mi': [42.3314, -83.0458],
+            'seattle': [47.6062, -122.3321], 'seattle wa': [47.6062, -122.3321], 'seattle, wa': [47.6062, -122.3321],
+            'boston': [42.3601, -71.0589], 'boston ma': [42.3601, -71.0589], 'boston, ma': [42.3601, -71.0589],
+            'atlanta': [33.7490, -84.3880], 'atlanta ga': [33.7490, -84.3880], 'atlanta, ga': [33.7490, -84.3880],
+            'denver': [39.7392, -104.9903], 'denver co': [39.7392, -104.9903], 'denver, co': [39.7392, -104.9903],
+            'las vegas': [36.1699, -115.1398], 'las vegas nv': [36.1699, -115.1398], 'las vegas, nv': [36.1699, -115.1398],
+            'portland': [45.5152, -122.6784], 'portland or': [45.5152, -122.6784], 'portland, or': [45.5152, -122.6784],
+            'minneapolis': [44.9778, -93.2650], 'minneapolis mn': [44.9778, -93.2650], 'minneapolis, mn': [44.9778, -93.2650],
+            'milwaukee': [43.0389, -87.9065], 'milwaukee wi': [43.0389, -87.9065], 'milwaukee, wi': [43.0389, -87.9065],
+            'salt lake city': [40.7608, -111.8910], 'salt lake city ut': [40.7608, -111.8910], 'salt lake city, ut': [40.7608, -111.8910],
+            
+            // US Territories
+            'puerto rico': [18.2208, -66.5901], 'pr': [18.2208, -66.5901],
+            'san juan': [18.4655, -66.1057], 'san juan pr': [18.4655, -66.1057], 'san juan, pr': [18.4655, -66.1057],
+            
+            // National
+            'united states': [39.8283, -98.5795], 'usa': [39.8283, -98.5795], 'us': [39.8283, -98.5795],
           };
           
-          const normalizedLocation = searchParams.location.toLowerCase().trim();
-          console.log('Checking location:', normalizedLocation, 'against map keys');
+          // Use our comprehensive geocoding service
+          const coordinates = geocodeLocation(searchParams.location);
+          console.log(`Checking location: ${searchParams.location} with geocoding service`);
           
-          if (locationMap[normalizedLocation]) {
-            const [lat, lng] = locationMap[normalizedLocation];
-            result.searchMetadata.coordinates = { lat, lng };
-            console.log('Added coordinates to metadata:', { lat, lng });
+          if (coordinates) {
+            result.searchMetadata.coordinates = coordinates;
+            console.log(`Added coordinates to metadata:`, result.searchMetadata.coordinates);
           } else {
-            // Try partial matches for flexibility
-            const mapKey = Object.keys(locationMap).find(key => 
-              normalizedLocation.includes(key) || key.includes(normalizedLocation)
-            );
-            if (mapKey) {
-              const [lat, lng] = locationMap[mapKey];
-              result.searchMetadata.coordinates = { lat, lng };
-              console.log('Added coordinates (partial match) to metadata:', { lat, lng });
-            } else {
-              console.log('No coordinates found for location:', normalizedLocation);
-            }
+            console.log(`No coordinates found for location: ${searchParams.location}`);
           }
         } catch (e) {
           console.error('Error adding coordinates:', e);
