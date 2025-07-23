@@ -67,7 +67,7 @@ export default function Home() {
               </div>
 
               {/* Enhanced Headlines */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-display font-bold text-gray-900 dark:text-white mb-8 leading-tight">
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-display font-bold text-gray-900 dark:text-white mb-10 leading-tight">
                 Senior Living{" "}
                 <span className="text-primary bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   Complete Care
@@ -78,64 +78,67 @@ export default function Home() {
                 </span>
               </h1>
               
-              <p className="text-xl lg:text-2xl xl:text-3xl text-gray-700 dark:text-gray-300 max-w-4xl mx-auto mb-6 leading-relaxed font-medium">
+              <p className="text-2xl lg:text-3xl xl:text-4xl text-gray-700 dark:text-gray-300 max-w-5xl mx-auto mb-8 leading-relaxed font-semibold">
                 <strong className="text-blue-700 dark:text-blue-400">31,023+ authentic communities</strong> with HUD property data, Medicare records, and state licensing. Real pricing from $303-$9,200+ with zero "call for pricing" promises.
               </p>
               
-              <p className="text-lg lg:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-10 leading-relaxed">
+              <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-400 max-w-4xl mx-auto mb-12 leading-relaxed font-medium">
                 Complete post-move services including bill payment, account management, and unified resident onboarding systems.
               </p>
 
               {/* Enhanced Service Pills */}
-              <div className="flex flex-wrap justify-center gap-3 lg:gap-4 mb-10">
-                <div className="flex items-center space-x-3 bg-white/95 backdrop-blur-md px-6 py-3 rounded-xl shadow-lg border border-blue-200/60 hover:shadow-xl transition-all duration-300 group relative overflow-hidden">
+              <div className="flex flex-wrap justify-center gap-4 lg:gap-6 mb-12">
+                <div className="flex items-center space-x-4 bg-white/95 backdrop-blur-md px-8 py-4 rounded-2xl shadow-xl border border-blue-200/60 hover:shadow-2xl transition-all duration-300 group relative overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-indigo-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="p-2 bg-blue-100 rounded-full relative z-10">
-                    <Eye className="text-blue-600 h-5 w-5" />
+                  <div className="p-3 bg-blue-100 rounded-full relative z-10">
+                    <Eye className="text-blue-600 h-7 w-7" />
                   </div>
-                  <span className="text-base lg:text-lg font-semibold text-blue-800 relative z-10">Live Pricing & Availability</span>
+                  <span className="text-xl lg:text-2xl font-bold text-blue-800 relative z-10">Live Pricing & Availability</span>
                 </div>
                 
-                <div className="flex items-center space-x-3 bg-white/95 backdrop-blur-md px-6 py-3 rounded-xl shadow-lg border border-green-200/60 hover:shadow-xl transition-all duration-300 group">
-                  <div className="p-2 bg-green-100 rounded-full">
-                    <Truck className="text-green-600 h-5 w-5" />
+                <div className="flex items-center space-x-4 bg-white/95 backdrop-blur-md px-8 py-4 rounded-2xl shadow-xl border border-green-200/60 hover:shadow-2xl transition-all duration-300 group">
+                  <div className="p-3 bg-green-100 rounded-full">
+                    <Truck className="text-green-600 h-7 w-7" />
                   </div>
-                  <span className="text-base lg:text-lg font-semibold text-green-800">Move Coordination</span>
+                  <span className="text-xl lg:text-2xl font-bold text-green-800">Move Coordination</span>
                 </div>
                 
-                <div className="flex items-center space-x-3 bg-white/95 backdrop-blur-md px-6 py-3 rounded-xl shadow-lg border border-purple-200/60 hover:shadow-xl transition-all duration-300">
-                  <div className="p-2 bg-purple-100 rounded-full">
-                    <Sofa className="text-purple-600 h-5 w-5" />
+                <div className="flex items-center space-x-4 bg-white/95 backdrop-blur-md px-8 py-4 rounded-2xl shadow-xl border border-purple-200/60 hover:shadow-2xl transition-all duration-300">
+                  <div className="p-3 bg-purple-100 rounded-full">
+                    <Sofa className="text-purple-600 h-7 w-7" />
                   </div>
-                  <span className="text-base lg:text-lg font-semibold text-purple-800">Furniture & Medical Equipment</span>
+                  <span className="text-xl lg:text-2xl font-bold text-purple-800">Furniture & Medical Equipment</span>
                 </div>
                 
-                <div className="flex items-center space-x-3 bg-white/95 backdrop-blur-md px-6 py-3 rounded-xl shadow-lg border border-amber-200/60 hover:shadow-xl transition-all duration-300">
-                  <div className="p-2 bg-amber-100 rounded-full">
-                    <Users className="text-amber-600 h-5 w-5" />
+                <div className="flex items-center space-x-4 bg-white/95 backdrop-blur-md px-8 py-4 rounded-2xl shadow-xl border border-amber-200/60 hover:shadow-2xl transition-all duration-300">
+                  <div className="p-3 bg-amber-100 rounded-full">
+                    <Users className="text-amber-600 h-7 w-7" />
                   </div>
-                  <span className="text-base lg:text-lg font-semibold text-amber-800">Family Collaboration</span>
+                  <span className="text-xl lg:text-2xl font-bold text-amber-800">Family Collaboration</span>
                 </div>
               </div>
             </div>
 
             {/* Community Count Statement */}
-            <div className="text-center mb-8">
-              <p className="text-2xl lg:text-3xl text-gray-600 dark:text-gray-300 font-medium mb-4">
-                Serving families across <span className="text-blue-600 dark:text-blue-400 font-bold">31,023+ communities</span>
+            <div className="text-center mb-12">
+              <p className="text-3xl lg:text-4xl xl:text-5xl text-gray-600 dark:text-gray-300 font-bold mb-6">
+                Serving families across <span className="text-blue-600 dark:text-blue-400 font-black text-4xl lg:text-5xl xl:text-6xl">31,023+ communities</span>
               </p>
-              <p className="text-lg text-gray-500 dark:text-gray-400">
+              <p className="text-xl lg:text-2xl text-gray-500 dark:text-gray-400 font-medium mb-8">
                 Complete North American coverage with verified government data across 96 states/provinces
               </p>
-              <div className="flex flex-wrap justify-center gap-4 mt-4">
-                <div className="bg-white/90 backdrop-blur-md px-4 py-2 rounded-lg shadow-md">
-                  <span className="text-sm font-semibold text-blue-800">1,664 Counties</span>
+              <div className="flex flex-wrap justify-center gap-6 mt-8">
+                <div className="bg-white/90 backdrop-blur-md px-8 py-4 rounded-2xl shadow-xl border border-blue-200">
+                  <span className="text-2xl lg:text-3xl font-bold text-blue-800">1,664</span>
+                  <p className="text-lg font-semibold text-blue-600">Counties</p>
                 </div>
-                <div className="bg-white/90 backdrop-blur-md px-4 py-2 rounded-lg shadow-md">
-                  <span className="text-sm font-semibold text-green-800">4,698 Cities</span>
+                <div className="bg-white/90 backdrop-blur-md px-8 py-4 rounded-2xl shadow-xl border border-green-200">
+                  <span className="text-2xl lg:text-3xl font-bold text-green-800">4,698</span>
+                  <p className="text-lg font-semibold text-green-600">Cities</p>
                 </div>
-                <div className="bg-white/90 backdrop-blur-md px-4 py-2 rounded-lg shadow-md">
-                  <span className="text-sm font-semibold text-purple-800">735,112 Total Capacity</span>
+                <div className="bg-white/90 backdrop-blur-md px-8 py-4 rounded-2xl shadow-xl border border-purple-200">
+                  <span className="text-2xl lg:text-3xl font-bold text-purple-800">735,112</span>
+                  <p className="text-lg font-semibold text-purple-600">Total Capacity</p>
                 </div>
               </div>
             </div>
@@ -246,65 +249,65 @@ export default function Home() {
         </section>
 
         {/* Complete Concierge Services Section */}
-        <section className="py-16 lg:py-20 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700">
+        <section className="py-20 lg:py-24 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl lg:text-4xl font-display font-bold text-gray-900 dark:text-white mb-6">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl lg:text-5xl xl:text-6xl font-display font-bold text-gray-900 dark:text-white mb-8">
                 Complete Concierge Services
               </h2>
-              <p className="text-lg lg:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              <p className="text-2xl lg:text-3xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto font-medium leading-relaxed">
                 Everything you need for senior living decisions and transitions, all in one place
               </p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {/* Live Pricing & Availability */}
-              <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 group bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
-                <CardContent className="p-8 text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <Eye className="w-8 h-8 text-white" />
+              <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 group bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
+                <CardContent className="p-10 text-center">
+                  <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform duration-300">
+                    <Eye className="w-10 h-10 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Live Pricing & Availability</h3>
-                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                  <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">Live Pricing & Availability</h3>
+                  <p className="text-lg lg:text-xl text-gray-600 dark:text-gray-300 leading-relaxed font-medium">
                     Real HUD pricing from $303/month affordable housing to $9,200+ luxury care across all 31,023+ communities
                   </p>
                 </CardContent>
               </Card>
 
               {/* Move Coordination */}
-              <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 group bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
-                <CardContent className="p-8 text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <Truck className="w-8 h-8 text-white" />
+              <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 group bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
+                <CardContent className="p-10 text-center">
+                  <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform duration-300">
+                    <Truck className="w-10 h-10 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Move Coordination</h3>
-                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                  <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">Move Coordination</h3>
+                  <p className="text-lg lg:text-xl text-gray-600 dark:text-gray-300 leading-relaxed font-medium">
                     Professional moving services, timeline coordination, and logistics management for stress-free transitions
                   </p>
                 </CardContent>
               </Card>
 
               {/* Medical Equipment & Furniture */}
-              <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 group bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
-                <CardContent className="p-8 text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <Sofa className="w-8 h-8 text-white" />
+              <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 group bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
+                <CardContent className="p-10 text-center">
+                  <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform duration-300">
+                    <Sofa className="w-10 h-10 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Medical Equipment & Furniture</h3>
-                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                  <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">Medical Equipment & Furniture</h3>
+                  <p className="text-lg lg:text-xl text-gray-600 dark:text-gray-300 leading-relaxed font-medium">
                     Medical equipment sourcing, furniture delivery, and room setup services for immediate comfort
                   </p>
                 </CardContent>
               </Card>
 
               {/* Family Collaboration */}
-              <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 group bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 border-2 border-amber-200 dark:border-amber-400">
-                <CardContent className="p-8 text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <Users className="w-8 h-8 text-white" />
+              <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 group bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 border-2 border-amber-200 dark:border-amber-400">
+                <CardContent className="p-10 text-center">
+                  <div className="w-20 h-20 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform duration-300">
+                    <Users className="w-10 h-10 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Family Collaboration & Tours</h3>
-                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                  <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">Family Collaboration & Tours</h3>
+                  <p className="text-lg lg:text-xl text-gray-600 dark:text-gray-300 leading-relaxed font-medium">
                     Family sharing tools, tour scheduling, and progress tracking to keep everyone informed
                   </p>
                 </CardContent>
@@ -327,18 +330,18 @@ export default function Home() {
         </section>
 
         {/* Massive Data Coverage Section */}
-        <section className="py-16 lg:py-20 bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
+        <section className="py-20 lg:py-24 bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <div className="flex justify-center mb-6">
-                <div className="bg-blue-100 dark:bg-blue-900/50 rounded-full p-4">
-                  <Database className="h-12 w-12 text-blue-600 dark:text-blue-400" />
+            <div className="text-center mb-16">
+              <div className="flex justify-center mb-8">
+                <div className="bg-blue-100 dark:bg-blue-900/50 rounded-full p-6">
+                  <Database className="h-16 w-16 text-blue-600 dark:text-blue-400" />
                 </div>
               </div>
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 dark:text-gray-100 mb-8">
                 Unprecedented Coverage & Data Integrity
               </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              <p className="text-2xl lg:text-3xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto font-medium leading-relaxed">
                 The most comprehensive senior living database in North America, powered by authentic government sources
               </p>
             </div>
@@ -349,48 +352,48 @@ export default function Home() {
             </div>
 
             {/* Data Source Breakdown */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
-                <CardContent className="p-6 text-center">
-                  <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Building className="w-6 h-6 text-white" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+              <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
+                <CardContent className="p-8 text-center">
+                  <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Building className="w-8 h-8 text-white" />
                   </div>
-                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2">6,078</div>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">HUD Properties</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">$303-$5,000/month</p>
+                  <div className="text-4xl lg:text-5xl font-bold text-blue-600 dark:text-blue-400 mb-4">6,078</div>
+                  <p className="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-2">HUD Properties</p>
+                  <p className="text-lg text-gray-500 dark:text-gray-400">$303-$5,000/month</p>
                 </CardContent>
               </Card>
 
-              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
-                <CardContent className="p-6 text-center">
-                  <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Shield className="w-6 h-6 text-white" />
+              <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
+                <CardContent className="p-8 text-center">
+                  <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Shield className="w-8 h-8 text-white" />
                   </div>
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-2">24,945</div>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">Licensed Facilities</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">State Certified</p>
+                  <div className="text-4xl lg:text-5xl font-bold text-green-600 dark:text-green-400 mb-4">24,945</div>
+                  <p className="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-2">Licensed Facilities</p>
+                  <p className="text-lg text-gray-500 dark:text-gray-400">State Certified</p>
                 </CardContent>
               </Card>
 
-              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
-                <CardContent className="p-6 text-center">
-                  <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <MapPin className="w-6 h-6 text-white" />
+              <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
+                <CardContent className="p-8 text-center">
+                  <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <MapPin className="w-8 h-8 text-white" />
                   </div>
-                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-2">101</div>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">States & Territories</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">US + Canada + Mexico</p>
+                  <div className="text-4xl lg:text-5xl font-bold text-purple-600 dark:text-purple-400 mb-4">101</div>
+                  <p className="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-2">States & Territories</p>
+                  <p className="text-lg text-gray-500 dark:text-gray-400">US + Canada + Mexico</p>
                 </CardContent>
               </Card>
 
-              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20">
-                <CardContent className="p-6 text-center">
-                  <div className="w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <DollarSign className="w-6 h-6 text-white" />
+              <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20">
+                <CardContent className="p-8 text-center">
+                  <div className="w-16 h-16 bg-amber-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <DollarSign className="w-8 h-8 text-white" />
                   </div>
-                  <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 mb-2">0</div>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">"Call for Pricing"</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">100% Transparent</p>
+                  <div className="text-4xl lg:text-5xl font-bold text-amber-600 dark:text-amber-400 mb-4">0</div>
+                  <p className="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-2">"Call for Pricing"</p>
+                  <p className="text-lg text-gray-500 dark:text-gray-400">100% Transparent</p>
                 </CardContent>
               </Card>
             </div>
@@ -427,28 +430,28 @@ export default function Home() {
         </section>
 
         {/* Social Proof Section */}
-        <section className="py-16 lg:py-20 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+        <section className="py-20 lg:py-24 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl lg:text-4xl font-display font-bold text-gray-900 dark:text-white mb-6">
+            <div className="text-center mb-20">
+              <h2 className="text-4xl lg:text-5xl xl:text-6xl font-display font-bold text-gray-900 dark:text-white mb-12">
                 Trusted by Families Nationwide
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-6xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-12 max-w-7xl mx-auto">
                 <div className="text-center">
-                  <div className="text-4xl lg:text-5xl font-bold text-blue-600 dark:text-blue-400 mb-3">31,023</div>
-                  <p className="text-gray-600 dark:text-gray-300 font-medium">Verified Communities</p>
+                  <div className="text-6xl lg:text-7xl xl:text-8xl font-black text-blue-600 dark:text-blue-400 mb-6">31,023</div>
+                  <p className="text-2xl lg:text-3xl text-gray-600 dark:text-gray-300 font-bold">Verified Communities</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-4xl lg:text-5xl font-bold text-green-600 dark:text-green-400 mb-3">101</div>
-                  <p className="text-gray-600 dark:text-gray-300 font-medium">States & Provinces</p>
+                  <div className="text-6xl lg:text-7xl xl:text-8xl font-black text-green-600 dark:text-green-400 mb-6">101</div>
+                  <p className="text-2xl lg:text-3xl text-gray-600 dark:text-gray-300 font-bold">States & Provinces</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-4xl lg:text-5xl font-bold text-purple-600 dark:text-purple-400 mb-3">633K</div>
-                  <p className="text-gray-600 dark:text-gray-300 font-medium">Total Housing Units</p>
+                  <div className="text-6xl lg:text-7xl xl:text-8xl font-black text-purple-600 dark:text-purple-400 mb-6">735K</div>
+                  <p className="text-2xl lg:text-3xl text-gray-600 dark:text-gray-300 font-bold">Total Housing Units</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-4xl lg:text-5xl font-bold text-orange-600 dark:text-orange-400 mb-3">100%</div>
-                  <p className="text-gray-600 dark:text-gray-300 font-medium">Transparent Pricing</p>
+                  <div className="text-6xl lg:text-7xl xl:text-8xl font-black text-orange-600 dark:text-orange-400 mb-6">100%</div>
+                  <p className="text-2xl lg:text-3xl text-gray-600 dark:text-gray-300 font-bold">Transparent Pricing</p>
                 </div>
               </div>
             </div>
