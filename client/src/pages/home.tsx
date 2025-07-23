@@ -18,10 +18,10 @@ export default function Home() {
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-r from-pink-400/10 to-cyan-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         <div className="absolute top-3/4 left-3/4 w-64 h-64 bg-gradient-to-r from-emerald-400/10 to-teal-400/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
       </div>
-      
+
       <div className="relative z-10">
         <Header />
-      
+
       {/* Hero Section - Optimized for Senior Accessibility */}
       <section className="relative py-16 lg:py-24 overflow-hidden min-h-[85vh] flex items-center justify-center">
         {/* Hero Background Image - Unsplash Exemption */}
@@ -63,7 +63,7 @@ export default function Home() {
             <p className="text-lg lg:text-xl text-gray-600 max-w-3xl mx-auto mb-10 leading-relaxed">
               We help communities become tech-professional with unified resident onboarding systems.
             </p>
-            
+
             {/* Enhanced Feature Pills - Larger for Seniors */}
             <div className="flex flex-wrap justify-center gap-3 lg:gap-4 mb-10">
                 <div className="flex items-center space-x-3 bg-white/90 backdrop-blur-md px-6 py-3 rounded-xl shadow-md border border-blue-200/50 hover:shadow-lg transition-all duration-300 group relative overflow-hidden">
@@ -105,7 +105,7 @@ export default function Home() {
           {/* Optimized Search Bar */}
           <div className="max-w-4xl mx-auto mb-8">
             <SearchBar />
-            
+
             {/* Quick Actions */}
             <div className="flex flex-wrap justify-center gap-3 mt-6">
               <Link href="/search?careType=Memory%20Care">
@@ -147,7 +147,7 @@ export default function Home() {
                 Explore All Communities on Map
               </Button>
             </Link>
-            
+
             {/* For Communities Button */}
             <Link href="/community-portal">
               <Button 
@@ -159,7 +159,7 @@ export default function Home() {
               </Button>
             </Link>
           </div>
-          
+
           {/* Data Integrity Notice */}
           <div className="max-w-3xl mx-auto">
             <div className="bg-white/90 backdrop-blur-md border border-blue-200/60 rounded-xl p-6 shadow-md">
@@ -212,7 +212,7 @@ export default function Home() {
               We aggregate data from multiple trusted sources including Google, Yelp, state agencies, and community websites to give you the complete picture.
             </p>
           </div>
-          
+
           {/* Enhanced Feature Cards - Larger Text for Seniors */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
             <div className="group bg-white dark:bg-gray-800 hover:bg-green-50/50 dark:hover:bg-green-900/20 border border-green-200/60 dark:border-green-700/40 rounded-xl p-8 text-center shadow-md hover:shadow-lg transition-all duration-300">
@@ -224,7 +224,7 @@ export default function Home() {
                 See real monthly costs, special offers, and pricing updates. No surprises or hidden fees.
               </p>
             </div>
-            
+
             <div className="group bg-white dark:bg-gray-800 hover:bg-yellow-50/50 dark:hover:bg-yellow-900/20 border border-yellow-200/60 dark:border-yellow-700/40 rounded-xl p-8 text-center shadow-md hover:shadow-lg transition-all duration-300">
               <div className="w-16 h-16 bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-800 dark:to-yellow-700 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Star className="text-yellow-600 dark:text-yellow-400 h-8 w-8" />
@@ -234,7 +234,7 @@ export default function Home() {
                 Read real Google reviews and family experiences to understand what life is really like.
               </p>
             </div>
-            
+
             <div className="group bg-white dark:bg-gray-800 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 border border-blue-200/60 dark:border-blue-700/40 rounded-xl p-8 text-center shadow-md hover:shadow-lg transition-all duration-300">
               <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-800 dark:to-blue-700 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Clock className="text-blue-600 dark:text-blue-400 h-8 w-8" />
@@ -244,7 +244,7 @@ export default function Home() {
                 Check real-time availability and unit counts. Know exactly what's open right now.
               </p>
             </div>
-            
+
             <div className="group bg-white dark:bg-gray-800 hover:bg-purple-50/50 dark:hover:bg-purple-900/20 border border-purple-200/60 dark:border-purple-700/40 rounded-xl p-8 text-center shadow-md hover:shadow-lg transition-all duration-300">
               <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-700 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Activity className="text-purple-600 dark:text-purple-400 h-8 w-8" />
@@ -493,7 +493,7 @@ export default function Home() {
       </section>
 
       <Footer />
-      
+
       {/* Greeting Mascot */}
       <GreetingMascot
         autoShow={true}
@@ -502,7 +502,44 @@ export default function Home() {
           localStorage.setItem('greeting-mascot-dismissed', 'true');
         }}
       />
+       <div className="max-w-3xl mx-auto mt-8">
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-6 mb-8">
+            <div className="flex items-start space-x-3">
+              <Shield className="w-6 h-6 text-blue-600 dark:text-blue-400 mt-1 flex-shrink-0" />
+              <div>
+                <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">100% Authentic Data Promise</h3>
+                <p className="text-blue-800 dark:text-blue-200 text-sm mb-3">
+                  Every community listing is verified through official government databases including HUD properties, 
+                  state licensing records, and CMS Medicare certifications. Photos are clearly labeled as authentic 
+                  community images or representative images until communities claim their listings.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200">
+                    ✓ Government Verified
+                  </Badge>
+                  <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200">
+                    ✓ Real Pricing Data
+                  </Badge>
+                  <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-200">
+                    ✓ Licensed Facilities Only
+                  </Badge>
+                  <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-200">
+                    ✓ Photo Source Transparency
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+  );
+}
+
+function Badge({ children, className }) {
+  return (
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${className}`}>
+      {children}
+    </span>
   );
 }

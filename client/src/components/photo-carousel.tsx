@@ -7,9 +7,10 @@ interface PhotoCarouselProps {
   photos: string[];
   communityName: string;
   className?: string;
+  showSourceIndicator?: boolean;
 }
 
-export function PhotoCarousel({ photos, communityName, className = "" }: PhotoCarouselProps) {
+export function PhotoCarousel({ photos, communityName, className = "", showSourceIndicator = true }: PhotoCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showFullscreen, setShowFullscreen] = useState(false);
 
@@ -17,7 +18,7 @@ export function PhotoCarousel({ photos, communityName, className = "" }: PhotoCa
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!showFullscreen) return;
-      
+
       switch (event.key) {
         case 'ArrowLeft':
           event.preventDefault();
@@ -74,7 +75,7 @@ export function PhotoCarousel({ photos, communityName, className = "" }: PhotoCa
             className="w-full h-full object-cover cursor-pointer hover:opacity-95 transition-opacity"
             onClick={() => setShowFullscreen(true)}
           />
-          
+
           {/* Photo Count Badge */}
           <div className="absolute top-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm">
             {currentIndex + 1} of {photos.length}
@@ -154,7 +155,7 @@ export function PhotoCarousel({ photos, communityName, className = "" }: PhotoCa
               alt={`${communityName} - Photo ${currentIndex + 1}`}
               className="max-w-full max-h-full object-contain"
             />
-            
+
             {/* Close Button */}
             <Button
               variant="ghost"

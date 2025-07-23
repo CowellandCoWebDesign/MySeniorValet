@@ -203,8 +203,33 @@ export function CommunityCard({ community }: CommunityCardProps) {
               className="h-48 transform group-hover:scale-105 transition-transform duration-700"
             />
             
+            {/* PHOTO SOURCE TRANSPARENCY INDICATOR */}
+            <div className="absolute top-3 left-3 z-10">
+              {(() => {
+                const hasGooglePhotos = community.photos && community.photos.length > 0;
+                const hasStockPhotos = community.yelpPhotos || community.imageGallery;
+                
+                if (hasGooglePhotos) {
+                  return (
+                    <Badge className="bg-green-600 text-white border-0 backdrop-blur-sm text-xs font-medium">
+                      <Camera className="h-3 w-3 mr-1" />
+                      Authentic Photos
+                    </Badge>
+                  );
+                } else if (hasStockPhotos) {
+                  return (
+                    <Badge className="bg-orange-600 text-white border-0 backdrop-blur-sm text-xs font-medium">
+                      <ImageIcon className="h-3 w-3 mr-1" />
+                      Representative Images
+                    </Badge>
+                  );
+                }
+                return null;
+              })()}
+            </div>
+            
             {/* FAVORITE AND SHARE OVERLAYS */}
-            <div className="absolute top-3 left-3 flex space-x-2 z-10">
+            <div className="absolute top-3 right-3 flex space-x-2 z-10">
               <button
                 onClick={(e) => {
                   e.preventDefault();
@@ -271,7 +296,8 @@ export function CommunityCard({ community }: CommunityCardProps) {
         <div className="relative h-48 bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
           <div className="text-center text-gray-500">
             <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">Photos coming soon</p>
+            <p className="text-sm font-medium">Photos coming soon</p>
+            <p className="text-xs mt-1 opacity-75">Authentic photos will appear when community claims listing</p>
           </div>
           
           {/* AVAILABILITY OVERLAY FOR NO PHOTOS */}

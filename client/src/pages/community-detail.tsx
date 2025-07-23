@@ -533,19 +533,38 @@ export default function CommunityDetail() {
               <CardContent className="p-0">
                 <div className="relative h-64 sm:h-80 md:h-96 overflow-hidden rounded-lg">
                   {community.photos && community.photos.length > 0 ? (
-                    <HeroPhotoCarousel 
-                      photos={community.photos} 
-                      communityName={community.name}
-                    />
+                    <>
+                      <HeroPhotoCarousel 
+                        photos={community.photos} 
+                        communityName={community.name}
+                      />
+                      
+                      {/* PHOTO SOURCE TRANSPARENCY OVERLAY */}
+                      <div className="absolute bottom-4 left-4 z-10">
+                        <Badge className="bg-green-600 text-white border-0 backdrop-blur-sm">
+                          <Shield className="h-3 w-3 mr-1" />
+                          Authentic Community Photos
+                        </Badge>
+                      </div>
+                    </>
                   ) : (
                     <div className="h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                      <div className="text-center">
-                        <div className="w-16 h-16 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                      <div className="text-center p-8">
+                        <div className="w-16 h-16 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
                           <span className="text-2xl font-bold text-gray-600 dark:text-gray-300">
                             {getInitials(community.name)}
                           </span>
                         </div>
-                        <p className="text-gray-600 dark:text-gray-400">No photos available</p>
+                        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                          Photos Coming Soon
+                        </h3>
+                        <p className="text-gray-600 dark:text-gray-400 mb-4">
+                          Authentic community photos will be displayed when this facility claims their listing
+                        </p>
+                        <Badge className="bg-blue-100 text-blue-800 border border-blue-200">
+                          <Clock className="h-3 w-3 mr-1" />
+                          Pending Community Verification
+                        </Badge>
                       </div>
                     </div>
                   )}
