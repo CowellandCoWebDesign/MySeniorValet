@@ -45,7 +45,7 @@ export default function Home() {
 
           <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-10 lg:mb-16">
-              {/* Enhanced Trust Indicators */}
+              {/* Enhanced Trust Indicators - Updated */}
               <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
                 <div className="flex items-center space-x-2 bg-white/95 backdrop-blur-md px-4 py-2 rounded-full shadow-lg border border-green-200/60">
                   <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
