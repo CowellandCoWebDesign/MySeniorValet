@@ -22,10 +22,10 @@ export function SeniorMascot({
   };
 
   const animationClasses = {
-    wave: '',
-    bounce: '',
-    pulse: '',
-    spin: '',
+    wave: 'animate-pulse',
+    bounce: 'animate-bounce',
+    pulse: 'animate-pulse',
+    spin: 'animate-spin',
     none: ''
   };
 
