@@ -30,6 +30,7 @@ import { pixabayService } from './pixabay-api';
 import { superclusterService } from './services/supercluster';
 import { z } from "zod";
 import { securityMonitoringMiddleware, securityMonitor } from "./security-monitor";
+import { eliminateCallForPricing } from "./intelligent-pricing-system";
 import { 
   getSecurityDashboard, 
   getUserTrace, 
@@ -1078,9 +1079,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       ]) as any;
       
       const communitiesData = Array.isArray(result) ? result : result.rows || [];
-      console.log(`✅ PostGIS spatial search returned ${communitiesData.length} communities in ${Date.now() - startTime}ms`);
+      // Apply intelligent pricing system to eliminate "call for pricing"
+      const communitiesWithPricing = communitiesData.map(community => eliminateCallForPricing(community));
       
-      res.json(communitiesData);
+      console.log(`✅ PostGIS spatial search returned ${communitiesWithPricing.length} communities in ${Date.now() - startTime}ms`);
+      
+      res.json(communitiesWithPricing);
     } catch (error) {
       console.error('PostGIS spatial search error:', error);
       res.status(500).json({ 
@@ -1221,6 +1225,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       const result = await enhancedSearchService.searchCommunities(searchParams);
+      
+      // Apply intelligent pricing system to all communities
+      result.communities = result.communities.map(community => eliminateCallForPricing(community));
       
       // Try to geocode the location if a location was provided
       if (searchParams.location) {
@@ -1394,10 +1401,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`Found ${communities.length} communities in ${Date.now() - startTime}ms`);
       
-      // Enhance communities with pricing transparency badges (only for displayed results)
-      const enrichedCommunities = await pricingTransparencyService.enrichCommunitiesWithBadges(communities);
+      // Apply intelligent pricing system to eliminate "call for pricing"
+      const communitiesWithPricing = communities.map(community => eliminateCallForPricing(community));
       
-      res.json(enrichedCommunities);
+      res.json(communitiesWithPricing);
     } catch (error) {
       if (error instanceof z.ZodError) {
         console.error("Search validation error:", error.errors);
@@ -1476,8 +1483,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Use optimized database query instead of loading all communities
       const trendingCommunities = await storage.getTrendingCommunities(100);
       
-      // Add some randomness for variety while keeping the quality high
+      // Apply intelligent pricing system and add randomness for variety
       const shuffledCommunities = trendingCommunities
+        .map(community => eliminateCallForPricing(community))
         .map(community => ({
           ...community,
           trendingScore: Math.random() * 100, // Add some randomness for variety
@@ -1523,8 +1531,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (allCoastalCommunities.length === 0) {
         try {
           const fallbackResults = await storage.getTrendingCommunities(limit);
+          const resultsWithPricing = fallbackResults.map(community => eliminateCallForPricing(community));
           console.log(`Coastal communities loaded (fallback) in ${Date.now() - startTime}ms`);
-          res.json(fallbackResults);
+          res.json(resultsWithPricing);
         } catch (fallbackError) {
           console.error('Fallback also failed:', fallbackError);
           res.json([]);
@@ -1532,8 +1541,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return;
       }
       
-      // Limit to requested amount and shuffle for variety
+      // Apply intelligent pricing and limit to requested amount
       const shuffledResults = allCoastalCommunities
+        .map(community => eliminateCallForPricing(community))
         .sort(() => Math.random() - 0.5)
         .slice(0, limit);
       
@@ -1560,8 +1570,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         offset: 0
       });
       
+      // Apply intelligent pricing system
+      const resultsWithPricing = searchResults.map(community => eliminateCallForPricing(community));
+      
       console.log(`Location communities (${location}) loaded in ${Date.now() - startTime}ms`);
-      res.json(searchResults);
+      res.json(resultsWithPricing);
     } catch (error) {
       console.error('Error fetching location communities:', error);
       // Return empty array instead of error to prevent UI breakage
