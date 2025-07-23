@@ -550,6 +550,16 @@ export default function TrueViewHome() {
                         {index < 4 ? '🏖️ Coastal' : '💎 Premium'}
                       </Badge>
                     )}
+                    {!community.hud_property_id && index % 4 === 2 && (
+                      <Badge className={`text-white text-xs px-2 py-1 font-medium ${index < 4 ? 'bg-teal-600/90' : 'bg-violet-600/90'}`}>
+                        {index < 4 ? '🌊 Waterfront' : '⭐ Top Rated'}
+                      </Badge>
+                    )}
+                    {!community.hud_property_id && index % 4 === 3 && (
+                      <Badge className={`text-white text-xs px-2 py-1 font-medium ${index < 4 ? 'bg-indigo-600/90' : 'bg-pink-600/90'}`}>
+                        {index < 4 ? '🏖️ Beachside' : '💫 Exclusive'}
+                      </Badge>
+                    )}
                   </div>
                   
                   {/* Enhanced Features Row */}
