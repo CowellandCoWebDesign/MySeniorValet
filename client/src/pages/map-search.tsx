@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import Map from '@/components/Map';
 import MapTutorial from '@/components/MapTutorial';
 import MapErrorBoundary from '@/components/MapErrorBoundary';
+import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
 import { useQuery } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 
@@ -389,23 +390,24 @@ export default function MapSearch() {
         const data = await response.json();
         console.log('Enhanced API data:', data);
         
-        // Check if we have communities with coordinates
+        // PRIORITY 1: Check if metadata has coordinates (this is the primary fix!)
+        if (data.searchMetadata?.coordinates) {
+          console.log('✅ Using searchMetadata coordinates:', data.searchMetadata.coordinates);
+          setMapCenter([data.searchMetadata.coordinates.lat, data.searchMetadata.coordinates.lng]);
+          setMapZoom(data.searchMetadata.searchType === 'state' ? 7 : 
+                    data.searchMetadata.searchType === 'city' ? 12 : 10);
+          return;
+        }
+        
+        // PRIORITY 2: Fallback to first community coordinates if no metadata
         if (data.communities && data.communities.length > 0) {
           const firstCommunity = data.communities[0];
           if (firstCommunity.latitude && firstCommunity.longitude) {
-            console.log('Using first community coordinates:', firstCommunity);
+            console.log('✅ Using first community coordinates:', firstCommunity);
             setMapCenter([firstCommunity.latitude, firstCommunity.longitude]);
-            setMapZoom(data.searchMetadata?.searchType === 'state' ? 8 : 12);
+            setMapZoom(12);
             return;
           }
-        }
-        
-        // Check if metadata has coordinates (future enhancement)
-        if (data.searchMetadata?.coordinates) {
-          console.log('Setting map center to:', data.searchMetadata.coordinates);
-          setMapCenter([data.searchMetadata.coordinates.lat, data.searchMetadata.coordinates.lng]);
-          setMapZoom(data.searchMetadata.searchType === 'state' ? 8 : 12);
-          return;
         }
       }
     } catch (error) {
@@ -1352,114 +1354,12 @@ export default function MapSearch() {
                   return a.name.localeCompare(b.name);
                 })
                 .map((community: Community, index: number) => (
-                <div
-                  key={community.id}
-                  className="bg-gradient-to-r from-white to-blue-50/50 dark:from-gray-800 dark:to-blue-900/20 rounded-xl border-2 border-blue-200/50 dark:border-blue-700/50 p-5 cursor-pointer hover:shadow-xl hover:scale-[1.02] transition-all duration-300 hover:border-blue-400 dark:hover:border-blue-500"
-                  onClick={() => handleCommunityClick(community)}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 pr-4">
-                      <div className="flex items-start gap-3">
-                        <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mt-2 flex-shrink-0"></div>
-                        <div className="flex-1">
-                          <h4 className="font-bold text-lg text-gray-900 dark:text-white dark:text-white line-clamp-2 mb-1">
-                            {community.name}
-                          </h4>
-                          <p className="text-sm text-blue-700 dark:text-blue-300 line-clamp-1 mb-3">
-                            📍 {community.address}, {community.city}, {community.state}
-                          </p>
-                          
-                          {/* Care Types */}
-                          {community.careTypes && community.careTypes.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mb-3">
-                              {community.careTypes.slice(0, 2).map((type: string, typeIndex: number) => (
-                                <span key={typeIndex} className="px-2 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 text-xs rounded-full font-medium">
-                                  {type}
-                                </span>
-                              ))}
-                              {community.careTypes.length > 2 && (
-                                <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-200 text-xs rounded-full font-medium">
-                                  +{community.careTypes.length - 2} more
-                                </span>
-                              )}
-                            </div>
-                          )}
-                          
-                          {/* Rating and Availability */}
-                          <div className="flex items-center gap-4 mb-3">
-                            {community.rating > 0 && (
-                              <div className="flex items-center gap-1">
-                                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                                <span className="text-sm font-bold text-gray-900 dark:text-white dark:text-white">
-                                  {community.rating}
-                                </span>
-                                <span className="text-xs text-gray-500">
-                                  ({community.reviewCount || 0} reviews)
-                                </span>
-                              </div>
-                            )}
-                            
-                            {community.availability && (
-                              <div className={`px-2 py-1 rounded-full text-xs font-bold ${
-                                community.availability === 'Available' 
-                                  ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200'
-                                  : community.availability === 'Limited'
-                                  ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200'
-                                  : 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200'
-                              }`}>
-                                {community.availability}
-                              </div>
-                            )}
-                          </div>
-                          
-                          {/* Action Buttons */}
-                          <div className="flex gap-2">
-                            <Button 
-                              size="sm" 
-                              className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0 font-medium"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleCommunityClick(community);
-                              }}
-                            >
-                              <ExternalLink className="w-3 h-3 mr-1" />
-                              View Details
-                            </Button>
-                            
-                            {community.phone && (
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                className="border-blue-300 text-blue-600 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-400 dark:hover:bg-blue-900/20"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  window.open(`tel:${community.phone}`);
-                                }}
-                              >
-                                <Phone className="w-3 h-3" />
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Price Display */}
-                    <div className="text-right pl-2">
-                      <div className="bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/40 rounded-lg p-3 border border-green-200 dark:border-green-700">
-                        <div className="text-lg font-bold text-green-800 dark:text-green-200">
-                          {community.priceRange && typeof community.priceRange === 'object' && 'min' in community.priceRange
-                            ? `$${(community.priceRange as any).min.toLocaleString()}`
-                            : '$3,800'}
-                        </div>
-                        <div className="text-xs text-green-600 dark:text-green-400">
-                          estimated
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                  <EnhancedCommunityCard
+                    key={community.id}
+                    community={community}
+                    onSelect={() => handleCommunityClick(community)}
+                  />
+                ))}
             </div>
           )}
         </div>
@@ -1492,6 +1392,9 @@ export default function MapSearch() {
               if (!showBottomPanel) {
                 setPanelHeight(70); // Set to 70% when opening
                 setShowBottomPanel(true);
+                // Force refresh communities when list is opened - SYNCHRONIZE WITH TOP BUTTON
+                console.log('Floating list clicked, refreshing communities...');
+                refetchCommunities();
               } else {
                 setShowBottomPanel(false);
               }

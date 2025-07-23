@@ -60,9 +60,10 @@ interface CommunityCardProps {
   };
   index?: number;
   variant?: 'standard' | 'featured' | 'coastal' | 'trending';
+  onSelect?: () => void;
 }
 
-export function EnhancedCommunityCard({ community, index = 0, variant = 'standard' }: CommunityCardProps) {
+export function EnhancedCommunityCard({ community, index = 0, variant = 'standard', onSelect }: CommunityCardProps) {
   const isHudProperty = community.hudPropertyId || community.dataQuality?.isAuthentic;
   const hasAuthenticPricing = community.displayPricing?.priceLabel?.includes('HUD Official');
   const hasOccupancyData = community.displayAvailability?.occupancyDisplay;
@@ -90,9 +91,17 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
     trending: 'border-green-300 shadow-green-100'
   };
 
-  return (
-    <Link href={`/community/${community.id}`}>
-      <Card className={`overflow-hidden flex-shrink-0 w-56 h-[30rem] animate-float ${variantStyles[variant]} hover:shadow-xl transition-all duration-300 transform hover:scale-105`}>
+  const handleCardClick = () => {
+    if (onSelect) {
+      onSelect();
+    }
+  };
+
+  const cardContent = (
+    <Card 
+      className={`overflow-hidden flex-shrink-0 w-56 h-[30rem] animate-float ${variantStyles[variant]} hover:shadow-xl transition-all duration-300 transform hover:scale-105 ${onSelect ? 'cursor-pointer' : ''}`}
+      onClick={onSelect ? handleCardClick : undefined}
+    >
         <div className="relative">
           {/* Placeholder Image */}
           <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
@@ -195,7 +204,13 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
             </div>
           )}
         </CardContent>
-      </Card>
+    </Card>
+  );
+
+  // Return with Link wrapper if no onSelect provided, otherwise return card directly
+  return onSelect ? cardContent : (
+    <Link href={`/community/${community.id}`}>
+      {cardContent}
     </Link>
   );
 }
