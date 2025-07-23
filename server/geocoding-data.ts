@@ -299,6 +299,122 @@ export function geocodeLocation(location: string): { lat: number; lng: number } 
   return null;
 }
 
+// International countries and cities
+export const INTERNATIONAL_LOCATIONS: Record<string, [number, number]> = {
+  // Canada
+  'canada': [56.1304, -106.3468],
+  'toronto': [43.6532, -79.3832], 'toronto on': [43.6532, -79.3832], 'toronto, on': [43.6532, -79.3832],
+  'vancouver': [49.2827, -123.1207], 'vancouver bc': [49.2827, -123.1207], 'vancouver, bc': [49.2827, -123.1207],
+  'montreal': [45.5017, -73.5673], 'montreal qc': [45.5017, -73.5673], 'montreal, qc': [45.5017, -73.5673],
+  'calgary': [51.0486, -114.0708], 'calgary ab': [51.0486, -114.0708], 'calgary, ab': [51.0486, -114.0708],
+  'ottawa': [45.4215, -75.6972], 'ottawa on': [45.4215, -75.6972], 'ottawa, on': [45.4215, -75.6972],
+  'edmonton': [53.5461, -113.4938], 'edmonton ab': [53.5461, -113.4938], 'edmonton, ab': [53.5461, -113.4938],
+  'winnipeg': [49.8951, -97.1384], 'winnipeg mb': [49.8951, -97.1384], 'winnipeg, mb': [49.8951, -97.1384],
+  'quebec city': [46.8139, -71.2080], 'quebec city qc': [46.8139, -71.2080], 'quebec city, qc': [46.8139, -71.2080],
+  
+  // Canadian Provinces
+  'ontario': [51.2538, -85.3232], 'on': [51.2538, -85.3232],
+  'quebec': [52.9399, -73.5491], 'qc': [52.9399, -73.5491],
+  'british columbia': [53.7267, -127.6476], 'bc': [53.7267, -127.6476],
+  'alberta': [53.9333, -116.5765], 'ab': [53.9333, -116.5765],
+  'manitoba': [53.7609, -98.8139], 'mb': [53.7609, -98.8139],
+  'saskatchewan': [53.2033, -105.7531], 'sk': [53.2033, -105.7531],
+  'nova scotia': [44.6820, -63.7443], 'ns': [44.6820, -63.7443],
+  'new brunswick': [46.5653, -66.4619], 'nb': [46.5653, -66.4619],
+  'newfoundland': [53.1355, -57.6604], 'nl': [53.1355, -57.6604],
+  'prince edward island': [46.5107, -63.4168], 'pei': [46.5107, -63.4168],
+  
+  // Mexico
+  'mexico': [23.6345, -102.5528],
+  'mexico city': [19.4326, -99.1332], 'ciudad de mexico': [19.4326, -99.1332], 'cdmx': [19.4326, -99.1332],
+  'guadalajara': [20.6597, -103.3496], 'guadalajara jal': [20.6597, -103.3496],
+  'monterrey': [25.6866, -100.3161], 'monterrey nl': [25.6866, -100.3161],
+  'puebla': [19.0414, -98.2063], 'puebla pue': [19.0414, -98.2063],
+  'tijuana': [32.5149, -117.0382], 'tijuana bc': [32.5149, -117.0382],
+  'leon': [21.1221, -101.6827], 'leon gto': [21.1221, -101.6827],
+  'juarez': [31.6904, -106.4245], 'ciudad juarez': [31.6904, -106.4245],
+  'zapopan': [20.7210, -103.3918], 'zapopan jal': [20.7210, -103.3918],
+  
+  // Europe
+  'united kingdom': [55.3781, -3.4360], 'uk': [55.3781, -3.4360], 'great britain': [55.3781, -3.4360],
+  'london': [51.5074, -0.1278], 'london uk': [51.5074, -0.1278],
+  'france': [46.2276, 2.2137],
+  'paris': [48.8566, 2.3522], 'paris france': [48.8566, 2.3522],
+  'germany': [51.1657, 10.4515],
+  'berlin': [52.5200, 13.4050], 'berlin germany': [52.5200, 13.4050],
+  'spain': [40.4637, -3.7492],
+  'madrid': [40.4168, -3.7038], 'madrid spain': [40.4168, -3.7038],
+  'italy': [41.8719, 12.5674],
+  'rome': [41.9028, 12.4964], 'rome italy': [41.9028, 12.4964],
+  
+  // Asia
+  'japan': [36.2048, 138.2529],
+  'tokyo': [35.6762, 139.6503], 'tokyo japan': [35.6762, 139.6503],
+  'china': [35.8617, 104.1954],
+  'beijing': [39.9042, 116.4074], 'beijing china': [39.9042, 116.4074],
+  'india': [20.5937, 78.9629],
+  'new delhi': [28.6139, 77.2090], 'delhi': [28.6139, 77.2090],
+  'south korea': [35.9078, 127.7669], 'korea': [35.9078, 127.7669],
+  'seoul': [37.5665, 126.9780], 'seoul korea': [37.5665, 126.9780],
+  
+  // Australia & Oceania
+  'australia': [-25.2744, 133.7751],
+  'sydney': [-33.8688, 151.2093], 'sydney australia': [-33.8688, 151.2093],
+  'melbourne': [-37.8136, 144.9631], 'melbourne australia': [-37.8136, 144.9631],
+  'brisbane': [-27.4698, 153.0251], 'brisbane australia': [-27.4698, 153.0251],
+  'new zealand': [-40.9006, 174.8860], 'nz': [-40.9006, 174.8860],
+  'auckland': [-36.8485, 174.7633], 'auckland nz': [-36.8485, 174.7633],
+  
+  // South America
+  'brazil': [-14.2350, -51.9253],
+  'sao paulo': [-23.5505, -46.6333], 'são paulo': [-23.5505, -46.6333],
+  'argentina': [-38.4161, -63.6167],
+  'buenos aires': [-34.6037, -58.3816],
+  'chile': [-35.6751, -71.5430],
+  'santiago': [-33.4489, -70.6693], 'santiago chile': [-33.4489, -70.6693],
+  'colombia': [4.5709, -74.2973],
+  'bogota': [4.7110, -74.0721], 'bogotá': [4.7110, -74.0721],
+  
+  // Africa
+  'south africa': [-30.5595, 22.9375],
+  'johannesburg': [-26.2041, 28.0473], 'joburg': [-26.2041, 28.0473],
+  'cape town': [-33.9249, 18.4241],
+  'egypt': [26.8206, 30.8025],
+  'cairo': [30.0444, 31.2357], 'cairo egypt': [30.0444, 31.2357],
+  'nigeria': [9.0820, 8.6753],
+  'lagos': [6.5244, 3.3792], 'lagos nigeria': [6.5244, 3.3792],
+  'kenya': [-0.0236, 37.9062],
+  'nairobi': [-1.2921, 36.8219], 'nairobi kenya': [-1.2921, 36.8219],
+};
+
+// Enhanced geocoding function with international support
+export function geocodeLocationInternational(location: string): { lat: number; lng: number } | null {
+  const normalized = location.toLowerCase().trim();
+  
+  // First try US locations
+  const usResult = geocodeLocation(location);
+  if (usResult) return usResult;
+  
+  // Then try international locations
+  if (INTERNATIONAL_LOCATIONS[normalized]) {
+    const [lat, lng] = INTERNATIONAL_LOCATIONS[normalized];
+    return { lat, lng };
+  }
+  
+  // Try partial matches for international locations
+  const intlKeys = Object.keys(INTERNATIONAL_LOCATIONS);
+  const partialMatch = intlKeys.find(key => 
+    key.includes(normalized) || normalized.includes(key)
+  );
+  
+  if (partialMatch) {
+    const [lat, lng] = INTERNATIONAL_LOCATIONS[partialMatch];
+    return { lat, lng };
+  }
+  
+  return null;
+}
+
 // Get zoom level based on location type
 export function getZoomLevel(location: string): number {
   const normalized = location.toLowerCase().trim();

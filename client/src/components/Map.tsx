@@ -48,10 +48,15 @@ const createSimpleIcon = (color: string) => {
   });
 };
 
+// Data quality based icons
+const hudDataIcon = createSimpleIcon('#16a34a'); // Green - Real HUD data
+const noDataIcon = createSimpleIcon('#dc2626'); // Red - No authentic data
+
+// Care type icons (fallback when no HUD data indicator)
 const communityIcon = createSimpleIcon('#1e40af'); // Blue
-const assistedLivingIcon = createSimpleIcon('#16a34a'); // Green
-const memoryCareIcon = createSimpleIcon('#dc2626'); // Red
-const independentIcon = createSimpleIcon('#7c3aed'); // Purple
+const assistedLivingIcon = createSimpleIcon('#3b82f6'); // Blue
+const memoryCareIcon = createSimpleIcon('#8b5cf6'); // Purple
+const independentIcon = createSimpleIcon('#10b981'); // Green
 
 // Enhanced Map Events component following official Leaflet documentation patterns
 const MapEvents: React.FC<{ 
@@ -273,6 +278,11 @@ interface Community {
   availability: string;
   photos: string[];
   description: string;
+  // HUD data fields for color-coding
+  hudPropertyId?: string;
+  dataSource?: string;
+  hudVerified?: boolean;
+  rentPerMonth?: number;
 }
 
 interface MapProps {
@@ -728,13 +738,24 @@ export default function Map({
   });
 
   const getIconForCommunity = (community: Community, isHovered = false, isPulsing = false) => {
-    const careTypes = community.careTypes || [];
+    // Check for HUD data first - use green pin for authentic data, red for no data
+    const hasHudData = community.hudPropertyId || 
+                       community.dataSource === 'HUD' || 
+                       community.hudVerified === true ||
+                       (community.rentPerMonth && community.rentPerMonth > 0);
     
-    if (careTypes.includes('Memory Care')) return memoryCareIcon;
-    if (careTypes.includes('Assisted Living')) return assistedLivingIcon;
-    if (careTypes.includes('Independent Living')) return independentIcon;
+    if (hasHudData) {
+      return hudDataIcon; // Green pin for real HUD data
+    } else {
+      return noDataIcon; // Red pin for communities without authentic data
+    }
     
-    return communityIcon;
+    // Original care type logic (no longer used, but kept for reference)
+    // const careTypes = community.careTypes || [];
+    // if (careTypes.includes('Memory Care')) return memoryCareIcon;
+    // if (careTypes.includes('Assisted Living')) return assistedLivingIcon;
+    // if (careTypes.includes('Independent Living')) return independentIcon;
+    // return communityIcon;
   };
 
   const handleCommunityClick = (community: Community) => {
@@ -1039,7 +1060,12 @@ export default function Map({
             priceRange: properties.priceRange || 'Contact for pricing',
             availability: properties.availability || 'Contact for availability',
             photos: properties.photos || [],
-            description: properties.description || ''
+            description: properties.description || '',
+            // HUD data fields for color-coding
+            hudPropertyId: properties.hudPropertyId,
+            dataSource: properties.dataSource,
+            hudVerified: properties.hudVerified,
+            rentPerMonth: properties.rentPerMonth
           };
 
           return (
@@ -1115,6 +1141,19 @@ export default function Map({
                     >
                       <Heart className={`w-4 h-4 ${favorites.has(community.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} />
                     </Button>
+                  </div>
+                  
+                  {/* Data Quality Indicator */}
+                  <div className="mb-3">
+                    {(community.hudPropertyId || community.dataSource === 'HUD' || community.hudVerified || (community.rentPerMonth && community.rentPerMonth > 0)) ? (
+                      <Badge className="bg-green-100 text-green-800 border-green-300">
+                        ✓ Authentic HUD Data
+                      </Badge>
+                    ) : (
+                      <Badge className="bg-red-100 text-red-800 border-red-300">
+                        ✗ No Live Data Available
+                      </Badge>
+                    )}
                   </div>
                   
                   <div className="space-y-2">

@@ -53,6 +53,9 @@ interface ClusterFeature {
     careTypes?: string[];
     photos?: string[];
     description?: string;
+    // HUD data fields
+    hudPropertyId?: string;
+    rentPerMonth?: number;
   };
 }
 
@@ -236,7 +239,10 @@ class SuperclusterService {
             reviewCount: community.reviewCount || 0,
             careTypes: community.careTypes || [],
             photos: community.photos || [],
-            description: community.description || ''
+            description: community.description || '',
+            // HUD data fields for color-coding
+            hudPropertyId: community.hudPropertyId || null,
+            rentPerMonth: community.rentPerMonth || null
           }
         }));
 

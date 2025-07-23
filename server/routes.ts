@@ -31,7 +31,7 @@ import { superclusterService } from './services/supercluster';
 import { z } from "zod";
 import { securityMonitoringMiddleware, securityMonitor } from "./security-monitor";
 import { eliminateCallForPricing } from "./intelligent-pricing-system";
-import { geocodeLocation, getZoomLevel } from './geocoding-data';
+import { geocodeLocation, geocodeLocationInternational, getZoomLevel } from './geocoding-data';
 import { 
   getSecurityDashboard, 
   getUserTrace, 
@@ -1351,8 +1351,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             'united states': [39.8283, -98.5795], 'usa': [39.8283, -98.5795], 'us': [39.8283, -98.5795],
           };
           
-          // Use our comprehensive geocoding service
-          const coordinates = geocodeLocation(searchParams.location);
+          // Use our comprehensive geocoding service with international support
+          const coordinates = geocodeLocationInternational(searchParams.location);
           console.log(`Checking location: ${searchParams.location} with geocoding service`);
           
           if (coordinates) {

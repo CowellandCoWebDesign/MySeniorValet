@@ -608,26 +608,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllCommunitiesForClustering(): Promise<Community[]> {
-    // Optimized query for clustering - only fetch essential fields
-    const result = await db.select({
-      id: communities.id,
-      name: communities.name,
-      address: communities.address,
-      city: communities.city,
-      state: communities.state,
-      zipCode: communities.zipCode,
-      phone: communities.phone,
-      website: communities.website,
-      latitude: communities.latitude,
-      longitude: communities.longitude,
-      careTypes: communities.careTypes,
-      priceRange: communities.priceRange,
-      availabilityStatus: communities.availabilityStatus,
-      rating: communities.rating,
-      reviewCount: communities.reviewCount,
-      photos: communities.photos,
-      description: communities.description
-    }).from(communities).where(sql`${communities.latitude} IS NOT NULL AND ${communities.longitude} IS NOT NULL`);
+    // Get all communities with coordinates using simpler query
+    const result = await db.select()
+      .from(communities)
+      .where(sql`${communities.latitude} IS NOT NULL AND ${communities.longitude} IS NOT NULL`);
     
     return result.map(row => ({
       ...row,
