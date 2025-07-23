@@ -40,7 +40,7 @@ export default function Team() {
                   Scott founded MySeniorValet with a clear mission: to eliminate the confusion and hidden fees that families face when searching for senior living options. As a sole proprietor, he's built this platform from the ground up to serve families with complete transparency and authentic guidance.
                 </p>
                 <p className="text-gray-700 mb-4">
-                  With a background in web development and a passion for helping families navigate complex decisions, Scott has created a comprehensive platform that covers over 8,000 communities across 19 states, with plans for nationwide expansion.
+                  With a background in web development and a passion for helping families navigate complex decisions, Scott has created a comprehensive platform that covers over 31,000 communities across all 50 states and territories, with plans for international expansion.
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="secondary" className="flex items-center space-x-1">

@@ -740,7 +740,7 @@ export default function Map({
   const getIconForCommunity = (community: Community, isHovered = false, isPulsing = false) => {
     // Check for LIVE DATA - green pin means we have real pricing/availability/contact info
     const hasLiveData = (community.rentPerMonth && community.rentPerMonth > 0) || // Has real pricing
-                        (community.priceRange && !community.priceRange.includes('Contact')) || // Has transparent pricing
+                        (community.priceRange && typeof community.priceRange === 'string' && !community.priceRange.includes('Contact')) || // Has transparent pricing
                         (community.availability && community.availability !== 'Contact for availability') || // Has real availability
                         community.hudPropertyId || // HUD properties have live data
                         community.dataSource === 'HUD'; // HUD sourced data

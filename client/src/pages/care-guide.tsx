@@ -424,7 +424,7 @@ export default function CareGuide() {
         <div className="text-center">
           <h3 className="text-2xl font-bold mb-4">Ready to Find the Right Care?</h3>
           <p className="text-gray-600 mb-6">
-            Search our 8,000+ communities with transparent pricing and detailed care information
+            Search our 31,000+ communities with transparent pricing and detailed care information
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/search">

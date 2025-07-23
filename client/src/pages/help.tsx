@@ -36,7 +36,7 @@ export default function Help() {
         <div className="space-y-4">
           <div>
             <h4 className="font-semibold mb-2">1. Search Without Signing Up</h4>
-            <p className="text-gray-700">You can search our 8,000+ communities without creating an account. Just use the search bar on the homepage.</p>
+            <p className="text-gray-700">You can search our 31,000+ communities without creating an account. Just use the search bar on the homepage.</p>
           </div>
           <div>
             <h4 className="font-semibold mb-2">2. Create an Account for Full Features</h4>
@@ -327,7 +327,7 @@ export default function Help() {
               <div className="space-y-3">
                 <div className="flex items-center space-x-2">
                   <Badge variant="secondary">🔍</Badge>
-                  <span>Search 8,000+ communities across 19 states</span>
+                  <span>Search 31,000+ communities across 50 states</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Badge variant="secondary">💰</Badge>
