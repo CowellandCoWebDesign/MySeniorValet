@@ -30,7 +30,7 @@ import {
 } from "@/lib/amenities-checklists";
 
 // Intelligent pricing function for communities without live pricing
-function getIntelligentPriceEstimate(community: Community): { min: number; max: number } {
+const getIntelligentPriceEstimate = (community: Community): { min: number; max: number } => {
   // Base costs by care type (national averages)
   const baseCosts: Record<string, number> = {
     'Independent Living': 3500,
@@ -60,7 +60,7 @@ function getIntelligentPriceEstimate(community: Community): { min: number; max: 
   const max = Math.round(baseCost * 1.2);
 
   return { min, max };
-}
+};
 
 // Hero Photo Carousel Component with Touch Support
 const HeroPhotoCarousel = ({ photos, communityName }: { photos: string[], communityName: string }) => {

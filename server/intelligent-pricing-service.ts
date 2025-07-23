@@ -14,6 +14,7 @@ import { eq, and, or, sql } from "drizzle-orm";
 import { searchCache, communityCache, apiCache } from "./infrastructure/cache";
 import { communityStatsCache } from "./community-stats-cache";
 import { realDataAnalyzer } from "./real-data-analyzer";
+import { governmentDataIntegration } from "./government-data-integration";
 
 interface PricingEstimate {
   min: number;
@@ -37,6 +38,56 @@ interface MarketData {
   avgSkilledNursing: number;
   costOfLivingMultiplier: number;
 }
+
+// Enhanced government data sources for pricing intelligence
+interface GovernmentDataSource {
+  agency: string;
+  description: string;
+  dataTypes: string[];
+  apiEndpoint?: string;
+  lastUpdated: string;
+}
+
+const GOVERNMENT_DATA_SOURCES: Record<string, GovernmentDataSource> = {
+  'CENSUS_BUREAU': {
+    agency: 'US Census Bureau',
+    description: 'Area median income, demographic data, housing characteristics',
+    dataTypes: ['Area Median Income', 'Senior Population Demographics', 'Housing Cost Index'],
+    apiEndpoint: 'https://api.census.gov/data',
+    lastUpdated: '2025-01-01'
+  },
+  'BUREAU_LABOR_STATS': {
+    agency: 'Bureau of Labor Statistics',
+    description: 'Regional cost of living indices, wage data',
+    dataTypes: ['Cost of Living Index', 'Regional Price Parities', 'Consumer Price Index'],
+    apiEndpoint: 'https://api.bls.gov/publicAPI/v2',
+    lastUpdated: '2025-01-01'
+  },
+  'HHS_AREA_AGENCY_AGING': {
+    agency: 'HHS Area Agency on Aging',
+    description: 'Local market surveys, aging services data',
+    dataTypes: ['Senior Services Cost', 'Aging Network Data', 'Care Coordination Cost'],
+    lastUpdated: '2025-01-01'
+  },
+  'STATE_MEDICAID': {
+    agency: 'State Medicaid Programs',
+    description: 'Reimbursement rates by region, waiver programs',
+    dataTypes: ['Medicaid Reimbursement Rates', 'Waiver Program Rates', 'LTSS Rates'],
+    lastUpdated: '2025-01-01'
+  },
+  'VA_MEDICAL_CENTERS': {
+    agency: 'VA Medical Centers',
+    description: 'Veterans benefits acceptance rates, VA community partnerships',
+    dataTypes: ['VA Benefits Acceptance', 'Community Living Centers', 'Aid & Attendance'],
+    lastUpdated: '2025-01-01'
+  },
+  'USDA_RURAL_DEV': {
+    agency: 'USDA Rural Development',
+    description: 'Rural housing assistance data, rural senior housing grants',
+    dataTypes: ['Rural Housing Assistance', 'Section 515 Properties', 'Rural Senior Housing'],
+    lastUpdated: '2025-01-01'
+  }
+};
 
 // Market-based pricing data by state (industry research)
 const STATE_MARKET_DATA: Record<string, MarketData> = {
@@ -291,7 +342,29 @@ class IntelligentPricingService {
       console.log('Research data not available, using existing pricing');
     }
     
-    // 3. Generate intelligent market-based estimate (ALWAYS regenerate to fix pricing issues)
+    // 3. Try government-enhanced pricing estimate first
+    try {
+      const governmentPricing = await governmentDataIntegration.generateGovernmentEnhancedPricing(community);
+      
+      if (governmentPricing.dataQuality === 'excellent' || governmentPricing.dataQuality === 'good') {
+        return {
+          min: governmentPricing.finalEstimate.min,
+          max: governmentPricing.finalEstimate.max,
+          careTypePricing: this.calculateCareTypePricing(
+            governmentPricing.finalEstimate.min, 
+            governmentPricing.finalEstimate.max, 
+            community.careTypes || []
+          ),
+          confidence: governmentPricing.dataQuality === 'excellent' ? 'high' : 'medium',
+          dataSource: 'government_enhanced',
+          lastUpdated: new Date()
+        };
+      }
+    } catch (error) {
+      console.log('Government data not available, using market-based estimate');
+    }
+    
+    // 4. Generate intelligent market-based estimate (ALWAYS regenerate to fix pricing issues)
     return this.generateMarketBasedEstimate(community);
   }
   
