@@ -141,7 +141,7 @@ export default function AISupport() {
     'claim-help': "Communities can claim their profiles through our Community Portal. The process involves verifying employment, choosing a management plan, and getting approval. Once claimed, communities can update their information, photos, and availability. Are you representing a community?"
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!newMessage.trim()) return;
 
     // Add user message
@@ -156,8 +156,36 @@ export default function AISupport() {
     setNewMessage('');
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: newMessage,
+          context: {
+            currentPage: window.location.pathname,
+            location: localStorage.getItem('userLocation') || undefined
+          }
+        })
+      });
+
+      const data = await response.json();
+      
+      const aiResponse = {
+        id: chatMessages.length + 2,
+        type: 'ai',
+        message: data.message || "I understand you're asking about: " + newMessage + ". Let me help you with that.",
+        timestamp: new Date().toLocaleTimeString(),
+        suggestions: data.suggestions || [],
+        actions: data.actions || []
+      };
+      
+      setChatMessages(prev => [...prev, aiResponse]);
+    } catch (error) {
+      console.error('AI chat error:', error);
+      // Fallback response
       const aiResponse = {
         id: chatMessages.length + 2,
         type: 'ai',
@@ -165,8 +193,9 @@ export default function AISupport() {
         timestamp: new Date().toLocaleTimeString()
       };
       setChatMessages(prev => [...prev, aiResponse]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   const handleQuickAction = (action: string) => {

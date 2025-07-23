@@ -1666,6 +1666,14 @@ export class DatabaseStorage implements IStorage {
       return [];
     }
   }
+
+  async getCommunitiesByIds(ids: number[]): Promise<Community[]> {
+    if (ids.length === 0) return [];
+    return await db
+      .select()
+      .from(communities)
+      .where(inArray(communities.id, ids));
+  }
 }
 
 export const storage = new DatabaseStorage();

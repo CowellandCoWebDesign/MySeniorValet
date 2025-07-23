@@ -58,6 +58,7 @@ import { loadTester } from "./infrastructure/loadTest";
 import { aiRecommendationEngine, RecommendationRequest } from "./ai-recommendations";
 import { ComprehensiveScraper } from "./scraper";
 import { quizRouter } from "./routes/quiz";
+import aiAssistantRoutes from "./routes/ai-assistant";
 import { licensingScraper } from "./licensing-scraper";
 import { googleReviewsAI } from "./google-reviews-ai";
 import { googlePlacesIntegration } from "./google-places-integration";
@@ -116,6 +117,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Create a separate router for admin routes without heavy middleware interference
   const adminRouter = express.Router();
+  
+  // AI Assistant routes
+  app.use(aiAssistantRoutes);
   
   // Admin routes with minimal middleware
   adminRouter.get('/audit-logs', (req, res) => {
