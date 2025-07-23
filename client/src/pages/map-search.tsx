@@ -892,7 +892,7 @@ export default function MapSearch() {
                 >
                   <MapIcon className="w-4 h-4" />
                   {viewMode === 'map' && !showBottomPanel && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-md animate-pulse opacity-20"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-md opacity-20"></div>
                   )}
                 </Button>
                 <Button
@@ -915,7 +915,7 @@ export default function MapSearch() {
                 >
                   <List className="w-4 h-4" />
                   {showBottomPanel && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-md animate-pulse opacity-20"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-md opacity-20"></div>
                   )}
                 </Button>
               </div>
@@ -1300,11 +1300,11 @@ export default function MapSearch() {
                 <div className="relative inline-block">
                   <div className="w-16 h-16 border-4 border-blue-200 dark:border-blue-700 rounded-full animate-spin"></div>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse"></div>
+                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
                   </div>
                 </div>
-                <p className="mt-4 text-blue-600 dark:text-blue-400 font-medium animate-pulse">
-                  {isFetchingCommunities ? 'Searching 25,782 communities...' : 'Finding communities in this area...'}
+                <p className="mt-4 text-blue-600 dark:text-blue-400 font-medium">
+                  {isFetchingCommunities ? 'Searching 31,023 communities...' : 'Finding communities in this area...'}
                 </p>
                 {isFetchingCommunities && (
                   <div className="mt-2 text-xs text-blue-500 dark:text-blue-400">
@@ -1312,14 +1312,14 @@ export default function MapSearch() {
                   </div>
                 )}
                 <div className="flex justify-center gap-1 mt-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
-                  <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{animationDelay: '200ms'}}></div>
-                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '400ms'}}></div>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                 </div>
               </div>
               {/* Skeleton cards */}
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-4 animate-pulse border border-blue-200 dark:border-blue-700">
+                <div key={i} className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-700">
                   <div className="h-6 bg-blue-200 dark:bg-blue-700 rounded-lg mb-3"></div>
                   <div className="h-4 bg-blue-150 dark:bg-blue-600 rounded mb-2 w-3/4"></div>
                   <div className="h-4 bg-blue-150 dark:bg-blue-600 rounded w-1/2"></div>
