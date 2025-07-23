@@ -120,8 +120,19 @@ export default function Home() {
                 Serving families across <span className="text-blue-600 dark:text-blue-400 font-bold">31,023+ communities</span>
               </p>
               <p className="text-lg text-gray-500 dark:text-gray-400">
-                Complete North American coverage with verified government data
+                Complete North American coverage with verified government data across 96 states/provinces
               </p>
+              <div className="flex flex-wrap justify-center gap-4 mt-4">
+                <div className="bg-white/90 backdrop-blur-md px-4 py-2 rounded-lg shadow-md">
+                  <span className="text-sm font-semibold text-blue-800">1,664 Counties</span>
+                </div>
+                <div className="bg-white/90 backdrop-blur-md px-4 py-2 rounded-lg shadow-md">
+                  <span className="text-sm font-semibold text-green-800">4,698 Cities</span>
+                </div>
+                <div className="bg-white/90 backdrop-blur-md px-4 py-2 rounded-lg shadow-md">
+                  <span className="text-sm font-semibold text-purple-800">735,112 Total Capacity</span>
+                </div>
+              </div>
             </div>
 
             {/* Enhanced Search Bar */}
