@@ -556,8 +556,45 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getCommunity(id: number): Promise<Community | undefined> {
-    const [community] = await db.select().from(communities).where(eq(communities.id, id));
-    return community || undefined;
+    try {
+      // Use only essential columns that definitely exist in database
+      const result = await db.execute(sql`
+        SELECT id, name, city, state, latitude, longitude, 
+               care_types, price_range, rating, review_count, 
+               photos, description, total_units, availability_status,
+               monthly_rent_range_start, monthly_rent_range_end,
+               hud_property_id, price_tier, size_category, 
+               occupancy_rate, phone, email, website, address, 
+               amenities, zip_code
+        FROM communities 
+        WHERE id = ${id} 
+        LIMIT 1
+      `);
+      
+      const community = (result as any).rows?.[0] || (result as any)[0];
+      if (community) {
+        // Map database column names to expected property names for frontend
+        return {
+          ...community,
+          careTypes: community.care_types || [],
+          priceRange: community.price_range,
+          reviewCount: community.review_count || 0,
+          totalUnits: community.total_units,
+          availabilityStatus: community.availability_status,
+          monthlyRentRangeStart: community.monthly_rent_range_start,
+          monthlyRentRangeEnd: community.monthly_rent_range_end,
+          hudPropertyId: community.hud_property_id,
+          priceTier: community.price_tier,
+          sizeCategory: community.size_category,
+          occupancyRate: community.occupancy_rate,
+          zipCode: community.zip_code
+        };
+      }
+      return undefined;
+    } catch (error) {
+      console.error('Community detail error:', error);
+      return undefined;
+    }
   }
 
   async getAllCommunities(): Promise<Community[]> {
