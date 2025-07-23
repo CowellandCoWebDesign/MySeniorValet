@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -410,184 +411,14 @@ export default function TrueViewHome() {
               ))
             ) : (
               premiumCommunities.map((community: any, index) => (
-                <Link key={`premium-${community.id}-${index}`} href={`/community/${community.id}`}>
-              <Card className="overflow-hidden flex-shrink-0 w-56 h-[30rem] animate-float coastal-card" style={{animationDelay: `${index * 0.2}s`}}>
-                <div className="relative">
-                  <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
-                    <Home className="w-12 h-12 text-gray-400" />
-                  </div>
-                  
-                  {/* Heart Icon */}
-                  <div className="absolute top-2 right-2 z-10">
-                    <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
-                      <Heart className="w-4 h-4 text-gray-600" />
-                    </div>
-                  </div>
-                  
-                  {/* Enhanced HUD Vacancy Status Badge - Top Left */}
-                  {community.availability_status === 'Available' || index % 3 === 0 ? (
-                    <Badge className="absolute top-2 left-2 bg-gradient-to-r from-green-600 to-green-500 text-white text-xs px-2 py-1 font-medium animate-pulse z-10">
-                      🟢 {community.occupancy_rate ? `${Math.round(100-community.occupancy_rate)}% Open` : 'Available Now'}
-                    </Badge>
-                  ) : community.availability_status === 'Waitlist' || index % 3 === 1 ? (
-                    <Badge className="absolute top-2 left-2 bg-gradient-to-r from-orange-600 to-orange-500 text-white text-xs px-2 py-1 font-medium z-10">
-                      🟡 {community.occupancy_rate ? `${Math.round(community.occupancy_rate)}% Occupied` : 'Waitlist Open'}
-                    </Badge>
-                  ) : (
-                    <Badge className="absolute top-2 left-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white text-xs px-2 py-1 font-medium z-10">
-                      📋 {community.price_tier || 'Call for Info'}
-                    </Badge>
-                  )}
-                  
-                  {/* Enhanced HUD Price Badge - Bottom Left */}
-                  <Badge className="absolute bottom-2 left-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs px-2 py-1 font-medium z-10">
-                    {community.monthly_rent_range_start ? `$${(community.monthly_rent_range_start / 1000).toFixed(1)}K+` :
-                     community.priceMin ? `$${(community.priceMin / 1000).toFixed(1)}K+` : 
-                     community.priceRange && community.priceRange.min ? `$${(community.priceRange.min / 1000).toFixed(1)}K+` : 
-                     '$1.8K+'}
-                    {community.hud_property_id && (
-                      <span className="text-xs text-yellow-200 ml-1 font-normal">HUD</span>
-                    )}
-                  </Badge>
-                  
-                  {/* Achievement Badge - Bottom Right */}
-                  {index % 5 === 0 && (
-                    <Badge className="absolute bottom-2 right-2 bg-purple-600 text-white text-xs px-2 py-1 font-medium z-10">
-                      🏆 Featured
-                    </Badge>
-                  )}
-                  {index % 5 === 1 && (
-                    <Badge className="absolute bottom-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 font-medium z-10">
-                      ⭐ Top Rated
-                    </Badge>
-                  )}
-                  {index % 5 === 2 && (
-                    <Badge className="absolute bottom-2 right-2 bg-cyan-600 text-white text-xs px-2 py-1 font-medium z-10">
-                      🌊 Ocean
-                    </Badge>
-                  )}
-                </div>
-                
-                <CardContent className="p-3">
-                  {/* Enhanced HUD Availability Status - Above Price */}
-                  {community.availability_status === 'Available' || index % 3 === 0 ? (
-                    <div className="flex items-center text-xs text-green-600 dark:text-green-400 font-medium mb-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></div>
-                      {community.availability_status || 'Available'}
-                      {community.total_units && (
-                        <span className="ml-1 text-gray-500">{community.total_units} units</span>
-                      )}
-                    </div>
-                  ) : community.availability_status === 'Waitlist' || index % 3 === 1 ? (
-                    <div className="flex items-center text-xs text-orange-600 dark:text-orange-400 font-medium mb-2">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full mr-1"></div>
-                      {community.availability_status || 'Waitlist Open'}
-                    </div>
-                  ) : (
-                    <div className="flex items-center text-xs text-blue-600 dark:text-blue-400 font-medium mb-2">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-1"></div>
-                      {community.availability_status || 'Call for Availability'}
-                    </div>
-                  )}
-                  
-                  <div className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                    <span className="text-sm">Starting at</span> ${community.monthly_rent_range_start ? community.monthly_rent_range_start.toLocaleString() :
-                     community.priceMin ? community.priceMin.toLocaleString() : 
-                     community.priceRange && community.priceRange.min ? community.priceRange.min.toLocaleString() : 
-                     '1,800'}
-                    {!community.claimed && (
-                      <span className="text-xs text-gray-500 dark:text-gray-400 ml-1 font-normal">HUD data</span>
-                    )}
-                  </div>
-                  
-                  <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
-                    {community.total_units ? 
-                      `${community.total_units} units • ${community.occupancy_rate ? `${Math.round(community.occupancy_rate)}% occupied` : 'HUD Data'}` :
-                      community.careTypes?.length > 0 ? 
-                      `${community.careTypes[0]} • ${index < 4 ? 'Coastal Living' : 'Featured Community'}` : 
-                      `Assisted Living • ${index < 4 ? 'Ocean Views' : 'Premium Care'}`
-                    }
-                  </div>
-                  
-                  <div className="text-sm font-medium text-gray-900 dark:text-white mb-2 line-clamp-1">
-                    {community.name}
-                  </div>
-                  
-                  <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1 mb-2">
-                    {community.address || (index < 4 ? 'Coastal Community' : 'Featured Community')}, {community.city}, {community.state || 'CA'}
-                    {community.size_category && (
-                      <span className="ml-1 px-1 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded text-xs font-medium">
-                        {community.size_category}
-                      </span>
-                    )}
-                  </div>
-                  
-                  {/* Enhanced HUD Data Badges - Bottom of Card */}
-                  <div className="mb-3 flex flex-wrap gap-1">
-                    {community.hud_property_id && (
-                      <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs px-2 py-1 font-medium">
-                        🏛️ HUD Verified
-                      </Badge>
-                    )}
-                    {community.price_tier && (
-                      <Badge className="bg-gradient-to-r from-green-600 to-emerald-600 text-white text-xs px-2 py-1 font-medium">
-                        💰 {community.price_tier}
-                      </Badge>
-                    )}
-                    {(community.senior_pct && community.senior_pct > 0) && (
-                      <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs px-2 py-1 font-medium">
-                        👥 {Math.round(community.senior_pct)}% Senior
-                      </Badge>
-                    )}
-                    {/* Fallback coastal/featured badges when HUD data unavailable */}
-                    {!community.hud_property_id && index % 4 === 0 && (
-                      <Badge className={`text-white text-xs px-2 py-1 font-medium ${index < 4 ? 'bg-blue-600/90' : 'bg-purple-600/90'}`}>
-                        {index < 4 ? '🌊 Ocean View' : '⭐ Featured'}
-                      </Badge>
-                    )}
-                    {!community.hud_property_id && index % 4 === 1 && (
-                      <Badge className={`text-white text-xs px-2 py-1 font-medium ${index < 4 ? 'bg-cyan-600/90' : 'bg-indigo-600/90'}`}>
-                        {index < 4 ? '🏖️ Coastal' : '💎 Premium'}
-                      </Badge>
-                    )}
-                    {!community.hud_property_id && index % 4 === 2 && (
-                      <Badge className={`text-white text-xs px-2 py-1 font-medium ${index < 4 ? 'bg-teal-600/90' : 'bg-violet-600/90'}`}>
-                        {index < 4 ? '🌊 Waterfront' : '⭐ Top Rated'}
-                      </Badge>
-                    )}
-                    {!community.hud_property_id && index % 4 === 3 && (
-                      <Badge className={`text-white text-xs px-2 py-1 font-medium ${index < 4 ? 'bg-indigo-600/90' : 'bg-pink-600/90'}`}>
-                        {index < 4 ? '🏖️ Beachside' : '💫 Exclusive'}
-                      </Badge>
-                    )}
-                  </div>
-                  
-                  {/* Enhanced Features Row */}
-                  <div className="flex items-center justify-between text-xs mt-1">
-                    <div className="flex items-center text-gray-500 dark:text-gray-400">
-                      <span>{index < 4 ? '🌊 Coastal Views' : '🏆 Featured'}</span>
-                    </div>
-                    {index % 4 === 0 && (
-                      <div className="text-purple-600 dark:text-purple-400 font-medium">
-                        {index < 4 ? '🌊 Ocean View' : '🏆 Featured'}
-                      </div>
-                    )}
-                    {index % 4 === 1 && (
-                      <div className="text-blue-600 dark:text-blue-400 font-medium">
-                        ⭐ Top Rated
-                      </div>
-                    )}
-                    {index % 4 === 2 && (
-                      <div className="text-cyan-600 dark:text-cyan-400 font-medium">
-                        {index < 4 ? '🌊 Waterfront' : '🏆 Premium'}
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))
-        )}
+                <EnhancedCommunityCard
+                  key={`premium-${community.id}-${index}`}
+                  community={community}
+                  index={index}
+                  variant={index < 4 ? 'coastal' : 'featured'}
+                />
+              ))
+            )}
       </div>
         </div>
       </section>

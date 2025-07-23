@@ -13,6 +13,7 @@ import { db } from "./db";
 import { eq, like, ilike, gte, and, or, sql, inArray, desc, isNotNull, gt } from "drizzle-orm";
 import { zipCodeService } from "./zip-code-mapping";
 import { cache } from "./cache";
+import { HudDataExtractor } from "./hud-data-extractor";
 
 export interface IStorage {
   // User methods
@@ -574,7 +575,7 @@ export class DatabaseStorage implements IStorage {
       const community = (result as any).rows?.[0] || (result as any)[0];
       if (community) {
         // Map database column names to expected property names for frontend
-        return {
+        const baseCommunity = {
           ...community,
           careTypes: community.care_types || [],
           priceRange: community.price_range,
@@ -589,6 +590,11 @@ export class DatabaseStorage implements IStorage {
           occupancyRate: community.occupancy_rate,
           zipCode: community.zip_code
         };
+
+        // Apply HUD data extraction to get authentic pricing and occupancy data
+        const enhancedCommunity = HudDataExtractor.sanitizeForProduction(baseCommunity);
+        
+        return enhancedCommunity;
       }
       return undefined;
     } catch (error) {
@@ -642,7 +648,8 @@ export class DatabaseStorage implements IStorage {
     // Check cache first
     const cached = await cache.get(cacheKey);
     if (cached) {
-      return cached;
+      // Apply HUD data extraction to cached results to ensure authentic pricing
+      return cached.map((community: any) => HudDataExtractor.sanitizeForProduction(community));
     }
     
     try {
@@ -666,9 +673,14 @@ export class DatabaseStorage implements IStorage {
       
       const communities = (result as any).rows || (result as any);
       
+      // Apply HUD data extraction to ensure authentic pricing in trending results
+      const enhancedCommunities = communities.map((community: any) => 
+        HudDataExtractor.sanitizeForProduction(community)
+      );
+      
       // Cache for 5 minutes
-      await cache.set(cacheKey, communities, 300);
-      return communities;
+      await cache.set(cacheKey, enhancedCommunities, 300);
+      return enhancedCommunities;
     } catch (error) {
       console.error('Error in getTrendingCommunities:', error);
       // Fallback to basic communities
@@ -689,7 +701,10 @@ export class DatabaseStorage implements IStorage {
           LIMIT ${limit}
         `);
         
-        return (fallback as any).rows || (fallback as any);
+        const fallbackResults = (fallback as any).rows || (fallback as any);
+        return fallbackResults.map((community: any) => 
+          HudDataExtractor.sanitizeForProduction(community)
+        );
       } catch (fallbackError) {
         console.error('Fallback also failed:', fallbackError);
         return [];
@@ -706,7 +721,8 @@ export class DatabaseStorage implements IStorage {
     // Check cache first (shorter TTL for search results)
     const cached = await cache.get(cacheKey);
     if (cached) {
-      return cached;
+      // Apply HUD data extraction to cached search results
+      return cached.map((community: any) => HudDataExtractor.sanitizeForProduction(community));
     }
 
     // Handle HUD specifically to avoid SQL issues
@@ -790,9 +806,14 @@ export class DatabaseStorage implements IStorage {
     const results = await query;
     console.log(`Search returned ${results.length} communities`);
     
+    // Apply HUD data extraction to search results to ensure authentic pricing
+    const enhancedResults = results.map((community: any) => 
+      HudDataExtractor.sanitizeForProduction(community)
+    );
+    
     // Cache search results for 2 minutes
-    await cache.set(cacheKey, results, 120);
-    return results;
+    await cache.set(cacheKey, enhancedResults, 120);
+    return enhancedResults;
   }
 
   // Enhanced location search logic that handles cities, states, ZIP codes, and counties
