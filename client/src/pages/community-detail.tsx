@@ -407,10 +407,18 @@ export default function CommunityDetail() {
           '1 Bedroom + Den': 1.15, '3 Bedroom': 1.6
         };
         
-        // Use HUD data for authentic government properties, Genworth for market-rate
-        const basePrice = community.hudPropertyId ? 
-          (hudSection202Pricing[state] || 650) : 
-          (genworth2024Data[state] || 3800);
+        // Use authentic community-specific data when available
+        let basePrice;
+        if (community.hudPropertyId && community.rentPerMonth && community.rentPerMonth > 0) {
+          // Use actual HUD rent data for this specific property
+          basePrice = community.rentPerMonth;
+        } else if (community.hudPropertyId) {
+          // Use HUD Section 202 estimate for HUD properties without specific rent data
+          basePrice = hudSection202Pricing[state] || 650;
+        } else {
+          // Use Genworth market data for non-HUD properties
+          basePrice = genworth2024Data[state] || 3800;
+        }
           
         const unitMultiplier = hudUnitAdjustments[unitType] || 1.0;
         const authenticPrice = Math.round(basePrice * unitMultiplier);
