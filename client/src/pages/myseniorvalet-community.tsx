@@ -45,7 +45,7 @@ interface Community {
   longitude?: number;
 }
 
-export default function TrueViewCommunity() {
+export default function MySeniorValetCommunity() {
   const { id } = useParams();
   const [isFavorite, setIsFavorite] = useState(false);
   const [selectedTab, setSelectedTab] = useState<'overview' | 'amenities' | 'reviews'>('overview');

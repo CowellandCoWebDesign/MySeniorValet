@@ -171,7 +171,7 @@ export default function Privacy() {
               <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
                 <p className="text-yellow-800 font-medium">Important:</p>
                 <p className="text-yellow-700 text-sm mt-1">
-                  TrueView does not receive referral fees from senior living communities. 
+                  MySeniorValet does not receive referral fees from senior living communities. 
                   We are an independent information platform.
                 </p>
               </div>
@@ -267,7 +267,7 @@ export default function Privacy() {
           <h2 className="text-lg font-semibold mb-2">Policy Updates</h2>
           <p className="text-gray-700 text-sm">
             We may update this privacy policy periodically. We'll notify you of significant 
-            changes by email or through our website. Your continued use of TrueView after 
+            changes by email or through our website. Your continued use of MySeniorValet after 
             such changes constitutes acceptance of the updated policy.
           </p>
         </div>

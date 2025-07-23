@@ -86,6 +86,15 @@ This file contains the current technical architecture, key components, and essen
 - **DEVELOPMENT_HISTORY.md**: Comprehensive chronological record of all development phases, achievements, and milestones
 - **README.md**: Public-facing project overview and setup instructions
 
+## Critical Branding Rules
+
+**NEVER USE "TRUEVIEW" - WE ARE MySeniorValet**
+- The name "TrueView" was an early prototype name that was unavailable
+- ALL references to "TrueView" must be replaced with "MySeniorValet"
+- Domain: MySeniorVital.com
+- Brand name in code: MySeniorValet
+- This is non-negotiable and must be protected at all times
+
 ## Complete Development Journey: Day 1 to Present
 
 ### Phase 1: Foundation & Core Architecture (July 2, 2025)
@@ -573,11 +582,11 @@ This file contains the current technical architecture, key components, and essen
 - **Compliance Status**: ✅ FULLY COMPLIANT with Google Places API photo usage requirements
 - **Attribution Format**: HTML attribution text displays as overlay on photos with proper styling
 
-## Phase 7: TrueView Interface Redesign (January 7, 2025)
+## Phase 7: MySeniorValet Interface Redesign (January 7, 2025)
 **Complete UI/UX Transformation**
 - Mobile-first design with modern interface patterns
 - New homepage with "Senior Living. Tours. Care. Community." hero messaging
-- TrueView blue color scheme (#007cba) throughout application
+- MySeniorValet blue color scheme (#007cba) throughout application
 - Bottom navigation with Search, Updates, Saved, Tours, More tabs
 - Horizontal community cards with pricing prominence and compact layout
 - Search page with filter pills, list/map toggle, and save search functionality
@@ -587,9 +596,9 @@ This file contains the current technical architecture, key components, and essen
 - Price badges with abbreviated format (e.g., "$3K+")
 
 **New Pages Created**
-- `trueview-home.tsx` - Modern homepage with hero search and trending communities
-- `trueview-search.tsx` - Search results with horizontal cards and filter system
-- `trueview-community.tsx` - Property-style detail pages with tabs and CTA buttons
+- `myseniorvalet-home.tsx` - Modern homepage with hero search and trending communities
+- `myseniorvalet-search.tsx` - Search results with horizontal cards and filter system
+- `myseniorvalet-community.tsx` - Property-style detail pages with tabs and CTA buttons
 - Enhanced CSS utilities for line clamping and scrollbar styling
 
 ## Phase 8: Critical UI Bug Resolution (January 8, 2025)

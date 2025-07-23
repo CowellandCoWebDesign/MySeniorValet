@@ -209,7 +209,7 @@ export default function AdminDashboard() {
                 <Shield className="text-white h-5 w-5" />
               </div>
               <div>
-                <h1 className="text-2xl font-display font-bold text-gray-900">TrueView Admin</h1>
+                <h1 className="text-2xl font-display font-bold text-gray-900">MySeniorValet Admin</h1>
                 <p className="text-sm text-gray-500 font-medium">Enterprise Control Center</p>
               </div>
             </div>

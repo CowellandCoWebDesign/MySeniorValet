@@ -550,7 +550,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                 <div key={community.id} className="relative bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                   {index === 0 && (
                     <div className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
-                      10 days on TrueView
+                      10 days on MySeniorValet
                     </div>
                   )}
                   {index === 1 && (

@@ -73,7 +73,7 @@ export default function Terms() {
               <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <p className="text-blue-800 font-medium">Important:</p>
                 <p className="text-blue-700 text-sm mt-1">
-                  TrueView is not a licensed placement agency and does not receive referral fees. 
+                  MySeniorValet is not a licensed placement agency and does not receive referral fees. 
                   We provide information only - all placement decisions are between you and the communities.
                 </p>
               </div>
@@ -91,7 +91,7 @@ export default function Terms() {
               <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <p className="text-blue-800 font-medium mb-3">Founder Ownership Statement:</p>
                 <p className="text-blue-700 text-sm mb-3">
-                  TrueView is an independent platform solely founded, developed, and operated by Scott Cowell. 
+                  MySeniorValet is an independent platform solely founded, developed, and operated by Scott Cowell. 
                   The platform was created entirely on personal time, without the use of any company-owned 
                   systems, confidential materials, employee collaboration, or proprietary intellectual property.
                 </p>
@@ -100,7 +100,7 @@ export default function Terms() {
               <div className="p-4 bg-green-50 rounded-lg border border-green-200">
                 <p className="text-green-800 font-medium mb-3">Platform Independence:</p>
                 <p className="text-green-700 text-sm mb-3">
-                  TrueView is not affiliated with, endorsed by, or developed on behalf of any senior living 
+                  MySeniorValet is not affiliated with, endorsed by, or developed on behalf of any senior living 
                   brand, operator, management company, parent organization, or affiliated entity — including 
                   but not limited to Discovery Senior Living, Provincial Senior Living, Atria Senior Living, 
                   Brookdale Senior Living, Sunrise Senior Living, Holiday by Atria, or any national, regional, 
@@ -158,7 +158,7 @@ export default function Terms() {
             </CardHeader>
             <CardContent>
               <p className="mb-4">
-                While we strive to provide accurate and up-to-date information, TrueView makes no 
+                While we strive to provide accurate and up-to-date information, MySeniorValet makes no 
                 warranties about the completeness, reliability, or accuracy of the information provided.
               </p>
               
@@ -177,7 +177,7 @@ export default function Terms() {
             </CardHeader>
             <CardContent>
               <p className="mb-4">
-                The TrueView platform, including its design, features, and content, is protected by 
+                The MySeniorValet platform, including its design, features, and content, is protected by 
                 intellectual property laws.
               </p>
               
@@ -185,7 +185,7 @@ export default function Terms() {
                 <div>
                   <h3 className="font-semibold">Our Content:</h3>
                   <p className="text-gray-700 text-sm">
-                    TrueView owns or has rights to all platform content, including text, graphics, 
+                    MySeniorValet owns or has rights to all platform content, including text, graphics, 
                     logos, and software. You may not reproduce or distribute this content without permission.
                   </p>
                 </div>
@@ -193,7 +193,7 @@ export default function Terms() {
                 <div>
                   <h3 className="font-semibold">User Content:</h3>
                   <p className="text-gray-700 text-sm">
-                    By submitting content (reviews, comments, etc.), you grant TrueView a license to 
+                    By submitting content (reviews, comments, etc.), you grant MySeniorValet a license to 
                     use, display, and distribute that content on our platform.
                   </p>
                 </div>
@@ -210,7 +210,7 @@ export default function Terms() {
             </CardHeader>
             <CardContent>
               <p className="mb-4">
-                TrueView provides information "as is" without warranties of any kind.
+                MySeniorValet provides information "as is" without warranties of any kind.
               </p>
               
               <div className="space-y-4">
@@ -283,7 +283,7 @@ export default function Terms() {
               </p>
               
               <p className="text-gray-700">
-                Your continued use of TrueView after any changes constitutes acceptance of the 
+                Your continued use of MySeniorValet after any changes constitutes acceptance of the 
                 new terms. We encourage you to review these terms periodically.
               </p>
             </CardContent>

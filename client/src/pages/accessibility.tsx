@@ -81,7 +81,7 @@ export default function Accessibility() {
                 <Mail className="h-5 w-5 text-blue-600 mt-1" aria-hidden="true" />
                 <div>
                   <h3 className="font-semibold">Email</h3>
-                  <p className="text-gray-600">accessibility@trueview.com</p>
+                  <p className="text-gray-600">accessibility@myseniorvalet.com</p>
                   <p className="text-sm text-gray-500 mt-1">
                     We aim to respond within 2 business days
                   </p>
@@ -118,7 +118,7 @@ export default function Accessibility() {
           </CardHeader>
           <CardContent>
             <p className="mb-4">
-              We're continuously working to improve accessibility across TrueView:
+              We're continuously working to improve accessibility across MySeniorValet:
             </p>
             <ul className="list-disc list-inside space-y-2 text-gray-700">
               <li>Regular accessibility audits using automated and manual testing</li>

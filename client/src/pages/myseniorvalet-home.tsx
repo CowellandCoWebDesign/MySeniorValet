@@ -12,8 +12,8 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { EnhancedPlatformStats } from "@/components/EnhancedPlatformStats";
 
 
-export default function TrueViewHome() {
-  console.log("TRUEVIEW HOME PAGE LOADED - VERSION 2 WITH 31,023 COMMUNITIES");
+export default function MySeniorValetHome() {
+  console.log("MYSENIORVALET HOME PAGE LOADED - VERSION 2 WITH 31,023 COMMUNITIES");
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -1243,7 +1243,7 @@ export default function TrueViewHome() {
                     </div>
                   </div>
                   <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
-                    "Found this through TrueView and couldn't be happier. The virtual tours saved us so much time, and dad loves his new home."
+                    "Found this through MySeniorValet and couldn't be happier. The virtual tours saved us so much time, and dad loves his new home."
                   </p>
                   <div className="text-xs text-green-600 dark:text-green-400 font-medium">
                     The Gardens at Bay Area • Independent Living

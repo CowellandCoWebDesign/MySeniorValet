@@ -43,7 +43,7 @@ interface Community {
   transparencyScore?: number;
 }
 
-export default function TrueViewSearch() {
+export default function MySeniorValetSearch() {
   const [location] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');

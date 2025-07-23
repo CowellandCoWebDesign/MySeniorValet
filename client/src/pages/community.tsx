@@ -1401,7 +1401,7 @@ export default function CommunityPage() {
                     className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3"
                     onClick={() => {
                       // Open Calendly widget or scheduling modal
-                      const schedulingUrl = `https://calendly.com/trueview-tours/community-tour?prefill_community=${encodeURIComponent(community.name)}&prefill_location=${encodeURIComponent(community.city + ', ' + community.state)}`;
+                      const schedulingUrl = `https://calendly.com/myseniorvalet-tours/community-tour?prefill_community=${encodeURIComponent(community.name)}&prefill_location=${encodeURIComponent(community.city + ', ' + community.state)}`;
                       window.open(schedulingUrl, '_blank', 'width=800,height=700');
                     }}
                   >

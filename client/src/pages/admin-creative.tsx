@@ -158,7 +158,7 @@ export default function CreativeAdminDashboard() {
                   Mission Control
                 </h1>
                 <p className="text-gray-600 dark:text-gray-300 font-medium">
-                  TrueView Platform Command Center
+                  MySeniorValet Platform Command Center
                 </p>
               </div>
             </div>

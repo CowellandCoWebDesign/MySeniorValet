@@ -11,7 +11,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 // Import Leaflet CSS globally for map functionality
 import 'leaflet/dist/leaflet.css';
 import Home from "@/pages/home";
-import TrueViewHome from "@/pages/trueview-home";
+import MySeniorValetHome from "@/pages/myseniorvalet-home";
 import Claim from "@/pages/claim";
 import Admin from "@/pages/admin";
 import AdminCleanFull from "@/pages/admin-clean-full";
@@ -72,7 +72,7 @@ function Router() {
 
   return (
     <Switch>
-      <Route path="/" component={TrueViewHome} />
+      <Route path="/" component={MySeniorValetHome} />
       <Route path="/search" component={MapSearch} />
       <Route path="/map" component={MapSearch} />
       <Route path="/map-search" component={MapSearch} />

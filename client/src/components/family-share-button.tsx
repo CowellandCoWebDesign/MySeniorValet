@@ -88,7 +88,7 @@ ${community.name}
 
 ${personalMessage ? `Personal note: ${personalMessage}\n\n` : ''}View full details: ${generateShareableLink()}
 
-Shared via TrueView - Clarity in Senior Living`;
+Shared via MySeniorValet - Complete Senior Living Concierge`;
   };
 
   // Handle copying to clipboard

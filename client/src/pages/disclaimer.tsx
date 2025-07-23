@@ -23,7 +23,7 @@ export default function Disclaimer() {
             Disclaimer
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Important information about the use and limitations of TrueView's services and content.
+            Important information about the use and limitations of MySeniorValet's services and content.
           </p>
           <p className="text-sm text-gray-500 mt-2">
             Last updated: January 2025
@@ -38,7 +38,7 @@ export default function Disclaimer() {
                 Important Notice
               </h2>
               <p className="text-yellow-700">
-                TrueView provides publicly available information only and does not collect referral fees. 
+                MySeniorValet provides publicly available information only and does not collect referral fees. 
                 The information provided is for educational and informational purposes only and should not 
                 be considered as professional advice.
               </p>
@@ -57,7 +57,7 @@ export default function Disclaimer() {
             <CardContent className="space-y-4">
               <div className="p-4 bg-red-50 rounded-lg border border-red-200">
                 <h3 className="font-semibold text-red-800 mb-2">
-                  TrueView does not provide:
+                  MySeniorValet does not provide:
                 </h3>
                 <ul className="list-disc list-inside space-y-1 text-red-700">
                   <li><strong>Medical advice</strong> - Consult healthcare professionals for medical decisions</li>
@@ -68,7 +68,7 @@ export default function Disclaimer() {
               </div>
               
               <p className="text-gray-700">
-                All information on TrueView is provided for general informational purposes only. 
+                All information on MySeniorValet is provided for general informational purposes only. 
                 You should consult with appropriate professionals before making any decisions 
                 regarding senior care placement, medical treatment, or financial planning.
               </p>
@@ -84,7 +84,7 @@ export default function Disclaimer() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p>
-                While we strive to provide accurate and current information, TrueView makes no 
+                While we strive to provide accurate and current information, MySeniorValet makes no 
                 representations or warranties about:
               </p>
               
@@ -175,7 +175,7 @@ export default function Disclaimer() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p>
-                Users of TrueView are responsible for:
+                Users of MySeniorValet are responsible for:
               </p>
               
               <ul className="list-disc list-inside space-y-2 text-gray-700">
@@ -190,7 +190,7 @@ export default function Disclaimer() {
               <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
                 <p className="text-amber-800 text-sm">
                   <strong>Important:</strong> The decision to move to or engage with any senior 
-                  living community is yours alone. TrueView cannot and does not make recommendations 
+                  living community is yours alone. MySeniorValet cannot and does not make recommendations 
                   about the suitability of any community for your specific needs.
                 </p>
               </div>
@@ -203,7 +203,7 @@ export default function Disclaimer() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p>
-                TrueView, its officers, directors, employees, and agents shall not be liable for:
+                MySeniorValet, its officers, directors, employees, and agents shall not be liable for:
               </p>
               
               <ul className="list-disc list-inside space-y-2 text-gray-700">
@@ -217,7 +217,7 @@ export default function Disclaimer() {
 
               <div className="p-4 bg-red-50 rounded-lg">
                 <p className="text-red-800 text-sm font-medium">
-                  Use of this platform is at your own risk. TrueView provides information 
+                  Use of this platform is at your own risk. MySeniorValet provides information 
                   "as is" without warranties of any kind.
                 </p>
               </div>
@@ -235,7 +235,7 @@ export default function Disclaimer() {
                   <div>
                     <h3 className="font-semibold text-red-800 mb-2">Emergency Notice</h3>
                     <p className="text-red-700 text-sm">
-                      TrueView is not an emergency service. In case of medical emergencies, 
+                      MySeniorValet is not an emergency service. In case of medical emergencies, 
                       call 911 immediately. For urgent care needs, contact healthcare providers 
                       or emergency services directly.
                     </p>

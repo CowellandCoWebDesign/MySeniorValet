@@ -124,7 +124,7 @@ export function PremiumImage({
         <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
           Photo by{' '}
           <a 
-            href={`https://unsplash.com/@${selectedImage.user.username}?utm_source=TrueView&utm_medium=referral`}
+            href={`https://unsplash.com/@${selectedImage.user.username}?utm_source=MySeniorValet&utm_medium=referral`}
             target="_blank"
             rel="noopener noreferrer"
             className="underline hover:no-underline"
@@ -133,7 +133,7 @@ export function PremiumImage({
           </a>
           {' '}on{' '}
           <a 
-            href="https://unsplash.com/?utm_source=TrueView&utm_medium=referral"
+            href="https://unsplash.com/?utm_source=MySeniorValet&utm_medium=referral"
             target="_blank"
             rel="noopener noreferrer"
             className="underline hover:no-underline"
