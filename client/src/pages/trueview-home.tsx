@@ -64,18 +64,18 @@ export default function TrueViewHome() {
     staleTime: 0, // No cache - always fresh data
   });
 
-  const featuredCommunities = trendingCommunities?.slice(0, 8) || [];
+  const featuredCommunities = (trendingCommunities as any[])?.slice(0, 8) || [];
   
   // Combine coastal and featured communities for the top section
   const premiumCommunities = [
-    ...(coastalCommunities || []).slice(0, 4),
-    ...(featuredCommunities || []).slice(0, 4)
+    ...((coastalCommunities as any[]) || []).slice(0, 4),
+    ...((featuredCommunities as any[]) || []).slice(0, 4)
   ];
 
   // Update suggestions when search suggestions data changes
   useEffect(() => {
-    if (searchSuggestions && searchQuery.length >= 2) {
-      setSuggestions(searchSuggestions);
+    if ((searchSuggestions as string[]) && searchQuery.length >= 2) {
+      setSuggestions(searchSuggestions as string[]);
       setShowSuggestions(true);
     } else {
       setSuggestions([]);
@@ -138,10 +138,10 @@ export default function TrueViewHome() {
       {/* Hero Section with Search */}
       <section className="relative hero-mobile-safe bg-gradient-to-br from-slate-50 to-amber-50 dark:from-gray-900 dark:to-gray-800">
         <div className="absolute inset-0">
-          {heroImages && heroImages.length > 0 ? (
+          {(heroImages as any) && (heroImages as any).length > 0 ? (
             <img
-              src={heroImages[0].urls.regular}
-              alt={heroImages[0].alt_description || "Senior living community"}
+              src={(heroImages as any)[0].urls.regular}
+              alt={(heroImages as any)[0].alt_description || "Senior living community"}
               className="w-full h-full object-cover"
             />
           ) : (
@@ -389,7 +389,7 @@ export default function TrueViewHome() {
           </div>
           
           <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
-            {((coastalCommunities?.length || 0) + (featuredCommunities?.length || 0))} premium communities • 
+            {(((coastalCommunities as any[])?.length || 0) + ((featuredCommunities as any[])?.length || 0))} premium communities • 
             Featured selections and coastal charm
           </p>
         
@@ -424,30 +424,29 @@ export default function TrueViewHome() {
                     </div>
                   </div>
                   
-                  {/* Vacancy Status Badge - Top Left */}
-                  {index % 3 === 0 && (
-                    <Badge className="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 font-medium animate-pulse z-10">
-                      🟢 Available Now
+                  {/* Enhanced HUD Vacancy Status Badge - Top Left */}
+                  {community.availability_status === 'Available' || index % 3 === 0 ? (
+                    <Badge className="absolute top-2 left-2 bg-gradient-to-r from-green-600 to-green-500 text-white text-xs px-2 py-1 font-medium animate-pulse z-10">
+                      🟢 {community.occupancy_rate ? `${Math.round(100-community.occupancy_rate)}% Open` : 'Available Now'}
                     </Badge>
-                  )}
-                  {index % 3 === 1 && (
-                    <Badge className="absolute top-2 left-2 bg-orange-600 text-white text-xs px-2 py-1 font-medium z-10">
-                      🟡 Waitlist Open
+                  ) : community.availability_status === 'Waitlist' || index % 3 === 1 ? (
+                    <Badge className="absolute top-2 left-2 bg-gradient-to-r from-orange-600 to-orange-500 text-white text-xs px-2 py-1 font-medium z-10">
+                      🟡 {community.occupancy_rate ? `${Math.round(community.occupancy_rate)}% Occupied` : 'Waitlist Open'}
                     </Badge>
-                  )}
-                  {index % 3 === 2 && (
-                    <Badge className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 font-medium z-10">
-                      📋 Call for Availability
+                  ) : (
+                    <Badge className="absolute top-2 left-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white text-xs px-2 py-1 font-medium z-10">
+                      📋 {community.price_tier || 'Call for Info'}
                     </Badge>
                   )}
                   
-                  {/* Price Badge - Bottom Left */}
-                  <Badge className="absolute bottom-2 left-2 bg-gray-900 text-white text-xs px-2 py-1 font-medium z-10">
-                    {community.priceMin ? `$${(community.priceMin / 1000).toFixed(1)}K+` : 
+                  {/* Enhanced HUD Price Badge - Bottom Left */}
+                  <Badge className="absolute bottom-2 left-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs px-2 py-1 font-medium z-10">
+                    {community.monthly_rent_range_start ? `$${(community.monthly_rent_range_start / 1000).toFixed(1)}K+` :
+                     community.priceMin ? `$${(community.priceMin / 1000).toFixed(1)}K+` : 
                      community.priceRange && community.priceRange.min ? `$${(community.priceRange.min / 1000).toFixed(1)}K+` : 
                      '$1.8K+'}
-                    {!community.claimed && (
-                      <span className="text-xs text-gray-300 ml-1 font-normal">est.</span>
+                    {community.hud_property_id && (
+                      <span className="text-xs text-yellow-200 ml-1 font-normal">HUD</span>
                     )}
                   </Badge>
                   
@@ -470,25 +469,41 @@ export default function TrueViewHome() {
                 </div>
                 
                 <CardContent className="p-3">
-                  {/* Availability Status - Above Price */}
-                  {index % 3 === 0 && (
+                  {/* Enhanced HUD Availability Status - Above Price */}
+                  {community.availability_status === 'Available' || index % 3 === 0 ? (
                     <div className="flex items-center text-xs text-green-600 dark:text-green-400 font-medium mb-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
-                      Available
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></div>
+                      {community.availability_status || 'Available'}
+                      {community.total_units && (
+                        <span className="ml-1 text-gray-500">{community.total_units} units</span>
+                      )}
+                    </div>
+                  ) : community.availability_status === 'Waitlist' || index % 3 === 1 ? (
+                    <div className="flex items-center text-xs text-orange-600 dark:text-orange-400 font-medium mb-2">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full mr-1"></div>
+                      {community.availability_status || 'Waitlist Open'}
+                    </div>
+                  ) : (
+                    <div className="flex items-center text-xs text-blue-600 dark:text-blue-400 font-medium mb-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-1"></div>
+                      {community.availability_status || 'Call for Availability'}
                     </div>
                   )}
                   
                   <div className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                    <span className="text-sm">Starting at</span> ${community.priceMin ? community.priceMin.toLocaleString() : 
+                    <span className="text-sm">Starting at</span> ${community.monthly_rent_range_start ? community.monthly_rent_range_start.toLocaleString() :
+                     community.priceMin ? community.priceMin.toLocaleString() : 
                      community.priceRange && community.priceRange.min ? community.priceRange.min.toLocaleString() : 
                      '1,800'}
                     {!community.claimed && (
-                      <span className="text-xs text-gray-500 dark:text-gray-400 ml-1 font-normal">est.</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 ml-1 font-normal">HUD data</span>
                     )}
                   </div>
                   
                   <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
-                    {community.careTypes?.length > 0 ? 
+                    {community.total_units ? 
+                      `${community.total_units} units • ${community.occupancy_rate ? `${Math.round(community.occupancy_rate)}% occupied` : 'HUD Data'}` :
+                      community.careTypes?.length > 0 ? 
                       `${community.careTypes[0]} • ${index < 4 ? 'Coastal Living' : 'Featured Community'}` : 
                       `Assisted Living • ${index < 4 ? 'Ocean Views' : 'Premium Care'}`
                     }
@@ -500,28 +515,39 @@ export default function TrueViewHome() {
                   
                   <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1 mb-2">
                     {community.address || (index < 4 ? 'Coastal Community' : 'Featured Community')}, {community.city}, {community.state || 'CA'}
+                    {community.size_category && (
+                      <span className="ml-1 px-1 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded text-xs font-medium">
+                        {community.size_category}
+                      </span>
+                    )}
                   </div>
                   
-                  {/* Premium Regional Badges - Bottom of Card */}
-                  <div className="mb-3">
-                    {index % 4 === 0 && (
+                  {/* Enhanced HUD Data Badges - Bottom of Card */}
+                  <div className="mb-3 flex flex-wrap gap-1">
+                    {community.hud_property_id && (
+                      <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs px-2 py-1 font-medium">
+                        🏛️ HUD Verified
+                      </Badge>
+                    )}
+                    {community.price_tier && (
+                      <Badge className="bg-gradient-to-r from-green-600 to-emerald-600 text-white text-xs px-2 py-1 font-medium">
+                        💰 {community.price_tier}
+                      </Badge>
+                    )}
+                    {(community.senior_pct && community.senior_pct > 0) && (
+                      <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs px-2 py-1 font-medium">
+                        👥 {Math.round(community.senior_pct)}% Senior
+                      </Badge>
+                    )}
+                    {/* Fallback coastal/featured badges when HUD data unavailable */}
+                    {!community.hud_property_id && index % 4 === 0 && (
                       <Badge className={`text-white text-xs px-2 py-1 font-medium ${index < 4 ? 'bg-blue-600/90' : 'bg-purple-600/90'}`}>
-                        {index < 4 ? 'Ocean View' : 'Featured'}
+                        {index < 4 ? '🌊 Ocean View' : '⭐ Featured'}
                       </Badge>
                     )}
-                    {index % 4 === 1 && (
+                    {!community.hud_property_id && index % 4 === 1 && (
                       <Badge className={`text-white text-xs px-2 py-1 font-medium ${index < 4 ? 'bg-cyan-600/90' : 'bg-indigo-600/90'}`}>
-                        {index < 4 ? 'Coastal' : 'Premium'}
-                      </Badge>
-                    )}
-                    {index % 4 === 2 && (
-                      <Badge className={`text-white text-xs px-2 py-1 font-medium ${index < 4 ? 'bg-teal-600/90' : 'bg-violet-600/90'}`}>
-                        {index < 4 ? 'Waterfront' : 'Top Rated'}
-                      </Badge>
-                    )}
-                    {index % 4 === 3 && (
-                      <Badge className={`text-white text-xs px-2 py-1 font-medium ${index < 4 ? 'bg-indigo-600/90' : 'bg-pink-600/90'}`}>
-                        {index < 4 ? 'Beachside' : 'Exclusive'}
+                        {index < 4 ? '🏖️ Coastal' : '💎 Premium'}
                       </Badge>
                     )}
                   </div>
@@ -674,7 +700,7 @@ export default function TrueViewHome() {
             </div>
           </div>
           
-          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{californiaCommunities?.length || 0} communities • Silicon Valley, LA Metro, San Diego with immediate openings</p>
+          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{(californiaCommunities as any[])?.length || 0} communities • Silicon Valley, LA Metro, San Diego with immediate openings</p>
         
           <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
             {californiaLoading ? (
@@ -691,7 +717,7 @@ export default function TrueViewHome() {
                 </Card>
               ))
             ) : (
-              (californiaCommunities || []).map((community: any, index) => (
+              ((californiaCommunities as any[]) || []).map((community: any, index: number) => (
                 <Link key={`california-${community.id}-${index}`} href={`/community/${community.id}`}>
                   <Card className="overflow-hidden flex-shrink-0 w-56 h-[30rem] animate-float california-card dark:bg-gray-700" style={{animationDelay: `${index * 0.2}s`}}>
                     <div className="relative">
@@ -1317,7 +1343,7 @@ export default function TrueViewHome() {
         
         <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">
           {/* Show remaining recommended communities */}
-          {featuredCommunities.slice(4).map((community: any, index) => (
+          {((featuredCommunities as any[]).slice(4)).map((community: any, index: number) => (
             <Link key={`more-featured-${community.id}-${index}`} href={`/community/${community.id}`}>
               <Card className="overflow-hidden hover:shadow-lg transition-shadow border-0 shadow-sm flex-shrink-0 w-48 dark:bg-gray-700">
                 <div className="relative">
