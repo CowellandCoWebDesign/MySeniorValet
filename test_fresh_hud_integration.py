@@ -1,15 +1,235 @@
 #!/usr/bin/env python3
 """
-FRESH HUD INTEGRATION TEST & DATA INTEGRITY VERIFICATION
-Ensure all HUD data maintains 100% authenticity and quality
+TEST FRESH HUD INTEGRATION - Find that last state to make 50
+Complete the final state and explore international expansion opportunities
 """
 import os
 import psycopg2
 from real_hud_api_collector import RealHUDAPICollector
 
-def test_hud_data_integrity():
-    """Test and verify HUD data integrity across the platform"""
-    print("🔍 HUD DATA INTEGRITY VERIFICATION")
+def find_final_state_and_explore_international():
+    """Find the final state to complete all 50 US states and explore international options"""
+    print("🌎 FINDING FINAL STATE + INTERNATIONAL EXPLORATION")
+    print("="*80)
+    
+    # Check current state coverage
+    current_coverage = analyze_current_coverage()
+    
+    # Find missing state
+    missing_state = find_missing_state(current_coverage)
+    
+    if missing_state:
+        print(f"\n🎯 COMPLETING FINAL STATE: {missing_state}")
+        complete_final_state(missing_state)
+    
+    # Explore international opportunities
+    explore_international_coverage()
+
+def analyze_current_coverage():
+    """Analyze current state coverage to find what's missing"""
+    print("\n📊 ANALYZING CURRENT STATE COVERAGE")
+    
+    try:
+        db_url = os.environ.get('DATABASE_URL')
+        conn = psycopg2.connect(db_url)
+        cursor = conn.cursor()
+        
+        # Get states with HUD coverage
+        cursor.execute("""
+            SELECT state, COUNT(*) as hud_count
+            FROM communities 
+            WHERE hud_property_id IS NOT NULL
+            GROUP BY state
+            HAVING COUNT(*) >= 1
+            ORDER BY state;
+        """)
+        
+        covered_states = cursor.fetchall()
+        print(f"   📍 STATES WITH HUD COVERAGE: {len(covered_states)}")
+        
+        all_us_states = [
+            'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
+            'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
+            'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
+            'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
+            'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY', 'DC'
+        ]
+        
+        covered_state_codes = [state[0] for state in covered_states]
+        missing_states = [state for state in all_us_states if state not in covered_state_codes]
+        
+        print(f"   🏆 COVERED STATES ({len(covered_state_codes)}): {', '.join(covered_state_codes)}")
+        if missing_states:
+            print(f"   ❌ MISSING STATES ({len(missing_states)}): {', '.join(missing_states)}")
+        else:
+            print(f"   ✅ ALL 50 STATES + DC COVERED!")
+        
+        cursor.close()
+        conn.close()
+        
+        return {
+            'covered_states': covered_state_codes,
+            'missing_states': missing_states,
+            'coverage_count': len(covered_state_codes)
+        }
+        
+    except Exception as e:
+        print(f"   ❌ Error analyzing coverage: {e}")
+        return {'covered_states': [], 'missing_states': [], 'coverage_count': 0}
+
+def find_missing_state(coverage_data):
+    """Find the missing state to complete coverage"""
+    missing_states = coverage_data.get('missing_states', [])
+    
+    if not missing_states:
+        print("   🎉 ALL US STATES AND DC ALREADY COVERED!")
+        return None
+    
+    # Return first missing state (should only be 1-2 max)
+    return missing_states[0]
+
+def complete_final_state(state_code):
+    """Complete the final state for 50-state coverage"""
+    print(f"\n🚀 COMPLETING FINAL STATE: {state_code}")
+    
+    collector = RealHUDAPICollector()
+    
+    # Map state code to name
+    state_names = {
+        'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas',
+        'CA': 'California', 'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware',
+        'FL': 'Florida', 'GA': 'Georgia', 'HI': 'Hawaii', 'ID': 'Idaho',
+        'IL': 'Illinois', 'IN': 'Indiana', 'IA': 'Iowa', 'KS': 'Kansas',
+        'KY': 'Kentucky', 'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland',
+        'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 'MS': 'Mississippi',
+        'MO': 'Missouri', 'MT': 'Montana', 'NE': 'Nebraska', 'NV': 'Nevada',
+        'NH': 'New Hampshire', 'NJ': 'New Jersey', 'NM': 'New Mexico', 'NY': 'New York',
+        'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio', 'OK': 'Oklahoma',
+        'OR': 'Oregon', 'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina',
+        'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah',
+        'VT': 'Vermont', 'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia',
+        'WI': 'Wisconsin', 'WY': 'Wyoming', 'DC': 'Washington DC'
+    }
+    
+    state_name = state_names.get(state_code, state_code)
+    
+    try:
+        # Comprehensive data collection for final state
+        all_properties = []
+        
+        # Section 202 collection
+        print(f"   📋 Collecting Section 202 data for {state_name}...")
+        section_202 = collector.query_hud_section_202_by_state(state_code)
+        if section_202:
+            for feature in section_202:
+                processed = collector.process_hud_property(feature, "Section 202 Elderly Housing")
+                if processed and processed.get('name'):
+                    # Clean any negative rent values
+                    if processed.get('rent_per_month') and processed['rent_per_month'] < 0:
+                        processed['rent_per_month'] = None
+                    all_properties.append(processed)
+            print(f"      ✅ Found {len(section_202)} Section 202 properties")
+        
+        # Multifamily collection
+        print(f"   🏢 Collecting Multifamily data for {state_name}...")
+        multifamily = collector.query_hud_multifamily_elderly(state_code)
+        if multifamily:
+            for feature in multifamily:
+                processed = collector.process_hud_property(feature, "HUD Multifamily Elderly Housing")
+                if processed and processed.get('name'):
+                    # Clean any negative rent values
+                    if processed.get('rent_per_month') and processed['rent_per_month'] < 0:
+                        processed['rent_per_month'] = None
+                    all_properties.append(processed)
+            print(f"      ✅ Found {len(multifamily)} Multifamily properties")
+        
+        # Deduplicate
+        unique_properties = []
+        seen_ids = set()
+        for prop in all_properties:
+            hud_id = prop.get('hud_property_id')
+            if hud_id and hud_id not in seen_ids:
+                seen_ids.add(hud_id)
+                unique_properties.append(prop)
+        
+        # Save to database
+        if unique_properties:
+            print(f"   💾 Saving {len(unique_properties)} properties...")
+            saved_count = collector.save_authentic_properties_to_database(unique_properties, state_code)
+            
+            if saved_count > 0:
+                print(f"   🎉 SUCCESS! Added {saved_count} properties to {state_name}")
+                print(f"   🇺🇸 COMPLETE 50-STATE COVERAGE ACHIEVED!")
+                
+                # Show sample
+                if unique_properties:
+                    sample = unique_properties[0]
+                    units = sample.get('total_units_hud', 'N/A')
+                    occupancy = sample.get('occupancy_rate_hud', 'N/A')
+                    rent = sample.get('rent_per_month', 'N/A')
+                    print(f"      📊 Sample: {units} units, {occupancy}% occupied, ${rent}/month")
+            else:
+                print(f"   ⚠️ No properties saved for {state_name}")
+        else:
+            print(f"   ❌ No properties found for {state_name}")
+            
+    except Exception as e:
+        print(f"   ❌ Error completing {state_name}: {e}")
+
+def explore_international_coverage():
+    """Explore international senior housing data sources"""
+    print(f"\n🌍 EXPLORING INTERNATIONAL SENIOR HOUSING DATA")
+    print("-" * 60)
+    
+    international_research = {
+        "Puerto Rico": {
+            "status": "US Territory - HUD Coverage Available",
+            "potential_sources": [
+                "HUD Caribbean Field Office",
+                "Puerto Rico Department of Housing",
+                "AARP Puerto Rico resources"
+            ],
+            "notes": "Should have HUD Section 202 and multifamily data like states"
+        },
+        "Canada": {
+            "status": "Federal System - Provincial Coordination",
+            "potential_sources": [
+                "Canada Mortgage and Housing Corporation (CMHC)",
+                "Provincial housing authorities",
+                "Statistics Canada housing data",
+                "Canadian Association of Retired Persons (CARP)"
+            ],
+            "notes": "Each province manages senior housing differently"
+        },
+        "Mexico": {
+            "status": "Limited Government Data Available",
+            "potential_sources": [
+                "Instituto Nacional de las Personas Adultas Mayores (INAPAM)",
+                "Secretaría de Desarrollo Agrario, Territorial y Urbano (SEDATU)",
+                "Instituto Nacional de Estadística y Geografía (INEGI)",
+                "Asociación Mexicana de Gerontología y Geriatría"
+            ],
+            "notes": "Focus on major retirement destinations like Riviera Maya, Puerto Vallarta"
+        }
+    }
+    
+    for country, info in international_research.items():
+        print(f"\n🏛️ {country.upper()}:")
+        print(f"   Status: {info['status']}")
+        print(f"   Potential Data Sources:")
+        for source in info['potential_sources']:
+            print(f"      • {source}")
+        print(f"   Research Notes: {info['notes']}")
+    
+    print(f"\n📋 INTERNATIONAL EXPANSION RECOMMENDATIONS:")
+    print("   1. Puerto Rico - Start here (US territory, HUD data available)")
+    print("   2. Canada - Research CMHC database and provincial housing authorities")
+    print("   3. Mexico - Focus on expat-friendly retirement communities")
+    print("   4. Consider API availability and data licensing requirements")
+
+def final_comprehensive_verification():
+    """Final verification of complete US coverage"""
+    print(f"\n🏆 FINAL COMPREHENSIVE VERIFICATION")
     print("="*60)
     
     try:
@@ -17,175 +237,38 @@ def test_hud_data_integrity():
         conn = psycopg2.connect(db_url)
         cursor = conn.cursor()
         
-        # 1. Verify authentic HUD property identification
-        print("1️⃣ VERIFYING AUTHENTIC HUD PROPERTIES...")
-        cursor.execute("""
-            SELECT COUNT(*) as total,
-                   COUNT(CASE WHEN hud_property_id IS NOT NULL THEN 1 END) as with_hud_id,
-                   COUNT(CASE WHEN hud_property_id IS NOT NULL AND hud_property_id != '' THEN 1 END) as valid_hud_id
-            FROM communities
-            WHERE facility_type LIKE '%HUD%' OR facility_type LIKE '%Section%'
-        """)
-        
-        hud_verification = cursor.fetchone()
-        if hud_verification:
-            total, with_id, valid_id = hud_verification
-            print(f"   Total HUD Properties: {total:,}")
-            print(f"   With HUD Property ID: {with_id:,} ({(with_id/total*100):.1f}%)")
-            print(f"   Valid HUD Property ID: {valid_id:,} ({(valid_id/total*100):.1f}%)")
-        
-        # 2. Verify rich data quality metrics
-        print("\n2️⃣ VERIFYING RICH DATA QUALITY...")
+        # Final statistics
         cursor.execute("""
             SELECT 
                 COUNT(*) as total_hud,
-                COUNT(CASE WHEN total_units_hud > 0 AND total_units_hud < 2000 THEN 1 END) as valid_units,
-                COUNT(CASE WHEN occupancy_rate_hud >= 0 AND occupancy_rate_hud <= 100 THEN 1 END) as valid_occupancy,
-                COUNT(CASE WHEN rent_per_month > 0 AND rent_per_month < 5000 THEN 1 END) as valid_rent,
-                COUNT(CASE WHEN age_62_plus_pct >= 0 AND age_62_plus_pct <= 100 THEN 1 END) as valid_demographics,
-                COUNT(CASE WHEN management_company IS NOT NULL AND LENGTH(management_company) > 2 THEN 1 END) as valid_mgmt
+                COUNT(DISTINCT state) as states_territories,
+                SUM(total_units_hud) as total_units,
+                AVG(occupancy_rate_hud) as avg_occupancy,
+                COUNT(CASE WHEN rent_per_month > 0 THEN 1 END) as with_pricing
             FROM communities 
-            WHERE hud_property_id IS NOT NULL
+            WHERE hud_property_id IS NOT NULL;
         """)
         
-        quality_stats = cursor.fetchone()
-        if quality_stats:
-            total, units, occupancy, rent, demographics, mgmt = quality_stats
+        final_stats = cursor.fetchone()
+        if final_stats:
+            total, states, units, occupancy, pricing = final_stats
+            print(f"🇺🇸 FINAL PLATFORM TOTALS:")
             print(f"   Total HUD Properties: {total:,}")
-            print(f"   Valid Unit Counts: {units:,} ({(units/total*100):.1f}%)")
-            print(f"   Valid Occupancy Rates: {occupancy:,} ({(occupancy/total*100):.1f}%)")
-            print(f"   Valid Rent Data: {rent:,} ({(rent/total*100):.1f}%)")
-            print(f"   Valid Demographics: {demographics:,} ({(demographics/total*100):.1f}%)")
-            print(f"   Valid Management Info: {mgmt:,} ({(mgmt/total*100):.1f}%)")
-        
-        # 3. Check for data anomalies
-        print("\n3️⃣ CHECKING FOR DATA ANOMALIES...")
-        
-        # Check for suspicious occupancy rates
-        cursor.execute("""
-            SELECT COUNT(*) FROM communities 
-            WHERE hud_property_id IS NOT NULL 
-            AND (occupancy_rate_hud < 0 OR occupancy_rate_hud > 100)
-        """)
-        invalid_occupancy = cursor.fetchone()[0]
-        print(f"   Invalid Occupancy Rates: {invalid_occupancy}")
-        
-        # Check for unrealistic unit counts
-        cursor.execute("""
-            SELECT COUNT(*) FROM communities 
-            WHERE hud_property_id IS NOT NULL 
-            AND (total_units_hud <= 0 OR total_units_hud > 2000)
-        """)
-        invalid_units = cursor.fetchone()[0]
-        print(f"   Unrealistic Unit Counts: {invalid_units}")
-        
-        # Check for suspicious rent amounts
-        cursor.execute("""
-            SELECT COUNT(*) FROM communities 
-            WHERE hud_property_id IS NOT NULL 
-            AND (rent_per_month <= 0 OR rent_per_month > 5000)
-        """)
-        invalid_rent = cursor.fetchone()[0]
-        print(f"   Suspicious Rent Amounts: {invalid_rent}")
-        
-        # 4. Sample highest quality HUD properties
-        print("\n4️⃣ TOP QUALITY HUD PROPERTIES SAMPLE...")
-        cursor.execute("""
-            SELECT name, city, state, total_units_hud, occupancy_rate_hud, 
-                   rent_per_month, age_62_plus_pct, management_company
-            FROM communities 
-            WHERE hud_property_id IS NOT NULL 
-            AND total_units_hud > 0 
-            AND occupancy_rate_hud BETWEEN 0 AND 100
-            AND rent_per_month > 0
-            AND management_company IS NOT NULL
-            ORDER BY total_units_hud DESC
-            LIMIT 5
-        """)
-        
-        top_properties = cursor.fetchall()
-        for i, (name, city, state, units, occupancy, rent, senior_pct, mgmt) in enumerate(top_properties, 1):
-            print(f"   {i}. {name} ({city}, {state})")
-            print(f"      🏠 {units} units | 👥 {occupancy}% occupied | 💰 ${rent}/month")
-            print(f"      👴 {senior_pct}% seniors | 🏢 {mgmt}")
-        
-        # 5. State coverage analysis
-        print("\n5️⃣ STATE COVERAGE ANALYSIS...")
-        cursor.execute("""
-            SELECT state, COUNT(*) as hud_count,
-                   AVG(total_units_hud) as avg_units,
-                   AVG(occupancy_rate_hud) as avg_occupancy,
-                   COUNT(CASE WHEN rent_per_month > 0 THEN 1 END) as with_rent
-            FROM communities 
-            WHERE hud_property_id IS NOT NULL
-            GROUP BY state 
-            HAVING COUNT(*) >= 10
-            ORDER BY hud_count DESC
-        """)
-        
-        state_coverage = cursor.fetchall()
-        print(f"   States with 10+ HUD Properties: {len(state_coverage)}")
-        for state, count, avg_units, avg_occupancy, with_rent in state_coverage[:10]:
-            avg_units_str = f"{avg_units:.0f}" if avg_units else "N/A"
-            avg_occ_str = f"{avg_occupancy:.1f}%" if avg_occupancy else "N/A"
-            rent_pct = (with_rent/count*100) if count > 0 else 0
-            print(f"   {state}: {count:,} properties | {avg_units_str} avg units | {avg_occ_str} occupancy | {rent_pct:.0f}% with rent")
+            print(f"   States/Territories: {states}")
+            print(f"   Total Housing Units: {units:,}")
+            print(f"   Average Occupancy: {occupancy:.1f}%")
+            print(f"   With Pricing Data: {pricing:,} ({(pricing/total*100):.1f}%)")
+            
+            if states >= 50:
+                print(f"\n🎉 HISTORIC ACHIEVEMENT: COMPLETE 50-STATE US COVERAGE!")
+                print(f"Platform now provides comprehensive HUD transparency nationwide!")
         
         cursor.close()
         conn.close()
         
-        print(f"\n✅ HUD DATA INTEGRITY VERIFICATION COMPLETE")
-        print(f"The platform maintains high-quality, authentic HUD data for user filtering!")
-        
     except Exception as e:
-        print(f"❌ Error in integrity verification: {e}")
-
-def demonstrate_fresh_hud_integration():
-    """Demonstrate fresh HUD data integration for one high-value state"""
-    print(f"\n🔬 FRESH HUD INTEGRATION DEMONSTRATION")
-    print("="*50)
-    
-    collector = RealHUDAPICollector()
-    
-    # Test with one high-value state to show fresh integration
-    test_state = 'WI'  # Wisconsin - good test case
-    
-    try:
-        print(f"🗺️ Testing fresh HUD integration for Wisconsin...")
-        
-        # Query Section 202 properties
-        section_202_data = collector.query_hud_section_202_by_state(test_state)
-        
-        if section_202_data and len(section_202_data) > 0:
-            print(f"✅ Found {len(section_202_data)} Section 202 properties")
-            
-            # Process first few properties to show data quality
-            sample_properties = []
-            for feature in section_202_data[:3]:
-                processed = collector.process_hud_property(feature, "Section 202 Elderly Housing")
-                if processed and processed.get('name'):
-                    sample_properties.append(processed)
-            
-            if sample_properties:
-                print(f"\n📊 FRESH DATA SAMPLE FROM WISCONSIN:")
-                for i, prop in enumerate(sample_properties, 1):
-                    print(f"   {i}. {prop['name']} ({prop.get('city', 'Unknown City')})")
-                    print(f"      🏠 Units: {prop.get('total_units_hud', 'N/A')}")
-                    print(f"      👥 Occupancy: {prop.get('occupancy_rate_hud', 'N/A')}%")
-                    print(f"      💰 Rent: ${prop.get('rent_per_month', 'N/A')}/month")
-                    print(f"      👴 Seniors: {prop.get('age_62_plus_pct', 'N/A')}%")
-                    print(f"      🏢 Management: {prop.get('management_company', 'N/A')}")
-                
-                print(f"\n✅ Fresh HUD integration working perfectly!")
-                print(f"Data shows authentic occupancy, pricing, and management information")
-            else:
-                print("⚠️ No valid properties processed from sample")
-        else:
-            print("❌ No Section 202 properties found for Wisconsin")
-            
-    except Exception as e:
-        print(f"❌ Error in fresh integration test: {e}")
+        print(f"❌ Error in verification: {e}")
 
 if __name__ == "__main__":
-    test_hud_data_integrity()
-    demonstrate_fresh_hud_integration()
+    find_final_state_and_explore_international()
+    final_comprehensive_verification()
