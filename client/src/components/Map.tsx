@@ -48,9 +48,9 @@ const createSimpleIcon = (color: string) => {
   });
 };
 
-// Data quality based icons
-const hudDataIcon = createSimpleIcon('#16a34a'); // Green - Real HUD data
-const noDataIcon = createSimpleIcon('#dc2626'); // Red - No authentic data
+// Live data availability icons
+const liveDataIcon = createSimpleIcon('#16a34a'); // Green - Has live pricing/availability data
+const noLiveDataIcon = createSimpleIcon('#dc2626'); // Red - No live data (call for pricing)
 
 // Care type icons (fallback when no HUD data indicator)
 const communityIcon = createSimpleIcon('#1e40af'); // Blue
@@ -738,16 +738,17 @@ export default function Map({
   });
 
   const getIconForCommunity = (community: Community, isHovered = false, isPulsing = false) => {
-    // Check for HUD data first - use green pin for authentic data, red for no data
-    const hasHudData = community.hudPropertyId || 
-                       community.dataSource === 'HUD' || 
-                       community.hudVerified === true ||
-                       (community.rentPerMonth && community.rentPerMonth > 0);
+    // Check for LIVE DATA - green pin means we have real pricing/availability/contact info
+    const hasLiveData = (community.rentPerMonth && community.rentPerMonth > 0) || // Has real pricing
+                        (community.priceRange && !community.priceRange.includes('Contact')) || // Has transparent pricing
+                        (community.availability && community.availability !== 'Contact for availability') || // Has real availability
+                        community.hudPropertyId || // HUD properties have live data
+                        community.dataSource === 'HUD'; // HUD sourced data
     
-    if (hasHudData) {
-      return hudDataIcon; // Green pin for real HUD data
+    if (hasLiveData) {
+      return liveDataIcon; // Green pin for communities with LIVE pricing/availability data
     } else {
-      return noDataIcon; // Red pin for communities without authentic data
+      return noLiveDataIcon; // Red pin for communities without live data (call for pricing)
     }
     
     // Original care type logic (no longer used, but kept for reference)
