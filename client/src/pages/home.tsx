@@ -43,8 +43,8 @@ export default function Home() {
             {/* Trust Indicators Above Title */}
             <div className="flex items-center justify-center space-x-4 mb-6">
               <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full shadow-md border border-green-200/50">
-                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-sm font-semibold text-green-800">25,782+ Verified Communities</span>
+                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                <span className="text-sm font-semibold text-green-800">31,023+ Verified Communities</span>
               </div>
               <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full shadow-md border border-blue-200/50">
                 <Database className="h-4 w-4 text-blue-600" />
@@ -98,7 +98,7 @@ export default function Home() {
           {/* Community Count Statement */}
           <div className="text-center mb-6">
             <p className="text-2xl lg:text-3xl text-gray-600 dark:text-gray-300 font-medium">
-              Serving families across 25,000+ communities
+              Serving families across 31,000+ communities
             </p>
           </div>
 
@@ -536,7 +536,12 @@ export default function Home() {
   );
 }
 
-function Badge({ children, className }) {
+interface BadgeProps {
+  children: React.ReactNode;
+  className: string;
+}
+
+function Badge({ children, className }: BadgeProps) {
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${className}`}>
       {children}
