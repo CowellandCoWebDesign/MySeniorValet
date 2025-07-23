@@ -77,27 +77,27 @@ class SuperclusterService {
 
   private getClusterConfig(zoom: number): Supercluster.Options {
     // Zoom-based clustering configuration
-    if (zoom >= 12) {
-      // City view and closer - NO CLUSTERING
+    if (zoom >= 13) {
+      // Street view and closer - NO CLUSTERING
       return {
         radius: 0,         // No clustering
-        maxZoom: 16,
+        maxZoom: 18,       // Increased max zoom
         minZoom: 0,
         minPoints: 999999, // Effectively disable clustering
         generateId: true,
         extent: 512,
-        nodeSize: 64,
+        nodeSize: 32,      // Optimized for memory
       };
-    } else if (zoom >= 10) {
-      // Regional view - light clustering
+    } else if (zoom >= 11) {
+      // City view - minimal clustering
       return {
-        radius: 30,        // Small radius
-        maxZoom: 16,
+        radius: 25,        // Smaller radius for less aggressive clustering
+        maxZoom: 18,
         minZoom: 0,
-        minPoints: 5,      // Only cluster when 5+ communities
+        minPoints: 6,      // Higher threshold
         generateId: true,
         extent: 512,
-        nodeSize: 64,
+        nodeSize: 32,
       };
     } else if (zoom >= 8) {
       // State view - moderate clustering

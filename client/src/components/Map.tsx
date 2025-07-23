@@ -654,21 +654,21 @@ export default function Map({
   // Strict viewport optimization: Only render what's visible with minimal buffer
   const getOptimizedBounds = useCallback((bounds: LatLngBounds | null) => {
     if (!bounds) {
-      // Smaller initial load area focused on continental US
+      // Even smaller initial load area focused on major metropolitan areas
       return {
-        west: -125.0, // West Coast
-        south: 25.0,  // Southern US border
-        east: -65.0,  // East Coast
-        north: 50.0   // Northern US border
+        west: -120.0, // Reduced from -125.0
+        south: 30.0,  // Increased from 25.0
+        east: -70.0,  // Reduced from -65.0
+        north: 45.0   // Reduced from 50.0
       };
     }
 
     const sw = bounds.getSouthWest();
     const ne = bounds.getNorthEast();
     
-    // Minimal 5% buffer for viewport-only display
-    const latBuffer = (ne.lat - sw.lat) * 0.05;
-    const lngBuffer = (ne.lng - sw.lng) * 0.05;
+    // Ultra-minimal 2% buffer for true viewport-only display
+    const latBuffer = (ne.lat - sw.lat) * 0.02;
+    const lngBuffer = (ne.lng - sw.lng) * 0.02;
     
     return {
       west: Math.max(-180, sw.lng - lngBuffer),
