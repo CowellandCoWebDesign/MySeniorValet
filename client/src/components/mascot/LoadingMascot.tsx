@@ -55,14 +55,10 @@ export function LoadingMascot({
         
         {/* Floating dots animation around mascot */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-2 right-2 w-2 h-2 bg-blue-400 rounded-full animate-ping" 
-               style={{ animationDelay: '0s' }} />
-          <div className="absolute bottom-2 left-2 w-2 h-2 bg-green-400 rounded-full animate-ping" 
-               style={{ animationDelay: '0.5s' }} />
-          <div className="absolute top-1/2 left-0 w-2 h-2 bg-orange-400 rounded-full animate-ping" 
-               style={{ animationDelay: '1s' }} />
-          <div className="absolute top-1/2 right-0 w-2 h-2 bg-purple-400 rounded-full animate-ping" 
-               style={{ animationDelay: '1.5s' }} />
+          <div className="absolute top-2 right-2 w-2 h-2 bg-blue-400 rounded-full" />
+          <div className="absolute bottom-2 left-2 w-2 h-2 bg-green-400 rounded-full" />
+          <div className="absolute top-1/2 left-0 w-2 h-2 bg-orange-400 rounded-full" />
+          <div className="absolute top-1/2 right-0 w-2 h-2 bg-purple-400 rounded-full" />
         </div>
       </div>
       
@@ -82,10 +78,9 @@ export function LoadingMascot({
       {/* Progress bar for longer loading */}
       <div className="w-full max-w-xs">
         <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-          <div className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse" 
+          <div className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" 
                style={{ 
-                 width: '100%',
-                 animation: 'progress 2s ease-in-out infinite'
+                 width: '100%'
                }} />
         </div>
       </div>
