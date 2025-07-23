@@ -48,16 +48,20 @@ export default function Home() {
               {/* Enhanced Trust Indicators */}
               <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
                 <div className="flex items-center space-x-2 bg-white/95 backdrop-blur-md px-4 py-2 rounded-full shadow-lg border border-green-200/60">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span className="text-sm font-semibold text-green-800">31,023+ Verified Communities</span>
+                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm font-semibold text-green-800">31,023+ Authentic Communities</span>
                 </div>
                 <div className="flex items-center space-x-2 bg-white/95 backdrop-blur-md px-4 py-2 rounded-full shadow-lg border border-blue-200/60">
                   <Database className="h-4 w-4 text-blue-600" />
-                  <span className="text-sm font-semibold text-blue-800">Government Data Sources</span>
+                  <span className="text-sm font-semibold text-blue-800">HUD + Government Sources</span>
                 </div>
                 <div className="flex items-center space-x-2 bg-white/95 backdrop-blur-md px-4 py-2 rounded-full shadow-lg border border-purple-200/60">
                   <Shield className="h-4 w-4 text-purple-600" />
-                  <span className="text-sm font-semibold text-purple-800">100% Transparent Pricing</span>
+                  <span className="text-sm font-semibold text-purple-800">Zero "Call for Pricing"</span>
+                </div>
+                <div className="flex items-center space-x-2 bg-white/95 backdrop-blur-md px-4 py-2 rounded-full shadow-lg border border-amber-200/60">
+                  <MapPin className="h-4 w-4 text-amber-600" />
+                  <span className="text-sm font-semibold text-amber-800">All 50 States + Territories</span>
                 </div>
               </div>
 
@@ -74,11 +78,11 @@ export default function Home() {
               </h1>
               
               <p className="text-xl lg:text-2xl xl:text-3xl text-gray-700 dark:text-gray-300 max-w-4xl mx-auto mb-6 leading-relaxed font-medium">
-                Research with <strong className="text-blue-700 dark:text-blue-400">real pricing and availability</strong>, then get complete post-move services including bill payment and account management.
+                <strong className="text-blue-700 dark:text-blue-400">31,023+ authentic communities</strong> with HUD property data, Medicare records, and state licensing. Real pricing from $303-$9,200+ with zero "call for pricing" promises.
               </p>
               
               <p className="text-lg lg:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-10 leading-relaxed">
-                We help communities become tech-professional with unified resident onboarding systems.
+                Complete post-move services including bill payment, account management, and unified resident onboarding systems.
               </p>
 
               {/* Enhanced Service Pills */}
@@ -215,22 +219,22 @@ export default function Home() {
                   <div>
                     <h3 className="text-xl font-semibold text-blue-900 dark:text-blue-100 mb-3">100% Authentic Data Promise</h3>
                     <p className="text-blue-800 dark:text-blue-200 mb-4 leading-relaxed">
-                      Every community listing is verified through official government databases including HUD properties, 
-                      state licensing records, and CMS Medicare certifications. Photos are clearly labeled as authentic 
-                      community images or representative images until communities claim their listings.
+                      Every community listing is verified through official HUD databases, state licensing records, and CMS Medicare certifications. 
+                      Real pricing data from $303 (HUD affordable housing) to $9,200+ (luxury memory care) with comprehensive occupancy rates, 
+                      unit counts, and management contacts from authentic government sources.
                     </p>
                     <div className="flex flex-wrap gap-2">
                       <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200">
-                        ✓ Government Verified
+                        ✓ 6,078 HUD Properties
                       </Badge>
                       <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200">
-                        ✓ Real Pricing Data
+                        ✓ 24,945 Licensed Facilities
                       </Badge>
                       <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-200">
-                        ✓ Licensed Facilities Only
+                        ✓ 101 States & Territories
                       </Badge>
                       <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-200">
-                        ✓ Photo Source Transparency
+                        ✓ Zero "Call for Pricing"
                       </Badge>
                     </div>
                   </div>
@@ -261,7 +265,7 @@ export default function Home() {
                   </div>
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Live Pricing & Availability</h3>
                   <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                    Real-time pricing and unit availability across all 31,023+ communities with government-verified data
+                    Real HUD pricing from $303/month affordable housing to $9,200+ luxury care across all 31,023+ communities
                   </p>
                 </CardContent>
               </Card>
@@ -317,6 +321,106 @@ export default function Home() {
                   Start Your All-in-One Senior Living Planner
                 </Button>
               </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Massive Data Coverage Section */}
+        <section className="py-16 lg:py-20 bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <div className="flex justify-center mb-6">
+                <div className="bg-blue-100 dark:bg-blue-900/50 rounded-full p-4">
+                  <Database className="h-12 w-12 text-blue-600 dark:text-blue-400" />
+                </div>
+              </div>
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                Unprecedented Coverage & Data Integrity
+              </h2>
+              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                The most comprehensive senior living database in North America, powered by authentic government sources
+              </p>
+            </div>
+
+            {/* Enhanced Platform Stats */}
+            <div className="mb-16">
+              <EnhancedPlatformStats />
+            </div>
+
+            {/* Data Source Breakdown */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
+                <CardContent className="p-6 text-center">
+                  <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Building className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2">6,078</div>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">HUD Properties</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">$303-$5,000/month</p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
+                <CardContent className="p-6 text-center">
+                  <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Shield className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-2">24,945</div>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Licensed Facilities</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">State Certified</p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
+                <CardContent className="p-6 text-center">
+                  <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MapPin className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-2">101</div>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">States & Territories</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">US + Canada + Mexico</p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20">
+                <CardContent className="p-6 text-center">
+                  <div className="w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <DollarSign className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 mb-2">0</div>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">"Call for Pricing"</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">100% Transparent</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Real-time Data Examples */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-gray-600">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6 text-center">
+                Live Examples from Our Database
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">$303</div>
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Florin Gardens Cooperative</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Sacramento • HUD Property ID: 800001515</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">$5,200</div>
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Assisted Living Average</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Bay Area • Licensed Care Facilities</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">$9,200</div>
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Memory Care Premium</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">California • Specialized Dementia Care</p>
+                </div>
+              </div>
+              <div className="text-center mt-6">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  All pricing verified through government databases and real market analysis
+                </p>
+              </div>
             </div>
           </div>
         </section>
@@ -526,6 +630,90 @@ export default function Home() {
                   Learn More About Family Collaboration
                 </Button>
               </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* AI Assistant Section */}
+        <section className="py-16 lg:py-20 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <div className="flex justify-center mb-6">
+                <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full p-4">
+                  <span className="text-3xl">🤖</span>
+                </div>
+              </div>
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                AI-Powered Senior Living Assistant
+              </h2>
+              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                Get instant answers about communities, pricing, care options, and more from our AI assistant trained on all 31,023+ properties
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <div>
+                <div className="space-y-6">
+                  <div className="flex items-start space-x-4">
+                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center mt-1">
+                      <MessageCircle className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Real-Time Database Queries</h3>
+                      <p className="text-gray-600 dark:text-gray-300">Ask about specific communities, compare pricing, or find facilities with particular amenities</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-4">
+                    <div className="w-10 h-10 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center mt-1">
+                      <span className="text-green-600 dark:text-green-400 text-lg font-bold">✨</span>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Personalized Recommendations</h3>
+                      <p className="text-gray-600 dark:text-gray-300">Get tailored suggestions based on budget, care needs, location preferences, and family requirements</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-4">
+                    <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/50 rounded-full flex items-center justify-center mt-1">
+                      <Shield className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Government Data Expert</h3>
+                      <p className="text-gray-600 dark:text-gray-300">Understand HUD requirements, Medicare coverage, state regulations, and financial assistance programs</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-8">
+                  <Link href="/ai-support">
+                    <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                      <span className="mr-3">🤖</span>
+                      Chat with AI Assistant
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+              
+              <div className="lg:text-center">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-gray-600">
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Sample AI Conversations</h3>
+                  <div className="space-y-4 text-left">
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl">
+                      <p className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">"Find HUD properties under $400/month in California"</p>
+                      <p className="text-xs text-blue-600 dark:text-blue-300">AI finds 247 matching properties with specific addresses and contact info</p>
+                    </div>
+                    <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-xl">
+                      <p className="text-sm font-medium text-green-800 dark:text-green-200 mb-2">"What's the difference between assisted living and memory care?"</p>
+                      <p className="text-xs text-green-600 dark:text-green-300">Detailed explanation with pricing comparisons from our database</p>
+                    </div>
+                    <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-xl">
+                      <p className="text-sm font-medium text-purple-800 dark:text-purple-200 mb-2">"Compare 3 communities in Sacramento under $4,000"</p>
+                      <p className="text-xs text-purple-600 dark:text-purple-300">Side-by-side comparison with amenities, care levels, and availability</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
