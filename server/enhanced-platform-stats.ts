@@ -127,14 +127,14 @@ export class EnhancedPlatformStatsService {
       console.error('Error calculating platform stats:', error);
       // Return basic fallback stats
       return {
-        totalCommunities: 25782,
-        statesCovered: 96,
+        totalCommunities: 31023,
+        statesCovered: 101,
         countiesCovered: 1664,
         citiesCovered: 4698,
-        totalAvailableUnits: 120932,
-        totalUnitCapacity: 735112,
-        totalResidentCapacity: 735112,
-        withPricing: 25782,
+        totalAvailableUnits: 633371,
+        totalUnitCapacity: 633371,
+        totalResidentCapacity: 633371,
+        withPricing: 31023,
         withPhotos: 20626,
         withAvailability: 1693,
         governmentVerified: 1520,

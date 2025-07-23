@@ -6,7 +6,7 @@ import { PremiumImage } from "@/components/premium-image";
 import { PricingBreakdown } from "@/components/pricing-breakdown";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Shield, FolderSync, MapPin, Database, Tag, Map, Check, Star, DollarSign, Clock, Users, Wifi, Car, Activity, MapIcon, Building, Heart, Home, Eye, Truck, Sofa, Pill, Phone, Info, MessageCircle, Link2 } from "lucide-react";
+import { Shield, FolderSync, MapPin, Database, Tag, Map, Check, Star, DollarSign, Clock, Users, Wifi, Car, Activity, MapIcon, Building, Heart, Eye, Truck, Sofa, Pill, Phone, Info, MessageCircle, Link2 } from "lucide-react";
 import { Link } from "wouter";
 import { GreetingMascot } from "@/components/mascot";
 import { Badge } from "@/components/ui/badge";
@@ -334,12 +334,12 @@ export default function Home() {
                   <p className="text-gray-600 dark:text-gray-300 font-medium">Verified Communities</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-4xl lg:text-5xl font-bold text-green-600 dark:text-green-400 mb-3">96</div>
+                  <div className="text-4xl lg:text-5xl font-bold text-green-600 dark:text-green-400 mb-3">101</div>
                   <p className="text-gray-600 dark:text-gray-300 font-medium">States & Provinces</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-4xl lg:text-5xl font-bold text-purple-600 dark:text-purple-400 mb-3">735K</div>
-                  <p className="text-gray-600 dark:text-gray-300 font-medium">Total Resident Capacity</p>
+                  <div className="text-4xl lg:text-5xl font-bold text-purple-600 dark:text-purple-400 mb-3">633K</div>
+                  <p className="text-gray-600 dark:text-gray-300 font-medium">Total Housing Units</p>
                 </div>
                 <div className="text-center">
                   <div className="text-4xl lg:text-5xl font-bold text-orange-600 dark:text-orange-400 mb-3">100%</div>
@@ -579,7 +579,7 @@ export default function Home() {
                 </div>
                 <div className="hidden lg:block relative overflow-hidden">
                   <PremiumImage 
-                    type="cta"
+                    type="hero"
                     query="happy senior couple reviewing community options together family"
                     orientation="portrait"
                     className="w-full h-full object-cover"
