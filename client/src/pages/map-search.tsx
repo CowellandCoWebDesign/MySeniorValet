@@ -793,8 +793,16 @@ export default function MapSearchClean() {
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                                 <Home className="w-12 h-12 text-gray-400 dark:text-gray-500 opacity-60" />
                                 
-                                {/* Live Data Indicator */}
-                                {(community?.hudPropertyId || (community as any)?.salesDirector?.name || (community as any)?.liveDataVerified || community?.phone || community?.website) && (
+                                {/* Live Data Indicator - GOLDEN RULE: Only for verified pricing/availability */}
+                                {(
+                                  // Government verified with actual pricing
+                                  ((community?.hudPropertyId && (community as any)?.rentPerMonth) ||
+                                  ((community as any)?.governmentSourced && community?.priceRange?.min)) ||
+                                  // Vendor verified with recent confirmation
+                                  (community?.claimedBy && (community as any)?.pricing_type === 'live' && 
+                                   (community as any)?.pricingLastVerified &&
+                                   new Date((community as any).pricingLastVerified) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
+                                ) && (
                                   <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-green-500 text-white px-3 py-2 rounded-full text-sm font-semibold shadow-lg">
                                     <div className="w-2.5 h-2.5 bg-green-200 rounded-full animate-pulse" />
                                     LIVE DATA

@@ -178,7 +178,17 @@ export class PricingTransparencyService {
     // Extract community pricing data
     const hasPricing = !!(community.priceRange?.min && community.priceRange?.max) || 
                       !!(community.livePricing && Object.keys(community.livePricing).length > 0);
-    const hasLivePricing = community.pricingType === 'live' && community.isClaimed && community.livePricing;
+    // GOLDEN RULE: Live pricing requires verified current actual price and/or availability
+    const hasLivePricing = (
+      // HUD properties with actual rent data
+      (community.hudPropertyId && community.rentPerMonth) ||
+      // Government sources with verified pricing
+      (community.governmentSourced && community.priceRange?.min) ||
+      // Claimed communities with explicitly verified live pricing within 30 days
+      (community.isClaimed && community.pricingType === 'live' && 
+       community.pricingLastVerified && 
+       new Date(community.pricingLastVerified) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
+    );
     const hasRangeDetailed = hasPricing && ((community.priceRange?.max - community.priceRange?.min) > 1000 ||
                             (community.livePricing && Object.keys(community.livePricing).length > 1));
     const hasRecentUpdate = community.pricingLastUpdated && 
