@@ -1211,11 +1211,40 @@ export default function CommunityDetail() {
                               Schedule Tour
                             </Button>
                             <Button
-                              onClick={() => {
-                                toast({
-                                  title: "Reserve Unit",
-                                  description: `Reservation process started for ${unit.type}. A community representative will contact you within 24 hours to finalize your reservation.`,
-                                });
+                              onClick={async () => {
+                                // Create actual reservation
+                                try {
+                                  const response = await fetch('/api/reservations/reserve', {
+                                    method: 'POST',
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                      communityId: community.id,
+                                      unitType: unit.type,
+                                      contactName: 'Guest User', // You'd get this from a form
+                                      email: 'guest@example.com', // You'd get this from a form
+                                      phone: '(555) 123-4567', // You'd get this from a form
+                                    }),
+                                  });
+                                  
+                                  const result = await response.json();
+                                  
+                                  if (result.success) {
+                                    toast({
+                                      title: "Unit Reserved!",
+                                      description: `Reservation ${result.reservationId} created. The community will contact you within 24 hours to confirm availability and schedule your move-in.`,
+                                    });
+                                  } else {
+                                    throw new Error(result.error);
+                                  }
+                                } catch (error) {
+                                  toast({
+                                    title: "Reservation Failed",
+                                    description: "Please try again or contact the community directly.",
+                                    variant: "destructive",
+                                  });
+                                }
                               }}
                               className="bg-green-600 hover:bg-green-700 text-white"
                             >
