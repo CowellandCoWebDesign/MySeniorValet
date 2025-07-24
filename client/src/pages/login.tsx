@@ -26,22 +26,14 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const { user, isLoading } = useAuth();
+  
   // Redirect to Replit Auth for login
   const handleLogin = () => {
     window.location.href = "/api/login";
   };
-
-  const form = useForm<LoginForm>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
 
   // Redirect if already logged in
   useEffect(() => {
@@ -49,11 +41,6 @@ export default function LoginPage() {
       setLocation("/dashboard");
     }
   }, [user, isLoading, setLocation]);
-
-  const onSubmit = async (data: LoginForm) => {
-    // Redirect to Replit Auth instead of custom login
-    handleLogin();
-  };
 
   if (isLoading) {
     return (
@@ -78,108 +65,57 @@ export default function LoginPage() {
           <p className="text-gray-600 dark:text-gray-300">Sign in to your account to continue your search</p>
         </div>
 
-        <Card className="border-0 shadow-lg dark:bg-gray-900 dark:border dark:border-gray-700">
-          <CardHeader>
-            <CardTitle>Sign In</CardTitle>
-            <CardDescription>
-              Enter your email and password to access your account
+        <Card className="border-0 shadow-lg bg-white dark:bg-gray-900 dark:border dark:border-gray-700">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">Sign In to MySeniorValet</CardTitle>
+            <CardDescription className="text-gray-600 dark:text-gray-300">
+              Secure sign-in powered by Replit
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="Enter your email"
-                          {...field}
-                          disabled={false}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+          <CardContent className="space-y-6">
+            {/* Replit Auth Button */}
+            <Button 
+              onClick={handleLogin}
+              className="w-full h-12 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+            >
+              <Shield className="h-5 w-5 mr-3" />
+              Continue with Replit
+            </Button>
 
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input
-                            type={showPassword ? "text" : "password"}
-                            placeholder="Enter your password"
-                            {...field}
-                            disabled={false}
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                            onClick={() => setShowPassword(!showPassword)}
-                            disabled={false}
-                          >
-                            {showPassword ? (
-                              <EyeOff className="h-4 w-4" />
-                            ) : (
-                              <Eye className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={false}
-                >
-                  Sign In with Replit
-                </Button>
-              </form>
-            </Form>
-
-            <div className="mt-6 text-center space-y-4">
-              {/* Demo Account Section */}
-              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                <p className="text-sm text-blue-800 dark:text-blue-200 font-medium mb-2">Try the Dashboard</p>
-                <p className="text-xs text-blue-600 dark:text-blue-300 mb-3">Use these demo credentials to explore the dashboard features:</p>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-mono text-blue-700 dark:text-blue-300">demo@myseniorvalet.com</span>
-                    <button 
-                      onClick={() => {
-                        form.setValue('email', 'demo@myseniorvalet.com');
-                        form.setValue('password', 'demo123');
-                      }}
-                      className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 underline"
-                    >
-                      Use Demo
-                    </button>
-                  </div>
-                  <div className="text-xs font-mono text-blue-700 dark:text-blue-300">Password: demo123</div>
-                </div>
+            {/* Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
               </div>
-              
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400">
+                  Secure & Fast Authentication
+                </span>
+              </div>
+            </div>
+
+            {/* Benefits */}
+            <div className="space-y-3">
+              <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                <Shield className="h-4 w-4 mr-3 text-green-500" />
+                Industry-standard security
+              </div>
+              <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                <Users className="h-4 w-4 mr-3 text-blue-500" />
+                Save your search preferences
+              </div>
+              <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                <Heart className="h-4 w-4 mr-3 text-red-500" />
+                Access family collaboration tools
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="text-center pt-4 border-t border-gray-200 dark:border-gray-700">
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Don't have an account?{" "}
-                <Link href="/signup">
-                  <span className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300">
-                    Sign up
-                  </span>
+                <Link href="/signup" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
+                  Sign up here
                 </Link>
               </p>
             </div>
