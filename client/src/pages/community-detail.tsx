@@ -4,7 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSign, MapPin, Info, 
          Mail, Globe, Users, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
          Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X, 
-         Clock, HelpCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+         Clock, HelpCircle, ChevronLeft, ChevronRight, Activity, UtensilsCrossed, Car, 
+         ChevronDown, ChevronUp } from 'lucide-react';
 import type { Community } from '@shared/schema';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -1451,134 +1452,211 @@ export default function CommunityDetail() {
                     <div>
                       <h3 className="text-lg font-semibold mb-3">Amenities & Features</h3>
 
-                      {/* Status Legend */}
-                      <div className="bg-white p-4 rounded-lg border border-gray-200 mb-6">
-                        <h4 className="font-medium text-gray-900 mb-3">Status Legend</h4>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                          <div className="flex items-center">
-                            <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                            <span className="text-sm text-green-900">Verified</span>
-                          </div>
-                          <div className="flex items-center">
-                            <Clock className="w-4 h-4 text-yellow-600 dark:text-yellow-400 mr-2" />
-                            <span className="text-sm text-yellow-900 dark:text-yellow-200">Reported</span>
-                          </div>
-                          <div className="flex items-center">
-                            <X className="w-4 h-4 text-red-600 mr-2" />
-                            <span className="text-sm text-red-900">Not Offered</span>
-                          </div>
-                          <div className="flex items-center">
-                            <HelpCircle className="w-4 h-4 text-gray-400 mr-2" />
-                            <span className="text-sm text-gray-600">Pending Response</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-6">
-                        {Object.entries(getAmenitiesByCategory()).map(([category, amenities]) => (
-                          <div key={category}>
-                            <h4 className="font-medium text-gray-900 mb-3 pb-2 border-b border-gray-200">
-                              {category}
-                            </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                              {amenities.map((amenity) => {
-                                const status = getAmenityStatus(community, amenity.id);
-                                const styling = getStatusStyling(status);
-
-                                const IconComponent = 
-                                  styling.icon === 'check' ? CheckCircle :
-                                  styling.icon === 'clock' ? Clock :
-                                  styling.icon === 'x' ? X :
-                                  HelpCircle;
-
-                                return (
-                                  <div 
-                                    key={amenity.id} 
-                                    className={`flex items-center p-3 rounded-lg border transition-colors ${styling.bgColor} ${styling.borderColor}`}
-                                  >
-                                    <IconComponent className={`w-4 h-4 ${styling.iconColor} mr-3 flex-shrink-0`} />
-                                    <div className="flex-1">
-                                      <span className={`text-sm ${styling.textColor}`}>
-                                        {amenity.name}
-                                      </span>
-                                      <div className={`text-xs mt-1 ${styling.textColor} opacity-75`}>
-                                        {styling.label}
-                                      </div>
-                                    </div>
-                                  </div>
-                                );
-                              })}
+                      {/* Real Database Amenities Display */}
+                      {community.amenities && community.amenities.length > 0 ? (
+                        <div className="space-y-6">
+                          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
+                            <div className="flex items-center mb-3">
+                              <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" />
+                              <h4 className="font-semibold text-blue-900 dark:text-blue-200">Verified Community Amenities</h4>
+                            </div>
+                            <p className="text-sm text-blue-800 dark:text-blue-300 mb-4">
+                              The following amenities are officially listed for this community:
+                            </p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                              {community.amenities.map((amenity, index) => (
+                                <div key={index} className="flex items-center bg-white dark:bg-gray-800 p-3 rounded-lg border border-blue-200 dark:border-blue-600 shadow-sm">
+                                  <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 mr-3 flex-shrink-0" />
+                                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{amenity}</span>
+                                </div>
+                              ))}
                             </div>
                           </div>
-                        ))}
-                      </div>
+
+                          {/* Additional Services */}
+                          {community.services && community.services.length > 0 && (
+                            <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
+                              <div className="flex items-center mb-3">
+                                <Shield className="w-5 h-5 text-green-600 dark:text-green-400 mr-2" />
+                                <h4 className="font-semibold text-green-900 dark:text-green-200">Additional Services</h4>
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                {community.services.map((service, index) => (
+                                  <div key={index} className="flex items-center bg-white dark:bg-gray-800 p-3 rounded-lg border border-green-200 dark:border-green-600 shadow-sm">
+                                    <Shield className="w-4 h-4 text-green-600 dark:text-green-400 mr-3 flex-shrink-0" />
+                                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{service}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Specialized Services by Category */}
+                          {((community as any).healthcareServices?.length > 0 || 
+                            (community as any).fitnessServices?.length > 0 || 
+                            (community as any).diningServices?.length > 0 || 
+                            (community as any).transportationServices?.length > 0 || 
+                            (community as any).socialServices?.length > 0) && (
+                            <div className="space-y-4">
+                              <h4 className="font-semibold text-gray-900 dark:text-gray-100">Specialized Services</h4>
+                              
+                              {(community as any).healthcareServices?.length > 0 && (
+                                <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-700">
+                                  <h5 className="font-medium text-red-900 dark:text-red-200 mb-2 flex items-center">
+                                    <Heart className="w-4 h-4 mr-2" />
+                                    Healthcare Services
+                                  </h5>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                    {(community as any).healthcareServices.map((service: string, index: number) => (
+                                      <div key={index} className="flex items-center text-sm text-red-800 dark:text-red-300">
+                                        <div className="w-2 h-2 bg-red-500 rounded-full mr-2 flex-shrink-0"></div>
+                                        {service}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {(community as any).fitnessServices?.length > 0 && (
+                                <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
+                                  <h5 className="font-medium text-purple-900 dark:text-purple-200 mb-2 flex items-center">
+                                    <Activity className="w-4 h-4 mr-2" />
+                                    Fitness & Wellness
+                                  </h5>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                    {(community as any).fitnessServices.map((service: string, index: number) => (
+                                      <div key={index} className="flex items-center text-sm text-purple-800 dark:text-purple-300">
+                                        <div className="w-2 h-2 bg-purple-500 rounded-full mr-2 flex-shrink-0"></div>
+                                        {service}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {(community as any).diningServices?.length > 0 && (
+                                <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border border-orange-200 dark:border-orange-700">
+                                  <h5 className="font-medium text-orange-900 dark:text-orange-200 mb-2 flex items-center">
+                                    <UtensilsCrossed className="w-4 h-4 mr-2" />
+                                    Dining Services
+                                  </h5>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                    {(community as any).diningServices.map((service: string, index: number) => (
+                                      <div key={index} className="flex items-center text-sm text-orange-800 dark:text-orange-300">
+                                        <div className="w-2 h-2 bg-orange-500 rounded-full mr-2 flex-shrink-0"></div>
+                                        {service}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {(community as any).transportationServices?.length > 0 && (
+                                <div className="bg-teal-50 dark:bg-teal-900/20 p-4 rounded-lg border border-teal-200 dark:border-teal-700">
+                                  <h5 className="font-medium text-teal-900 dark:text-teal-200 mb-2 flex items-center">
+                                    <Car className="w-4 h-4 mr-2" />
+                                    Transportation Services
+                                  </h5>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                    {(community as any).transportationServices.map((service: string, index: number) => (
+                                      <div key={index} className="flex items-center text-sm text-teal-800 dark:text-teal-300">
+                                        <div className="w-2 h-2 bg-teal-500 rounded-full mr-2 flex-shrink-0"></div>
+                                        {service}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {(community as any).socialServices?.length > 0 && (
+                                <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg border border-indigo-200 dark:border-indigo-700">
+                                  <h5 className="font-medium text-indigo-900 dark:text-indigo-200 mb-2 flex items-center">
+                                    <Users className="w-4 h-4 mr-2" />
+                                    Social Services
+                                  </h5>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                    {(community as any).socialServices.map((service: string, index: number) => (
+                                      <div key={index} className="flex items-center text-sm text-indigo-800 dark:text-indigo-300">
+                                        <div className="w-2 h-2 bg-indigo-500 rounded-full mr-2 flex-shrink-0"></div>
+                                        {service}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        /* Fallback to Checklist System when no database amenities available */
+                        <div className="space-y-6">
+                          <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-700">
+                            <div className="flex items-center mb-2">
+                              <Info className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mr-2" />
+                              <h4 className="font-semibold text-yellow-900 dark:text-yellow-200">Amenities Information</h4>
+                            </div>
+                            <p className="text-sm text-yellow-800 dark:text-yellow-300">
+                              Specific amenities data not available in our database for this community. 
+                              Please call {community.phone} to inquire about available amenities and services.
+                            </p>
+                          </div>
+
+                          {/* Status Legend */}
+                          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 mb-6">
+                            <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Status Legend</h4>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                              <div className="flex items-center">
+                                <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
+                                <span className="text-sm text-green-900 dark:text-green-200">Verified</span>
+                              </div>
+                              <div className="flex items-center">
+                                <Clock className="w-4 h-4 text-yellow-600 dark:text-yellow-400 mr-2" />
+                                <span className="text-sm text-yellow-900 dark:text-yellow-200">Reported</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </TabsContent>
                   <TabsContent value="care" className="space-y-4">
                     <div>
                       <h3 className="text-lg font-semibold mb-3">Care Services</h3>
 
-                      {/* Status Legend */}
-                      <div className="bg-white p-4 rounded-lg border border-gray-200 mb-6">
-                        <h4 className="font-medium text-gray-900 mb-3">Status Legend</h4>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                          <div className="flex items-center">
-                            <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                            <span className="text-sm text-green-900">Verified</span>
-                          </div>
-                          <div className="flex items-center">
-                            <Clock className="w-4 h-4 text-yellow-600 dark:text-yellow-400 mr-2" />
-                            <span className="text-sm text-yellow-900 dark:text-yellow-200">Reported</span>
-                          </div>
-                          <div className="flex items-center">
-                            <X className="w-4 h-4 text-red-600 mr-2" />
-                            <span className="text-sm text-red-900">Not Offered</span>
-                          </div>
-                          <div className="flex items-center">
-                            <HelpCircle className="w-4 h-4 text-gray-400 mr-2" />
-                            <span className="text-sm text-gray-600">Pending Response</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-6">
-                        {Object.entries(getCareServicesByCategory()).map(([category, services]) => (
-                          <div key={category}>
-                            <h4 className="font-medium text-gray-900 mb-3 pb-2 border-b border-gray-200">
-                              {category}
-                            </h4>
+                      {/* Real Database Care Services Display */}
+                      {(community.careServices && community.careServices.length > 0) ? (
+                        <div className="space-y-6">
+                          <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
+                            <div className="flex items-center mb-3">
+                              <Shield className="w-5 h-5 text-green-600 dark:text-green-400 mr-2" />
+                              <h4 className="font-semibold text-green-900 dark:text-green-200">Verified Care Services</h4>
+                            </div>
+                            <p className="text-sm text-green-800 dark:text-green-300 mb-4">
+                              The following care services are officially provided by this community:
+                            </p>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                              {services.map((service) => {
-                                const status = getCareServiceStatus(community, service.id);
-                                const styling = getStatusStyling(status);
-
-                                const IconComponent = 
-                                  styling.icon === 'check' ? CheckCircle :
-                                  styling.icon === 'clock' ? Clock :
-                                  styling.icon === 'x' ? X :
-                                  HelpCircle;
-
-                                return (
-                                  <div 
-                                    key={service.id} 
-                                    className={`flex items-center p-3 rounded-lg border transition-colors ${styling.bgColor} ${styling.borderColor}`}
-                                  >
-                                    <IconComponent className={`w-4 h-4 ${styling.iconColor} mr-3 flex-shrink-0`} />
-                                    <div className="flex-1">
-                                      <span className={`text-sm ${styling.textColor}`}>
-                                        {service.name}
-                                      </span>
-                                      <div className={`text-xs mt-1 ${styling.textColor} opacity-75`}>
-                                        {styling.label}
-                                      </div>
-                                    </div>
-                                  </div>
-                                );
-                              })}
+                              {community.careServices.map((service, index) => (
+                                <div key={index} className="flex items-center bg-white dark:bg-gray-800 p-3 rounded-lg border border-green-200 dark:border-green-600 shadow-sm">
+                                  <Shield className="w-4 h-4 text-green-600 dark:text-green-400 mr-3 flex-shrink-0" />
+                                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{service}</span>
+                                </div>
+                              ))}
                             </div>
                           </div>
-                        ))}
-                      </div>
+                        </div>
+                      ) : (
+                        /* Fallback when no database care services available */
+                        <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-700">
+                          <div className="flex items-center mb-2">
+                            <Info className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mr-2" />
+                            <h4 className="font-semibold text-yellow-900 dark:text-yellow-200">Care Services Information</h4>
+                          </div>
+                          <p className="text-sm text-yellow-800 dark:text-yellow-300">
+                            Specific care services data not available in our database for this community. 
+                            Please call {community.phone} to inquire about available care services and support options.
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </TabsContent>
                   <TabsContent value="policies" className="space-y-4">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useLocation } from 'wouter';
-import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle } from 'lucide-react';
+import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle, Users, Building } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -385,7 +385,12 @@ export default function MapSearchClean() {
                         Communities in View
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {mapCommunities.length} communities found • {mapCommunities.filter(c => c.hudPropertyId).length} with live data
+                        {mapCommunities.length} communities found • {mapCommunities.filter(c => 
+                          c.hudPropertyId || 
+                          (c as any).salesDirector?.name || 
+                          (c as any).liveDataVerified || 
+                          (c as any).claimedBy
+                        ).length} with live data
                       </p>
                     </div>
                     {(isLoadingCommunities || isFetchingCommunities || isMapMoving) && (
@@ -405,16 +410,177 @@ export default function MapSearchClean() {
                   </Button>
                 </div>
 
-                <div className="overflow-auto h-full pb-20 bg-gray-50 dark:bg-gray-900">
+                <div className="overflow-auto h-full pb-20 bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
                   {mapCommunities.length > 0 ? (
-                    <div className="grid gap-6 p-6">
-                      {mapCommunities.map((community) => (
-                        <EnhancedCommunityCard
+                    <div className="space-y-4 p-6">
+                      {mapCommunities.map((community, index) => (
+                        <div 
                           key={community.id}
-                          community={community}
-                          variant="horizontal"
-                          onSelect={() => handleCommunityClick(community)}
-                        />
+                          className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.01] border border-gray-200 dark:border-gray-700 overflow-hidden cursor-pointer"
+                          onClick={() => handleCommunityClick(community)}
+                        >
+                          <div className="flex flex-row h-48">
+                            {/* Enhanced Image Section */}
+                            <div className="w-64 flex-shrink-0 relative">
+                              <div className="aspect-[4/3] bg-gradient-to-br from-blue-100 via-purple-50 to-pink-100 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 flex items-center justify-center relative overflow-hidden h-full">
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                                <Home className="w-12 h-12 text-gray-400 dark:text-gray-500 opacity-60" />
+                                
+                                {/* Live Data Indicator */}
+                                {(community.hudPropertyId || (community as any).salesDirector?.name || (community as any).liveDataVerified) && (
+                                  <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-green-500 text-white px-3 py-2 rounded-full text-sm font-semibold shadow-lg">
+                                    <div className="w-2.5 h-2.5 bg-green-200 rounded-full animate-pulse" />
+                                    LIVE DATA
+                                  </div>
+                                )}
+                                
+                                {/* Availability Badge */}
+                                <div className="absolute bottom-3 left-3 bg-blue-600 text-white text-sm px-3 py-2 font-semibold rounded-full shadow-lg backdrop-blur-sm">
+                                  {community.availability || 'Available'}
+                                </div>
+
+                                {/* Index Badge for Quick Reference */}
+                                <div className="absolute top-3 right-3 bg-white/90 dark:bg-gray-800/90 text-gray-900 dark:text-white text-sm font-bold w-8 h-8 rounded-full flex items-center justify-center shadow-lg">
+                                  {index + 1}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Enhanced Content Section */}
+                            <div className="flex-1 p-6 flex flex-col justify-between">
+                              <div className="space-y-4">
+                                {/* Community Name with Rating */}
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1 mr-4">
+                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white line-clamp-2 group-hover:text-blue-600 transition-colors duration-200">
+                                      {community.name}
+                                    </h3>
+                                    <div className="flex items-center space-x-2 mt-1">
+                                      <MapPin className="w-4 h-4 text-gray-500" />
+                                      <p className="text-gray-600 dark:text-gray-300 text-sm">
+                                        {community.address && community.address !== community.city ? 
+                                          `${community.address}, ${community.city}, ${community.state}` : 
+                                          `${community.city}, ${community.state}`
+                                        }
+                                      </p>
+                                    </div>
+                                  </div>
+                                  
+                                  {community.rating > 0 && (
+                                    <div className="flex items-center space-x-2 bg-yellow-100 dark:bg-yellow-900/30 px-3 py-1.5 rounded-full">
+                                      <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                                      <span className="text-sm font-semibold text-yellow-700 dark:text-yellow-300">
+                                        {community.rating.toFixed(1)}
+                                      </span>
+                                      {community.reviewCount > 0 && (
+                                        <span className="text-xs text-yellow-600 dark:text-yellow-400">
+                                          ({community.reviewCount})
+                                        </span>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Care Types */}
+                                <div className="flex flex-wrap gap-2">
+                                  {community.careTypes?.slice(0, 3).map((type, idx) => (
+                                    <Badge 
+                                      key={idx} 
+                                      className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-700 text-xs px-2 py-1"
+                                    >
+                                      {type}
+                                    </Badge>
+                                  ))}
+                                  {(community.careTypes?.length || 0) > 3 && (
+                                    <Badge className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs px-2 py-1">
+                                      +{(community.careTypes?.length || 0) - 3} more
+                                    </Badge>
+                                  )}
+                                </div>
+
+                                {/* Enhanced Pricing Section */}
+                                <div className="space-y-2">
+                                  <div className="flex items-baseline space-x-2">
+                                    <div className={`text-2xl font-bold ${
+                                      community.hudPropertyId || (community as any).liveDataVerified ? 
+                                      'text-green-600 dark:text-green-400' : 
+                                      'text-gray-900 dark:text-white'
+                                    }`}>
+                                      {community.hudPropertyId && (community as any).rentPerMonth ? 
+                                        `$${(community as any).rentPerMonth}/month` :
+                                        typeof community.priceRange === 'object' && community.priceRange?.min ? 
+                                        `$${community.priceRange.min.toLocaleString()}/month` : 
+                                        'Contact for Pricing'
+                                      }
+                                    </div>
+                                    {!(community.hudPropertyId || (community as any).liveDataVerified) && (
+                                      <span className="text-sm text-orange-600 dark:text-orange-400 font-normal">estimate</span>
+                                    )}
+                                  </div>
+                                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                                    {community.hudPropertyId ? 
+                                      'HUD Official Database' : 
+                                      (community as any).liveDataVerified ? 
+                                      'Verified Live Data' : 
+                                      'Market-based estimate - Call for current pricing'
+                                    }
+                                  </div>
+                                </div>
+
+                                {/* Enhanced Occupancy and Units Info */}
+                                {((community as any).occupancyRate || (community as any).totalUnits) && (
+                                  <div className="flex items-center space-x-4 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg">
+                                    {(community as any).occupancyRate && (
+                                      <div className="flex items-center space-x-2">
+                                        <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                                          {Math.round((community as any).occupancyRate)}% occupied
+                                        </span>
+                                      </div>
+                                    )}
+                                    {(community as any).totalUnits && (
+                                      <div className="flex items-center space-x-2">
+                                        <Building className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                                          {(community as any).totalUnits} units
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Action Buttons */}
+                              <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-600">
+                                <div className="flex items-center space-x-3">
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    className="bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-800/50"
+                                  >
+                                    <Phone className="w-4 h-4 mr-1" />
+                                    Call
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    className="bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-800/50"
+                                  >
+                                    <ExternalLink className="w-4 h-4 mr-1" />
+                                    Visit
+                                  </Button>
+                                </div>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  className="text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400"
+                                >
+                                  <Heart className="w-5 h-5" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       ))}
                     </div>
                   ) : (
@@ -460,7 +626,10 @@ export default function MapSearchClean() {
                 {mapCommunities.map((community, index) => (
                   <div key={community.id} className="group">
                     <EnhancedCommunityCard
-                      community={community}
+                      community={{
+                        ...community,
+                        priceRange: typeof community.priceRange === 'string' ? undefined : community.priceRange
+                      }}
                       variant="horizontal"
                       onSelect={() => handleCommunityClick(community)}
                       index={index}
