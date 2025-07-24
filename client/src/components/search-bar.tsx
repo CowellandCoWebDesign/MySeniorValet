@@ -75,16 +75,20 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
   };
 
   const handleSearch = () => {
+    console.log('SearchBar handleSearch called with:', searchParams);
+    
     if (onSearch) {
       onSearch(searchParams);
     } else {
-      // Navigate to search page with params
+      // Navigate to map-search page with params
       const params = new URLSearchParams();
       if (searchParams.location) params.set('location', searchParams.location);
       if (searchParams.careType !== 'All Types') params.set('careType', searchParams.careType);
       if (searchParams.budget !== 'Any Budget') params.set('budget', searchParams.budget);
 
-      setLocation(`/map-search?${params.toString()}`);
+      const url = `/map-search?${params.toString()}`;
+      console.log('Navigating to:', url);
+      setLocation(url);
     }
   };
 
@@ -101,7 +105,7 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
         </p>
       </div>
 
-      <form onSubmit={handleSearch} className="relative">
+      <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} className="relative">
         <div className={`relative bg-white dark:bg-gray-800 ${showSuggestions && locationSuggestions && locationSuggestions.length > 0 ? 'rounded-t-2xl' : 'rounded-2xl'} shadow-2xl overflow-hidden border-2 border-blue-200/50 dark:border-gray-600 hover:border-blue-300/70 focus-within:border-blue-400 transition-all duration-300`}>
           <div className="flex items-center">
             <div className="pl-6 pr-2">
@@ -115,6 +119,12 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
               onFocus={() => {
                 if (locationSuggestions && locationSuggestions.length > 0) {
                   setShowSuggestions(true);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSearch();
                 }
               }}
               onBlur={() => {

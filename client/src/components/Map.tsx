@@ -64,7 +64,7 @@ const MapEvents: React.FC<{
   onBoundsChange: (bounds: LatLngBounds) => void;
 }> = ({ onMapReady, onBoundsChange }) => {
   const map = useMap();
-  
+
   useEffect(() => {
     if (map) {
       // CRITICAL: Implement proper Leaflet event handlers per official documentation
@@ -129,7 +129,7 @@ const MapEvents: React.FC<{
         if ((map as any)._controlsInitialized) {
           return;
         }
-        
+
         try {
           // 1. Fullscreen Control - Essential for seniors who need larger viewing areas
           if ((window as any).L?.Control?.Fullscreen && !(map as any)._fullscreenControl) {
@@ -142,7 +142,7 @@ const MapEvents: React.FC<{
             map.addControl(fullscreenControl);
             (map as any)._fullscreenControl = fullscreenControl;
           }
-          
+
           // 2. Location Control - GPS assistance for seniors  
           if ((window as any).L?.Control?.Locate && !(map as any)._locateControl) {
             const locateControl = new (window as any).L.Control.Locate({
@@ -179,7 +179,7 @@ const MapEvents: React.FC<{
             map.addControl(locateControl);
             (map as any)._locateControl = locateControl;
           }
-          
+
           // 3. Scale Control - Distance reference for seniors
           if ((window as any).L?.Control?.Scale && !(map as any)._scaleControl) {
             const scaleControl = new (window as any).L.Control.Scale({
@@ -192,7 +192,7 @@ const MapEvents: React.FC<{
             map.addControl(scaleControl);
             (map as any)._scaleControl = scaleControl;
           }
-          
+
           // 4. Enhanced Geocoder Control - Better search functionality
           if ((window as any).L?.Control?.Geocoder && !(map as any)._geocoderControl) {
             const geocoder = new (window as any).L.Control.Geocoder.nominatim({
@@ -203,7 +203,7 @@ const MapEvents: React.FC<{
                 limit: 5
               }
             });
-            
+
             const geocoderControl = new (window as any).L.Control.Geocoder({
               geocoder: geocoder,
               position: 'topleft',
@@ -225,14 +225,14 @@ const MapEvents: React.FC<{
               ]).addTo(map);
               map.fitBounds(poly.getBounds());
             });
-            
+
             map.addControl(geocoderControl);
             (map as any)._geocoderControl = geocoderControl;
           }
-          
+
           // Mark controls as initialized
           (map as any)._controlsInitialized = true;
-          
+
         } catch (error) {
           console.warn('Some enhanced map controls could not be loaded:', error);
         }
@@ -251,12 +251,12 @@ const MapEvents: React.FC<{
           });
         }
       };
-      
+
       // Check immediately in case map is already loaded
       checkMapLoaded();
     }
   }, [map, onMapReady]);
-  
+
   return null;
 };
 
@@ -309,7 +309,7 @@ function MapBoundsHandler({
 }) {
   const map = useMap();
   const [initialized, setInitialized] = useState(false);
-  
+
   const handleBoundsChange = useCallback(() => {
     try {
       if (map && typeof map.getBounds === 'function') {
@@ -322,7 +322,7 @@ function MapBoundsHandler({
               console.warn('Map container not ready');
               return;
             }
-            
+
             let bounds;
             try {
               bounds = map.getBounds();
@@ -330,7 +330,7 @@ function MapBoundsHandler({
               console.warn('Failed to get bounds:', boundsError);
               return;
             }
-            
+
             if (bounds && typeof bounds.getWest === 'function' && typeof bounds.getEast === 'function' && 
                 typeof bounds.getSouth === 'function' && typeof bounds.getNorth === 'function') {
               try {
@@ -354,7 +354,7 @@ function MapBoundsHandler({
       console.warn('Error getting map bounds:', error);
     }
   }, [map, onBoundsChange]);
-  
+
   const handleZoomChange = useCallback(() => {
     try {
       if (map) {
@@ -364,11 +364,11 @@ function MapBoundsHandler({
       console.warn('Error getting map zoom:', error);
     }
   }, [map, onZoomChange]);
-  
+
   useEffect(() => {
     if (map && !initialized) {
       console.log('MapBoundsHandler initializing, map ready:', !!map);
-      
+
       // Set up event handlers for map movement with better responsiveness
       map.on('moveend', handleBoundsChange);
       map.on('zoomend', () => {
@@ -377,21 +377,21 @@ function MapBoundsHandler({
       });
       map.on('dragend', handleBoundsChange); // Update after drag completes
       map.on('drag', handleBoundsChange); // Also update during drag for immediate response
-      
+
       // Force initial bounds and zoom with multiple attempts
       const attemptInitialBounds = (attempts = 0) => {
         if (attempts > 5) {
           console.warn('Failed to set initial bounds after 5 attempts');
           return;
         }
-        
+
         setTimeout(() => {
           try {
             if (map && map.getBounds) {
               console.log(`Setting initial bounds and zoom (attempt ${attempts + 1})`);
               handleBoundsChange();
               handleZoomChange();
-              
+
               // Verify bounds were set
               const bounds = map.getBounds();
               if (!bounds) {
@@ -406,12 +406,12 @@ function MapBoundsHandler({
           }
         }, 100 * (attempts + 1)); // Increase delay with each attempt
       };
-      
+
       attemptInitialBounds();
-      
+
       setInitialized(true);
     }
-    
+
     return () => {
       if (map) {
         map.off('moveend', handleBoundsChange);
@@ -422,7 +422,7 @@ function MapBoundsHandler({
       }
     };
   }, [map, initialized, handleBoundsChange, handleZoomChange]);
-  
+
   return null;
 }
 
@@ -444,10 +444,10 @@ export default function Map({
     return localStorage.getItem('map-location-requested') === 'true';
   });
   const queryClient = useQueryClient();
-  
+
   // Initialize map bounds
   const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
-  
+
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
   const [hoveredCluster, setHoveredCluster] = useState<number | null>(null);
@@ -456,24 +456,24 @@ export default function Map({
 
   // Debounce timer ref
   const boundsDebounceTimer = useRef<NodeJS.Timeout | null>(null);
-  
+
   // Handle map bounds change with debouncing
   const handleBoundsChange = useCallback((bounds: LatLngBounds) => {
     const newBoundsString = `${bounds.getWest().toFixed(4)},${bounds.getSouth().toFixed(4)},${bounds.getEast().toFixed(4)},${bounds.getNorth().toFixed(4)}`;
-    
+
     console.log('Map component handleBoundsChange:', {
       new: newBoundsString,
       timestamp: Date.now()
     });
-    
+
     // Clear existing timer
     if (boundsDebounceTimer.current) {
       clearTimeout(boundsDebounceTimer.current);
     }
-    
+
     // Update bounds immediately for responsive feel
     setMapBounds(bounds);
-    
+
     // Debounce the callback to prevent excessive API calls
     boundsDebounceTimer.current = setTimeout(() => {
       onBoundsChange?.(bounds);
@@ -489,20 +489,20 @@ export default function Map({
 
   // Track current zoom level for supercluster
   const [currentZoom, setCurrentZoom] = useState(zoom);
-  
+
   // Remove this - let React Query handle refetching based on key changes
-  
+
   // Check for geolocation permission on mount
   useEffect(() => {
     console.log('Location permission check:', { hasRequestedLocation, hasGeolocation: 'geolocation' in navigator });
-    
+
     if ('geolocation' in navigator) {
       // Check permission status if available
       if ('permissions' in navigator) {
         navigator.permissions.query({ name: 'geolocation' }).then((result) => {
           console.log('Permission status:', result.state);
           setLocationPermissionStatus(result.state as any);
-          
+
           // If already granted, get user location automatically
           if (result.state === 'granted' && !hasRequestedLocation) {
             getUserLocation();
@@ -532,7 +532,7 @@ export default function Map({
         return false;
       }
     };
-    
+
     const handleUnhandledRejection = (e: PromiseRejectionEvent) => {
       if (e.reason && e.reason.message && e.reason.message.includes('_leaflet_pos')) {
         console.error('Caught unhandled Leaflet rejection:', e.reason);
@@ -540,7 +540,7 @@ export default function Map({
         return false;
       }
     };
-    
+
     // Comprehensive Leaflet DOM patching to prevent _leaflet_pos errors
     if (window.L && window.L.DomUtil) {
       // Patch getPosition
@@ -557,7 +557,7 @@ export default function Map({
           return window.L.point(0, 0);
         }
       };
-      
+
       // Patch setPosition
       const originalSetPosition = window.L.DomUtil.setPosition;
       window.L.DomUtil.setPosition = function(el: any, point: any) {
@@ -571,7 +571,7 @@ export default function Map({
           console.warn('Error in setPosition:', e);
         }
       };
-      
+
       // Patch getTranslateString for older browsers
       if ((window as any).L?.DomUtil?.getTranslateString) {
         const originalGetTranslateString = (window as any).L.DomUtil.getTranslateString;
@@ -587,29 +587,29 @@ export default function Map({
         };
       }
     }
-    
+
     window.addEventListener('error', handleError, true);
     window.addEventListener('unhandledrejection', handleUnhandledRejection, true);
-    
+
     return () => {
       window.removeEventListener('error', handleError, true);
       window.removeEventListener('unhandledrejection', handleUnhandledRejection, true);
     };
   }, []);
-  
+
   const getUserLocation = () => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
         console.log('User location obtained:', latitude, longitude);
-        
+
         // Update map center and zoom
         setCenter([latitude, longitude]);
         setZoom(13); // City-level zoom when we have user location
         setCurrentZoom(13);
         setLocationPermissionStatus('granted');
         setHasRequestedLocation(true);
-        
+
         // Force map update with new location
         setTimeout(() => {
           if (window.leafletMap) {
@@ -630,19 +630,19 @@ export default function Map({
       }
     );
   };
-  
+
   const handleLocationRequest = () => {
     setHasRequestedLocation(true);
     localStorage.setItem('map-location-requested', 'true');
     getUserLocation();
   };
-  
+
   const handleSkipLocation = () => {
     setHasRequestedLocation(true);
     localStorage.setItem('map-location-requested', 'true');
     setLocationPermissionStatus('denied');
   };
-  
+
   // Performance tracking state
   const [performanceMetrics, setPerformanceMetrics] = useState({
     renderTime: 0,
@@ -665,11 +665,11 @@ export default function Map({
 
     const sw = bounds.getSouthWest();
     const ne = bounds.getNorthEast();
-    
+
     // Ultra-minimal 2% buffer for true viewport-only display
     const latBuffer = (ne.lat - sw.lat) * 0.02;
     const lngBuffer = (ne.lng - sw.lng) * 0.02;
-    
+
     return {
       west: Math.max(-180, sw.lng - lngBuffer),
       south: Math.max(-90, sw.lat - latBuffer),
@@ -693,31 +693,31 @@ export default function Map({
     queryFn: async () => {
       const renderStart = performance.now();
       const bounds = getOptimizedBounds(mapBounds);
-      
+
       const params = new URLSearchParams({
         bbox: `${bounds.west},${bounds.south},${bounds.east},${bounds.north}`,
         zoom: Math.round(currentZoom).toString(), // Ensure integer zoom
         viewport: 'true' // Enable viewport optimization on server
       });
-      
+
       console.log('Fetching communities for bounds:', bounds, 'zoom:', Math.round(currentZoom));
-      
+
       const response = await fetch(`/api/communities/clusters?${params}`);
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch clusters');
       }
-      
+
       const data = await response.json();
       const renderTime = performance.now() - renderStart;
-      
+
       console.log('Cluster data received:', {
         featureCount: data.features?.length || 0,
         bounds: bounds,
         zoom: Math.round(currentZoom),
         features: data.features?.slice(0, 3) // Log first 3 features
       });
-      
+
       // Update performance metrics
       setPerformanceMetrics(prev => ({
         renderTime: Math.round(renderTime),
@@ -725,7 +725,7 @@ export default function Map({
         memoryUsage: (performance as any).memory?.usedJSHeapSize || 0,
         lastUpdate: Date.now()
       }));
-      
+
       return data;
     },
     enabled: !!mapBounds && currentZoom >= 0,
@@ -744,13 +744,13 @@ export default function Map({
                         (community.availability && community.availability !== 'Contact for availability') || // Has real availability
                         community.hudPropertyId || // HUD properties have live data
                         community.dataSource === 'HUD'; // HUD sourced data
-    
+
     if (hasLiveData) {
       return liveDataIcon; // Green pin for communities with LIVE pricing/availability data
     } else {
       return noLiveDataIcon; // Red pin for communities without live data (call for pricing)
     }
-    
+
     // Original care type logic (no longer used, but kept for reference)
     // const careTypes = community.careTypes || [];
     // if (careTypes.includes('Memory Care')) return memoryCareIcon;
@@ -767,12 +767,12 @@ export default function Map({
       console.error('Error handling community click:', error);
     }
   };
-  
+
   // Debug logging
   useEffect(() => {
     console.log('Map component mounted with initial zoom:', zoom, 'center:', center);
   }, []);
-  
+
   useEffect(() => {
     if (mapBounds) {
       console.log('Map bounds state updated:', {
@@ -784,7 +784,7 @@ export default function Map({
       });
     }
   }, [mapBounds]);
-  
+
   useEffect(() => {
     console.log('Cluster data state:', { 
       isLoading, 
@@ -800,14 +800,14 @@ export default function Map({
   };
 
   console.log('Map render - isLoading:', isLoading, 'error:', error, 'clusterData:', !!clusterData);
-  
+
   // Force minimum height if percentage height
   const mapHeight = height === '100%' ? '600px' : height;
-  
+
   return (
     <div className="w-full flex" style={{ height: mapHeight, minHeight: '600px' }}>
       {/* Performance monitor removed per user request */}
-      
+
       {/* Map Container */}
       <div className="flex-1 relative" style={{ minHeight: '400px' }}>
         {/* Compact Location Button - Moved to bottom-left */}
@@ -828,7 +828,7 @@ export default function Map({
             <MapPin className="h-5 w-5 text-gray-700 dark:text-gray-300" />
           </Button>
         </div>
-        
+
         {/* Debug Info */}
         {process.env.NODE_ENV === 'development' && (
           <div className="absolute top-20 right-4 z-[1000] bg-black/80 text-white text-xs p-2 rounded">
@@ -836,7 +836,7 @@ export default function Map({
             <div>Requested: {hasRequestedLocation ? 'yes' : 'no'}</div>
           </div>
         )}
-        
+
         {/* Location Permission Prompt */}
         {locationPermissionStatus === 'prompt' && !hasRequestedLocation && (
           <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1100] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 max-w-sm" style={{ zIndex: 9999 }}>
@@ -889,7 +889,7 @@ export default function Map({
           }} 
           onBoundsChange={handleBoundsChange}
         />
-        
+
         {/* Professional Basemap Selection */}
         <LayersControl position="topright">
           {/* Default OpenStreetMap - Clean and readable */}
@@ -933,9 +933,9 @@ export default function Map({
             />
           </LayersControl.BaseLayer>
         </LayersControl>
-        
+
         <MapBoundsHandler onBoundsChange={handleBoundsChange} onZoomChange={handleZoomChange} />
-        
+
         {/* Loading indicator */}
         {isLoading && (
           <div className="absolute top-4 right-4 z-[1000] bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg">
@@ -945,7 +945,7 @@ export default function Map({
             </div>
           </div>
         )}
-        
+
         {/* Error indicator */}
         {error && (
           <div className="absolute top-4 right-4 z-[1000] bg-red-50 rounded-lg px-4 py-2 shadow-lg">
@@ -954,7 +954,7 @@ export default function Map({
             </div>
           </div>
         )}
-        
+
         {/* Supercluster-powered markers and clusters */}
         {console.log('Rendering markers:', { 
           isLoading, 
@@ -964,14 +964,14 @@ export default function Map({
         {!isLoading && !error && clusterData?.features?.map((feature: any, index: number) => {
           const [lng, lat] = feature.geometry.coordinates;
           const { properties } = feature;
-          
+
           // Handle cluster markers (multiple communities)
           if (properties.cluster) {
             // Simple cluster icon
             const size = Math.min(40 + Math.log10(properties.point_count || 1) * 8, 60);
             const isHovered = hoveredCluster === properties.cluster_id;
             const clusterColor = isHovered ? '#2563eb' : '#1e40af';
-            
+
             const clusterIcon = new Icon({
               iconUrl: `data:image/svg+xml;base64,${btoa(`
                 <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
@@ -1019,16 +1019,16 @@ export default function Map({
                         e.originalEvent.stopPropagation();
                         e.originalEvent.preventDefault();
                       }
-                      
+
                       // Check if the marker element and map exist
                       if (!mapInstance || !e.target || !e.target._icon) {
                         console.error('Map instance or marker not available');
                         return;
                       }
-                      
+
                       // Simple zoom in by 3 levels to expand cluster
                       const newZoom = Math.min(currentZoom + 3, 18);
-                      
+
                       // Fly to cluster center and zoom in
                       mapInstance.flyTo([lat, lng], newZoom, {
                         animate: true,
@@ -1121,7 +1121,7 @@ export default function Map({
                   </div>
                 </Tooltip>
               )}
-              
+
               <Popup className="community-popup" closeButton={true} autoPan={false} autoClose={false}>
                 <div className="w-80 p-4">
                   <div className="flex items-start justify-between mb-2">
@@ -1143,7 +1143,7 @@ export default function Map({
                       <Heart className={`w-4 h-4 ${favorites.has(community.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} />
                     </Button>
                   </div>
-                  
+
                   {/* Data Quality Indicator */}
                   <div className="mb-3">
                     {(community.hudPropertyId || community.dataSource === 'HUD' || community.hudVerified || (community.rentPerMonth && community.rentPerMonth > 0)) ? (
@@ -1156,20 +1156,20 @@ export default function Map({
                       </Badge>
                     )}
                   </div>
-                  
+
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                       <MapPin className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                       <span>{community.address}, {community.city}, {community.state}</span>
                     </div>
-                    
+
                     {community.phone && (
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <Phone className="w-4 h-4" />
                         <span>{community.phone}</span>
                       </div>
                     )}
-                    
+
                     {community.website && (
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <Globe className="w-4 h-4" />
@@ -1178,12 +1178,12 @@ export default function Map({
                         </a>
                       </div>
                     )}
-                    
+
                     <div className="flex items-center gap-2">
                       <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                       <span className="text-sm">{community.rating} ({community.reviewCount} reviews)</span>
                     </div>
-                    
+
                     <div className="flex flex-wrap gap-1">
                       {community.careTypes.map((type) => (
                         <Badge key={type} variant="secondary" className="text-xs">
@@ -1191,7 +1191,7 @@ export default function Map({
                         </Badge>
                       ))}
                     </div>
-                    
+
                     <div className="pt-2 border-t">
                       <p className="text-sm font-medium text-green-600">
                         {formatPrice(community.priceRange)}
@@ -1200,7 +1200,7 @@ export default function Map({
                         {community.availability}
                       </p>
                     </div>
-                    
+
                     <Button 
                       className="w-full mt-2" 
                       size="sm"
@@ -1218,9 +1218,10 @@ export default function Map({
             </Marker>
           );
         })}
-        
+        ).filter(Boolean)}
+
         </MapContainer>
-        
+
         {/* Loading overlay */}
         {isLoading && (
           <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-lg">
@@ -1230,7 +1231,7 @@ export default function Map({
             </div>
           </div>
         )}
-        
+
         {/* Error overlay */}
         {error && (
           <div className="absolute inset-0 bg-red-50/90 flex items-center justify-center rounded-lg">
@@ -1241,7 +1242,7 @@ export default function Map({
           </div>
         )}
       </div>
-      
+
       {/* Minimal Map Stats Overlay - Moved to top-left corner */}
       <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg p-2 z-10 shadow-sm">
         <p className="text-xs text-gray-600 font-medium">

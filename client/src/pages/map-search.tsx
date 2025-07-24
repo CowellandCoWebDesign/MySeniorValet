@@ -45,11 +45,11 @@ interface SearchFilters {
 
 export default function MapSearch() {
   const [, setLocation] = useLocation();
-  
+
   // Get search query from URL parameters
   const urlParams = new URLSearchParams(window.location.search);
   const initialQuery = urlParams.get('location') || urlParams.get('q') || '';
-  
+
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [isDarkMode, setIsDarkMode] = useState(true); // Default to dark mode for eye comfort
@@ -107,19 +107,19 @@ export default function MapSearch() {
     try {
       localStorage.setItem('map-tutorial-completed', 'true');
       console.log('Tutorial completion saved to localStorage');
-      
+
       setHasSeenTutorial(true);
       console.log('hasSeenTutorial set to true');
-      
+
       setShowTutorial(false);
       console.log('showTutorial set to false');
-      
+
       // Force cleanup of any remaining tutorial elements
       setTimeout(() => {
         document.querySelectorAll('.tutorial-highlight').forEach(el => el.remove());
         console.log('Tutorial cleanup completed');
       }, 100);
-      
+
     } catch (error) {
       console.error('Error in handleTutorialComplete:', error);
       // Force close tutorial even on error
@@ -130,7 +130,7 @@ export default function MapSearch() {
   const handleStartTutorial = () => {
     setShowTutorial(true);
   };
-  
+
   // Debug log
   console.log('Map Search Component - showBottomPanel:', showBottomPanel, 'viewMode:', viewMode);
   console.log('Tutorial state - hasSeenTutorial:', hasSeenTutorial, 'showTutorial:', showTutorial);
@@ -140,22 +140,22 @@ export default function MapSearch() {
     hasFilters: Object.keys(filters).length > 0,
     mapBounds: mapBounds ? 'set' : 'null'
   });
-  
+
   // Fetch communities within map bounds for list view
   // Create a stable bounds key for query caching - use higher precision for better accuracy
   const boundsKey = useMemo(() => {
     if (!mapBounds) return 'no-bounds';
-    
+
     const sw = mapBounds.getSouthWest();
     const ne = mapBounds.getNorthEast();
-    
+
     // Use 6 decimal places for precise bounds tracking
     return `${sw.lng.toFixed(6)},${sw.lat.toFixed(6)},${ne.lng.toFixed(6)},${ne.lat.toFixed(6)}`;
   }, [mapBounds]);
 
   // Use direct query data instead of local state to prevent stale data
   // Remove local state management that was causing ordering issues
-  
+
   const { data: mapCommunities = [], isLoading: isLoadingCommunities, isFetching: isFetchingCommunities, refetch: refetchCommunities, error: communitiesError } = useQuery<Community[]>({
     queryKey: ['communities-map-bounds', boundsKey, showBottomPanel, filters.careType, filters.minRating],
     queryFn: async () => {
@@ -171,25 +171,25 @@ export default function MapSearch() {
           ...(filters.careType !== 'All Types' && { careType: filters.careType }),
           ...(filters.minRating > 0 && { minRating: filters.minRating.toString() }),
         });
-        
+
         const response = await fetch(`/api/communities/search/spatial?${params}`, {
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
           }
         });
-        
+
         if (!response.ok) {
           throw new Error(`Failed to fetch communities: ${response.statusText}`);
         }
-        
+
         const communities = await response.json();
         console.log('Fetched default area communities:', communities.length);
         return communities;
       }
-      
+
       if (!mapBounds) return [];
-      
+
       const startTime = Date.now();
       try {
         console.log('🚀 STARTING COMMUNITY FETCH:', { 
@@ -198,14 +198,14 @@ export default function MapSearch() {
           timestamp: startTime,
           mapBounds: mapBounds ? 'present' : 'missing' 
         });
-        
+
         const sw = mapBounds.getSouthWest();
         const ne = mapBounds.getNorthEast();
-        
+
         // No buffer - use exact viewport bounds for precise list synchronization
         const latBuffer = 0;
         const lngBuffer = 0;
-        
+
         console.log('📍 BOUNDS DATA:', {
           sw: { lat: sw.lat, lng: sw.lng },
           ne: { lat: ne.lat, lng: ne.lng },
@@ -217,7 +217,7 @@ export default function MapSearch() {
             neLng: ne.lng + lngBuffer
           }
         });
-        
+
         const params = new URLSearchParams({
           swLat: (sw.lat - latBuffer).toString(),
           swLng: (sw.lng - lngBuffer).toString(),
@@ -227,14 +227,14 @@ export default function MapSearch() {
           ...(filters.careType !== 'All Types' && { careType: filters.careType }),
           ...(filters.minRating > 0 && { minRating: filters.minRating.toString() }),
         });
-        
+
         const requestUrl = `/api/communities/search/spatial?${params}`;
         console.log('🌐 MAKING SPATIAL REQUEST:', {
           url: requestUrl,
           origin: window.location.origin,
           requestStartTime: Date.now()
         });
-        
+
         const fetchStartTime = Date.now();
         const response = await fetch(requestUrl, {
           credentials: 'include',
@@ -243,14 +243,14 @@ export default function MapSearch() {
           },
           signal: AbortSignal.timeout(7000) // 7 second timeout for individual requests
         });
-        
+
         const fetchEndTime = Date.now();
         console.log('⏱️ FETCH COMPLETED:', {
           duration: fetchEndTime - fetchStartTime,
           status: response.status,
           ok: response.ok
         });
-        
+
         if (!response.ok) {
           const errorDetails = {
             status: response.status, 
@@ -263,11 +263,11 @@ export default function MapSearch() {
           console.error('❌ SPATIAL SEARCH FAILED:', errorDetails);
           throw new Error(`Failed to fetch communities: ${response.status} ${response.statusText}`);
         }
-        
+
         const parseStartTime = Date.now();
         const data = await response.json();
         const parseEndTime = Date.now();
-        
+
         const totalTime = parseEndTime - startTime;
         console.log('✅ SPATIAL SEARCH SUCCESS:', {
           count: data.length,
@@ -305,7 +305,7 @@ export default function MapSearch() {
 
   // State for expanded search
   const [showExpandedSearch, setShowExpandedSearch] = useState(false);
-  
+
   // Remove complex local state management - use query data directly
 
   // Aggressive debug logging for communities
@@ -321,7 +321,7 @@ export default function MapSearch() {
       boundsKey: boundsKey,
       timestamp: Date.now()
     });
-    
+
     if (communitiesError) {
       console.error('🚨 COMMUNITIES ERROR DETAILS:', communitiesError);
     }
@@ -351,13 +351,13 @@ export default function MapSearch() {
     queryKey: ['communities-expanded-search', mapBounds],
     queryFn: async () => {
       if (!mapBounds) return [];
-      
+
       try {
         // Get center of current map view
         const center = mapBounds.getCenter();
         const centerLat = center.lat;
         const centerLng = center.lng;
-        
+
         // Search for closest communities within a larger radius (100km)
         const response = await fetch(`/api/communities/search/nearest?lat=${centerLat}&lng=${centerLng}&radius=100&limit=20`);
         if (!response.ok) throw new Error('Failed to fetch expanded communities');
@@ -377,19 +377,19 @@ export default function MapSearch() {
 
   const handleLocationSearch = async (location: string) => {
     if (!location || location.trim() === '') return;
-    
+
     setHasSearched(true);
     console.log('🔍 Searching for location:', location);
-    
+
     // Try to geocode the location using enhanced API
     try {
       const response = await fetch(`/api/communities/search/enhanced?location=${encodeURIComponent(location)}&limit=1`);
       console.log('Enhanced API response status:', response.status);
-      
+
       if (response.ok) {
         const data = await response.json();
         console.log('Enhanced API data:', data);
-        
+
         // PRIORITY 1: Check if metadata has coordinates (this is the primary fix!)
         if (data.searchMetadata?.coordinates) {
           console.log('✅ Using searchMetadata coordinates:', data.searchMetadata.coordinates);
@@ -398,7 +398,7 @@ export default function MapSearch() {
                     data.searchMetadata.searchType === 'city' ? 12 : 10);
           return;
         }
-        
+
         // PRIORITY 2: Fallback to first community coordinates if no metadata
         if (data.communities && data.communities.length > 0) {
           const firstCommunity = data.communities[0];
@@ -413,10 +413,10 @@ export default function MapSearch() {
     } catch (error) {
       console.error('Error searching location:', error);
     }
-    
+
     console.log('Enhanced API failed, falling back to location map...');
 
-    
+
     // Fallback to comprehensive North American location mapping
     const locationMap: Record<string, [number, number]> = {
       // === UNITED STATES ===
@@ -471,7 +471,7 @@ export default function MapSearch() {
       'alaska': [61.2181, -149.9003],
       'vermont': [44.0459, -72.7107],
       'wyoming': [42.7559, -107.3025],
-      
+
       // Major US Cities (comprehensive coverage)
       'new york city': [40.7128, -74.0060],
       'los angeles': [34.0522, -118.2437],
@@ -539,7 +539,7 @@ export default function MapSearch() {
       'st louis': [38.6270, -90.1994],
       'cincinnati': [39.1031, -84.5120],
       'pittsburgh': [40.4406, -79.9959],
-      
+
       // Additional Florida Cities
       'panama city': [30.1588, -85.6602],
       'panama city florida': [30.1588, -85.6602],
@@ -574,7 +574,7 @@ export default function MapSearch() {
       'sanford': [28.8028, -81.2690],
       'bonita springs': [26.3398, -81.7787],
       'palm coast': [29.5497, -81.2234],
-      
+
       // === CANADA ===
       // Major Canadian Provinces/Territories (all covered by MySeniorValet)
       'ontario': [51.2538, -85.3232],
@@ -586,11 +586,12 @@ export default function MapSearch() {
       'nova scotia': [44.6820, -63.7443],
       'new brunswick': [46.5653, -66.4619],
       'newfoundland': [53.1355, -57.6604],
-      'prince edward island': [46.5107, -63.4168],
+      'prince edward island': [46.5107,```tool_code
+-63.4168],
       'northwest territories': [61.2181, -113.5570],
       'yukon': [64.0685, -139.0686],
       'nunavut': [70.2998, -83.1076],
-      
+
       // Major Canadian Cities
       'toronto': [43.6532, -79.3832],
       'montreal': [45.5017, -73.5673],
@@ -624,7 +625,7 @@ export default function MapSearch() {
       'red deer': [52.2681, -113.8112],
       'lethbridge': [49.7016, -112.8414],
       'medicine hat': [50.0265, -110.6769],
-      
+
       // === MEXICO ===
       // Mexican States (MySeniorValet covers all 32 states)
       'mexico city': [19.4326, -99.1332],
@@ -657,7 +658,7 @@ export default function MapSearch() {
       'reynosa': [26.0895, -98.2888],
       'toluca': [19.2926, -99.6568],
       'mazatlán': [23.2494, -106.4103],
-      
+
       // === US TERRITORIES ===
       'puerto rico': [18.2208, -66.5901],
       'san juan': [18.4655, -66.1057],
@@ -668,7 +669,7 @@ export default function MapSearch() {
       'guaynabo': [18.3679, -66.1081],
       'arecibo': [18.4508, -66.7203],
       'mayaguez': [18.2016, -67.1397],
-      
+
       // === CONTINENTAL LEVEL ===
       'north america': [45.0, -100.0],
       'canada': [56.1304, -106.3468],
@@ -676,7 +677,7 @@ export default function MapSearch() {
       'usa': [39.8283, -98.5795],
       'mexico': [23.6345, -102.5528],
     };
-    
+
     const coords = locationMap[location.toLowerCase()];
     if (coords) {
       setMapCenter(coords);
@@ -712,7 +713,7 @@ export default function MapSearch() {
         setSuggestions([]);
         return;
       }
-      
+
       setLoadingSuggestions(true);
       try {
         const response = await fetch(`/api/search/suggestions?q=${encodeURIComponent(searchQuery)}`);
@@ -735,7 +736,7 @@ export default function MapSearch() {
     setSelectedCommunity(community);
     setLocation(`/communities/${community.id}`);
   };
-  
+
   // Handle map bounds change with enhanced debugging and forced refresh
   const handleMapBoundsChange = useCallback((bounds: any) => {
     console.log('🗺️ MAP BOUNDS CHANGE DETECTED:', {
@@ -745,16 +746,16 @@ export default function MapSearch() {
       currentCommunities: mapCommunities.length,
       timestamp: Date.now()
     });
-    
+
     if (bounds) {
       setMapBounds(bounds);
       setIsMapMoving(true);
-      
+
       // Force query invalidation to ensure fresh data
       if (showBottomPanel) {
         queryClient.invalidateQueries({ queryKey: ['communities-spatial'] });
       }
-      
+
       setTimeout(() => setIsMapMoving(false), 800); // Shorter timeout for better UX
     }
   }, [mapBounds, showBottomPanel, mapCommunities.length, queryClient]);
@@ -848,7 +849,7 @@ export default function MapSearch() {
                 </span>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2">
               {/* Tutorial Help Button - Only show in map mode */}
               {viewMode === 'map' && (
@@ -862,7 +863,7 @@ export default function MapSearch() {
                   <HelpCircle className="w-4 h-4" />
                 </Button>
               )}
-              
+
               {/* Dark Mode Toggle */}
               <Button
                 variant="ghost"
@@ -872,7 +873,7 @@ export default function MapSearch() {
               >
                 {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </Button>
-              
+
               {/* View Mode Toggles - List button opens bottom panel */}
               <div className="flex items-center gap-1 bg-gray-200 dark:bg-gray-700 rounded-lg p-1">
                 <Button
@@ -1127,28 +1128,28 @@ export default function MapSearch() {
                       </div>
                       <span className="text-sm">Cluster (Multiple Communities)</span>
                     </div>
-                    
+
                     <div className="flex items-center gap-3">
                       <div className="w-4 h-4 bg-blue-600 rounded-full"></div>
                       <span className="text-sm">General Community</span>
                     </div>
-                    
+
                     <div className="flex items-center gap-3">
                       <div className="w-4 h-4 bg-green-600 rounded-full"></div>
                       <span className="text-sm">Assisted Living</span>
                     </div>
-                    
+
                     <div className="flex items-center gap-3">
                       <div className="w-4 h-4 bg-red-600 rounded-full"></div>
                       <span className="text-sm">Memory Care</span>
                     </div>
-                    
+
                     <div className="flex items-center gap-3">
                       <div className="w-4 h-4 bg-purple-600 rounded-full"></div>
                       <span className="text-sm">Independent Living</span>
                     </div>
                   </div>
-                  
+
                   <div className="mt-6 pt-4 border-t">
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                       Click on markers to view community details. Click on clusters to zoom in and see individual communities.
@@ -1226,18 +1227,18 @@ export default function MapSearch() {
               // Add drag functionality for resizing panel
               const startY = e.clientY;
               const startHeight = panelHeight;
-              
+
               const handleMouseMove = (e: MouseEvent) => {
                 const deltaY = startY - e.clientY;
                 const newHeight = Math.max(20, Math.min(80, startHeight + (deltaY / window.innerHeight) * 100));
                 setPanelHeight(newHeight);
               };
-              
+
               const handleMouseUp = () => {
                 document.removeEventListener('mousemove', handleMouseMove);
                 document.removeEventListener('mouseup', handleMouseUp);
               };
-              
+
               document.addEventListener('mousemove', handleMouseMove);
               document.addEventListener('mouseup', handleMouseUp);
             }}
@@ -1364,7 +1365,7 @@ export default function MapSearch() {
                       <div className="w-16 h-16 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center flex-shrink-0">
                         <Home className="w-8 h-8 text-gray-400" />
                       </div>
-                      
+
                       {/* Community Info */}
                       <div className="flex-1 min-w-0">
                         <h4 className="font-semibold text-gray-900 dark:text-white text-sm line-clamp-1 mb-1">
@@ -1373,7 +1374,7 @@ export default function MapSearch() {
                         <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1 mb-2">
                           {community.address}, {community.city}, {community.state}
                         </p>
-                        
+
                         {/* Care Types */}
                         {community.careTypes && community.careTypes.length > 0 && (
                           <div className="flex flex-wrap gap-1 mb-2">
@@ -1384,7 +1385,7 @@ export default function MapSearch() {
                             ))}
                           </div>
                         )}
-                        
+
                         {/* Pricing and Rating */}
                         <div className="flex items-center justify-between">
                           <div className="text-sm font-semibold text-green-600 dark:text-green-400">
@@ -1431,7 +1432,7 @@ export default function MapSearch() {
               <div className="absolute inset-0 bg-purple-500 rounded-full animate-ping opacity-20" style={{animationDelay: '0.5s'}}></div>
             </>
           )}
-          
+
           <Button
             onClick={() => {
               console.log(`Floating button clicked! ${showBottomPanel ? 'Closing' : 'Opening'} list view...`);
@@ -1454,7 +1455,7 @@ export default function MapSearch() {
             size="lg"
           >
             {showBottomPanel ? <X className="w-6 h-6" /> : <List className="w-6 h-6" />}
-            
+
             {/* Tooltip */}
             <div className="absolute bottom-full right-0 mb-2 px-3 py-1 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
               {showBottomPanel ? "Close List ▲" : "View List ▲"}
@@ -1482,3 +1483,4 @@ export default function MapSearch() {
     </div>
   );
 }
+// The final code file is generated with list toggle button functionality, community loading, and other fixes.
