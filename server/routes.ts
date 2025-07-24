@@ -212,7 +212,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const citiesCovered = [...new Set(communitiesData.map(c => c.city).filter(Boolean))].length;
       const verifiedCommunities = communitiesData.filter(c => c.phone && c.website).length;
       const withPhotos = communitiesData.filter(c => c.photos && Array.isArray(c.photos) && c.photos.length > 0).length;
-      const googePlacesEnriched = communitiesData.filter(c => c.googlePlaceId).length;
+      const googePlacesEnriched = communitiesData.filter(c => c.googlePlacesId).length;
       
       // Group by county for detailed breakdown
       const countiesData = communitiesData.reduce((acc: any, community) => {
@@ -650,7 +650,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           communityId: fav.communityId,
           communityName: 'Unknown Community', // TODO: Join with communities table
           notes: fav.notes,
-          createdAt: fav.createdAt
+          createdAt: fav.updatedAt
         }));
       
       res.json(notesData);
@@ -674,7 +674,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           notes: userFavorites.notes,
           priority: userFavorites.priority,
           tags: userFavorites.tags,
-          addedAt: userFavorites.createdAt,
+          addedAt: userFavorites.updatedAt,
           community: {
             id: communities.id,
             name: communities.name,
@@ -690,7 +690,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .from(userFavorites)
         .leftJoin(communities, eq(userFavorites.communityId, communities.id))
         .where(eq(userFavorites.userId, userId))
-        .orderBy(desc(userFavorites.addedAt));
+        .orderBy(desc(userFavorites.updatedAt));
 
       res.json(favorites);
     } catch (error: any) {
@@ -1044,10 +1044,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Use Drizzle ORM for proper schema compatibility with actual database columns
       let whereConditions = [
-        gte(communities.latitude, swLatFloat),
-        lte(communities.latitude, neLatFloat),
-        gte(communities.longitude, swLngFloat),
-        lte(communities.longitude, neLngFloat)
+        sql`${communities.latitude}::float >= ${swLatFloat}`,
+        sql`${communities.latitude}::float <= ${neLatFloat}`,
+        sql`${communities.longitude}::float >= ${swLngFloat}`,
+        sql`${communities.longitude}::float <= ${neLngFloat}`
       ];
 
       // Add care type filter if specified
@@ -1057,7 +1057,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Add rating filter if specified
       if (minRating) {
-        whereConditions.push(gte(communities.rating, parseFloat(minRating as string)));
+        whereConditions.push(sql`${communities.rating}::float >= ${parseFloat(minRating as string)}`);
       }
 
       const query = db.select({
