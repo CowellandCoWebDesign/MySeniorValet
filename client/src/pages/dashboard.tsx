@@ -73,6 +73,7 @@ export default function Dashboard() {
   const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
   const [tourRequests, setTourRequests] = useState<TourRequest[]>([]);
   const [activeTab, setActiveTab] = useState("overview");
+  const [showIntegrationTools, setShowIntegrationTools] = useState(true);
 
   // Load sample data on mount
   useEffect(() => {
@@ -263,6 +264,95 @@ export default function Dashboard() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-8">
+            {/* Integration Tools Showcase */}
+            {showIntegrationTools && (
+              <Card className="bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 text-white border-0 shadow-2xl rounded-3xl overflow-hidden">
+                <CardHeader className="p-8 pb-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-2xl font-bold mb-2">🚀 Advanced Integration Tools</CardTitle>
+                      <p className="text-white/90">Enterprise-grade features at your fingertips</p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowIntegrationTools(false)}
+                      className="text-white hover:bg-white/20"
+                    >
+                      ✕
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-8 pt-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {/* AI Analytics */}
+                    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/20 transition-all">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span className="text-xl">📊</span>
+                      </div>
+                      <h3 className="font-semibold mb-2">AI Analytics</h3>
+                      <p className="text-sm text-white/80 mb-3">Market intelligence and predictive insights</p>
+                      <Link href="/integrations">
+                        <Button size="sm" variant="outline" className="border-white/30 text-white hover:bg-white/20">
+                          Explore
+                        </Button>
+                      </Link>
+                    </div>
+
+                    {/* Document Management */}
+                    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/20 transition-all">
+                      <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span className="text-xl">📄</span>
+                      </div>
+                      <h3 className="font-semibold mb-2">DocuSign</h3>
+                      <p className="text-sm text-white/80 mb-3">Digital contract signing and document workflow</p>
+                      <Link href="/community-portal">
+                        <Button size="sm" variant="outline" className="border-white/30 text-white hover:bg-white/20">
+                          Sign Docs
+                        </Button>
+                      </Link>
+                    </div>
+
+                    {/* Communication Suite */}
+                    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/20 transition-all">
+                      <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span className="text-xl">💬</span>
+                      </div>
+                      <h3 className="font-semibold mb-2">Communications</h3>
+                      <p className="text-sm text-white/80 mb-3">Multi-channel messaging and video calls</p>
+                      <Link href="/admin">
+                        <Button size="sm" variant="outline" className="border-white/30 text-white hover:bg-white/20">
+                          Message
+                        </Button>
+                      </Link>
+                    </div>
+
+                    {/* Security Dashboard */}
+                    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/20 transition-all">
+                      <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span className="text-xl">🔒</span>
+                      </div>
+                      <h3 className="font-semibold mb-2">Security</h3>
+                      <p className="text-sm text-white/80 mb-3">Real-time threat monitoring and protection</p>
+                      <Link href="/admin">
+                        <Button size="sm" variant="outline" className="border-white/30 text-white hover:bg-white/20">
+                          Monitor
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-8 text-center">
+                    <Link href="/integrations">
+                      <Button className="bg-white text-purple-600 hover:bg-gray-100 px-8 py-3 rounded-2xl font-semibold">
+                        View All 10+ Enterprise Tools
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Recent Activity */}
               <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-xl rounded-3xl overflow-hidden">

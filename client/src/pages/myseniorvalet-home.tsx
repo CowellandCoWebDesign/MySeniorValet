@@ -17,6 +17,7 @@ export default function MySeniorValetHome() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [showIntegrationSpotlight, setShowIntegrationSpotlight] = useState(true);
   
   // ONLY get cached community count - no need for full community list on homepage
   const { data: communityStats, isLoading } = useQuery({
@@ -332,6 +333,93 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
+      {/* Integration Spotlight - Showcase Our Advanced Tools */}
+      {showIntegrationSpotlight && (
+        <section className="px-4 py-12 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 relative overflow-hidden">
+          <div className="absolute inset-0 bg-black/10"></div>
+          <div className="relative z-10 max-w-6xl mx-auto">
+            <div className="text-center mb-8">
+              <Badge className="bg-white/20 text-white mb-4 px-4 py-2 text-sm font-semibold">🚀 ENTERPRISE FEATURES LIVE</Badge>
+              <h2 className="text-3xl font-bold text-white mb-4">Advanced AI & Integration Platform</h2>
+              <p className="text-white/90 text-lg">Powered by Fortune 500-level infrastructure and cutting-edge AI</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              {/* AI-Powered Matching */}
+              <Card className="bg-white/10 backdrop-blur-md border-white/20 text-white">
+                <CardContent className="p-6 text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl">🧠</span>
+                  </div>
+                  <h3 className="font-semibold mb-2">Anthropic AI Matching</h3>
+                  <p className="text-sm text-white/80">AI analyzes 31,000+ communities to find perfect matches based on your unique needs</p>
+                  <Link href="/quiz">
+                    <Button variant="outline" className="mt-3 border-white/30 text-white hover:bg-white/20">Try AI Match</Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Real-Time Analytics */}
+              <Card className="bg-white/10 backdrop-blur-md border-white/20 text-white">
+                <CardContent className="p-6 text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl">📊</span>
+                  </div>
+                  <h3 className="font-semibold mb-2">Business Intelligence</h3>
+                  <p className="text-sm text-white/80">Real-time market analytics, pricing trends, and occupancy insights</p>
+                  <Link href="/integrations">
+                    <Button variant="outline" className="mt-3 border-white/30 text-white hover:bg-white/20">View Analytics</Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Family Collaboration Platform */}
+              <Card className="bg-white/10 backdrop-blur-md border-white/20 text-white">
+                <CardContent className="p-6 text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl">👨‍👩‍👧‍👦</span>
+                  </div>
+                  <h3 className="font-semibold mb-2">Family Collaboration</h3>
+                  <p className="text-sm text-white/80">Real-time family sharing, notes, and collaborative decision-making tools</p>
+                  <Link href="/family-collaboration">
+                    <Button variant="outline" className="mt-3 border-white/30 text-white hover:bg-white/20">Start Sharing</Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Enterprise Infrastructure */}
+              <Card className="bg-white/10 backdrop-blur-md border-white/20 text-white">
+                <CardContent className="p-6 text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl">⚡</span>
+                  </div>
+                  <h3 className="font-semibold mb-2">Enterprise Security</h3>
+                  <p className="text-sm text-white/80">Real-time threat detection, encrypted communications, and HIPAA compliance</p>
+                  <Link href="/admin">
+                    <Button variant="outline" className="mt-3 border-white/30 text-white hover:bg-white/20">Security Center</Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="text-center">
+              <Button 
+                variant="outline" 
+                className="border-white/30 text-white hover:bg-white/20 mr-4"
+                onClick={() => setShowIntegrationSpotlight(false)}
+              >
+                Continue to Communities
+              </Button>
+              <Link href="/integrations">
+                <Button className="bg-white text-purple-600 hover:bg-gray-100">
+                  Explore All Integrations
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Complete Concierge Services */}
       <section className="px-4 py-12 bg-white dark:bg-gray-800">
         <div className="max-w-4xl mx-auto">
@@ -349,6 +437,11 @@ export default function MySeniorValetHome() {
                 </div>
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Live Pricing & Availability</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-300">Real-time pricing and unit availability across all communities</p>
+                <Link href="/search">
+                  <Button className="mt-3 bg-blue-500 hover:bg-blue-600 text-white">
+                    Check Pricing
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
 
@@ -360,6 +453,11 @@ export default function MySeniorValetHome() {
                 </div>
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Move Coordination</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-300">Professional moving services and timeline coordination</p>
+                <Link href="/moving-services">
+                  <Button className="mt-3 bg-green-500 hover:bg-green-600 text-white">
+                    Plan Move
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
 
@@ -371,6 +469,11 @@ export default function MySeniorValetHome() {
                 </div>
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Medical Equipment & Furniture</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-300">Medical equipment purchase and furniture delivery services</p>
+                <Link href="/concierge">
+                  <Button className="mt-3 bg-purple-500 hover:bg-purple-600 text-white">
+                    Shop Equipment
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
 
@@ -382,6 +485,11 @@ export default function MySeniorValetHome() {
                 </div>
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Family Collaboration & Tour Tracker</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-300">Family sharing tools and tour scheduling with progress tracking</p>
+                <Link href="/family-collaboration">
+                  <Button className="mt-3 bg-amber-500 hover:bg-amber-600 text-white">
+                    Try Family Tools
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           </div>
