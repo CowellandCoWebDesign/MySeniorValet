@@ -94,26 +94,33 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
 
   return (
     <div className="relative w-full max-w-4xl mx-auto">
-      {/* Search Context Header */}
-      <div className="text-center mb-4">
-        <div className="inline-flex items-center space-x-2 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full shadow-md border border-green-200/50 mb-2">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <span className="text-sm font-semibold text-green-800">Live data from 25,782+ communities</span>
+      {/* Enhanced Search Context Header */}
+      <div className="text-center mb-6">
+        <div className="inline-flex items-center space-x-3 bg-gradient-to-r from-green-50 to-blue-50 backdrop-blur-md px-6 py-3 rounded-full shadow-lg border border-green-200/50 mb-3">
+          <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-sm"></div>
+          <span className="text-sm font-bold text-green-800">
+            Live data from 31,023+ verified communities
+          </span>
+          <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
         </div>
-        <p className="text-gray-600 dark:text-gray-300 text-lg">
+        <p className="text-gray-700 dark:text-gray-300 text-lg font-medium">
           Search by city, zip code, community name, or care type
+        </p>
+        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+          Authentic HUD pricing • Real availability • Government verified
         </p>
       </div>
 
       <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} className="relative">
-        <div className={`relative bg-white dark:bg-gray-800 ${showSuggestions && locationSuggestions && locationSuggestions.length > 0 ? 'rounded-t-2xl' : 'rounded-2xl'} shadow-2xl overflow-hidden border-2 border-blue-200/50 dark:border-gray-600 hover:border-blue-300/70 focus-within:border-blue-400 transition-all duration-300`}>
-          <div className="flex items-center">
-            <div className="pl-6 pr-2">
-              <Search className="w-5 h-5 lg:w-6 lg:h-6 text-gray-400" />
+        <div className={`relative bg-white dark:bg-gray-800 ${showSuggestions && locationSuggestions && locationSuggestions.length > 0 ? 'rounded-t-3xl' : 'rounded-3xl'} shadow-2xl overflow-hidden border-2 border-gradient-to-r from-blue-200/50 to-purple-200/50 dark:border-gray-600 hover:border-blue-300/70 focus-within:border-blue-500 focus-within:shadow-blue-200/25 focus-within:shadow-2xl transition-all duration-500 backdrop-blur-sm`}>
+          <div className="flex items-center relative">
+            <div className="pl-6 pr-3">
+              <Search className="w-6 h-6 lg:w-7 lg:h-7 text-blue-500 drop-shadow-sm" />
             </div>
             <Input
+              ref={inputRef}
               type="text"
-              placeholder="Try 'San Francisco', '94102', or 'Memory Care'..."
+              placeholder="Try 'Sacramento, CA', '90210', or 'Assisted Living'..."
               value={locationQuery}
               onChange={(e) => handleLocationInputChange(e.target.value)}
               onFocus={() => {
@@ -125,56 +132,78 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
                 if (e.key === 'Enter') {
                   e.preventDefault();
                   handleSearch();
+                  setShowSuggestions(false);
+                }
+                if (e.key === 'Escape') {
+                  setShowSuggestions(false);
                 }
               }}
               onBlur={() => {
-                // Delay hiding suggestions to allow click events
                 setTimeout(() => setShowSuggestions(false), 200);
               }}
-              className="flex-1 px-3 py-4 lg:py-5 text-base lg:text-lg border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+              className="flex-1 px-4 py-5 lg:py-6 text-base lg:text-xl border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 font-medium"
             />
+            {locationQuery && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setLocationQuery('');
+                  setSearchParams(prev => ({ ...prev, location: '' }));
+                  setShowSuggestions(false);
+                }}
+                className="mr-2 text-gray-400 hover:text-gray-600 p-2"
+              >
+                ✕
+              </Button>
+            )}
             <Button
               type="submit"
               onClick={handleSearch}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-3 lg:p-4 m-2 rounded-xl transition-all duration-300 flex items-center justify-center shadow-md hover:shadow-lg transform hover:scale-105"
+              disabled={!locationQuery.trim()}
+              className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 disabled:from-gray-400 disabled:to-gray-500 text-white px-6 py-3 lg:px-8 lg:py-4 m-2 rounded-2xl transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none disabled:hover:scale-100 font-bold text-sm lg:text-base"
             >
               <Search className="w-5 h-5 lg:w-6 lg:h-6 mr-2" />
-              <span className="hidden sm:inline font-semibold">Search</span>
+              <span className="hidden sm:inline">Search</span>
+              <span className="sm:hidden">Go</span>
             </Button>
           </div>
         </div>
 
-        {/* Search Suggestions Dropdown */}
+        {/* Enhanced Search Suggestions Dropdown */}
         {showSuggestions && (
           <div 
             ref={suggestionsRef}
-            className="absolute top-full left-0 right-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-b-2xl shadow-xl z-30 max-h-56 overflow-y-auto"
-            style={{ boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)' }}
+            className="absolute top-full left-0 right-0 bg-white/98 dark:bg-gray-800/98 backdrop-blur-md border border-gray-200/50 dark:border-gray-700 rounded-b-3xl shadow-2xl z-50 max-h-64 overflow-y-auto"
+            style={{ boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15)' }}
           >
             {isSuggestionsLoading ? (
-              <div className="px-4 py-3 text-sm text-gray-500">Loading...</div>
+              <div className="px-6 py-4 text-sm text-gray-500 flex items-center gap-3">
+                <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                Searching locations...
+              </div>
             ) : locationSuggestions.length > 0 ? (
               locationSuggestions.map((suggestion: any, index: number) => {
-                // Determine icon and color based on location type
                 const getLocationIcon = (type: string) => {
                   switch (type) {
-                    case 'community': return { icon: Home, color: 'red' };
-                    case 'city': return { icon: MapPin, color: 'blue' };
-                    case 'state': return { icon: MapPin, color: 'purple' };
-                    case 'county': return { icon: MapPin, color: 'green' };
-                    case 'zip': return { icon: MapPin, color: 'orange' };
-                    case 'zip_pattern': return { icon: MapPin, color: 'orange' };
-                    default: return { icon: MapPin, color: 'blue' };
+                    case 'community': return { icon: Home, color: 'red', label: 'Senior Community' };
+                    case 'city': return { icon: MapPin, color: 'blue', label: 'City' };
+                    case 'state': return { icon: MapPin, color: 'purple', label: 'State' };
+                    case 'county': return { icon: MapPin, color: 'green', label: 'County' };
+                    case 'zip': return { icon: MapPin, color: 'orange', label: 'ZIP Code' };
+                    case 'zip_pattern': return { icon: MapPin, color: 'orange', label: 'ZIP Area' };
+                    default: return { icon: MapPin, color: 'blue', label: 'Location' };
                   }
                 };
 
-                const { icon: Icon, color } = getLocationIcon(suggestion.type);
+                const { icon: Icon, color, label } = getLocationIcon(suggestion.type);
                 const colorClasses: Record<string, string> = {
-                  red: 'bg-red-100 text-red-600',
-                  blue: 'bg-blue-100 text-blue-600',
-                  purple: 'bg-purple-100 text-purple-600', 
-                  green: 'bg-green-100 text-green-600',
-                  orange: 'bg-orange-100 text-orange-600'
+                  red: 'bg-gradient-to-r from-red-100 to-red-200 text-red-700 border-red-300',
+                  blue: 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 border-blue-300',
+                  purple: 'bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700 border-purple-300', 
+                  green: 'bg-gradient-to-r from-green-100 to-green-200 text-green-700 border-green-300',
+                  orange: 'bg-gradient-to-r from-orange-100 to-orange-200 text-orange-700 border-orange-300'
                 };
 
                 return (
@@ -182,29 +211,40 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
                     key={index}
                     type="button"
                     onClick={() => handleLocationSelect(suggestion.value)}
-                    className="w-full px-4 py-3 text-left hover:bg-blue-50 focus:bg-blue-50 focus:outline-none transition-colors duration-150 first:rounded-t-lg last:rounded-b-lg border-b border-gray-100 last:border-b-0"
+                    className="w-full px-6 py-4 text-left hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 focus:bg-gradient-to-r focus:from-blue-50 focus:to-purple-50 focus:outline-none transition-all duration-200 first:rounded-t-lg last:rounded-b-3xl border-b border-gray-100/50 last:border-b-0 group"
                   >
                     <div className="flex items-center">
-                      <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center mr-3 ${colorClasses[color]}`}>
-                        <Icon className="h-3 w-3" />
+                      <div className={`flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center mr-4 border transition-all duration-200 group-hover:scale-110 ${colorClasses[color]}`}>
+                        <Icon className="h-4 w-4" />
                       </div>
                       <div className="flex-1">
-                        <span className="text-sm text-gray-900 dark:text-white font-medium">{suggestion.label}</span>
-                        {suggestion.type && (
-                          <span className="text-xs text-gray-500 ml-2 capitalize">
-                            {suggestion.type === 'zip_pattern' ? 'ZIP Area' : 
-                             suggestion.type === 'community' ? 'Senior Community' : 
-                             suggestion.type}
+                        <div className="flex items-center gap-2">
+                          <span className="text-base text-gray-900 dark:text-white font-semibold">
+                            {suggestion.label}
                           </span>
+                          <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-xs text-gray-600 dark:text-gray-300 rounded-full font-medium">
+                            {label}
+                          </span>
+                        </div>
+                        {suggestion.type === 'community' && (
+                          <div className="text-xs text-green-600 mt-1 font-medium">
+                            🏠 Senior Living Community
+                          </div>
                         )}
                       </div>
                     </div>
                   </button>
                 );
               })
-            ) : (
-              <div className="px-4 py-3 text-sm text-gray-500">No locations found</div>
-            )}
+            ) : locationQuery.length >= 2 ? (
+              <div className="px-6 py-4 text-sm text-gray-500 text-center">
+                <div className="text-gray-400 mb-2">🔍</div>
+                No locations found for "{locationQuery}"
+                <div className="text-xs text-gray-400 mt-1">
+                  Try searching for a city, state, or ZIP code
+                </div>
+              </div>
+            ) : null}
           </div>
         )}
       </form>

@@ -956,27 +956,28 @@ export default function Map({
         )}
 
         {/* Supercluster-powered markers and clusters */}
-        {console.log('Rendering markers:', { 
-          isLoading, 
-          hasError: !!error, 
-          featureCount: clusterData?.features?.length || 0 
-        })}
         {!isLoading && !error && clusterData?.features?.map((feature: any, index: number) => {
           const [lng, lat] = feature.geometry.coordinates;
           const { properties } = feature;
 
           // Handle cluster markers (multiple communities)
           if (properties.cluster) {
-            // Simple cluster icon
-            const size = Math.min(40 + Math.log10(properties.point_count || 1) * 8, 60);
+            // Enhanced cluster icon with better styling
+            const size = Math.min(50 + Math.log10(properties.point_count || 1) * 10, 80);
             const isHovered = hoveredCluster === properties.cluster_id;
-            const clusterColor = isHovered ? '#2563eb' : '#1e40af';
+            const clusterColor = isHovered ? '#3b82f6' : '#1e40af';
+            const strokeColor = isHovered ? '#1d4ed8' : '#1e3a8a';
 
             const clusterIcon = new Icon({
               iconUrl: `data:image/svg+xml;base64,${btoa(`
                 <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-                  <circle cx="${size/2}" cy="${size/2}" r="${size/2 - 2}" fill="${clusterColor}" stroke="#fff" stroke-width="3"/>
-                  <text x="${size/2}" y="${size/2 + 4}" text-anchor="middle" fill="#fff" font-size="${Math.min(12, size/4)}" font-weight="bold">
+                  <defs>
+                    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-color="rgba(0,0,0,0.3)"/>
+                    </filter>
+                  </defs>
+                  <circle cx="${size/2}" cy="${size/2}" r="${size/2 - 3}" fill="${clusterColor}" stroke="${strokeColor}" stroke-width="3" filter="url(#shadow)"/>
+                  <text x="${size/2}" y="${size/2 + 6}" text-anchor="middle" fill="#fff" font-size="${Math.min(16, size/3)}" font-weight="bold" font-family="Arial, sans-serif">
                     ${properties.point_count_abbreviated}
                   </text>
                 </svg>
@@ -984,7 +985,7 @@ export default function Map({
               iconSize: [size, size],
               iconAnchor: [size/2, size/2],
               popupAnchor: [0, -size/2],
-              className: `cluster-marker`
+              className: `cluster-marker cluster-marker-${properties.cluster_id}`
             });
 
             return (
@@ -995,22 +996,20 @@ export default function Map({
                 eventHandlers={{
                   mouseover: (e) => {
                     try {
-                      // Check if the marker element exists
                       if (e && e.target && e.target._icon) {
                         setHoveredCluster(properties.cluster_id);
                       }
                     } catch (error) {
-                      console.error('Cluster mouseover error:', error);
+                      console.warn('Cluster mouseover error:', error);
                     }
                   },
                   mouseout: (e) => {
                     try {
-                      // Check if the marker element exists
                       if (e && e.target && e.target._icon) {
                         setHoveredCluster(null);
                       }
                     } catch (error) {
-                      console.error('Cluster mouseout error:', error);
+                      console.warn('Cluster mouseout error:', error);
                     }
                   },
                   click: (e) => {
@@ -1020,30 +1019,51 @@ export default function Map({
                         e.originalEvent.preventDefault();
                       }
 
-                      // Check if the marker element and map exist
                       if (!mapInstance || !e.target || !e.target._icon) {
-                        console.error('Map instance or marker not available');
+                        console.warn('Map instance or marker not available');
                         return;
                       }
 
-                      // Simple zoom in by 3 levels to expand cluster
-                      const newZoom = Math.min(currentZoom + 3, 18);
+                      // Smarter zoom calculation based on cluster size
+                      const zoomIncrement = properties.point_count > 100 ? 2 : 
+                                          properties.point_count > 50 ? 3 : 4;
+                      const newZoom = Math.min(currentZoom + zoomIncrement, 18);
 
-                      // Fly to cluster center and zoom in
+                      // Smooth fly animation
                       mapInstance.flyTo([lat, lng], newZoom, {
                         animate: true,
-                        duration: 0.5
+                        duration: 0.8,
+                        easeLinearity: 0.1
                       });
+
+                      // Call cluster click handler if provided
+                      if (onClusterClick) {
+                        onClusterClick(properties.cluster_id, lat, lng, newZoom);
+                      }
                     } catch (error) {
-                      console.error('Cluster click error:', error);
+                      console.warn('Cluster click error:', error);
                     }
                   }
                 }}
-              />
+              >
+                {/* Enhanced cluster tooltip */}
+                {isHovered && (
+                  <Tooltip permanent direction="top" offset={[0, -10]} className="cluster-tooltip">
+                    <div className="bg-blue-900/95 backdrop-blur-sm rounded-lg p-2 shadow-lg border border-blue-400">
+                      <div className="font-semibold text-sm text-white">
+                        {properties.point_count} Communities
+                      </div>
+                      <div className="text-xs text-blue-200">
+                        Click to expand
+                      </div>
+                    </div>
+                  </Tooltip>
+                )}
+              </Marker>
             );
           }
 
-          // Handle individual community markers
+          // Handle individual community markers with enhanced styling
           const community: Community = {
             id: properties.id,
             name: properties.name,
@@ -1062,18 +1082,20 @@ export default function Map({
             availability: properties.availability || 'Contact for availability',
             photos: properties.photos || [],
             description: properties.description || '',
-            // HUD data fields for color-coding
             hudPropertyId: properties.hudPropertyId,
             dataSource: properties.dataSource,
             hudVerified: properties.hudVerified,
             rentPerMonth: properties.rentPerMonth
           };
 
+          const isHovered = hoveredCommunity === community.id;
+          const communityIcon = getIconForCommunity(community, isHovered, false);
+
           return (
             <Marker
-              key={`community-${properties.id}-${lat}-${lng}`}
+              key={`community-${properties.id}-${lat}-${lng}-${index}`}
               position={[lat, lng]}
-              icon={getIconForCommunity(community, hoveredCommunity === community.id, false)}
+              icon={communityIcon}
               eventHandlers={{
                 click: (e) => {
                   try {
@@ -1081,54 +1103,77 @@ export default function Map({
                       e.originalEvent.stopPropagation();
                       e.originalEvent.preventDefault();
                     }
-                    // Check if the marker element exists
                     if (e && e.target && e.target._icon) {
                       handleCommunityClick(community);
                     }
                   } catch (error) {
-                    console.error('Community click error:', error);
+                    console.warn('Community click error:', error);
                   }
                 },
                 mouseover: (e) => {
                   try {
-                    // Check if the marker element exists
                     if (e && e.target && e.target._icon) {
                       setHoveredCommunity(community.id);
                     }
                   } catch (error) {
-                    console.error('Community mouseover error:', error);
+                    console.warn('Community mouseover error:', error);
                   }
                 },
                 mouseout: (e) => {
                   try {
-                    // Check if the marker element exists
                     if (e && e.target && e.target._icon) {
                       setHoveredCommunity(null);
                     }
                   } catch (error) {
-                    console.error('Community mouseout error:', error);
+                    console.warn('Community mouseout error:', error);
                   }
                 }
               }}
             >
-              {/* Enhanced tooltip for hover states */}
-              {hoveredCommunity === community.id && (
-                <Tooltip permanent direction="top" offset={[0, -10]}>
-                  <div className="bg-white/95 backdrop-blur-sm rounded-lg p-2 shadow-lg border">
-                    <div className="font-semibold text-sm">{community.name}</div>
-                    <div className="text-xs text-gray-600">{community.city}, {community.state}</div>
-                    <div className="text-xs text-blue-600 font-medium">{formatPrice(community.priceRange)}</div>
+              {/* Enhanced community tooltip */}
+              {isHovered && (
+                <Tooltip permanent direction="top" offset={[0, -15]} className="community-tooltip">
+                  <div className="bg-white/98 backdrop-blur-sm rounded-xl p-3 shadow-xl border border-gray-200 max-w-xs">
+                    <div className="font-bold text-sm text-gray-900 mb-1 line-clamp-2">
+                      {community.name}
+                    </div>
+                    <div className="text-xs text-gray-600 mb-2">
+                      📍 {community.city}, {community.state}
+                    </div>
+                    {community.careTypes.length > 0 && (
+                      <div className="text-xs text-blue-600 mb-2">
+                        🏥 {community.careTypes.slice(0, 2).join(', ')}
+                      </div>
+                    )}
+                    <div className="text-sm font-semibold">
+                      <span className={community.hudPropertyId ? 'text-green-600' : 'text-blue-600'}>
+                        💰 {formatPrice(community.priceRange)}
+                      </span>
+                      {community.hudPropertyId && (
+                        <div className="text-xs text-green-600 mt-1">✓ HUD Verified</div>
+                      )}
+                    </div>
                   </div>
                 </Tooltip>
               )}
 
-              <Popup className="community-popup" closeButton={true} autoPan={false} autoClose={false}>
-                <div className="w-80 p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-bold text-lg leading-tight">{community.name}</h3>
+              {/* Enhanced popup with better design */}
+              <Popup 
+                className="community-popup enhanced-popup" 
+                closeButton={true} 
+                autoPan={true} 
+                autoClose={false}
+                maxWidth={400}
+              >
+                <div className="w-full max-w-sm p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <h3 className="font-bold text-lg leading-tight text-gray-900 pr-2">
+                      {community.name}
+                    </h3>
                     <Button 
                       variant="ghost" 
                       size="sm"
+                      className="flex-shrink-0 hover:bg-gray-100"
                       onClick={(e) => {
                         e.stopPropagation();
                         const newFavorites = new Set(favorites);
@@ -1140,69 +1185,95 @@ export default function Map({
                         setFavorites(newFavorites);
                       }}
                     >
-                      <Heart className={`w-4 h-4 ${favorites.has(community.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} />
+                      <Heart className={`w-4 h-4 ${favorites.has(community.id) ? 'fill-red-500 text-red-500' : 'text-gray-400 hover:text-red-400'}`} />
                     </Button>
                   </div>
 
-                  {/* Data Quality Indicator */}
+                  {/* Enhanced data quality indicator */}
                   <div className="mb-3">
                     {(community.hudPropertyId || community.dataSource === 'HUD' || community.hudVerified || (community.rentPerMonth && community.rentPerMonth > 0)) ? (
-                      <Badge className="bg-green-100 text-green-800 border-green-300">
-                        ✓ Authentic HUD Data
+                      <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 shadow-sm">
+                        ✓ Government Verified Data
                       </Badge>
                     ) : (
-                      <Badge className="bg-red-100 text-red-800 border-red-300">
-                        ✗ No Live Data Available
+                      <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white border-0 shadow-sm">
+                        ⚠ Call for Current Pricing
                       </Badge>
                     )}
                   </div>
 
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                      <MapPin className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <span>{community.address}, {community.city}, {community.state}</span>
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3 text-sm text-gray-700">
+                      <MapPin className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                      <span className="leading-relaxed">
+                        {community.address}, {community.city}, {community.state}
+                        {community.zipCode && ` ${community.zipCode}`}
+                      </span>
                     </div>
 
                     {community.phone && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Phone className="w-4 h-4" />
-                        <span>{community.phone}</span>
+                      <div className="flex items-center gap-3 text-sm text-gray-700">
+                        <Phone className="w-4 h-4 text-green-500 flex-shrink-0" />
+                        <a href={`tel:${community.phone}`} className="text-blue-600 hover:text-blue-800 hover:underline">
+                          {community.phone}
+                        </a>
                       </div>
                     )}
 
                     {community.website && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Globe className="w-4 h-4" />
-                        <a href={community.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                      <div className="flex items-center gap-3 text-sm text-gray-700">
+                        <Globe className="w-4 h-4 text-purple-500 flex-shrink-0" />
+                        <a href={community.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 hover:underline">
                           Visit Website
                         </a>
                       </div>
                     )}
 
-                    <div className="flex items-center gap-2">
-                      <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                      <span className="text-sm">{community.rating} ({community.reviewCount} reviews)</span>
-                    </div>
+                    {community.rating > 0 && (
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1">
+                          <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                          <span className="text-sm font-medium">{community.rating}</span>
+                        </div>
+                        <span className="text-xs text-gray-500">
+                          ({community.reviewCount} reviews)
+                        </span>
+                      </div>
+                    )}
 
-                    <div className="flex flex-wrap gap-1">
-                      {community.careTypes.map((type) => (
-                        <Badge key={type} variant="secondary" className="text-xs">
-                          {type}
-                        </Badge>
-                      ))}
-                    </div>
+                    {community.careTypes.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {community.careTypes.slice(0, 3).map((type) => (
+                          <Badge key={type} variant="secondary" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                            {type}
+                          </Badge>
+                        ))}
+                        {community.careTypes.length > 3 && (
+                          <Badge variant="secondary" className="text-xs bg-gray-50 text-gray-600">
+                            +{community.careTypes.length - 3} more
+                          </Badge>
+                        )}
+                      </div>
+                    )}
 
-                    <div className="pt-2 border-t">
-                      <p className="text-sm font-medium text-green-600">
-                        {formatPrice(community.priceRange)}
-                      </p>
-                      <p className="text-xs text-gray-500">
+                    <div className="pt-3 border-t border-gray-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-lg font-bold text-green-600">
+                          {formatPrice(community.priceRange)}
+                        </p>
+                        {community.hudPropertyId && (
+                          <Badge className="bg-blue-100 text-blue-800 text-xs">
+                            HUD ID: {community.hudPropertyId}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-600">
                         {community.availability}
                       </p>
                     </div>
 
                     <Button 
-                      className="w-full mt-2" 
+                      className="w-full mt-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-200" 
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -1210,15 +1281,14 @@ export default function Map({
                       }}
                     >
                       <ExternalLink className="w-4 h-4 mr-2" />
-                      View Details
+                      View Full Details
                     </Button>
                   </div>
                 </div>
               </Popup>
             </Marker>
           );
-        })}
-        ).filter(Boolean)}
+        }) || []}
 
         </MapContainer>
 

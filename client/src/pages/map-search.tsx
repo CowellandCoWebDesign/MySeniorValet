@@ -1260,13 +1260,23 @@ export default function MapSearch() {
                   </div>
                 )}
               </h3>
-              {/* DEBUG PERFORMANCE MONITOR - VISIBLE TO USER */}
-              <div className="text-xs text-gray-600 dark:text-gray-400 font-mono bg-yellow-100 dark:bg-yellow-900/20 p-2 rounded border border-yellow-300 dark:border-yellow-700">
-                <div className="font-semibold text-yellow-800 dark:text-yellow-200 mb-1">🐛 DEBUG MONITOR:</div>
-                <div>📍 Bounds: {mapBounds ? `${mapBounds.getSouthWest().lat.toFixed(4)}, ${mapBounds.getSouthWest().lng.toFixed(4)} → ${mapBounds.getNorthEast().lat.toFixed(4)}, ${mapBounds.getNorthEast().lng.toFixed(4)}` : 'NOT SET'}</div>
-                <div>🔑 Query Key: {boundsKey || 'NONE'}</div>
-                <div>📊 Panel: {showBottomPanel ? 'OPEN' : 'CLOSED'} | Loading: {isLoadingCommunities ? 'YES' : 'NO'} | Fetching: {isFetchingCommunities ? 'YES' : 'NO'}</div>
-                <div>🏠 Communities: {mapCommunities.length} | Error: {communitiesError ? 'ERROR!' : 'OK'}</div>
+              {/* Real-time Status Display */}
+              <div className="text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-700">
+                <div className="font-semibold mb-2 flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                  Live Search Status
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div>📍 Map Region: {mapBounds ? 'Active' : 'Loading'}</div>
+                  <div>🏠 Communities: {mapCommunities.length}</div>
+                  <div>📊 Panel: {showBottomPanel ? 'Open' : 'Closed'}</div>
+                  <div>⚡ Status: {isLoadingCommunities ? 'Searching' : 'Ready'}</div>
+                </div>
+                {communitiesError && (
+                  <div className="text-red-600 text-xs mt-2">
+                    ⚠ Error loading communities - please try refreshing
+                  </div>
+                )}
               </div>
             </div>
             <Button
