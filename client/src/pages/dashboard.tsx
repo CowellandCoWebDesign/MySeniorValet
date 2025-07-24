@@ -1,590 +1,421 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
 import { 
   Heart, 
-  Star, 
   MapPin, 
-  Phone, 
   Calendar, 
-  Clock, 
-  User, 
   Settings, 
+  User, 
   Bell, 
-  FileText,
-  TrendingUp,
-  Activity,
-  Mail,
-  Shield,
-  HelpCircle,
-  LogOut,
-  Home,
-  DollarSign,
   Search,
-  Filter,
-  Grid,
-  List,
-  SortAsc,
-  Camera,
-  Plus,
-  Edit,
-  BarChart3,
-  PieChart,
-  Target,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  Eye,
-  MessageSquare,
+  Star,
+  Phone,
+  Mail,
   Share2,
-  Bookmark,
   Download,
-  Calendar as CalendarIcon,
-  Clock as ClockIcon,
-  Users,
-  Building,
-  Sparkles,
-  Award,
-  TrendingDown,
-  ArrowRight,
-  Filter as FilterIcon,
-  ExternalLink,
-  Zap,
-  Timer,
-  ThumbsUp,
-  Package,
-  Briefcase,
-  HeartHandshake,
-  UserCheck,
-  PlayCircle,
+  Eye,
+  BookmarkPlus,
   MessageCircle,
-  PhoneCall,
-  MapPinIcon,
-  StarIcon,
-  HeartIcon
+  Building,
+  DollarSign,
+  Clock,
+  Users,
+  Trash2,
+  Edit
 } from "lucide-react";
-import { Link, useLocation } from "wouter";
-import { CommunityCard } from "@/components/community-card";
-import { useAuth, useLogout } from "@/hooks/useAuth";
-import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
 
-interface DashboardStats {
-  totalSaved: number;
-  totalVisited: number;
-  totalNotes: number;
-  totalShared: number;
-  weeklyActivity: number;
-  searchAlerts: number;
-  tourScheduled: number;
-  recentActivity: Array<{
-    id: string;
-    type: 'saved' | 'visited' | 'shared' | 'note';
-    title: string;
-    description: string;
-    timestamp: string;
-  }>;
+interface SavedCommunity {
+  id: number;
+  name: string;
+  address: string;
+  city: string;
+  state: string;
+  priceRange: string;
+  careType: string;
+  rating: number;
+  availability: string;
+  savedDate: string;
+  notes?: string;
 }
 
-const mockStats: DashboardStats = {
-  totalSaved: 12,
-  totalVisited: 8,
-  totalNotes: 15,
-  totalShared: 6,
-  weeklyActivity: 24,
-  searchAlerts: 3,
-  tourScheduled: 2,
-  recentActivity: [
-    {
-      id: '1',
-      type: 'saved',
-      title: 'Saved The Sequoias San Francisco',
-      description: 'Added to favorites with pricing transparency',
-      timestamp: '2 hours ago'
-    },
-    {
-      id: '2',
-      type: 'visited',
-      title: 'Viewed Heritage on the Marina',
-      description: 'Checked amenities and availability',
-      timestamp: '1 day ago'
-    },
-    {
-      id: '3',
-      type: 'shared',
-      title: 'Shared Golden Gate Senior Living',
-      description: 'Sent details to family members',
-      timestamp: '2 days ago'
-    },
-    {
-      id: '4',
-      type: 'note',
-      title: 'Added note to Sunrise Senior Living',
-      description: 'Great dining options and medical care',
-      timestamp: '3 days ago'
-    }
-  ]
-};
+interface RecentSearch {
+  id: string;
+  query: string;
+  location: string;
+  results: number;
+  date: string;
+}
 
-const mockFavoriteCommunities = [
-  {
-    id: 274,
-    name: "The Sequoias San Francisco",
-    address: "1400 Geary Blvd",
-    city: "San Francisco",
-    state: "CA",
-    careTypes: ["Independent Living", "Assisted Living"],
-    photos: ["https://images.unsplash.com/photo-1582719508461-905c673771fd?w=400&h=300&fit=crop"],
-    availabilityStatus: "Immediate Availability",
-    savedDate: "2024-01-03",
-    priceRange: "$4,200 - $6,800",
-    rating: 4.5,
-    reviewCount: 127
-  },
-  {
-    id: 275,
-    name: "Heritage on the Marina",
-    address: "3400 Laguna St",
-    city: "San Francisco",
-    state: "CA",
-    careTypes: ["Independent Living", "Memory Care"],
-    photos: ["https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=400&h=300&fit=crop"],
-    availabilityStatus: "Limited Availability",
-    savedDate: "2024-01-02",
-    priceRange: "$5,800 - $8,200",
-    rating: 4.8,
-    reviewCount: 89
-  },
-  {
-    id: 276,
-    name: "Golden Gate Senior Living",
-    address: "2800 California St",
-    city: "San Francisco",
-    state: "CA",
-    careTypes: ["Assisted Living", "Memory Care"],
-    photos: ["https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=400&h=300&fit=crop"],
-    availabilityStatus: "Waitlist Available",
-    savedDate: "2024-01-01",
-    priceRange: "$3,800 - $5,200",
-    rating: 4.3,
-    reviewCount: 156
-  }
-];
+interface TourRequest {
+  id: string;
+  communityName: string;
+  requestedDate: string;
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  contactPerson: string;
+  phone: string;
+}
 
 export default function Dashboard() {
-  const [, setLocation] = useLocation();
-  const { user, isAuthenticated, isLoading } = useAuth();
-  const logout = useLogout();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("overview");
+  const [savedCommunities, setSavedCommunities] = useState<SavedCommunity[]>([]);
+  const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
+  const [tourRequests, setTourRequests] = useState<TourRequest[]>([]);
+  const [activeTab, setActiveTab] = useState("saved");
 
-  // Redirect to login if not authenticated
+  // Load sample data on mount
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      setLocation("/login");
-    }
-  }, [isAuthenticated, isLoading, setLocation]);
+    // Sample saved communities
+    setSavedCommunities([
+      {
+        id: 30789,
+        name: "FLORIN GARDENS APARTMENTS COOPERATIVE",
+        address: "7727 Florin Mall Dr",
+        city: "Sacramento",
+        state: "CA",
+        priceRange: "$303/month",
+        careType: "Independent Living",
+        rating: 4.2,
+        availability: "Available",
+        savedDate: "2025-01-06",
+        notes: "Good pricing, close to family"
+      },
+      {
+        id: 800067910,
+        name: "SACRAMENTO ELDERLY APARTMENTS",
+        address: "1325 Auburn Blvd",
+        city: "Sacramento", 
+        state: "CA",
+        priceRange: "$355/month",
+        careType: "Senior Housing",
+        rating: 4.0,
+        availability: "Waitlist",
+        savedDate: "2025-01-05"
+      }
+    ]);
 
-  const handleLogout = async () => {
-    try {
-      await logout.mutateAsync();
-      toast({
-        title: "Logged out successfully",
-        description: "You have been logged out of your account.",
+    // Sample recent searches
+    setRecentSearches([
+      {
+        id: "1",
+        query: "Memory Care",
+        location: "Sacramento, CA",
+        results: 126,
+        date: "2025-01-06"
+      },
+      {
+        id: "2", 
+        query: "Assisted Living under $4000",
+        location: "California",
+        results: 1000,
+        date: "2025-01-05"
+      }
+    ]);
+
+    // Sample tour requests
+    setTourRequests([
+      {
+        id: "1",
+        communityName: "FLORIN GARDENS APARTMENTS COOPERATIVE",
+        requestedDate: "2025-01-10",
+        status: "pending",
+        contactPerson: "Maria Rodriguez",
+        phone: "(916) 555-0123"
+      }
+    ]);
+  }, []);
+
+  const handleRemoveCommunity = (id: number) => {
+    setSavedCommunities(prev => prev.filter(community => community.id !== id));
+    toast({
+      title: "Community Removed",
+      description: "Community has been removed from your saved list.",
+    });
+  };
+
+  const handleShareCommunity = (community: SavedCommunity) => {
+    const shareText = `Check out ${community.name} in ${community.city}, ${community.state} - ${community.priceRange}`;
+    if (navigator.share) {
+      navigator.share({
+        title: community.name,
+        text: shareText,
+        url: `${window.location.origin}/community/${community.id}`
       });
-      setLocation("/");
-    } catch (error) {
+    } else {
+      navigator.clipboard.writeText(`${shareText} - ${window.location.origin}/community/${community.id}`);
       toast({
-        title: "Logout failed",
-        description: "There was an error logging out. Please try again.",
-        variant: "destructive",
+        title: "Link Copied",
+        description: "Community link has been copied to clipboard.",
       });
     }
   };
 
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-300">Loading your dashboard...</p>
-        </div>
-      </div>
-    );
-  }
+  const handleScheduleTour = (communityId: number, communityName: string) => {
+    const newTour: TourRequest = {
+      id: Date.now().toString(),
+      communityName,
+      requestedDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      status: 'pending',
+      contactPerson: "Tour Coordinator",
+      phone: "Contact via platform"
+    };
 
-  // Show error state if not authenticated
-  if (!isAuthenticated) {
-    return null; // Redirect will handle this
-  }
+    setTourRequests(prev => [...prev, newTour]);
+    toast({
+      title: "Tour Request Submitted",
+      description: `Tour request for ${communityName} has been submitted.`,
+    });
+  };
 
-  const userDisplayName = user ? `${user.firstName} ${user.lastName}` : 'User';
-  const userInitials = user ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}` : 'U';
-
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case 'saved': return <HeartIcon className="h-4 w-4 text-red-500" />;
-      case 'visited': return <Eye className="h-4 w-4 text-blue-500" />;
-      case 'shared': return <Share2 className="h-4 w-4 text-green-500" />;
-      case 'note': return <FileText className="h-4 w-4 text-purple-500" />;
-      default: return <Activity className="h-4 w-4 text-gray-500" />;
-    }
+  const handleRepeatSearch = (search: RecentSearch) => {
+    // Redirect to search with parameters
+    window.location.href = `/search?q=${encodeURIComponent(search.query)}&location=${encodeURIComponent(search.location)}`;
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      {/* HEADER */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <Home className="h-4 w-4 text-white" />
-                </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  MySeniorValet
-                </span>
-              </Link>
-              <div className="hidden md:flex items-center space-x-1">
-                <span className="text-gray-400">•</span>
-                <span className="text-gray-700 dark:text-gray-300 font-medium">Dashboard</span>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" className="relative">
-                <Bell className="h-4 w-4" />
-                <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-red-500 text-xs p-0 flex items-center justify-center">
-                  3
-                </Badge>
-              </Button>
-              
-              <div className="flex items-center space-x-3">
-                <div className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white text-sm font-medium">
-                  {userInitials}
-                </div>
-                <div className="hidden md:block">
-                  <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {user?.firstName || 'User'}
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    Premium Member
-                  </div>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={handleLogout}
-                  disabled={logout.isPending}
-                  className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
-                >
-                  <LogOut className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
+      <Header />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* HERO WELCOME SECTION */}
+      <div className="container mx-auto px-4 py-8">
+        {/* Dashboard Header */}
         <div className="mb-8">
-          <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 rounded-2xl p-8">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent"></div>
-            <div className="relative">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-4xl font-bold text-white mb-2">
-                    Welcome back, {user?.firstName || 'User'}! 👋
-                  </h1>
-                  <p className="text-blue-100 text-lg mb-4">
-                    Your personalized senior living journey continues
-                  </p>
-                  <div className="flex items-center space-x-6">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                        <Heart className="h-5 w-5 text-white" />
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-white">{mockStats.totalSaved}</div>
-                        <div className="text-sm text-blue-100">Saved</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                        <Eye className="h-5 w-5 text-white" />
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-white">{mockStats.totalVisited}</div>
-                        <div className="text-sm text-blue-100">Visited</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                        <Calendar className="h-5 w-5 text-white" />
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-white">{mockStats.tourScheduled}</div>
-                        <div className="text-sm text-blue-100">Tours</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="hidden lg:block">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center">
-                    <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <TrendingUp className="h-8 w-8 text-white" />
-                    </div>
-                    <div className="text-3xl font-bold text-white mb-1">{mockStats.weeklyActivity}</div>
-                    <div className="text-sm text-blue-100">Weekly Activity</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            My Senior Living Dashboard
+          </h1>
+          <p className="text-xl text-gray-600 dark:text-gray-300">
+            Track your saved communities, searches, and tour requests all in one place
+          </p>
         </div>
 
-        {/* QUICK ACTIONS */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer group">
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card className="bg-white dark:bg-gray-800 shadow-lg">
             <CardContent className="p-6">
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                  <Search className="h-6 w-6 text-blue-600" />
+                <div className="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-full">
+                  <Heart className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Search Communities</h3>
-                  <p className="text-sm text-gray-600">Find new options</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{savedCommunities.length}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Saved Communities</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-md transition-shadow cursor-pointer group">
+          <Card className="bg-white dark:bg-gray-800 shadow-lg">
             <CardContent className="p-6">
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center group-hover:bg-green-200 transition-colors">
-                  <Calendar className="h-6 w-6 text-green-600" />
+                <div className="p-3 bg-green-100 dark:bg-green-900/50 rounded-full">
+                  <Search className="h-6 w-6 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Schedule Tour</h3>
-                  <p className="text-sm text-gray-600">Book a visit</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{recentSearches.length}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Recent Searches</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-md transition-shadow cursor-pointer group">
+          <Card className="bg-white dark:bg-gray-800 shadow-lg">
             <CardContent className="p-6">
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center group-hover:bg-purple-200 transition-colors">
-                  <Users className="h-6 w-6 text-purple-600" />
+                <div className="p-3 bg-purple-100 dark:bg-purple-900/50 rounded-full">
+                  <Calendar className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Share with Family</h3>
-                  <p className="text-sm text-gray-600">Collaborate easily</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{tourRequests.length}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Tour Requests</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-md transition-shadow cursor-pointer group">
+          <Card className="bg-white dark:bg-gray-800 shadow-lg">
             <CardContent className="p-6">
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center group-hover:bg-orange-200 transition-colors">
-                  <HelpCircle className="h-6 w-6 text-orange-600" />
+                <div className="p-3 bg-orange-100 dark:bg-orange-900/50 rounded-full">
+                  <Eye className="h-6 w-6 text-orange-600 dark:text-orange-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Get Help</h3>
-                  <p className="text-sm text-gray-600">Expert guidance</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">31,023</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Total Communities</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-
-          <Link href="/personalized-dashboard">
-            <Card className="hover:shadow-md transition-shadow cursor-pointer group border-2 border-blue-200 bg-blue-50">
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                    <Sparkles className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">Memory-Friendly Dashboard</h3>
-                    <p className="text-sm text-gray-600">Personalized for seniors</p>
-                    <Badge variant="secondary" className="mt-1 text-xs">NEW</Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
         </div>
 
-        {/* MAIN CONTENT TABS */}
+        {/* Main Dashboard Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:grid-cols-5">
-            <TabsTrigger value="overview" className="flex items-center space-x-2">
-              <Activity className="h-4 w-4" />
-              <span className="hidden sm:inline">Overview</span>
-            </TabsTrigger>
-            <TabsTrigger value="favorites" className="flex items-center space-x-2">
+          <TabsList className="grid w-full grid-cols-4 bg-white dark:bg-gray-800 shadow-lg">
+            <TabsTrigger value="saved" className="flex items-center space-x-2">
               <Heart className="h-4 w-4" />
-              <span className="hidden sm:inline">Favorites</span>
+              <span>Saved Communities</span>
+            </TabsTrigger>
+            <TabsTrigger value="searches" className="flex items-center space-x-2">
+              <Search className="h-4 w-4" />
+              <span>Recent Searches</span>
             </TabsTrigger>
             <TabsTrigger value="tours" className="flex items-center space-x-2">
               <Calendar className="h-4 w-4" />
-              <span className="hidden sm:inline">Tours</span>
+              <span>Tour Requests</span>
             </TabsTrigger>
-            <TabsTrigger value="notes" className="flex items-center space-x-2">
-              <FileText className="h-4 w-4" />
-              <span className="hidden sm:inline">Notes</span>
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center space-x-2">
-              <Settings className="h-4 w-4" />
-              <span className="hidden sm:inline">Settings</span>
+            <TabsTrigger value="profile" className="flex items-center space-x-2">
+              <User className="h-4 w-4" />
+              <span>Profile</span>
             </TabsTrigger>
           </TabsList>
 
-          {/* OVERVIEW TAB */}
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* RECENT ACTIVITY */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Activity className="h-5 w-5" />
-                    <span>Recent Activity</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {mockStats.recentActivity.map((activity) => (
-                      <div key={activity.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
-                        <div className="mt-1">
-                          {getActivityIcon(activity.type)}
+          {/* Saved Communities Tab */}
+          <TabsContent value="saved" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Your Saved Communities</h2>
+              <Link href="/search">
+                <Button className="bg-blue-600 hover:bg-blue-700">
+                  <Search className="h-4 w-4 mr-2" />
+                  Find More Communities
+                </Button>
+              </Link>
+            </div>
+
+            {savedCommunities.length === 0 ? (
+              <Card className="bg-white dark:bg-gray-800 shadow-lg">
+                <CardContent className="p-12 text-center">
+                  <Heart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No Saved Communities</h3>
+                  <p className="text-gray-600 dark:text-gray-300 mb-6">Start exploring communities and save your favorites here</p>
+                  <Link href="/search">
+                    <Button className="bg-blue-600 hover:bg-blue-700">
+                      Start Exploring
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {savedCommunities.map((community) => (
+                  <Card key={community.id} className="bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow">
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="text-lg font-bold text-gray-900 dark:text-white">
+                            {community.name}
+                          </CardTitle>
+                          <p className="text-gray-600 dark:text-gray-300 flex items-center mt-1">
+                            <MapPin className="h-4 w-4 mr-1" />
+                            {community.address}, {community.city}, {community.state}
+                          </p>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900">{activity.title}</p>
-                          <p className="text-xs text-gray-600">{activity.description}</p>
-                          <p className="text-xs text-gray-500 mt-1">{activity.timestamp}</p>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveCommunity(community.id)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="secondary">{community.careType}</Badge>
+                          <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200">
+                            {community.priceRange}
+                          </Badge>
+                          <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200">
+                            {community.availability}
+                          </Badge>
+                        </div>
+
+                        <div className="flex items-center space-x-4">
+                          <div className="flex items-center">
+                            <Star className="h-4 w-4 text-yellow-500 mr-1" />
+                            <span className="font-medium">{community.rating}</span>
+                          </div>
+                          <span className="text-sm text-gray-500">
+                            Saved on {new Date(community.savedDate).toLocaleDateString()}
+                          </span>
+                        </div>
+
+                        {community.notes && (
+                          <p className="text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 p-3 rounded">
+                            <strong>Notes:</strong> {community.notes}
+                          </p>
+                        )}
+
+                        <div className="flex flex-wrap gap-2">
+                          <Link href={`/community/${community.id}`}>
+                            <Button size="sm" variant="outline">
+                              <Eye className="h-4 w-4 mr-1" />
+                              View Details
+                            </Button>
+                          </Link>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleScheduleTour(community.id, community.name)}
+                          >
+                            <Calendar className="h-4 w-4 mr-1" />
+                            Schedule Tour
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleShareCommunity(community)}
+                          >
+                            <Share2 className="h-4 w-4 mr-1" />
+                            Share
+                          </Button>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* INSIGHTS & STATS */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <BarChart3 className="h-5 w-5" />
-                    <span>Your Journey Insights</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Communities Explored</span>
-                      <span className="text-sm font-medium">{mockStats.totalVisited + mockStats.totalSaved}</span>
-                    </div>
-                    <Progress value={75} className="h-2" />
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Notes & Comparisons</span>
-                      <span className="text-sm font-medium">{mockStats.totalNotes}</span>
-                    </div>
-                    <Progress value={60} className="h-2" />
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Family Collaboration</span>
-                      <span className="text-sm font-medium">{mockStats.totalShared}</span>
-                    </div>
-                    <Progress value={40} className="h-2" />
-                  </div>
-                  
-                  <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Target className="h-4 w-4 text-blue-600" />
-                      <span className="text-sm font-medium text-blue-900">Next Steps</span>
-                    </div>
-                    <p className="text-sm text-blue-700">
-                      You're making great progress! Consider scheduling tours for your top 3 favorites.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
 
-          {/* FAVORITES TAB */}
-          <TabsContent value="favorites" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Your Favorite Communities</h2>
-                <p className="text-gray-600">Communities you've saved for further consideration</p>
-              </div>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Add More
-              </Button>
+          {/* Recent Searches Tab */}
+          <TabsContent value="searches" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Recent Searches</h2>
+              <Link href="/search">
+                <Button className="bg-blue-600 hover:bg-blue-700">
+                  <Search className="h-4 w-4 mr-2" />
+                  New Search
+                </Button>
+              </Link>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mockFavoriteCommunities.map((community) => (
-                <Card key={community.id} className="hover:shadow-lg transition-shadow">
-                  <div className="relative">
-                    <img 
-                      src={community.photos[0]} 
-                      alt={community.name}
-                      className="w-full h-48 object-cover rounded-t-lg"
-                    />
-                    <div className="absolute top-3 right-3">
-                      <div className="bg-white/90 backdrop-blur-sm rounded-full p-2">
-                        <Heart className="h-4 w-4 text-red-500 fill-current" />
+
+            <div className="space-y-4">
+              {recentSearches.map((search) => (
+                <Card key={search.id} className="bg-white dark:bg-gray-800 shadow-lg">
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h3 className="font-semibold text-gray-900 dark:text-white">{search.query}</h3>
+                        <p className="text-gray-600 dark:text-gray-300 flex items-center mt-1">
+                          <MapPin className="h-4 w-4 mr-1" />
+                          {search.location}
+                        </p>
+                        <p className="text-sm text-gray-500 mt-1">
+                          {search.results} results • {new Date(search.date).toLocaleDateString()}
+                        </p>
                       </div>
-                    </div>
-                    <Badge className="absolute bottom-3 left-3 bg-green-500">
-                      {community.availabilityStatus}
-                    </Badge>
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold text-gray-900 mb-2">{community.name}</h3>
-                    <p className="text-sm text-gray-600 mb-2">{community.address}</p>
-                    <p className="text-sm text-gray-600 mb-3">{community.city}, {community.state}</p>
-                    
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center space-x-1">
-                        <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                        <span className="text-sm font-medium">{community.rating}</span>
-                        <span className="text-xs text-gray-500">({community.reviewCount})</span>
-                      </div>
-                      <div className="text-sm font-medium text-green-600">
-                        {community.priceRange}
-                      </div>
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {community.careTypes.map((type, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs">
-                          {type}
-                        </Badge>
-                      ))}
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Button size="sm" className="flex-1">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        Schedule Tour
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        <Share2 className="h-4 w-4" />
+                      <Button
+                        onClick={() => handleRepeatSearch(search)}
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        <Search className="h-4 w-4 mr-2" />
+                        Repeat Search
                       </Button>
                     </div>
                   </CardContent>
@@ -593,84 +424,124 @@ export default function Dashboard() {
             </div>
           </TabsContent>
 
-          {/* TOURS TAB */}
+          {/* Tour Requests Tab */}
           <TabsContent value="tours" className="space-y-6">
-            <div className="text-center py-12">
-              <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No Tours Scheduled</h3>
-              <p className="text-gray-600 mb-6">Ready to visit some communities? Schedule your first tour!</p>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Schedule a Tour
-              </Button>
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Tour Requests</h2>
+              <Link href="/tour-tracker">
+                <Button className="bg-blue-600 hover:bg-blue-700">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  Tour Tracker
+                </Button>
+              </Link>
+            </div>
+
+            <div className="space-y-4">
+              {tourRequests.map((tour) => (
+                <Card key={tour.id} className="bg-white dark:bg-gray-800 shadow-lg">
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-semibold text-gray-900 dark:text-white">{tour.communityName}</h3>
+                        <p className="text-gray-600 dark:text-gray-300 flex items-center mt-1">
+                          <Calendar className="h-4 w-4 mr-1" />
+                          Requested Date: {new Date(tour.requestedDate).toLocaleDateString()}
+                        </p>
+                        <p className="text-gray-600 dark:text-gray-300 flex items-center mt-1">
+                          <User className="h-4 w-4 mr-1" />
+                          Contact: {tour.contactPerson}
+                        </p>
+                        <p className="text-gray-600 dark:text-gray-300 flex items-center mt-1">
+                          <Phone className="h-4 w-4 mr-1" />
+                          {tour.phone}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <Badge 
+                          className={
+                            tour.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                            tour.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                            tour.status === 'completed' ? 'bg-blue-100 text-blue-800' :
+                            'bg-red-100 text-red-800'
+                          }
+                        >
+                          {tour.status.charAt(0).toUpperCase() + tour.status.slice(1)}
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </TabsContent>
 
-          {/* NOTES TAB */}
-          <TabsContent value="notes" className="space-y-6">
-            <div className="text-center py-12">
-              <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Your Notes</h3>
-              <p className="text-gray-600 mb-6">Keep track of your thoughts and comparisons</p>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Add a Note
-              </Button>
-            </div>
-          </TabsContent>
+          {/* Profile Tab */}
+          <TabsContent value="profile" className="space-y-6">
+            <Card className="bg-white dark:bg-gray-800 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">Profile Settings</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                      placeholder="Enter your full name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                      placeholder="Enter your email"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                      placeholder="Enter your phone number"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Preferred Location
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                      placeholder="Enter preferred location"
+                    />
+                  </div>
+                </div>
 
-          {/* SETTINGS TAB */}
-          <TabsContent value="settings" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Account Settings</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Email Notifications</span>
-                    <Button variant="outline" size="sm">Configure</Button>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Privacy Settings</span>
-                    <Button variant="outline" size="sm">Manage</Button>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Search Preferences</span>
-                    <Button variant="outline" size="sm">Edit</Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Support</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Help Center</span>
-                    <Button variant="outline" size="sm">
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Contact Support</span>
-                    <Button variant="outline" size="sm">
-                      <Mail className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Schedule Call</span>
-                    <Button variant="outline" size="sm">
-                      <Phone className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                <div className="flex space-x-4">
+                  <Button className="bg-blue-600 hover:bg-blue-700">
+                    <Settings className="h-4 w-4 mr-2" />
+                    Save Changes
+                  </Button>
+                  <Button variant="outline">
+                    <Bell className="h-4 w-4 mr-2" />
+                    Notification Settings
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
+
+      <Footer />
     </div>
   );
 }

@@ -1,560 +1,409 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Slider } from "@/components/ui/slider";
+import { Progress } from "@/components/ui/progress";
 import { 
   Heart, 
-  Search, 
+  MapPin, 
   Calendar, 
-  Users, 
   Settings, 
-  Eye, 
-  Type, 
-  Layout, 
-  Lightbulb,
+  User, 
+  Bell, 
+  Search,
   Star,
-  Clock,
-  MapPin,
   Phone,
   Mail,
-  Bookmark,
-  TrendingUp,
-  HelpCircle,
+  Share2,
+  Download,
+  Eye,
+  BookmarkPlus,
+  MessageCircle,
+  Building,
+  DollarSign,
+  Clock,
+  Users,
+  Trash2,
+  Edit,
   CheckCircle,
-  ArrowRight,
-  Grid3X3,
-  List,
-  Image,
-  Palette,
-  Volume2,
-  VolumeX,
-  Maximize,
-  Home,
-  RotateCcw,
-  Zap
+  TrendingUp,
+  Filter,
+  Target
 } from "lucide-react";
 import { Link } from "wouter";
+import { useToast } from "@/hooks/use-toast";
+
+interface PersonalizedRecommendation {
+  id: number;
+  name: string;
+  address: string;
+  city: string;
+  state: string;
+  priceRange: string;
+  careType: string;
+  rating: number;
+  matchScore: number;
+  reasons: string[];
+  availability: string;
+}
+
+interface SearchProgress {
+  totalCommunities: number;
+  viewed: number;
+  saved: number;
+  toursScheduled: number;
+  completionPercentage: number;
+}
 
 export default function PersonalizedDashboard() {
-  // Dashboard preference state
+  const { toast } = useToast();
+  const [recommendations, setRecommendations] = useState<PersonalizedRecommendation[]>([]);
+  const [searchProgress, setSearchProgress] = useState<SearchProgress>({
+    totalCommunities: 31023,
+    viewed: 12,
+    saved: 3,
+    toursScheduled: 1,
+    completionPercentage: 25
+  });
   const [preferences, setPreferences] = useState({
-    layoutType: 'comfortable' as 'simple' | 'comfortable' | 'detailed',
-    fontSize: 'medium' as 'small' | 'medium' | 'large' | 'extra-large',
-    highContrast: false,
-    reducedMotion: false,
-    cardSize: 'comfortable' as 'compact' | 'comfortable' | 'spacious',
-    showHelpTips: true,
-    quickActions: ['search', 'favorites', 'schedule-tour', 'family-share'],
-    dashboardSections: {
-      favorites: { visible: true, order: 1 },
-      recentSearches: { visible: true, order: 2 },
-      recommendations: { visible: true, order: 3 },
-      savedCommunities: { visible: true, order: 4 },
-      tourSchedule: { visible: true, order: 5 },
-      familyNotes: { visible: true, order: 6 }
-    }
+    maxBudget: 4000,
+    careType: 'Assisted Living',
+    location: 'Sacramento, CA',
+    amenities: ['Medical Care', 'Transportation', 'Meals Included']
   });
 
-  const [isCustomizing, setIsCustomizing] = useState(false);
-  const [showLayoutSuggestions, setShowLayoutSuggestions] = useState(false);
+  useEffect(() => {
+    // Load personalized recommendations
+    setRecommendations([
+      {
+        id: 30789,
+        name: "FLORIN GARDENS APARTMENTS COOPERATIVE",
+        address: "7727 Florin Mall Dr",
+        city: "Sacramento",
+        state: "CA",
+        priceRange: "$303/month",
+        careType: "Independent Living",
+        rating: 4.2,
+        matchScore: 95,
+        reasons: ["Within budget", "Close to family", "HUD certified", "Transportation available"],
+        availability: "Available"
+      },
+      {
+        id: 800067910,
+        name: "SACRAMENTO ELDERLY APARTMENTS",
+        address: "1325 Auburn Blvd",
+        city: "Sacramento",
+        state: "CA",
+        priceRange: "$355/month",
+        careType: "Senior Housing",
+        rating: 4.0,
+        matchScore: 92,
+        reasons: ["Excellent value", "Government subsidized", "Medical services nearby"],
+        availability: "Waitlist"
+      },
+      {
+        id: 12345,
+        name: "Golden Valley Assisted Living",
+        address: "2500 Fair Oaks Blvd",
+        city: "Sacramento",
+        state: "CA",
+        priceRange: "$3,800-$4,200/month",
+        careType: "Assisted Living",
+        rating: 4.5,
+        matchScore: 88,
+        reasons: ["Memory care available", "24/7 nursing", "Family-owned", "Pet-friendly"],
+        availability: "Available"
+      }
+    ]);
+  }, []);
 
-  // Sample data for demonstration
-  const sampleCommunities = [
-    {
-      id: 1,
-      name: "Sunset Manor",
-      city: "Sacramento",
-      state: "CA",
-      rating: 4.8,
-      priceRange: "$3,200 - $4,800",
-      careTypes: ["Independent Living", "Assisted Living"],
-      lastVisited: "2 days ago"
-    },
-    {
-      id: 2,
-      name: "Golden Years Community",
-      city: "Roseville",
-      state: "CA",
-      rating: 4.6,
-      priceRange: "$2,800 - $4,200",
-      careTypes: ["Memory Care", "Assisted Living"],
-      lastVisited: "1 week ago"
-    }
-  ];
+  const handleSaveRecommendation = (recommendation: PersonalizedRecommendation) => {
+    toast({
+      title: "Community Saved",
+      description: `${recommendation.name} has been added to your saved communities.`,
+    });
 
-  const recentSearches = [
-    { query: "Independent Living Sacramento", date: "Today" },
-    { query: "Memory Care near me", date: "Yesterday" },
-    { query: "Assisted Living under $4000", date: "3 days ago" }
-  ];
-
-  const upcomingTours = [
-    {
-      community: "Sunset Manor",
-      date: "Tomorrow",
-      time: "2:00 PM",
-      contact: "(916) 555-0123"
-    },
-    {
-      community: "Peaceful Gardens",
-      date: "Friday",
-      time: "10:00 AM",
-      contact: "(916) 555-0456"
-    }
-  ];
-
-  // Memory-friendly layout suggestions
-  const layoutSuggestions = [
-    {
-      title: "Simple & Clear",
-      description: "Large buttons, minimal text, essential information only",
-      icon: <Layout className="w-6 h-6" />,
-      benefits: ["Less overwhelming", "Easier navigation", "Clearer focus"],
-      layoutType: 'simple' as const
-    },
-    {
-      title: "Comfortable View",
-      description: "Balanced layout with helpful details and visual cues",
-      icon: <Grid3X3 className="w-6 h-6" />,
-      benefits: ["Good balance", "Helpful context", "Not too busy"],
-      layoutType: 'comfortable' as const
-    },
-    {
-      title: "Detailed Information",
-      description: "Complete information with all available details",
-      icon: <List className="w-6 h-6" />,
-      benefits: ["All information", "Comprehensive view", "Power user friendly"],
-      layoutType: 'detailed' as const
-    }
-  ];
-
-  // Apply font size class based on preference
-  const getFontSizeClass = () => {
-    switch (preferences.fontSize) {
-      case 'small': return 'text-sm';
-      case 'medium': return 'text-base';
-      case 'large': return 'text-lg';
-      case 'extra-large': return 'text-xl';
-      default: return 'text-base';
-    }
+    // Update progress
+    setSearchProgress(prev => ({
+      ...prev,
+      saved: prev.saved + 1,
+      completionPercentage: Math.min(prev.completionPercentage + 5, 100)
+    }));
   };
 
-  // Apply card size class
-  const getCardSizeClass = () => {
-    switch (preferences.cardSize) {
-      case 'compact': return 'p-3';
-      case 'comfortable': return 'p-4';
-      case 'spacious': return 'p-6';
-      default: return 'p-4';
-    }
+  const handleScheduleTour = (recommendation: PersonalizedRecommendation) => {
+    toast({
+      title: "Tour Scheduled",
+      description: `Tour request submitted for ${recommendation.name}.`,
+    });
+
+    // Update progress
+    setSearchProgress(prev => ({
+      ...prev,
+      toursScheduled: prev.toursScheduled + 1,
+      completionPercentage: Math.min(prev.completionPercentage + 10, 100)
+    }));
   };
 
-  const renderCustomizationPanel = () => (
-    <Card className="mb-6">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Settings className="w-5 h-5" />
-          Customize Your Dashboard
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Layout Suggestions */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Layout Style</h3>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowLayoutSuggestions(!showLayoutSuggestions)}
-            >
-              <Lightbulb className="w-4 h-4 mr-2" />
-              Get Suggestions
-            </Button>
-          </div>
-          
-          {showLayoutSuggestions && (
-            <div className="grid md:grid-cols-3 gap-4 mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <div className="col-span-3 mb-2">
-                <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">Memory-Friendly Layout Suggestions</h4>
-                <p className="text-sm text-blue-600 dark:text-blue-300">Choose the layout that feels most comfortable for you:</p>
-              </div>
-              
-              {layoutSuggestions.map((suggestion) => (
-                <Card 
-                  key={suggestion.layoutType}
-                  className={`cursor-pointer transition-all ${
-                    preferences.layoutType === suggestion.layoutType 
-                      ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30' 
-                      : 'hover:bg-gray-50 dark:hover:bg-gray-800'
-                  }`}
-                  onClick={() => setPreferences(prev => ({ ...prev, layoutType: suggestion.layoutType }))}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      {suggestion.icon}
-                      <h5 className="font-medium">{suggestion.title}</h5>
-                    </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">{suggestion.description}</p>
-                    <div className="space-y-1">
-                      {suggestion.benefits.map((benefit, index) => (
-                        <div key={index} className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
-                          <CheckCircle className="w-3 h-3" />
-                          {benefit}
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-          
-          <div className="grid grid-cols-3 gap-2">
-            {['simple', 'comfortable', 'detailed'].map((layout) => (
-              <Button
-                key={layout}
-                variant={preferences.layoutType === layout ? "default" : "outline"}
-                onClick={() => setPreferences(prev => ({ ...prev, layoutType: layout as any }))}
-                className="capitalize"
-              >
-                {layout}
-              </Button>
-            ))}
-          </div>
-        </div>
+  const handleViewCommunity = (id: number) => {
+    // Update progress
+    setSearchProgress(prev => ({
+      ...prev,
+      viewed: prev.viewed + 1,
+      completionPercentage: Math.min(prev.completionPercentage + 2, 100)
+    }));
 
-        {/* Text Size */}
-        <div>
-          <h3 className="text-lg font-semibold mb-4">Text Size</h3>
-          <div className="grid grid-cols-4 gap-2">
-            {[
-              { key: 'small', label: 'Small', demo: 'Aa' },
-              { key: 'medium', label: 'Medium', demo: 'Aa' },
-              { key: 'large', label: 'Large', demo: 'Aa' },
-              { key: 'extra-large', label: 'Extra Large', demo: 'Aa' }
-            ].map((size) => (
-              <Button
-                key={size.key}
-                variant={preferences.fontSize === size.key ? "default" : "outline"}
-                onClick={() => setPreferences(prev => ({ ...prev, fontSize: size.key as any }))}
-                className="h-16 flex flex-col"
-              >
-                <span className={`${size.key === 'small' ? 'text-sm' : size.key === 'medium' ? 'text-base' : size.key === 'large' ? 'text-lg' : 'text-xl'} font-bold`}>
-                  {size.demo}
-                </span>
-                <span className="text-xs">{size.label}</span>
-              </Button>
-            ))}
-          </div>
-        </div>
+    // Navigate to community detail
+    window.location.href = `/community/${id}`;
+  };
 
-        {/* Accessibility Options */}
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Accessibility</h3>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Palette className="w-4 h-4" />
-                <span>High Contrast</span>
-              </div>
-              <Switch
-                checked={preferences.highContrast}
-                onCheckedChange={(checked) => setPreferences(prev => ({ ...prev, highContrast: checked }))}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Volume2 className="w-4 h-4" />
-                <span>Reduce Motion</span>
-              </div>
-              <Switch
-                checked={preferences.reducedMotion}
-                onCheckedChange={(checked) => setPreferences(prev => ({ ...prev, reducedMotion: checked }))}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <HelpCircle className="w-4 h-4" />
-                <span>Show Help Tips</span>
-              </div>
-              <Switch
-                checked={preferences.showHelpTips}
-                onCheckedChange={(checked) => setPreferences(prev => ({ ...prev, showHelpTips: checked }))}
-              />
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Card Spacing</h3>
-            <div className="grid grid-cols-3 gap-2">
-              {['compact', 'comfortable', 'spacious'].map((size) => (
-                <Button
-                  key={size}
-                  variant={preferences.cardSize === size ? "default" : "outline"}
-                  onClick={() => setPreferences(prev => ({ ...prev, cardSize: size as any }))}
-                  className="capitalize"
-                >
-                  {size}
-                </Button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-4 pt-4 border-t">
-          <Button onClick={() => setIsCustomizing(false)} className="flex-1">
-            <CheckCircle className="w-4 h-4 mr-2" />
-            Apply Changes
-          </Button>
-          <Button variant="outline" onClick={() => {
-            setPreferences({
-              layoutType: 'comfortable',
-              fontSize: 'medium',
-              highContrast: false,
-              reducedMotion: false,
-              cardSize: 'comfortable',
-              showHelpTips: true,
-              quickActions: ['search', 'favorites', 'schedule-tour', 'family-share'],
-              dashboardSections: {
-                favorites: { visible: true, order: 1 },
-                recentSearches: { visible: true, order: 2 },
-                recommendations: { visible: true, order: 3 },
-                savedCommunities: { visible: true, order: 4 },
-                tourSchedule: { visible: true, order: 5 },
-                familyNotes: { visible: true, order: 6 }
-              }
-            });
-          }}>
-            <RotateCcw className="w-4 h-4 mr-2" />
-            Reset to Default
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
-  const renderDashboardContent = () => {
-    const baseClassName = `${getFontSizeClass()} ${preferences.highContrast ? 'contrast-more' : ''} ${preferences.reducedMotion ? '[&_*]:transition-none' : ''}`;
-    
-    return (
-      <div className={baseClassName}>
-        {/* Quick Actions */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Zap className="w-5 h-5" />
-              Quick Actions
-              {preferences.showHelpTips && (
-                <Badge variant="secondary" className="ml-2 text-xs">
-                  <HelpCircle className="w-3 h-3 mr-1" />
-                  Your most used features
-                </Badge>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className={`grid ${preferences.layoutType === 'simple' ? 'grid-cols-2' : preferences.layoutType === 'comfortable' ? 'grid-cols-4' : 'grid-cols-6'} gap-4`}>
-              <Button asChild className={`${getCardSizeClass()} flex flex-col h-auto`}>
-                <Link href="/search">
-                  <Search className="w-6 h-6 mb-2" />
-                  <span>Search Communities</span>
-                </Link>
-              </Button>
-              
-              <Button variant="outline" className={`${getCardSizeClass()} flex flex-col h-auto`}>
-                <Heart className="w-6 h-6 mb-2" />
-                <span>View Favorites</span>
-              </Button>
-              
-              <Button variant="outline" className={`${getCardSizeClass()} flex flex-col h-auto`}>
-                <Calendar className="w-6 h-6 mb-2" />
-                <span>Schedule Tour</span>
-              </Button>
-              
-              <Button variant="outline" className={`${getCardSizeClass()} flex flex-col h-auto`}>
-                <Users className="w-6 h-6 mb-2" />
-                <span>Family Share</span>
-              </Button>
-              
-              {preferences.layoutType !== 'simple' && (
-                <>
-                  <Button variant="outline" className={`${getCardSizeClass()} flex flex-col h-auto`}>
-                    <Phone className="w-6 h-6 mb-2" />
-                    <span>Call Support</span>
-                  </Button>
-                  
-                  <Button variant="outline" className={`${getCardSizeClass()} flex flex-col h-auto`}>
-                    <Settings className="w-6 h-6 mb-2" />
-                    <span>Settings</span>
-                  </Button>
-                </>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Favorites Section */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Heart className="w-5 h-5 text-red-500" />
-              Your Favorite Communities
-              {preferences.showHelpTips && (
-                <Badge variant="secondary" className="ml-2 text-xs">
-                  <HelpCircle className="w-3 h-3 mr-1" />
-                  Communities you've saved
-                </Badge>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className={`space-y-${preferences.cardSize === 'compact' ? '2' : preferences.cardSize === 'comfortable' ? '4' : '6'}`}>
-              {sampleCommunities.map((community) => (
-                <Card key={community.id} className={`${getCardSizeClass()} hover:shadow-md transition-shadow`}>
-                  <CardContent className="p-0">
-                    <div className={`flex ${preferences.layoutType === 'simple' ? 'flex-col' : 'items-center justify-between'}`}>
-                      <div className={`${preferences.layoutType === 'simple' ? 'mb-3' : ''}`}>
-                        <h3 className="font-semibold text-lg">{community.name}</h3>
-                        <p className="text-gray-600 dark:text-gray-300">{community.city}, {community.state}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <div className="flex items-center gap-1">
-                            <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                            <span className="text-sm font-medium">{community.rating}</span>
-                          </div>
-                          <Badge variant="outline">{community.priceRange}</Badge>
-                        </div>
-                        {preferences.layoutType !== 'simple' && (
-                          <div className="flex gap-1 mt-2">
-                            {community.careTypes.map((type) => (
-                              <Badge key={type} variant="secondary" className="text-xs">
-                                {type}
-                              </Badge>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className={`flex ${preferences.layoutType === 'simple' ? 'justify-between' : 'flex-col'} gap-2`}>
-                        <Button size="sm" asChild>
-                          <Link href={`/community/${community.id}`}>
-                            View Details
-                            <ArrowRight className="w-4 h-4 ml-2" />
-                          </Link>
-                        </Button>
-                        {preferences.layoutType !== 'simple' && (
-                          <Button size="sm" variant="outline">
-                            <Calendar className="w-4 h-4 mr-2" />
-                            Schedule Tour
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Recent Searches */}
-        {preferences.layoutType !== 'simple' && (
-          <div className="grid md:grid-cols-2 gap-6 mb-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="w-5 h-5" />
-                  Recent Searches
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {recentSearches.map((search, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                      <div>
-                        <p className="font-medium">{search.query}</p>
-                        <p className="text-sm text-gray-500">{search.date}</p>
-                      </div>
-                      <Button size="sm" variant="ghost">
-                        <Search className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Upcoming Tours */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5" />
-                  Upcoming Tours
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {upcomingTours.map((tour, index) => (
-                    <div key={index} className="p-3 border rounded-lg">
-                      <h4 className="font-medium">{tour.community}</h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">{tour.date} at {tour.time}</p>
-                      <div className="flex items-center gap-2 mt-2">
-                        <Button size="sm" variant="outline">
-                          <Phone className="w-4 h-4 mr-2" />
-                          Call
-                        </Button>
-                        <span className="text-sm text-gray-500">{tour.contact}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-      </div>
-    );
+  const handleUpdatePreferences = () => {
+    toast({
+      title: "Preferences Updated",
+      description: "Your search preferences have been updated. New recommendations will be generated.",
+    });
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" asChild>
-                <Link href="/">
-                  <Home className="w-5 h-5 mr-2" />
-                  Home
-                </Link>
-              </Button>
-              <h1 className="text-xl font-semibold">My Dashboard</h1>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
+      <Header />
+
+      <div className="container mx-auto px-4 py-8">
+        {/* Dashboard Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            Your Personalized Dashboard
+          </h1>
+          <p className="text-xl text-gray-600 dark:text-gray-300">
+            Tailored recommendations and progress tracking for your senior living search
+          </p>
+        </div>
+
+        {/* Search Progress Section */}
+        <Card className="bg-white dark:bg-gray-800 shadow-lg mb-8">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
+              <TrendingUp className="h-6 w-6 mr-2 text-blue-600" />
+              Your Search Progress
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Overall Progress</span>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{searchProgress.completionPercentage}%</span>
+                </div>
+                <Progress value={searchProgress.completionPercentage} className="h-3" />
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{searchProgress.viewed}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-300">Communities Viewed</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-green-600 dark:text-green-400">{searchProgress.saved}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-300">Communities Saved</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">{searchProgress.toursScheduled}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-300">Tours Scheduled</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">{searchProgress.totalCommunities.toLocaleString()}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-300">Total Available</div>
+                </div>
+              </div>
             </div>
-            
-            <div className="flex items-center gap-2">
-              <Button
-                variant={isCustomizing ? "default" : "outline"}
-                onClick={() => setIsCustomizing(!isCustomizing)}
-              >
-                <Settings className="w-4 h-4 mr-2" />
-                {isCustomizing ? 'Done Customizing' : 'Customize Dashboard'}
+          </CardContent>
+        </Card>
+
+        {/* Current Preferences */}
+        <Card className="bg-white dark:bg-gray-800 shadow-lg mb-8">
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
+                <Target className="h-6 w-6 mr-2 text-green-600" />
+                Your Preferences
+              </CardTitle>
+              <Button onClick={handleUpdatePreferences} variant="outline">
+                <Edit className="h-4 w-4 mr-2" />
+                Update Preferences
               </Button>
             </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Budget</span>
+                <p className="text-lg font-semibold text-gray-900 dark:text-white">Up to ${preferences.maxBudget.toLocaleString()}/month</p>
+              </div>
+              <div>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Care Type</span>
+                <p className="text-lg font-semibold text-gray-900 dark:text-white">{preferences.careType}</p>
+              </div>
+              <div>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Location</span>
+                <p className="text-lg font-semibold text-gray-900 dark:text-white">{preferences.location}</p>
+              </div>
+              <div>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Key Amenities</span>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {preferences.amenities.map((amenity, index) => (
+                    <Badge key={index} variant="secondary" className="text-xs">
+                      {amenity}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Personalized Recommendations */}
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Recommended For You
+            </h2>
+            <Link href="/search">
+              <Button className="bg-blue-600 hover:bg-blue-700">
+                <Search className="h-4 w-4 mr-2" />
+                See All Communities
+              </Button>
+            </Link>
           </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+            {recommendations.map((recommendation) => (
+              <Card key={recommendation.id} className="bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-3 mb-2">
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                          {recommendation.name}
+                        </h3>
+                        <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200">
+                          {recommendation.matchScore}% Match
+                        </Badge>
+                      </div>
+                      <p className="text-gray-600 dark:text-gray-300 flex items-center mb-2">
+                        <MapPin className="h-4 w-4 mr-1" />
+                        {recommendation.address}, {recommendation.city}, {recommendation.state}
+                      </p>
+                      <div className="flex items-center space-x-4 mb-3">
+                        <div className="flex items-center">
+                          <Star className="h-4 w-4 text-yellow-500 mr-1" />
+                          <span className="font-medium">{recommendation.rating}</span>
+                        </div>
+                        <Badge variant="secondary">{recommendation.careType}</Badge>
+                        <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200">
+                          {recommendation.priceRange}
+                        </Badge>
+                        <Badge className={
+                          recommendation.availability === 'Available' 
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200'
+                            : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200'
+                        }>
+                          {recommendation.availability}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mb-4">
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Why this is a great match:</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {recommendation.reasons.map((reason, index) => (
+                        <Badge key={index} variant="outline" className="bg-blue-50 dark:bg-blue-900/20">
+                          <CheckCircle className="h-3 w-3 mr-1 text-green-600" />
+                          {reason}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-3">
+                    <Button
+                      onClick={() => handleViewCommunity(recommendation.id)}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      View Details
+                    </Button>
+                    <Button
+                      onClick={() => handleSaveRecommendation(recommendation)}
+                      variant="outline"
+                    >
+                      <Heart className="h-4 w-4 mr-2" />
+                      Save Community
+                    </Button>
+                    <Button
+                      onClick={() => handleScheduleTour(recommendation)}
+                      variant="outline"
+                    >
+                      <Calendar className="h-4 w-4 mr-2" />
+                      Schedule Tour
+                    </Button>
+                    <Button variant="outline">
+                      <Share2 className="h-4 w-4 mr-2" />
+                      Share
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="bg-white dark:bg-gray-800 shadow-lg">
+            <CardContent className="p-6 text-center">
+              <Search className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Refine Search</h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">Update your criteria to find even better matches</p>
+              <Link href="/search">
+                <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                  Update Search
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white dark:bg-gray-800 shadow-lg">
+            <CardContent className="p-6 text-center">
+              <Calendar className="h-12 w-12 text-green-600 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Schedule Tours</h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">Visit your favorite communities in person</p>
+              <Link href="/tour-tracker">
+                <Button className="w-full bg-green-600 hover:bg-green-700">
+                  Manage Tours
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white dark:bg-gray-800 shadow-lg">
+            <CardContent className="p-6 text-center">
+              <Users className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Family Sharing</h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">Keep your family informed about your search</p>
+              <Link href="/family-collaboration">
+                <Button className="w-full bg-purple-600 hover:bg-purple-700">
+                  Share Progress
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {isCustomizing && renderCustomizationPanel()}
-        {renderDashboardContent()}
-      </div>
+      <Footer />
     </div>
   );
 }
