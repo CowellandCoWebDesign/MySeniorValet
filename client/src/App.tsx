@@ -61,6 +61,7 @@ import QuizPage from "@/pages/quiz";
 import TestDebug from "@/pages/test-debug";
 import TestMapViews from "@/pages/test-map-views";
 import AuthDebug from "@/pages/auth-debug";
+import DatabaseTest from "@/pages/database-test";
 import { useAuth } from "@/hooks/useAuth";
 
 function Router() {
@@ -126,6 +127,7 @@ function Router() {
       <Route path="/test-debug" component={TestDebug} />
       <Route path="/test-map-views" component={TestMapViews} />
       <Route path="/auth-debug" component={AuthDebug} />
+      <Route path="/database-test" component={DatabaseTest} />
       <Route component={NotFound} />
     </Switch>
   );
