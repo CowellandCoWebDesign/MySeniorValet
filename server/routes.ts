@@ -1,5 +1,10 @@
-import express, { type Express } from "express";
+import express, { type Express, type Request } from "express";
 import { createServer, type Server } from "http";
+
+// Extend Express Request type to include user
+interface AuthenticatedRequest extends Request {
+  user?: { id: number; email: string };
+}
 import { storage } from "./storage";
 import { 
   searchCommunitySchema, 
@@ -207,7 +212,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const citiesCovered = [...new Set(communitiesData.map(c => c.city).filter(Boolean))].length;
       const verifiedCommunities = communitiesData.filter(c => c.phone && c.website).length;
       const withPhotos = communitiesData.filter(c => c.photos && Array.isArray(c.photos) && c.photos.length > 0).length;
-      const googePlacesEnriched = communitiesData.filter(c => c.googlePlacesId).length;
+      const googePlacesEnriched = communitiesData.filter(c => c.googlePlaceId).length;
       
       // Group by county for detailed breakdown
       const countiesData = communitiesData.reduce((acc: any, community) => {
@@ -631,7 +636,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user notes (from favorites)
   app.get("/api/notes", requireSimpleAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const favorites = await storage.getUserFavorites(userId);
       
       // Filter favorites that have notes
@@ -640,7 +648,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .map(fav => ({
           id: fav.id,
           communityId: fav.communityId,
-          communityName: fav.community?.name || 'Unknown Community',
+          communityName: 'Unknown Community', // TODO: Join with communities table
           notes: fav.notes,
           createdAt: fav.createdAt
         }));
@@ -655,7 +663,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User favorites routes
   app.get('/api/user/favorites', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const favorites = await db
         .select({
           id: userFavorites.id,
@@ -663,7 +674,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           notes: userFavorites.notes,
           priority: userFavorites.priority,
           tags: userFavorites.tags,
-          addedAt: userFavorites.addedAt,
+          addedAt: userFavorites.createdAt,
           community: {
             id: communities.id,
             name: communities.name,
@@ -672,8 +683,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             state: communities.state,
             careTypes: communities.careTypes,
             photos: communities.photos,
-            overallRating: communities.overallRating,
-            pricing: communities.pricing,
+            rating: communities.rating,
+            priceRange: communities.priceRange,
           }
         })
         .from(userFavorites)
@@ -892,7 +903,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Dashboard data routes
   app.get('/api/user/dashboard-data', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
 
       // Get user's favorite communities with details
       const favorites = await db
@@ -952,7 +966,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const recommendations = await db
         .select()
         .from(communities)
-        .where(sql`${communities.rating} >= 4.5`)
+        .where(sql`${communities.rating}::float >= 4.5`)
         .orderBy(desc(communities.rating))
         .limit(6);
 
@@ -1135,14 +1149,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .from(communities)
         .where(
           and(
-            sql`${communities.latitude} BETWEEN ${centerLat - kmToDegrees} AND ${centerLat + kmToDegrees}`,
-            sql`${communities.longitude} BETWEEN ${centerLng - kmToDegrees} AND ${centerLng + kmToDegrees}`
+            sql`${communities.latitude}::float BETWEEN ${centerLat - kmToDegrees} AND ${centerLat + kmToDegrees}`,
+            sql`${communities.longitude}::float BETWEEN ${centerLng - kmToDegrees} AND ${centerLng + kmToDegrees}`
           )
         )
         .orderBy(
           sql`SQRT(
-            POWER(${communities.latitude} - ${centerLat}, 2) + 
-            POWER(${communities.longitude} - ${centerLng}, 2)
+            POWER(${communities.latitude}::float - ${centerLat}, 2) + 
+            POWER(${communities.longitude}::float - ${centerLng}, 2)
           )`
         )
         .limit(parseInt(limit as string));
@@ -1448,7 +1462,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check cache first
       const cacheKey = `search_suggestions:${query.toLowerCase()}`;
       try {
-        const cached = await cache.get(cacheKey);
+        const cached = await searchCache.get(cacheKey);
         if (cached) {
           return res.json(cached);
         }
@@ -1461,7 +1475,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Try to cache but don't fail if cache is unavailable
       try {
-        await cache.set(cacheKey, suggestions, 600);
+        await searchCache.set(cacheKey, suggestions, 600);
       } catch (cacheError) {
         // Continue without caching
       }
