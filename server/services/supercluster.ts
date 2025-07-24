@@ -76,47 +76,71 @@ class SuperclusterService {
   }
 
   private getClusterConfig(zoom: number): Supercluster.Options {
-    // Zoom-based clustering configuration
-    if (zoom >= 13) {
-      // Street view and closer - NO CLUSTERING
+    // Yelp/Zillow-inspired clustering configuration
+    // Always maintain clustering for performance, only show individuals at very close zoom
+    
+    if (zoom >= 17) {
+      // Ultra close view - minimal clustering for individual marker display
       return {
-        radius: 0,         // No clustering
-        maxZoom: 18,       // Increased max zoom
+        radius: 15,        // Very small radius, only cluster extremely close points
+        maxZoom: 20,       // Support ultra high zoom
         minZoom: 0,
-        minPoints: 999999, // Effectively disable clustering
+        minPoints: 8,      // Only cluster very dense areas (8+ overlapping)
         generateId: true,
         extent: 512,
-        nodeSize: 32,      // Optimized for memory
+        nodeSize: 64,
+      };
+    } else if (zoom >= 15) {
+      // Building level - light clustering
+      return {
+        radius: 25,        // Small radius for building-level detail
+        maxZoom: 20,
+        minZoom: 0,
+        minPoints: 5,      // Cluster moderately dense areas
+        generateId: true,
+        extent: 512,
+        nodeSize: 64,
+      };
+    } else if (zoom >= 13) {
+      // Neighborhood view - medium clustering
+      return {
+        radius: 40,        // Medium radius for neighborhood grouping
+        maxZoom: 20,
+        minZoom: 0,
+        minPoints: 3,      // Cluster 3+ communities
+        generateId: true,
+        extent: 512,
+        nodeSize: 64,
       };
     } else if (zoom >= 11) {
-      // City view - minimal clustering
+      // City view - standard clustering (Yelp/Zillow style)
       return {
-        radius: 25,        // Smaller radius for less aggressive clustering
-        maxZoom: 18,
+        radius: 60,        // Standard radius for city-level clustering
+        maxZoom: 20,
         minZoom: 0,
-        minPoints: 6,      // Higher threshold
+        minPoints: 2,      // Cluster any 2+ communities
         generateId: true,
         extent: 512,
-        nodeSize: 32,
+        nodeSize: 64,
       };
     } else if (zoom >= 8) {
-      // State view - moderate clustering
+      // Regional view - aggressive clustering
       return {
-        radius: 50,        // Medium radius
-        maxZoom: 16,
+        radius: 80,        // Large radius for regional grouping
+        maxZoom: 20,
         minZoom: 0,
-        minPoints: 4,      // Cluster 4+ communities
+        minPoints: 2,      // Cluster any 2+ communities
         generateId: true,
         extent: 512,
         nodeSize: 64,
       };
     } else if (zoom >= 5) {
-      // Multi-state view - heavy clustering
+      // State view - heavy clustering
       return {
-        radius: 80,        // Large radius
-        maxZoom: 16,
+        radius: 100,       // Very large radius for state-level view
+        maxZoom: 20,
         minZoom: 0,
-        minPoints: 3,      // Cluster 3+ communities
+        minPoints: 2,      // Cluster any 2+ communities
         generateId: true,
         extent: 512,
         nodeSize: 64,
@@ -124,8 +148,8 @@ class SuperclusterService {
     } else {
       // Country view - maximum clustering
       return {
-        radius: 120,       // Maximum radius
-        maxZoom: 16,
+        radius: 150,       // Maximum radius for country-level view
+        maxZoom: 20,
         minZoom: 0,
         minPoints: 2,      // Cluster any 2+ communities
         generateId: true,
@@ -284,16 +308,20 @@ class SuperclusterService {
       const clusters = index.getClusters(bbox, zoom);
       const processingTime = Date.now() - startTime;
       
-      // Log clustering behavior
+      // Log clustering behavior with Yelp/Zillow-style configuration
       const config = this.getClusterConfig(zoom);
-      if (zoom >= 12) {
-        console.log(`City view (zoom ${zoom}): NO CLUSTERING - returning ${clusters.length} individual communities in ${processingTime}ms`);
-      } else if (zoom >= 10) {
-        console.log(`Regional view (zoom ${zoom}): LIGHT clustering (radius ${config.radius}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
+      if (zoom >= 17) {
+        console.log(`Ultra close view (zoom ${zoom}): MINIMAL clustering (radius ${config.radius}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
+      } else if (zoom >= 15) {
+        console.log(`Building level (zoom ${zoom}): LIGHT clustering (radius ${config.radius}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
+      } else if (zoom >= 13) {
+        console.log(`Neighborhood view (zoom ${zoom}): MEDIUM clustering (radius ${config.radius}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
+      } else if (zoom >= 11) {
+        console.log(`City view (zoom ${zoom}): STANDARD clustering (radius ${config.radius}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
       } else if (zoom >= 8) {
-        console.log(`State view (zoom ${zoom}): MODERATE clustering (radius ${config.radius}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
+        console.log(`Regional view (zoom ${zoom}): AGGRESSIVE clustering (radius ${config.radius}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
       } else if (zoom >= 5) {
-        console.log(`Multi-state view (zoom ${zoom}): HEAVY clustering (radius ${config.radius}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
+        console.log(`State view (zoom ${zoom}): HEAVY clustering (radius ${config.radius}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
       } else {
         console.log(`Country view (zoom ${zoom}): MAXIMUM clustering (radius ${config.radius}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
       }
