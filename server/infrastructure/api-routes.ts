@@ -4,6 +4,10 @@ import { securityDashboard } from './security-dashboard';
 import { performanceMonitor } from './performance-monitor';
 import { simpleWebSocket } from './simple-websocket';
 import { documentManagement } from './document-management';
+import { businessIntelligence } from './business-intelligence';
+import { advancedAnalytics } from './advanced-analytics';
+import { notificationSystem } from './notification-system';
+import { integrationManager } from './integration-manager';
 
 const router = Router();
 
@@ -28,6 +32,23 @@ router.get('/infrastructure/status', async (req: Request, res: Response) => {
       },
       realTime: {
         connections: simpleWebSocket.getConnectedUsers()
+      },
+      businessIntelligence: {
+        status: 'active',
+        features: ['Revenue Analytics', 'User Insights', 'Predictive Modeling']
+      },
+      advancedAnalytics: {
+        status: 'active',
+        features: ['User Behavior', 'A/B Testing', 'Cohort Analysis']
+      },
+      notifications: {
+        status: 'active',
+        channels: ['Email', 'SMS', 'Push', 'In-App', 'Webhook']
+      },
+      integrations: {
+        status: 'active',
+        available: 10,
+        categories: ['CRM', 'Marketing', 'Analytics', 'Communication', 'Payment', 'Healthcare']
       },
       timestamp: new Date()
     };
@@ -142,6 +163,128 @@ router.get('/health', (req: Request, res: Response) => {
   };
   
   res.json(health);
+});
+
+// Business Intelligence endpoints
+router.get('/business/metrics', async (req: Request, res: Response) => {
+  try {
+    const metrics = await businessIntelligence.generateBusinessMetrics();
+    res.json(metrics);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get business metrics' });
+  }
+});
+
+router.get('/business/regional-analytics', async (req: Request, res: Response) => {
+  try {
+    const analytics = await businessIntelligence.generateRegionalAnalytics();
+    res.json(analytics);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get regional analytics' });
+  }
+});
+
+router.get('/business/kpis', async (req: Request, res: Response) => {
+  try {
+    const kpis = await businessIntelligence.getRealTimeKPIs();
+    res.json(kpis);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get real-time KPIs' });
+  }
+});
+
+// Advanced Analytics endpoints
+router.get('/analytics/user-behavior', async (req: Request, res: Response) => {
+  try {
+    const analytics = await advancedAnalytics.analyzeUserBehavior();
+    res.json(analytics);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get user behavior analytics' });
+  }
+});
+
+router.get('/analytics/predictive', async (req: Request, res: Response) => {
+  try {
+    const analytics = await advancedAnalytics.generatePredictiveAnalytics();
+    res.json(analytics);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get predictive analytics' });
+  }
+});
+
+router.get('/analytics/cohort', async (req: Request, res: Response) => {
+  try {
+    const timeframe = req.query.timeframe as 'weekly' | 'monthly' || 'monthly';
+    const cohorts = await advancedAnalytics.generateCohortAnalysis(timeframe);
+    res.json(cohorts);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get cohort analysis' });
+  }
+});
+
+// Notification System endpoints
+router.get('/notifications/stats', async (req: Request, res: Response) => {
+  try {
+    const stats = await notificationSystem.getNotificationStats();
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get notification stats' });
+  }
+});
+
+router.post('/notifications/send', async (req: Request, res: Response) => {
+  try {
+    const { recipientId, templateId, data, channels, scheduledTime } = req.body;
+    const result = await notificationSystem.sendNotification(
+      recipientId, 
+      templateId, 
+      data, 
+      channels, 
+      scheduledTime ? new Date(scheduledTime) : undefined
+    );
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to send notification' });
+  }
+});
+
+// Integration Manager endpoints
+router.get('/integrations/available', async (req: Request, res: Response) => {
+  try {
+    const integrations = await integrationManager.getAvailableIntegrations();
+    res.json(integrations);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get available integrations' });
+  }
+});
+
+router.get('/integrations/status', async (req: Request, res: Response) => {
+  try {
+    const status = await integrationManager.getIntegrationStatus();
+    res.json(status);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get integration status' });
+  }
+});
+
+router.get('/integrations/metrics', async (req: Request, res: Response) => {
+  try {
+    const metrics = await integrationManager.getIntegrationMetrics();
+    res.json(metrics);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get integration metrics' });
+  }
+});
+
+router.post('/integrations/:id/configure', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const config = req.body;
+    const result = await integrationManager.configureIntegration(id, config);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to configure integration' });
+  }
 });
 
 export { router as infrastructureRoutes };
