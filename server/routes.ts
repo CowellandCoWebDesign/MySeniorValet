@@ -2025,7 +2025,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('Supercluster request received:', req.query);
       
-      const { bbox, zoom = 3, viewport = 'false' } = req.query;
+      const { bbox, zoom = 3, viewport = 'false', availability } = req.query;
       
       // Validate required parameters
       if (!bbox || typeof bbox !== 'string') {
@@ -2051,10 +2051,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const isSmallViewport = viewportArea < 100; // Degrees squared threshold
       
       // Get clusters from supercluster service with optimizations
-      const clusters = await superclusterService.getClusters(
+      let clusters = await superclusterService.getClusters(
         [west, south, east, north], 
         parseInt(zoom as string)
       );
+      
+      // Apply live pricing filter if requested
+      if (availability === 'livePricing') {
+        console.log('Applying live pricing filter to clusters');
+        clusters = clusters.filter(cluster => {
+          // Keep all cluster markers (they contain multiple communities)
+          if (cluster.properties.cluster) {
+            return true;
+          }
+          
+          // For individual communities, check if they have live pricing
+          const props = cluster.properties;
+          const hasLiveData = (props.rentPerMonth && props.rentPerMonth > 0) ||
+                              (props.priceRange && 
+                               ((typeof props.priceRange === 'object' && props.priceRange.min) ||
+                                (typeof props.priceRange === 'string' && !props.priceRange.includes('Contact')))) ||
+                              (props.availability && props.availability !== 'Contact for availability') ||
+                              props.hudPropertyId ||
+                              props.dataSource === 'HUD';
+          
+          return hasLiveData;
+        });
+        console.log(`Filtered to ${clusters.length} clusters/points with live pricing`);
+      }
       
       const processingTime = Date.now() - startTime;
       console.log(`Supercluster returned ${clusters.length} clusters/points in ${processingTime}ms${isViewportOptimized ? ' (viewport-optimized)' : ''}`);

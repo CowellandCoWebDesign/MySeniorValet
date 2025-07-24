@@ -648,7 +648,9 @@ export default function MapSearchClean() {
                                       activeRatings.includes('3+ Stars') ? 3 : 0,
                             amenities: activeAmenities,
                             budget: activePriceRanges.length > 0 ? activePriceRanges.join(',') : 'Any Budget',
-                            availability: activeAvailability.length > 0 ? activeAvailability.join(',') : 'All Status'
+                            // Check if "Live Pricing" is selected in activeFeatures
+                            availability: activeFeatures.includes('Live Pricing') ? 'livePricing' : 
+                                        activeAvailability.length > 0 ? activeAvailability.join(',') : 'All Status'
                           });
                           
                           // Show a visual indicator that filters were applied
