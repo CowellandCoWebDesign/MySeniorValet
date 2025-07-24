@@ -613,7 +613,7 @@ export default function CommunityDetail() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div>
-                    <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                    <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                       {community.name}
                     </CardTitle>
                     <div className="flex items-center text-gray-900 dark:text-gray-100 mb-2">
@@ -751,7 +751,7 @@ export default function CommunityDetail() {
                           {hasLiveData ? 'Live Pricing' : 'Estimate - Not Live'}
                         </Badge>
                       </div>
-                      <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
+                      <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                         {community.priceRange ? 
                           `$${community.priceRange.min.toLocaleString()} - $${community.priceRange.max.toLocaleString()}` : 
                           `$${getIntelligentPriceEstimate(community).min.toLocaleString()} - $${getIntelligentPriceEstimate(community).max.toLocaleString()}`
@@ -809,7 +809,7 @@ export default function CommunityDetail() {
               <CardContent className="p-0">
                 <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 p-8 rounded-lg border-2 border-blue-100 dark:border-blue-700">
                   <div className="text-center mb-6">
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Ready to Visit?</h3>
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Ready to Visit?</h3>
                     <p className="text-gray-900 dark:text-gray-100">Connect with our community team to schedule your tour</p>
                   </div>
 
@@ -1724,7 +1724,7 @@ export default function CommunityDetail() {
                     <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-2">MySeniorValet Composite Score</h4>
                     <div className="flex items-center justify-center mb-2">
                       <Shield className="w-6 h-6 text-blue-500 mr-1" />
-                      <span className="text-3xl font-bold text-gray-900 dark:text-white">
+                      <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">
                         {/* Calculate composite score from multiple sources */}
                         {(community as any).compositeRating || calculateCompositeRating(community)}
                       </span>
