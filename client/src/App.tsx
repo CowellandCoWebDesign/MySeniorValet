@@ -62,6 +62,7 @@ import TestDebug from "@/pages/test-debug";
 import TestMapViews from "@/pages/test-map-views";
 import AuthDebug from "@/pages/auth-debug";
 import DatabaseTest from "@/pages/database-test";
+import IntegrationDashboard from "@/pages/integration-dashboard";
 import { useAuth } from "@/hooks/useAuth";
 
 function Router() {
@@ -128,6 +129,7 @@ function Router() {
       <Route path="/test-map-views" component={TestMapViews} />
       <Route path="/auth-debug" component={AuthDebug} />
       <Route path="/database-test" component={DatabaseTest} />
+      <Route path="/integrations" component={IntegrationDashboard} />
       <Route component={NotFound} />
     </Switch>
   );

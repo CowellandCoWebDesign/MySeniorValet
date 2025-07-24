@@ -10629,12 +10629,154 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { advancedMappingGIS } = await import('./advanced-mapping-gis');
       const analysis = await advancedMappingGIS.getGeospatialAnalysis(
         parseInt(req.params.communityId),
-        req.user?.claims?.sub
+        req.query.familyLocation as string
       );
       res.json(analysis);
     } catch (error) {
       console.error('GIS analysis error:', error);
       res.status(500).json({ message: 'Geospatial analysis unavailable' });
+    }
+  });
+
+  // ===============================================
+  // ADDITIONAL POWER INTEGRATIONS (Phase 2)
+  // ===============================================
+
+  // Twilio SMS/Voice Communication
+  app.post('/api/twilio/tour-reminder', isAuthenticated, async (req, res) => {
+    try {
+      const { twilioCommunication } = await import('./twilio-communication');
+      const success = await twilioCommunication.sendTourReminder(req.body.familyMember, req.body.tourDetails);
+      res.json({ success });
+    } catch (error) {
+      console.error('Twilio tour reminder error:', error);
+      res.status(500).json({ message: 'SMS service unavailable - API keys required' });
+    }
+  });
+
+  app.post('/api/twilio/availability-alert', isAuthenticated, async (req, res) => {
+    try {
+      const { twilioCommunication } = await import('./twilio-communication');
+      await twilioCommunication.sendAvailabilityAlert(req.body.familyMembers, req.body.availability);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Twilio availability alert error:', error);
+      res.status(500).json({ message: 'SMS alerts unavailable - API keys required' });
+    }
+  });
+
+  // Google Calendar Integration
+  app.post('/api/calendar/schedule-tour', isAuthenticated, async (req, res) => {
+    try {
+      const { googleCalendar } = await import('./google-calendar-integration');
+      const eventId = await googleCalendar.scheduleTour(req.body.tourDetails);
+      res.json({ eventId });
+    } catch (error) {
+      console.error('Google Calendar tour scheduling error:', error);
+      res.status(500).json({ message: 'Calendar integration unavailable - credentials required' });
+    }
+  });
+
+  app.post('/api/calendar/move-in-plan', isAuthenticated, async (req, res) => {
+    try {
+      const { googleCalendar } = await import('./google-calendar-integration');
+      await googleCalendar.createMoveInPlan(req.body.moveDetails);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Google Calendar move-in planning error:', error);
+      res.status(500).json({ message: 'Move-in planning unavailable - credentials required' });
+    }
+  });
+
+  // Salesforce CRM Integration
+  app.post('/api/salesforce/create-lead', isAuthenticated, async (req, res) => {
+    try {
+      const { salesforceCRM } = await import('./salesforce-crm-integration');
+      const leadId = await salesforceCRM.createLead(req.body.leadData);
+      res.json({ leadId });
+    } catch (error) {
+      console.error('Salesforce lead creation error:', error);
+      res.status(500).json({ message: 'CRM integration unavailable - credentials required' });
+    }
+  });
+
+  app.post('/api/salesforce/update-activity', isAuthenticated, async (req, res) => {
+    try {
+      const { salesforceCRM } = await import('./salesforce-crm-integration');
+      await salesforceCRM.updateLeadActivity(req.body.leadId, req.body.activity);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Salesforce activity update error:', error);
+      res.status(500).json({ message: 'CRM activity tracking unavailable' });
+    }
+  });
+
+  // HubSpot Marketing Integration
+  app.post('/api/hubspot/create-contact', isAuthenticated, async (req, res) => {
+    try {
+      const { hubspotMarketing } = await import('./hubspot-marketing-integration');
+      const contactId = await hubspotMarketing.createContact(req.body.contactData);
+      res.json({ contactId });
+    } catch (error) {
+      console.error('HubSpot contact creation error:', error);
+      res.status(500).json({ message: 'Marketing automation unavailable - API key required' });
+    }
+  });
+
+  app.post('/api/hubspot/enroll-workflow', isAuthenticated, async (req, res) => {
+    try {
+      const { hubspotMarketing } = await import('./hubspot-marketing-integration');
+      await hubspotMarketing.enrollInWorkflow(req.body.contactId, req.body.workflowType);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('HubSpot workflow enrollment error:', error);
+      res.status(500).json({ message: 'Marketing workflows unavailable' });
+    }
+  });
+
+  // Zapier Automation
+  app.post('/api/zapier/trigger-lead', isAuthenticated, async (req, res) => {
+    try {
+      const { zapierAutomation } = await import('./zapier-automation-integration');
+      await zapierAutomation.triggerLeadCapture(req.body.leadData);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Zapier lead trigger error:', error);
+      res.status(500).json({ message: 'Automation workflows unavailable' });
+    }
+  });
+
+  app.post('/api/zapier/trigger-tour', isAuthenticated, async (req, res) => {
+    try {
+      const { zapierAutomation } = await import('./zapier-automation-integration');
+      await zapierAutomation.triggerTourScheduled(req.body.tourData);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Zapier tour trigger error:', error);
+      res.status(500).json({ message: 'Tour automation unavailable' });
+    }
+  });
+
+  // Mailchimp Email Marketing
+  app.post('/api/mailchimp/add-subscriber', isAuthenticated, async (req, res) => {
+    try {
+      const { mailchimpMarketing } = await import('./mailchimp-email-marketing');
+      const subscriberId = await mailchimpMarketing.addToNurturingList(req.body.subscriber);
+      res.json({ subscriberId });
+    } catch (error) {
+      console.error('Mailchimp subscription error:', error);
+      res.status(500).json({ message: 'Email marketing unavailable - API key required' });
+    }
+  });
+
+  app.post('/api/mailchimp/tour-followup', isAuthenticated, async (req, res) => {
+    try {
+      const { mailchimpMarketing } = await import('./mailchimp-email-marketing');
+      await mailchimpMarketing.sendTourFollowUp(req.body.email, req.body.tourData);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Mailchimp tour follow-up error:', error);
+      res.status(500).json({ message: 'Email follow-up unavailable' });
     }
   });
 
