@@ -259,9 +259,135 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
     }
   };
 
-  // Standard variants for other uses - fall back to basic card layout
+  // Standard card layout for featured, coastal, and other variants
+  const cardClass = variant === 'featured' || variant === 'coastal' 
+    ? "overflow-hidden flex-shrink-0 w-56 h-[30rem] animate-float dark:bg-gray-700"
+    : "group hover:shadow-lg transition-all duration-200";
+
+  if (variant === 'featured' || variant === 'coastal') {
+    return (
+      <Link href={`/community/${community.id}`}>
+        <Card className={cardClass} style={{animationDelay: `${index * 0.2}s`}}>
+          <div className="relative">
+            <div className="aspect-[4/3] bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
+              {community.photos && community.photos.length > 0 ? (
+                <img 
+                  src={community.photos[0]} 
+                  alt={community.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <Home className="w-12 h-12 text-gray-400 dark:text-gray-500" />
+              )}
+            </div>
+            
+            {/* Heart Icon */}
+            <div className="absolute top-3 right-3">
+              <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
+                <Heart className="w-4 h-4 text-gray-600" />
+              </div>
+            </div>
+            
+            {/* Availability Badge */}
+            {community.displayAvailability?.availabilityStatus && (
+              <Badge className={`absolute top-3 left-3 ${availabilityBgColor} text-white text-xs px-2 py-1 font-medium ${availabilityColor === 'green' ? 'animate-pulse' : ''}`}>
+                {availabilityColor === 'green' && '🟢 Available Now'}
+                {availabilityColor === 'yellow' && '🟡 Waitlist Open'}
+                {availabilityColor === 'red' && '📋 Call for Availability'}
+                {availabilityColor === 'gray' && '📋 Call for Availability'}
+              </Badge>
+            )}
+            
+            {/* Price Badge */}
+            <Badge className="absolute bottom-3 left-3 bg-gray-900 text-white text-xs px-2 py-1 font-medium">
+              {community.priceRange?.min ? `$${(community.priceRange.min / 1000).toFixed(1)}K+` : displayPrice}
+              {!isHudProperty && (
+                <span className="text-xs text-gray-300 ml-1 font-normal">est.</span>
+              )}
+            </Badge>
+            
+            {/* Achievement Badge */}
+            {variant === 'featured' && (
+              <Badge className="absolute bottom-3 right-3 bg-purple-600 text-white text-xs px-2 py-1 font-medium">
+                🏆 Featured
+              </Badge>
+            )}
+            {variant === 'coastal' && (
+              <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
+                🌊 Ocean View
+              </Badge>
+            )}
+          </div>
+          
+          <CardContent className="p-3">
+            {/* Availability Status */}
+            {community.displayAvailability?.availabilityStatus && (
+              <div className={`flex items-center text-xs text-${availabilityColor}-600 dark:text-${availabilityColor}-400 font-medium mb-2`}>
+                <div className={`w-2 h-2 bg-${availabilityColor}-500 rounded-full mr-1`}></div>
+                {community.displayAvailability.availabilityStatus}
+              </div>
+            )}
+            
+            {/* Price */}
+            <div className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+              <span className="text-sm">Starting at</span> {displayPrice}
+              {!isHudProperty && (
+                <span className="text-xs text-gray-500 dark:text-gray-400 ml-1 font-normal">est.</span>
+              )}
+            </div>
+            
+            {/* Care Type */}
+            <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
+              {community.careTypes?.length > 0 ? 
+                community.careTypes[0] : 
+                'Senior Living'
+              } • {variant === 'coastal' ? 'Coastal Living' : 'Premium Care'}
+            </div>
+            
+            {/* Name */}
+            <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2 line-clamp-1">
+              {community.name}
+            </div>
+            
+            {/* Address */}
+            <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1 mb-2">
+              {community.address || `${community.city}`}, {community.state} {community.zipCode}
+            </div>
+            
+            {/* Regional Badge */}
+            {variant === 'coastal' && (
+              <div className="mb-2">
+                <Badge className="bg-cyan-600/90 text-white text-xs px-2 py-1 font-medium">
+                  Coastal Region
+                </Badge>
+              </div>
+            )}
+            
+            {/* Enhanced Features Row */}
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center text-gray-500 dark:text-gray-400">
+                {community.rating && (
+                  <>
+                    <Star className="h-3 w-3 text-yellow-400 mr-1" />
+                    <span>{typeof community.rating === 'number' ? community.rating.toFixed(1) : parseFloat(community.rating).toFixed(1)}</span>
+                  </>
+                )}
+              </div>
+              {isHudProperty && (
+                <div className="text-green-600 dark:text-green-400 font-medium">
+                  ✓ Live Data
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
+    );
+  }
+
+  // Standard fallback for other variants
   return (
-    <Card className="group hover:shadow-lg transition-all duration-200">
+    <Card className={cardClass}>
       <CardContent className="p-4">
         <div className="flex items-start space-x-4">
           <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-gray-700 dark:to-gray-600 rounded-lg flex items-center justify-center">

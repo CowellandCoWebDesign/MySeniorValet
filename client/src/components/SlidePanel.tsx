@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { FixedSizeList as List } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { Heart, Star } from "lucide-react";
+import EnhancedCommunityCard from "./EnhancedCommunityCard";
 
 export default function SlidePanel({
   communities = [],
@@ -161,128 +162,15 @@ export default function SlidePanel({
     }
 
     const c = sortedCommunities[index];
+    if (!c) return null;
+    
     return (
-      <div
-        key={c.id}
-        style={style}
-        onClick={() =>
-          (window.location.href = `/community/${c.id}`)
-        }
-        className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-md hover:scale-[1.01] transition-transform duration-200 ease-in-out cursor-pointer mb-2 overflow-hidden"
-      >
-        <div className="relative w-full h-40 bg-gray-100 dark:bg-gray-700 overflow-hidden">
-          {c.photos?.[0] ? (
-            <img
-              src={c.photos[0]}
-              alt={c.name}
-              loading="lazy"
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
-              <div className="w-12 h-12 text-gray-400 dark:text-gray-300">🏠</div>
-            </div>
-          )}
-          
-          {/* Heart Icon */}
-          <div className="absolute top-2 right-2">
-            <div className="w-8 h-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full flex items-center justify-center">
-              <Heart className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-            </div>
-          </div>
-          
-          {/* Vacancy Status Badge */}
-          {index % 3 === 0 && (
-            <div className="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 font-medium animate-pulse rounded">
-              🟢 Available Now
-            </div>
-          )}
-          {index % 3 === 1 && (
-            <div className="absolute top-2 left-2 bg-orange-600 text-white text-xs px-2 py-1 font-medium rounded">
-              🟡 Waitlist Open
-            </div>
-          )}
-          {index % 3 === 2 && (
-            <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 font-medium rounded">
-              📋 Call for Availability
-            </div>
-          )}
-          
-          {/* Price Badge */}
-          <div className="absolute bottom-2 left-2 bg-gray-900 text-white text-xs px-2 py-1 font-medium rounded">
-            {c.monthlyRent ? `$${(c.monthlyRent / 1000).toFixed(1)}K+` : 
-             c.priceRange ? `$${(c.priceRange.min / 1000).toFixed(1)}K+` : '$4K+'}
-            {!c.claimed && (
-              <span className="text-xs text-gray-300 ml-1 font-normal">est.</span>
-            )}
-          </div>
-        </div>
-        
-        <div className="p-3">
-          <h4 className="font-semibold text-gray-900 dark:text-white text-sm truncate mb-1">
-            {c.name}
-          </h4>
-          <p className="text-xs text-gray-600 dark:text-gray-400 truncate mb-2">
-            {c.address || 'Community Address'}, {c.city}, {c.state} {c.zipCode}
-          </p>
-          
-          {/* Regional Badges */}
-          <div className="mb-2">
-            {c.state === 'CA' && index % 4 === 0 && (
-              <div className="bg-amber-600/90 text-white text-xs px-2 py-1 font-medium rounded inline-block">
-                Silicon Valley
-              </div>
-            )}
-            {c.state === 'CA' && index % 4 === 1 && (
-              <div className="bg-orange-600/90 text-white text-xs px-2 py-1 font-medium rounded inline-block">
-                LA Metro
-              </div>
-            )}
-            {c.state === 'TX' && index % 4 === 2 && (
-              <div className="bg-red-600/90 text-white text-xs px-2 py-1 font-medium rounded inline-block">
-                Dallas Metro
-              </div>
-            )}
-            {c.state === 'TX' && index % 4 === 3 && (
-              <div className="bg-purple-600/90 text-white text-xs px-2 py-1 font-medium rounded inline-block">
-                Houston Area
-              </div>
-            )}
-            {!['CA', 'TX'].includes(c.state) && (
-              <div className="bg-gray-600/90 text-white text-xs px-2 py-1 font-medium rounded inline-block">
-                {c.state} Community
-              </div>
-            )}
-          </div>
-          
-          {/* Enhanced Features Row */}
-          <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center text-gray-500 dark:text-gray-400">
-              <span>License #{20000 + c.id}</span>
-            </div>
-            {index % 4 === 0 && (
-              <div className="text-purple-600 font-medium">
-                🏆 Featured
-              </div>
-            )}
-            {index % 4 === 1 && (
-              <div className="text-blue-600 font-medium">
-                ⭐ Top Rated
-              </div>
-            )}
-            {index % 4 === 2 && (
-              <div className="text-green-600 font-medium">
-                💎 Premium
-              </div>
-            )}
-            {index % 4 === 3 && c.googleRating && (
-              <div className="flex items-center">
-                <Star className="w-3 h-3 mr-1 text-yellow-500" />
-                <span className="text-yellow-700 dark:text-yellow-400 font-medium">{c.googleRating}</span>
-              </div>
-            )}
-          </div>
-        </div>
+      <div style={style} className="px-2">
+        <EnhancedCommunityCard
+          community={c}
+          variant="featured"
+          index={index}
+        />
       </div>
     );
   };

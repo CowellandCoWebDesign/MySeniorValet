@@ -12,6 +12,7 @@ import type { Community } from "@shared/schema";
 import { FlagListingDialog } from "@/components/flag-listing-dialog";
 import { PhotoCarousel } from "@/components/photo-carousel";
 import { FamilyShareButton } from "@/components/family-share-button";
+import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
 
 export default function CommunityPage() {
   const [, params] = useRoute("/community/:id");
@@ -1546,24 +1547,13 @@ export default function CommunityPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {similarCommunities.slice(0, 3).map((similar) => (
-                      <Link key={similar.id} href={`/community/${similar.id}`}>
-                        <div className="p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer">
-                          <div className="font-medium text-gray-900">{similar.name}</div>
-                          <div className="text-sm text-gray-600">{similar.city}, {similar.state}</div>
-                          {similar.priceRange && (
-                            <div className="text-sm text-green-600 font-medium">
-                              ${similar.priceRange.min.toLocaleString()} - ${similar.priceRange.max.toLocaleString()}/month
-                            </div>
-                          )}
-                          {similar.googleRating && (
-                            <div className="flex items-center space-x-1 mt-1">
-                              <Star className="h-3 w-3 text-yellow-500 fill-current" />
-                              <span className="text-xs text-gray-600">{parseFloat(similar.googleRating).toFixed(1)}</span>
-                            </div>
-                          )}
-                        </div>
-                      </Link>
+                    {similarCommunities.slice(0, 3).map((similar, index) => (
+                      <EnhancedCommunityCard
+                        key={similar.id}
+                        community={similar}
+                        variant="horizontal"
+                        index={index}
+                      />
                     ))}
                   </div>
                 </CardContent>

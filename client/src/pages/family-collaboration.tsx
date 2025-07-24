@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { FamilyShareButton } from '@/components/family-share-button';
+import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
 import { useAuth } from '@/hooks/useAuth';
 import { Link as RouterLink, useLocation } from 'wouter';
 
@@ -162,50 +163,23 @@ export default function FamilyCollaborationPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
           {/* Sample Community Card */}
-          <Card className="shadow-lg border-0 bg-white dark:bg-gray-800">
-            <CardHeader className="pb-4">
-              <div className="flex items-center space-x-4">
-                <img 
-                  src={sampleCommunity.photos[0]} 
-                  alt={sampleCommunity.name}
-                  className="w-16 h-16 rounded-lg object-cover"
-                />
-                <div>
-                  <CardTitle className="text-xl dark:text-white">{sampleCommunity.name}</CardTitle>
-                  <p className="text-gray-600 dark:text-gray-400">{sampleCommunity.city}, {sampleCommunity.state}</p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Badge variant="secondary" className="bg-green-100 text-green-800">
-                  ${sampleCommunity.priceRange.min.toLocaleString()}+/month
-                </Badge>
-                <Badge variant="outline">
-                  ⭐ {sampleCommunity.rating}
-                </Badge>
-              </div>
-              
-              <div className="space-y-2">
-                <p className="text-sm text-gray-600 dark:text-gray-400">Care Types:</p>
-                <div className="flex flex-wrap gap-2">
-                  {sampleCommunity.careTypes.map((type, index) => (
-                    <Badge key={index} variant="outline" className="text-xs">
-                      {type}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              <div className="pt-4 border-t">
+          <div className="space-y-4">
+            <EnhancedCommunityCard
+              community={sampleCommunity as any}
+              variant="featured"
+              index={0}
+            />
+            <Card className="shadow-lg border-0 bg-white dark:bg-gray-800">
+              <CardContent className="p-6">
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-4 text-center">Try Family Sharing:</h4>
                 <FamilyShareButton 
                   community={sampleCommunity}
                   className="w-full"
                   size="lg"
                 />
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
 
           {/* Features Overview */}
           <div className="space-y-6">
@@ -311,7 +285,7 @@ export default function FamilyCollaborationPage() {
           </h2>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
             {isAuthenticated 
-              ? `Welcome back, ${user?.firstName || 'User'}! Use your dashboard to start sharing communities with your family.`
+              ? `Welcome back${user && (user as any).firstName ? `, ${(user as any).firstName}` : ''}! Use your dashboard to start sharing communities with your family.`
               : "Start your senior living search today and use our family sharing features to keep everyone informed and engaged in the decision-making process."
             }
           </p>
