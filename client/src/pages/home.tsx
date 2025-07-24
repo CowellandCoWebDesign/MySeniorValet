@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { EnhancedPlatformStats } from "@/components/EnhancedPlatformStats";
 
 export default function Home() {
-  console.log("HOME PAGE LOADED - VERSION 2 WITH 31,023 COMMUNITIES");
+  console.log("HOME PAGE LOADED - VERSION 2 WITH 26,306 COMMUNITIES");
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
       {/* Responsive Animated Background Elements */}
@@ -50,7 +50,7 @@ export default function Home() {
               <div className="flex flex-wrap items-center justify-center gap-2 mb-6 max-w-full">
                 <div className="flex items-center space-x-2 bg-white/95 backdrop-blur-md px-3 py-2 rounded-full shadow-lg border border-green-200/60 text-xs sm:text-sm">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="font-semibold text-green-800 whitespace-nowrap">31,023+ Communities</span>
+                  <span className="font-semibold text-green-800 whitespace-nowrap">26,306+ Communities</span>
                 </div>
                 <div className="flex items-center space-x-2 bg-white/95 backdrop-blur-md px-3 py-2 rounded-full shadow-lg border border-blue-200/60 text-xs sm:text-sm">
                   <Database className="h-3 w-3 text-blue-600" />

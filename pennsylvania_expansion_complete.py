@@ -106,42 +106,15 @@ class PennsylvaniaExpansionCollector:
         return []
         
     def create_sample_facilities(self):
-        """Create sample facilities for demonstration"""
-        print("📋 Creating sample Pennsylvania facility data...")
+        """NO SAMPLE DATA ALLOWED - GOLDEN RULE ENFORCEMENT"""
+        print("⚠️  GOLDEN RULE: Sample data creation disabled")
+        print("❌ Only verified data from Pennsylvania DHS allowed")
         
-        # Sample facilities based on known PA senior living facilities
-        sample_facilities = [
-            {
-                'name': 'Atria Senior Living',
-                'address': '123 Main Street',
-                'city': 'Philadelphia',
-                'county': 'Philadelphia',
-                'zip_code': '19103',
-                'phone': '(215) 555-0123',
-                'service_type': 'Assisted Living',
-                'license_status': 'Licensed'
-            },
-            {
-                'name': 'Sunrise Senior Living',
-                'address': '456 Oak Avenue',
-                'city': 'Pittsburgh',
-                'county': 'Allegheny',
-                'zip_code': '15213',
-                'phone': '(412) 555-0456',
-                'service_type': 'Assisted Living',
-                'license_status': 'Licensed'
-            },
-            {
-                'name': 'Brookdale Senior Living',
-                'address': '789 Pine Road',
-                'city': 'Allentown',
-                'county': 'Lehigh',
-                'zip_code': '18104',
-                'phone': '(610) 555-0789',
-                'service_type': 'Personal Care Home',
-                'license_status': 'Licensed'
-            }
-        ]
+        # This function has been disabled to comply with data integrity standards
+        # No sample, demo, or placeholder data is permitted
+        sample_facilities = []
+        
+        print("📝 Use PA DHS Human Services Provider Directory for official data")
         
         return sample_facilities
         

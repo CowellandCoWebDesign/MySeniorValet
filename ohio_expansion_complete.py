@@ -21,157 +21,19 @@ class OhioExpansionCollector:
         self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         
     def fetch_ohio_facilities(self):
-        """Create demonstration Ohio facilities with realistic data"""
-        print("🏢 Creating Ohio senior living facility demonstration data...")
+        """Fetch Ohio facilities from official sources only"""
+        print("🏢 Fetching Ohio senior living facilities from official sources...")
+        print("⚠️  GOLDEN RULE: Only verified data from government sources allowed")
         
-        sample_facilities = [
-            {
-                'name': 'Sunrise Senior Living of Columbus',
-                'address': '123 Broad Street',
-                'city': 'Columbus',
-                'state': 'OH',
-                'zip_code': '43215',
-                'county': 'Franklin',
-                'phone': '(614) 555-0123',
-                'facility_type': 'Assisted Living',
-                'license_number': 'OH-AL-001',
-                'data_source': 'Ohio_Demo'
-            },
-            {
-                'name': 'Atria Senior Living Cleveland',
-                'address': '456 Euclid Avenue',
-                'city': 'Cleveland',
-                'state': 'OH',
-                'zip_code': '44115',
-                'county': 'Cuyahoga',
-                'phone': '(216) 555-0456',
-                'facility_type': 'Assisted Living',
-                'license_number': 'OH-AL-002',
-                'data_source': 'Ohio_Demo'
-            },
-            {
-                'name': 'Brookdale Senior Living Cincinnati',
-                'address': '789 Vine Street',
-                'city': 'Cincinnati',
-                'state': 'OH',
-                'zip_code': '45202',
-                'county': 'Hamilton',
-                'phone': '(513) 555-0789',
-                'facility_type': 'Assisted Living',
-                'license_number': 'OH-AL-003',
-                'data_source': 'Ohio_Demo'
-            },
-            {
-                'name': 'Emeritus Senior Living Toledo',
-                'address': '321 Summit Street',
-                'city': 'Toledo',
-                'state': 'OH',
-                'zip_code': '43604',
-                'county': 'Lucas',
-                'phone': '(419) 555-0321',
-                'facility_type': 'Assisted Living',
-                'license_number': 'OH-AL-004',
-                'data_source': 'Ohio_Demo'
-            },
-            {
-                'name': 'Buckeye Senior Living Akron',
-                'address': '654 Main Street',
-                'city': 'Akron',
-                'state': 'OH',
-                'zip_code': '44308',
-                'county': 'Summit',
-                'phone': '(330) 555-0654',
-                'facility_type': 'Assisted Living',
-                'license_number': 'OH-AL-005',
-                'data_source': 'Ohio_Demo'
-            },
-            {
-                'name': 'Prairie Senior Living Dayton',
-                'address': '987 Third Street',
-                'city': 'Dayton',
-                'state': 'OH',
-                'zip_code': '45402',
-                'county': 'Montgomery',
-                'phone': '(937) 555-0987',
-                'facility_type': 'Assisted Living',
-                'license_number': 'OH-AL-006',
-                'data_source': 'Ohio_Demo'
-            },
-            {
-                'name': 'Valley Senior Living Youngstown',
-                'address': '135 Federal Street',
-                'city': 'Youngstown',
-                'state': 'OH',
-                'zip_code': '44503',
-                'county': 'Mahoning',
-                'phone': '(330) 555-0135',
-                'facility_type': 'Assisted Living',
-                'license_number': 'OH-AL-007',
-                'data_source': 'Ohio_Demo'
-            },
-            {
-                'name': 'Riverside Senior Living Canton',
-                'address': '246 Market Avenue',
-                'city': 'Canton',
-                'state': 'OH',
-                'zip_code': '44702',
-                'county': 'Stark',
-                'phone': '(330) 555-0246',
-                'facility_type': 'Assisted Living',
-                'license_number': 'OH-AL-008',
-                'data_source': 'Ohio_Demo'
-            },
-            {
-                'name': 'Maumee Senior Living Lima',
-                'address': '369 North Main Street',
-                'city': 'Lima',
-                'state': 'OH',
-                'zip_code': '45801',
-                'county': 'Allen',
-                'phone': '(419) 555-0369',
-                'facility_type': 'Assisted Living',
-                'license_number': 'OH-AL-009',
-                'data_source': 'Ohio_Demo'
-            },
-            {
-                'name': 'Scioto Senior Living Portsmouth',
-                'address': '159 Chillicothe Street',
-                'city': 'Portsmouth',
-                'state': 'OH',
-                'zip_code': '45662',
-                'county': 'Scioto',
-                'phone': '(740) 555-0159',
-                'facility_type': 'Assisted Living',
-                'license_number': 'OH-AL-010',
-                'data_source': 'Ohio_Demo'
-            },
-            {
-                'name': 'Lake Erie Senior Living Lorain',
-                'address': '753 Broadway',
-                'city': 'Lorain',
-                'state': 'OH',
-                'zip_code': '44052',
-                'county': 'Lorain',
-                'phone': '(440) 555-0753',
-                'facility_type': 'Assisted Living',
-                'license_number': 'OH-AL-011',
-                'data_source': 'Ohio_Demo'
-            },
-            {
-                'name': 'Heritage Senior Living Mansfield',
-                'address': '951 Park Avenue',
-                'city': 'Mansfield',
-                'state': 'OH',
-                'zip_code': '44906',
-                'county': 'Richland',
-                'phone': '(419) 555-0951',
-                'facility_type': 'Assisted Living',
-                'license_number': 'OH-AL-012',
-                'data_source': 'Ohio_Demo'
-            }
-        ]
+        # This function should connect to official Ohio Department of Health databases
+        # No demo or sample data is permitted
+        sample_facilities = []
         
-        print(f"✅ Created {len(sample_facilities)} Ohio demonstration facilities")
+        print("❌ Demo data has been removed - integration with official Ohio DOH required")
+        
+        # TODO: Implement connection to official Ohio Department of Health API
+        # or web scraping of official government sources only
+        
         return sample_facilities
         
     def normalize_facility_data(self, raw_facilities):

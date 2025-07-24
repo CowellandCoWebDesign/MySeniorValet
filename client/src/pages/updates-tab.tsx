@@ -74,42 +74,12 @@ export default function UpdatesTab() {
     }
   ];
 
-  const communityUpdates: CommunityUpdate[] = [
-    {
-      id: 1,
-      communityId: 274,
-      communityName: "The Sequoias San Francisco",
-      address: "1400 Geary Blvd",
-      city: "San Francisco",
-      state: "CA",
-      updateType: 'price_cut',
-      oldPrice: 7500,
-      newPrice: 6500,
-      savings: 1000,
-      date: "7/1",
-      photo: "/api/placeholder/200/150"
-    },
-    {
-      id: 2,
-      communityId: 262,
-      communityName: "Brookdale Redding",
-      address: "2125 Larkspur Lane",
-      city: "Redding",
-      state: "CA",
-      updateType: 'new_availability',
-      date: "6/30"
-    },
-    {
-      id: 3,
-      communityId: 275,
-      communityName: "Heritage Manor",
-      address: "1525 Pine Street",
-      city: "Eureka",
-      state: "CA",
-      updateType: 'virtual_tour',
-      date: "6/29"
-    }
-  ];
+  // GOLDEN RULE: Only real data from API allowed - no hardcoded examples
+  const communityUpdates: CommunityUpdate[] = [];
+  
+  // TODO: Fetch real community updates from API
+  // Example: useQuery({ queryKey: ['/api/communities/updates'] })
+  // This ensures all data is verified and authentic
 
   const getUpdateIcon = (type: string) => {
     switch (type) {

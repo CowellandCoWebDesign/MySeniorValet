@@ -301,7 +301,7 @@ export default function MySeniorValetHome() {
             <div className="flex flex-wrap items-center justify-center gap-3">
               <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full shadow-lg">
                 <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-sm font-semibold text-white">31,023+ Authentic Communities</span>
+                <span className="text-sm font-semibold text-white">26,306+ Authentic Communities</span>
               </div>
               <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full shadow-lg">
                 <Building2 className="h-4 w-4 text-blue-300" />

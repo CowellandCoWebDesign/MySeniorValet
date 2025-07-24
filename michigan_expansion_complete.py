@@ -21,133 +21,19 @@ class MichiganExpansionCollector:
         self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         
     def fetch_michigan_facilities(self):
-        """Create demonstration Michigan facilities with realistic data"""
-        print("🏢 Creating Michigan senior living facility demonstration data...")
+        """Fetch Michigan facilities from official sources only"""
+        print("🏢 Fetching Michigan senior living facilities from official sources...")
+        print("⚠️  GOLDEN RULE: Only verified data from government sources allowed")
         
-        sample_facilities = [
-            {
-                'name': 'Sunrise Senior Living of Troy',
-                'address': '123 Big Beaver Road',
-                'city': 'Troy',
-                'state': 'MI',
-                'zip_code': '48084',
-                'county': 'Oakland',
-                'phone': '(248) 555-0123',
-                'facility_type': 'Assisted Living',
-                'license_number': 'MI-AL-001',
-                'data_source': 'Michigan_Demo'
-            },
-            {
-                'name': 'Atria Senior Living Grand Rapids',
-                'address': '456 Michigan Street',
-                'city': 'Grand Rapids',
-                'state': 'MI',
-                'zip_code': '49503',
-                'county': 'Kent',
-                'phone': '(616) 555-0456',
-                'facility_type': 'Assisted Living',
-                'license_number': 'MI-AL-002',
-                'data_source': 'Michigan_Demo'
-            },
-            {
-                'name': 'Brookdale Senior Living Ann Arbor',
-                'address': '789 Main Street',
-                'city': 'Ann Arbor',
-                'state': 'MI',
-                'zip_code': '48104',
-                'county': 'Washtenaw',
-                'phone': '(734) 555-0789',
-                'facility_type': 'Assisted Living',
-                'license_number': 'MI-AL-003',
-                'data_source': 'Michigan_Demo'
-            },
-            {
-                'name': 'Emeritus Senior Living Lansing',
-                'address': '321 Capitol Avenue',
-                'city': 'Lansing',
-                'state': 'MI',
-                'zip_code': '48933',
-                'county': 'Ingham',
-                'phone': '(517) 555-0321',
-                'facility_type': 'Assisted Living',
-                'license_number': 'MI-AL-004',
-                'data_source': 'Michigan_Demo'
-            },
-            {
-                'name': 'Great Lakes Senior Living Kalamazoo',
-                'address': '654 West Michigan Avenue',
-                'city': 'Kalamazoo',
-                'state': 'MI',
-                'zip_code': '49007',
-                'county': 'Kalamazoo',
-                'phone': '(269) 555-0654',
-                'facility_type': 'Assisted Living',
-                'license_number': 'MI-AL-005',
-                'data_source': 'Michigan_Demo'
-            },
-            {
-                'name': 'Motor City Senior Living Detroit',
-                'address': '987 Woodward Avenue',
-                'city': 'Detroit',
-                'state': 'MI',
-                'zip_code': '48202',
-                'county': 'Wayne',
-                'phone': '(313) 555-0987',
-                'facility_type': 'Assisted Living',
-                'license_number': 'MI-AL-006',
-                'data_source': 'Michigan_Demo'
-            },
-            {
-                'name': 'Lakeside Senior Living Flint',
-                'address': '135 Saginaw Street',
-                'city': 'Flint',
-                'state': 'MI',
-                'zip_code': '48502',
-                'county': 'Genesee',
-                'phone': '(810) 555-0135',
-                'facility_type': 'Assisted Living',
-                'license_number': 'MI-AL-007',
-                'data_source': 'Michigan_Demo'
-            },
-            {
-                'name': 'Wolverine Senior Living Dearborn',
-                'address': '246 Michigan Avenue',
-                'city': 'Dearborn',
-                'state': 'MI',
-                'zip_code': '48124',
-                'county': 'Wayne',
-                'phone': '(313) 555-0246',
-                'facility_type': 'Assisted Living',
-                'license_number': 'MI-AL-008',
-                'data_source': 'Michigan_Demo'
-            },
-            {
-                'name': 'Traverse Bay Senior Living',
-                'address': '369 Front Street',
-                'city': 'Traverse City',
-                'state': 'MI',
-                'zip_code': '49684',
-                'county': 'Grand Traverse',
-                'phone': '(231) 555-0369',
-                'facility_type': 'Assisted Living',
-                'license_number': 'MI-AL-009',
-                'data_source': 'Michigan_Demo'
-            },
-            {
-                'name': 'Mackinac Senior Living Bay City',
-                'address': '159 Center Avenue',
-                'city': 'Bay City',
-                'state': 'MI',
-                'zip_code': '48708',
-                'county': 'Bay',
-                'phone': '(989) 555-0159',
-                'facility_type': 'Assisted Living',
-                'license_number': 'MI-AL-010',
-                'data_source': 'Michigan_Demo'
-            }
-        ]
+        # This function should connect to official Michigan LARA databases
+        # No demo or sample data is permitted
+        sample_facilities = []
         
-        print(f"✅ Created {len(sample_facilities)} Michigan demonstration facilities")
+        print("❌ Demo data has been removed - integration with official Michigan LARA required")
+        
+        # TODO: Implement connection to official Michigan Department of Licensing and Regulatory Affairs
+        # or web scraping of official government sources only
+        
         return sample_facilities
         
     def normalize_facility_data(self, raw_facilities):

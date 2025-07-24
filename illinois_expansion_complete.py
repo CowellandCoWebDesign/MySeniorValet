@@ -29,91 +29,23 @@ class IllinoisExpansionCollector:
         self.expected_counties = 102
         
     def fetch_illinois_facilities(self):
-        """Create demonstration Illinois facilities with realistic data"""
-        print("🏢 Creating Illinois assisted living facility demonstration data...")
+        """Fetch Illinois facilities from official sources only"""
+        print("🏢 Fetching Illinois assisted living facilities from official sources...")
+        print("⚠️  GOLDEN RULE: Only verified data from government sources allowed")
         
-        # Since the API endpoint is not available, we'll create realistic sample data
-        # In production, this would require web scraping or API access
+        # This function should connect to official Illinois Department of Public Health databases
+        # No demo or sample data is permitted
         
-        sample_facilities = [
-            {
-                'establishment_name': 'Sunrise Senior Living of Oak Park',
-                'address': '123 Oak Street',
-                'city': 'Oak Park',
-                'state': 'IL',
-                'zip_code': '60302',
-                'county': 'Cook',
-                'phone': '(708) 555-0123',
-                'units': 85,
-                'alzheimers_care': 'Y',
-                'adult_day_care': 'N',
-                'facility_type': 'Assisted Living',
-                'license_number': 'IL-AL-001',
-                'data_source': 'Illinois_Demo'
-            },
-            {
-                'establishment_name': 'Atria Senior Living Springfield',
-                'address': '456 Lincoln Avenue',
-                'city': 'Springfield',
-                'state': 'IL',
-                'zip_code': '62701',
-                'county': 'Sangamon',
-                'phone': '(217) 555-0456',
-                'units': 120,
-                'alzheimers_care': 'Y',
-                'adult_day_care': 'Y',
-                'facility_type': 'Assisted Living',
-                'license_number': 'IL-AL-002',
-                'data_source': 'Illinois_Demo'
-            },
-            {
-                'establishment_name': 'Brookdale Senior Living Peoria',
-                'address': '789 Main Street',
-                'city': 'Peoria',
-                'state': 'IL',
-                'zip_code': '61602',
-                'county': 'Peoria',
-                'phone': '(309) 555-0789',
-                'units': 95,
-                'alzheimers_care': 'N',
-                'adult_day_care': 'N',
-                'facility_type': 'Assisted Living',
-                'license_number': 'IL-AL-003',
-                'data_source': 'Illinois_Demo'
-            },
-            {
-                'establishment_name': 'Emeritus Senior Living Rockford',
-                'address': '321 Forest Avenue',
-                'city': 'Rockford',
-                'state': 'IL',
-                'zip_code': '61107',
-                'county': 'Winnebago',
-                'phone': '(815) 555-0321',
-                'units': 78,
-                'alzheimers_care': 'Y',
-                'adult_day_care': 'N',
-                'facility_type': 'Assisted Living',
-                'license_number': 'IL-AL-004',
-                'data_source': 'Illinois_Demo'
-            },
-            {
-                'establishment_name': 'Victory Lakes Senior Living',
-                'address': '654 Lake Drive',
-                'city': 'Naperville',
-                'state': 'IL',
-                'zip_code': '60540',
-                'county': 'DuPage',
-                'phone': '(630) 555-0654',
-                'units': 110,
-                'alzheimers_care': 'Y',
-                'adult_day_care': 'Y',
-                'facility_type': 'Assisted Living',
-                'license_number': 'IL-AL-005',
-                'data_source': 'Illinois_Demo'
-            }
-        ]
+        sample_facilities = []
         
-        print(f"✅ Created {len(sample_facilities)} Illinois demonstration facilities")
+        print("❌ Demo data has been removed - integration with Illinois IDPH required")
+        print("📝 Use Illinois Data Portal or IDPH Facility Lookup for official data")
+        
+        # TODO: Implement connection to:
+        # 1. Illinois Data Portal - Assisted Living Database
+        # 2. IDPH Facility Lookup system
+        # No demo or placeholder data is permitted
+        
         return sample_facilities
             
     def fetch_from_facility_lookup(self):
