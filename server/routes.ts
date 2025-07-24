@@ -212,7 +212,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const citiesCovered = [...new Set(communitiesData.map(c => c.city).filter(Boolean))].length;
       const verifiedCommunities = communitiesData.filter(c => c.phone && c.website).length;
       const withPhotos = communitiesData.filter(c => c.photos && Array.isArray(c.photos) && c.photos.length > 0).length;
-      const googePlacesEnriched = communitiesData.filter(c => c.googlePlacesId).length;
+      const googePlacesEnriched = communitiesData.filter(c => c.googlePlaceId).length;
       
       // Group by county for detailed breakdown
       const countiesData = communitiesData.reduce((acc: any, community) => {
@@ -447,7 +447,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user favorites
   app.get("/api/favorites", requireSimpleAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const favorites = await storage.getUserFavorites(userId);
       res.json(favorites);
     } catch (error: any) {
@@ -459,7 +462,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add community to favorites
   app.post("/api/favorites", requireSimpleAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const { communityId } = req.body;
       
       if (!communityId) {
@@ -481,7 +487,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Remove community from favorites
   app.delete("/api/favorites/:communityId", requireSimpleAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const communityId = parseInt(req.params.communityId);
       
       if (!communityId) {
@@ -504,7 +513,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user search history
   app.get("/api/search-history", requireSimpleAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const searchHistory = await storage.getSearchHistory(userId);
       res.json(searchHistory);
     } catch (error: any) {
@@ -516,12 +528,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Save search to history
   app.post("/api/search-history", requireSimpleAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const { query, filters, results } = req.body;
       
       const searchEntry = await storage.saveSearch({
         userId,
-        query,
+        searchQuery: query,
         filters,
         resultCount: results || 0,
       });
@@ -536,7 +551,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user tours (enhanced for comprehensive tracking)
   app.get("/api/tours", requireSimpleAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const tours = await storage.getToursByUser(userId);
       res.json(tours);
     } catch (error: any) {
@@ -548,7 +566,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get specific tour by ID
   app.get("/api/tours/:tourId", requireSimpleAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const tourId = parseInt(req.params.tourId);
       
       const tours = await storage.getToursByUser(userId);
@@ -568,7 +589,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create comprehensive tour (scheduling or tracking)
   app.post("/api/tours", requireSimpleAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const tourData = { ...req.body, userId };
       
       if (!tourData.communityId || !tourData.tourDate) {
@@ -586,7 +610,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Update tour with comprehensive tracking data
   app.put("/api/tours/:tourId", requireSimpleAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const tourId = parseInt(req.params.tourId);
       const updates = req.body;
       
@@ -609,7 +636,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Cancel tour
   app.delete("/api/tours/:tourId", requireSimpleAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const tourId = parseInt(req.params.tourId);
       
       // Verify tour belongs to user
@@ -700,7 +730,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/user/favorites', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const { communityId, notes, priority, tags } = req.body;
 
       // Check if already favorited
@@ -736,7 +769,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/user/favorites/:communityId', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const communityId = parseInt(req.params.communityId);
 
       await db
@@ -754,7 +790,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch('/api/user/favorites/:id', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const favoriteId = parseInt(req.params.id);
       const { notes, priority, tags } = req.body;
 
@@ -764,7 +803,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           notes: notes !== undefined ? notes : undefined,
           priority: priority !== undefined ? priority : undefined,
           tags: tags !== undefined ? tags : undefined,
-          updatedAt: new Date(),
+          
         })
         .where(and(
           eq(userFavorites.id, favoriteId),
@@ -785,7 +824,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User saved searches routes
   app.get('/api/user/saved-searches', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const savedSearches = await db
         .select()
         .from(userSavedSearches)
@@ -800,7 +842,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/user/saved-searches', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const { searchName, searchParams, alertsEnabled } = req.body;
 
       const [savedSearch] = await db
@@ -821,7 +866,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/user/saved-searches/:id', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const searchId = parseInt(req.params.id);
 
       await db
@@ -840,7 +888,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Dashboard preference routes
   app.get('/api/user/dashboard-preferences', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       
       const [user] = await db
         .select({ dashboardPreferences: users.dashboardPreferences })
@@ -877,14 +928,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch('/api/user/dashboard-preferences', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const preferences = req.body;
 
       const [updated] = await db
         .update(users)
         .set({
           dashboardPreferences: preferences,
-          updatedAt: new Date(),
+          
         })
         .where(eq(users.id, userId))
         .returning({ dashboardPreferences: users.dashboardPreferences });
@@ -916,7 +970,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           notes: userFavorites.notes,
           priority: userFavorites.priority,
           tags: userFavorites.tags,
-          createdAt: userFavorites.createdAt,
+          createdAt: userFavorites.updatedAt,
           community: {
             id: communities.id,
             name: communities.name,
@@ -931,7 +985,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .from(userFavorites)
         .innerJoin(communities, eq(userFavorites.communityId, communities.id))
         .where(eq(userFavorites.userId, userId))
-        .orderBy(desc(userFavorites.priority), desc(userFavorites.createdAt))
+        .orderBy(desc(userFavorites.priority), desc(userFavorites.updatedAt))
         .limit(10);
 
       // Get recent searches
@@ -1099,7 +1153,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const communitiesData = Array.isArray(result) ? result : result.rows || [];
       // Apply intelligent pricing system to eliminate "call for pricing"
-      const communitiesWithPricing = communitiesData.map(community => eliminateCallForPricing(community));
+      const communitiesWithPricing = communitiesData.map((community: any) => eliminateCallForPricing(community));
       
       console.log(`✅ PostGIS spatial search returned ${communitiesWithPricing.length} communities in ${Date.now() - startTime}ms`);
       
@@ -1790,7 +1844,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/communities/clusters/:clusterId/children', async (req, res) => {
     try {
       const clusterId = parseInt(req.params.clusterId);
-      const children = await superclusterService.getClusterChildren(clusterId);
+      const children = await superclusterService.getClusterChildren(clusterId, 0);
       
       res.json({
         type: 'FeatureCollection',
@@ -2112,7 +2166,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/payment/setup-ach', requireSimpleAuth, async (req, res) => {
     try {
       const { bankName, accountNumber, routingNumber, accountType } = req.body;
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       
       // In production, this would securely store encrypted bank details
       // and set up ACH with payment processor
@@ -2254,7 +2311,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update community profile
       const updatedCommunity = await storage.updateCommunity(id, {
         ...updateData,
-        updatedAt: new Date(),
+        
       });
 
       res.json(updatedCommunity);
@@ -2279,7 +2336,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         pricingType: "live",
         pricingLastUpdated: new Date(),
         availabilityLastUpdated: new Date(),
-        updatedAt: new Date(),
+        
       });
 
       res.json({
@@ -2372,7 +2429,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/communities/:id/claim', requireSimpleAuth, async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const { businessEmail, title, verificationMessage } = req.body;
       
       // Check if community exists
@@ -2417,7 +2477,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/communities/:id/update-pricing', requireSimpleAuth, async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const { pricingData } = req.body;
       
       // Check if community exists and is claimed by user
@@ -2448,7 +2511,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/communities/:id/update-availability', requireSimpleAuth, async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const { availabilityStatus, availableUnits } = req.body;
       
       // Check if community exists and is claimed by user
@@ -2500,7 +2566,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create payment intent for $1.95 transaction fee
   app.post("/api/payments/create-intent", requireSimpleAuth, async (req, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const { communityId, paymentType, metadata } = req.body;
 
       if (!communityId || !paymentType) {
@@ -2525,7 +2594,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Record payment transaction
   app.post("/api/payments/record-transaction", requireSimpleAuth, async (req, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const { paymentIntentId, communityId, paymentType, amount, status } = req.body;
 
       const transaction = await stripePaymentService.recordTransaction({
@@ -2548,7 +2620,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get payment history
   app.get("/api/payments/history", requireSimpleAuth, async (req, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const limit = parseInt(req.query.limit as string) || 20;
       const transactions = await stripePaymentService.getTransactionHistory(userId, limit);
 
@@ -2587,7 +2662,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/communities/:id/dashboard/overview', requireSimpleAuth, async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       
       // Check if user owns this community
       const [claimedCommunity] = await db
@@ -2639,7 +2717,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/communities/:id/dashboard/messages', requireSimpleAuth, async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       
       // Check authorization
       const [claimedCommunity] = await db
@@ -2708,7 +2789,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/communities/:id/dashboard/performance', requireSimpleAuth, async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       
       // Check authorization
       const [claimedCommunity] = await db
@@ -2755,7 +2839,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/communities/:id/dashboard/reports', requireSimpleAuth, async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const { reportType, dateRange, format } = req.body;
       
       // Check authorization
@@ -2796,7 +2883,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/communities/:id/leasing/applications', requireSimpleAuth, async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       
       // Check if user has permission to view this community's applications
       const [claimedCommunity] = await db
@@ -2852,7 +2942,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/communities/:id/leasing/agreements', requireSimpleAuth, async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       
       // Check if user has permission
       const [claimedCommunity] = await db
@@ -2893,7 +2986,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/communities/:id/leasing/tasks', requireSimpleAuth, async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       
       // Check if user has permission
       const [claimedCommunity] = await db
@@ -2932,7 +3028,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/communities/:id/docusign/templates', requireSimpleAuth, async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       
       // Check if user has permission
       const [claimedCommunity] = await db
@@ -2961,7 +3060,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/communities/:id/leasing/applications', requireSimpleAuth, async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const applicationData = req.body;
       
       // Check if user has permission
@@ -2995,7 +3097,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get tenant's lease information
   app.get('/api/tenant/lease', requireSimpleAuth, async (req, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       
       // Mock data for now - will be replaced with real database queries
       const leaseInfo = {
@@ -3021,7 +3126,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get tenant's payment history
   app.get('/api/tenant/payments', requireSimpleAuth, async (req, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       
       // Mock data for now
       const paymentHistory = [
@@ -3045,7 +3153,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get upcoming payments
   app.get('/api/tenant/payments/upcoming', requireSimpleAuth, async (req, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       
       // Mock data for now
       const upcomingPayments = [
@@ -3082,7 +3193,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get move-in checklist
   app.get('/api/tenant/move-in-checklist', requireSimpleAuth, async (req, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       
       // Mock data for now
       const checklist = [
@@ -3128,7 +3242,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Process payment (redirect to payment processor)
   app.post('/api/tenant/payments/process', requireSimpleAuth, async (req, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const { type, amount, communityId } = req.body;
       
       // Calculate transaction fee (2.9% + $0.30)
@@ -3416,12 +3533,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let query = db
         .select()
         .from(communities)
-        .where(eq(communities.type, 'Affordable Senior'));
+        .where(eq(communities.facilityType, 'Affordable Senior'));
       
       // Filter by state if provided
       if (state && state !== 'all') {
         query = query.where(and(
-          eq(communities.type, 'Affordable Senior'),
+          eq(communities.facilityType, 'Affordable Senior'),
           eq(communities.state, state)
         ));
       }
@@ -3855,12 +3972,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Convert snake_case to camelCase for frontend compatibility
       const formattedCommunity = {
         ...community,
-        yelpReviews: community.yelp_reviews,
-        careComReviews: community.care_com_reviews,
-        seniorAdvisorReviews: community.senior_advisor_reviews,
-        aplaceformomReviews: community.aplace_for_mom_reviews,
-        googleReviewSnippets: community.google_review_snippets,
-        googleRating: community.google_rating,
+        yelpReviews: community.yelpReviews,
+        careComReviews: community.careComReviews,
+        seniorAdvisorReviews: community.seniorAdvisorReviews,
+        aplaceformomReviews: community.aplaceformomReviews,
+        googleReviewSnippets: community.googleReviewSnippets,
+        googleRating: community.googleRating,
         googleReviewCount: community.google_review_count
       };
       
@@ -5763,7 +5880,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   rating: details.rating ? details.rating.toString() : '',
                   googleRating: details.rating ? details.rating.toString() : '',
                   googleReviewCount: details.user_ratings_total || 0,
-                  googlePlacesId: place.place_id,
+                  googlePlaceId: place.place_id,
                   latitude: details.geometry?.location?.lat?.toString() || '',
                   longitude: details.geometry?.location?.lng?.toString() || '',
                   isVerified: true,
@@ -5862,7 +5979,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             rating: communityData.rating || null,
             googleRating: communityData.googleRating || null,
             googleReviewCount: communityData.googleReviewCount || 0,
-            googlePlacesId: communityData.googlePlacesId || null,
+            googlePlaceId: communityData.googlePlaceId || null,
             latitude: communityData.latitude || null,
             longitude: communityData.longitude || null,
             isVerified: communityData.isVerified || true,
@@ -5887,7 +6004,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           name: c.name,
           city: c.city,
           state: c.state,
-          googlePlacesId: c.googlePlacesId,
+          googlePlaceId: c.googlePlaceId,
           isVerified: c.isVerified
         }))
       });
@@ -6604,7 +6721,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Refresh with Google Places if we have a places ID
-      if (community.googlePlacesId) {
+      if (community.googlePlaceId) {
         const { googlePlacesIntegration } = await import('./google-places-integration');
         const enrichmentResult = await googlePlacesIntegration.enrichCommunityWithGooglePlaces(community);
         
@@ -6639,13 +6756,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Run Google Places enrichment if not already done
-      if (!community.googlePlacesId) {
+      if (!community.googlePlaceId) {
         const { googlePlacesIntegration } = await import('./google-places-integration');
         const enrichmentResult = await googlePlacesIntegration.enrichCommunityWithGooglePlaces(community);
         
         if (enrichmentResult && enrichmentResult.success) {
           await storage.updateCommunity(communityId, {
-            googlePlacesId: enrichmentResult.placeId,
+            googlePlaceId: enrichmentResult.placeId,
             rating: enrichmentResult.rating,
             photos: [...(community.photos || []), ...enrichmentResult.photos],
             reviews: [...(community.reviews || []), ...enrichmentResult.reviews],
@@ -6675,7 +6792,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       for (const community of communities.slice(0, 10)) { // Limit to first 10 to avoid API quota issues
         try {
-          if (community.googlePlacesId) {
+          if (community.googlePlaceId) {
             const enrichmentResult = await googlePlacesIntegration.enrichCommunityWithGooglePlaces(community);
             
             if (enrichmentResult && enrichmentResult.success) {
@@ -9424,7 +9541,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           zipCode: communityData.zipCode,
           phone: communityData.phone,
           website: communityData.website,
-          googlePlacesId: communityData.googlePlacesId,
+          googlePlaceId: communityData.googlePlaceId,
           googleRating: communityData.googleRating ? communityData.googleRating.toString() : null,
           googleReviewCount: communityData.googleReviewCount,
           careTypes: communityData.careTypes || [],
@@ -9475,7 +9592,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           zipCode: pending.zipCode,
           phone: pending.phone,
           website: pending.website,
-          googlePlacesId: pending.googlePlacesId,
+          googlePlaceId: pending.googlePlaceId,
           googleRating: pending.googleRating ? parseFloat(pending.googleRating) : null,
           googleReviewCount: pending.googleReviewCount,
           careTypes: pending.careTypes,
@@ -9494,7 +9611,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           reviewedBy: req.user?.id,
           reviewedAt: new Date(),
           approvalNotes,
-          updatedAt: new Date(),
+          
         })
         .where(eq(pendingCommunities.id, pendingId));
 
@@ -9521,7 +9638,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           reviewedBy: req.user?.id,
           reviewedAt: new Date(),
           rejectionReason,
-          updatedAt: new Date(),
+          
         })
         .where(eq(pendingCommunities.id, pendingId));
 
@@ -9815,7 +9932,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/support-resources/:id/interact", requireAuth, async (req: any, res) => {
     try {
       const resourceId = parseInt(req.params.id);
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const { interactionType, notes } = req.body;
 
       if (!['viewed', 'bookmarked', 'shared', 'completed', 'helpful', 'not_helpful'].includes(interactionType)) {
@@ -9839,7 +9959,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user's bookmarked resources
   app.get("/api/support-resources/user/bookmarks", requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
       const bookmarks = await supportResourceService.getUserBookmarks(userId);
       res.json(bookmarks);
     } catch (error) {
@@ -10275,7 +10398,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .update(tourReviews)
         .set({
           ...req.body,
-          updatedAt: new Date(),
+          
         })
         .where(eq(tourReviews.id, reviewId))
         .returning();
