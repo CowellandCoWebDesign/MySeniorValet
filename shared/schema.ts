@@ -10,14 +10,26 @@ const geographyPoint = customType<{ data: { lat: number; lng: number } }>({
   },
 });
 
+// Session storage table for Replit Auth (MANDATORY)
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: varchar("sid").primaryKey(),
+    sess: jsonb("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  },
+  (table) => [index("IDX_session_expire").on(table.expire)],
+);
+
 export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  email: text("email").notNull().unique(),
+  id: varchar("id").primaryKey().notNull(), // Changed to varchar for Replit Auth
+  email: varchar("email").unique(),
+  firstName: varchar("first_name"),
+  lastName: varchar("last_name"),
+  profileImageUrl: varchar("profile_image_url"),
+  // Legacy fields for existing functionality
   username: text("username").unique(),
-  password: text("password").notNull(),
-  firstName: text("first_name"),
-  lastName: text("last_name"),
-  profileImage: text("profile_image"),
+  password: text("password"),
   phone: text("phone"),
   dateOfBirth: date("date_of_birth"),
   relationshipToCare: text("relationship_to_care", {
@@ -91,10 +103,13 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Type definitions for Replit Auth (removing duplicate User type)
+export type UpsertUser = typeof users.$inferInsert;
+
 // User sessions table for secure session management
 export const userSessions = pgTable("user_sessions", {
   id: text("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   expiresAt: timestamp("expires_at").notNull(),
   ipAddress: text("ip_address"),
   userAgent: text("user_agent"),
@@ -108,7 +123,7 @@ export const userSessions = pgTable("user_sessions", {
 // Security audit logs for monitoring and compliance
 export const securityAuditLogs = pgTable("security_audit_logs", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id),
+  userId: varchar("user_id").references(() => users.id),
   action: text("action").notNull(), // login, logout, failed_login, password_change, etc.
   resource: text("resource").notNull(), // endpoint or resource accessed
   ipAddress: text("ip_address").notNull(),

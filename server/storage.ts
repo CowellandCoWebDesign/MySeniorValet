@@ -1,7 +1,7 @@
 import { 
   users, communities, inspections, reviews, reviewHelpfulness, favorites, searchHistory, 
   messages, tours, userSessions, listingFlags, adminUsers, userActivity, leads, leadActivities,
-  type User, type InsertUser, type Community, type InsertCommunity, 
+  type User, type InsertUser, type UpsertUser, type Community, type InsertCommunity, 
   type Inspection, type InsertInspection, type Review, type InsertReview, 
   type InsertReviewHelpfulness, type SearchCommunity, type Favorite, type InsertFavorite,
   type SearchHistoryEntry, type InsertSearchHistory, type Message, type InsertMessage,
@@ -16,15 +16,16 @@ import { cache } from "./cache";
 import { HudDataExtractor } from "./hud-data-extractor";
 
 export interface IStorage {
-  // User methods
-  getUser(id: number): Promise<User | undefined>;
+  // User methods - Updated for Replit Auth
+  getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  updateUser(id: number, updates: Partial<InsertUser>): Promise<User | undefined>;
+  updateUser(id: string, updates: Partial<InsertUser>): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>; // Required for Replit Auth
 
   // Authentication methods
-  createSession(userId: number): Promise<UserSession>;
+  createSession(userId: string): Promise<UserSession>;
   getSessionById(sessionId: string): Promise<UserSession | undefined>;
   deleteSession(sessionId: string): Promise<boolean>;
   cleanupExpiredSessions(): Promise<void>;
@@ -267,7 +268,7 @@ export class MemStorage implements IStorage {
     return user;
   }
 
-  async updateUser(id: number, updates: Partial<InsertUser>): Promise<User | undefined> {
+  async updateUser(id: string, updates: Partial<InsertUser>): Promise<User | undefined> {
     const user = this.users.get(id);
     if (!user) return undefined;
 
@@ -499,20 +500,9 @@ export class MemStorage implements IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  async getUser(id: number): Promise<User | undefined> {
-    // Use raw SQL query to avoid schema mismatch issues
-    const result = await db.execute(
-      sql`SELECT id, username, password FROM users WHERE id = ${id}`
-    );
-    const userRow = result.rows[0];
-    if (userRow) {
-      return {
-        id: userRow.id as number,
-        username: userRow.username as string,
-        password: userRow.password as string
-      } as User;
-    }
-    return undefined;
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getCommunityByName(name: string): Promise<Community | undefined> {
@@ -554,6 +544,24 @@ export class DatabaseStorage implements IStorage {
       username: userRow.username as string,
       password: userRow.password as string
     } as User;
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values({
+        ...userData,
+        updatedAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
   }
 
   async getCommunity(id: number): Promise<Community | undefined> {

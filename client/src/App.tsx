@@ -61,9 +61,11 @@ import QuizPage from "@/pages/quiz";
 import TestDebug from "@/pages/test-debug";
 import TestMapViews from "@/pages/test-map-views";
 import AuthDebug from "@/pages/auth-debug";
+import { useAuth } from "@/hooks/useAuth";
 
 function Router() {
   const [location] = useLocation();
+  const { isAuthenticated, isLoading } = useAuth();
 
   // Scroll to top on route change
   useEffect(() => {

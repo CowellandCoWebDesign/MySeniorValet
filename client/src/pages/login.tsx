@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { useLogin, useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { z } from "zod";
 import {
   Form,
@@ -30,7 +30,10 @@ export default function LoginPage() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const { user, isLoading } = useAuth();
-  const login = useLogin();
+  // Redirect to Replit Auth for login
+  const handleLogin = () => {
+    window.location.href = "/api/login";
+  };
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -48,20 +51,8 @@ export default function LoginPage() {
   }, [user, isLoading, setLocation]);
 
   const onSubmit = async (data: LoginForm) => {
-    try {
-      await login.mutateAsync(data);
-      toast({
-        title: "Login successful",
-        description: "Welcome back to MySeniorValet!",
-      });
-      setLocation("/dashboard");
-    } catch (error: any) {
-      toast({
-        title: "Login failed",
-        description: error.message || "Please check your credentials and try again.",
-        variant: "destructive",
-      });
-    }
+    // Redirect to Replit Auth instead of custom login
+    handleLogin();
   };
 
   if (isLoading) {
@@ -108,7 +99,7 @@ export default function LoginPage() {
                           type="email"
                           placeholder="Enter your email"
                           {...field}
-                          disabled={login.isPending}
+                          disabled={false}
                         />
                       </FormControl>
                       <FormMessage />
@@ -128,7 +119,7 @@ export default function LoginPage() {
                             type={showPassword ? "text" : "password"}
                             placeholder="Enter your password"
                             {...field}
-                            disabled={login.isPending}
+                            disabled={false}
                           />
                           <Button
                             type="button"
@@ -136,7 +127,7 @@ export default function LoginPage() {
                             size="sm"
                             className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                             onClick={() => setShowPassword(!showPassword)}
-                            disabled={login.isPending}
+                            disabled={false}
                           >
                             {showPassword ? (
                               <EyeOff className="h-4 w-4" />
@@ -154,9 +145,9 @@ export default function LoginPage() {
                 <Button
                   type="submit"
                   className="w-full"
-                  disabled={login.isPending}
+                  disabled={false}
                 >
-                  {login.isPending ? "Signing in..." : "Sign In"}
+                  Sign In with Replit
                 </Button>
               </form>
             </Form>

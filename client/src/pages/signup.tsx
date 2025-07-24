@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { useSignup, useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { z } from "zod";
 import {
   Form,
@@ -40,7 +40,10 @@ export default function SignupPage() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const { user, isLoading } = useAuth();
-  const signup = useSignup();
+  // Redirect to Replit Auth for signup
+  const handleSignup = () => {
+    window.location.href = "/api/login";
+  };
 
   const form = useForm<SignupForm>({
     resolver: zodResolver(signupSchema),
@@ -63,20 +66,8 @@ export default function SignupPage() {
   }, [user, isLoading, setLocation]);
 
   const onSubmit = async (data: SignupForm) => {
-    try {
-      await signup.mutateAsync(data);
-      toast({
-        title: "Account created successfully",
-        description: "Welcome to MySeniorValet! You're now logged in.",
-      });
-      setLocation("/dashboard");
-    } catch (error: any) {
-      toast({
-        title: "Signup failed",
-        description: error.message || "Please check your information and try again.",
-        variant: "destructive",
-      });
-    }
+    // Redirect to Replit Auth instead of custom signup
+    handleSignup();
   };
 
   if (isLoading) {
@@ -123,7 +114,7 @@ export default function SignupPage() {
                           <Input
                             placeholder="John"
                             {...field}
-                            disabled={signup.isPending}
+                            disabled={false}
                           />
                         </FormControl>
                         <FormMessage />
@@ -141,7 +132,7 @@ export default function SignupPage() {
                           <Input
                             placeholder="Doe"
                             {...field}
-                            disabled={signup.isPending}
+                            disabled={false}
                           />
                         </FormControl>
                         <FormMessage />
@@ -161,7 +152,7 @@ export default function SignupPage() {
                           type="email"
                           placeholder="john.doe@example.com"
                           {...field}
-                          disabled={signup.isPending}
+                          disabled={false}
                         />
                       </FormControl>
                       <FormMessage />
@@ -180,7 +171,7 @@ export default function SignupPage() {
                           type="tel"
                           placeholder="(555) 123-4567"
                           {...field}
-                          disabled={signup.isPending}
+                          disabled={false}
                         />
                       </FormControl>
                       <FormMessage />
@@ -194,7 +185,7 @@ export default function SignupPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Relationship to Care (Optional)</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value} disabled={signup.isPending}>
+                      <Select onValueChange={field.onChange} value={field.value} disabled={false}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select your relationship" />
@@ -227,7 +218,7 @@ export default function SignupPage() {
                             type={showPassword ? "text" : "password"}
                             placeholder="Enter your password"
                             {...field}
-                            disabled={signup.isPending}
+                            disabled={false}
                           />
                           <Button
                             type="button"
@@ -235,7 +226,7 @@ export default function SignupPage() {
                             size="sm"
                             className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                             onClick={() => setShowPassword(!showPassword)}
-                            disabled={signup.isPending}
+                            disabled={false}
                           >
                             {showPassword ? (
                               <EyeOff className="h-4 w-4" />
@@ -262,7 +253,7 @@ export default function SignupPage() {
                             type={showConfirmPassword ? "text" : "password"}
                             placeholder="Confirm your password"
                             {...field}
-                            disabled={signup.isPending}
+                            disabled={false}
                           />
                           <Button
                             type="button"
@@ -270,7 +261,7 @@ export default function SignupPage() {
                             size="sm"
                             className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            disabled={signup.isPending}
+                            disabled={false}
                           >
                             {showConfirmPassword ? (
                               <EyeOff className="h-4 w-4" />
@@ -288,9 +279,9 @@ export default function SignupPage() {
                 <Button
                   type="submit"
                   className="w-full"
-                  disabled={signup.isPending}
+                  disabled={false}
                 >
-                  {signup.isPending ? "Creating account..." : "Create Account"}
+                  Sign Up with Replit
                 </Button>
               </form>
             </Form>

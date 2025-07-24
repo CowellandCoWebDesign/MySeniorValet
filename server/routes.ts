@@ -73,6 +73,7 @@ import { simpleAuthService, requireSimpleAuth } from "./simple-auth";
 import { regionalExpansionEngine } from "./regional-expansion";
 import { comprehensivePhotoEnrichment } from "./comprehensive-photo-enrichment";
 import { apiCostProtection } from "./api-cost-protection";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 import { communityStatsCache } from "./community-stats-cache";
 import { systematicPhotoEnrichment } from "./systematic-photo-enrichment";
 import { emergencyEnrichment } from "./emergency-enrichment";
@@ -101,19 +102,16 @@ const upload = multer({
   }
 });
 
-// Authentication middleware function
-const isAuthenticated = (req: any, res: any, next: any) => {
-  if (req.isAuthenticated && req.isAuthenticated()) {
-    return next();
-  }
-  return res.status(401).json({ message: 'Authentication required' });
-};
+// Note: isAuthenticated middleware now imported from replitAuth.ts
 import axios from 'axios';
 import cookieParser from "cookie-parser";
 import fs from 'fs';
 import path from 'path';
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Initialize Replit Auth before other routes
+  await setupAuth(app);
+
   // Initialize community stats cache on startup (non-blocking)
   communityStatsCache.initialize().catch(error => {
     console.error('Failed to initialize community stats cache:', error);
@@ -10525,6 +10523,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register infrastructure routes
   app.use('/api/infrastructure', infrastructureRoutes);
+
+  // Replit Auth user endpoint
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
 
   return httpServer;
 }
