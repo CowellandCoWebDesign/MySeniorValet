@@ -10536,5 +10536,107 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ===============================================
+  // UNDERUTILIZED INTEGRATIONS ACTIVATION
+  // ===============================================
+  
+  // AI-Powered Community Matching
+  app.post('/api/ai/community-matching', isAuthenticated, async (req, res) => {
+    try {
+      const { aiMatching } = await import('./ai-powered-matching');
+      const matches = await aiMatching.findBestMatches(req.body.careProfile, req.body.limit || 10);
+      res.json(matches);
+    } catch (error) {
+      console.error('AI matching error:', error);
+      res.status(500).json({ message: 'AI matching service unavailable' });
+    }
+  });
+
+  app.post('/api/ai/community-comparison', isAuthenticated, async (req, res) => {
+    try {
+      const { aiMatching } = await import('./ai-powered-matching');
+      const comparison = await aiMatching.generateCommunityComparison(req.body.communities);
+      res.json({ comparison });
+    } catch (error) {
+      console.error('AI comparison error:', error);
+      res.status(500).json({ message: 'AI comparison service unavailable' });
+    }
+  });
+
+  // OpenAI Natural Language Search
+  app.post('/api/openai/natural-search', isAuthenticated, async (req, res) => {
+    try {
+      const { openAIIntegration } = await import('./openai-integration');
+      const results = await openAIIntegration.processNaturalLanguageSearch(req.body);
+      res.json(results);
+    } catch (error) {
+      console.error('OpenAI search error:', error);
+      res.status(500).json({ message: 'Natural language search unavailable' });
+    }
+  });
+
+  // Premium Stripe Features
+  app.post('/api/stripe/family-collaboration', isAuthenticated, async (req, res) => {
+    try {
+      const { premiumStripeFeatures } = await import('./premium-stripe-features');
+      const subscription = await premiumStripeFeatures.createFamilyCollaborationSubscription(
+        req.user?.claims?.sub, 
+        req.body.planType
+      );
+      res.json(subscription);
+    } catch (error) {
+      console.error('Stripe family collaboration error:', error);
+      res.status(500).json({ message: 'Premium subscription unavailable' });
+    }
+  });
+
+  // DocuSign Digital Workflow (requires API key configuration)
+  app.post('/api/docusign/lease-signing', isAuthenticated, async (req, res) => {
+    try {
+      const { docuSignIntegration } = await import('./docusign-integration');
+      const envelope = await docuSignIntegration.createLeaseSigningEnvelope(
+        req.body.communityId,
+        req.body.residentInfo,
+        req.body.familyContacts,
+        req.body.leaseDocuments
+      );
+      res.json(envelope);
+    } catch (error) {
+      console.error('DocuSign lease signing error:', error);
+      res.status(500).json({ message: 'Digital signing unavailable - API key required' });
+    }
+  });
+
+  // WebSocket Family Collaboration
+  app.post('/api/websocket/create-collaboration', isAuthenticated, async (req, res) => {
+    try {
+      const { webSocketFamilyCollaboration } = await import('./websocket-family-collaboration');
+      const room = await webSocketFamilyCollaboration.createCollaborationRoom(
+        req.body.communityId,
+        req.user?.claims?.sub,
+        req.body.familyMembers
+      );
+      res.json(room);
+    } catch (error) {
+      console.error('WebSocket collaboration creation error:', error);
+      res.status(500).json({ message: 'Family collaboration unavailable' });
+    }
+  });
+
+  // Advanced Mapping/GIS
+  app.get('/api/gis/geospatial-analysis/:communityId', isAuthenticated, async (req, res) => {
+    try {
+      const { advancedMappingGIS } = await import('./advanced-mapping-gis');
+      const analysis = await advancedMappingGIS.getGeospatialAnalysis(
+        parseInt(req.params.communityId),
+        req.user?.claims?.sub
+      );
+      res.json(analysis);
+    } catch (error) {
+      console.error('GIS analysis error:', error);
+      res.status(500).json({ message: 'Geospatial analysis unavailable' });
+    }
+  });
+
   return httpServer;
 }
