@@ -183,6 +183,111 @@ export default function IntegrationDashboard() {
         businessValue: 'Reduces manual work by 70%',
         setupComplexity: 'medium',
         monthlyValue: 2200
+      },
+
+      // Healthcare & Medical Integrations
+      {
+        id: 'epic-fhir',
+        name: 'Epic FHIR Integration',
+        description: 'Medical records transfer and patient data integration',
+        status: 'active',
+        icon: Database,
+        category: 'core',
+        businessValue: 'Streamlines medical records coordination for senior living',
+        setupComplexity: 'high',
+        monthlyValue: 4000
+      },
+      {
+        id: 'cerner-health',
+        name: 'Cerner Health API',
+        description: 'Healthcare provider coordination and care team management',
+        status: 'active',
+        icon: Users,
+        category: 'core',
+        businessValue: 'Improves care transition coordination',
+        setupComplexity: 'high',
+        monthlyValue: 3500
+      },
+      {
+        id: 'medicare-integration',
+        name: 'Medicare.gov API',
+        description: 'Benefits verification and coverage analysis',
+        status: 'active',
+        icon: CreditCard,
+        category: 'core',
+        businessValue: 'Provides transparent Medicare coverage information',
+        setupComplexity: 'medium',
+        monthlyValue: 3000
+      },
+      {
+        id: 'pharmacy-integration',
+        name: 'Pharmacy Integration',
+        description: 'Medication management and prescription coordination',
+        status: 'active',
+        icon: Database,
+        category: 'core',
+        businessValue: 'Simplifies medication transfer during moves',
+        setupComplexity: 'medium',
+        monthlyValue: 2800
+      },
+
+      // Social & Family Integrations
+      {
+        id: 'facebook-marketing',
+        name: 'Facebook Marketing API',
+        description: 'Family-targeted advertising and lookalike audiences',
+        status: 'active',
+        icon: TrendingUp,
+        category: 'marketing',
+        businessValue: 'Reaches family decision-makers with targeted campaigns',
+        setupComplexity: 'medium',
+        monthlyValue: 3500
+      },
+      {
+        id: 'linkedin-sales',
+        name: 'LinkedIn Sales Navigator',
+        description: 'Professional family network outreach and connections',
+        status: 'active',
+        icon: Users,
+        category: 'marketing',
+        businessValue: 'Leverages professional networks for senior care connections',
+        setupComplexity: 'medium',
+        monthlyValue: 2800
+      },
+      {
+        id: 'whatsapp-business',
+        name: 'WhatsApp Business API',
+        description: 'International family communication and group coordination',
+        status: 'active',
+        icon: Phone,
+        category: 'communication',
+        businessValue: 'Enables global family coordination for senior living decisions',
+        setupComplexity: 'medium',
+        monthlyValue: 2400
+      },
+      {
+        id: 'zoom-integration',
+        name: 'Zoom API',
+        description: 'Virtual tours, family consultations, and meeting automation',
+        status: 'active',
+        icon: Calendar,
+        category: 'communication',
+        businessValue: 'Facilitates remote family involvement in senior living process',
+        setupComplexity: 'low',
+        monthlyValue: 1600
+      },
+
+      // Transportation Integrations
+      {
+        id: 'uber-lyft',
+        name: 'Uber & Lyft APIs',
+        description: 'Senior transportation coordination and family visit logistics',
+        status: 'active',
+        icon: Map,
+        category: 'automation',
+        businessValue: 'Provides reliable transportation for tours and ongoing needs',
+        setupComplexity: 'medium',
+        monthlyValue: 2100
       }
     ]);
   }, []);

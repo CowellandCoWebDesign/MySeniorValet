@@ -10780,5 +10780,249 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ===============================================
+  // HEALTHCARE & MEDICAL INTEGRATIONS
+  // ===============================================
+
+  // Epic FHIR Integration
+  app.post('/api/healthcare/epic/patient-summary', isAuthenticated, async (req, res) => {
+    try {
+      const { epicFHIR } = await import('./epic-fhir-integration');
+      const summary = await epicFHIR.getPatientSummary(req.body.patientId);
+      res.json(summary);
+    } catch (error) {
+      console.error('Epic FHIR patient summary error:', error);
+      res.status(500).json({ message: 'Epic FHIR integration unavailable - API keys required' });
+    }
+  });
+
+  app.post('/api/healthcare/epic/transfer-records', isAuthenticated, async (req, res) => {
+    try {
+      const { epicFHIR } = await import('./epic-fhir-integration');
+      const transferId = await epicFHIR.requestMedicalRecordsTransfer(req.body);
+      res.json({ transferId });
+    } catch (error) {
+      console.error('Epic FHIR records transfer error:', error);
+      res.status(500).json({ message: 'Medical records transfer unavailable' });
+    }
+  });
+
+  // Cerner Health Integration
+  app.post('/api/healthcare/cerner/care-team', isAuthenticated, async (req, res) => {
+    try {
+      const { cernerHealth } = await import('./cerner-health-integration');
+      const careTeam = await cernerHealth.getPatientCareTeam(req.body.patientId);
+      res.json(careTeam);
+    } catch (error) {
+      console.error('Cerner care team error:', error);
+      res.status(500).json({ message: 'Cerner Health integration unavailable - API keys required' });
+    }
+  });
+
+  app.post('/api/healthcare/cerner/transition-care', isAuthenticated, async (req, res) => {
+    try {
+      const { cernerHealth } = await import('./cerner-health-integration');
+      const carePlanId = await cernerHealth.createTransitionOfCare(req.body);
+      res.json({ carePlanId });
+    } catch (error) {
+      console.error('Cerner transition of care error:', error);
+      res.status(500).json({ message: 'Care transition planning unavailable' });
+    }
+  });
+
+  // Medicare Integration
+  app.post('/api/healthcare/medicare/verify-benefits', isAuthenticated, async (req, res) => {
+    try {
+      const { medicareIntegration } = await import('./medicare-integration');
+      const benefits = await medicareIntegration.verifyMedicareBenefits(req.body);
+      res.json(benefits);
+    } catch (error) {
+      console.error('Medicare benefits verification error:', error);
+      res.status(500).json({ message: 'Medicare integration unavailable - API keys required' });
+    }
+  });
+
+  app.post('/api/healthcare/medicare/senior-living-coverage', isAuthenticated, async (req, res) => {
+    try {
+      const { medicareIntegration } = await import('./medicare-integration');
+      const coverage = await medicareIntegration.getSeniorLivingCoverage(req.body.beneficiaryId, req.body.communityType);
+      res.json(coverage);
+    } catch (error) {
+      console.error('Medicare coverage analysis error:', error);
+      res.status(500).json({ message: 'Senior living coverage analysis unavailable' });
+    }
+  });
+
+  // Pharmacy Integration
+  app.post('/api/healthcare/pharmacy/find-nearby', isAuthenticated, async (req, res) => {
+    try {
+      const { pharmacyIntegration } = await import('./pharmacy-integration');
+      const pharmacies = await pharmacyIntegration.findNearbyPharmacies(req.body.location);
+      res.json(pharmacies);
+    } catch (error) {
+      console.error('Pharmacy search error:', error);
+      res.status(500).json({ message: 'Pharmacy search unavailable - API keys required' });
+    }
+  });
+
+  app.post('/api/healthcare/pharmacy/transfer-medications', isAuthenticated, async (req, res) => {
+    try {
+      const { pharmacyIntegration } = await import('./pharmacy-integration');
+      const transferId = await pharmacyIntegration.createMedicationTransferRequest(req.body);
+      res.json({ transferId });
+    } catch (error) {
+      console.error('Medication transfer error:', error);
+      res.status(500).json({ message: 'Medication transfer unavailable' });
+    }
+  });
+
+  // ===============================================
+  // SOCIAL & FAMILY INTEGRATIONS
+  // ===============================================
+
+  // Facebook Marketing Integration
+  app.post('/api/social/facebook/create-campaign', isAuthenticated, async (req, res) => {
+    try {
+      const { facebookMarketing } = await import('./facebook-marketing-integration');
+      const campaignId = await facebookMarketing.createFamilyTargetedCampaign(req.body);
+      res.json({ campaignId });
+    } catch (error) {
+      console.error('Facebook campaign creation error:', error);
+      res.status(500).json({ message: 'Facebook Marketing integration unavailable - API keys required' });
+    }
+  });
+
+  app.post('/api/social/facebook/lookalike-audience', isAuthenticated, async (req, res) => {
+    try {
+      const { facebookMarketing } = await import('./facebook-marketing-integration');
+      const audienceId = await facebookMarketing.createLookalikeAudience(req.body);
+      res.json({ audienceId });
+    } catch (error) {
+      console.error('Facebook lookalike audience error:', error);
+      res.status(500).json({ message: 'Lookalike audience creation unavailable' });
+    }
+  });
+
+  // LinkedIn Sales Integration
+  app.post('/api/social/linkedin/search-contacts', isAuthenticated, async (req, res) => {
+    try {
+      const { linkedInSales } = await import('./linkedin-sales-integration');
+      const contacts = await linkedInSales.searchProfessionalContacts(req.body);
+      res.json(contacts);
+    } catch (error) {
+      console.error('LinkedIn contact search error:', error);
+      res.status(500).json({ message: 'LinkedIn Sales Navigator integration unavailable - API keys required' });
+    }
+  });
+
+  app.post('/api/social/linkedin/senior-care-connections', isAuthenticated, async (req, res) => {
+    try {
+      const { linkedInSales } = await import('./linkedin-sales-integration');
+      const connections = await linkedInSales.findSeniorCareConnections(req.body);
+      res.json(connections);
+    } catch (error) {
+      console.error('LinkedIn senior care connections error:', error);
+      res.status(500).json({ message: 'Senior care networking unavailable' });
+    }
+  });
+
+  // WhatsApp Business Integration
+  app.post('/api/social/whatsapp/family-update', isAuthenticated, async (req, res) => {
+    try {
+      const { whatsappBusiness } = await import('./whatsapp-business-integration');
+      const results = await whatsappBusiness.sendFamilyUpdate(req.body);
+      res.json(results);
+    } catch (error) {
+      console.error('WhatsApp family update error:', error);
+      res.status(500).json({ message: 'WhatsApp Business integration unavailable - API keys required' });
+    }
+  });
+
+  app.post('/api/social/whatsapp/tour-invitation', isAuthenticated, async (req, res) => {
+    try {
+      const { whatsappBusiness } = await import('./whatsapp-business-integration');
+      const results = await whatsappBusiness.sendTourInvitation(req.body);
+      res.json(results);
+    } catch (error) {
+      console.error('WhatsApp tour invitation error:', error);
+      res.status(500).json({ message: 'Tour invitation messaging unavailable' });
+    }
+  });
+
+  // Zoom Integration
+  app.post('/api/social/zoom/virtual-tour', isAuthenticated, async (req, res) => {
+    try {
+      const { zoomIntegration } = await import('./zoom-integration');
+      const tourDetails = await zoomIntegration.createVirtualTour(req.body);
+      res.json(tourDetails);
+    } catch (error) {
+      console.error('Zoom virtual tour error:', error);
+      res.status(500).json({ message: 'Zoom integration unavailable - API keys required' });
+    }
+  });
+
+  app.post('/api/social/zoom/family-consultation', isAuthenticated, async (req, res) => {
+    try {
+      const { zoomIntegration } = await import('./zoom-integration');
+      const meetingId = await zoomIntegration.setupFamilyConsultation(req.body);
+      res.json({ meetingId });
+    } catch (error) {
+      console.error('Zoom family consultation error:', error);
+      res.status(500).json({ message: 'Family consultation scheduling unavailable' });
+    }
+  });
+
+  // ===============================================
+  // TRANSPORTATION INTEGRATIONS
+  // ===============================================
+
+  // Uber & Lyft Integration
+  app.post('/api/transportation/schedule-tour', isAuthenticated, async (req, res) => {
+    try {
+      const { uberLyftIntegration } = await import('./uber-lyft-integration');
+      const transportationDetails = await uberLyftIntegration.scheduleTransportationForTour(req.body);
+      res.json(transportationDetails);
+    } catch (error) {
+      console.error('Transportation scheduling error:', error);
+      res.status(500).json({ message: 'Transportation integration unavailable - API keys required' });
+    }
+  });
+
+  app.post('/api/transportation/recurring-rides', isAuthenticated, async (req, res) => {
+    try {
+      const { uberLyftIntegration } = await import('./uber-lyft-integration');
+      const recurringTrips = await uberLyftIntegration.createRecurringTransportation(req.body);
+      res.json(recurringTrips);
+    } catch (error) {
+      console.error('Recurring transportation error:', error);
+      res.status(500).json({ message: 'Recurring ride scheduling unavailable' });
+    }
+  });
+
+  app.post('/api/transportation/family-visits', isAuthenticated, async (req, res) => {
+    try {
+      const { uberLyftIntegration } = await import('./uber-lyft-integration');
+      const visitTransportation = await uberLyftIntegration.setupFamilyVisitTransportation(req.body);
+      res.json(visitTransportation);
+    } catch (error) {
+      console.error('Family visit transportation error:', error);
+      res.status(500).json({ message: 'Family visit coordination unavailable' });
+    }
+  });
+
+  app.get('/api/transportation/status/:tripId/:provider', isAuthenticated, async (req, res) => {
+    try {
+      const { uberLyftIntegration } = await import('./uber-lyft-integration');
+      const status = await uberLyftIntegration.getTransportationStatus(
+        req.params.tripId,
+        req.params.provider as 'uber' | 'lyft'
+      );
+      res.json(status);
+    } catch (error) {
+      console.error('Transportation status error:', error);
+      res.status(500).json({ message: 'Transportation tracking unavailable' });
+    }
+  });
+
   return httpServer;
 }
