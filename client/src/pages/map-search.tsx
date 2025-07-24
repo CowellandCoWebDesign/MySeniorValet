@@ -51,7 +51,7 @@ export default function MapSearchClean() {
 
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [filters, setFilters] = useState<SearchFilters>({
     careType: 'All Types',
@@ -65,7 +65,7 @@ export default function MapSearchClean() {
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
   const [mapBounds, setMapBounds] = useState<any>(null);
   const [showBottomPanel, setShowBottomPanel] = useState(false);
-  const [panelHeight, setPanelHeight] = useState(70);
+  const [panelHeight, setPanelHeight] = useState(75);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [isMapMoving, setIsMapMoving] = useState(false);
@@ -229,26 +229,32 @@ export default function MapSearchClean() {
     <div className={`min-h-screen transition-colors duration-300 ${
       isDarkMode ? 'dark bg-gray-900' : 'bg-gray-50'
     }`}>
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+      {/* Enhanced Header */}
+      <div className="bg-white dark:bg-gray-900 shadow-lg border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
+          <div className="flex justify-between items-center h-20">
+            {/* Enhanced Logo */}
             <div className="flex items-center">
               <button
                 onClick={() => setLocation('/')}
-                className="text-2xl font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                className="flex items-center space-x-3 group"
               >
-                MySeniorValet
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                  <Home className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">MySeniorValet</h1>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Senior Living Search</p>
+                </div>
               </button>
             </div>
 
-            {/* Search bar */}
-            <div className="flex-1 max-w-2xl mx-8 relative">
+            {/* Enhanced Search bar */}
+            <div className="flex-1 max-w-3xl mx-8 relative">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <Input
-                  placeholder="Search communities, cities, or neighborhoods..."
+                  placeholder="Search by city, state, or ZIP code..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => {
@@ -256,41 +262,41 @@ export default function MapSearchClean() {
                       handleLocationSearch(searchQuery);
                     }
                   }}
-                  className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="pl-12 pr-6 py-4 w-full border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white text-lg transition-all duration-200 hover:bg-white dark:hover:bg-gray-700"
                 />
               </div>
             </div>
 
-            {/* Controls */}
-            <div className="flex items-center space-x-3">
-              {/* Dark mode toggle */}
+            {/* Enhanced Controls */}
+            <div className="flex items-center space-x-4">
+              {/* Enhanced Dark mode toggle */}
               <Button
                 variant="ghost"
-                size="sm"
+                size="lg"
                 onClick={toggleDarkMode}
-                className="text-gray-600 dark:text-gray-300"
+                className="text-gray-600 dark:text-gray-300 h-12 w-12 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
               >
-                {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                {isDarkMode ? <Sun className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
               </Button>
 
-              {/* View toggle */}
-              <div className="flex rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
+              {/* Enhanced View toggle */}
+              <div className="flex rounded-xl border-2 border-gray-200 dark:border-gray-600 overflow-hidden bg-gray-50 dark:bg-gray-800">
                 <Button
                   variant={viewMode === 'map' ? 'default' : 'ghost'}
-                  size="sm"
+                  size="lg"
                   onClick={() => setViewMode('map')}
-                  className="rounded-none border-0"
+                  className={`rounded-none border-0 h-12 px-6 ${viewMode === 'map' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                 >
-                  <MapIcon className="h-4 w-4 mr-1" />
+                  <MapIcon className="h-5 w-5 mr-2" />
                   Map
                 </Button>
                 <Button
                   variant={viewMode === 'list' ? 'default' : 'ghost'}
-                  size="sm"
+                  size="lg"
                   onClick={() => setViewMode('list')}
-                  className="rounded-none border-0"
+                  className={`rounded-none border-0 h-12 px-6 ${viewMode === 'list' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                 >
-                  <List className="h-4 w-4 mr-1" />
+                  <List className="h-5 w-5 mr-2" />
                   List
                 </Button>
               </div>
@@ -300,7 +306,7 @@ export default function MapSearchClean() {
       </div>
 
       {/* Main Content */}
-      <div className="relative h-[calc(100vh-4rem)]">
+      <div className="relative h-[calc(100vh-5rem)]">
         {viewMode === 'map' ? (
           <>
             {/* Map Container */}
@@ -317,57 +323,73 @@ export default function MapSearchClean() {
               </MapErrorBoundary>
             </div>
 
-            {/* Floating list toggle button */}
+            {/* Enhanced Floating list toggle button */}
             <Button
               onClick={toggleListView}
-              className="fixed bottom-6 right-6 z-50 rounded-full h-14 w-14 p-0 shadow-lg bg-blue-600 hover:bg-blue-700 text-white border-2 border-white dark:border-gray-800"
+              className="fixed bottom-8 right-8 z-50 rounded-full h-16 w-16 p-0 shadow-2xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-4 border-white dark:border-gray-800 transition-all duration-300 hover:scale-110"
             >
-              <List className="h-6 w-6" />
+              <List className="h-7 w-7" />
             </Button>
 
-            {/* Bottom panel for list view */}
+            {/* Enhanced Bottom panel for list view */}
             {showBottomPanel && (
               <div 
-                className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg z-40 overflow-hidden transition-all duration-300"
+                className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t-2 border-gray-200 dark:border-gray-700 shadow-2xl z-40 overflow-hidden transition-all duration-500 rounded-t-3xl"
                 style={{ height: `${panelHeight}vh` }}
               >
-                <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center space-x-3">
-                    <h3 className="font-semibold text-gray-900 dark:text-white">
-                      Communities in View ({mapCommunities.length})
-                    </h3>
+                <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-3 h-12 bg-gradient-to-b from-blue-600 to-purple-600 rounded-full"></div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                        Communities in View
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {mapCommunities.length} communities found • {mapCommunities.filter(c => c.hudPropertyId).length} with live data
+                      </p>
+                    </div>
                     {(isLoadingCommunities || isFetchingCommunities || isMapMoving) && (
-                      <div className="flex items-center space-x-2 text-sm text-gray-500">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                        <span>{isMapMoving ? 'Map moving...' : 'Loading communities...'}</span>
+                      <div className="flex items-center space-x-3 text-sm text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-4 py-2 rounded-full">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                        <span className="font-medium">{isMapMoving ? 'Map moving...' : 'Loading communities...'}</span>
                       </div>
                     )}
                   </div>
                   <Button
                     variant="ghost"
-                    size="sm"
+                    size="lg"
                     onClick={toggleListView}
-                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 h-12 w-12 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
-                    <X className="h-5 w-5" />
+                    <X className="h-6 w-6" />
                   </Button>
                 </div>
 
-                <div className="overflow-auto h-full pb-16">
+                <div className="overflow-auto h-full pb-20 bg-gray-50 dark:bg-gray-900">
                   {mapCommunities.length > 0 ? (
-                    <div className="grid gap-4 p-4">
+                    <div className="grid gap-6 p-6">
                       {mapCommunities.map((community) => (
                         <EnhancedCommunityCard
                           key={community.id}
                           community={community}
-                          onClick={() => handleCommunityClick(community)}
-                          className="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600"
+                          variant="horizontal"
+                          onSelect={() => handleCommunityClick(community)}
                         />
                       ))}
                     </div>
                   ) : (
-                    <div className="flex items-center justify-center h-64 text-gray-500">
-                      {isLoadingCommunities ? 'Loading communities...' : 'No communities found in this area'}
+                    <div className="flex flex-col items-center justify-center h-64 text-gray-500 space-y-4">
+                      <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                        <MapIcon className="h-8 w-8 text-gray-400" />
+                      </div>
+                      <div className="text-center">
+                        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                          {isLoadingCommunities ? 'Finding communities...' : 'No communities in this area'}
+                        </h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {isLoadingCommunities ? 'Please wait while we search' : 'Try zooming out or moving the map to explore more areas'}
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -375,34 +397,76 @@ export default function MapSearchClean() {
             )}
           </>
         ) : (
-          /* List View */
-          <div className="h-full overflow-auto bg-gray-50 dark:bg-gray-900">
-            <div className="max-w-4xl mx-auto p-6">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                  Senior Living Communities
-                </h2>
-                <p className="text-gray-600 dark:text-gray-400">
-                  {mapCommunities.length} communities found
-                </p>
+          /* Enhanced List View */
+          <div className="h-full overflow-auto bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+            <div className="max-w-6xl mx-auto p-8">
+              {/* Enhanced Header */}
+              <div className="mb-8 text-center">
+                <div className="inline-flex items-center space-x-3 bg-white dark:bg-gray-800 rounded-2xl px-8 py-4 shadow-lg border border-gray-200 dark:border-gray-700">
+                  <div className="w-4 h-12 bg-gradient-to-b from-blue-600 to-purple-600 rounded-full"></div>
+                  <div>
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+                      Senior Living Communities
+                    </h2>
+                    <p className="text-lg text-gray-600 dark:text-gray-400 mt-1">
+                      {mapCommunities.length} communities found • {mapCommunities.filter(c => c.hudPropertyId).length} with live data
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              <div className="space-y-6">
-                {mapCommunities.map((community) => (
-                  <EnhancedCommunityCard
-                    key={community.id}
-                    community={community}
-                    onClick={() => handleCommunityClick(community)}
-                    className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
-                  />
+              {/* Enhanced Community List */}
+              <div className="space-y-8">
+                {mapCommunities.map((community, index) => (
+                  <div key={community.id} className="group">
+                    <EnhancedCommunityCard
+                      community={community}
+                      variant="horizontal"
+                      onSelect={() => handleCommunityClick(community)}
+                      index={index}
+                    />
+                  </div>
                 ))}
               </div>
 
+              {/* Enhanced Empty State */}
               {mapCommunities.length === 0 && !isLoadingCommunities && (
-                <div className="text-center py-12">
-                  <MapIcon className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">No communities found</h3>
-                  <p className="mt-1 text-sm text-gray-500">Try adjusting your search or filters.</p>
+                <div className="text-center py-20">
+                  <div className="max-w-md mx-auto">
+                    <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-gray-700 dark:to-gray-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <MapIcon className="h-12 w-12 text-gray-400 dark:text-gray-500" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+                      No communities found
+                    </h3>
+                    <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
+                      Try adjusting your search location or expanding your search area on the map.
+                    </p>
+                    <Button 
+                      onClick={() => setViewMode('map')}
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-xl text-lg font-semibold transition-all duration-300 hover:scale-105"
+                    >
+                      <MapIcon className="h-5 w-5 mr-2" />
+                      Back to Map
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Loading State */}
+              {isLoadingCommunities && (
+                <div className="text-center py-20">
+                  <div className="max-w-md mx-auto">
+                    <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-gray-700 dark:to-gray-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600"></div>
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+                      Finding communities...
+                    </h3>
+                    <p className="text-lg text-gray-600 dark:text-gray-400">
+                      Please wait while we search for senior living options in your area.
+                    </p>
+                  </div>
                 </div>
               )}
             </div>

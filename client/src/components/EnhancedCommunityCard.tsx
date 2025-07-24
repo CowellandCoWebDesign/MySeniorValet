@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, Home, DollarSign, Users, Building, MapPin } from "lucide-react";
+import { Heart, Home, DollarSign, Users, Building, MapPin, Star, Zap } from "lucide-react";
 import { Link } from "wouter";
 
 interface CommunityCardProps {
@@ -56,11 +56,10 @@ interface CommunityCardProps {
       source: string;
       qualityScore: number;
       lastVerified: string;
-      lastVerified: string;
     };
   };
   index?: number;
-  variant?: 'standard' | 'featured' | 'coastal' | 'trending' | 'list' | 'horizontal';
+  variant?: 'standard' | 'featured' | 'coastal' | 'trending' | 'list' | 'horizontal' | 'default';
   onSelect?: () => void;
 }
 
@@ -84,299 +83,55 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
     gray: 'bg-blue-600'
   }[availabilityColor];
 
-  // Determine variant styling
-  const variantStyles = {
-    standard: 'border-gray-200',
-    featured: 'border-purple-300 shadow-purple-100',
-    coastal: 'border-blue-300 shadow-blue-100',
-    trending: 'border-green-300 shadow-green-100',
-    horizontal: 'border-gray-200',
-    list: 'border-gray-200'
-  };
-
   const handleCardClick = () => {
     if (onSelect) {
       onSelect();
     }
   };
 
-  const cardContent = (
-    <Card 
-      className={`overflow-hidden flex-shrink-0 w-56 h-[30rem] animate-float ${variantStyles[variant]} hover:shadow-xl transition-all duration-300 transform hover:scale-105 ${onSelect ? 'cursor-pointer' : ''}`}
-      onClick={onSelect ? handleCardClick : undefined}
-    >
-        <div className="relative">
-          {/* Placeholder Image */}
-          <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center">
-            <Home className="w-12 h-12 text-gray-400" />
-          </div>
-
-          {/* Heart Icon */}
-          <div className="absolute top-2 right-2 z-10">
-            <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/90 cursor-pointer">
-              <Heart className="w-4 h-4 text-gray-600 hover:text-red-500" />
-            </div>
-          </div>
-
-          {/* Availability Status Badge - Top Left */}
-          <Badge className={`absolute top-2 left-2 ${availabilityBgColor} text-white text-xs px-2 py-1 font-medium z-10`}>
-            {community.displayAvailability?.availabilityStatus || community.availabilityStatus || 'Contact for Info'}
-          </Badge>
-
-          {/* Authentic Pricing Badge - Bottom Left */}
-          <Badge className={`absolute bottom-2 left-2 ${hasAuthenticPricing ? 'bg-gradient-to-r from-green-600 to-emerald-600' : 'bg-gradient-to-r from-blue-600 to-purple-600'} text-white text-xs px-2 py-1 font-medium z-10`}>
-            <DollarSign className="w-3 h-3 mr-1" />
-            {hasAuthenticPricing ? 'HUD Verified' : 'Market Est.'}
-          </Badge>
-
-          {/* Data Quality Badge - Bottom Right */}
-          {isHudProperty && (
-            <Badge className="absolute bottom-2 right-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs px-2 py-1 font-medium z-10">
-              🏛️ HUD
-            </Badge>
-          )}
-        </div>
-
-        <CardContent className="p-3">
-          {/* Community Name */}
-          <div className="text-sm font-bold text-gray-900 dark:text-white mb-2 line-clamp-2">
-            {community.name}
-          </div>
-
-          {/* Location */}
-          <div className="flex items-center text-xs text-gray-600 dark:text-gray-400 mb-2">
-            <MapPin className="w-3 h-3 mr-1" />
-            <span className="line-clamp-1">
-              {community.city}, {community.state}
-              {community.zipCode && <span className="ml-1">({community.zipCode})</span>}
-            </span>
-          </div>
-
-          {/* Authentic Pricing Display */}
-          <div className="mb-2">
-            <div className={`text-lg font-bold ${hasAuthenticPricing ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'}`}>
-              {displayPrice}
-            </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              {community.displayPricing?.priceLabel || 'Market-based estimate'}
-            </div>
-          </div>
-
-          {/* Occupancy and Units Info */}
-          {hasOccupancyData && (
-            <div className="flex items-center text-xs text-gray-600 dark:text-gray-400 mb-2">
-              <Users className="w-3 h-3 mr-1" />
-              <span>{community.displayAvailability?.occupancyDisplay}</span>
-              {community.displayAvailability?.unitsDisplay && (
-                <span className="ml-1">• {community.displayAvailability.unitsDisplay}</span>
-              )}
-            </div>
-          )}
-
-          {/* Care Types */}
-          {community.careTypes && community.careTypes.length > 0 && (
-            <div className="text-xs text-gray-600 dark:text-gray-400 mb-2 line-clamp-1">
-              {community.careTypes.slice(0, 2).join(', ')}
-              {community.careTypes.length > 2 && ` +${community.careTypes.length - 2} more`}
-            </div>
-          )}
-
-          {/* Transparency Badges */}
-          <div className="flex flex-wrap gap-1 mb-2">
-            {community.transparencyBadges?.slice(0, 2).map((badge) => (
-              <Badge 
-                key={badge.id} 
-                className={`${badge.color} text-white text-xs px-2 py-1 font-medium`}
-                title={badge.description}
-              >
-                {badge.name}
-              </Badge>
-            ))}
-          </div>
-
-          {/* Data Quality Indicator */}
-          {community.dataQuality && (
-            <div className="flex items-center justify-between text-xs mt-2">
-              <div className={`flex items-center ${community.dataQuality.isAuthentic ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}`}>
-                <div className={`w-2 h-2 rounded-full mr-1 ${community.dataQuality.isAuthentic ? 'bg-green-500' : 'bg-orange-500'}`}></div>
-                <span>{community.dataQuality.lastVerified}</span>
-              </div>
-              <div className="text-gray-500 dark:text-gray-400">
-                Score: {community.dataQuality.qualityScore}/100
-              </div>
-            </div>
-          )}
-        </CardContent>
-    </Card>
-  );
-
-  // Return with Link wrapper if no onSelect provided, otherwise return card directly
-  const cardWithEnhancedStyling = (
-    <Card 
-      className={`overflow-hidden flex-shrink-0 w-64 h-[32rem] group hover:shadow-2xl transition-all duration-500 transform hover:scale-[1.02] ${variantStyles[variant]} ${onSelect ? 'cursor-pointer' : ''} bg-white dark:bg-gray-800 border-2 hover:border-blue-300`}
-      onClick={onSelect ? handleCardClick : undefined}
-    >
-        <div className="relative">
-          {/* Enhanced Image Container */}
-          <div className="aspect-[4/3] bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center relative overflow-hidden">
-            <Home className="w-14 h-14 text-gray-400 dark:text-gray-500 group-hover:scale-110 transition-transform duration-300" />
-
-            {/* Gradient overlay for better text readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-          </div>
-
-          {/* Enhanced Heart Icon */}
-          <div className="absolute top-3 right-3 z-10">
-            <div className="w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/95 cursor-pointer shadow-lg hover:shadow-xl transition-all duration-200 group">
-              <Heart className="w-5 h-5 text-gray-600 hover:text-red-500 group-hover:scale-110 transition-all duration-200" />
-            </div>
-          </div>
-
-          {/* Enhanced Availability Status Badge */}
-          <Badge className={`absolute top-3 left-3 ${availabilityBgColor} text-white text-xs px-3 py-1.5 font-semibold z-10 shadow-lg`}>
-            {community.displayAvailability?.availabilityStatus || community.availabilityStatus || 'Contact for Info'}
-          </Badge>
-
-          {/* Enhanced Pricing Badge */}
-          <Badge className={`absolute bottom-3 left-3 ${hasAuthenticPricing ? 'bg-gradient-to-r from-green-600 to-emerald-600' : 'bg-gradient-to-r from-blue-600 to-purple-600'} text-white text-xs px-3 py-1.5 font-semibold z-10 shadow-lg`}>
-            <DollarSign className="w-3 h-3 mr-1" />
-            {hasAuthenticPricing ? 'HUD Verified' : 'Market Est.'}
-          </Badge>
-
-          {/* Enhanced Data Quality Badge */}
-          {isHudProperty && (
-            <Badge className="absolute bottom-3 right-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs px-3 py-1.5 font-semibold z-10 shadow-lg">
-              🏛️ Official
-            </Badge>
-          )}
-        </div>
-
-        <CardContent className="p-4 h-full flex flex-col">
-          {/* Enhanced Community Name */}
-          <div className="text-base font-bold text-gray-900 dark:text-white mb-3 line-clamp-2 leading-tight group-hover:text-blue-600 transition-colors duration-200">
-            {community.name}
-          </div>
-
-          {/* Enhanced Location */}
-          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-3">
-            <MapPin className="w-4 h-4 mr-2 text-blue-500 flex-shrink-0" />
-            <span className="line-clamp-1">
-              {community.city}, {community.state}
-              {community.zipCode && <span className="ml-1 text-gray-500">({community.zipCode})</span>}
-            </span>
-          </div>
-
-          {/* Enhanced Pricing Display */}
-          <div className="mb-3">
-            <div className={`text-xl font-bold ${hasAuthenticPricing ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'} mb-1`}>
-              {displayPrice}
-            </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              {community.displayPricing?.priceLabel || 'Market-based estimate'}
-            </div>
-          </div>
-
-          {/* Enhanced Occupancy Info */}
-          {hasOccupancyData && (
-            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-3 bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
-              <Users className="w-4 h-4 mr-2 text-green-500" />
-              <span className="text-xs">
-                {community.displayAvailability?.occupancyDisplay}
-                {community.displayAvailability?.unitsDisplay && (
-                  <span className="ml-2">• {community.displayAvailability.unitsDisplay}</span>
-                )}
-              </span>
-            </div>
-          )}
-
-          {/* Enhanced Care Types */}
-          {community.careTypes && community.careTypes.length > 0 && (
-            <div className="mb-3">
-              <div className="flex flex-wrap gap-1">
-                {community.careTypes.slice(0, 2).map((type) => (
-                  <Badge key={type} variant="secondary" className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700">
-                    {type}
-                  </Badge>
-                ))}
-                {community.careTypes.length > 2 && (
-                  <Badge variant="secondary" className="text-xs bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                    +{community.careTypes.length - 2}
-                  </Badge>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Enhanced Transparency Badges */}
-          {community.transparencyBadges && community.transparencyBadges.length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-3">
-              {community.transparencyBadges.slice(0, 2).map((badge) => (
-                <Badge 
-                  key={badge.id} 
-                  className={`${badge.color} text-white text-xs px-2 py-1 font-medium shadow-sm`}
-                  title={badge.description}
-                >
-                  {badge.icon} {badge.name}
-                </Badge>
-              ))}
-            </div>
-          )}
-
-          {/* Enhanced Data Quality Indicator */}
-          <div className="mt-auto">
-            {community.dataQuality && (
-              <div className="flex items-center justify-between text-xs pt-3 border-t border-gray-200 dark:border-gray-700">
-                <div className={`flex items-center ${community.dataQuality.isAuthentic ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}`}>
-                  <div className={`w-2 h-2 rounded-full mr-2 ${community.dataQuality.isAuthentic ? 'bg-green-500' : 'bg-orange-500'} shadow-sm`}></div>
-                  <span className="font-medium">{community.dataQuality.lastVerified}</span>
-                </div>
-                <div className="text-gray-500 dark:text-gray-400 font-medium">
-                  {community.dataQuality.qualityScore}/100
-                </div>
-              </div>
-            )}
-          </div>
-        </CardContent>
-    </Card>
-  );
-
-  const isListView = variant === 'list' || variant === 'horizontal';
-
   // Horizontal layout for list view
-  if (variant === 'horizontal') {
+  if (variant === 'horizontal' || variant === 'list') {
     const horizontalCard = (
       <Card 
-        className={`overflow-hidden flex flex-row h-32 group hover:shadow-lg transition-all duration-300 transform hover:scale-[1.01] ${variantStyles[variant]} ${onSelect ? 'cursor-pointer' : ''} bg-white dark:bg-gray-800 border hover:border-blue-300`}
+        className={`overflow-hidden flex flex-row h-36 group hover:shadow-xl transition-all duration-300 transform hover:scale-[1.01] ${onSelect ? 'cursor-pointer' : ''} bg-white dark:bg-gray-800 border-0 shadow-lg hover:border-blue-300 rounded-2xl`}
         onClick={onSelect ? handleCardClick : undefined}
       >
-        {/* Image Section */}
-        <div className="w-48 flex-shrink-0 relative">
-          <div className="aspect-[4/3] bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center relative overflow-hidden h-full">
-            <Home className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+        {/* Enhanced Image Section */}
+        <div className="w-52 flex-shrink-0 relative">
+          <div className="aspect-[4/3] bg-gradient-to-br from-blue-100 via-purple-50 to-pink-100 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 flex items-center justify-center relative overflow-hidden h-full rounded-l-2xl">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+            <Home className="w-10 h-10 text-gray-400 dark:text-gray-500 opacity-60" />
             
-            {/* Badges overlay */}
-            <Badge className={`absolute top-2 left-2 ${availabilityBgColor} text-white text-xs px-2 py-1 font-medium z-10`}>
+            {/* Live Data Indicator */}
+            {isHudProperty && (
+              <div className="absolute top-3 left-3 flex items-center gap-1 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-semibold shadow-lg">
+                <div className="w-2 h-2 bg-green-200 rounded-full animate-pulse" />
+                LIVE DATA
+              </div>
+            )}
+            
+            {/* Availability Badge */}
+            <Badge className={`absolute bottom-3 left-3 ${availabilityBgColor} text-white text-xs px-3 py-1.5 font-semibold rounded-full shadow-lg backdrop-blur-sm`}>
               {community.displayAvailability?.availabilityStatus || community.availabilityStatus || 'Available'}
             </Badge>
-            
-            {isHudProperty && (
-              <Badge className="absolute bottom-2 right-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs px-2 py-1 font-medium z-10">
-                🏛️ HUD
-              </Badge>
-            )}
           </div>
         </div>
 
-        {/* Content Section */}
-        <CardContent className="flex-1 p-4 flex flex-col justify-between">
-          <div>
-            {/* Community Name */}
-            <div className="text-lg font-bold text-gray-900 dark:text-white mb-2 line-clamp-1 group-hover:text-blue-600 transition-colors duration-200">
-              {community.name}
+        {/* Enhanced Content Section */}
+        <CardContent className="flex-1 p-6 flex flex-col justify-between">
+          <div className="space-y-3">
+            {/* Community Name with Rating */}
+            <div className="flex items-start justify-between">
+              <div className="text-xl font-bold text-gray-900 dark:text-white line-clamp-1 group-hover:text-blue-600 transition-colors duration-200 flex-1 mr-3">
+                {community.name}
+              </div>
+              <div className="w-10 h-10 bg-gray-50 dark:bg-gray-700 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer group transition-all duration-300">
+                <Heart className="w-5 h-5 text-gray-600 dark:text-gray-400 hover:text-red-500 group-hover:scale-110 transition-all duration-200" />
+              </div>
             </div>
 
             {/* Location */}
-            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-2">
+            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
               <MapPin className="w-4 h-4 mr-2 text-blue-500 flex-shrink-0" />
               <span className="line-clamp-1">
                 {community.city}, {community.state}
@@ -386,27 +141,41 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
 
             {/* Care Types */}
             {community.careTypes && community.careTypes.length > 0 && (
-              <div className="flex flex-wrap gap-1 mb-2">
-                {community.careTypes.slice(0, 2).map((type) => (
-                  <Badge key={type} variant="secondary" className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+              <div className="flex flex-wrap gap-1.5">
+                {community.careTypes.slice(0, 3).map((type) => (
+                  <Badge key={type} variant="secondary" className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700 rounded-full">
                     {type}
                   </Badge>
                 ))}
+                {community.careTypes.length > 3 && (
+                  <Badge variant="secondary" className="text-xs bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full">
+                    +{community.careTypes.length - 3}
+                  </Badge>
+                )}
               </div>
             )}
           </div>
 
-          {/* Bottom Section */}
-          <div className="flex items-center justify-between">
-            {/* Pricing */}
-            <div className={`text-lg font-bold ${hasAuthenticPricing ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'}`}>
-              {displayPrice}
+          {/* Bottom Section - Pricing and Info */}
+          <div className="flex items-end justify-between pt-4">
+            <div className="space-y-1">
+              <div className={`text-2xl font-bold ${hasAuthenticPricing ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'}`}>
+                {displayPrice}
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                {community.displayPricing?.priceLabel || 'Market-based estimate'}
+              </div>
             </div>
 
-            {/* Heart Icon */}
-            <div className="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer">
-              <Heart className="w-4 h-4 text-gray-600 dark:text-gray-400 hover:text-red-500" />
-            </div>
+            {/* Occupancy Info */}
+            {hasOccupancyData && (
+              <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
+                <Users className="w-4 h-4 mr-2 text-green-500" />
+                <span className="text-xs">
+                  {community.displayAvailability?.occupancyDisplay}
+                </span>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -419,9 +188,148 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
     );
   }
 
-  return onSelect ? cardWithEnhancedStyling : (
+  // Standard vertical card layout
+  const cardContent = (
+    <Card 
+      className={`overflow-hidden flex-shrink-0 w-72 h-[36rem] bg-white dark:bg-gray-800 border-0 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 ${onSelect ? 'cursor-pointer' : ''} rounded-2xl group`}
+      onClick={onSelect ? handleCardClick : undefined}
+    >
+      <div className="relative">
+        {/* Enhanced Photo Background with Gradient Overlay */}
+        <div className="aspect-[4/3] bg-gradient-to-br from-blue-100 via-purple-50 to-pink-100 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 flex items-center justify-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+          <Home className="w-16 h-16 text-gray-400 dark:text-gray-500 opacity-60 group-hover:scale-110 transition-transform duration-300" />
+          
+          {/* Live Data Indicator */}
+          {isHudProperty && (
+            <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-green-500 text-white px-3 py-2 rounded-full text-sm font-semibold shadow-lg">
+              <div className="w-2.5 h-2.5 bg-green-200 rounded-full animate-pulse" />
+              LIVE DATA
+            </div>
+          )}
+
+          {/* Premium Heart Icon */}
+          <div className="absolute top-4 right-4 z-10">
+            <div className="w-10 h-10 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white shadow-lg transition-all duration-300 hover:scale-110 cursor-pointer group">
+              <Heart className="w-5 h-5 text-gray-600 hover:text-red-500 group-hover:scale-110 transition-all duration-300" />
+            </div>
+          </div>
+
+          {/* Enhanced Availability Status Badge */}
+          <Badge className={`absolute bottom-4 left-4 ${availabilityBgColor} text-white text-sm px-4 py-2 font-semibold rounded-full shadow-lg backdrop-blur-sm`}>
+            {community.displayAvailability?.availabilityStatus || community.availabilityStatus || 'Contact for Info'}
+          </Badge>
+
+          {/* Pricing Quality Badge */}
+          <Badge className={`absolute bottom-4 right-4 ${hasAuthenticPricing ? 'bg-gradient-to-r from-green-600 to-emerald-600' : 'bg-gradient-to-r from-blue-600 to-purple-600'} text-white text-sm px-3 py-2 font-semibold rounded-full shadow-lg`}>
+            <DollarSign className="w-4 h-4 mr-1" />
+            {hasAuthenticPricing ? 'Verified' : 'Estimate'}
+          </Badge>
+        </div>
+      </div>
+
+      <CardContent className="p-6 space-y-4 flex-1 flex flex-col">
+        {/* Enhanced Community Name */}
+        <div className="text-lg font-bold text-gray-900 dark:text-white line-clamp-2 leading-tight group-hover:text-blue-600 transition-colors duration-200">
+          {community.name}
+        </div>
+
+        {/* Enhanced Location */}
+        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+          <MapPin className="w-4 h-4 mr-2 text-blue-500 flex-shrink-0" />
+          <span className="line-clamp-1">
+            {community.city}, {community.state}
+            {community.zipCode && <span className="ml-1 text-gray-500">({community.zipCode})</span>}
+          </span>
+        </div>
+
+        {/* Enhanced Pricing Display */}
+        <div className="space-y-2">
+          <div className={`text-2xl font-bold ${hasAuthenticPricing ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'}`}>
+            {displayPrice}
+          </div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            {community.displayPricing?.priceLabel || 'Market-based estimate'}
+          </div>
+        </div>
+
+        {/* Enhanced Occupancy and Units */}
+        {hasOccupancyData && (
+          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 rounded-xl px-4 py-3">
+            <Users className="w-5 h-5 mr-3 text-green-500 flex-shrink-0" />
+            <div className="space-y-1">
+              <span className="font-medium">{community.displayAvailability?.occupancyDisplay}</span>
+              {community.displayAvailability?.unitsDisplay && (
+                <div className="text-xs text-gray-500 dark:text-gray-400">{community.displayAvailability.unitsDisplay}</div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Enhanced Care Types */}
+        {community.careTypes && community.careTypes.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center text-sm text-gray-700 dark:text-gray-300 font-medium">
+              <Building className="w-4 h-4 mr-2 text-purple-500 flex-shrink-0" />
+              Care Services
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {community.careTypes.slice(0, 3).map((type) => (
+                <Badge key={type} variant="secondary" className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700 rounded-full px-3 py-1">
+                  {type}
+                </Badge>
+              ))}
+              {community.careTypes.length > 3 && (
+                <Badge variant="secondary" className="text-xs bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full px-3 py-1">
+                  +{community.careTypes.length - 3} more
+                </Badge>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Enhanced Transparency Badges */}
+        {community.transparencyBadges && community.transparencyBadges.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center text-sm text-gray-700 dark:text-gray-300 font-medium">
+              <Zap className="w-4 h-4 mr-2 text-yellow-500 flex-shrink-0" />
+              Achievements
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {community.transparencyBadges.slice(0, 2).map((badge) => (
+                <Badge 
+                  key={badge.id} 
+                  className={`${badge.color} text-white text-xs px-3 py-1.5 font-medium rounded-full shadow-sm`}
+                  title={badge.description}
+                >
+                  {badge.icon} {badge.name}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Enhanced Data Quality Indicator */}
+        <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-700">
+          {community.dataQuality && (
+            <div className="flex items-center justify-between text-sm">
+              <div className={`flex items-center ${community.dataQuality.isAuthentic ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}`}>
+                <div className={`w-3 h-3 rounded-full mr-2 ${community.dataQuality.isAuthentic ? 'bg-green-500' : 'bg-orange-500'} shadow-sm`}></div>
+                <span className="font-medium">{community.dataQuality.lastVerified}</span>
+              </div>
+              <div className="text-gray-500 dark:text-gray-400 font-medium">
+                Quality: {community.dataQuality.qualityScore}/100
+              </div>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  return onSelect ? cardContent : (
     <Link href={`/community/${community.id}`}>
-      {cardWithEnhancedStyling}
+      {cardContent}
     </Link>
   );
 }
