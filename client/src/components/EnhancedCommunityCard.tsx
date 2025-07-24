@@ -163,7 +163,7 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
                 {displayPrice}
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400">
-                {community.displayPricing?.priceLabel || 'Market-based estimate'}
+                {community.displayPricing?.priceLabel || 'Estimate - Call for current pricing'}
               </div>
             </div>
 
@@ -249,7 +249,7 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
             {displayPrice}
           </div>
           <div className="text-sm text-gray-500 dark:text-gray-400">
-            {community.displayPricing?.priceLabel || 'Market-based estimate'}
+            {community.displayPricing?.priceLabel || 'Estimate - Call for current pricing'}
           </div>
         </div>
 

@@ -473,7 +473,7 @@ export default function Home() {
                 </div>
                 
                 <p className="text-xl lg:text-2xl text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-                  Our AI-powered pricing intelligence combines government data, HUD records, and real market analysis to provide accurate cost estimates for all 31,023+ communities.
+                  Our AI-powered pricing intelligence combines government data, HUD records, and real market analysis to provide accurate cost estimates for all 31,023+ communities. Note: Estimates are not live data.
                 </p>
                 
                 <div className="space-y-6">
@@ -493,7 +493,7 @@ export default function Home() {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Real Market Analysis</h3>
-                      <p className="text-gray-700 dark:text-gray-300">Regional cost-of-living data and demographic analysis for accurate estimates nationwide</p>
+                      <p className="text-gray-700 dark:text-gray-300">Regional cost-of-living data and demographic analysis for accurate estimates nationwide (not live data)</p>
                     </div>
                   </div>
                   

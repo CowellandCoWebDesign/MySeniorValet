@@ -509,7 +509,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                         : 'Contact for pricing'
                       }
                       {community.priceRange && community.priceRange.min && !community.claimed && (
-                        <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
+                        <span className="text-xs text-orange-600 ml-1 font-normal">estimate</span>
                       )}
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
@@ -572,7 +572,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
                         : 'Contact for pricing'
                       }
                       {community.priceRange && community.priceRange.min && !community.claimed && (
-                        <span className="text-xs text-gray-500 ml-1 font-normal">est.</span>
+                        <span className="text-xs text-orange-600 ml-1 font-normal">estimate</span>
                       )}
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">

@@ -28,10 +28,50 @@ interface Community {
   reviewCount: number;
   phone: string;
   website: string;
-  priceRange: string;
+  priceRange: { min: number; max: number; } | string;
   availability: string;
   photos: string[];
   description: string;
+  hudPropertyId?: string;
+  // Extended properties for enhanced functionality
+  totalUnits?: number;
+  availabilityStatus?: string;
+  monthlyRentRangeStart?: number;
+  monthlyRentRangeEnd?: number;
+  priceTier?: string;
+  sizeCategory?: string;
+  occupancyRate?: number;
+  seniorPercentage?: number;
+  // Enhanced HUD data from extractor
+  displayPricing?: {
+    displayPrice: string;
+    priceLabel: string;
+    qualityBadge: string;
+    showContactButton: boolean;
+  };
+  displayAvailability?: {
+    availabilityStatus: string;
+    occupancyDisplay?: string;
+    availabilityColor: string;
+    unitsDisplay?: string;
+  };
+  transparencyBadges?: Array<{
+    id: string;
+    name: string;
+    description: string;
+    icon: string;
+    color: string;
+    type: string;
+    rarity: string;
+    points: number;
+  }>;
+  transparencyScore?: number;
+  dataQuality?: {
+    isAuthentic: boolean;
+    source: string;
+    qualityScore: number;
+    lastVerified: string;
+  };
 }
 
 interface SearchFilters {

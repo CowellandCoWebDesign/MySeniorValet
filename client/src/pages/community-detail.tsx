@@ -266,6 +266,14 @@ export default function CommunityDetail() {
   if (error) return <div className="text-red-500">Error loading community</div>;
   if (!community) return <div>Community not found</div>;
 
+  // Determine if we have live data or if it's an estimate
+  const hasLiveData = !!(
+    (community as any).hudPropertyId || // HUD verified data
+    (community as any).salesDirector?.name || // Live sales contact
+    community.claimedBy || // Claimed by community
+    (community as any).liveDataVerified // Explicitly marked as verified
+  );
+
   const getInitials = (name: string) => {
     return name.split(' ').map(word => word[0]).join('').toUpperCase();
   };
@@ -737,9 +745,9 @@ export default function CommunityDetail() {
                     {/* Live Pricing with Badge */}
                     <div className="mb-3">
                       <div className="flex items-center justify-end mb-1">
-                        <Badge className="bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200 mr-2">
-                          <div className="w-2 h-2 bg-green-500 dark:bg-green-400 rounded-full mr-1"></div>
-                          Live Pricing
+                        <Badge className={`${hasLiveData ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200' : 'bg-orange-100 dark:bg-orange-900/40 text-orange-800 dark:text-orange-200'} mr-2`}>
+                          <div className={`w-2 h-2 ${hasLiveData ? 'bg-green-500 dark:bg-green-400' : 'bg-orange-500 dark:bg-orange-400'} rounded-full mr-1`}></div>
+                          {hasLiveData ? 'Live Pricing' : 'Estimate - Not Live'}
                         </Badge>
                       </div>
                       <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
@@ -747,8 +755,8 @@ export default function CommunityDetail() {
                           `$${community.priceRange.min.toLocaleString()} - $${community.priceRange.max.toLocaleString()}` : 
                           `$${getIntelligentPriceEstimate(community).min.toLocaleString()} - $${getIntelligentPriceEstimate(community).max.toLocaleString()}`
                         }
-                        {!community.claimedBy && (
-                          <span className="text-sm text-gray-500 dark:text-gray-400 ml-2 font-normal">est.</span>
+                        {!hasLiveData && (
+                          <span className="text-sm text-orange-600 dark:text-orange-400 ml-2 font-normal">estimate</span>
                         )}
                       </div>
                       <div className="text-sm text-gray-600 dark:text-gray-400">per month starting rate</div>
@@ -804,31 +812,48 @@ export default function CommunityDetail() {
                     <p className="text-gray-600 dark:text-gray-300">Connect with our community team to schedule your tour</p>
                   </div>
 
-                  {/* Sales Manager Info */}
+                  {/* Community Contact Info */}
                   <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-blue-200 dark:border-blue-700 mb-6">
                     <div className="flex items-center mb-4">
                       <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-xl mr-4">
-                        {(() => {
-                          const names = ['Sarah Martinez', 'Jennifer Collins', 'Michael Thompson', 'Lisa Rodriguez', 'David Chen', 'Amanda Wilson', 'Robert Johnson', 'Maria Garcia', 'James Anderson', 'Patricia Brown'];
-                          const nameIndex = community.id % names.length;
-                          const name = names[nameIndex];
-                          return name.split(' ').map(n => n[0]).join('');
-                        })()}
+                        <Phone className="w-8 h-8" />
                       </div>
                       <div className="flex-1">
-                        <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                          {(() => {
-                            const names = ['Sarah Martinez', 'Jennifer Collins', 'Michael Thompson', 'Lisa Rodriguez', 'David Chen', 'Amanda Wilson', 'Robert Johnson', 'Maria Garcia', 'James Anderson', 'Patricia Brown'];
-                            return names[community.id % names.length];
-                          })()}
-                        </h4>
-                        <p className="text-gray-600 dark:text-gray-300 font-medium">Director of Sales</p>
-                        <div className="flex items-center mt-2">
-                          <Phone className="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2" />
-                          <span className="text-gray-700 dark:text-gray-200 font-medium">
-                            {community.phone || generatePhoneNumber(community.state, community.id)}
-                          </span>
-                        </div>
+                        {/* Show live contact data if available, otherwise show community phone */}
+                        {(community as any).salesDirector?.name ? (
+                          <>
+                            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                              {(community as any).salesDirector.name}
+                            </h4>
+                            <p className="text-gray-600 dark:text-gray-300 font-medium">
+                              {(community as any).salesDirector.title || 'Sales Director'}
+                            </p>
+                            <div className="flex items-center mt-2">
+                              <Phone className="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2" />
+                              <span className="text-gray-700 dark:text-gray-200 font-medium">
+                                {(community as any).salesDirector.phone || community.phone}
+                              </span>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                              Community Main Office
+                            </h4>
+                            <p className="text-gray-600 dark:text-gray-300 font-medium">
+                              Call for sales and leasing information
+                            </p>
+                            <div className="flex items-center mt-2">
+                              <Phone className="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2" />
+                              <span className="text-gray-700 dark:text-gray-200 font-medium">
+                                {community.phone}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                              Ask to speak with a leasing manager or sales director
+                            </p>
+                          </>
+                        )}
                       </div>
                     </div>
 
