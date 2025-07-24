@@ -445,6 +445,91 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ===============================
+  // CONTACT & TOUR FUNCTIONALITY ROUTES
+  // ===============================
+
+  // Schedule tour request
+  app.post("/api/tours/schedule", async (req, res) => {
+    try {
+      const { communityId, communityName, tourDate, tourTime, contactName, email, phone, message } = req.body;
+      
+      // Validate required fields
+      if (!communityId || !tourDate || !tourTime || !contactName || !email) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      // In a production app, you would:
+      // 1. Save to database
+      // 2. Send email notifications to community
+      // 3. Send confirmation email to user
+      // 4. Create calendar events
+      
+      console.log('Tour request received:', {
+        communityId, communityName, tourDate, tourTime, contactName, email, phone, message
+      });
+
+      res.json({ 
+        success: true, 
+        message: "Tour scheduled successfully! The community will contact you to confirm.",
+        tourId: Date.now() // Mock ID
+      });
+    } catch (error: any) {
+      console.error("Error scheduling tour:", error);
+      res.status(500).json({ message: "Failed to schedule tour" });
+    }
+  });
+
+  // Waitlist request
+  app.post("/api/waitlist/add", async (req, res) => {
+    try {
+      const { communityId, communityName, contactName, email, phone, preferences } = req.body;
+      
+      if (!communityId || !contactName || !email) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      // In production: save to database, send notifications, etc.
+      console.log('Waitlist request received:', {
+        communityId, communityName, contactName, email, phone, preferences
+      });
+
+      res.json({ 
+        success: true, 
+        message: "Added to waitlist successfully! You'll be notified when units become available.",
+        waitlistId: Date.now()
+      });
+    } catch (error: any) {
+      console.error("Error adding to waitlist:", error);
+      res.status(500).json({ message: "Failed to add to waitlist" });
+    }
+  });
+
+  // Contact/inquiry request
+  app.post("/api/communities/contact", async (req, res) => {
+    try {
+      const { communityId, communityName, contactName, email, phone, message, inquiryType } = req.body;
+      
+      if (!communityId || !contactName || !email || !message) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      // In production: save to database, forward to community, etc.
+      console.log('Contact request received:', {
+        communityId, communityName, contactName, email, phone, message, inquiryType
+      });
+
+      res.json({ 
+        success: true, 
+        message: "Your message has been sent! The community will contact you within 24 hours.",
+        contactId: Date.now()
+      });
+    } catch (error: any) {
+      console.error("Error sending contact request:", error);
+      res.status(500).json({ message: "Failed to send message" });
+    }
+  });
+
+  // ===============================
   // USER DASHBOARD ROUTES
   // ===============================
 

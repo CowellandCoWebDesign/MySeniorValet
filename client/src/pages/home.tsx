@@ -79,7 +79,7 @@ export default function Home() {
               </h1>
               
               <p className="text-sm sm:text-base lg:text-lg text-gray-700 dark:text-gray-300 max-w-4xl mx-auto mb-4 leading-relaxed font-semibold px-2">
-                <strong className="text-blue-700 dark:text-blue-400">31,023+ authentic communities</strong> with HUD property data, Medicare records, and state licensing. Real pricing from $303-$9,200+ with zero "call for pricing" promises.
+                <strong className="text-blue-700 dark:text-blue-400">27,112+ authentic communities</strong> with HUD property data, Medicare records, and state licensing. Real pricing from $303-$9,200+ with zero "call for pricing" promises.
               </p>
               
               <p className="text-xs sm:text-sm lg:text-base text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-6 leading-relaxed font-medium px-2">
@@ -122,7 +122,7 @@ export default function Home() {
             {/* Community Count Statement - Mobile Responsive */}
             <div className="text-center mb-8">
               <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 dark:text-gray-300 font-bold mb-4 px-2">
-                Serving families across <span className="text-blue-600 dark:text-blue-400 font-black text-xl sm:text-2xl lg:text-3xl">31,023+ communities</span>
+                Serving families across <span className="text-blue-600 dark:text-blue-400 font-black text-xl sm:text-2xl lg:text-3xl">27,112+ communities</span>
               </p>
               <p className="text-sm sm:text-base lg:text-lg text-gray-500 dark:text-gray-400 font-medium mb-4 px-2">
                 Complete North American coverage with verified government data across 96 states/provinces

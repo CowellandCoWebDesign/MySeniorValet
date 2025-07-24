@@ -267,12 +267,11 @@ export default function CommunityDetail() {
   if (error) return <div className="text-red-500">Error loading community</div>;
   if (!community) return <div>Community not found</div>;
 
-  // Determine if we have live data or if it's an estimate
+  // STRICT VERIFICATION: Only show "Live Pricing" for truly verified data sources
   const hasLiveData = !!(
     (community as any).hudPropertyId || // HUD verified data
-    (community as any).salesDirector?.name || // Live sales contact
-    community.claimedBy || // Claimed by community
-    (community as any).liveDataVerified // Explicitly marked as verified
+    (community as any).rentPerMonth || // HUD rent data
+    (community.claimedBy && (community as any).pricing_type === 'live') // Claimed with verified live pricing
   );
 
   const getInitials = (name: string) => {
@@ -285,64 +284,108 @@ export default function CommunityDetail() {
 
 
 
-  const handleScheduleTour = () => {
-    // Create tour request
-    const tourRequest = {
-      communityId: community.id,
-      communityName: community.name,
-      tourDate,
-      tourTime,
-      contactName: tourName,
-      email: tourEmail,
-      phone: tourPhone,
-      message: tourMessage
-    };
+  const handleScheduleTour = async () => {
+    try {
+      const tourRequest = {
+        communityId: community.id,
+        communityName: community.name,
+        tourDate,
+        tourTime,
+        contactName: tourName,
+        email: tourEmail,
+        phone: tourPhone,
+        message: tourMessage
+      };
 
-    // In a real app, this would send to the backend
-    console.log('Tour request:', tourRequest);
+      const response = await fetch('/api/tours/schedule', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(tourRequest),
+      });
 
-    // Show success message
-    toast({
-      title: "Tour Scheduled!",
-      description: `We'll contact you at ${tourEmail} to confirm your tour on ${tourDate} at ${tourTime}`,
-    });
+      const result = await response.json();
 
-    // Reset form and close dialog
-    setTourDate('');
-    setTourTime('');
-    setTourName('');
-    setTourEmail('');
-    setTourPhone('');
-    setTourMessage('');
-    setIsScheduleTourOpen(false);
+      if (response.ok) {
+        toast({
+          title: "Tour Scheduled!",
+          description: `We'll contact you at ${tourEmail} to confirm your tour on ${tourDate} at ${tourTime}`,
+        });
+
+        // Reset form and close dialog
+        setTourDate('');
+        setTourTime('');
+        setTourName('');
+        setTourEmail('');
+        setTourPhone('');
+        setTourMessage('');
+        setIsScheduleTourOpen(false);
+      } else {
+        toast({
+          title: "Error",
+          description: result.message || "Failed to schedule tour",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error scheduling tour:', error);
+      toast({
+        title: "Error",
+        description: "Failed to schedule tour. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleWaitlistSubmit = () => {
-    // Create waitlist request
-    const waitlistRequest = {
-      communityId: community.id,
-      communityName: community.name,
-      contactName: waitlistName,
-      email: waitlistEmail,
-      phone: waitlistPhone,
-      preferences: waitlistPreferences
-    };
+  const handleWaitlistSubmit = async () => {
+    try {
+      const waitlistRequest = {
+        communityId: community.id,
+        communityName: community.name,
+        contactName: waitlistName,
+        email: waitlistEmail,
+        phone: waitlistPhone,
+        preferences: waitlistPreferences
+      };
 
-    // In a real app, this would send to the backend
-    console.log('Waitlist request:', waitlistRequest);
+      const response = await fetch('/api/waitlist/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(waitlistRequest),
+      });
 
-    // Show success message
-    toast({
-      title: "Added to Waitlist!",
-      description: `${waitlistName} has been added to the waitlist. You'll be notified when units become available.`,
-    });
+      const result = await response.json();
 
-    // Reset form
-    setWaitlistName('');
-    setWaitlistEmail('');
-    setWaitlistPhone('');
-    setWaitlistPreferences('');
-    setIsWaitlistOpen(false);
+      if (response.ok) {
+        toast({
+          title: "Added to Waitlist!",
+          description: `${waitlistName} has been added to the waitlist. You'll be notified when units become available.`,
+        });
+
+        // Reset form
+        setWaitlistName('');
+        setWaitlistEmail('');
+        setWaitlistPhone('');
+        setWaitlistPreferences('');
+        setIsWaitlistOpen(false);
+      } else {
+        toast({
+          title: "Error",
+          description: result.message || "Failed to add to waitlist",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error adding to waitlist:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add to waitlist. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   // Generate available units data with detailed amenities
