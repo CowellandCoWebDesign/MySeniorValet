@@ -189,6 +189,32 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
   const [mapZoom, setMapZoom] = useState(10);
   const [showMap, setShowMap] = useState(true);
   const [showBottomPanel, setShowBottomPanel] = useState(true); // Show panel by default
+  const [peekHeight] = useState(80); // Height when panel is "peeking"
+
+  // Restore search state from sessionStorage when page loads
+  useEffect(() => {
+    const savedSearchQuery = sessionStorage.getItem('lastSearchQuery');
+    const savedLocationQuery = sessionStorage.getItem('lastLocationQuery');
+    const savedMapCenter = sessionStorage.getItem('lastMapCenter');
+    const savedMapZoom = sessionStorage.getItem('lastMapZoom');
+
+    if (savedSearchQuery) {
+      setSearchQuery(savedSearchQuery);
+    }
+    if (savedLocationQuery) {
+      setLocationQuery(savedLocationQuery);
+    }
+    if (savedMapCenter) {
+      try {
+        setMapCenter(JSON.parse(savedMapCenter));
+      } catch (e) {
+        console.error('Failed to parse saved map center');
+      }
+    }
+    if (savedMapZoom) {
+      setMapZoom(Number(savedMapZoom));
+    }
+  }, []);
 
   // Handle tab change for bottom navigation
   const handleTabChange = (tabId: string) => {
@@ -728,7 +754,21 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
               type="text"
               placeholder="Search communities, cities, or care types..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                // Save search to session storage
+                sessionStorage.setItem('lastSearchQuery', e.target.value);
+                sessionStorage.setItem('lastMapCenter', JSON.stringify(mapCenter));
+                sessionStorage.setItem('lastMapZoom', String(mapZoom));
+              }}
+              onKeyDown={async (e) => {
+                if (e.key === 'Enter' && searchQuery.trim()) {
+                  // Update location query to trigger map update
+                  setLocationQuery(searchQuery);
+                  // Save to session storage
+                  sessionStorage.setItem('lastLocationQuery', searchQuery);
+                }
+              }}
               className="pl-12 pr-6 py-4 text-lg border-2 border-gray-200 dark:border-gray-600 rounded-2xl bg-gray-50 dark:bg-gray-800 focus:bg-white dark:focus:bg-gray-700 focus:border-blue-500 transition-all duration-200 hover:bg-white dark:hover:bg-gray-700"
             />
           </div>
@@ -1066,17 +1106,15 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             </Button>
           </div>
 
-          {/* List Panel - Conditional based on showBottomPanel state */}
-          {showBottomPanel && (
-            <SlidePanel
-              communities={visibleCommunities}
-              sortBy={sortBy}
-              setSortBy={setSortBy}
-              isLoading={isLoading}
-              initialHeight={slidePanelHeight}
-              autoExpand={!!(debouncedSearchQuery || urlSearchQuery) && visibleCommunities.length > 0}
-            />
-          )}
+          {/* List Panel - Always show with peek effect when collapsed */}
+          <SlidePanel
+            communities={visibleCommunities}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            isLoading={isLoading}
+            initialHeight={showBottomPanel ? slidePanelHeight : peekHeight}
+            autoExpand={showBottomPanel && !!(debouncedSearchQuery || urlSearchQuery) && visibleCommunities.length > 0}
+          />
           {/* Bottom Navigation */}
           <BottomNavigation 
             activeTab={activeTab} 

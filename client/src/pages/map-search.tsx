@@ -118,9 +118,31 @@ export default function MapSearchClean() {
   const [mapBounds, setMapBounds] = useState<any>(null);
   const [showBottomPanel, setShowBottomPanel] = useState(true); // Show panel by default
   const [panelHeight, setPanelHeight] = useState(75);
+  const [peekHeight] = useState(80); // Height when panel is "peeking"
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [isMapMoving, setIsMapMoving] = useState(false);
+
+  // Restore search state from sessionStorage when page loads
+  useEffect(() => {
+    const savedSearchQuery = sessionStorage.getItem('lastSearchQuery');
+    const savedMapCenter = sessionStorage.getItem('lastMapCenter');
+    const savedMapZoom = sessionStorage.getItem('lastMapZoom');
+
+    if (savedSearchQuery) {
+      setSearchQuery(savedSearchQuery);
+    }
+    if (savedMapCenter) {
+      try {
+        setMapCenter(JSON.parse(savedMapCenter));
+      } catch (e) {
+        console.error('Failed to parse saved map center');
+      }
+    }
+    if (savedMapZoom) {
+      setMapZoom(Number(savedMapZoom));
+    }
+  }, []);
 
   // Create a stable bounds key for query caching
   const boundsKey = useMemo(() => {
@@ -402,10 +424,17 @@ export default function MapSearchClean() {
               <Input
                 placeholder="Ask me anything: 'memory care near me', 'assisted living under $3000', 'pet-friendly in Sacramento'..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  // Save search to session storage
+                  sessionStorage.setItem('lastSearchQuery', e.target.value);
+                  sessionStorage.setItem('lastMapCenter', JSON.stringify(mapCenter));
+                  sessionStorage.setItem('lastMapZoom', String(mapZoom));
+                }}
+                onKeyDown={async (e) => {
+                  if (e.key === 'Enter' && searchQuery.trim()) {
                     handleLocationSearch(searchQuery);
+                    setHasSearched(true);
                   }
                 }}
                 className="pl-12 pr-24 py-4 w-full border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-lg transition-all duration-200 hover:shadow-lg"
@@ -736,12 +765,11 @@ export default function MapSearchClean() {
               <List className="h-7 w-7" />
             </Button>
 
-            {/* Enhanced Bottom panel for list view */}
-            {showBottomPanel && (
-              <div 
-                className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t-2 border-gray-200 dark:border-gray-700 shadow-2xl z-40 overflow-hidden transition-all duration-500 rounded-t-3xl"
-                style={{ height: `${panelHeight}vh` }}
-              >
+            {/* Enhanced Bottom panel for list view - Always show with peek effect */}
+            <div 
+              className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t-2 border-gray-200 dark:border-gray-700 shadow-2xl z-40 overflow-hidden transition-all duration-500 rounded-t-3xl"
+              style={{ height: showBottomPanel ? `${panelHeight}vh` : `${peekHeight}px` }}
+            >
                 <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700">
                   <div className="flex items-center space-x-4">
                     <div className="w-3 h-12 bg-gradient-to-b from-blue-600 to-purple-600 rounded-full"></div>
@@ -977,7 +1005,6 @@ export default function MapSearchClean() {
                   )}
                 </div>
               </div>
-            )}
           </>
         ) : (
           /* Enhanced List View */
