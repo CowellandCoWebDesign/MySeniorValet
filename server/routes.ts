@@ -50,6 +50,7 @@ import Stripe from "stripe";
 
 // Scalable infrastructure imports
 import { searchCache, communityCache, apiCache } from "./infrastructure/cache";
+import { infrastructureRoutes } from "./infrastructure/api-routes";
 import { 
   generalLimiter, 
   searchLimiter, 
@@ -332,29 +333,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Cookie parser middleware for authentication
   app.use(cookieParser());
 
-  // Security rate limiting for different endpoint types
-  const { createRateLimit } = await import("./security");
-  
-  // Permissive rate limiting for authentication endpoints (using new authLimiter)
-  app.use('/api/auth', createRateLimitMiddleware(authLimiter)); // Very permissive for auth
-  
-  // Moderate rate limiting for API endpoints (except spatial search and clusters)
-  app.use('/api', (req, res, next) => {
-    if (req.path.includes('/spatial') || 
-        req.path.includes('/clusters') || 
-        req.path.endsWith('/spatial')) {
-      return next(); // Skip rate limiting for spatial search and clusters
-    }
-    return createRateLimit(50)(req, res, next);
-  });
-  
-  // Generous rate limiting for search (but still protected), except spatial search
-  app.use('/api/communities/search', (req, res, next) => {
-    if (req.path.includes('/spatial') || req.path.endsWith('/spatial')) {
-      return next(); // Skip rate limiting for spatial search
-    }
-    return createRateLimit(100)(req, res, next);
-  });
+  // DISABLE RATE LIMITING IN DEVELOPMENT FOR TESTING
+  if (process.env.NODE_ENV !== 'development') {
+    // Security rate limiting for different endpoint types (ONLY IN PRODUCTION)
+    const { createRateLimit } = await import("./security");
+    
+    // Permissive rate limiting for authentication endpoints (using new authLimiter)
+    app.use('/api/auth', createRateLimitMiddleware(authLimiter)); // Very permissive for auth
+    
+    // Moderate rate limiting for API endpoints (except spatial search and clusters)
+    app.use('/api', (req, res, next) => {
+      if (req.path.includes('/spatial') || 
+          req.path.includes('/clusters') || 
+          req.path.endsWith('/spatial')) {
+        return next(); // Skip rate limiting for spatial search and clusters
+      }
+      return createRateLimit(50)(req, res, next);
+    });
+    
+    // Generous rate limiting for search (but still protected), except spatial search
+    app.use('/api/communities/search', (req, res, next) => {
+      if (req.path.includes('/spatial') || req.path.endsWith('/spatial')) {
+        return next(); // Skip rate limiting for spatial search
+      }
+      return createRateLimit(100)(req, res, next);
+    });
+  } else {
+    console.log('⚠️ Rate limiting DISABLED in development mode');
+  }
 
   // ===============================
   // AUTHENTICATION ROUTES
@@ -10516,6 +10522,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // TODO: Initialize support resources after database migration is complete
   // await supportResourceService.seedInitialContent();
+
+  // Register infrastructure routes
+  app.use('/api/infrastructure', infrastructureRoutes);
 
   return httpServer;
 }
