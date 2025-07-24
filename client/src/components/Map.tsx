@@ -307,6 +307,8 @@ interface MapProps {
     careType?: string;
     minRating?: number;
     amenities?: string[];
+    budget?: string;
+    availability?: string;
   };
   onCommunityClick?: (community: Community) => void;
   onBoundsChange?: (bounds: any) => void;
@@ -733,6 +735,25 @@ export default function Map({
         zoom: Math.round(currentZoom).toString(), // Ensure integer zoom
         viewport: 'true' // Enable viewport optimization on server
       });
+
+      // Add search filters to the API request
+      if (searchFilters) {
+        if (searchFilters.careType && searchFilters.careType !== 'All Types') {
+          params.append('careTypes', searchFilters.careType);
+        }
+        if (searchFilters.minRating && searchFilters.minRating > 0) {
+          params.append('minRating', searchFilters.minRating.toString());
+        }
+        if (searchFilters.amenities && searchFilters.amenities.length > 0) {
+          params.append('amenities', searchFilters.amenities.join(','));
+        }
+        if (searchFilters.budget && searchFilters.budget !== 'Any Budget') {
+          params.append('priceRange', searchFilters.budget);
+        }
+        if (searchFilters.availability && searchFilters.availability !== 'All Status') {
+          params.append('availability', searchFilters.availability);
+        }
+      }
 
       console.log('Fetching communities for bounds:', bounds, 'zoom:', Math.round(currentZoom));
 
@@ -1372,8 +1393,8 @@ export default function Map({
         )}
       </div>
 
-      {/* Minimal Map Stats Overlay - Moved to top-left corner */}
-      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg p-2 z-10 shadow-sm">
+      {/* Minimal Map Stats Overlay - Moved to bottom-left corner to avoid blocking controls */}
+      <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg p-2 z-10 shadow-sm">
         <p className="text-xs text-gray-600 font-medium">
           {clusterData?.features?.length || 0} locations
         </p>

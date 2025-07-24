@@ -570,6 +570,7 @@ export default function MapSearchClean() {
                                 ? prev.filter(f => f !== feature)
                                 : [...prev, feature]
                             );
+                            // Don't trigger location search for filters
                           }}
                           className={`transition-all ${activeFeatures.includes(feature) ? 'bg-orange-600 hover:bg-orange-700' : ''}`}
                         >
@@ -639,17 +640,19 @@ export default function MapSearchClean() {
                       <Button 
                         className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                         onClick={() => {
-                          // Build and execute AI search query based on filters
-                          const queryParts = [];
-                          if (activeCareTypes.length > 0) queryParts.push(activeCareTypes.join(' or '));
-                          if (activePriceRanges.length > 0) queryParts.push(activePriceRanges.join(' or '));
-                          if (activeAmenities.length > 0) queryParts.push(activeAmenities.join(' and '));
-                          if (activeFeatures.length > 0) queryParts.push(activeFeatures.join(' and '));
-                          if (activeRatings.length > 0) queryParts.push(activeRatings.join(' or '));
-                          if (activeAvailability.length > 0) queryParts.push(activeAvailability.join(' or '));
+                          // Apply filters directly to map view instead of treating as location search
+                          setFilters({
+                            careType: activeCareTypes.length > 0 ? activeCareTypes.join(',') : 'All Types',
+                            minRating: activeRatings.includes('5 Stars') ? 5 : 
+                                      activeRatings.includes('4+ Stars') ? 4 : 
+                                      activeRatings.includes('3+ Stars') ? 3 : 0,
+                            amenities: activeAmenities,
+                            budget: activePriceRanges.length > 0 ? activePriceRanges.join(',') : 'Any Budget',
+                            availability: activeAvailability.length > 0 ? activeAvailability.join(',') : 'All Status'
+                          });
                           
-                          const query = queryParts.join(', ') || 'all communities';
-                          handleLocationSearch(query);
+                          // Show a visual indicator that filters were applied
+                          // Don't trigger a location search
                         }}
                       >
                         Apply Filters
