@@ -108,7 +108,10 @@ export default function MapSearchClean() {
   const [activePriceRanges, setActivePriceRanges] = useState<string[]>([]);
   const [activeAmenities, setActiveAmenities] = useState<string[]>([]);
   const [activeFeatures, setActiveFeatures] = useState<string[]>([]);
+  const [activeRatings, setActiveRatings] = useState<string[]>([]);
+  const [activeAvailability, setActiveAvailability] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(true);
+  const [savedSearches, setSavedSearches] = useState<{name: string, filters: any}[]>([]);
   const [mapCenter, setMapCenter] = useState<[number, number]>([37.7749, -122.4194]);
   const [mapZoom, setMapZoom] = useState(12);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
@@ -420,6 +423,12 @@ export default function MapSearchClean() {
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                   <SlidersHorizontal className="h-5 w-5" />
                   Filter Communities
+                  {/* Active Filter Count */}
+                  {(activeCareTypes.length + activePriceRanges.length + activeAmenities.length + activeFeatures.length + activeRatings.length + activeAvailability.length) > 0 && (
+                    <Badge className="ml-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                      {activeCareTypes.length + activePriceRanges.length + activeAmenities.length + activeFeatures.length + activeRatings.length + activeAvailability.length} Active
+                    </Badge>
+                  )}
                 </h3>
                 <Button
                   variant="ghost"
@@ -541,36 +550,159 @@ export default function MapSearchClean() {
                     </div>
                   </div>
 
-                  {/* Apply/Clear Buttons */}
-                  <div className="flex gap-2 pt-2">
-                    <Button 
-                      className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                  {/* Community Ratings */}
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                      <Star className="h-4 w-4" />
+                      Community Ratings
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {['5 Stars', '4+ Stars', '3+ Stars', 'Highly Rated', 'New (No Ratings)'].map((rating) => (
+                        <Button
+                          key={rating}
+                          variant={activeRatings.includes(rating) ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => {
+                            setActiveRatings(prev => 
+                              prev.includes(rating) 
+                                ? prev.filter(r => r !== rating)
+                                : [...prev, rating]
+                            );
+                          }}
+                          className={`transition-all ${activeRatings.includes(rating) ? 'bg-yellow-600 hover:bg-yellow-700' : ''}`}
+                        >
+                          {rating}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Availability Status */}
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                      <Building className="h-4 w-4" />
+                      Availability Status
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {['Available Now', 'Waitlist Open', 'Coming Soon', 'Limited Availability', 'Contact for Info'].map((status) => (
+                        <Button
+                          key={status}
+                          variant={activeAvailability.includes(status) ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => {
+                            setActiveAvailability(prev => 
+                              prev.includes(status) 
+                                ? prev.filter(s => s !== status)
+                                : [...prev, status]
+                            );
+                          }}
+                          className={`transition-all ${activeAvailability.includes(status) ? 'bg-teal-600 hover:bg-teal-700' : ''}`}
+                        >
+                          {status}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Apply/Clear/Save Buttons */}
+                  <div className="space-y-2 pt-2">
+                    <div className="flex gap-2">
+                      <Button 
+                        className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                        onClick={() => {
+                          // Build and execute AI search query based on filters
+                          const queryParts = [];
+                          if (activeCareTypes.length > 0) queryParts.push(activeCareTypes.join(' or '));
+                          if (activePriceRanges.length > 0) queryParts.push(activePriceRanges.join(' or '));
+                          if (activeAmenities.length > 0) queryParts.push(activeAmenities.join(' and '));
+                          if (activeFeatures.length > 0) queryParts.push(activeFeatures.join(' and '));
+                          if (activeRatings.length > 0) queryParts.push(activeRatings.join(' or '));
+                          if (activeAvailability.length > 0) queryParts.push(activeAvailability.join(' or '));
+                          
+                          const query = queryParts.join(', ') || 'all communities';
+                          handleLocationSearch(query);
+                        }}
+                      >
+                        Apply Filters
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        onClick={() => {
+                          setActiveCareTypes([]);
+                          setActivePriceRanges([]);
+                          setActiveAmenities([]);
+                          setActiveFeatures([]);
+                          setActiveRatings([]);
+                          setActiveAvailability([]);
+                        }}
+                      >
+                        Clear All
+                      </Button>
+                    </div>
+                    
+                    {/* Save Search */}
+                    <Button
+                      variant="secondary"
+                      className="w-full"
                       onClick={() => {
-                        // Build and execute AI search query based on filters
-                        const queryParts = [];
-                        if (activeCareTypes.length > 0) queryParts.push(activeCareTypes.join(' or '));
-                        if (activePriceRanges.length > 0) queryParts.push(activePriceRanges.join(' or '));
-                        if (activeAmenities.length > 0) queryParts.push(activeAmenities.join(' and '));
-                        if (activeFeatures.length > 0) queryParts.push(activeFeatures.join(' and '));
-                        
-                        const query = queryParts.join(', ') || 'all communities';
-                        handleLocationSearch(query);
+                        const searchName = prompt('Name this search:');
+                        if (searchName) {
+                          setSavedSearches(prev => [...prev, {
+                            name: searchName,
+                            filters: {
+                              careTypes: activeCareTypes,
+                              priceRanges: activePriceRanges,
+                              amenities: activeAmenities,
+                              features: activeFeatures,
+                              ratings: activeRatings,
+                              availability: activeAvailability
+                            }
+                          }]);
+                        }
                       }}
+                      disabled={(activeCareTypes.length + activePriceRanges.length + activeAmenities.length + activeFeatures.length + activeRatings.length + activeAvailability.length) === 0}
                     >
-                      Apply Filters
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      onClick={() => {
-                        setActiveCareTypes([]);
-                        setActivePriceRanges([]);
-                        setActiveAmenities([]);
-                        setActiveFeatures([]);
-                      }}
-                    >
-                      Clear All
+                      Save This Search
                     </Button>
                   </div>
+
+                  {/* Saved Searches */}
+                  {savedSearches.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                        Saved Searches
+                      </h4>
+                      <div className="space-y-2">
+                        {savedSearches.map((search, index) => (
+                          <div key={index} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="flex-1 justify-start"
+                              onClick={() => {
+                                // Load saved search
+                                setActiveCareTypes(search.filters.careTypes);
+                                setActivePriceRanges(search.filters.priceRanges);
+                                setActiveAmenities(search.filters.amenities);
+                                setActiveFeatures(search.filters.features);
+                                setActiveRatings(search.filters.ratings);
+                                setActiveAvailability(search.filters.availability);
+                              }}
+                            >
+                              {search.name}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setSavedSearches(prev => prev.filter((_, i) => i !== index))}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
