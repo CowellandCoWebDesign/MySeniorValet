@@ -483,6 +483,7 @@ export default function Map({
   // Handle zoom change - can be called with or without parameter
   const handleZoomChange = useCallback((zoomLevel?: number) => {
     if (zoomLevel !== undefined) {
+      console.log('🔍 Setting zoom level:', zoomLevel);
       setCurrentZoom(zoomLevel);
     }
   }, []);
@@ -1024,17 +1025,39 @@ export default function Map({
                         return;
                       }
 
-                      // Smarter zoom calculation based on cluster size
-                      const zoomIncrement = properties.point_count > 100 ? 2 : 
-                                          properties.point_count > 50 ? 3 : 4;
+                      console.log('🎯 Cluster clicked:', {
+                        clusterId: properties.cluster_id,
+                        pointCount: properties.point_count,
+                        currentZoom,
+                        coordinates: [lat, lng]
+                      });
+
+                      // More aggressive zoom for better expansion
+                      const zoomIncrement = properties.point_count > 1000 ? 3 : 
+                                          properties.point_count > 100 ? 4 : 
+                                          properties.point_count > 50 ? 5 : 6;
                       const newZoom = Math.min(currentZoom + zoomIncrement, 18);
 
+                      console.log('🔍 Zooming from', currentZoom, 'to', newZoom);
+
+                      // Update state immediately for responsiveness
+                      setCurrentZoom(newZoom);
+                      
                       // Smooth fly animation
                       mapInstance.flyTo([lat, lng], newZoom, {
                         animate: true,
-                        duration: 0.8,
+                        duration: 0.6,
                         easeLinearity: 0.1
                       });
+
+                      // Force bounds update after animation
+                      setTimeout(() => {
+                        if (mapInstance && mapInstance.getBounds) {
+                          const newBounds = mapInstance.getBounds();
+                          console.log('🗺️ Updating bounds after cluster expansion');
+                          handleBoundsChange(newBounds);
+                        }
+                      }, 700);
 
                       // Call cluster click handler if provided
                       if (onClusterClick) {

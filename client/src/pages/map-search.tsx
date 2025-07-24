@@ -141,13 +141,10 @@ export default function MapSearch() {
 
   // Fetch communities within map bounds for list view
   const { data: mapCommunities = [], isLoading: isLoadingCommunities, isFetching: isFetchingCommunities, refetch: refetchCommunities, error: communitiesError } = useQuery<Community[]>({
-    queryKey: ['communities-spatial', boundsKey, showBottomPanel],
+    queryKey: ['communities-spatial', boundsKey, showBottomPanel, viewMode],
     queryFn: async () => {
-      if (!mapBounds || !showBottomPanel) {
-        console.log('🚫 SKIPPING QUERY - bounds or panel missing:', { 
-          hasBounds: !!mapBounds, 
-          showBottomPanel 
-        });
+      if (!mapBounds) {
+        console.log('🚫 SKIPPING QUERY - no bounds available');
         return [];
       }
 
@@ -156,7 +153,7 @@ export default function MapSearch() {
       const ne = mapBounds.getNorthEast();
 
       try {
-        const response = await fetch(`/api/communities/search/spatial?swLat=${sw.lat}&swLng=${sw.lng}&neLat=${ne.lat}&neLng=${ne.lng}&limit=50`);
+        const response = await fetch(`/api/communities/search/spatial?swLat=${sw.lat}&swLng=${sw.lng}&neLat=${ne.lat}&neLng=${ne.lng}&limit=100`);
 
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -171,8 +168,8 @@ export default function MapSearch() {
         throw error;
       }
     },
-    enabled: !!mapBounds && showBottomPanel,
-    staleTime: 60000,
+    enabled: !!mapBounds && (showBottomPanel || viewMode === 'list'),
+    staleTime: 30000,
     retry: (failureCount, error) => {
       console.log(`Query retry ${failureCount}:`, error);
       return failureCount < 2;
@@ -622,19 +619,36 @@ export default function MapSearch() {
                   Senior Living Communities
                 </h2>
                 <p className="text-gray-600 dark:text-gray-400">
-                  {mapCommunities.length} communities found
+                  {isLoadingCommunities ? 'Loading...' : `${mapCommunities.length} communities found`}
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {mapCommunities.map((community) => (
-                  <EnhancedCommunityCard
-                    key={community.id}
-                    community={community}
-                    onClick={() => handleCommunityClick(community)}
-                  />
-                ))}
-              </div>
+              {isLoadingCommunities ? (
+                <div className="flex items-center justify-center h-64">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <span className="ml-3 text-gray-600 dark:text-gray-400">Loading communities...</span>
+                </div>
+              ) : mapCommunities.length === 0 ? (
+                <div className="text-center py-16">
+                  <p className="text-gray-500 dark:text-gray-400 text-lg mb-4">
+                    No communities found in this area.
+                  </p>
+                  <p className="text-gray-400 dark:text-gray-500 text-sm">
+                    Try zooming out or searching a different location.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {mapCommunities.map((community) => (
+                    <EnhancedCommunityCard
+                      key={community.id}
+                      community={community}
+                      variant="horizontal"
+                      onSelect={() => handleCommunityClick(community)}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}

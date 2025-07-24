@@ -89,7 +89,9 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
     standard: 'border-gray-200',
     featured: 'border-purple-300 shadow-purple-100',
     coastal: 'border-blue-300 shadow-blue-100',
-    trending: 'border-green-300 shadow-green-100'
+    trending: 'border-green-300 shadow-green-100',
+    horizontal: 'border-gray-200',
+    list: 'border-gray-200'
   };
 
   const handleCardClick = () => {
@@ -339,6 +341,83 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
   );
 
   const isListView = variant === 'list' || variant === 'horizontal';
+
+  // Horizontal layout for list view
+  if (variant === 'horizontal') {
+    const horizontalCard = (
+      <Card 
+        className={`overflow-hidden flex flex-row h-32 group hover:shadow-lg transition-all duration-300 transform hover:scale-[1.01] ${variantStyles[variant]} ${onSelect ? 'cursor-pointer' : ''} bg-white dark:bg-gray-800 border hover:border-blue-300`}
+        onClick={onSelect ? handleCardClick : undefined}
+      >
+        {/* Image Section */}
+        <div className="w-48 flex-shrink-0 relative">
+          <div className="aspect-[4/3] bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center relative overflow-hidden h-full">
+            <Home className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+            
+            {/* Badges overlay */}
+            <Badge className={`absolute top-2 left-2 ${availabilityBgColor} text-white text-xs px-2 py-1 font-medium z-10`}>
+              {community.displayAvailability?.availabilityStatus || community.availabilityStatus || 'Available'}
+            </Badge>
+            
+            {isHudProperty && (
+              <Badge className="absolute bottom-2 right-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs px-2 py-1 font-medium z-10">
+                🏛️ HUD
+              </Badge>
+            )}
+          </div>
+        </div>
+
+        {/* Content Section */}
+        <CardContent className="flex-1 p-4 flex flex-col justify-between">
+          <div>
+            {/* Community Name */}
+            <div className="text-lg font-bold text-gray-900 dark:text-white mb-2 line-clamp-1 group-hover:text-blue-600 transition-colors duration-200">
+              {community.name}
+            </div>
+
+            {/* Location */}
+            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-2">
+              <MapPin className="w-4 h-4 mr-2 text-blue-500 flex-shrink-0" />
+              <span className="line-clamp-1">
+                {community.city}, {community.state}
+                {community.zipCode && <span className="ml-1 text-gray-500">({community.zipCode})</span>}
+              </span>
+            </div>
+
+            {/* Care Types */}
+            {community.careTypes && community.careTypes.length > 0 && (
+              <div className="flex flex-wrap gap-1 mb-2">
+                {community.careTypes.slice(0, 2).map((type) => (
+                  <Badge key={type} variant="secondary" className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                    {type}
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Bottom Section */}
+          <div className="flex items-center justify-between">
+            {/* Pricing */}
+            <div className={`text-lg font-bold ${hasAuthenticPricing ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'}`}>
+              {displayPrice}
+            </div>
+
+            {/* Heart Icon */}
+            <div className="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer">
+              <Heart className="w-4 h-4 text-gray-600 dark:text-gray-400 hover:text-red-500" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+
+    return onSelect ? horizontalCard : (
+      <Link href={`/community/${community.id}`}>
+        {horizontalCard}
+      </Link>
+    );
+  }
 
   return onSelect ? cardWithEnhancedStyling : (
     <Link href={`/community/${community.id}`}>
