@@ -56,10 +56,11 @@ interface CommunityCardProps {
       source: string;
       qualityScore: number;
       lastVerified: string;
+      lastVerified: string;
     };
   };
   index?: number;
-  variant?: 'standard' | 'featured' | 'coastal' | 'trending';
+  variant?: 'standard' | 'featured' | 'coastal' | 'trending' | 'list' | 'horizontal';
   onSelect?: () => void;
 }
 
@@ -217,7 +218,7 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
           {/* Enhanced Image Container */}
           <div className="aspect-[4/3] bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center relative overflow-hidden">
             <Home className="w-14 h-14 text-gray-400 dark:text-gray-500 group-hover:scale-110 transition-transform duration-300" />
-            
+
             {/* Gradient overlay for better text readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
           </div>
@@ -336,6 +337,8 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
         </CardContent>
     </Card>
   );
+
+  const isListView = variant === 'list' || variant === 'horizontal';
 
   return onSelect ? cardWithEnhancedStyling : (
     <Link href={`/community/${community.id}`}>

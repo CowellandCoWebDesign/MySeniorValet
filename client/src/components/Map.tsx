@@ -1322,3 +1322,93 @@ export default function Map({
     </div>
   );
 }
+```typescript
+  // Zoom-based clustering configuration
+  private getClusterConfig(zoom: number): Supercluster.Options {
+    // Improved zoom-based clustering configuration
+    if (zoom >= 15) {
+      // Street view and closer - NO CLUSTERING
+      return {
+        radius: 0,         // No clustering
+        maxZoom: 20,       // Higher max zoom
+        minZoom: 0,
+        minPoints: 999999, // Effectively disable clustering
+        generateId: true,
+        extent: 512,
+        nodeSize: 16,
+      };
+    } else if (zoom >= 12) {
+      // City view - minimal clustering
+      return {
+        radius: 40,        // Reduced aggressive clustering
+        maxZoom: 20,
+        minZoom: 0,
+        minPoints: 8,      // Higher threshold
+        generateId: true,
+        extent: 512,
+        nodeSize: 32,
+      };
+    } else if (zoom >= 9) {
+      // Regional view - moderate clustering
+      return {
+        radius: 60,        // Medium radius
+        maxZoom: 18,
+        minZoom: 0,
+        minPoints: 5,      // Moderate threshold
+        generateId: true,
+        extent: 512,
+        nodeSize: 32,
+      };
+    } else if (zoom >= 6) {
+      // State view - heavy clustering
+      return {
+        radius: 80,        // Large radius
+        maxZoom: 16,
+        minZoom: 0,
+        minPoints: 4,      // Lower threshold
+        generateId: true,
+        extent: 512,
+        nodeSize: 64,
+      };
+    } else {
+      // Country view - maximum clustering
+      return {
+        radius: 100,       // Reasonable radius
+        maxZoom: 16,
+        minZoom: 0,
+        minPoints: 3,      // Cluster 3+ communities
+        generateId: true,
+        extent: 512,
+        nodeSize: 64,
+      };
+    }
+  }
+
+  const handleClusterClick = (clusterId: number, lat: number, lng: number) => {
+    try {
+      if (!mapInstance) {
+        console.warn('Map instance not available');
+        return;
+      }
+
+      // Smarter zoom calculation based on cluster size
+      const zoomIncrement = currentZoom < 12 ? 3 : currentZoom < 15 ? 2 : 1; // Zoom less when closer
+      const newZoom = Math.min(currentZoom + zoomIncrement, 18); // Cap zoom level
+
+      // Smooth fly animation
+      mapInstance.flyTo([lat, lng], newZoom, {
+        animate: true,
+        duration: 0.8,
+        easeLinearity: 0.1
+      });
+
+      // Call cluster click handler if provided - AFTER zoom
+      setTimeout(() => {
+        if (onClusterClick) {
+          onClusterClick(clusterId, lat, lng, newZoom);
+        }
+      }, 900); // Wait for zoom animation to complete
+    } catch (error) {
+      console.warn('Cluster click error:', error);
+    }
+  };

@@ -135,7 +135,7 @@ export default function MapSearch() {
 
     const sw = mapBounds.getSouthWest();
     const ne = mapBounds.getNorthEast();
-    
+
     return `bounds_${sw.lng.toFixed(6)}_${sw.lat.toFixed(6)}_${ne.lng.toFixed(6)}_${ne.lat.toFixed(6)}`;
   }, [mapBounds]);
 
@@ -157,14 +157,14 @@ export default function MapSearch() {
 
       try {
         const response = await fetch(`/api/communities/search/spatial?swLat=${sw.lat}&swLng=${sw.lng}&neLat=${ne.lat}&neLng=${ne.lng}&limit=50`);
-        
+
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
-        
+
         const communities = await response.json();
         console.log(`✅ LOADED ${communities.length} COMMUNITIES FOR BOUNDS:`, boundsKey);
-        
+
         return communities;
       } catch (error) {
         console.error('❌ SPATIAL QUERY ERROR:', error);
@@ -408,7 +408,10 @@ export default function MapSearch() {
                 <Button
                   variant={viewMode === 'map' ? 'default' : 'ghost'}
                   size="sm"
-                  onClick={() => setViewMode('map')}
+                  onClick={() => {
+                    setViewMode('map');
+                    setShowBottomPanel(false);
+                  }}
                   className={viewMode === 'map' ? '' : 'text-gray-600 dark:text-gray-300'}
                 >
                   <MapIcon className="h-4 w-4 mr-2" />
@@ -417,7 +420,10 @@ export default function MapSearch() {
                 <Button
                   variant={viewMode === 'list' ? 'default' : 'ghost'}
                   size="sm"
-                  onClick={() => setViewMode('list')}
+                  onClick={() => {
+                    setViewMode('list');
+                    setShowBottomPanel(true);
+                  }}
                   className={viewMode === 'list' ? '' : 'text-gray-600 dark:text-gray-300'}
                 >
                   <List className="h-4 w-4 mr-2" />
@@ -532,7 +538,7 @@ export default function MapSearch() {
                 <HelpCircle className="h-4 w-4 mr-2" />
                 Help
               </Button>
-              
+
               <Button
                 variant="outline"
                 size="sm"
