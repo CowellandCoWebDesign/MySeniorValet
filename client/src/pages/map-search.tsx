@@ -110,7 +110,7 @@ export default function MapSearchClean() {
   const [activeFeatures, setActiveFeatures] = useState<string[]>([]);
   const [activeRatings, setActiveRatings] = useState<string[]>([]);
   const [activeAvailability, setActiveAvailability] = useState<string[]>([]);
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
   const [savedSearches, setSavedSearches] = useState<{name: string, filters: any}[]>([]);
   const [mapCenter, setMapCenter] = useState<[number, number]>([37.7749, -122.4194]);
   const [mapZoom, setMapZoom] = useState(12);
