@@ -9,7 +9,7 @@
 
 import { db } from "./db";
 import { communities } from "@shared/schema";
-import { sql, eq, and, or, desc, asc } from "drizzle-orm";
+import { sql, eq, and, or, desc, asc, gt, isNotNull } from "drizzle-orm";
 
 interface DatabaseAnalysis {
   totalCommunities: number;
@@ -121,10 +121,10 @@ export class RealDataAnalyzer {
       .select({
         state: communities.state,
         count: sql<number>`count(*)`,
-        avgPrice: sql<number>`avg(CASE WHEN ${communities.priceMin} > 0 THEN ${communities.priceMin} END)`
+        avgPrice: sql<number>`avg((price_range->>'min')::numeric) FILTER (WHERE (price_range->>'min')::numeric > 0)`
       })
       .from(communities)
-      .where(sql`${communities.state} IS NOT NULL`)
+      .where(isNotNull(communities.state))
       .groupBy(communities.state)
       .orderBy(desc(sql`count(*)`));
 
@@ -143,15 +143,15 @@ export class RealDataAnalyzer {
   private async analyzeCareTypeDistribution(): Promise<CareTypeData[]> {
     const careTypeData = await db
       .select({
-        careType: communities.careType,
+        careType: sql<string>`care_types[1]`,
         count: sql<number>`count(*)`,
-        avgPrice: sql<number>`avg(CASE WHEN ${communities.priceMin} > 0 THEN ${communities.priceMin} END)`,
-        minPrice: sql<number>`min(CASE WHEN ${communities.priceMin} > 0 THEN ${communities.priceMin} END)`,
-        maxPrice: sql<number>`max(CASE WHEN ${communities.priceMin} > 0 THEN ${communities.priceMin} END)`
+        avgPrice: sql<number>`avg((price_range->>'min')::numeric) FILTER (WHERE (price_range->>'min')::numeric > 0)`,
+        minPrice: sql<number>`min((price_range->>'min')::numeric) FILTER (WHERE (price_range->>'min')::numeric > 0)`,
+        maxPrice: sql<number>`max((price_range->>'max')::numeric) FILTER (WHERE (price_range->>'max')::numeric > 0)`
       })
       .from(communities)
-      .where(sql`${communities.careType} IS NOT NULL`)
-      .groupBy(communities.careType)
+      .where(sql`care_types IS NOT NULL AND array_length(care_types, 1) > 0`)
+      .groupBy(sql`care_types[1]`)
       .orderBy(desc(sql`count(*)`));
 
     const totalCommunities = careTypeData.reduce((sum, row) => sum + row.count, 0);
@@ -175,12 +175,12 @@ export class RealDataAnalyzer {
     // Get communities with pricing data
     const pricingData = await db
       .select({
-        priceMin: communities.priceMin,
-        priceMax: communities.priceMax
+        priceMin: sql<number>`(price_range->>'min')::numeric`,
+        priceMax: sql<number>`(price_range->>'max')::numeric`
       })
       .from(communities)
-      .where(sql`${communities.priceMin} > 0`)
-      .orderBy(asc(communities.priceMin));
+      .where(sql`(price_range->>'min')::numeric > 0`)
+      .orderBy(sql`(price_range->>'min')::numeric ASC`);
 
     const totalWithPricing = pricingData.length;
     const totalCommunities = await db

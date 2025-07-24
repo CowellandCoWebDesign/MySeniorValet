@@ -295,23 +295,29 @@ export class RealDataPricingEngine {
       };
 
       allCommunities.forEach(community => {
-        if (community.priceMin && community.priceMin > 0) {
+        // Check for valid pricing data - either priceRange or rentPerMonth for HUD properties
+        const hasValidPricing = (
+          (community.priceRange && typeof community.priceRange === 'object' && community.priceRange.min > 0) ||
+          (community.rentPerMonth && community.rentPerMonth > 0)
+        );
+        
+        if (hasValidPricing) {
           stats.withRealPricing++;
           
-          // Count by data source
-          const dataSource = community.pricingDataSource || 'unknown';
+          // Count by data source (use rentPerMonth for HUD properties)
+          const dataSource = community.rentPerMonth ? 'hud_official' : (community.pricingType || 'estimated');
           stats.byDataSource[dataSource] = (stats.byDataSource[dataSource] || 0) + 1;
           
           // Count by confidence
-          const confidence = community.pricingConfidence || 'unknown';
+          const confidence = community.rentPerMonth ? 'high' : (community.pricingType === 'live' ? 'high' : 'medium');
           stats.byConfidence[confidence] = (stats.byConfidence[confidence] || 0) + 1;
           
           // Count by state
           const state = community.state || 'unknown';
           stats.byState[state] = (stats.byState[state] || 0) + 1;
           
-          // Count by care type
-          const careType = community.careType || 'unknown';
+          // Count by care type - get first care type from array
+          const careType = (community.careTypes && community.careTypes.length > 0) ? community.careTypes[0] : 'unknown';
           stats.byCareType[careType] = (stats.byCareType[careType] || 0) + 1;
         }
       });
