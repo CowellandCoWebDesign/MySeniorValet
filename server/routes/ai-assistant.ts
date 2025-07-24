@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { anthropicAI } from '../anthropic-ai-service';
+import { interpretSearchQuery, enhanceSearchResults, generateSearchSuggestions } from '../anthropic-ai-service';
 import { storage } from '../storage';
 import { requireSimpleAuth } from '../simple-auth';
 import { Request, Response } from 'express';

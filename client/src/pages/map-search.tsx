@@ -170,15 +170,66 @@ export default function MapSearchClean() {
     setLocation(`/communities/${community.id}`);
   };
 
-  const handleLocationSearch = async (location: string) => {
-    if (!location || location.trim() === '') return;
+  const handleLocationSearch = async (query: string) => {
+    if (!query || query.trim() === '') return;
 
     setHasSearched(true);
-    console.log('🔍 Searching for location:', location);
+    console.log('🔍 AI-Powered Search for:', query);
 
-    // Try to geocode the location using enhanced API
     try {
-      const response = await fetch(`/api/communities/search/enhanced?location=${encodeURIComponent(location)}&limit=1`);
+      // First try AI-powered search
+      const aiResponse = await fetch('/api/search/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query })
+      });
+
+      if (aiResponse.ok) {
+        const aiData = await aiResponse.json();
+        console.log('🤖 AI Search Intent:', aiData.searchIntent);
+        console.log(`📊 AI Found ${aiData.totalResults} communities`);
+
+        // Show AI summary if available
+        if (aiData.summary) {
+          console.log('💬 AI Summary:', aiData.summary);
+        }
+
+        // Update search query to display the interpreted location
+        if (aiData.searchIntent.location) {
+          const loc = aiData.searchIntent.location;
+          if (loc.city || loc.state || loc.zipCode) {
+            const displayLocation = [loc.city, loc.state].filter(Boolean).join(', ') || loc.zipCode || query;
+            setSearchQuery(displayLocation);
+          }
+        }
+
+        // If we have results, center map on the first result
+        if (aiData.results && aiData.results.length > 0) {
+          const firstResult = aiData.results[0];
+          if (firstResult.latitude && firstResult.longitude) {
+            console.log(`📍 Centering map on first result: ${firstResult.name}`);
+            setMapCenter([firstResult.latitude, firstResult.longitude]);
+            
+            // Adjust zoom based on number of results
+            if (aiData.totalResults > 20) {
+              setMapZoom(10); // Wider view for many results
+            } else if (aiData.totalResults > 5) {
+              setMapZoom(12); // Medium view
+            } else {
+              setMapZoom(14); // Close view for few results
+            }
+            
+            return; // Success, exit early
+          }
+        }
+      }
+    } catch (error) {
+      console.error('AI search error:', error);
+    }
+
+    // Fallback to enhanced search API for geocoding
+    try {
+      const response = await fetch(`/api/communities/search/enhanced?location=${encodeURIComponent(query)}&limit=1`);
       console.log('Enhanced API response status:', response.status);
 
       if (response.ok) {
@@ -219,10 +270,10 @@ export default function MapSearchClean() {
       'sacramento': [38.5816, -121.4944],
     };
 
-    const coords = locationMap[location.toLowerCase()];
+    const coords = locationMap[query.toLowerCase()];
     if (coords) {
       setMapCenter(coords);
-      const lowerLocation = location.toLowerCase();
+      const lowerLocation = query.toLowerCase();
       if (lowerLocation === 'california') {
         setMapZoom(6);
       } else {
@@ -269,11 +320,11 @@ export default function MapSearchClean() {
     <div className={`min-h-screen transition-colors duration-300 ${
       isDarkMode ? 'dark bg-gray-900' : 'bg-gray-50'
     }`}>
-      {/* Enhanced Header */}
+      {/* Simplified Header */}
       <div className="bg-white dark:bg-gray-900 shadow-lg border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            {/* Enhanced Logo */}
+          <div className="flex justify-between items-center h-16">
+            {/* Logo */}
             <div className="flex items-center">
               <button
                 onClick={() => setLocation('/')}
@@ -289,54 +340,36 @@ export default function MapSearchClean() {
               </button>
             </div>
 
-            {/* Enhanced Search bar */}
-            <div className="flex-1 max-w-3xl mx-8 relative">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <Input
-                  placeholder="Search by city, state, or ZIP code..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      handleLocationSearch(searchQuery);
-                    }
-                  }}
-                  className="pl-12 pr-6 py-4 w-full border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white text-lg transition-all duration-200 hover:bg-white dark:hover:bg-gray-700"
-                />
-              </div>
-            </div>
-
-            {/* Enhanced Controls */}
+            {/* Controls */}
             <div className="flex items-center space-x-4">
-              {/* Enhanced Dark mode toggle */}
+              {/* Dark mode toggle */}
               <Button
                 variant="ghost"
                 size="lg"
                 onClick={toggleDarkMode}
-                className="text-gray-600 dark:text-gray-300 h-12 w-12 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
+                className="text-gray-600 dark:text-gray-300 h-10 w-10 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
               >
-                {isDarkMode ? <Sun className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
+                {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </Button>
 
-              {/* Enhanced View toggle */}
+              {/* View toggle */}
               <div className="flex rounded-xl border-2 border-gray-200 dark:border-gray-600 overflow-hidden bg-gray-50 dark:bg-gray-800">
                 <Button
                   variant={viewMode === 'map' ? 'default' : 'ghost'}
                   size="lg"
                   onClick={() => setViewMode('map')}
-                  className={`rounded-none border-0 h-12 px-6 ${viewMode === 'map' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                  className={`rounded-none border-0 h-10 px-4 ${viewMode === 'map' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                 >
-                  <MapIcon className="h-5 w-5 mr-2" />
+                  <MapIcon className="h-4 w-4 mr-2" />
                   Map
                 </Button>
                 <Button
                   variant={viewMode === 'list' ? 'default' : 'ghost'}
                   size="lg"
                   onClick={() => setViewMode('list')}
-                  className={`rounded-none border-0 h-12 px-6 ${viewMode === 'list' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                  className={`rounded-none border-0 h-10 px-4 ${viewMode === 'list' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                 >
-                  <List className="h-5 w-5 mr-2" />
+                  <List className="h-4 w-4 mr-2" />
                   List
                 </Button>
               </div>
@@ -345,8 +378,84 @@ export default function MapSearchClean() {
         </div>
       </div>
 
+      {/* AI-Powered Search Bar Section */}
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="space-y-4">
+            {/* Search Input with AI */}
+            <div className="relative">
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <Search className="h-5 w-5" />
+              </div>
+              <Input
+                placeholder="Ask me anything: 'memory care near me', 'assisted living under $3000', 'pet-friendly in Sacramento'..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleLocationSearch(searchQuery);
+                  }
+                }}
+                className="pl-12 pr-24 py-4 w-full border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-lg transition-all duration-200 hover:shadow-lg"
+              />
+              <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0">
+                  AI-Powered
+                </Badge>
+              </div>
+            </div>
+
+            {/* Quick Filters */}
+            <div className="flex flex-wrap gap-2">
+              <Badge 
+                variant="outline" 
+                className="cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
+                onClick={() => setSearchQuery('memory care near me')}
+              >
+                Memory Care
+              </Badge>
+              <Badge 
+                variant="outline" 
+                className="cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
+                onClick={() => setSearchQuery('assisted living')}
+              >
+                Assisted Living
+              </Badge>
+              <Badge 
+                variant="outline" 
+                className="cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
+                onClick={() => setSearchQuery('independent living')}
+              >
+                Independent Living
+              </Badge>
+              <Badge 
+                variant="outline" 
+                className="cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
+                onClick={() => setSearchQuery('pet friendly communities')}
+              >
+                Pet Friendly
+              </Badge>
+              <Badge 
+                variant="outline" 
+                className="cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
+                onClick={() => setSearchQuery('communities under $3000')}
+              >
+                Under $3,000/mo
+              </Badge>
+              <Badge 
+                variant="outline" 
+                className="cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
+                onClick={() => setSearchQuery('skilled nursing facilities')}
+              >
+                Skilled Nursing
+              </Badge>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Main Content */}
-      <div className="relative h-[calc(100vh-5rem)]">
+      <div className="relative h-[calc(100vh-13rem)]">
         {viewMode === 'map' ? (
           <>
             {/* Map Container */}
@@ -468,7 +577,7 @@ export default function MapSearchClean() {
                                     </div>
                                   </div>
                                   
-                                  {(community?.rating && community.rating > 0) && (
+                                  {(community?.rating && typeof community.rating === 'number' && community.rating > 0) && (
                                     <div className="flex items-center space-x-2 bg-yellow-100 dark:bg-yellow-900/30 px-3 py-1.5 rounded-full">
                                       <Star className="w-4 h-4 text-yellow-500 fill-current" />
                                       <span className="text-sm font-semibold text-yellow-700 dark:text-yellow-300">

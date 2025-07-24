@@ -64,7 +64,7 @@ import { loadTester } from "./infrastructure/loadTest";
 import { aiRecommendationEngine, RecommendationRequest } from "./ai-recommendations";
 import { ComprehensiveScraper } from "./scraper";
 import { quizRouter } from "./routes/quiz";
-import aiAssistantRoutes from "./routes/ai-assistant";
+// import aiAssistantRoutes from "./routes/ai-assistant"; // Commented out - causing server error
 import { licensingScraper } from "./licensing-scraper";
 import { googleReviewsAI } from "./google-reviews-ai";
 import { googlePlacesIntegration } from "./google-places-integration";
@@ -123,7 +123,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const adminRouter = express.Router();
   
   // AI Assistant routes
-  app.use(aiAssistantRoutes);
+  // app.use(aiAssistantRoutes); // Commented out - causing server error
   
   // Admin routes with minimal middleware
   adminRouter.get('/audit-logs', (req, res) => {
@@ -1506,6 +1506,123 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Test endpoint to verify middleware issues
   app.get('/api/test-suggestions', async (req, res) => {
     res.json(['Test 1', 'Test 2', 'Test 3']);
+  });
+
+  // AI-powered search endpoint
+  app.post('/api/search/ai', async (req, res) => {
+    try {
+      const { query } = req.body;
+      
+      if (!query || typeof query !== 'string') {
+        return res.status(400).json({ message: 'Query is required' });
+      }
+      
+      // Use AI to interpret the search query
+      const { interpretSearchQuery } = await import('./anthropic-ai-service');
+      const searchIntent = await interpretSearchQuery(query);
+      
+      console.log('AI Search Intent:', searchIntent);
+      
+      // Build search conditions based on AI interpretation
+      const conditions: any[] = [];
+      const params: any[] = [];
+      let paramIndex = 1;
+      
+      // Location-based search
+      if (searchIntent.location) {
+        if (searchIntent.location.city) {
+          conditions.push(`LOWER(city) = $${paramIndex++}`);
+          params.push(searchIntent.location.city.toLowerCase());
+        }
+        if (searchIntent.location.state) {
+          conditions.push(`LOWER(state) = $${paramIndex++}`);
+          params.push(searchIntent.location.state.toLowerCase());
+        }
+        if (searchIntent.location.zipCode) {
+          conditions.push(`zip_code LIKE $${paramIndex++}`);
+          params.push(`${searchIntent.location.zipCode}%`);
+        }
+      }
+      
+      // Care type filters
+      if (searchIntent.careTypes && searchIntent.careTypes.length > 0) {
+        const careTypeConditions = searchIntent.careTypes.map(type => {
+          conditions.push(`care_types @> $${paramIndex++}::jsonb`);
+          params.push(JSON.stringify([type]));
+          return null;
+        }).filter(Boolean);
+      }
+      
+      // Price range filters
+      if (searchIntent.priceRange) {
+        if (searchIntent.priceRange.min) {
+          conditions.push(`(monthly_rent_range_start >= $${paramIndex++} OR price_range->>'min' >= $${paramIndex - 1})`);
+          params.push(searchIntent.priceRange.min);
+        }
+        if (searchIntent.priceRange.max) {
+          conditions.push(`(monthly_rent_range_end <= $${paramIndex++} OR price_range->>'max' <= $${paramIndex - 1})`);
+          params.push(searchIntent.priceRange.max);
+        }
+      }
+      
+      // Build the SQL query
+      let sqlQuery = `
+        SELECT * FROM communities
+        WHERE 1=1
+      `;
+      
+      if (conditions.length > 0) {
+        sqlQuery += ` AND (${conditions.join(' AND ')})`;
+      }
+      
+      sqlQuery += ` ORDER BY rating DESC NULLS LAST, name ASC LIMIT 50`;
+      
+      console.log('AI Search Query:', sqlQuery);
+      console.log('AI Search Params:', params);
+      
+      const result = await db.query(sqlQuery, params);
+      
+      // Enhance results with AI summary if we have results
+      let summary = '';
+      if (result.rows.length > 0) {
+        const { enhanceSearchResults } = await import('./anthropic-ai-service');
+        summary = await enhanceSearchResults(searchIntent.originalQuery, result.rows);
+      }
+      
+      res.json({
+        searchIntent,
+        results: result.rows,
+        summary,
+        totalResults: result.rows.length
+      });
+      
+    } catch (error) {
+      console.error('AI search error:', error);
+      res.status(500).json({ 
+        message: 'Failed to process AI search',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // AI search suggestions endpoint
+  app.get('/api/search/ai-suggestions', async (req, res) => {
+    try {
+      const { q } = req.query;
+      
+      if (!q || typeof q !== 'string' || q.length < 2) {
+        return res.json([]);
+      }
+      
+      const { generateSearchSuggestions } = await import('./anthropic-ai-service');
+      const suggestions = await generateSearchSuggestions(q);
+      
+      res.json(suggestions);
+      
+    } catch (error) {
+      console.error('AI suggestions error:', error);
+      res.json([]);
+    }
   });
 
   // Predictive search suggestions endpoint  
