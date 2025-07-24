@@ -156,13 +156,13 @@ const HeroPhotoCarousel = ({ photos, communityName }: { photos: string[], commun
             onClick={prevPhoto}
             className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10"
           >
-            <ChevronLeft className="w-6 h-6 text-gray-700" />
+            <ChevronLeft className="w-6 h-6 text-gray-900 dark:text-gray-100" />
           </button>
           <button
             onClick={nextPhoto}
             className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10"
           >
-            <ChevronRight className="w-6 h-6 text-gray-700" />
+            <ChevronRight className="w-6 h-6 text-gray-900 dark:text-gray-100" />
           </button>
 
           {/* Photo indicator dots */}
@@ -560,14 +560,14 @@ export default function CommunityDetail() {
                     <div className="h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                       <div className="text-center p-8">
                         <div className="w-16 h-16 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <span className="text-2xl font-bold text-gray-600 dark:text-gray-300">
+                          <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                             {getInitials(community.name)}
                           </span>
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
                           Photos Coming Soon
                         </h3>
-                        <p className="text-gray-600 dark:text-gray-400 mb-4">
+                        <p className="text-gray-900 dark:text-gray-100 mb-4">
                           Authentic community photos will be displayed when this facility claims their listing
                         </p>
                         <Badge className="bg-blue-100 text-blue-800 border border-blue-200">
@@ -584,7 +584,7 @@ export default function CommunityDetail() {
                       onClick={handleFavorite}
                       className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow"
                     >
-                      <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600 dark:text-gray-300'}`} />
+                      <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-900 dark:text-gray-100'}`} />
                     </button>
 
                     <FamilyShareButton 
@@ -616,11 +616,11 @@ export default function CommunityDetail() {
                     <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                       {community.name}
                     </CardTitle>
-                    <div className="flex items-center text-gray-600 dark:text-gray-400 mb-2">
+                    <div className="flex items-center text-gray-900 dark:text-gray-100 mb-2">
                       <MapPin className="w-4 h-4 mr-1" />
                       <span>{community.address}, {community.city}, {community.state} {community.zipCode}</span>
                     </div>
-                    <div className="flex items-center text-gray-600 dark:text-gray-400 mb-2">
+                    <div className="flex items-center text-gray-900 dark:text-gray-100 mb-2">
                       <Phone className="w-4 h-4 mr-1" />
                       <span className="font-medium">{community.phone || generatePhoneNumber(community.state, community.id)}</span>
                     </div>
@@ -628,7 +628,7 @@ export default function CommunityDetail() {
                       <div className="flex items-center">
                         <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
                         <span className="font-medium">{community.googleRating || '4.2'}</span>
-                        <span className="text-gray-600 dark:text-gray-400 ml-1">({community.googleReviewCount || '47'} reviews)</span>
+                        <span className="text-gray-900 dark:text-gray-100 ml-1">({community.googleReviewCount || '47'} reviews)</span>
                       </div>
                       <Badge className="bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200">
                         {community.careTypes?.[0] || 'Senior Living'}
@@ -760,7 +760,7 @@ export default function CommunityDetail() {
                           <span className="text-sm text-orange-600 dark:text-orange-400 ml-2 font-normal">estimate</span>
                         )}
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">per month starting rate</div>
+                      <div className="text-sm text-gray-900 dark:text-gray-100">per month starting rate</div>
                     </div>
 
                     {/* Availability Status */}
@@ -810,7 +810,7 @@ export default function CommunityDetail() {
                 <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 p-8 rounded-lg border-2 border-blue-100 dark:border-blue-700">
                   <div className="text-center mb-6">
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Ready to Visit?</h3>
-                    <p className="text-gray-600 dark:text-gray-300">Connect with our community team to schedule your tour</p>
+                    <p className="text-gray-900 dark:text-gray-100">Connect with our community team to schedule your tour</p>
                   </div>
 
                   {/* Community Contact Info */}
@@ -826,12 +826,12 @@ export default function CommunityDetail() {
                             <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                               {(community as any).salesDirector.name}
                             </h4>
-                            <p className="text-gray-600 dark:text-gray-300 font-medium">
+                            <p className="text-gray-900 dark:text-gray-100 font-medium">
                               {(community as any).salesDirector.title || 'Sales Director'}
                             </p>
                             <div className="flex items-center mt-2">
                               <Phone className="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2" />
-                              <span className="text-gray-700 dark:text-gray-200 font-medium">
+                              <span className="text-gray-900 dark:text-gray-100 font-medium">
                                 {(community as any).salesDirector.phone || community.phone}
                               </span>
                             </div>
@@ -841,16 +841,16 @@ export default function CommunityDetail() {
                             <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                               Community Main Office
                             </h4>
-                            <p className="text-gray-600 dark:text-gray-300 font-medium">
+                            <p className="text-gray-900 dark:text-gray-100 font-medium">
                               Call for sales and leasing information
                             </p>
                             <div className="flex items-center mt-2">
                               <Phone className="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2" />
-                              <span className="text-gray-700 dark:text-gray-200 font-medium">
+                              <span className="text-gray-900 dark:text-gray-100 font-medium">
                                 {community.phone}
                               </span>
                             </div>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">
                               Ask to speak with a leasing manager or sales director
                             </p>
                           </>
@@ -1107,37 +1107,37 @@ export default function CommunityDetail() {
                           <div className="space-y-2">
                             <div className="flex items-center">
                               <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700">
+                              <span className="text-sm text-gray-900 dark:text-gray-100">
                                 <strong>View:</strong> {unit.details.view}
                               </span>
                             </div>
                             <div className="flex items-center">
                               <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700">
+                              <span className="text-sm text-gray-900 dark:text-gray-100">
                                 <strong>Outdoor Space:</strong> {unit.details.outdoor}
                               </span>
                             </div>
                             <div className="flex items-center">
                               <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700">
+                              <span className="text-sm text-gray-900 dark:text-gray-100">
                                 <strong>Kitchen:</strong> {unit.details.kitchen}
                               </span>
                             </div>
                             <div className="flex items-center">
                               <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700">
+                              <span className="text-sm text-gray-900 dark:text-gray-100">
                                 <strong>Bathroom:</strong> {unit.details.bathroom}
                               </span>
                             </div>
                             <div className="flex items-center">
                               <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700">
+                              <span className="text-sm text-gray-900 dark:text-gray-100">
                                 <strong>Refrigerator:</strong> {unit.details.appliances}
                               </span>
                             </div>
                             <div className="flex items-center">
                               <span className="w-2 h-2 bg-amber-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700">
+                              <span className="text-sm text-gray-900 dark:text-gray-100">
                                 <strong>Stove/Cooktop:</strong> {unit.details.stove}
                               </span>
                             </div>
@@ -1145,31 +1145,31 @@ export default function CommunityDetail() {
                           <div className="space-y-2">
                             <div className="flex items-center">
                               <span className="w-2 h-2 bg-indigo-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700">
+                              <span className="text-sm text-gray-900 dark:text-gray-100">
                                 <strong>Countertops:</strong> {unit.details.counters}
                               </span>
                             </div>
                             <div className="flex items-center">
                               <span className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700">
+                              <span className="text-sm text-gray-900 dark:text-gray-100">
                                 <strong>Flooring:</strong> {unit.details.flooring}
                               </span>
                             </div>
                             <div className="flex items-center">
                               <span className="w-2 h-2 bg-teal-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700">
+                              <span className="text-sm text-gray-900 dark:text-gray-100">
                                 <strong>Storage:</strong> {unit.details.storage}
                               </span>
                             </div>
                             <div className="flex items-center">
                               <span className="w-2 h-2 bg-pink-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700">
+                              <span className="text-sm text-gray-900 dark:text-gray-100">
                                 <strong>Lighting:</strong> {unit.details.lighting}
                               </span>
                             </div>
                             <div className="flex items-center">
                               <span className="w-2 h-2 bg-cyan-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700">
+                              <span className="text-sm text-gray-900 dark:text-gray-100">
                                 <strong>Accessibility:</strong> {unit.details.accessibility}
                               </span>
                             </div>
@@ -1661,23 +1661,23 @@ export default function CommunityDetail() {
                   </TabsContent>
                   <TabsContent value="policies" className="space-y-4">
                     <div>
-                      <h3 className="text-lg font-semibold mb-3">Policies & Information</h3>
+                      <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">Policies & Information</h3>
                       <div className="space-y-4">
-                        <div className="bg-gray-50 p-4 rounded-lg">
-                          <h4 className="font-medium mb-2">Pet Policy</h4>
-                          <p className="text-sm text-gray-600">
+                        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                          <h4 className="font-medium mb-2 text-gray-900 dark:text-gray-100">Pet Policy</h4>
+                          <p className="text-sm text-gray-900 dark:text-gray-100">
                             Small pets welcome with approval. Pet deposit required.
                           </p>
                         </div>
-                        <div className="bg-gray-50 p-4 rounded-lg">
-                          <h4 className="font-medium mb-2">Visitation Hours</h4>
-                          <p className="text-sm text-gray-600">
+                        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                          <h4 className="font-medium mb-2 text-gray-900 dark:text-gray-100">Visitation Hours</h4>
+                          <p className="text-sm text-gray-900 dark:text-gray-100">
                             Open visitation policy. Guests welcome 24/7.
                           </p>
                         </div>
-                        <div className="bg-gray-50 p-4 rounded-lg">
-                          <h4 className="font-medium mb-2">Move-in Requirements</h4>
-                          <p className="text-sm text-gray-600">
+                        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                          <h4 className="font-medium mb-2 text-gray-900 dark:text-gray-100">Move-in Requirements</h4>
+                          <p className="text-sm text-gray-900 dark:text-gray-100">
                             Health assessment, financial verification, and deposit required.
                           </p>
                         </div>
@@ -1686,7 +1686,7 @@ export default function CommunityDetail() {
                   </TabsContent>
                   <TabsContent value="photos" className="space-y-4">
                     <div>
-                      <h3 className="text-lg font-semibold mb-3">Photo Gallery</h3>
+                      <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">Photo Gallery</h3>
                       {community.photos && community.photos.length > 0 ? (
                         <div className="relative h-64 sm:h-80 md:h-96 overflow-hidden rounded-lg">
                           <HeroPhotoCarousel 
@@ -1696,7 +1696,7 @@ export default function CommunityDetail() {
                         </div>
                       ) : (
                         <div className="bg-gray-100 dark:bg-gray-700 p-8 rounded-lg text-center">
-                          <p className="text-gray-500 dark:text-gray-400">No photos available</p>
+                          <p className="text-gray-900 dark:text-gray-100">No photos available</p>
                         </div>
                       )}
                     </div>
@@ -1715,7 +1715,7 @@ export default function CommunityDetail() {
                   <Star className="w-5 h-5 mr-2" />
                   Reviews & Ratings
                 </CardTitle>
-                <p className="text-sm text-gray-600 mt-1">Combined external reviews and tour inspections</p>
+                <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">Combined external reviews and tour inspections</p>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* MySeniorValet Composite Score */}
@@ -1728,9 +1728,9 @@ export default function CommunityDetail() {
                         {/* Calculate composite score from multiple sources */}
                         {(community as any).compositeRating || calculateCompositeRating(community)}
                       </span>
-                      <span className="text-lg text-gray-600 dark:text-gray-400">/5</span>
+                      <span className="text-lg text-gray-900 dark:text-gray-100">/5</span>
                     </div>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                    <p className="text-xs text-gray-900 dark:text-gray-100 mt-1">
                       Based on {(community as any).tourCount || '8'} family tours + {parseInt(community.googleReviewCount?.toString() || '0') + parseInt(community.yelpReviewCount?.toString() || '0')} online reviews
                     </p>
                   </div>
@@ -1738,49 +1738,49 @@ export default function CommunityDetail() {
                   {/* Score Breakdown */}
                   <div className="grid grid-cols-3 gap-2 text-xs">
                     <div className="text-center">
-                      <p className="text-gray-600 dark:text-gray-400">Tour Score</p>
-                      <p className="font-semibold">{(community as any).tourAverageRating || '4.5'}/5</p>
+                      <p className="text-gray-900 dark:text-gray-100">Tour Score</p>
+                      <p className="font-semibold text-gray-900 dark:text-gray-100">{(community as any).tourAverageRating || '4.5'}/5</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-gray-600 dark:text-gray-400">Google</p>
-                      <p className="font-semibold">{community.googleRating || '4.2'}/5</p>
+                      <p className="text-gray-900 dark:text-gray-100">Google</p>
+                      <p className="font-semibold text-gray-900 dark:text-gray-100">{community.googleRating || '4.2'}/5</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-gray-600 dark:text-gray-400">Yelp</p>
-                      <p className="font-semibold">{community.yelpRating || '4.0'}/5</p>
+                      <p className="text-gray-900 dark:text-gray-100">Yelp</p>
+                      <p className="font-semibold text-gray-900 dark:text-gray-100">{community.yelpRating || '4.0'}/5</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Tour Inspection Highlights */}
                 <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                  <h4 className="text-sm font-semibold mb-2 flex items-center">
+                  <h4 className="text-sm font-semibold mb-2 flex items-center text-gray-900 dark:text-gray-100">
                     <ClipboardList className="w-4 h-4 mr-1 text-blue-600" />
                     Recent Tour Findings
                   </h4>
                   <div className="space-y-1 text-xs">
                     <div className="flex items-center">
                       <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
-                      <span>Cleanliness: {(community as any).tourCleanlinessScore || '4.6'}/5</span>
+                      <span className="text-gray-900 dark:text-gray-100">Cleanliness: {(community as any).tourCleanlinessScore || '4.6'}/5</span>
                     </div>
                     <div className="flex items-center">
                       <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
-                      <span>Staff Interaction: {(community as any).tourStaffScore || '4.8'}/5</span>
+                      <span className="text-gray-900 dark:text-gray-100">Staff Interaction: {(community as any).tourStaffScore || '4.8'}/5</span>
                     </div>
                     <div className="flex items-center">
                       <CheckCircle className="w-3 h-3 mr-1 text-yellow-500" />
-                      <span>Food Quality: {(community as any).tourFoodScore || '4.2'}/5</span>
+                      <span className="text-gray-900 dark:text-gray-100">Food Quality: {(community as any).tourFoodScore || '4.2'}/5</span>
                     </div>
                     <div className="flex items-center">
                       <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
-                      <span>Safety Features: {(community as any).tourSafetyScore || '4.7'}/5</span>
+                      <span className="text-gray-900 dark:text-gray-100">Safety Features: {(community as any).tourSafetyScore || '4.7'}/5</span>
                     </div>
                   </div>
                 </div>
 
                 {/* External Review Platform Links */}
                 <div className="space-y-2">
-                  <p className="text-xs text-gray-600 dark:text-gray-400 text-center">View detailed reviews on:</p>
+                  <p className="text-xs text-gray-900 dark:text-gray-100 text-center">View detailed reviews on:</p>
                   <div className="grid grid-cols-2 gap-2">
                     <Button 
                       variant="outline" 
@@ -1838,24 +1838,24 @@ export default function CommunityDetail() {
                   <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-600">
                     <Shield className="w-4 h-4 text-blue-600 mr-2" />
                     <div className="flex-1">
-                      <p className="text-sm font-medium">Inspection Checklist</p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">Pass/fail criteria for key areas</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Inspection Checklist</p>
+                      <p className="text-xs text-gray-900 dark:text-gray-100">Pass/fail criteria for key areas</p>
                     </div>
                   </div>
 
                   <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-600">
                     <Star className="w-4 h-4 text-blue-600 mr-2" />
                     <div className="flex-1">
-                      <p className="text-sm font-medium">Rate During Visit</p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">Cleanliness, staff, food, safety</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Rate During Visit</p>
+                      <p className="text-xs text-gray-900 dark:text-gray-100">Cleanliness, staff, food, safety</p>
                     </div>
                   </div>
 
                   <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-600">
                     <UserCheck className="w-4 h-4 text-blue-600 mr-2" />
                     <div className="flex-1">
-                      <p className="text-sm font-medium">Family Collaboration</p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">Share photos & notes instantly</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Family Collaboration</p>
+                      <p className="text-xs text-gray-900 dark:text-gray-100">Share photos & notes instantly</p>
                     </div>
                   </div>
                 </div>
