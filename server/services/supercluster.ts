@@ -102,20 +102,21 @@ class SuperclusterService {
         nodeSize: 64,
       };
     } else if (zoom >= 13) {
-      // Neighborhood view - medium clustering
+      // Neighborhood view - stronger clustering for performance
       return {
-        radius: 40,        // Medium radius for neighborhood grouping
+        radius: 60,        // Increased radius to prevent too many individual markers
         maxZoom: 20,
         minZoom: 0,
-        minPoints: 3,      // Cluster 3+ communities
+        minPoints: 2,      // Cluster any 2+ communities for better performance
         generateId: true,
         extent: 512,
         nodeSize: 64,
       };
     } else if (zoom >= 11) {
-      // City view - standard clustering (Yelp/Zillow style)
+      // City view - ALWAYS cluster for performance (Yelp/Zillow style)
+      // Never show thousands of individual markers
       return {
-        radius: 60,        // Standard radius for city-level clustering
+        radius: 80,        // Increased radius to ensure clustering at city level
         maxZoom: 20,
         minZoom: 0,
         minPoints: 2,      // Cluster any 2+ communities
