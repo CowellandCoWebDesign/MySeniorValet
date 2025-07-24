@@ -27,8 +27,8 @@ export default function Home() {
       <div className="relative z-10">
         <Header />
 
-        {/* Hero Section - Enhanced for Senior Accessibility */}
-        <section className="relative py-16 lg:py-24 overflow-hidden min-h-[90vh] flex items-center justify-center">
+        {/* Hero Section - Compact and Screen-Friendly */}
+        <section className="relative py-8 lg:py-12 overflow-hidden min-h-[70vh] flex items-center justify-center">
           {/* Hero Background Image */}
           <div className="absolute inset-0">
             <PremiumImage 
@@ -66,8 +66,8 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Enhanced Headlines */}
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-display font-bold text-gray-900 dark:text-white mb-10 leading-tight">
+              {/* Compact Headlines */}
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-display font-bold text-gray-900 dark:text-white mb-6 leading-tight">
                 Senior Living{" "}
                 <span className="text-primary bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   Complete Care
@@ -78,43 +78,43 @@ export default function Home() {
                 </span>
               </h1>
               
-              <p className="text-2xl lg:text-3xl xl:text-4xl text-gray-700 dark:text-gray-300 max-w-5xl mx-auto mb-8 leading-relaxed font-semibold">
+              <p className="text-lg lg:text-xl xl:text-2xl text-gray-700 dark:text-gray-300 max-w-4xl mx-auto mb-6 leading-relaxed font-semibold">
                 <strong className="text-blue-700 dark:text-blue-400">31,023+ authentic communities</strong> with HUD property data, Medicare records, and state licensing. Real pricing from $303-$9,200+ with zero "call for pricing" promises.
               </p>
               
-              <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-400 max-w-4xl mx-auto mb-12 leading-relaxed font-medium">
+              <p className="text-base lg:text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-8 leading-relaxed font-medium">
                 Complete post-move services including bill payment, account management, and unified resident onboarding systems.
               </p>
 
-              {/* Enhanced Service Pills */}
-              <div className="flex flex-wrap justify-center gap-4 lg:gap-6 mb-12">
-                <div className="flex items-center space-x-4 bg-white/95 backdrop-blur-md px-8 py-4 rounded-2xl shadow-xl border border-blue-200/60 hover:shadow-2xl transition-all duration-300 group relative overflow-hidden">
+              {/* Compact Service Pills */}
+              <div className="flex flex-wrap justify-center gap-3 lg:gap-4 mb-8">
+                <div className="flex items-center space-x-3 bg-white/95 backdrop-blur-md px-4 py-3 rounded-xl shadow-lg border border-blue-200/60 hover:shadow-xl transition-all duration-300 group relative overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-indigo-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="p-3 bg-blue-100 rounded-full relative z-10">
-                    <Eye className="text-blue-600 h-7 w-7" />
+                  <div className="p-2 bg-blue-100 rounded-full relative z-10">
+                    <Eye className="text-blue-600 h-5 w-5" />
                   </div>
-                  <span className="text-xl lg:text-2xl font-bold text-blue-800 relative z-10">Live Pricing & Availability</span>
+                  <span className="text-sm lg:text-base font-bold text-blue-800 relative z-10">Live Pricing & Availability</span>
                 </div>
                 
-                <div className="flex items-center space-x-4 bg-white/95 backdrop-blur-md px-8 py-4 rounded-2xl shadow-xl border border-green-200/60 hover:shadow-2xl transition-all duration-300 group">
-                  <div className="p-3 bg-green-100 rounded-full">
-                    <Truck className="text-green-600 h-7 w-7" />
+                <div className="flex items-center space-x-3 bg-white/95 backdrop-blur-md px-4 py-3 rounded-xl shadow-lg border border-green-200/60 hover:shadow-xl transition-all duration-300 group">
+                  <div className="p-2 bg-green-100 rounded-full">
+                    <Truck className="text-green-600 h-5 w-5" />
                   </div>
-                  <span className="text-xl lg:text-2xl font-bold text-green-800">Move Coordination</span>
+                  <span className="text-sm lg:text-base font-bold text-green-800">Move Coordination</span>
                 </div>
                 
-                <div className="flex items-center space-x-4 bg-white/95 backdrop-blur-md px-8 py-4 rounded-2xl shadow-xl border border-purple-200/60 hover:shadow-2xl transition-all duration-300">
-                  <div className="p-3 bg-purple-100 rounded-full">
-                    <Sofa className="text-purple-600 h-7 w-7" />
+                <div className="flex items-center space-x-3 bg-white/95 backdrop-blur-md px-4 py-3 rounded-xl shadow-lg border border-purple-200/60 hover:shadow-xl transition-all duration-300">
+                  <div className="p-2 bg-purple-100 rounded-full">
+                    <Sofa className="text-purple-600 h-5 w-5" />
                   </div>
-                  <span className="text-xl lg:text-2xl font-bold text-purple-800">Furniture & Medical Equipment</span>
+                  <span className="text-sm lg:text-base font-bold text-purple-800">Furniture & Medical Equipment</span>
                 </div>
                 
-                <div className="flex items-center space-x-4 bg-white/95 backdrop-blur-md px-8 py-4 rounded-2xl shadow-xl border border-amber-200/60 hover:shadow-2xl transition-all duration-300">
-                  <div className="p-3 bg-amber-100 rounded-full">
-                    <Users className="text-amber-600 h-7 w-7" />
+                <div className="flex items-center space-x-3 bg-white/95 backdrop-blur-md px-4 py-3 rounded-xl shadow-lg border border-amber-200/60 hover:shadow-xl transition-all duration-300">
+                  <div className="p-2 bg-amber-100 rounded-full">
+                    <Users className="text-amber-600 h-5 w-5" />
                   </div>
-                  <span className="text-xl lg:text-2xl font-bold text-amber-800">Family Collaboration</span>
+                  <span className="text-sm lg:text-base font-bold text-amber-800">Family Collaboration</span>
                 </div>
               </div>
             </div>
