@@ -6,7 +6,7 @@ import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, MapPin, Phone, Globe, CheckCircle, Users, Calendar, DollarSign, Camera, Video, Home, UserCheck, Stethoscope, Activity, Wifi, Car, Utensils, ChevronLeft, ChevronRight, ExternalLink, Heart, Share, Clock, AlertTriangle, Heart as HeartIcon, Dumbbell, UtensilsCrossed, Bus, HandHeart, Waves, Scissors, AlertCircle, ShieldCheck, Mail as MailIcon } from "lucide-react";
+import { Star, MapPin, Phone, Globe, CheckCircle, Users, Calendar, DollarSign, Camera, Video, Home, UserCheck, Stethoscope, Activity, Wifi, Car, Utensils, ChevronLeft, ChevronRight, ExternalLink, Heart, Share, Clock, AlertTriangle, Heart as HeartIcon, Dumbbell, UtensilsCrossed, Bus, HandHeart, Waves, Scissors, AlertCircle, ShieldCheck, Mail as MailIcon, Shield, Database, Info } from "lucide-react";
 import { Link } from "wouter";
 import type { Community } from "@shared/schema";
 import { FlagListingDialog } from "@/components/flag-listing-dialog";
@@ -44,6 +44,40 @@ export default function CommunityPage() {
     
     // Fallback to basic search page
     return '/search';
+  };
+
+  // Helper function to get source citation for pricing/availability data
+  const getDataSourceCitation = (community: any) => {
+    if (community.hudPropertyId && community.rentPerMonth) {
+      return {
+        text: `Source: HUD Property ID ${community.hudPropertyId}`,
+        type: 'hud',
+        icon: <Shield className="h-3 w-3" />,
+        color: 'text-green-600'
+      };
+    } else if (community.governmentSourced) {
+      return {
+        text: 'Source: Government Database',
+        type: 'government',
+        icon: <Database className="h-3 w-3" />,
+        color: 'text-blue-600'
+      };
+    } else if (community.claimedBy && community.pricingLastVerified) {
+      const verifiedDate = new Date(community.pricingLastVerified).toLocaleDateString();
+      return {
+        text: `Source: Community Verified ${verifiedDate}`,
+        type: 'claimed',
+        icon: <CheckCircle className="h-3 w-3" />,
+        color: 'text-purple-600'
+      };
+    } else {
+      return {
+        text: 'Source: Market Research',
+        type: 'market',
+        icon: <Info className="h-3 w-3" />,
+        color: 'text-gray-600'
+      };
+    }
   };
   
   const { data: community, isLoading } = useQuery<Community>({
@@ -949,6 +983,16 @@ export default function CommunityPage() {
                               ${unitType.priceRange.min.toLocaleString()} - ${unitType.priceRange.max.toLocaleString()}
                             </div>
                             <div className="text-sm text-blue-700">per month</div>
+                            {/* Data Source Citation */}
+                            {(() => {
+                              const sourceCitation = getDataSourceCitation(community);
+                              return (
+                                <div className={`flex items-center justify-end space-x-1 mt-1 text-xs ${sourceCitation.color}`}>
+                                  {sourceCitation.icon}
+                                  <span className="font-medium">{sourceCitation.text}</span>
+                                </div>
+                              );
+                            })()}
                           </div>
                         </div>
                         
@@ -1158,6 +1202,17 @@ export default function CommunityPage() {
                       per month {community.claimedBy ? '(verified)' : '(market estimate)'}
                     </div>
                     
+                    {/* Data Source Citation */}
+                    {(() => {
+                      const sourceCitation = getDataSourceCitation(community);
+                      return (
+                        <div className={`flex items-center space-x-1 mt-1 text-xs ${sourceCitation.color}`}>
+                          {sourceCitation.icon}
+                          <span className="font-medium">{sourceCitation.text}</span>
+                        </div>
+                      );
+                    })()}
+                    
                     {/* Special Offers - Only for claimed communities */}
                     {community.claimedBy && community.pricingDetails?.specialOffers && community.pricingDetails.specialOffers.length > 0 && (
                       <div className="mt-3 pt-3 border-t border-green-200">
@@ -1203,6 +1258,17 @@ export default function CommunityPage() {
                       }`}>
                         {community.claimedBy ? 'Verified pricing based on care level and unit type' : 'Based on care level and unit type (market estimate)'}
                       </div>
+                      
+                      {/* Data Source Citation */}
+                      {(() => {
+                        const sourceCitation = getDataSourceCitation(community);
+                        return (
+                          <div className={`flex items-center space-x-1 mt-1 text-xs ${sourceCitation.color}`}>
+                            {sourceCitation.icon}
+                            <span className="font-medium">{sourceCitation.text}</span>
+                          </div>
+                        );
+                      })()}
                     </div>
                   )}
 
@@ -1281,6 +1347,16 @@ export default function CommunityPage() {
                               <div className="font-bold text-purple-900">
                                 ${unitType.priceRange.min.toLocaleString()}/month
                               </div>
+                              {/* Data Source Citation */}
+                              {(() => {
+                                const sourceCitation = getDataSourceCitation(community);
+                                return (
+                                  <div className={`flex items-center justify-end space-x-1 mt-1 text-xs ${sourceCitation.color}`}>
+                                    {sourceCitation.icon}
+                                    <span className="font-medium">{sourceCitation.text}</span>
+                                  </div>
+                                );
+                              })()}
                             </div>
                           </div>
 
