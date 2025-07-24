@@ -386,10 +386,12 @@ export default function MapSearchClean() {
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
                         {mapCommunities.length} communities found • {mapCommunities.filter(c => 
-                          c.hudPropertyId || 
-                          (c as any).salesDirector?.name || 
-                          (c as any).liveDataVerified || 
-                          (c as any).claimedBy
+                          c?.hudPropertyId || 
+                          (c as any)?.salesDirector?.name || 
+                          (c as any)?.liveDataVerified || 
+                          (c as any)?.claimedBy ||
+                          c?.phone || 
+                          c?.website
                         ).length} with live data
                       </p>
                     </div>
@@ -427,7 +429,7 @@ export default function MapSearchClean() {
                                 <Home className="w-12 h-12 text-gray-400 dark:text-gray-500 opacity-60" />
                                 
                                 {/* Live Data Indicator */}
-                                {(community.hudPropertyId || (community as any).salesDirector?.name || (community as any).liveDataVerified) && (
+                                {(community?.hudPropertyId || (community as any)?.salesDirector?.name || (community as any)?.liveDataVerified || community?.phone || community?.website) && (
                                   <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-green-500 text-white px-3 py-2 rounded-full text-sm font-semibold shadow-lg">
                                     <div className="w-2.5 h-2.5 bg-green-200 rounded-full animate-pulse" />
                                     LIVE DATA
@@ -436,7 +438,7 @@ export default function MapSearchClean() {
                                 
                                 {/* Availability Badge */}
                                 <div className="absolute bottom-3 left-3 bg-blue-600 text-white text-sm px-3 py-2 font-semibold rounded-full shadow-lg backdrop-blur-sm">
-                                  {community.availability || 'Available'}
+                                  {community?.availability || 'Available'}
                                 </div>
 
                                 {/* Index Badge for Quick Reference */}
@@ -453,26 +455,26 @@ export default function MapSearchClean() {
                                 <div className="flex items-start justify-between">
                                   <div className="flex-1 mr-4">
                                     <h3 className="text-xl font-bold text-gray-900 dark:text-white line-clamp-2 group-hover:text-blue-600 transition-colors duration-200">
-                                      {community.name}
+                                      {community?.name || 'Community Name'}
                                     </h3>
                                     <div className="flex items-center space-x-2 mt-1">
                                       <MapPin className="w-4 h-4 text-gray-500" />
                                       <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                        {community.address && community.address !== community.city ? 
-                                          `${community.address}, ${community.city}, ${community.state}` : 
-                                          `${community.city}, ${community.state}`
+                                        {community?.address && community.address !== community.city ? 
+                                          `${community.address}, ${community.city || 'City'}, ${community.state || 'State'}` : 
+                                          `${community?.city || 'City'}, ${community?.state || 'State'}`
                                         }
                                       </p>
                                     </div>
                                   </div>
                                   
-                                  {community.rating > 0 && (
+                                  {(community?.rating && community.rating > 0) && (
                                     <div className="flex items-center space-x-2 bg-yellow-100 dark:bg-yellow-900/30 px-3 py-1.5 rounded-full">
                                       <Star className="w-4 h-4 text-yellow-500 fill-current" />
                                       <span className="text-sm font-semibold text-yellow-700 dark:text-yellow-300">
                                         {community.rating.toFixed(1)}
                                       </span>
-                                      {community.reviewCount > 0 && (
+                                      {(community?.reviewCount && community.reviewCount > 0) && (
                                         <span className="text-xs text-yellow-600 dark:text-yellow-400">
                                           ({community.reviewCount})
                                         </span>
@@ -502,25 +504,25 @@ export default function MapSearchClean() {
                                 <div className="space-y-2">
                                   <div className="flex items-baseline space-x-2">
                                     <div className={`text-2xl font-bold ${
-                                      community.hudPropertyId || (community as any).liveDataVerified ? 
+                                      community?.hudPropertyId || (community as any)?.liveDataVerified ? 
                                       'text-green-600 dark:text-green-400' : 
                                       'text-gray-900 dark:text-white'
                                     }`}>
-                                      {community.hudPropertyId && (community as any).rentPerMonth ? 
+                                      {community?.hudPropertyId && (community as any)?.rentPerMonth ? 
                                         `$${(community as any).rentPerMonth}/month` :
-                                        typeof community.priceRange === 'object' && community.priceRange?.min ? 
+                                        typeof community?.priceRange === 'object' && community.priceRange?.min ? 
                                         `$${community.priceRange.min.toLocaleString()}/month` : 
                                         'Contact for Pricing'
                                       }
                                     </div>
-                                    {!(community.hudPropertyId || (community as any).liveDataVerified) && (
+                                    {!(community?.hudPropertyId || (community as any)?.liveDataVerified) && (
                                       <span className="text-sm text-orange-600 dark:text-orange-400 font-normal">estimate</span>
                                     )}
                                   </div>
                                   <div className="text-sm text-gray-500 dark:text-gray-400">
-                                    {community.hudPropertyId ? 
+                                    {community?.hudPropertyId ? 
                                       'HUD Official Database' : 
-                                      (community as any).liveDataVerified ? 
+                                      (community as any)?.liveDataVerified ? 
                                       'Verified Live Data' : 
                                       'Market-based estimate - Call for current pricing'
                                     }
