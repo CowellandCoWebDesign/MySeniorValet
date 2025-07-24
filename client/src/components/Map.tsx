@@ -58,6 +58,23 @@ const assistedLivingIcon = createSimpleIcon('#3b82f6'); // Blue
 const memoryCareIcon = createSimpleIcon('#8b5cf6'); // Purple
 const independentIcon = createSimpleIcon('#10b981'); // Green
 
+// Map View Controller - Updates map view when center/zoom props change
+const MapViewController: React.FC<{ center: [number, number]; zoom: number }> = ({ center, zoom }) => {
+  const map = useMap();
+  
+  useEffect(() => {
+    if (map && center) {
+      console.log('🎯 Updating map view to:', { center, zoom });
+      map.flyTo(center, zoom, {
+        duration: 1.5,
+        easeLinearity: 0.5
+      });
+    }
+  }, [map, center, zoom]);
+  
+  return null;
+};
+
 // Enhanced Map Events component following official Leaflet documentation patterns
 const MapEvents: React.FC<{ 
   onMapReady: (map: any) => void;
@@ -432,12 +449,28 @@ export default function Map({
   onBoundsChange, 
   onClusterClick,
   height = '600px',
-  center: initialCenter,
-  zoom: initialZoom
+  center: propCenter,
+  zoom: propZoom
 }: MapProps) {
   // Start with city-level zoom (no clusters), default to major city
-  const [center, setCenter] = useState<[number, number]>(initialCenter || [37.7749, -122.4194]); // Default: San Francisco
-  const [zoom, setZoom] = useState(initialZoom || 12); // City-level zoom (12-14 is city level)
+  const [center, setCenter] = useState<[number, number]>(propCenter || [37.7749, -122.4194]); // Default: San Francisco
+  const [zoom, setZoom] = useState(propZoom || 12); // City-level zoom (12-14 is city level)
+  
+  // Update center and zoom when props change
+  useEffect(() => {
+    if (propCenter) {
+      console.log('📍 Map component: center prop changed to:', propCenter);
+      setCenter(propCenter);
+    }
+  }, [propCenter]);
+  
+  useEffect(() => {
+    if (propZoom) {
+      console.log('🔍 Map component: zoom prop changed to:', propZoom);
+      setZoom(propZoom);
+      setCurrentZoom(propZoom);
+    }
+  }, [propZoom]);
   const [locationPermissionStatus, setLocationPermissionStatus] = useState<'prompt' | 'granted' | 'denied' | 'checking'>('checking');
   const [hasRequestedLocation, setHasRequestedLocation] = useState(() => {
     // Check if user has already made a decision about location
@@ -890,6 +923,9 @@ export default function Map({
           }} 
           onBoundsChange={handleBoundsChange}
         />
+        
+        {/* Map View Controller - Updates map view when center/zoom props change */}
+        <MapViewController center={center} zoom={currentZoom} />
 
         {/* Professional Basemap Selection */}
         <LayersControl position="topright">
