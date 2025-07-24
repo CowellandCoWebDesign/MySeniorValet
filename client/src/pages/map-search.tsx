@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useLocation } from 'wouter';
-import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle, Users, Building } from 'lucide-react';
+import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle, Users, Building, DollarSign, Sparkles, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
 import Map from '@/components/Map';
 import MapErrorBoundary from '@/components/MapErrorBoundary';
 import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
@@ -100,6 +102,13 @@ export default function MapSearchClean() {
     budget: 'Any Budget',
     availability: 'All Status'
   });
+  
+  // Advanced filter state
+  const [activeCareTypes, setActiveCareTypes] = useState<string[]>([]);
+  const [activePriceRanges, setActivePriceRanges] = useState<string[]>([]);
+  const [activeAmenities, setActiveAmenities] = useState<string[]>([]);
+  const [activeFeatures, setActiveFeatures] = useState<string[]>([]);
+  const [showFilters, setShowFilters] = useState(true);
   const [mapCenter, setMapCenter] = useState<[number, number]>([37.7749, -122.4194]);
   const [mapZoom, setMapZoom] = useState(12);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
@@ -405,50 +414,165 @@ export default function MapSearchClean() {
               </div>
             </div>
 
-            {/* Quick Filters */}
-            <div className="flex flex-wrap gap-2">
-              <Badge 
-                variant="outline" 
-                className="cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
-                onClick={() => setSearchQuery('memory care near me')}
-              >
-                Memory Care
-              </Badge>
-              <Badge 
-                variant="outline" 
-                className="cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
-                onClick={() => setSearchQuery('assisted living')}
-              >
-                Assisted Living
-              </Badge>
-              <Badge 
-                variant="outline" 
-                className="cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
-                onClick={() => setSearchQuery('independent living')}
-              >
-                Independent Living
-              </Badge>
-              <Badge 
-                variant="outline" 
-                className="cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
-                onClick={() => setSearchQuery('pet friendly communities')}
-              >
-                Pet Friendly
-              </Badge>
-              <Badge 
-                variant="outline" 
-                className="cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
-                onClick={() => setSearchQuery('communities under $3000')}
-              >
-                Under $3,000/mo
-              </Badge>
-              <Badge 
-                variant="outline" 
-                className="cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
-                onClick={() => setSearchQuery('skilled nursing facilities')}
-              >
-                Skilled Nursing
-              </Badge>
+            {/* Beautiful Filter Interface */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                  <SlidersHorizontal className="h-5 w-5" />
+                  Filter Communities
+                </h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="text-gray-500"
+                >
+                  {showFilters ? 'Hide' : 'Show'} Filters
+                </Button>
+              </div>
+              
+              {showFilters && (
+                <div className="space-y-4">
+                  {/* Care Types */}
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                      <Heart className="h-4 w-4" />
+                      Care Types
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {['Memory Care', 'Assisted Living', 'Independent Living', 'Skilled Nursing', 'Continuing Care', 'Adult Day Care'].map((careType) => (
+                        <Button
+                          key={careType}
+                          variant={activeCareTypes.includes(careType) ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => {
+                            setActiveCareTypes(prev => 
+                              prev.includes(careType) 
+                                ? prev.filter(t => t !== careType)
+                                : [...prev, careType]
+                            );
+                          }}
+                          className={`transition-all ${activeCareTypes.includes(careType) ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+                        >
+                          {careType}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Price Ranges */}
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                      <DollarSign className="h-4 w-4" />
+                      Monthly Price Range
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {['Under $2,000', '$2,000-$3,000', '$3,000-$4,000', '$4,000-$5,000', 'Over $5,000'].map((range) => (
+                        <Button
+                          key={range}
+                          variant={activePriceRanges.includes(range) ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => {
+                            setActivePriceRanges(prev => 
+                              prev.includes(range) 
+                                ? prev.filter(r => r !== range)
+                                : [...prev, range]
+                            );
+                          }}
+                          className={`transition-all ${activePriceRanges.includes(range) ? 'bg-green-600 hover:bg-green-700' : ''}`}
+                        >
+                          {range}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Amenities */}
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                      <Sparkles className="h-4 w-4" />
+                      Amenities & Features
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {['Pet Friendly', 'Pool', 'Fitness Center', 'Transportation', 'Meals Included', '24/7 Staff', 'Garden', 'Library'].map((amenity) => (
+                        <Button
+                          key={amenity}
+                          variant={activeAmenities.includes(amenity) ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => {
+                            setActiveAmenities(prev => 
+                              prev.includes(amenity) 
+                                ? prev.filter(a => a !== amenity)
+                                : [...prev, amenity]
+                            );
+                          }}
+                          className={`transition-all ${activeAmenities.includes(amenity) ? 'bg-purple-600 hover:bg-purple-700' : ''}`}
+                        >
+                          {amenity}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Special Features */}
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                      <Shield className="h-4 w-4" />
+                      Special Features
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {['Live Pricing', 'Available Now', 'Virtual Tours', 'New Community', 'Medicare Accepted', 'Medicaid Accepted'].map((feature) => (
+                        <Button
+                          key={feature}
+                          variant={activeFeatures.includes(feature) ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => {
+                            setActiveFeatures(prev => 
+                              prev.includes(feature) 
+                                ? prev.filter(f => f !== feature)
+                                : [...prev, feature]
+                            );
+                          }}
+                          className={`transition-all ${activeFeatures.includes(feature) ? 'bg-orange-600 hover:bg-orange-700' : ''}`}
+                        >
+                          {feature}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Apply/Clear Buttons */}
+                  <div className="flex gap-2 pt-2">
+                    <Button 
+                      className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                      onClick={() => {
+                        // Build and execute AI search query based on filters
+                        const queryParts = [];
+                        if (activeCareTypes.length > 0) queryParts.push(activeCareTypes.join(' or '));
+                        if (activePriceRanges.length > 0) queryParts.push(activePriceRanges.join(' or '));
+                        if (activeAmenities.length > 0) queryParts.push(activeAmenities.join(' and '));
+                        if (activeFeatures.length > 0) queryParts.push(activeFeatures.join(' and '));
+                        
+                        const query = queryParts.join(', ') || 'all communities';
+                        handleLocationSearch(query);
+                      }}
+                    >
+                      Apply Filters
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => {
+                        setActiveCareTypes([]);
+                        setActivePriceRanges([]);
+                        setActiveAmenities([]);
+                        setActiveFeatures([]);
+                      }}
+                    >
+                      Clear All
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
