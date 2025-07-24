@@ -80,6 +80,7 @@ function Router() {
       <Route path="/communities/:id" component={CommunityDetail} />
       <Route path="/claim/:communityId" component={Claim} />
       <Route path="/admin" component={AdminCreative} />
+      <Route path="/admin-creative" component={AdminCreative} />
       <Route path="/admin/service-listings" component={ServiceListingsAdmin} />
       <Route path="/expansion-monitor" component={ExpansionMonitor} />
       <Route path="/api-costs" component={ApiCostDashboard} />

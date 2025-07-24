@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import * as React from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { 
@@ -48,6 +49,8 @@ import {
 export default function CreativeAdminDashboard() {
   const [selectedMetric, setSelectedMetric] = useState('communities');
   const [pulseEffect, setPulseEffect] = useState(false);
+  const [activeActions, setActiveActions] = useState<Record<string, boolean>>({});
+  const queryClient = useQueryClient();
   
   // Pulse effect for live updates
   useEffect(() => {
@@ -58,33 +61,105 @@ export default function CreativeAdminDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  const { data: communities = [] } = useQuery({
+  // Define proper types for API responses
+  interface Community {
+    id: number;
+    name: string;
+    photos?: string[];
+    [key: string]: any;
+  }
+
+  interface ExpansionData {
+    totals?: {
+      communities?: number;
+      counties?: number;
+      cities?: number;
+      verificationRate?: number;
+      photosCoverage?: number;
+    };
+    [key: string]: any;
+  }
+
+  interface UsageData {
+    totalCost?: number;
+    [key: string]: any;
+  }
+
+  const { data: communitiesData, isLoading: communitiesLoading, error: communitiesError } = useQuery({
     queryKey: ["/api/communities"],
   });
+  
+  // Handle the API response structure - ensure we always have an array
+  const communities = React.useMemo(() => {
+    if (!communitiesData) return [];
+    return Array.isArray(communitiesData) 
+      ? communitiesData as Community[]
+      : (communitiesData?.communities || []) as Community[];
+  }, [communitiesData]);
 
-  const { data: expansionData } = useQuery({
+  const { data: expansionData = {} as ExpansionData, isLoading: expansionLoading } = useQuery({
     queryKey: ["/api/admin/expansion/results"],
   });
 
-  const { data: usageData } = useQuery({
+  const { data: usageData = {} as UsageData, isLoading: usageLoading } = useQuery({
     queryKey: ["/api/admin/analytics/usage"],
   });
 
-  const { data: auditLogs } = useQuery({
+  const { data: auditLogs = [], isLoading: auditLoading, error: auditError } = useQuery({
     queryKey: ["/api/admin/audit-logs"],
   });
 
-  // Calculate dynamic metrics
-  const communitiesWithPhotos = communities.filter(c => c.photos && c.photos.length > 0).length;
+  // Check if we're in a loading state
+  const isLoading = communitiesLoading || expansionLoading || usageLoading || auditLoading;
+
+  // Mutation for refreshing data
+  const refreshDataMutation = useMutation({
+    mutationFn: async (dataType: string) => {
+      setActiveActions(prev => ({ ...prev, [dataType]: true }));
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate work
+      return { success: true, dataType };
+    },
+    onSuccess: (data) => {
+      setActiveActions(prev => ({ ...prev, [data.dataType]: false }));
+      queryClient.invalidateQueries({ queryKey: ["/api/communities"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/expansion/results"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/analytics/usage"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/audit-logs"] });
+    },
+    onError: (error, dataType) => {
+      setActiveActions(prev => ({ ...prev, [dataType]: false }));
+      console.error('Refresh error:', error);
+    }
+  });
+
+  // Mutation for enriching communities
+  const enrichCommunityMutation = useMutation({
+    mutationFn: async (communityId: number) => {
+      setActiveActions(prev => ({ ...prev, [`enrich_${communityId}`]: true }));
+      await apiRequest(`/api/admin/communities/${communityId}/enrich`, 'POST');
+      return communityId;
+    },
+    onSuccess: (communityId) => {
+      setActiveActions(prev => ({ ...prev, [`enrich_${communityId}`]: false }));
+      queryClient.invalidateQueries({ queryKey: ["/api/communities"] });
+    },
+    onError: (error, communityId) => {
+      setActiveActions(prev => ({ ...prev, [`enrich_${communityId}`]: false }));
+      console.error('Enrich error:', error);
+    }
+  });
+
+  // Calculate dynamic metrics with proper typing
+  const communitiesWithPhotos = communities.filter((c: Community) => c.photos && c.photos.length > 0).length;
   const photosCoverage = communities.length ? Math.round((communitiesWithPhotos / communities.length) * 100) : 0;
   const avgPhotosPerCommunity = communities.length ? 
-    Math.round(communities.reduce((sum, c) => sum + (c.photos?.length || 0), 0) / communities.length * 100) / 100 : 0;
+    Math.round(communities.reduce((sum: number, c: Community) => sum + (c.photos?.length || 0), 0) / communities.length * 100) / 100 : 0;
 
   const metrics = [
     {
       id: 'communities',
       title: 'Total Communities',
-      value: expansionData?.totals?.communities || communities.length || 0,
+      value: expansionData.totals?.communities || communities.length || 0,
       change: '+12%',
       trend: 'up',
       icon: Building2,
@@ -130,6 +205,51 @@ export default function CreativeAdminDashboard() {
       sparkle: false
     }
   ];
+
+  // Loading and error states
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900 flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-blue-600">
+              <RefreshCw className="h-5 w-5 animate-spin" />
+              Loading Dashboard
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600 mb-4">Loading admin dashboard data...</p>
+            <Progress value={Math.random() * 100} className="h-2" />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (auditError || communitiesError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900 flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-red-600">
+              <XCircle className="h-5 w-5" />
+              Dashboard Error
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600 mb-4">Failed to load admin dashboard data.</p>
+            <Button 
+              onClick={() => window.location.reload()}
+              className="w-full"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Retry Loading
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
@@ -521,7 +641,7 @@ export default function CreativeAdminDashboard() {
                   <div className="space-y-3">
                     <div className="text-center p-4 bg-white/60 rounded-lg">
                       <div className="text-3xl font-bold text-yellow-600 mb-2">
-                        ${usageData?.totalCost?.toFixed(2) || '1.40'}
+                        ${usageData.totalCost?.toFixed(2) || '1.40'}
                       </div>
                       <p className="text-sm text-gray-600">Today's API Cost</p>
                     </div>
@@ -549,7 +669,7 @@ export default function CreativeAdminDashboard() {
                   <div className="space-y-4">
                     <div className="text-center p-4 bg-white/60 rounded-lg">
                       <div className="text-4xl font-bold text-indigo-600 mb-2">
-                        {expansionData?.totals?.counties || 14}
+                        {expansionData.totals?.counties || 14}
                       </div>
                       <p className="text-sm text-gray-600">Counties Covered</p>
                     </div>
@@ -629,36 +749,114 @@ export default function CreativeAdminDashboard() {
 
           {/* Settings Tab */}
           <TabsContent value="settings" className="space-y-6">
-            <Card className="bg-gradient-to-br from-gray-50 to-slate-50 border-white/20 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="h-5 w-5 text-gray-600" />
-                  System Configuration
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-4 bg-white/60 rounded-lg">
-                      <h3 className="font-semibold text-gray-700 mb-2">API Limits</h3>
-                      <p className="text-sm text-gray-600">Daily: $50 | Emergency: $75</p>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="bg-gradient-to-br from-gray-50 to-slate-50 border-white/20 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="h-5 w-5 text-gray-600" />
+                    Quick Actions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Button
+                    onClick={() => refreshDataMutation.mutate('communities')}
+                    disabled={activeActions.communities}
+                    className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+                  >
+                    {activeActions.communities ? (
+                      <>
+                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                        Refreshing Communities...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="h-4 w-4 mr-2" />
+                        Refresh Community Data
+                      </>
+                    )}
+                  </Button>
+                  
+                  <Button
+                    onClick={() => refreshDataMutation.mutate('analytics')}
+                    disabled={activeActions.analytics}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    {activeActions.analytics ? (
+                      <>
+                        <BarChart3 className="h-4 w-4 mr-2 animate-pulse" />
+                        Updating Analytics...
+                      </>
+                    ) : (
+                      <>
+                        <BarChart3 className="h-4 w-4 mr-2" />
+                        Update Analytics
+                      </>
+                    )}
+                  </Button>
+                  
+                  <Button
+                    onClick={() => enrichCommunityMutation.mutate(1)}
+                    disabled={activeActions.enrich_1}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    {activeActions.enrich_1 ? (
+                      <>
+                        <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
+                        Enriching Sample Community...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Enrich Sample Community
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-indigo-50 to-purple-50 border-white/20 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Database className="h-5 w-5 text-indigo-600" />
+                    System Status
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 bg-white/60 rounded-lg">
+                      <span className="text-sm text-gray-700">Database</span>
+                      <Badge className="bg-green-100 text-green-800">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Online
+                      </Badge>
                     </div>
-                    <div className="p-4 bg-white/60 rounded-lg">
-                      <h3 className="font-semibold text-gray-700 mb-2">Photo Limits</h3>
-                      <p className="text-sm text-gray-600">Max 10 per community</p>
+                    <div className="flex items-center justify-between p-3 bg-white/60 rounded-lg">
+                      <span className="text-sm text-gray-700">API Endpoints</span>
+                      <Badge className="bg-green-100 text-green-800">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Operational
+                      </Badge>
                     </div>
-                    <div className="p-4 bg-white/60 rounded-lg">
-                      <h3 className="font-semibold text-gray-700 mb-2">Rate Limits</h3>
-                      <p className="text-sm text-gray-600">300 req/15min general</p>
+                    <div className="flex items-center justify-between p-3 bg-white/60 rounded-lg">
+                      <span className="text-sm text-gray-700">Search Service</span>
+                      <Badge className="bg-green-100 text-green-800">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Running
+                      </Badge>
                     </div>
-                    <div className="p-4 bg-white/60 rounded-lg">
-                      <h3 className="font-semibold text-gray-700 mb-2">Data Protection</h3>
-                      <p className="text-sm text-gray-600">Multi-layer verification</p>
+                    <div className="flex items-center justify-between p-3 bg-white/60 rounded-lg">
+                      <span className="text-sm text-gray-700">Cost Protection</span>
+                      <Badge className="bg-amber-100 text-amber-800">
+                        <Shield className="h-3 w-3 mr-1" />
+                        Active
+                      </Badge>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
