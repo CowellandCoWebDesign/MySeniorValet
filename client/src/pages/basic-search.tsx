@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, Star, Heart, List, Map, Bell, Calendar, Mail, Phone, ExternalLink, Users, CheckCircle, AlertTriangle, Activity, UserCheck, Stethoscope, Clock, ImageIcon, ChevronDown, SortAsc, ArrowLeft, Home, Plus, Minus, Filter, X } from "lucide-react";
+import { Search, MapPin, Star, Heart, List, Map as MapIcon, Bell, Calendar, Mail, Phone, ExternalLink, Users, CheckCircle, AlertTriangle, Activity, UserCheck, Stethoscope, Clock, ImageIcon, ChevronDown, SortAsc, ArrowLeft, Home, Plus, Minus, Filter, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Link, useLocation } from "wouter";
@@ -11,9 +11,9 @@ import BottomNavigation from "@/components/BottomNavigation";
 import { TransparencyBadgeList } from "@/components/TransparencyBadge";
 import { SearchingMascot } from "@/components/mascot";
 // Map imports - GeoJSON integration following Leaflet documentation
-import { MapContainer, TileLayer, GeoJSON, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, GeoJSON, Marker, Popup, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import L from "leaflet";
+import L, { Icon } from "leaflet";
 import Map from "@/components/Map";
 import { useDebounce } from "@/hooks/useDebounce";
 
@@ -188,7 +188,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
   const [mapCenter, setMapCenter] = useState<[number, number]>([37.7749, -122.4194]); // SF default
   const [mapZoom, setMapZoom] = useState(10);
   const [showMap, setShowMap] = useState(true);
-  const [showBottomPanel, setShowBottomPanel] = useState(false);
+  const [showBottomPanel, setShowBottomPanel] = useState(true); // Show panel by default
 
   // Handle tab change for bottom navigation
   const handleTabChange = (tabId: string) => {
@@ -1036,13 +1036,22 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             className="w-full h-full"
           />
           
-          {/* Floating List Toggle Button - Blue circle following map-search pattern */}
+          {/* Floating List Toggle Button - Enhanced visibility */}
           <div className="absolute bottom-20 right-4 z-20">
+            {!showBottomPanel && (
+              <div className="absolute -top-10 right-0 bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium animate-bounce whitespace-nowrap">
+                View Community List
+              </div>
+            )}
             <Button
               onClick={() => setShowBottomPanel(!showBottomPanel)}
-              className="w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg p-0 flex items-center justify-center"
+              className="w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-xl p-0 flex items-center justify-center ring-4 ring-blue-600/20 transition-all duration-200"
+              title={showBottomPanel ? "Hide community list" : "Show community list"}
             >
               {showBottomPanel ? <X className="w-5 h-5" /> : <List className="w-5 h-5" />}
+              {!showBottomPanel && (
+                <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full animate-pulse" />
+              )}
             </Button>
           </div>
 

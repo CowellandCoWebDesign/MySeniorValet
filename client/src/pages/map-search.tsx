@@ -116,7 +116,7 @@ export default function MapSearchClean() {
   const [mapZoom, setMapZoom] = useState(12);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
   const [mapBounds, setMapBounds] = useState<any>(null);
-  const [showBottomPanel, setShowBottomPanel] = useState(false);
+  const [showBottomPanel, setShowBottomPanel] = useState(true); // Show panel by default
   const [panelHeight, setPanelHeight] = useState(75);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
