@@ -15,13 +15,13 @@ import { EnhancedPlatformStats } from "@/components/EnhancedPlatformStats";
 export default function Home() {
   console.log("HOME PAGE LOADED - VERSION 2 WITH 31,023 COMMUNITIES");
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
-      {/* Enhanced Animated Background Elements */}
+    <div className="min-h-screen w-full overflow-x-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
+      {/* Responsive Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-blue-400/10 to-purple-400/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-r from-pink-400/10 to-cyan-400/10 rounded-full blur-3xl"></div>
-        <div className="absolute top-3/4 left-3/4 w-64 h-64 bg-gradient-to-r from-emerald-400/10 to-teal-400/10 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-gradient-to-r from-yellow-400/10 to-orange-400/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 md:w-96 md:h-96 bg-gradient-to-r from-blue-400/10 to-purple-400/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 md:w-80 md:h-80 bg-gradient-to-r from-pink-400/10 to-cyan-400/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-3/4 left-3/4 w-32 h-32 md:w-64 md:h-64 bg-gradient-to-r from-emerald-400/10 to-teal-400/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 w-40 h-40 md:w-72 md:h-72 bg-gradient-to-r from-yellow-400/10 to-orange-400/10 rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative z-10">
@@ -44,25 +44,25 @@ export default function Home() {
             <div className="absolute inset-0 bg-gradient-to-r from-white/85 via-white/70 to-white/50 dark:from-slate-900/85 dark:via-slate-900/70 dark:to-slate-900/50"></div>
           </div>
 
-          <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-10 lg:mb-16">
-              {/* Enhanced Trust Indicators - Updated */}
-              <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
-                <div className="flex items-center space-x-2 bg-white/95 backdrop-blur-md px-4 py-2 rounded-full shadow-lg border border-green-200/60">
-                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm font-semibold text-green-800">31,023+ Authentic Communities</span>
+          <div className="relative w-full max-w-6xl mx-auto px-3 sm:px-4 lg:px-6">
+            <div className="text-center mb-6 lg:mb-10">
+              {/* Responsive Trust Indicators */}
+              <div className="flex flex-wrap items-center justify-center gap-2 mb-6 max-w-full">
+                <div className="flex items-center space-x-2 bg-white/95 backdrop-blur-md px-3 py-2 rounded-full shadow-lg border border-green-200/60 text-xs sm:text-sm">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="font-semibold text-green-800 whitespace-nowrap">31,023+ Communities</span>
                 </div>
-                <div className="flex items-center space-x-2 bg-white/95 backdrop-blur-md px-4 py-2 rounded-full shadow-lg border border-blue-200/60">
-                  <Database className="h-4 w-4 text-blue-600" />
-                  <span className="text-sm font-semibold text-blue-800">HUD + Government Sources</span>
+                <div className="flex items-center space-x-2 bg-white/95 backdrop-blur-md px-3 py-2 rounded-full shadow-lg border border-blue-200/60 text-xs sm:text-sm">
+                  <Database className="h-3 w-3 text-blue-600" />
+                  <span className="font-semibold text-blue-800 whitespace-nowrap">HUD + Gov Sources</span>
                 </div>
-                <div className="flex items-center space-x-2 bg-white/95 backdrop-blur-md px-4 py-2 rounded-full shadow-lg border border-purple-200/60">
-                  <Shield className="h-4 w-4 text-purple-600" />
-                  <span className="text-sm font-semibold text-purple-800">Zero "Call for Pricing"</span>
+                <div className="flex items-center space-x-2 bg-white/95 backdrop-blur-md px-3 py-2 rounded-full shadow-lg border border-purple-200/60 text-xs sm:text-sm">
+                  <Shield className="h-3 w-3 text-purple-600" />
+                  <span className="font-semibold text-purple-800 whitespace-nowrap">No "Call for Pricing"</span>
                 </div>
-                <div className="flex items-center space-x-2 bg-white/95 backdrop-blur-md px-4 py-2 rounded-full shadow-lg border border-amber-200/60">
-                  <MapPin className="h-4 w-4 text-amber-600" />
-                  <span className="text-sm font-semibold text-amber-800">All 50 States + Territories</span>
+                <div className="flex items-center space-x-2 bg-white/95 backdrop-blur-md px-3 py-2 rounded-full shadow-lg border border-amber-200/60 text-xs sm:text-sm">
+                  <MapPin className="h-3 w-3 text-amber-600" />
+                  <span className="font-semibold text-amber-800 whitespace-nowrap">50 States</span>
                 </div>
               </div>
 
@@ -78,110 +78,110 @@ export default function Home() {
                 </span>
               </h1>
               
-              <p className="text-lg lg:text-xl xl:text-2xl text-gray-700 dark:text-gray-300 max-w-4xl mx-auto mb-6 leading-relaxed font-semibold">
+              <p className="text-sm sm:text-base lg:text-lg text-gray-700 dark:text-gray-300 max-w-4xl mx-auto mb-4 leading-relaxed font-semibold px-2">
                 <strong className="text-blue-700 dark:text-blue-400">31,023+ authentic communities</strong> with HUD property data, Medicare records, and state licensing. Real pricing from $303-$9,200+ with zero "call for pricing" promises.
               </p>
               
-              <p className="text-base lg:text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-8 leading-relaxed font-medium">
+              <p className="text-xs sm:text-sm lg:text-base text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-6 leading-relaxed font-medium px-2">
                 Complete post-move services including bill payment, account management, and unified resident onboarding systems.
               </p>
 
-              {/* Compact Service Pills */}
-              <div className="flex flex-wrap justify-center gap-3 lg:gap-4 mb-8">
-                <div className="flex items-center space-x-3 bg-white/95 backdrop-blur-md px-4 py-3 rounded-xl shadow-lg border border-blue-200/60 hover:shadow-xl transition-all duration-300 group relative overflow-hidden">
+              {/* Mobile-Responsive Service Pills */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-3 mb-6 max-w-full px-2">
+                <div className="flex items-center space-x-2 bg-white/95 backdrop-blur-md px-3 py-2 rounded-lg shadow-lg border border-blue-200/60 hover:shadow-xl transition-all duration-300 group relative overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-indigo-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="p-2 bg-blue-100 rounded-full relative z-10">
-                    <Eye className="text-blue-600 h-5 w-5" />
+                  <div className="p-1 bg-blue-100 rounded-full relative z-10">
+                    <Eye className="text-blue-600 h-4 w-4" />
                   </div>
-                  <span className="text-sm lg:text-base font-bold text-blue-800 relative z-10">Live Pricing & Availability</span>
+                  <span className="text-xs sm:text-sm font-bold text-blue-800 relative z-10">Live Pricing</span>
                 </div>
                 
-                <div className="flex items-center space-x-3 bg-white/95 backdrop-blur-md px-4 py-3 rounded-xl shadow-lg border border-green-200/60 hover:shadow-xl transition-all duration-300 group">
-                  <div className="p-2 bg-green-100 rounded-full">
-                    <Truck className="text-green-600 h-5 w-5" />
+                <div className="flex items-center space-x-2 bg-white/95 backdrop-blur-md px-3 py-2 rounded-lg shadow-lg border border-green-200/60 hover:shadow-xl transition-all duration-300 group">
+                  <div className="p-1 bg-green-100 rounded-full">
+                    <Truck className="text-green-600 h-4 w-4" />
                   </div>
-                  <span className="text-sm lg:text-base font-bold text-green-800">Move Coordination</span>
+                  <span className="text-xs sm:text-sm font-bold text-green-800">Move Help</span>
                 </div>
                 
-                <div className="flex items-center space-x-3 bg-white/95 backdrop-blur-md px-4 py-3 rounded-xl shadow-lg border border-purple-200/60 hover:shadow-xl transition-all duration-300">
-                  <div className="p-2 bg-purple-100 rounded-full">
-                    <Sofa className="text-purple-600 h-5 w-5" />
+                <div className="flex items-center space-x-2 bg-white/95 backdrop-blur-md px-3 py-2 rounded-lg shadow-lg border border-purple-200/60 hover:shadow-xl transition-all duration-300">
+                  <div className="p-1 bg-purple-100 rounded-full">
+                    <Sofa className="text-purple-600 h-4 w-4" />
                   </div>
-                  <span className="text-sm lg:text-base font-bold text-purple-800">Furniture & Medical Equipment</span>
+                  <span className="text-xs sm:text-sm font-bold text-purple-800">Furniture</span>
                 </div>
                 
-                <div className="flex items-center space-x-3 bg-white/95 backdrop-blur-md px-4 py-3 rounded-xl shadow-lg border border-amber-200/60 hover:shadow-xl transition-all duration-300">
-                  <div className="p-2 bg-amber-100 rounded-full">
-                    <Users className="text-amber-600 h-5 w-5" />
+                <div className="flex items-center space-x-2 bg-white/95 backdrop-blur-md px-3 py-2 rounded-lg shadow-lg border border-amber-200/60 hover:shadow-xl transition-all duration-300">
+                  <div className="p-1 bg-amber-100 rounded-full">
+                    <Users className="text-amber-600 h-4 w-4" />
                   </div>
-                  <span className="text-sm lg:text-base font-bold text-amber-800">Family Collaboration</span>
+                  <span className="text-xs sm:text-sm font-bold text-amber-800">Family Support</span>
                 </div>
               </div>
             </div>
 
-            {/* Community Count Statement */}
-            <div className="text-center mb-12">
-              <p className="text-3xl lg:text-4xl xl:text-5xl text-gray-600 dark:text-gray-300 font-bold mb-6">
-                Serving families across <span className="text-blue-600 dark:text-blue-400 font-black text-4xl lg:text-5xl xl:text-6xl">31,023+ communities</span>
+            {/* Community Count Statement - Mobile Responsive */}
+            <div className="text-center mb-8">
+              <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 dark:text-gray-300 font-bold mb-4 px-2">
+                Serving families across <span className="text-blue-600 dark:text-blue-400 font-black text-xl sm:text-2xl lg:text-3xl">31,023+ communities</span>
               </p>
-              <p className="text-xl lg:text-2xl text-gray-500 dark:text-gray-400 font-medium mb-8">
+              <p className="text-sm sm:text-base lg:text-lg text-gray-500 dark:text-gray-400 font-medium mb-4 px-2">
                 Complete North American coverage with verified government data across 96 states/provinces
               </p>
-              <div className="flex flex-wrap justify-center gap-6 mt-8">
-                <div className="bg-white/90 backdrop-blur-md px-8 py-4 rounded-2xl shadow-xl border border-blue-200">
-                  <span className="text-2xl lg:text-3xl font-bold text-blue-800">1,664</span>
-                  <p className="text-lg font-semibold text-blue-600">Counties</p>
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-4 max-w-2xl mx-auto px-2">
+                <div className="bg-white/90 backdrop-blur-md px-3 py-3 sm:px-4 sm:py-4 rounded-xl shadow-lg border border-blue-200">
+                  <span className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-800">1,664</span>
+                  <p className="text-xs sm:text-sm font-semibold text-blue-600">Counties</p>
                 </div>
-                <div className="bg-white/90 backdrop-blur-md px-8 py-4 rounded-2xl shadow-xl border border-green-200">
-                  <span className="text-2xl lg:text-3xl font-bold text-green-800">4,698</span>
-                  <p className="text-lg font-semibold text-green-600">Cities</p>
+                <div className="bg-white/90 backdrop-blur-md px-3 py-3 sm:px-4 sm:py-4 rounded-xl shadow-lg border border-green-200">
+                  <span className="text-lg sm:text-xl lg:text-2xl font-bold text-green-800">4,698</span>
+                  <p className="text-xs sm:text-sm font-semibold text-green-600">Cities</p>
                 </div>
-                <div className="bg-white/90 backdrop-blur-md px-8 py-4 rounded-2xl shadow-xl border border-purple-200">
-                  <span className="text-2xl lg:text-3xl font-bold text-purple-800">735,112</span>
-                  <p className="text-lg font-semibold text-purple-600">Total Capacity</p>
+                <div className="bg-white/90 backdrop-blur-md px-3 py-3 sm:px-4 sm:py-4 rounded-xl shadow-lg border border-purple-200">
+                  <span className="text-lg sm:text-xl lg:text-2xl font-bold text-purple-800">735,112</span>
+                  <p className="text-xs sm:text-sm font-semibold text-purple-600">Total Capacity</p>
                 </div>
               </div>
             </div>
 
-            {/* Enhanced Search Bar */}
-            <div className="max-w-4xl mx-auto mb-8">
+            {/* Mobile-Friendly Search Bar */}
+            <div className="max-w-3xl mx-auto mb-6 px-2">
               <SearchBar />
 
-              {/* Quick Search Actions */}
-              <div className="flex flex-wrap justify-center gap-3 mt-6">
+              {/* Compact Quick Search Actions */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
                 <Link href="/search?careType=Memory%20Care">
-                  <Button variant="outline" size="sm" className="bg-white/90 backdrop-blur-md border-purple-200 text-purple-700 hover:bg-purple-50 transition-all duration-300">
-                    <span className="mr-2">🧠</span>
+                  <Button variant="outline" size="sm" className="w-full bg-white/90 backdrop-blur-md border-purple-200 text-purple-700 hover:bg-purple-50 transition-all duration-300 text-xs sm:text-sm">
+                    <span className="mr-1">🧠</span>
                     Memory Care
                   </Button>
                 </Link>
                 <Link href="/search?careType=Assisted%20Living">
-                  <Button variant="outline" size="sm" className="bg-white/90 backdrop-blur-md border-green-200 text-green-700 hover:bg-green-50 transition-all duration-300">
-                    <span className="mr-2">🤝</span>
+                  <Button variant="outline" size="sm" className="w-full bg-white/90 backdrop-blur-md border-green-200 text-green-700 hover:bg-green-50 transition-all duration-300 text-xs sm:text-sm">
+                    <span className="mr-1">🤝</span>
                     Assisted Living
                   </Button>
                 </Link>
                 <Link href="/search?careType=Independent%20Living">
-                  <Button variant="outline" size="sm" className="bg-white/90 backdrop-blur-md border-blue-200 text-blue-700 hover:bg-blue-50 transition-all duration-300">
-                    <span className="mr-2">🏠</span>
+                  <Button variant="outline" size="sm" className="w-full bg-white/90 backdrop-blur-md border-blue-200 text-blue-700 hover:bg-blue-50 transition-all duration-300 text-xs sm:text-sm">
+                    <span className="mr-1">🏠</span>
                     Independent Living
                   </Button>
                 </Link>
                 <Link href="/search?priceRange=affordable">
-                  <Button variant="outline" size="sm" className="bg-white/90 backdrop-blur-md border-orange-200 text-orange-700 hover:bg-orange-50 transition-all duration-300">
-                    <span className="mr-2">💰</span>
+                  <Button variant="outline" size="sm" className="w-full bg-white/90 backdrop-blur-md border-orange-200 text-orange-700 hover:bg-orange-50 transition-all duration-300 text-xs sm:text-sm">
+                    <span className="mr-1">💰</span>
                     Affordable Options
                   </Button>
                 </Link>
               </div>
             </div>
 
-            {/* Primary Action Buttons */}
-            <div className="max-w-2xl mx-auto mb-8 space-y-4">
+            {/* Compact Action Buttons */}
+            <div className="max-w-xl mx-auto mb-6 space-y-3 px-2">
               <Link href="/map-search">
                 <Button 
                   size="lg" 
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 text-lg py-4"
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 text-base sm:text-lg py-3"
                 >
                   <MapIcon className="mr-3 h-6 w-6" />
                   Explore All Communities on Interactive Map

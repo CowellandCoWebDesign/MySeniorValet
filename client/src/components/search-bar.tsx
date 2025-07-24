@@ -94,19 +94,19 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
 
   return (
     <div className="relative w-full max-w-4xl mx-auto">
-      {/* Enhanced Search Context Header */}
-      <div className="text-center mb-6">
-        <div className="inline-flex items-center space-x-3 bg-gradient-to-r from-green-50 to-blue-50 backdrop-blur-md px-6 py-3 rounded-full shadow-lg border border-green-200/50 mb-3">
-          <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-sm"></div>
-          <span className="text-sm font-bold text-green-800">
-            Live data from 31,023+ verified communities
+      {/* Mobile-Responsive Search Context Header */}
+      <div className="text-center mb-4">
+        <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-green-50 to-blue-50 backdrop-blur-md px-3 py-2 rounded-full shadow-md border border-green-200/50 mb-2">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <span className="text-xs sm:text-sm font-bold text-green-800">
+            31,023+ verified communities
           </span>
-          <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
         </div>
-        <p className="text-gray-700 dark:text-gray-300 text-lg font-medium">
+        <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base font-medium px-2">
           Search by city, zip code, community name, or care type
         </p>
-        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+        <p className="text-gray-500 dark:text-gray-400 text-xs mt-1 px-2">
           Authentic HUD pricing • Real availability • Government verified
         </p>
       </div>
@@ -114,13 +114,13 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
       <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} className="relative">
         <div className={`relative bg-white dark:bg-gray-800 ${showSuggestions && locationSuggestions && locationSuggestions.length > 0 ? 'rounded-t-3xl' : 'rounded-3xl'} shadow-2xl overflow-hidden border-2 border-gradient-to-r from-blue-200/50 to-purple-200/50 dark:border-gray-600 hover:border-blue-300/70 focus-within:border-blue-500 focus-within:shadow-blue-200/25 focus-within:shadow-2xl transition-all duration-500 backdrop-blur-sm`}>
           <div className="flex items-center relative">
-            <div className="pl-6 pr-3">
-              <Search className="w-6 h-6 lg:w-7 lg:h-7 text-blue-500 drop-shadow-sm" />
+            <div className="pl-3 sm:pl-4 pr-2">
+              <Search className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500 drop-shadow-sm" />
             </div>
             <Input
               ref={inputRef}
               type="text"
-              placeholder="Try 'Sacramento, CA', '90210', or 'Assisted Living'..."
+              placeholder="Try 'Sacramento, CA' or '90210'..."
               value={locationQuery}
               onChange={(e) => handleLocationInputChange(e.target.value)}
               onFocus={() => {
@@ -141,7 +141,7 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
               onBlur={() => {
                 setTimeout(() => setShowSuggestions(false), 200);
               }}
-              className="flex-1 px-4 py-5 lg:py-6 text-base lg:text-xl border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 font-medium"
+              className="flex-1 px-2 sm:px-3 py-3 sm:py-4 text-sm sm:text-base border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 font-medium"
             />
             {locationQuery && (
               <Button
@@ -153,7 +153,7 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
                   setSearchParams(prev => ({ ...prev, location: '' }));
                   setShowSuggestions(false);
                 }}
-                className="mr-2 text-gray-400 hover:text-gray-600 p-2"
+                className="mr-1 text-gray-400 hover:text-gray-600 p-1 sm:p-2"
               >
                 ✕
               </Button>
@@ -162,7 +162,7 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
               type="submit"
               onClick={handleSearch}
               disabled={!locationQuery.trim()}
-              className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 disabled:from-gray-400 disabled:to-gray-500 text-white px-6 py-3 lg:px-8 lg:py-4 m-2 rounded-2xl transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none disabled:hover:scale-100 font-bold text-sm lg:text-base"
+              className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 disabled:from-gray-400 disabled:to-gray-500 text-white px-3 py-2 sm:px-4 sm:py-3 m-1 sm:m-2 rounded-xl sm:rounded-2xl transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none disabled:hover:scale-100 font-bold text-xs sm:text-sm"
             >
               <Search className="w-5 h-5 lg:w-6 lg:h-6 mr-2" />
               <span className="hidden sm:inline">Search</span>
