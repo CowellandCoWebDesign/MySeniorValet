@@ -73,6 +73,7 @@ import { simpleAuthService, requireSimpleAuth } from "./simple-auth";
 import { regionalExpansionEngine } from "./regional-expansion";
 import { comprehensivePhotoEnrichment } from "./comprehensive-photo-enrichment";
 import { apiCostProtection } from "./api-cost-protection";
+import { aiSearchService } from "./ai-search-service";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { communityStatsCache } from "./community-stats-cache";
 import { systematicPhotoEnrichment } from "./systematic-photo-enrichment";
@@ -1745,6 +1746,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Search suggestions error details:', error);
       // Return empty array instead of error
       res.json([]);
+    }
+  });
+
+  // AI-powered natural language search
+  app.post("/api/communities/ai-search", async (req, res) => {
+    try {
+      const { query, userLocation } = req.body;
+      
+      if (!query || typeof query !== 'string') {
+        return res.status(400).json({ error: 'Query is required' });
+      }
+
+      // Parse the natural language query using AI
+      const parsedIntent = await aiSearchService.parseSearchQuery({
+        query,
+        context: { userLocation }
+      });
+
+      // Build search filters from parsed intent
+      const filters = aiSearchService.buildSearchFilters(parsedIntent);
+      
+      // Use existing search logic with AI-parsed filters
+      const searchParams: any = {
+        limit: 50,
+        offset: 0,
+        ...filters
+      };
+
+      console.log('AI Search - Parsed Intent:', parsedIntent);
+      console.log('AI Search - Generated Filters:', filters);
+
+      // Execute search using enhanced search service
+      const communities = await enhancedSearchService.searchCommunities(searchParams);
+      
+      // Apply intelligent pricing
+      const communitiesWithPricing = communities.map(community => eliminateCallForPricing(community));
+
+      res.json({
+        communities: communitiesWithPricing,
+        searchInterpretation: parsedIntent.searchInterpretation,
+        appliedFilters: filters
+      });
+    } catch (error) {
+      console.error('AI search error:', error);
+      res.status(500).json({ error: 'Failed to process AI search' });
     }
   });
 

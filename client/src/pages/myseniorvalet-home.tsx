@@ -122,7 +122,7 @@ export default function MySeniorValetHome() {
     setSearchQuery(suggestion);
     setShowSuggestions(false);
     const query = `?q=${encodeURIComponent(suggestion)}`;
-    window.location.href = `/search${query}`;
+    window.location.href = `/map-search${query}`;
   };
 
   return (
@@ -195,24 +195,27 @@ export default function MySeniorValetHome() {
 
           {/* Search Bar - Larger */}
           <div className="w-full max-w-2xl mb-4 relative animate-fade-in-up animation-delay-600" style={{ zIndex: 99999 }}>
-            <form onSubmit={(e) => {
+            <form onSubmit={async (e) => {
               e.preventDefault();
-              const query = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
-              window.location.href = `/search${query}`;
+              if (!searchQuery) return;
+              
+              // Navigate to map-search with the query - let that page handle the AI search
+              window.location.href = `/map-search?q=${encodeURIComponent(searchQuery)}`;
             }}>
               <div className={`relative bg-white dark:bg-gray-800 ${showSuggestions && suggestions.length > 0 ? 'rounded-t-3xl' : 'rounded-3xl'} shadow-xl overflow-hidden`}>
                 <div className="flex items-center">
                   <input
                     type="text"
-                    placeholder="Enter city, zip, or community name…"
+                    placeholder="Ask me anything: 'memory care near me', 'pet-friendly', 'under $3000'..."
                     value={searchQuery}
                     onChange={(e) => handleSearchChange(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
                         setShowSuggestions(false);
-                        const query = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
-                        window.location.href = `/search${query}`;
+                        if (searchQuery) {
+                          window.location.href = `/map-search?q=${encodeURIComponent(searchQuery)}`;
+                        }
                       } else if (e.key === 'Escape') {
                         setShowSuggestions(false);
                       }
@@ -237,9 +240,14 @@ export default function MySeniorValetHome() {
                     }}
                     className="flex-1 px-6 py-4 text-base border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                   />
+                  <div className="flex items-center mr-2">
+                    <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-xs px-2 py-1">
+                      AI-Powered
+                    </Badge>
+                  </div>
                   <button
                     type="submit"
-                    className="bg-gray-700 hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-700 text-white p-3 m-2 rounded-2xl transition-colors flex items-center justify-center"
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-3 m-2 rounded-2xl transition-all flex items-center justify-center shadow-lg hover:shadow-xl"
                   >
                     <Search className="w-6 h-6" />
                   </button>

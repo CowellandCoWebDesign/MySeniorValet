@@ -190,7 +190,7 @@ export default function MapSearchClean() {
 
     try {
       // First try AI-powered search
-      const aiResponse = await fetch('/api/search/ai', {
+      const aiResponse = await fetch('/api/communities/ai-search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query })
@@ -797,9 +797,11 @@ export default function MapSearchClean() {
                                 {(
                                   // Government verified with actual pricing
                                   ((community?.hudPropertyId && (community as any)?.rentPerMonth) ||
-                                  ((community as any)?.governmentSourced && community?.priceRange?.min)) ||
+                                  ((community as any)?.governmentSourced && 
+                                   typeof community?.priceRange === 'object' && 
+                                   community?.priceRange?.min)) ||
                                   // Vendor verified with recent confirmation
-                                  (community?.claimedBy && (community as any)?.pricing_type === 'live' && 
+                                  ((community as any)?.claimedBy && (community as any)?.pricing_type === 'live' && 
                                    (community as any)?.pricingLastVerified &&
                                    new Date((community as any).pricingLastVerified) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
                                 ) && (
