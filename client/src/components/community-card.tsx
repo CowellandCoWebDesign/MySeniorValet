@@ -405,8 +405,16 @@ export function CommunityCard({ community }: CommunityCardProps) {
               <DollarSign className="h-6 w-6 text-green-600 hover:text-green-700 transition-colors duration-200" />
               <span className="font-bold text-green-900 text-lg">Monthly Cost Estimates</span>
             </div>
-            {/* CRITICAL BUSINESS LOGIC: Featured/Premium communities = Claimed communities = Live Pricing */}
-            {((community.badges && (community.badges.includes('Featured') || community.badges.includes('Premium'))) || community.isClaimed) ? (
+            {/* GOLDEN RULE: Only show Live Pricing for verified sources */}
+            {(
+              // Government verified with actual pricing
+              ((community.hudPropertyId && (community as any).rentPerMonth) ||
+              ((community as any).governmentSourced && community.priceRange?.min)) ||
+              // Vendor verified with recent confirmation
+              (community.claimedBy && (community as any).pricing_type === 'live' && 
+               (community as any).pricingLastVerified &&
+               new Date((community as any).pricingLastVerified) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
+            ) ? (
               <Badge className="bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-colors duration-200">
                 ✓ Live Pricing
               </Badge>
@@ -419,8 +427,16 @@ export function CommunityCard({ community }: CommunityCardProps) {
           
           {/* Always show authentic government-based pricing estimates */}
           <div>
-            {/* CRITICAL BUSINESS LOGIC: Featured/Premium communities = Claimed communities = Live Pricing */}
-            {((community.badges && (community.badges.includes('Featured') || community.badges.includes('Premium'))) || community.isClaimed) ? (
+            {/* GOLDEN RULE: Only show Live Pricing for verified sources */}
+            {(
+              // Government verified with actual pricing
+              ((community.hudPropertyId && (community as any).rentPerMonth) ||
+              ((community as any).governmentSourced && community.priceRange?.min)) ||
+              // Vendor verified with recent confirmation
+              (community.claimedBy && (community as any).pricing_type === 'live' && 
+               (community as any).pricingLastVerified &&
+               new Date((community as any).pricingLastVerified) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
+            ) ? (
               <div>
                 <div className="text-2xl font-bold text-blue-900 mb-2">
                   {community.priceRange ? (
@@ -474,7 +490,15 @@ export function CommunityCard({ community }: CommunityCardProps) {
             </div>
             
             <div className="text-xs text-green-600 mt-2">
-              {((community.badges && (community.badges.includes('Featured') || community.badges.includes('Premium'))) || community.isClaimed) ? (
+              {(
+                // Government verified with actual pricing
+                ((community.hudPropertyId && (community as any).rentPerMonth) ||
+                ((community as any).governmentSourced && community.priceRange?.min)) ||
+                // Vendor verified with recent confirmation
+                (community.claimedBy && (community as any).pricing_type === 'live' && 
+                 (community as any).pricingLastVerified &&
+                 new Date((community as any).pricingLastVerified) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
+              ) ? (
                 <span className="font-medium">✓ Community-verified pricing. Contact for current specials and move-in costs.</span>
               ) : (
                 <span>* Market-based estimates. Actual costs may vary. Community can claim listing for exact pricing.</span>
