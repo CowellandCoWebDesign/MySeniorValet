@@ -260,34 +260,17 @@ class AdvancedAnalytics {
     period5: number;
     period6: number;
   }>> {
-    // Simulate cohort data for user retention analysis
-    const cohorts = [];
-    const currentDate = new Date();
-    
-    for (let i = 0; i < 12; i++) {
-      const cohortDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
-      const cohortName = cohortDate.toLocaleDateString('en-US', { 
-        month: 'short', 
-        year: '2-digit' 
-      });
-      
-      // Generate realistic retention curve (starts high, drops off)
-      const baseUsers = Math.floor(Math.random() * 500 + 200);
-      const retentionRates = [1.0, 0.45, 0.28, 0.18, 0.13, 0.10, 0.08];
-      
-      cohorts.push({
-        cohort: cohortName,
-        period0: baseUsers,
-        period1: Math.floor(baseUsers * retentionRates[1]),
-        period2: Math.floor(baseUsers * retentionRates[2]),
-        period3: Math.floor(baseUsers * retentionRates[3]),
-        period4: Math.floor(baseUsers * retentionRates[4]),
-        period5: Math.floor(baseUsers * retentionRates[5]),
-        period6: Math.floor(baseUsers * retentionRates[6])
-      });
+    // Return real cohort data from database or empty array
+    try {
+      // TODO: Implement real cohort analysis from user activity data
+      // This would require tracking user registrations and subsequent activity
+      // For now, return empty array to comply with golden data rule
+      console.log('Cohort analysis requested but no real data available yet');
+      return [];
+    } catch (error) {
+      console.error('Error generating cohort analysis:', error);
+      return [];
     }
-    
-    return cohorts;
   }
 
   // Advanced segmentation analysis
@@ -314,92 +297,17 @@ class AdvancedAnalytics {
     };
     recommendations: string[];
   }>> {
-    return [
-      {
-        segmentName: 'Urgent Decision Makers',
-        size: 2340,
-        characteristics: {
-          avgAge: 67,
-          primaryCareType: 'Memory Care',
-          avgBudget: 4500,
-          decisionTimeframe: '1-3 months',
-          geographicFocus: ['California', 'Florida', 'Texas']
-        },
-        behaviors: {
-          searchFrequency: 'Daily',
-          devicePreference: 'Mobile',
-          contentPreferences: ['Pricing', 'Availability', 'Specialized Care'],
-          conversionRate: 23.4
-        },
-        value: {
-          avgLifetimeValue: 1680,
-          acquisitionCost: 89,
-          profitability: 94.7
-        },
-        recommendations: [
-          'Prioritize immediate response capabilities',
-          'Highlight availability and pricing transparency',
-          'Provide specialized care content',
-          'Implement urgency-based messaging'
-        ]
-      },
-      {
-        segmentName: 'Research-Driven Planners',
-        size: 4890,
-        characteristics: {
-          avgAge: 72,
-          primaryCareType: 'Assisted Living',
-          avgBudget: 3200,
-          decisionTimeframe: '6-12 months',
-          geographicFocus: ['New York', 'Ohio', 'Pennsylvania']
-        },
-        behaviors: {
-          searchFrequency: 'Weekly',
-          devicePreference: 'Desktop',
-          contentPreferences: ['Reviews', 'Educational Content', 'Comparisons'],
-          conversionRate: 15.7
-        },
-        value: {
-          avgLifetimeValue: 2100,
-          acquisitionCost: 56,
-          profitability: 97.3
-        },
-        recommendations: [
-          'Develop comprehensive comparison tools',
-          'Create educational content library',
-          'Implement detailed review systems',
-          'Provide long-term planning resources'
-        ]
-      },
-      {
-        segmentName: 'Budget-Conscious Families',
-        size: 6750,
-        characteristics: {
-          avgAge: 69,
-          primaryCareType: 'Independent Living',
-          avgBudget: 2100,
-          decisionTimeframe: '3-6 months',
-          geographicFocus: ['Midwest', 'South', 'Rural Areas']
-        },
-        behaviors: {
-          searchFrequency: 'Bi-weekly',
-          devicePreference: 'Mixed',
-          contentPreferences: ['Pricing', 'Financial Assistance', 'Value Comparison'],
-          conversionRate: 12.3
-        },
-        value: {
-          avgLifetimeValue: 980,
-          acquisitionCost: 34,
-          profitability: 96.5
-        },
-        recommendations: [
-          'Emphasize value and affordability',
-          'Highlight financial assistance options',
-          'Create cost-effective care guides',
-          'Develop regional pricing insights'
-        ]
-      }
-    ];
+    // Return real segmentation data from database or empty array
+    try {
+      // TODO: Implement real segmentation analysis from user behavior data
+      // This would require tracking user behavior patterns, search history, and conversion data
+      // For now, return empty array to comply with golden data rule
+      console.log('Advanced segmentation requested but no real data available yet');
+      return [];
+    } catch (error) {
+      console.error('Error generating advanced segmentation:', error);
+      return [];
+    }
   }
 
   private getDefaultBehaviorAnalytics(): UserBehaviorAnalytics {

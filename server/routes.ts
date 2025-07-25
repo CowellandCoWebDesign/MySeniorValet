@@ -7415,22 +7415,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/admin/support/analytics', async (req, res) => {
     try {
-      // Mock support analytics
+      // Return real support analytics from database or minimal response
+      // TODO: Implement real support ticket analytics from database
       res.json({
-        commonIssues: [
-          { category: 'Account login problems', percentage: 35 },
-          { category: 'Pricing transparency', percentage: 28 },
-          { category: 'Community information', percentage: 22 },
-          { category: 'Technical issues', percentage: 15 }
-        ],
+        commonIssues: [],
         channels: {
-          email: { status: 'active', availability: '24/7' },
-          phone: { status: 'active', availability: 'Business hours' },
-          chat: { status: 'limited', availability: 'Limited hours' }
+          email: { status: 'unknown', availability: 'Not configured' },
+          phone: { status: 'unknown', availability: 'Not configured' },
+          chat: { status: 'unknown', availability: 'Not configured' }
         },
         autoResponse: {
-          acknowledgment: true,
-          escalation: true,
+          acknowledgment: false,
+          escalation: false,
           afterHours: false
         }
       });
@@ -7443,41 +7439,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin health monitoring endpoints
   app.get('/api/admin/system/health', async (req, res) => {
     try {
+      // Return real system health status
       const healthData = {
         services: {
           database: {
             status: 'healthy',
-            responseTime: '23ms',
-            connections: '8/100',
-            lastBackup: '2 hours ago',
-            version: 'PostgreSQL 15.2'
+            // Real database check
+            version: 'PostgreSQL'
           },
           api: {
             status: 'healthy',
-            responseTime: '89ms',
-            memoryUsage: '256MB',
-            uptime: '2d 14h 32m',
-            version: 'Express.js v4.18'
-          },
-          search: {
-            status: 'healthy',
-            indexSize: '2.3GB',
-            queryTime: '45ms',
-            cacheHitRate: '89%',
-            version: 'ElasticSearch 8.1'
-          },
-          email: {
-            status: 'healthy',
-            responseTime: '245ms',
-            messagesDelivered: '142 today',
-            deliveryRate: '99.2%',
-            version: 'SendGrid API'
+            // Real API status
+            version: 'Express.js'
           }
         },
-        healthyCount: 4,
-        totalCount: 4,
+        healthyCount: 2,
+        totalCount: 2,
         lastUpdated: new Date()
       };
+      
+      // Test database connection
+      try {
+        await db.select({ count: sql`1` }).from(communities).limit(1);
+        healthData.services.database.status = 'healthy';
+      } catch (dbError) {
+        healthData.services.database.status = 'unhealthy';
+        healthData.healthyCount--;
+      }
       
       res.json(healthData);
     } catch (error) {
@@ -7488,39 +7476,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/admin/health/details', async (req, res) => {
     try {
+      // Return real health details or minimal data
       const healthDetails = {
         responseTimeBrokenDown: {
-          apiEndpoints: {
-            '/api/communities': '45ms',
-            '/api/search': '123ms',
-            '/api/admin/*': '67ms'
-          },
-          databaseQueries: {
-            'SELECT queries': '18ms',
-            'INSERT/UPDATE': '34ms',
-            'Complex joins': '89ms'
-          },
-          externalAPIs: {
-            'Google Places': '234ms',
-            'Yelp Fusion': '187ms',
-            'Geocoding': '156ms'
-          }
+          apiEndpoints: {},
+          databaseQueries: {},
+          externalAPIs: {}
         },
-        recommendations: [
-          {
-            type: 'warning',
-            message: 'Consider adding caching for /api/search endpoint (123ms avg)'
-          },
-          {
-            type: 'warning', 
-            message: 'Database complex joins could be optimized with better indexing'
-          },
-          {
-            type: 'success',
-            message: 'External API response times are within acceptable ranges'
-          }
-        ],
-        lastUpdated: new Date()
+        recommendations: [],
+        lastUpdated: new Date(),
+        message: 'Real-time performance monitoring not yet implemented'
       };
       
       res.json(healthDetails);
@@ -7538,61 +7503,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
         limit = 50 
       } = req.query;
 
-      // Return sample audit logs for demo
-      const mockLogs = [
-        {
-          id: 1,
-          userId: 1,
-          adminId: null,
-          action: "user_login",
-          resourceType: "user",
-          resourceId: "1",
-          details: { 
-            reason: "User authentication",
-            additionalInfo: { loginMethod: "email" }
-          },
-          ipAddress: "192.168.1.100",
-          userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-          sessionId: "sess_12345",
-          severity: "Low",
-          outcome: "Success",
-          createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
-          indexedAt: new Date(Date.now() - 2 * 60 * 60 * 1000)
-        },
-        {
-          id: 2,
-          userId: null,
-          adminId: 1,
-          action: "community_updated",
-          resourceType: "community",
-          resourceId: "5",
-          details: { 
-            reason: "Google Places enrichment",
-            additionalInfo: { source: "google_places_api" }
-          },
-          ipAddress: "10.0.0.1",
-          userAgent: "Admin-Dashboard/1.0",
-          sessionId: "admin_sess_67890",
-          severity: "Medium",
-          outcome: "Success",
-          createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000),
-          indexedAt: new Date(Date.now() - 4 * 60 * 60 * 1000)
-        }
-      ];
+      // Get real audit logs from database
+      const pageNum = parseInt(page as string) || 1;
+      const limitNum = parseInt(limit as string) || 50;
+      const offset = (pageNum - 1) * limitNum;
 
-      // Apply pagination
-      const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
-      const paginatedLogs = mockLogs.slice(offset, offset + parseInt(limit as string));
+      // Query real audit logs from securityAuditLogs table if it exists
+      try {
+        const logs = await db
+          .select()
+          .from(securityAuditLogs)
+          .orderBy(desc(securityAuditLogs.createdAt))
+          .limit(limitNum)
+          .offset(offset);
 
-      res.json({
-        logs: paginatedLogs,
-        pagination: {
-          page: parseInt(page as string),
-          limit: parseInt(limit as string),
-          total: mockLogs.length,
-          totalPages: Math.ceil(mockLogs.length / parseInt(limit as string))
-        }
-      });
+        const totalCount = await db
+          .select({ count: sql`count(*)` })
+          .from(securityAuditLogs);
+
+        res.json({
+          logs,
+          pagination: {
+            page: pageNum,
+            limit: limitNum,
+            total: parseInt(totalCount[0]?.count as string) || 0
+          }
+        });
+      } catch (dbError) {
+        // If table doesn't exist or error, return empty array
+        console.log('Audit logs table not available, returning empty array');
+        res.json({
+          logs: [],
+          pagination: {
+            page: pageNum,
+            limit: limitNum,
+            total: 0
+          }
+        });
+      }
     } catch (error) {
       console.error("Error fetching audit logs:", error);
       res.status(500).json({ error: "Failed to fetch audit logs" });
@@ -7609,17 +7557,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
                        req.headers['x-real-ip'] as string;
       const userAgent = req.headers['user-agent'];
 
-      // For now, return mock response since we need proper database integration
-      const auditLog = {
-        id: Math.floor(Math.random() * 1000),
-        ...logData,
-        ipAddress: Array.isArray(ipAddress) ? ipAddress[0] : ipAddress,
-        userAgent,
-        createdAt: new Date(),
-        indexedAt: new Date()
-      };
+      // Insert real audit log into database
+      try {
+        const auditLog = await db.insert(securityAuditLogs).values({
+          ...logData,
+          ipAddress: Array.isArray(ipAddress) ? ipAddress[0] : ipAddress,
+          userAgent,
+          createdAt: new Date(),
+          indexedAt: new Date()
+        }).returning();
 
-      res.json(auditLog);
+        res.json(auditLog[0]);
+      } catch (dbError) {
+        // If table doesn't exist or error, return error
+        console.error('Failed to insert audit log:', dbError);
+        res.status(500).json({ error: "Audit log system not available" });
+      }
     } catch (error) {
       console.error("Error creating audit log:", error);
       res.status(500).json({ error: "Failed to create audit log" });
@@ -7630,35 +7583,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { timeframe = '24h' } = req.query;
       
-      // Mock summary data
-      const summary = {
-        timeframe,
-        summary: {
-          totalLogs: 45,
-          bySeverity: [
-            { severity: "Low", count: 25 },
-            { severity: "Medium", count: 15 },
-            { severity: "High", count: 4 },
-            { severity: "Critical", count: 1 }
-          ],
-          byAction: [
-            { action: "user_login", count: 18 },
-            { action: "community_updated", count: 8 },
-            { action: "flag_submitted", count: 7 },
-            { action: "user_signup", count: 5 },
-            { action: "flag_resolved", count: 4 },
-            { action: "admin_login", count: 3 }
-          ],
-          byResourceType: [
-            { resourceType: "user", count: 28 },
-            { resourceType: "community", count: 10 },
-            { resourceType: "flag", count: 6 },
-            { resourceType: "system", count: 1 }
-          ]
+      // Get real audit log summary from database
+      try {
+        // Calculate timeframe filter
+        const now = new Date();
+        let since = new Date();
+        if (timeframe === '24h') {
+          since.setHours(now.getHours() - 24);
+        } else if (timeframe === '7d') {
+          since.setDate(now.getDate() - 7);
+        } else if (timeframe === '30d') {
+          since.setDate(now.getDate() - 30);
         }
-      };
 
-      res.json(summary);
+        // Get total count
+        const totalResult = await db
+          .select({ count: sql`count(*)` })
+          .from(securityAuditLogs)
+          .where(gte(securityAuditLogs.createdAt, since));
+
+        // Get severity breakdown
+        const severityResult = await db
+          .select({
+            severity: securityAuditLogs.severity,
+            count: sql<number>`count(*)`
+          })
+          .from(securityAuditLogs)
+          .where(gte(securityAuditLogs.createdAt, since))
+          .groupBy(securityAuditLogs.severity);
+
+        // Get action breakdown
+        const actionResult = await db
+          .select({
+            action: securityAuditLogs.action,
+            count: sql<number>`count(*)`
+          })
+          .from(securityAuditLogs)
+          .where(gte(securityAuditLogs.createdAt, since))
+          .groupBy(securityAuditLogs.action)
+          .limit(10);
+
+        // Get resource type breakdown
+        const resourceResult = await db
+          .select({
+            resourceType: securityAuditLogs.resourceType,
+            count: sql<number>`count(*)`
+          })
+          .from(securityAuditLogs)
+          .where(gte(securityAuditLogs.createdAt, since))
+          .groupBy(securityAuditLogs.resourceType);
+
+        res.json({
+          timeframe,
+          summary: {
+            totalLogs: parseInt(totalResult[0]?.count as string) || 0,
+            bySeverity: severityResult,
+            byAction: actionResult,
+            byResourceType: resourceResult
+          }
+        });
+      } catch (dbError) {
+        // If table doesn't exist, return empty summary
+        console.log('Audit logs table not available, returning empty summary');
+        res.json({
+          timeframe,
+          summary: {
+            totalLogs: 0,
+            bySeverity: [],
+            byAction: [],
+            byResourceType: []
+          }
+        });
+      }
     } catch (error) {
       console.error("Error fetching audit log summary:", error);
       res.status(500).json({ error: "Failed to fetch audit log summary" });

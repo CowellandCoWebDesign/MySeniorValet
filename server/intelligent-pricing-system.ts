@@ -130,6 +130,7 @@ export class IntelligentPricingSystem {
 
 /**
  * War on Call for Pricing - Replace all instances
+ * Now properly handles cases where no verified pricing exists
  */
 export function eliminateCallForPricing(community: any): any {
   const pricingEstimate = IntelligentPricingSystem.generatePricingEstimate(community);
@@ -140,6 +141,29 @@ export function eliminateCallForPricing(community: any): any {
     console.log(`HUD Property detected: ${community.name} (ID: ${community.hudPropertyId}, Rent: $${community.rentPerMonth})`);
   }
   
+  // Handle case when no verified pricing exists
+  if (!pricingEstimate) {
+    return {
+      ...community,
+      displayPricing: {
+        displayPrice: 'Contact for pricing',
+        priceLabel: 'Contact Community',
+        qualityBadge: 'Please Contact',
+        showContactButton: true
+      },
+      priceRange: null,
+      transparencyScore: 0,
+      pricingBadge: 'Contact Required',
+      dataQuality: {
+        isAuthentic: false,
+        source: 'No verified data',
+        qualityScore: 0,
+        lastVerified: null
+      }
+    };
+  }
+  
+  // Normal case with verified pricing
   return {
     ...community,
     displayPricing: {
