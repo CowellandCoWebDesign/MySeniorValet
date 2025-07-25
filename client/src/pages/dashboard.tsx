@@ -31,10 +31,12 @@ import {
   TrendingUp,
   Award,
   Home,
-  ChevronRight
+  ChevronRight,
+  Plus
 } from "lucide-react";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 interface SavedCommunity {
   id: number;
@@ -69,6 +71,7 @@ interface TourRequest {
 
 export default function Dashboard() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [savedCommunities, setSavedCommunities] = useState<SavedCommunity[]>([]);
   const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
   const [tourRequests, setTourRequests] = useState<TourRequest[]>([]);
@@ -235,6 +238,30 @@ export default function Dashboard() {
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Role-based Navigation */}
+            <div className="mt-6 flex flex-wrap gap-4">
+              {user?.role === 'admin' && (
+                <Link href="/admin">
+                  <Button size="lg" className="bg-white/20 hover:bg-white/30 text-white border border-white/30">
+                    <Building className="w-5 h-5 mr-2" />
+                    Admin Dashboard
+                  </Button>
+                </Link>
+              )}
+              <Link href="/my-communities">
+                <Button size="lg" className="bg-white/20 hover:bg-white/30 text-white border border-white/30">
+                  <Home className="w-5 h-5 mr-2" />
+                  My Communities
+                </Button>
+              </Link>
+              <Link href="/claim">
+                <Button size="lg" className="bg-white/20 hover:bg-white/30 text-white border border-white/30">
+                  <Plus className="w-5 h-5 mr-2" />
+                  Claim a Community
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

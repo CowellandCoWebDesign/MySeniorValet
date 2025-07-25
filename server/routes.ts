@@ -75,7 +75,7 @@ import { regionalExpansionEngine } from "./regional-expansion";
 import { comprehensivePhotoEnrichment } from "./comprehensive-photo-enrichment";
 import { apiCostProtection } from "./api-cost-protection";
 import { aiSearchService } from "./ai-search-service";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import { communityStatsCache } from "./community-stats-cache";
 import { systematicPhotoEnrichment } from "./systematic-photo-enrichment";
 import { emergencyEnrichment } from "./emergency-enrichment";
@@ -251,8 +251,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Mount admin router
-  app.use('/api/admin', adminRouter);
+  // Mount admin router with admin authentication
+  app.use('/api/admin', isAdmin, adminRouter);
   
   // ===============================
   // SCALABLE INFRASTRUCTURE MIDDLEWARE
@@ -2935,6 +2935,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ========== COMMUNITY DASHBOARD ENDPOINTS ==========
   
+  // Get all communities owned by the current user
+  app.get('/api/my-communities', requireSimpleAuth, async (req, res) => {
+    try {
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
+      
+      // Get all communities claimed by this user
+      const userCommunities = await db
+        .select({
+          community: communities,
+          claim: claimedCommunities
+        })
+        .from(claimedCommunities)
+        .innerJoin(communities, eq(communities.id, claimedCommunities.communityId))
+        .where(eq(claimedCommunities.ownerId, userId));
+      
+      const formattedCommunities = userCommunities.map(({ community, claim }) => ({
+        ...community,
+        claimStatus: claim.status,
+        claimedAt: claim.claimedAt
+      }));
+      
+      res.json({ communities: formattedCommunities });
+    } catch (error) {
+      console.error('Error fetching user communities:', error);
+      res.status(500).json({ message: 'Failed to fetch communities' });
+    }
+  });
+  
   // Get community dashboard overview
   app.get('/api/communities/:id/dashboard/overview', requireSimpleAuth, async (req, res) => {
     try {
@@ -3580,7 +3611,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update all communities with nationwide pricing research
-  app.post('/api/admin/pricing/update-research', async (req, res) => {
+  app.post('/api/admin/pricing/update-research', isAdmin, async (req, res) => {
     try {
       console.log('🔬 Starting nationwide pricing research update...');
       
@@ -3605,7 +3636,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get nationwide pricing research statistics
-  app.get('/api/admin/pricing/research-stats', async (req, res) => {
+  app.get('/api/admin/pricing/research-stats', isAdmin, async (req, res) => {
     try {
       const allCommunities = await db.select().from(communities);
       
@@ -3734,15 +3765,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use(securityMonitoringMiddleware);
 
   // Security Admin Endpoints
-  app.get('/api/admin/security/dashboard', getSecurityDashboard);
-  app.get('/api/admin/security/user-trace', getUserTrace);
-  app.post('/api/admin/security/block-ip', blockIP);
-  app.post('/api/admin/security/unblock-ip', unblockIP);
-  app.get('/api/admin/security/events', getSecurityEvents);
-  app.get('/api/admin/security/report', generateSecurityReport);
+  app.get('/api/admin/security/dashboard', isAdmin, getSecurityDashboard);
+  app.get('/api/admin/security/user-trace', isAdmin, getUserTrace);
+  app.post('/api/admin/security/block-ip', isAdmin, blockIP);
+  app.post('/api/admin/security/unblock-ip', isAdmin, unblockIP);
+  app.get('/api/admin/security/events', isAdmin, getSecurityEvents);
+  app.get('/api/admin/security/report', isAdmin, generateSecurityReport);
   
   // Console data tracing endpoint for security analysis
-  app.get('/api/admin/security/console-trace', async (req, res) => {
+  app.get('/api/admin/security/console-trace', isAdmin, async (req, res) => {
     try {
       const { hours = 1, includeAll = false } = req.query;
       
@@ -4031,7 +4062,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Service listing classification endpoints
-  app.get("/api/admin/service-listings/scan", async (req, res) => {
+  app.get("/api/admin/service-listings/scan", isAdmin, async (req, res) => {
     try {
       const limit = parseInt(req.query.limit as string) || 100;
       const dryRun = req.query.dry_run !== 'false';
@@ -4053,7 +4084,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/service-listings/process", async (req, res) => {
+  app.post("/api/admin/service-listings/process", isAdmin, async (req, res) => {
     try {
       const { dryRun = false } = req.body;
       
@@ -4075,7 +4106,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/service-listings/flag/:id", async (req, res) => {
+  app.post("/api/admin/service-listings/flag/:id", isAdmin, async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
       if (isNaN(communityId)) {
@@ -4110,7 +4141,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // COMPLETE REFERRAL SERVICE REMOVAL - Battle against referral fees
-  app.post("/api/admin/service-listings/remove-all-referral-services", async (req, res) => {
+  app.post("/api/admin/service-listings/remove-all-referral-services", isAdmin, async (req, res) => {
     try {
       console.log('🚫 STARTING COMPLETE REFERRAL SERVICE REMOVAL - Battle against referral fees');
       
@@ -4642,7 +4673,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Comprehensive Data Scraping Endpoints
-  app.post("/api/admin/scrape", async (req, res) => {
+  app.post("/api/admin/scrape", isAdmin, async (req, res) => {
     try {
       const { state, careType, sources } = req.body;
       
@@ -5057,7 +5088,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // REAL DATA SCRAPING ENDPOINTS FOR NORTHERN CALIFORNIA
-  app.post("/api/admin/scrape/norcal", async (req, res) => {
+  app.post("/api/admin/scrape/norcal", isAdmin, async (req, res) => {
     try {
       const { city, state = 'CA' } = req.body;
       
@@ -5085,7 +5116,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/scrape/licensing", async (req, res) => {
+  app.post("/api/admin/scrape/licensing", isAdmin, async (req, res) => {
     try {
       const { state = 'CA' } = req.body;
       
@@ -5107,7 +5138,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/scrape/status", async (req, res) => {
+  app.get("/api/admin/scrape/status", isAdmin, async (req, res) => {
     try {
       const totalCommunities = await storage.getAllCommunities();
       const verifiedCommunities = totalCommunities.filter(c => c.isVerified);
@@ -5157,7 +5188,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // State Licensing Database Integration Endpoints
   
   // Scrape all state licensing databases AND general senior living
-  app.post('/api/admin/scrape-licensing', async (req, res) => {
+  app.post('/api/admin/scrape-licensing', isAdmin, async (req, res) => {
     try {
       console.log('Starting comprehensive senior living data collection (licensed + unlicensed)...');
       
@@ -5186,7 +5217,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Scrape specific state licensing database
-  app.post('/api/admin/scrape-licensing/:state', async (req, res) => {
+  app.post('/api/admin/scrape-licensing/:state', isAdmin, async (req, res) => {
     try {
       const { state } = req.params;
       const stateUpper = state.toUpperCase();

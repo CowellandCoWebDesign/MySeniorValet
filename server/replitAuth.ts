@@ -191,3 +191,39 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
     return;
   }
 };
+
+// Admin-only middleware
+export const isAdmin: RequestHandler = async (req, res, next) => {
+  const user = req.user as any;
+
+  // First check if authenticated
+  if (!req.isAuthenticated() || !user.expires_at) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  try {
+    // Get user from database to check role
+    const userEmail = user.claims?.email;
+    if (!userEmail) {
+      return res.status(401).json({ message: "No user email found" });
+    }
+
+    const dbUser = await storage.getUserByEmail(userEmail);
+    if (!dbUser) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    // Check if user is admin
+    if (dbUser.role !== 'admin') {
+      return res.status(403).json({ message: "Admin access required" });
+    }
+
+    // Attach user to request for use in routes
+    (req as any).dbUser = dbUser;
+    
+    next();
+  } catch (error) {
+    console.error("Admin auth error:", error);
+    res.status(500).json({ message: "Authentication error" });
+  }
+};
