@@ -322,12 +322,7 @@ export default function MySeniorValetHome() {
             </div>
           </div>
           
-          {/* Community Count Text - Updated */}
-          <div className="mb-4 animate-fade-in-up animation-delay-850">
-            <p className="text-white/90 dark:text-gray-300 text-sm md:text-base drop-shadow-md text-center">
-              Serving families across <strong className="text-amber-200">31,023+ verified senior living communities</strong>
-            </p>
-          </div>
+
           
           {/* Verification Badge - Larger */}
           <div className="mb-8 animate-fade-in-up animation-delay-900">
