@@ -11,6 +11,7 @@ import { Link } from "wouter";
 import { GreetingMascot } from "@/components/mascot";
 import { Badge } from "@/components/ui/badge";
 import { EnhancedPlatformStats } from "@/components/EnhancedPlatformStats";
+import { FeaturedAndCoastalSection } from "@/components/FeaturedAndCoastalSection";
 
 export default function Home() {
   console.log("HOME PAGE LOADED - VERSION 2 WITH 26,306 COMMUNITIES");
