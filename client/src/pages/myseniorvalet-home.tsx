@@ -13,7 +13,7 @@ import { EnhancedPlatformStats } from "@/components/EnhancedPlatformStats";
 
 
 export default function MySeniorValetHome() {
-  console.log("MYSENIORVALET HOME PAGE LOADED - VERSION 3 WITH CONCIERGE SERVICES PRIORITIZED - 31,023 COMMUNITIES");
+  console.log("MYSENIORVALET HOME PAGE LOADED - VERSION 3 WITH CONCIERGE SERVICES PRIORITIZED");
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -322,7 +322,7 @@ export default function MySeniorValetHome() {
           {/* Community Count Text - Updated */}
           <div className="mb-4 animate-fade-in-up animation-delay-850">
             <p className="text-white/90 dark:text-gray-300 text-sm md:text-base drop-shadow-md text-center">
-              Serving families across <strong className="text-amber-200">31,023+ verified senior living communities</strong>
+              Serving families across senior living communities nationwide
             </p>
           </div>
           
@@ -544,7 +544,7 @@ export default function MySeniorValetHome() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">North America's Most Comprehensive Senior Living Database</h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300">31,023+ communities with 100% authentic government data</p>
+            <p className="text-xl text-gray-600 dark:text-gray-300">Connecting families with senior living communities</p>
           </div>
           
           {/* Geographic Coverage Map */}
@@ -604,36 +604,36 @@ export default function MySeniorValetHome() {
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
                 <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">31,023</div>
-                  <p className="text-xs text-gray-600 dark:text-gray-300">Total Communities</p>
+                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">24/7</div>
+                  <p className="text-xs text-gray-600 dark:text-gray-300">Support</p>
                 </CardContent>
               </Card>
               
               <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
                 <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">6,078</div>
-                  <p className="text-xs text-gray-600 dark:text-gray-300">HUD Properties</p>
+                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">✓</div>
+                  <p className="text-xs text-gray-600 dark:text-gray-300">Licensed</p>
                 </CardContent>
               </Card>
               
               <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
                 <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">427K</div>
-                  <p className="text-xs text-gray-600 dark:text-gray-300">Housing Units</p>
+                  <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">✓</div>
+                  <p className="text-xs text-gray-600 dark:text-gray-300">Verified</p>
                 </CardContent>
               </Card>
               
               <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20">
                 <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 mb-1">86.6%</div>
-                  <p className="text-xs text-gray-600 dark:text-gray-300">Occupancy Data</p>
+                  <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 mb-1">✓</div>
+                  <p className="text-xs text-gray-600 dark:text-gray-300">Transparent</p>
                 </CardContent>
               </Card>
               
               <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20">
                 <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-red-600 dark:text-red-400 mb-1">100%</div>
-                  <p className="text-xs text-gray-600 dark:text-gray-300">Real Pricing</p>
+                  <div className="text-2xl font-bold text-red-600 dark:text-red-400 mb-1">✓</div>
+                  <p className="text-xs text-gray-600 dark:text-gray-300">Authentic</p>
                 </CardContent>
               </Card>
             </div>
@@ -682,21 +682,21 @@ export default function MySeniorValetHome() {
                   <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">$303/month</div>
                   <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Florin Gardens Cooperative</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">HUD Property • Sacramento, CA</p>
-                  <Badge className="mt-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">Available Units</Badge>
+                  <Badge className="mt-2 bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300">Contact for availability</Badge>
                 </div>
                 
                 <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-4 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">$5,200/month</div>
+                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">Contact for pricing</div>
                   <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Bay Area Assisted Living</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Licensed Facility • San Francisco, CA</p>
-                  <Badge className="mt-2 bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300">Waitlist Available</Badge>
+                  <Badge className="mt-2 bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300">Contact for availability</Badge>
                 </div>
                 
                 <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-4 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">$9,200/month</div>
+                  <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">Contact for pricing</div>
                   <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Premium Memory Care</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Specialized Care • Palo Alto, CA</p>
-                  <Badge className="mt-2 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">Immediate Availability</Badge>
+                  <Badge className="mt-2 bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300">Contact for availability</Badge>
                 </div>
               </div>
             </div>
@@ -727,20 +727,20 @@ export default function MySeniorValetHome() {
             <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 hover:shadow-xl transition-all">
               <CardContent className="p-6 text-center">
                 <Building2 className="w-12 h-12 text-green-600 dark:text-green-400 mx-auto mb-4" />
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-2">427,979</div>
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Available Units</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Total housing units</p>
-                <Badge className="mt-2 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">Real Count</Badge>
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-2">✓</div>
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Licensed</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Verified communities</p>
+                <Badge className="mt-2 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">Verified data</Badge>
               </CardContent>
             </Card>
 
             <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 hover:shadow-xl transition-all">
               <CardContent className="p-6 text-center">
                 <Users className="w-12 h-12 text-purple-600 dark:text-purple-400 mx-auto mb-4" />
-                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-2">86.6%</div>
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Occupancy Rate</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Average across all HUD</p>
-                <Badge className="mt-2 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300">Live Stats</Badge>
+                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-2">✓</div>
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Direct contact</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">No intermediaries</p>
+                <Badge className="mt-2 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300">Transparent</Badge>
               </CardContent>
             </Card>
 
@@ -782,7 +782,7 @@ export default function MySeniorValetHome() {
               <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md hover:shadow-lg transition-all">
                 <div className="flex items-center justify-between mb-4">
                   <div className="text-2xl font-bold text-green-600 dark:text-green-400">$355/mo</div>
-                  <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300">Waitlist</Badge>
+                  <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300">Contact facility</Badge>
                 </div>
                 <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Sacramento Elderly Apartments</h4>
                 <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">Sacramento, California</p>
@@ -793,10 +793,10 @@ export default function MySeniorValetHome() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-500 dark:text-gray-400">Occupancy:</span>
-                    <span className="font-medium text-gray-700 dark:text-gray-300">98%</span>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">Contact facility</span>
                   </div>
                 </div>
-                <Button className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white">Join Waitlist</Button>
+                <Button className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white">Contact facility</Button>
               </div>
 
               <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md hover:shadow-lg transition-all">
@@ -828,7 +828,7 @@ export default function MySeniorValetHome() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">AI-Powered Search Intelligence</h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300">Search across 31,023+ communities with advanced filters</p>
+            <p className="text-xl text-gray-600 dark:text-gray-300">Search communities with advanced filters and location mapping</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
@@ -1079,12 +1079,12 @@ export default function MySeniorValetHome() {
               Explore California Communities
             </h2>
             <div className="text-right">
-              <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">$3,500 - $6,200</div>
+              <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">Contact for pricing</div>
               <div className="text-xs text-amber-600 dark:text-amber-400">Golden State living</div>
             </div>
           </div>
           
-          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{(californiaCommunities as any[])?.length || 0} communities • Silicon Valley, LA Metro, San Diego with immediate openings</p>
+          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Senior living communities across California</p>
         
           <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
             {californiaLoading ? (
@@ -1116,47 +1116,14 @@ export default function MySeniorValetHome() {
                         </div>
                       </div>
                       
-                      {/* Vacancy Status Badge - Top Priority */}
-                      {index % 3 === 0 && (
-                        <Badge className="absolute top-3 left-3 bg-green-600 text-white text-xs px-2 py-1 font-medium animate-pulse">
-                          🟢 Available Now
-                        </Badge>
-                      )}
-                      {index % 3 === 1 && (
-                        <Badge className="absolute top-3 left-3 bg-orange-600 text-white text-xs px-2 py-1 font-medium">
-                          🟡 Waitlist Open
-                        </Badge>
-                      )}
-                      {index % 3 === 2 && (
-                        <Badge className="absolute top-3 left-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
-                          📋 Call for Availability
-                        </Badge>
-                      )}
+                      {/* Contact community for availability information */}
                       
                       {/* Price Badge */}
                       <Badge className="absolute bottom-3 left-3 bg-gray-900 text-white text-xs px-2 py-1 font-medium">
-                        {community.priceRange && community.priceRange.min ? `$${(community.priceRange.min / 1000).toFixed(1)}K+` : '$4K+'}
-                        {!community.claimed && (
-                          <span className="text-xs text-gray-300 ml-1 font-normal">est.</span>
-                        )}
+                        Contact for pricing
                       </Badge>
                       
-                      {/* Achievement Badge - Special Recognition */}
-                      {index % 5 === 0 && (
-                        <Badge className="absolute bottom-3 right-3 bg-purple-600 text-white text-xs px-2 py-1 font-medium">
-                          🏆 Featured
-                        </Badge>
-                      )}
-                      {index % 5 === 1 && (
-                        <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
-                          ⭐ Top Rated
-                        </Badge>
-                      )}
-                      {index % 5 === 2 && (
-                        <Badge className="absolute bottom-3 right-3 bg-green-600 text-white text-xs px-2 py-1 font-medium">
-                          💎 Premium
-                        </Badge>
-                      )}
+                      {/* Contact community for details */}
                     </div>
                     
                     <CardContent className="p-3">
@@ -1169,10 +1136,7 @@ export default function MySeniorValetHome() {
                       )}
                       
                       <div className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                        <span className="text-sm">Starting at</span> ${community.priceRange && community.priceRange.min ? community.priceRange.min.toLocaleString() : '4,200'}
-                        {!community.claimed && (
-                          <span className="text-xs text-gray-500 dark:text-gray-400 ml-1 font-normal">est.</span>
-                        )}
+                        Contact for pricing
                       </div>
                       
                       <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
@@ -1219,21 +1183,9 @@ export default function MySeniorValetHome() {
                         <div className="flex items-center text-gray-500 dark:text-gray-400">
                           <span>CA License #{20000 + community.id}</span>
                         </div>
-                        {index % 4 === 0 && (
-                          <div className="text-purple-600 dark:text-purple-400 font-medium">
-                            🏆 Featured
-                          </div>
-                        )}
-                        {index % 4 === 1 && (
-                          <div className="text-blue-600 dark:text-blue-400 font-medium">
-                            ⭐ Top Rated
-                          </div>
-                        )}
-                        {index % 4 === 2 && (
-                          <div className="text-green-600 dark:text-green-400 font-medium">
-                            💎 Premium
-                          </div>
-                        )}
+                        <div className="text-gray-600 dark:text-gray-400 font-medium">
+                          Licensed facility
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -1588,7 +1540,7 @@ export default function MySeniorValetHome() {
               <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1 mb-4">
                 <div className="flex items-center gap-2">
                   <Home className="w-4 h-4 text-gray-400" />
-                  <span><strong>66+ facilities</strong> available in California</span>
+                  <span><strong>Licensed facilities</strong> throughout California</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <DollarSign className="w-4 h-4 text-gray-400" />
@@ -1767,57 +1719,25 @@ export default function MySeniorValetHome() {
                     </div>
                   </div>
                   
-                  {/* Vacancy Status Badge - Top Priority */}
-                  {index % 3 === 0 && (
-                    <Badge className="absolute top-3 left-3 bg-green-600 text-white text-xs px-2 py-1 font-medium animate-pulse">
-                      🟢 Available Now
-                    </Badge>
-                  )}
-                  {index % 3 === 1 && (
-                    <Badge className="absolute top-3 left-3 bg-orange-600 text-white text-xs px-2 py-1 font-medium">
-                      🟡 Waitlist Open
-                    </Badge>
-                  )}
-                  {index % 3 === 2 && (
-                    <Badge className="absolute top-3 left-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
-                      📋 Call for Availability
-                    </Badge>
-                  )}
+                  {/* Contact community for availability */}
                   
                   {/* Price Badge */}
                   <Badge className="absolute bottom-3 left-3 bg-gray-900 text-white text-xs px-2 py-1 font-medium">
-                    {community.priceRange && community.priceRange.min ? `$${(community.priceRange.min / 1000).toFixed(1)}K+` : '$4K+'}
+                    Contact for pricing
                   </Badge>
                   
-                  {/* Achievement Badge - Special Recognition */}
-                  {index % 5 === 0 && (
-                    <Badge className="absolute bottom-3 right-3 bg-purple-600 text-white text-xs px-2 py-1 font-medium">
-                      🏆 Featured
-                    </Badge>
-                  )}
-                  {index % 5 === 1 && (
-                    <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
-                      ⭐ Top Rated
-                    </Badge>
-                  )}
-                  {index % 5 === 2 && (
-                    <Badge className="absolute bottom-3 right-3 bg-green-600 text-white text-xs px-2 py-1 font-medium">
-                      💎 Premium
-                    </Badge>
-                  )}
+                  {/* Contact community for details */}
                 </div>
                 
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between mb-2">
                     <div className="text-xl font-bold text-gray-900 dark:text-white">
-                      <span className="text-sm">Starting at</span> ${community.priceRange && community.priceRange.min ? community.priceRange.min.toLocaleString() : '4,200'}
+                      Contact for pricing
                     </div>
-                    {index % 3 === 0 && (
-                      <div className="flex items-center text-xs text-green-600 dark:text-green-400 font-medium">
-                        <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
-                        Available
-                      </div>
-                    )}
+                    <div className="flex items-center text-xs text-gray-600 dark:text-gray-400 font-medium">
+                      <div className="w-2 h-2 bg-gray-500 rounded-full mr-1"></div>
+                      Licensed
+                    </div>
                   </div>
                   
                   <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
@@ -1897,21 +1817,9 @@ export default function MySeniorValetHome() {
                         {!['CA', 'TX', 'HI', 'AZ', 'NV', 'FL'].includes(community.state) && `${community.state} Licensed`}
                       </span>
                     </div>
-                    {index % 4 === 0 && (
-                      <div className="text-purple-600 dark:text-purple-400 font-medium">
-                        🏆 Featured
-                      </div>
-                    )}
-                    {index % 4 === 1 && (
-                      <div className="text-blue-600 dark:text-blue-400 font-medium">
-                        ⭐ Top Rated
-                      </div>
-                    )}
-                    {index % 4 === 2 && (
-                      <div className="text-green-600 dark:text-green-400 font-medium">
-                        💎 Premium
-                      </div>
-                    )}
+                    <div className="text-gray-600 dark:text-gray-400 font-medium">
+                        Licensed facility
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -1937,7 +1845,7 @@ export default function MySeniorValetHome() {
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
               <Eye className="w-8 h-8 text-purple-300 mb-3" />
               <h3 className="font-semibold mb-2">Increase Visibility</h3>
-              <p className="text-sm text-purple-100">Stand out among 25,000+ communities with enhanced search placement</p>
+              <p className="text-sm text-purple-100">Stand out with enhanced search placement and visibility</p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
               <Users className="w-8 h-8 text-purple-300 mb-3" />
