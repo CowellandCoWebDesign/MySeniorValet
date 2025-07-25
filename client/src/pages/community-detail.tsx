@@ -19,6 +19,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { useToast } from "@/hooks/use-toast";
 import { LoadingMascot } from "@/components/mascot";
 import { FamilyShareButton } from "@/components/family-share-button";
+import { AdvancedReservationFlow } from "@/components/AdvancedReservationFlow";
 import { 
   getAmenitiesByCategory, 
   getCareServicesByCategory, 
@@ -236,13 +237,8 @@ export default function CommunityDetail() {
   const [selectedUnitType, setSelectedUnitType] = useState<string | null>(null);
   const [expandedUnits, setExpandedUnits] = useState<Set<string>>(new Set());
   
-  // Reservation dialog state
-  const [isReservationOpen, setIsReservationOpen] = useState(false);
-  const [reservationName, setReservationName] = useState('');
-  const [reservationEmail, setReservationEmail] = useState('');
-  const [reservationPhone, setReservationPhone] = useState('');
-  const [reservationMoveDate, setReservationMoveDate] = useState('');
-  const [reservationMessage, setReservationMessage] = useState('');
+  // Advanced reservation flow state
+  const [showAdvancedReservation, setShowAdvancedReservation] = useState(false);
   const [selectedReservationUnit, setSelectedReservationUnit] = useState<{ type: string; id: string } | null>(null);
   const { toast } = useToast();
 
@@ -294,51 +290,7 @@ export default function CommunityDetail() {
     setIsFavorite(!isFavorite);
   };
 
-  const handleReservation = async () => {
-    try {
-      const response = await fetch('/api/reservations/reserve', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          communityId: community.id,
-          unitType: selectedReservationUnit?.type || '',
-          contactName: reservationName,
-          email: reservationEmail,
-          phone: reservationPhone,
-          moveInDate: reservationMoveDate,
-          message: reservationMessage,
-        }),
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        toast({
-          title: "Unit Reserved!",
-          description: `Reservation ${result.reservationId} created. The community will contact you within 24 hours to confirm availability and schedule your move-in.`,
-        });
-        
-        // Reset form and close dialog
-        setIsReservationOpen(false);
-        setReservationName('');
-        setReservationEmail('');
-        setReservationPhone('');
-        setReservationMoveDate('');
-        setReservationMessage('');
-        setSelectedReservationUnit(null);
-      } else {
-        throw new Error(result.error || 'Failed to create reservation');
-      }
-    } catch (error) {
-      toast({
-        title: "Reservation failed",
-        description: error instanceof Error ? error.message : "Unable to create reservation. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
+
 
 
 
@@ -1140,105 +1092,7 @@ export default function CommunityDetail() {
                         </DialogContent>
                       </Dialog>
 
-                      {/* Reservation Dialog */}
-                      <Dialog open={isReservationOpen} onOpenChange={setIsReservationOpen}>
-                        <DialogContent className="sm:max-w-md">
-                          <DialogHeader>
-                            <DialogTitle>Reserve Unit</DialogTitle>
-                            <DialogDescription>
-                              {selectedReservationUnit ? (
-                                `Complete your reservation for a ${selectedReservationUnit.type} unit at ${community.name}.`
-                              ) : (
-                                `Complete your reservation at ${community.name}.`
-                              )}
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="space-y-4">
-                            <div className="bg-green-50 p-4 rounded-lg">
-                              <h4 className="font-medium text-green-900 mb-1">{community.name}</h4>
-                              <p className="text-sm text-green-800">{community.city}, {community.state}</p>
-                              {selectedReservationUnit && (
-                                <p className="text-sm text-green-700 mt-1">Unit Type: {selectedReservationUnit.type}</p>
-                              )}
-                            </div>
 
-                            <div>
-                              <Label htmlFor="reservation-name">Your Name *</Label>
-                              <Input
-                                id="reservation-name"
-                                placeholder="Enter your full name"
-                                value={reservationName}
-                                onChange={(e) => setReservationName(e.target.value)}
-                                required
-                              />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <Label htmlFor="reservation-email">Email *</Label>
-                                <Input
-                                  id="reservation-email"
-                                  type="email"
-                                  placeholder="your.email@example.com"
-                                  value={reservationEmail}
-                                  onChange={(e) => setReservationEmail(e.target.value)}
-                                  required
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="reservation-phone">Phone *</Label>
-                                <Input
-                                  id="reservation-phone"
-                                  type="tel"
-                                  placeholder="(555) 123-4567"
-                                  value={reservationPhone}
-                                  onChange={(e) => setReservationPhone(e.target.value)}
-                                  required
-                                />
-                              </div>
-                            </div>
-
-                            <div>
-                              <Label htmlFor="reservation-move-date">Desired Move-In Date</Label>
-                              <Input
-                                id="reservation-move-date"
-                                type="date"
-                                value={reservationMoveDate}
-                                onChange={(e) => setReservationMoveDate(e.target.value)}
-                                min={new Date().toISOString().split('T')[0]}
-                              />
-                            </div>
-
-                            <div>
-                              <Label htmlFor="reservation-message">Special Requests or Notes (Optional)</Label>
-                              <textarea
-                                id="reservation-message"
-                                className="w-full p-3 border border-gray-300 rounded-md"
-                                placeholder="Any specific requirements or questions?"
-                                value={reservationMessage}
-                                onChange={(e) => setReservationMessage(e.target.value)}
-                                rows={3}
-                              />
-                            </div>
-
-                            <div className="bg-blue-50 p-3 rounded-lg text-sm">
-                              <p className="text-blue-800 font-medium">Reservation Expires in 48 Hours</p>
-                              <p className="text-blue-700 mt-1">
-                                This reservation will hold your spot for 48 hours. The community will contact you within 24 hours to confirm availability and discuss next steps.
-                              </p>
-                            </div>
-
-                            <Button 
-                              onClick={handleReservation}
-                              className="w-full bg-green-600 hover:bg-green-700"
-                              disabled={!reservationName || !reservationEmail || !reservationPhone}
-                            >
-                              <Calendar className="w-4 h-4 mr-2" />
-                              Complete Reservation
-                            </Button>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
 
                       <Button 
                         variant="outline" 
@@ -1414,7 +1268,7 @@ export default function CommunityDetail() {
                             <Button
                               onClick={() => {
                                 setSelectedReservationUnit({ type: unit.type, id: unit.id });
-                                setIsReservationOpen(true);
+                                setShowAdvancedReservation(true);
                               }}
                               className="bg-green-600 hover:bg-green-700 text-white"
                             >
@@ -2075,6 +1929,18 @@ export default function CommunityDetail() {
           </div>
         </div>
       </div>
+      
+      {/* Advanced Reservation Flow Modal */}
+      {showAdvancedReservation && (
+        <AdvancedReservationFlow
+          community={community}
+          selectedUnit={selectedReservationUnit}
+          onClose={() => {
+            setShowAdvancedReservation(false);
+            setSelectedReservationUnit(null);
+          }}
+        />
+      )}
     </div>
   );
 }
