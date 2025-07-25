@@ -183,7 +183,7 @@ export default function MySeniorValetHome() {
           <div className="text-center mb-8 md:mb-12 max-w-5xl">
             <div className="space-y-4 mb-6">
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white dark:text-gray-100 leading-tight drop-shadow-lg animate-fade-in-up">
-                Senior Living Complete Care & Transparency
+                Everything Senior Living Needs - In One Place
               </h1>
               <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl text-white dark:text-gray-200 opacity-90 drop-shadow-md px-4 animate-fade-in-up animation-delay-300 max-w-4xl mx-auto">
                 From live pricing and unit availability to move coordination, furniture setup, and prescription delivery, MySeniorValet is your white-glove partner.
@@ -193,8 +193,8 @@ export default function MySeniorValetHome() {
           
 
 
-          {/* Search Bar - Larger */}
-          <div className="w-full max-w-2xl mb-4 relative animate-fade-in-up animation-delay-600" style={{ zIndex: 99999 }}>
+          {/* Search Bar - Wider */}
+          <div className="w-full max-w-4xl mb-4 relative animate-fade-in-up animation-delay-600" style={{ zIndex: 99999 }}>
             <form onSubmit={async (e) => {
               e.preventDefault();
               if (!searchQuery) return;
