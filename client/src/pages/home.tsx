@@ -14,7 +14,7 @@ import { EnhancedPlatformStats } from "@/components/EnhancedPlatformStats";
 import { FeaturedAndCoastalSection } from "@/components/FeaturedAndCoastalSection";
 
 export default function Home() {
-  console.log("MYSENIORVALET HOME PAGE LOADED - VERSION 3 WITH CONCIERGE SERVICES PRIORITIZED - 31,023 COMMUNITIES");
+  console.log("MYSENIORVALET HOME PAGE LOADED - VERSION 3 WITH CONCIERGE SERVICES PRIORITIZED - 26,306 COMMUNITIES");
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
       {/* Responsive Animated Background Elements */}
@@ -51,7 +51,7 @@ export default function Home() {
               <div className="flex flex-wrap items-center justify-center gap-3 mb-8 max-w-full">
                 <div className="flex items-center space-x-2 bg-gradient-to-r from-green-50 to-emerald-50 backdrop-blur-md px-4 py-2.5 rounded-full shadow-lg border border-green-200 text-xs sm:text-sm group hover:scale-105 transition-transform">
                   <div className="w-2.5 h-2.5 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full animate-pulse"></div>
-                  <span className="font-bold text-green-800 whitespace-nowrap">31,023+ Communities</span>
+                  <span className="font-bold text-green-800 whitespace-nowrap">26,306+ Communities</span>
                 </div>
                 <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-indigo-50 backdrop-blur-md px-4 py-2.5 rounded-full shadow-lg border border-blue-200 text-xs sm:text-sm hover:scale-105 transition-transform">
                   <Database className="h-4 w-4 text-blue-600" />
@@ -126,7 +126,7 @@ export default function Home() {
             {/* Community Count Statement - Mobile Responsive */}
             <div className="text-center mb-8">
               <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 dark:text-gray-300 font-bold mb-4 px-2">
-                Serving families across <span className="text-blue-600 dark:text-blue-400 font-black text-xl sm:text-2xl lg:text-3xl">31,023+ communities</span>
+                Serving families across <span className="text-blue-600 dark:text-blue-400 font-black text-xl sm:text-2xl lg:text-3xl">26,306+ communities</span>
               </p>
               <p className="text-sm sm:text-base lg:text-lg text-gray-500 dark:text-gray-400 font-medium mb-4 px-2">
                 Complete North American coverage with verified government data across 96 states/provinces
