@@ -10800,6 +10800,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register reservation routes
   app.use('/api/reservations', reservationRoutes);
 
+  // Debug endpoint to check authentication status
+  app.get('/api/auth/debug', (req: any, res) => {
+    res.json({
+      isAuthenticated: req.isAuthenticated(),
+      hasUser: !!req.user,
+      userDetails: req.user ? {
+        hasExpires: !!(req.user as any).expires_at,
+        hasClaims: !!(req.user as any).claims,
+        keys: Object.keys(req.user)
+      } : null,
+      sessionID: req.sessionID,
+      session: req.session
+    });
+  });
+
   // Replit Auth user endpoint
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
