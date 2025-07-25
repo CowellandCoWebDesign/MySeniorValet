@@ -398,53 +398,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Login
-  app.post("/api/auth/login", async (req, res) => {
-    try {
-      // Simple validation for current database schema
-      const { email, password } = req.body;
-      if (!email || !password) {
-        return res.status(400).json({ message: "Email and password are required" });
-      }
-      
-      const data = { email, password };
-      const { user, token } = await simpleAuthService.login(data);
-      
-      // Set secure HTTP-only cookie
-      res.cookie('authToken', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-      });
+  // Login - DISABLED: Using Replit Auth instead
+  // app.post("/api/auth/login", async (req, res) => {
+  //   try {
+  //     // Simple validation for current database schema
+  //     const { email, password } = req.body;
+  //     if (!email || !password) {
+  //       return res.status(400).json({ message: "Email and password are required" });
+  //     }
+  //     
+  //     const data = { email, password };
+  //     const { user, token } = await simpleAuthService.login(data);
+  //     
+  //     // Set secure HTTP-only cookie
+  //     res.cookie('authToken', token, {
+  //       httpOnly: true,
+  //       secure: process.env.NODE_ENV === 'production',
+  //       sameSite: 'strict',
+  //       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+  //     });
+  //
+  //     // Return user data (without password)
+  //     const { password: _, ...userWithoutPassword } = user;
+  //     res.json({ user: userWithoutPassword });
+  //   } catch (error: any) {
+  //     res.status(400).json({ message: error.message });
+  //   }
+  // });
 
-      // Return user data (without password)
-      const { password: _, ...userWithoutPassword } = user;
-      res.json({ user: userWithoutPassword });
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
-    }
-  });
+  // Get current user - DISABLED: Using Replit Auth endpoint instead
+  // app.get("/api/auth/user", requireSimpleAuth, async (req: any, res) => {
+  //   try {
+  //     const { password, ...userWithoutPassword } = req.user;
+  //     res.json(userWithoutPassword);
+  //   } catch (error: any) {
+  //     res.status(500).json({ message: "Failed to fetch user data" });
+  //   }
+  // });
 
-  // Get current user
-  app.get("/api/auth/user", requireSimpleAuth, async (req: any, res) => {
-    try {
-      const { password, ...userWithoutPassword } = req.user;
-      res.json(userWithoutPassword);
-    } catch (error: any) {
-      res.status(500).json({ message: "Failed to fetch user data" });
-    }
-  });
-
-  // Logout
-  app.post("/api/auth/logout", requireSimpleAuth, async (req: any, res) => {
-    try {
-      res.clearCookie('authToken');
-      res.json({ success: true });
-    } catch (error: any) {
-      res.status(500).json({ message: "Logout failed" });
-    }
-  });
+  // Logout - DISABLED: Using Replit Auth instead
+  // app.post("/api/auth/logout", requireSimpleAuth, async (req: any, res) => {
+  //   try {
+  //     res.clearCookie('authToken');
+  //     res.json({ success: true });
+  //   } catch (error: any) {
+  //     res.status(500).json({ message: "Logout failed" });
+  //   }
+  // });
 
   // ===============================
   // CONTACT & TOUR FUNCTIONALITY ROUTES
