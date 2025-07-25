@@ -31,37 +31,28 @@ import {
   type AmenityStatus
 } from "@/lib/amenities-checklists";
 
-// Intelligent pricing function for communities without live pricing
-const getIntelligentPriceEstimate = (community: Community): { min: number; max: number } => {
-  // Base costs by care type (national averages)
-  const baseCosts: Record<string, number> = {
-    'Independent Living': 3500,
-    'Assisted Living': 4500,
-    'Memory Care': 5500,
-    'Skilled Nursing': 7500,
-    'Continuing Care': 5000
-  };
-
-  // State multipliers (cost of living adjustments)
-  const stateMultipliers: Record<string, number> = {
-    'CA': 1.4, 'NY': 1.5, 'MA': 1.4, 'CT': 1.3, 'HI': 1.6,
-    'TX': 0.9, 'FL': 1.0, 'AZ': 0.95, 'NV': 1.0, 'OR': 1.1,
-    'WA': 1.2, 'CO': 1.1, 'IL': 1.1, 'GA': 0.9, 'NC': 0.9
-  };
-
-  // Get primary care type and base cost
-  const primaryCareType = community.careTypes?.[0] || 'Assisted Living';
-  let baseCost = baseCosts[primaryCareType] || 4500;
-
-  // Apply state multiplier
-  const stateMultiplier = stateMultipliers[community.state] || 1.0;
-  baseCost *= stateMultiplier;
-
-  // Create realistic range (±20%)
-  const min = Math.round(baseCost * 0.8);
-  const max = Math.round(baseCost * 1.2);
-
-  return { min, max };
+// Determine if community has verified pricing data
+const hasVerifiedPricing = (community: Community): boolean => {
+  // Government verified with actual pricing (HUD properties)
+  if ((community.hudPropertyId && (community as any).rentPerMonth) ||
+      ((community as any).governmentSourced && community.priceRange?.min)) {
+    return true;
+  }
+  
+  // Vendor verified with recent confirmation (within 30 days)
+  if (community.claimedBy && 
+      (community as any).pricing_type === 'live' && 
+      (community as any).pricingLastVerified &&
+      new Date((community as any).pricingLastVerified) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)) {
+    return true;
+  }
+  
+  // Community has verified market research pricing
+  if (community.priceRange && community.priceRange.min > 0) {
+    return true;
+  }
+  
+  return false;
 };
 
 // Hero Photo Carousel Component with Touch Support
@@ -805,15 +796,20 @@ export default function CommunityDetail() {
                         </Badge>
                       </div>
                       <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                        {community.priceRange ? 
+                        {community.priceRange && community.priceRange.min > 0 ? 
                           `$${community.priceRange.min.toLocaleString()} - $${community.priceRange.max.toLocaleString()}` : 
-                          `$${getIntelligentPriceEstimate(community).min.toLocaleString()} - $${getIntelligentPriceEstimate(community).max.toLocaleString()}`
+                          (community as any).rentPerMonth ? 
+                          `$${(community as any).rentPerMonth}/month` :
+                          "Contact for pricing"
                         }
-                        {!hasLiveData && (
-                          <span className="text-sm text-orange-600 dark:text-orange-400 ml-2 font-normal">estimate</span>
-                        )}
                       </div>
-                      <div className="text-sm text-gray-900 dark:text-gray-100">per month starting rate</div>
+                      <div className="text-sm text-gray-900 dark:text-gray-100">
+                        {community.priceRange && community.priceRange.min > 0 ? 
+                          "per month starting rate" : 
+                          (community as any).rentPerMonth ? 
+                          "HUD verified monthly rent" : 
+                          "Pricing available upon request"}
+                      </div>
                     </div>
 
                     {/* Availability Status */}
