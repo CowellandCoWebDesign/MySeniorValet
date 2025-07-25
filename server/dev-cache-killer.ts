@@ -68,6 +68,9 @@ export function devCacheKiller(req: Request, res: Response, next: NextFunction) 
             </script>
           `;
           data = data.replace('<head>', '<head>' + cacheScript);
+          // Also update script src to bust cache
+          data = data.replace('src="/src/main.tsx?t=CACHEBUST"', `src="/src/main.tsx?t=${Date.now()}"`);
+          data = data.replace('src="/src/main.tsx"', `src="/src/main.tsx?t=${Date.now()}"`);
         }
         return originalSend.call(this, data);
       };

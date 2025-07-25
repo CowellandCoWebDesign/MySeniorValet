@@ -67,6 +67,13 @@ export default function Home() {
                 </span>
               </h1>
               
+              {/* Development Cache Status */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="fixed top-20 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 text-sm font-bold">
+                  ✅ CACHE BUSTING ACTIVE - v4.2
+                </div>
+              )}
+              
               <p className="text-base sm:text-lg lg:text-xl text-gray-700 dark:text-gray-300 max-w-4xl mx-auto mb-8 leading-relaxed font-medium px-2">
                 Complete post-move services including bill payment, account management, and unified resident onboarding systems.
               </p>
