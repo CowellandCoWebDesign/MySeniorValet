@@ -338,25 +338,44 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Complete Concierge Services - MOVED TO POSITION #2 */}
-      <section className="px-4 py-12 bg-white dark:bg-gray-800">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">🎯 Complete Concierge Services</h2>
-            <p className="text-gray-600 dark:text-gray-300">Everything you need for senior living decisions, all in one place</p>
+      {/* Complete Concierge Services - Enhanced Styling */}
+      <section className="px-4 py-16 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234F46E5' fill-opacity='0.1'%3E%3Ccircle cx='7' cy='7' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          }}></div>
+        </div>
+        
+        <div className="max-w-6xl mx-auto relative z-10">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full text-white text-sm font-semibold mb-4 shadow-lg">
+              <span className="mr-2">🎯</span>
+              Complete Concierge Services
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4 leading-tight">
+              Everything Senior Living Needs
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+                In One Place
+              </span>
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              From discovery to move-in and beyond, we handle every detail of your senior living journey
+            </p>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Live Pricing & Availability */}
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow dark:bg-gray-700 dark:border-gray-600">
-              <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Eye className="w-8 h-8 text-white" />
+            <Card className="group bg-white dark:bg-gray-800 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <CardContent className="p-8 text-center relative z-10">
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                  <Eye className="w-10 h-10 text-white" />
                 </div>
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Live Pricing & Availability</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Real-time pricing and unit availability across all communities</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">Live Pricing & Availability</h3>
+                <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">Real-time pricing and unit availability across all communities</p>
                 <Link href="/search">
-                  <Button className="mt-3 bg-blue-500 hover:bg-blue-600 text-white">
+                  <Button className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
                     Check Pricing
                   </Button>
                 </Link>
@@ -364,15 +383,16 @@ export default function MySeniorValetHome() {
             </Card>
 
             {/* Move Coordination */}
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow dark:bg-gray-700 dark:border-gray-600">
-              <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Truck className="w-8 h-8 text-white" />
+            <Card className="group bg-white dark:bg-gray-800 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-green-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <CardContent className="p-8 text-center relative z-10">
+                <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                  <Truck className="w-10 h-10 text-white" />
                 </div>
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Move Coordination</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Professional moving services and timeline coordination</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">Move Coordination</h3>
+                <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">Professional moving services and timeline coordination</p>
                 <Link href="/moving-services">
-                  <Button className="mt-3 bg-green-500 hover:bg-green-600 text-white">
+                  <Button className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
                     Plan Move
                   </Button>
                 </Link>
@@ -380,15 +400,16 @@ export default function MySeniorValetHome() {
             </Card>
 
             {/* Medical Equipment & Furniture */}
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow dark:bg-gray-700 dark:border-gray-600">
-              <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Sofa className="w-8 h-8 text-white" />
+            <Card className="group bg-white dark:bg-gray-800 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-purple-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <CardContent className="p-8 text-center relative z-10">
+                <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                  <Sofa className="w-10 h-10 text-white" />
                 </div>
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Medical Equipment & Furniture</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Medical equipment purchase and furniture delivery services</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">Medical Equipment & Furniture</h3>
+                <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">Medical equipment purchase and furniture delivery services</p>
                 <Link href="/concierge">
-                  <Button className="mt-3 bg-purple-500 hover:bg-purple-600 text-white">
+                  <Button className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
                     Shop Equipment
                   </Button>
                 </Link>
@@ -396,15 +417,16 @@ export default function MySeniorValetHome() {
             </Card>
 
             {/* Family Collaboration & Tour Tracker */}
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow border-2 border-amber-200 dark:border-amber-400 dark:bg-gray-700">
-              <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Users className="w-8 h-8 text-white" />
+            <Card className="group bg-white dark:bg-gray-800 border-2 border-amber-200 dark:border-amber-400 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-orange-600/10"></div>
+              <CardContent className="p-8 text-center relative z-10">
+                <div className="w-20 h-20 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                  <Users className="w-10 h-10 text-white" />
                 </div>
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Family Collaboration & Tour Tracker</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Family sharing tools and tour scheduling with progress tracking</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">Family Collaboration & Tour Tracker</h3>
+                <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">Family sharing tools and tour scheduling with progress tracking</p>
                 <Link href="/family-collaboration">
-                  <Button className="mt-3 bg-amber-500 hover:bg-amber-600 text-white">
+                  <Button className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
                     Try Family Tools
                   </Button>
                 </Link>
@@ -413,13 +435,17 @@ export default function MySeniorValetHome() {
           </div>
           
           {/* All-in-One Planner Button */}
-          <div className="text-center mt-8">
-            <Button 
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl font-medium text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 border-0"
-              onClick={() => window.location.href = '/all-in-one-planner'}
-            >
-              Start Your All-in-One Planner
-            </Button>
+          <div className="text-center mt-12">
+            <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-3xl p-8 shadow-2xl">
+              <h3 className="text-2xl font-bold text-white mb-4">Ready to Get Started?</h3>
+              <p className="text-blue-100 mb-6 text-lg">Access all services through our comprehensive planning tool</p>
+              <Button 
+                className="bg-white text-blue-600 hover:bg-blue-50 px-10 py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 border-0"
+                onClick={() => window.location.href = '/all-in-one-planner'}
+              >
+                Start Your All-in-One Planner →
+              </Button>
+            </div>
           </div>
         </div>
       </section>
