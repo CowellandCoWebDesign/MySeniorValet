@@ -1160,7 +1160,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         neLat,
         neLng,
         limit = 4000,
-        careType,
+        careTypes,
+        priceRanges,
+        livePricing,
         minRating,
         amenities
       } = req.query;
@@ -1195,14 +1197,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
         sql`${communities.longitude}::float <= ${neLngFloat}`
       ];
 
-      // Add care type filter if specified
-      if (careType && careType !== 'All Types') {
-        whereConditions.push(sql`${careType} = ANY(${communities.careTypes})`);
+      // Add care type filter if specified (supports multiple care types)
+      if (careTypes && careTypes !== 'All Types') {
+        const careTypeList = (careTypes as string).split(',').map(ct => ct.trim());
+        if (careTypeList.length > 0) {
+          // Community must have at least one of the requested care types
+          const careTypeConditions = careTypeList.map(ct => 
+            sql`${ct} = ANY(${communities.careTypes})`
+          );
+          whereConditions.push(sql`(${sql.join(careTypeConditions, sql` OR `)})`);
+        }
       }
 
       // Add rating filter if specified
       if (minRating) {
         whereConditions.push(sql`${communities.rating}::float >= ${parseFloat(minRating as string)}`);
+      }
+
+      // Add price range filter if specified (supports multiple price ranges)
+      if (priceRanges && priceRanges !== 'all') {
+        const priceRangeList = (priceRanges as string).split(',').map(pr => pr.trim());
+        const priceConditions = [];
+        
+        for (const range of priceRangeList) {
+          if (range === 'under1500') {
+            priceConditions.push(sql`(${communities.priceRange}->>'min')::int < 1500`);
+          } else if (range === '1500to2500') {
+            priceConditions.push(sql`(${communities.priceRange}->>'min')::int >= 1500 AND (${communities.priceRange}->>'min')::int <= 2500`);
+          } else if (range === '2500to3500') {
+            priceConditions.push(sql`(${communities.priceRange}->>'min')::int >= 2500 AND (${communities.priceRange}->>'min')::int <= 3500`);
+          } else if (range === '3500to5000') {
+            priceConditions.push(sql`(${communities.priceRange}->>'min')::int >= 3500 AND (${communities.priceRange}->>'min')::int <= 5000`);
+          } else if (range === 'over5000') {
+            priceConditions.push(sql`(${communities.priceRange}->>'min')::int > 5000`);
+          }
+        }
+        
+        if (priceConditions.length > 0) {
+          whereConditions.push(sql`(${sql.join(priceConditions, sql` OR `)})`);
+        }
+      }
+
+      // Add live pricing filter if specified
+      if (livePricing === 'true') {
+        // Must have HUD pricing OR claimed with live pricing
+        whereConditions.push(sql`(
+          (${communities.hudPropertyId} IS NOT NULL AND ${communities.rentPerMonth} IS NOT NULL) OR
+          (${communities.claimedBy} IS NOT NULL AND ${communities.pricingType} = 'live' AND ${communities.pricingLastUpdated} > NOW() - INTERVAL '30 days')
+        )`);
       }
 
       const query = db.select({
@@ -1228,7 +1270,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         amenities: communities.amenities,
         medicalRestrictions: communities.medicalRestrictions,
         unitTypes: communities.unitTypes,
-        floorPlans: communities.priceRange
+        floorPlans: communities.priceRange,
+        // HUD fields for live pricing
+        hudPropertyId: communities.hudPropertyId,
+        rentPerMonth: communities.rentPerMonth,
+        claimedBy: communities.claimedBy,
+        pricingType: communities.pricingType,
+        pricingLastUpdated: communities.pricingLastUpdated
       }).from(communities)
         .where(and(...whereConditions))
         .limit(parseInt(limit as string));

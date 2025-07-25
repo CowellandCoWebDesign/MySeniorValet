@@ -122,6 +122,7 @@ export default function MapSearchClean() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [isMapMoving, setIsMapMoving] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   // Restore search state from sessionStorage when page loads
   useEffect(() => {
@@ -156,7 +157,7 @@ export default function MapSearchClean() {
 
   // Fetch communities within map bounds for list view
   const { data: mapCommunities = [], isLoading: isLoadingCommunities, isFetching: isFetchingCommunities } = useQuery<Community[]>({
-    queryKey: ['communities-spatial', boundsKey, showBottomPanel, viewMode],
+    queryKey: ['communities-spatial', boundsKey, showBottomPanel, viewMode, activeCareTypes, activePriceRanges, activeFeatures],
     queryFn: async () => {
       if (!mapBounds) {
         console.log('🚫 SKIPPING QUERY - no bounds available');
@@ -168,14 +169,59 @@ export default function MapSearchClean() {
       const ne = mapBounds.getNorthEast();
 
       try {
-        const response = await fetch(`/api/communities/search/spatial?swLat=${sw.lat}&swLng=${sw.lng}&neLat=${ne.lat}&neLng=${ne.lng}&limit=100`);
+        let url = `/api/communities/search/spatial?swLat=${sw.lat}&swLng=${sw.lng}&neLat=${ne.lat}&neLng=${ne.lng}&limit=100`;
+        
+        // Apply active filters
+        if (activeCareTypes.length > 0) {
+          url += `&careTypes=${encodeURIComponent(activeCareTypes.join(','))}`;
+        }
+        if (activePriceRanges.length > 0) {
+          url += `&priceRanges=${encodeURIComponent(activePriceRanges.join(','))}`;
+        }
+        if (activeFeatures.includes('Live Pricing')) {
+          url += `&livePricing=true`;
+        }
+        
+        const response = await fetch(url);
 
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
 
-        const communities = await response.json();
+        let communities = await response.json();
         console.log(`✅ LOADED ${communities.length} COMMUNITIES FOR BOUNDS:`, boundsKey);
+
+        // Client-side filtering for additional filters
+        if (activePriceRanges.length > 0) {
+          communities = communities.filter((c: Community) => {
+            const price = c.hudPropertyId && (c as any).rentPerMonth ? 
+              (c as any).rentPerMonth : 
+              (typeof c.priceRange === 'object' && c.priceRange?.min ? c.priceRange.min : 0);
+            
+            return activePriceRanges.some(range => {
+              if (range === 'Under $2,000') return price < 2000;
+              if (range === '$2,000-$3,000') return price >= 2000 && price <= 3000;
+              if (range === '$3,000-$4,000') return price >= 3000 && price <= 4000;
+              if (range === '$4,000-$5,000') return price >= 4000 && price <= 5000;
+              if (range === 'Over $5,000') return price > 5000;
+              return true;
+            });
+          });
+        }
+
+        if (activeFeatures.includes('Live Pricing')) {
+          communities = communities.filter((c: Community) => 
+            (c.hudPropertyId && (c as any).rentPerMonth) ||
+            ((c as any).governmentSourced && typeof c.priceRange === 'object' && c.priceRange?.min) ||
+            ((c as any).claimedBy && (c as any).pricing_type === 'live')
+          );
+        }
+
+        if (activeFeatures.includes('Available Now')) {
+          communities = communities.filter((c: Community) => 
+            c.availability === 'Available' || c.availability === 'Units Available'
+          );
+        }
 
         return communities;
       } catch (error) {
@@ -189,6 +235,27 @@ export default function MapSearchClean() {
       console.log(`Query retry ${failureCount}:`, error);
       return failureCount < 2;
     },
+  });
+
+  // Fetch autocomplete suggestions
+  const { data: autocompleteSuggestions = [], isLoading: isLoadingSuggestions } = useQuery<string[]>({
+    queryKey: ['autocomplete', searchQuery],
+    queryFn: async () => {
+      if (!searchQuery || searchQuery.length < 2) return [];
+      
+      try {
+        const response = await fetch(`/api/search/suggestions?q=${encodeURIComponent(searchQuery)}`);
+        if (!response.ok) throw new Error('Failed to fetch suggestions');
+        
+        const data = await response.json();
+        return Array.isArray(data) ? data : [];
+      } catch (error) {
+        console.error('Autocomplete error:', error);
+        return [];
+      }
+    },
+    enabled: searchQuery.length >= 2 && showSuggestions,
+    staleTime: 60000,
   });
 
   // Handle initial search query from URL
@@ -426,6 +493,7 @@ export default function MapSearchClean() {
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
+                  setShowSuggestions(e.target.value.length >= 2);
                   // Save search to session storage
                   sessionStorage.setItem('lastSearchQuery', e.target.value);
                   sessionStorage.setItem('lastMapCenter', JSON.stringify(mapCenter));
@@ -435,8 +503,13 @@ export default function MapSearchClean() {
                   if (e.key === 'Enter' && searchQuery.trim()) {
                     handleLocationSearch(searchQuery);
                     setHasSearched(true);
+                    setShowSuggestions(false);
+                  } else if (e.key === 'Escape') {
+                    setShowSuggestions(false);
                   }
                 }}
+                onFocus={() => setShowSuggestions(searchQuery.length >= 2)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 className="pl-12 pr-24 py-4 w-full border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-lg transition-all duration-200 hover:shadow-lg"
               />
               <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
@@ -444,6 +517,33 @@ export default function MapSearchClean() {
                   AI-Powered
                 </Badge>
               </div>
+              
+              {/* Autocomplete suggestions dropdown */}
+              {showSuggestions && searchQuery.length >= 2 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-50 max-h-60 overflow-auto">
+                  {isLoadingSuggestions ? (
+                    <div className="p-4 text-center text-gray-500 dark:text-gray-400">Loading suggestions...</div>
+                  ) : autocompleteSuggestions.length > 0 ? (
+                    autocompleteSuggestions.map((suggestion, idx) => (
+                      <button
+                        key={idx}
+                        className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 last:border-b-0 flex items-center space-x-3 transition-colors"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          setSearchQuery(suggestion);
+                          handleLocationSearch(suggestion);
+                          setShowSuggestions(false);
+                        }}
+                      >
+                        <Search className="h-4 w-4 text-gray-400" />
+                        <span className="text-base">{suggestion}</span>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="p-4 text-center text-gray-500 dark:text-gray-400">No suggestions found</div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Beautiful Filter Interface */}
@@ -653,8 +753,8 @@ export default function MapSearchClean() {
                                         activeAvailability.length > 0 ? activeAvailability.join(',') : 'All Status'
                           });
                           
-                          // Show a visual indicator that filters were applied
-                          // Don't trigger a location search
+                          // Force refresh of map data with new filters
+                          queryClient.invalidateQueries({ queryKey: ['communities-spatial'] });
                         }}
                       >
                         Apply Filters
@@ -668,6 +768,8 @@ export default function MapSearchClean() {
                           setActiveFeatures([]);
                           setActiveRatings([]);
                           setActiveAvailability([]);
+                          // Also refresh data when clearing filters
+                          queryClient.invalidateQueries({ queryKey: ['communities-spatial'] });
                         }}
                       >
                         Clear All
