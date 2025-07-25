@@ -14,7 +14,7 @@ import { EnhancedPlatformStats } from "@/components/EnhancedPlatformStats";
 import { FeaturedAndCoastalSection } from "@/components/FeaturedAndCoastalSection";
 
 export default function Home() {
-  console.log("HOME PAGE LOADED - VERSION 3 WITH CONCIERGE SERVICES PRIORITIZED - 26,306 COMMUNITIES");
+  console.log("MYSENIORVALET HOME PAGE LOADED - VERSION 3 WITH CONCIERGE SERVICES PRIORITIZED - 31,023 COMMUNITIES");
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
       {/* Responsive Animated Background Elements */}
@@ -47,40 +47,43 @@ export default function Home() {
 
           <div className="relative w-full max-w-6xl mx-auto px-3 sm:px-4 lg:px-6">
             <div className="text-center mb-6 lg:mb-10">
-              {/* Responsive Trust Indicators */}
-              <div className="flex flex-wrap items-center justify-center gap-2 mb-6 max-w-full">
-                <div className="flex items-center space-x-2 bg-white/95 backdrop-blur-md px-3 py-2 rounded-full shadow-lg border border-green-200/60 text-xs sm:text-sm">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="font-semibold text-green-800 whitespace-nowrap">26,306+ Communities</span>
+              {/* Modern Trust Indicators */}
+              <div className="flex flex-wrap items-center justify-center gap-3 mb-8 max-w-full">
+                <div className="flex items-center space-x-2 bg-gradient-to-r from-green-50 to-emerald-50 backdrop-blur-md px-4 py-2.5 rounded-full shadow-lg border border-green-200 text-xs sm:text-sm group hover:scale-105 transition-transform">
+                  <div className="w-2.5 h-2.5 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full animate-pulse"></div>
+                  <span className="font-bold text-green-800 whitespace-nowrap">31,023+ Communities</span>
                 </div>
-                <div className="flex items-center space-x-2 bg-white/95 backdrop-blur-md px-3 py-2 rounded-full shadow-lg border border-blue-200/60 text-xs sm:text-sm">
-                  <Database className="h-3 w-3 text-blue-600" />
-                  <span className="font-semibold text-blue-800 whitespace-nowrap">HUD + Gov Sources</span>
+                <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-indigo-50 backdrop-blur-md px-4 py-2.5 rounded-full shadow-lg border border-blue-200 text-xs sm:text-sm hover:scale-105 transition-transform">
+                  <Database className="h-4 w-4 text-blue-600" />
+                  <span className="font-bold text-blue-800 whitespace-nowrap">HUD + Gov Sources</span>
                 </div>
-                <div className="flex items-center space-x-2 bg-white/95 backdrop-blur-md px-3 py-2 rounded-full shadow-lg border border-purple-200/60 text-xs sm:text-sm">
-                  <Shield className="h-3 w-3 text-purple-600" />
-                  <span className="font-semibold text-purple-800 whitespace-nowrap">No "Call for Pricing"</span>
+                <div className="flex items-center space-x-2 bg-gradient-to-r from-purple-50 to-pink-50 backdrop-blur-md px-4 py-2.5 rounded-full shadow-lg border border-purple-200 text-xs sm:text-sm hover:scale-105 transition-transform">
+                  <Shield className="h-4 w-4 text-purple-600" />
+                  <span className="font-bold text-purple-800 whitespace-nowrap">No "Call for Pricing"</span>
                 </div>
-                <div className="flex items-center space-x-2 bg-white/95 backdrop-blur-md px-3 py-2 rounded-full shadow-lg border border-amber-200/60 text-xs sm:text-sm">
-                  <MapPin className="h-3 w-3 text-amber-600" />
-                  <span className="font-semibold text-amber-800 whitespace-nowrap">50 States</span>
+                <div className="flex items-center space-x-2 bg-gradient-to-r from-amber-50 to-orange-50 backdrop-blur-md px-4 py-2.5 rounded-full shadow-lg border border-amber-200 text-xs sm:text-sm hover:scale-105 transition-transform">
+                  <MapPin className="h-4 w-4 text-amber-600" />
+                  <span className="font-bold text-amber-800 whitespace-nowrap">50 States</span>
                 </div>
               </div>
 
-              {/* Compact Headlines */}
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-display font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+              {/* Modern Headlines */}
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-display font-bold text-gray-900 dark:text-white mb-6 leading-tight">
                 Senior Living{" "}
-                <span className="text-primary bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-gradient-x">
                   Complete Care
-                </span>{" "}
-                &{" "}
-                <span className="bg-gradient-to-r from-indigo-600 to-purple-700 bg-clip-text text-transparent">
-                  Transparency
+                </span>
+                <br />
+                <span className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl">
+                  &{" "}
+                  <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
+                    Total Transparency
+                  </span>
                 </span>
               </h1>
               
               <p className="text-sm sm:text-base lg:text-lg text-gray-700 dark:text-gray-300 max-w-4xl mx-auto mb-4 leading-relaxed font-semibold px-2">
-                <strong className="text-blue-700 dark:text-blue-400">27,112+ authentic communities</strong> with HUD property data, Medicare records, and state licensing. Real pricing from $303-$9,200+ with zero "call for pricing" promises.
+                Transparent pricing from <span className="text-blue-700 dark:text-blue-400 font-bold">$303-$9,200+</span> with HUD property data, Medicare records, and state licensing. Zero "call for pricing" promises.
               </p>
               
               <p className="text-xs sm:text-sm lg:text-base text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-6 leading-relaxed font-medium px-2">
@@ -123,23 +126,23 @@ export default function Home() {
             {/* Community Count Statement - Mobile Responsive */}
             <div className="text-center mb-8">
               <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 dark:text-gray-300 font-bold mb-4 px-2">
-                Serving families across <span className="text-blue-600 dark:text-blue-400 font-black text-xl sm:text-2xl lg:text-3xl">27,112+ communities</span>
+                Serving families across <span className="text-blue-600 dark:text-blue-400 font-black text-xl sm:text-2xl lg:text-3xl">31,023+ communities</span>
               </p>
               <p className="text-sm sm:text-base lg:text-lg text-gray-500 dark:text-gray-400 font-medium mb-4 px-2">
                 Complete North American coverage with verified government data across 96 states/provinces
               </p>
-              <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-4 max-w-2xl mx-auto px-2">
-                <div className="bg-white/90 backdrop-blur-md px-3 py-3 sm:px-4 sm:py-4 rounded-xl shadow-lg border border-blue-200">
-                  <span className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-800">1,664</span>
-                  <p className="text-xs sm:text-sm font-semibold text-blue-600">Counties</p>
+              <div className="grid grid-cols-3 gap-3 sm:gap-4 mt-6 max-w-2xl mx-auto px-2">
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-100 backdrop-blur-md px-3 py-4 sm:px-4 sm:py-5 rounded-2xl shadow-xl border border-blue-200 hover:scale-105 transition-transform">
+                  <span className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">1,664</span>
+                  <p className="text-xs sm:text-sm font-bold text-blue-700 mt-1">Counties</p>
                 </div>
-                <div className="bg-white/90 backdrop-blur-md px-3 py-3 sm:px-4 sm:py-4 rounded-xl shadow-lg border border-green-200">
-                  <span className="text-lg sm:text-xl lg:text-2xl font-bold text-green-800">4,698</span>
-                  <p className="text-xs sm:text-sm font-semibold text-green-600">Cities</p>
+                <div className="bg-gradient-to-br from-green-50 to-emerald-100 backdrop-blur-md px-3 py-4 sm:px-4 sm:py-5 rounded-2xl shadow-xl border border-green-200 hover:scale-105 transition-transform">
+                  <span className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">4,698</span>
+                  <p className="text-xs sm:text-sm font-bold text-green-700 mt-1">Cities</p>
                 </div>
-                <div className="bg-white/90 backdrop-blur-md px-3 py-3 sm:px-4 sm:py-4 rounded-xl shadow-lg border border-purple-200">
-                  <span className="text-lg sm:text-xl lg:text-2xl font-bold text-purple-800">735,112</span>
-                  <p className="text-xs sm:text-sm font-semibold text-purple-600">Total Capacity</p>
+                <div className="bg-gradient-to-br from-purple-50 to-pink-100 backdrop-blur-md px-3 py-4 sm:px-4 sm:py-5 rounded-2xl shadow-xl border border-purple-200 hover:scale-105 transition-transform">
+                  <span className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">735K+</span>
+                  <p className="text-xs sm:text-sm font-bold text-purple-700 mt-1">Total Beds</p>
                 </div>
               </div>
             </div>
