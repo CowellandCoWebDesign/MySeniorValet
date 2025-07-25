@@ -10,8 +10,8 @@ router.get('/api/version', (req, res) => {
     version: CURRENT_VERSION,
     timestamp: Date.now(),
     environment: process.env.NODE_ENV,
-    communityCount: 31023,
-    message: 'MySeniorValet v2.0 - 31,023+ communities',
+    communityCount: 26306,
+    message: 'MySeniorValet v2.0 - 26,306+ communities',
     cache: {
       mustRevalidate: true,
       noCache: true,

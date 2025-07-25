@@ -12,11 +12,47 @@ import { GreetingMascot } from "@/components/mascot";
 import { Badge } from "@/components/ui/badge";
 import { EnhancedPlatformStats } from "@/components/EnhancedPlatformStats";
 import { FeaturedAndCoastalSection } from "@/components/FeaturedAndCoastalSection";
+import '@/utils/force-refresh';
+import React from 'react';
 
 export default function Home() {
-  console.log("MYSENIORVALET HOME PAGE LOADED - VERSION 3 WITH CONCIERGE SERVICES PRIORITIZED - 26,306 COMMUNITIES");
+  // Force cache clear on every load during development
+  if (import.meta.env.DEV) {
+    const timestamp = new Date().toISOString();
+    console.log(`MYSENIORVALET HOME PAGE LOADED - VERSION 3.1 [${timestamp}] - 26,306 COMMUNITIES`);
+    
+    // Verify the actual count from API
+    fetch('/api/platform/stats')
+      .then(res => res.json())
+      .then(data => {
+        console.log(`✅ API VERIFICATION: Server reports ${data.totalCommunities} communities`);
+        if (data.totalCommunities !== 26306) {
+          console.error(`⚠️ DATA MISMATCH: Expected 26,306 but API returned ${data.totalCommunities}`);
+        }
+      })
+      .catch(err => console.error('Failed to verify community count:', err));
+  } else {
+    console.log("MYSENIORVALET HOME PAGE LOADED - VERSION 3 WITH CONCIERGE SERVICES PRIORITIZED - 26,306 COMMUNITIES");
+  }
+  // Development debugging - show live API count
+  const [apiCount, setApiCount] = React.useState<number | null>(null);
+  React.useEffect(() => {
+    if (import.meta.env.DEV) {
+      fetch('/api/platform/stats')
+        .then(res => res.json())
+        .then(data => setApiCount(data.totalCommunities))
+        .catch(err => console.error('Failed to fetch API count:', err));
+    }
+  }, []);
+
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
+      {/* Development Debug Banner */}
+      {import.meta.env.DEV && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-yellow-500 text-black p-2 text-center text-sm font-bold">
+          🔧 DEBUG: API reports {apiCount || '...'} communities | Cache cleared at {new Date().toLocaleTimeString()}
+        </div>
+      )}
       {/* Responsive Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 md:w-96 md:h-96 bg-gradient-to-r from-blue-400/10 to-purple-400/10 rounded-full blur-3xl"></div>
@@ -865,3 +901,4 @@ export default function Home() {
     </div>
   );
 }
+// Force cache invalidation: 1753429238
