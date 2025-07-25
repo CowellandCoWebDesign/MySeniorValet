@@ -52,14 +52,10 @@ export class RealDataPricingEngine {
   }
 
   /**
-   * Get real pricing for a community based on authentic data
+   * Get verified pricing for a community - ONLY from real sources
+   * Returns null if no verified pricing exists
    */
   async getRealPricing(communityId: number): Promise<RealPricingData | null> {
-    // Ensure we have fresh data
-    if (!this.databaseAnalysis || !this.marketData) {
-      await this.initialize();
-    }
-
     try {
       // Get the community from database
       const [community] = await db
@@ -71,12 +67,14 @@ export class RealDataPricingEngine {
         return null;
       }
 
-      // If community has existing pricing data, use it (high confidence)
-      if (community.priceMin && community.priceMin > 0) {
+      // Only return pricing if it's verified data from real sources
+      // 1. HUD properties with actual rent data
+      if (community.hudPropertyId && community.rentPerMonth && parseFloat(community.rentPerMonth) > 0) {
+        const hudRent = Math.round(parseFloat(community.rentPerMonth));
         return {
           communityId,
-          priceMin: community.priceMin,
-          priceMax: community.priceMax || community.priceMin * 1.3,
+          priceMin: hudRent,
+          priceMax: hudRent, // Use exact HUD data, no artificial range
           careType: community.careType || 'Assisted Living',
           state: community.state || 'CA',
           dataSource: 'database_analysis',
@@ -85,13 +83,28 @@ export class RealDataPricingEngine {
         };
       }
 
-      // Otherwise, use market research data for the state and care type
-      const marketPricing = this.getMarketPricing(community.state, community.careType);
-      if (marketPricing) {
+      // 2. Community-verified pricing (within 30 days)
+      if (community.priceMin && community.priceMin > 0 && community.claimedBy &&
+          community.pricingLastUpdated && 
+          new Date(community.pricingLastUpdated) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)) {
         return {
           communityId,
-          priceMin: marketPricing.min,
-          priceMax: marketPricing.max,
+          priceMin: community.priceMin,
+          priceMax: community.priceMax || community.priceMin,
+          careType: community.careType || 'Assisted Living',
+          state: community.state || 'CA',
+          dataSource: 'database_analysis',
+          confidence: 'high',
+          lastUpdated: new Date()
+        };
+      }
+
+      // 3. Database market research pricing (if from verified source)
+      if (community.priceMin && community.priceMin > 0 && community.dataSource) {
+        return {
+          communityId,
+          priceMin: community.priceMin,
+          priceMax: community.priceMax || community.priceMin,
           careType: community.careType || 'Assisted Living',
           state: community.state || 'CA',
           dataSource: 'market_research',
@@ -100,21 +113,7 @@ export class RealDataPricingEngine {
         };
       }
 
-      // Fallback to care type averages from database analysis
-      const careTypeAverage = this.getCareTypeAverage(community.careType);
-      if (careTypeAverage) {
-        return {
-          communityId,
-          priceMin: careTypeAverage.min,
-          priceMax: careTypeAverage.max,
-          careType: community.careType || 'Assisted Living',
-          state: community.state || 'CA',
-          dataSource: 'database_analysis',
-          confidence: 'low',
-          lastUpdated: new Date()
-        };
-      }
-
+      // No verified pricing available - return null
       return null;
     } catch (error) {
       console.error('Error getting real pricing:', error);
@@ -123,55 +122,21 @@ export class RealDataPricingEngine {
   }
 
   /**
-   * Get market pricing for state and care type
+   * This method has been disabled to prevent artificial pricing generation
+   * We no longer create artificial price ranges around averages
    */
   private getMarketPricing(state: string, careType: string): { min: number; max: number } | null {
-    if (!this.marketData || !this.marketData.stateData[state]) {
-      return null;
-    }
-
-    const stateData = this.marketData.stateData[state];
-    
-    // Map care types to market data
-    const careTypeMapping: Record<string, keyof typeof stateData> = {
-      'Assisted Living': 'avgAssistedLiving',
-      'Memory Care': 'avgMemoryCare',
-      'Independent Living': 'avgIndependentLiving',
-      'Skilled Nursing': 'avgSkilledNursing'
-    };
-
-    const marketField = careTypeMapping[careType];
-    if (!marketField || !stateData[marketField]) {
-      return null;
-    }
-
-    const avgPrice = stateData[marketField];
-    return {
-      min: Math.round(avgPrice * 0.8), // 20% below average
-      max: Math.round(avgPrice * 1.2)  // 20% above average
-    };
+    // Return null - no artificial pricing generation allowed
+    return null;
   }
 
   /**
-   * Get care type average from database analysis
+   * This method has been disabled to prevent artificial pricing generation
+   * We no longer create artificial price ranges around averages
    */
   private getCareTypeAverage(careType: string): { min: number; max: number } | null {
-    if (!this.databaseAnalysis || !this.databaseAnalysis.careTypeDistribution) {
-      return null;
-    }
-
-    const careTypeData = this.databaseAnalysis.careTypeDistribution.find(
-      (ct: any) => ct.careType === careType
-    );
-
-    if (!careTypeData || !careTypeData.avgPrice) {
-      return null;
-    }
-
-    return {
-      min: Math.round(careTypeData.avgPrice * 0.8),
-      max: Math.round(careTypeData.avgPrice * 1.2)
-    };
+    // Return null - no artificial pricing generation allowed
+    return null;
   }
 
   /**
