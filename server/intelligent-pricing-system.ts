@@ -145,6 +145,12 @@ export function eliminateCallForPricing(community: any): any {
   if (!pricingEstimate) {
     return {
       ...community,
+      // Preserve all HUD and pricing fields
+      hudPropertyId: community.hudPropertyId,
+      rentPerMonth: community.rentPerMonth,
+      claimedBy: community.claimedBy,
+      pricingType: community.pricingType,
+      pricingLastUpdated: community.pricingLastUpdated,
       displayPricing: {
         displayPrice: 'Contact for pricing',
         priceLabel: 'Contact Community',
@@ -166,6 +172,12 @@ export function eliminateCallForPricing(community: any): any {
   // Normal case with verified pricing
   return {
     ...community,
+    // Preserve all HUD and pricing fields
+    hudPropertyId: community.hudPropertyId,
+    rentPerMonth: community.rentPerMonth,
+    claimedBy: community.claimedBy,
+    pricingType: community.pricingType,
+    pricingLastUpdated: community.pricingLastUpdated,
     displayPricing: {
       displayPrice: pricingEstimate.displayPrice,
       priceLabel: pricingEstimate.priceLabel,
