@@ -273,7 +273,7 @@ export default function Home() {
                   </div>
                   <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">Live Pricing & Availability</h3>
                   <p className="text-lg lg:text-xl text-gray-600 dark:text-gray-300 leading-relaxed font-medium">
-                    Real HUD pricing from $303/month affordable housing to $9,200+ luxury care across all 31,023+ communities
+                    Real HUD pricing from $303/month affordable housing to $9,200+ luxury care across all 26,306+ communities
                   </p>
                 </CardContent>
               </Card>
@@ -445,7 +445,7 @@ export default function Home() {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-12 max-w-7xl mx-auto">
                 <div className="text-center">
-                  <div className="text-6xl lg:text-7xl xl:text-8xl font-black text-blue-600 dark:text-blue-400 mb-6">31,023</div>
+                  <div className="text-6xl lg:text-7xl xl:text-8xl font-black text-blue-600 dark:text-blue-400 mb-6">26,306</div>
                   <p className="text-2xl lg:text-3xl text-gray-600 dark:text-gray-300 font-bold">Verified Communities</p>
                 </div>
                 <div className="text-center">
@@ -480,7 +480,7 @@ export default function Home() {
                 </div>
                 
                 <p className="text-xl lg:text-2xl text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-                  Our AI-powered pricing intelligence combines government data, HUD records, and real market analysis to provide accurate cost estimates for all 31,023+ communities. Note: Estimates are not live data.
+                  Our AI-powered pricing intelligence combines government data, HUD records, and real market analysis to provide accurate cost estimates for all 26,306+ communities. Note: Estimates are not live data.
                 </p>
                 
                 <div className="space-y-6">
@@ -658,7 +658,7 @@ export default function Home() {
                 AI-Powered Senior Living Assistant
               </h2>
               <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-                Get instant answers about communities, pricing, care options, and more from our AI assistant trained on all 31,023+ properties
+                Get instant answers about communities, pricing, care options, and more from our AI assistant trained on all 26,306+ properties
               </p>
             </div>
 
@@ -740,7 +740,7 @@ export default function Home() {
                     Ready to Find the Perfect Community?
                   </h2>
                   <p className="text-xl lg:text-2xl mb-8 text-green-100 leading-relaxed">
-                    Start with our transparent search across 31,023+ communities with real pricing, verified licensing, and authentic reviews.
+                    Start with our transparent search across 26,306+ communities with real pricing, verified licensing, and authentic reviews.
                   </p>
                   <div className="space-y-4 mb-8">
                     <div className="flex items-center space-x-4">
