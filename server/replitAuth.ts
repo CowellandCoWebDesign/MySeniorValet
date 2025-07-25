@@ -7,6 +7,8 @@ import type { Express, RequestHandler } from "express";
 import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
+import { db } from "./db";
+import { sql } from "drizzle-orm";
 
 if (!process.env.REPLIT_DOMAINS) {
   throw new Error("Environment variable REPLIT_DOMAINS not provided");
@@ -57,13 +59,39 @@ function updateUserSession(
 async function upsertUser(
   claims: any,
 ) {
-  await storage.upsertUser({
-    id: claims["sub"],
-    email: claims["email"],
-    firstName: claims["first_name"],
-    lastName: claims["last_name"],
-    profileImageUrl: claims["profile_image_url"],
-  });
+  // Handle ID mapping between Replit Auth (string) and database (integer)
+  const userEmail = claims["email"];
+  const replitUserId = claims["sub"];
+  
+  try {
+    // Check if user exists by email first
+    let user = await storage.getUserByEmail(userEmail);
+    
+    if (!user) {
+      // Create new user - use a simple sequential ID strategy
+      const result = await db.execute(sql`
+        INSERT INTO users (username, email, first_name, last_name, profile_image_url, password)
+        VALUES (${userEmail}, ${userEmail}, ${claims["first_name"]}, ${claims["last_name"]}, ${claims["profile_image_url"]}, 'replit_auth')
+        RETURNING id, username, email, first_name, last_name, profile_image_url
+      `);
+      user = result.rows[0] as any;
+    } else {
+      // Update existing user
+      await db.execute(sql`
+        UPDATE users 
+        SET email = ${userEmail}, 
+            first_name = ${claims["first_name"]}, 
+            last_name = ${claims["last_name"]}, 
+            profile_image_url = ${claims["profile_image_url"]}
+        WHERE id = ${user.id}
+      `);
+    }
+    
+    return user;
+  } catch (error) {
+    console.error("Error upserting user:", error);
+    throw error;
+  }
 }
 
 export async function setupAuth(app: Express) {
