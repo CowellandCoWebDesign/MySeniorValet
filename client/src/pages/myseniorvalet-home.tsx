@@ -13,7 +13,7 @@ import { EnhancedPlatformStats } from "@/components/EnhancedPlatformStats";
 
 
 export default function MySeniorValetHome() {
-  console.log("MYSENIORVALET HOME PAGE LOADED - VERSION 2 WITH 31,023 COMMUNITIES");
+  console.log("MYSENIORVALET HOME PAGE LOADED - VERSION 3 WITH CONCIERGE SERVICES PRIORITIZED - 31,023 COMMUNITIES");
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -341,6 +341,92 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
+      {/* Complete Concierge Services - MOVED TO POSITION #2 */}
+      <section className="px-4 py-12 bg-white dark:bg-gray-800">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">🎯 Complete Concierge Services</h2>
+            <p className="text-gray-600 dark:text-gray-300">Everything you need for senior living decisions, all in one place</p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {/* Live Pricing & Availability */}
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow dark:bg-gray-700 dark:border-gray-600">
+              <CardContent className="p-6 text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Eye className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Live Pricing & Availability</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Real-time pricing and unit availability across all communities</p>
+                <Link href="/search">
+                  <Button className="mt-3 bg-blue-500 hover:bg-blue-600 text-white">
+                    Check Pricing
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            {/* Move Coordination */}
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow dark:bg-gray-700 dark:border-gray-600">
+              <CardContent className="p-6 text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Truck className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Move Coordination</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Professional moving services and timeline coordination</p>
+                <Link href="/moving-services">
+                  <Button className="mt-3 bg-green-500 hover:bg-green-600 text-white">
+                    Plan Move
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            {/* Medical Equipment & Furniture */}
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow dark:bg-gray-700 dark:border-gray-600">
+              <CardContent className="p-6 text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Sofa className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Medical Equipment & Furniture</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Medical equipment purchase and furniture delivery services</p>
+                <Link href="/concierge">
+                  <Button className="mt-3 bg-purple-500 hover:bg-purple-600 text-white">
+                    Shop Equipment
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            {/* Family Collaboration & Tour Tracker */}
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow border-2 border-amber-200 dark:border-amber-400 dark:bg-gray-700">
+              <CardContent className="p-6 text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Users className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Family Collaboration & Tour Tracker</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Family sharing tools and tour scheduling with progress tracking</p>
+                <Link href="/family-collaboration">
+                  <Button className="mt-3 bg-amber-500 hover:bg-amber-600 text-white">
+                    Try Family Tools
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* All-in-One Planner Button */}
+          <div className="text-center mt-8">
+            <Button 
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl font-medium text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 border-0"
+              onClick={() => window.location.href = '/all-in-one-planner'}
+            >
+              Start Your All-in-One Planner
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* Integration Spotlight - Showcase Our Advanced Tools */}
       {showIntegrationSpotlight && (
         <section className="px-4 py-12 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 relative overflow-hidden">
@@ -428,91 +514,7 @@ export default function MySeniorValetHome() {
         </section>
       )}
 
-      {/* Complete Concierge Services */}
-      <section className="px-4 py-12 bg-white dark:bg-gray-800">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Complete Concierge Services</h2>
-            <p className="text-gray-600 dark:text-gray-300">Everything you need for senior living decisions, all in one place</p>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {/* Live Pricing & Availability */}
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow dark:bg-gray-700 dark:border-gray-600">
-              <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Eye className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Live Pricing & Availability</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Real-time pricing and unit availability across all communities</p>
-                <Link href="/search">
-                  <Button className="mt-3 bg-blue-500 hover:bg-blue-600 text-white">
-                    Check Pricing
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
 
-            {/* Move Coordination */}
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow dark:bg-gray-700 dark:border-gray-600">
-              <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Truck className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Move Coordination</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Professional moving services and timeline coordination</p>
-                <Link href="/moving-services">
-                  <Button className="mt-3 bg-green-500 hover:bg-green-600 text-white">
-                    Plan Move
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-
-            {/* Medical Equipment & Furniture */}
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow dark:bg-gray-700 dark:border-gray-600">
-              <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Sofa className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Medical Equipment & Furniture</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Medical equipment purchase and furniture delivery services</p>
-                <Link href="/concierge">
-                  <Button className="mt-3 bg-purple-500 hover:bg-purple-600 text-white">
-                    Shop Equipment
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-
-            {/* Family Collaboration & Tour Tracker */}
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow border-2 border-amber-200 dark:border-amber-400 dark:bg-gray-700">
-              <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Users className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Family Collaboration & Tour Tracker</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Family sharing tools and tour scheduling with progress tracking</p>
-                <Link href="/family-collaboration">
-                  <Button className="mt-3 bg-amber-500 hover:bg-amber-600 text-white">
-                    Try Family Tools
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          </div>
-          
-          {/* All-in-One Planner Button */}
-          <div className="text-center mt-8">
-            <Button 
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl font-medium text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 border-0"
-              onClick={() => window.location.href = '/all-in-one-planner'}
-            >
-              Start Your All-in-One Planner
-            </Button>
-          </div>
-        </div>
-      </section>
 
       {/* Massive Data Coverage Section - Enhanced */}
       <section className="px-4 py-16 bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
