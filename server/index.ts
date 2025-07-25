@@ -73,21 +73,13 @@ app.use(devModeHeaders);
 app.use(sanitizeInput);
 app.use(sqlInjectionProtection);
 
-// Development mode - disable ALL caching for immediate visibility
+// Development mode - disable caching for immediate visibility
 if (process.env.NODE_ENV === 'development') {
   app.use((req, res, next) => {
-    // Aggressive cache busting headers
-    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+    res.set('Cache-Control', 'no-cache, must-revalidate');
     res.set('Pragma', 'no-cache');
-    res.set('Expires', '0');
-    res.set('Surrogate-Control', 'no-store');
     res.set('X-Content-Type-Options', 'nosniff');
     res.set('X-Frame-Options', 'DENY');
-    res.set('X-Version', Date.now().toString());
-    res.set('Vary', '*');
-    // Remove ETags completely
-    res.removeHeader('ETag');
-    res.set('Last-Modified', new Date().toUTCString());
     next();
   });
 }

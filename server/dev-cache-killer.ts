@@ -1,9 +1,7 @@
-// AGGRESSIVE DEVELOPMENT CACHE KILLER
-// This ensures ALL edits are visible immediately in development
+// DEVELOPMENT CACHE KILLER
+// This ensures edits are visible immediately in development
 
 import { Request, Response, NextFunction } from 'express';
-import * as fs from 'fs';
-import * as path from 'path';
 
 export const DEV_VERSION = 'dev_' + Date.now();
 
