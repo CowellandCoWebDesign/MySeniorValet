@@ -199,7 +199,7 @@ class BusinessIntelligence {
       totalViews: stat.count * 145, // Average views per community
       totalInquiries: Math.floor(stat.count * 145 * 0.08), // 8% inquiry rate
       averagePricing: Math.round(stat.avgPrice || 3500),
-      marketPenetration: Math.round((stat.count / 26306) * 100 * 10) / 10,
+      marketPenetration: Math.round((stat.count / 31023) * 100 * 10) / 10,
       growth: Math.round((Math.random() * 20 + 5) * 10) / 10 // Simulated growth 5-25%
     }));
   }

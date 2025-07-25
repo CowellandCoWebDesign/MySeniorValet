@@ -78,7 +78,7 @@ function Router() {
 
   return (
     <Switch>
-      <Route path="/" component={MySeniorValetHome} />
+      <Route path="/" component={Home} />
       <Route path="/search" component={MapSearch} />
       <Route path="/map" component={MapSearch} />
       <Route path="/map-search" component={MapSearch} />

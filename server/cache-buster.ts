@@ -1,7 +1,7 @@
 // Cache busting middleware for development
 import { Request, Response, NextFunction } from 'express';
 
-export const CURRENT_VERSION = Date.now().toString();
+export const CURRENT_VERSION = 'v4_streamlined_hero_' + Date.now().toString();
 
 export function cacheBuster(req: Request, res: Response, next: NextFunction) {
   // Add version to all responses
