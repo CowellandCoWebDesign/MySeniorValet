@@ -78,67 +78,30 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("overview");
   const [showIntegrationTools, setShowIntegrationTools] = useState(true);
 
-  // Load sample data on mount
+  // Load real data from API
   useEffect(() => {
-    // Sample saved communities
-    setSavedCommunities([
-      {
-        id: 30789,
-        name: "FLORIN GARDENS APARTMENTS COOPERATIVE",
-        address: "7727 Florin Mall Dr",
-        city: "Sacramento",
-        state: "CA",
-        priceRange: "$303/month",
-        careType: "Independent Living",
-        rating: 4.2,
-        availability: "Available",
-        savedDate: "2025-01-06",
-        notes: "Good pricing, close to family"
-      },
-      {
-        id: 800067910,
-        name: "SACRAMENTO ELDERLY APARTMENTS",
-        address: "1325 Auburn Blvd",
-        city: "Sacramento", 
-        state: "CA",
-        priceRange: "$355/month",
-        careType: "Senior Housing",
-        rating: 4.0,
-        availability: "Waitlist",
-        savedDate: "2025-01-05"
+    const loadUserData = async () => {
+      if (!user?.id) return;
+      
+      try {
+        const response = await fetch(`/api/users/${user.id}/dashboard-data`);
+        if (response.ok) {
+          const data = await response.json();
+          setSavedCommunities(data.favorites || []);
+          setRecentSearches(data.searchHistory || []);
+          setTourRequests(data.tourRequests || []);
+        }
+      } catch (error) {
+        console.error('Error loading user dashboard data:', error);
+        // Fallback to empty arrays for clean state
+        setSavedCommunities([]);
+        setRecentSearches([]);
+        setTourRequests([]);
       }
-    ]);
-
-    // Sample recent searches
-    setRecentSearches([
-      {
-        id: "1",
-        query: "Memory Care",
-        location: "Sacramento, CA",
-        results: 126,
-        date: "2025-01-06"
-      },
-      {
-        id: "2", 
-        query: "Assisted Living under $4000",
-        location: "California",
-        results: 1000,
-        date: "2025-01-05"
-      }
-    ]);
-
-    // Sample tour requests
-    setTourRequests([
-      {
-        id: "1",
-        communityName: "FLORIN GARDENS APARTMENTS COOPERATIVE",
-        requestedDate: "2025-01-10",
-        status: "pending",
-        contactPerson: "Maria Rodriguez",
-        phone: "(916) 555-0123"
-      }
-    ]);
-  }, []);
+    };
+    
+    loadUserData();
+  }, [user?.id]);
 
   const handleRemoveCommunity = (id: number) => {
     setSavedCommunities(prev => prev.filter(community => community.id !== id));
@@ -242,7 +205,7 @@ export default function Dashboard() {
 
             {/* Role-based Navigation */}
             <div className="mt-6 flex flex-wrap gap-4">
-              {user?.role === 'admin' && (
+              {(user as any)?.role === 'admin' && (
                 <Link href="/admin">
                   <Button size="lg" className="bg-white/20 hover:bg-white/30 text-white border border-white/30">
                     <Building className="w-5 h-5 mr-2" />
