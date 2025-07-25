@@ -128,7 +128,7 @@ export interface IStorage {
 }
 
 export class MemStorage implements IStorage {
-  private users: Map<number, User>;
+  private users: Map<string, User>;
   private communities: Map<number, Community>;
   private inspections: Map<number, Inspection>;
   private currentUserId: number;
@@ -229,7 +229,7 @@ export class MemStorage implements IStorage {
     });
   }
 
-  async getUser(id: number): Promise<User | undefined> {
+  async getUser(id: string): Promise<User | undefined> {
     return this.users.get(id);
   }
 
@@ -246,23 +246,56 @@ export class MemStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
+    const id = insertUser.id || `user_${this.currentUserId++}`;
     const user: User = { 
       ...insertUser, 
       id,
-      profileImage: null,
-      dateOfBirth: null,
-      emergencyContact: null,
-      preferences: null,
-      notifications: null,
-      emailVerified: false,
-      emailVerificationToken: null,
-      passwordResetToken: null,
-      passwordResetExpires: null,
-      lastLogin: null,
-      isActive: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      phone: insertUser.phone || null,
+      email: insertUser.email || null,
+      firstName: insertUser.firstName || null,
+      lastName: insertUser.lastName || null,
+      profileImageUrl: insertUser.profileImageUrl || null,
+      username: insertUser.username || null,
+      password: insertUser.password || null,
+      dateOfBirth: insertUser.dateOfBirth || null,
+      relationshipToCare: insertUser.relationshipToCare || null,
+      careNeeds: insertUser.careNeeds || [],
+      searchPreferences: insertUser.searchPreferences || {},
+      stripeCustomerId: insertUser.stripeCustomerId || null,
+      stripeSubscriptionId: insertUser.stripeSubscriptionId || null,
+      notifications: insertUser.notifications || {
+        emailNotifications: true,
+        smsNotifications: false,
+        newListings: false,
+        priceAlerts: false,
+        messageAlerts: true,
+        reviewReminders: false,
+      },
+      dashboardPreferences: insertUser.dashboardPreferences || {
+        layoutType: 'detailed',
+        fontSize: 'medium',
+        highContrast: false,
+        reducedMotion: false,
+        cardSize: 'comfortable',
+        showHelpTips: true,
+        quickActions: ['search', 'favorites', 'schedule-tour', 'family-share'],
+        dashboardSections: {
+          favorites: { visible: true, order: 1 },
+          recentSearches: { visible: true, order: 2 },
+          recommendations: { visible: true, order: 3 },
+          savedCommunities: { visible: true, order: 4 },
+          tourSchedule: { visible: true, order: 5 },
+          familyNotes: { visible: true, order: 6 }
+        }
+      },
+      emailVerified: insertUser.emailVerified || false,
+      emailVerificationToken: insertUser.emailVerificationToken || null,
+      passwordResetToken: insertUser.passwordResetToken || null,
+      passwordResetExpires: insertUser.passwordResetExpires || null,
+      lastLoginAt: insertUser.lastLoginAt || null,
+      isActive: insertUser.isActive !== undefined ? insertUser.isActive : true,
+      createdAt: insertUser.createdAt || new Date(),
+      updatedAt: insertUser.updatedAt || new Date(),
     };
     this.users.set(id, user);
     return user;
@@ -281,11 +314,50 @@ export class MemStorage implements IStorage {
     return updatedUser;
   }
 
-  // Stub implementations for other methods
-  async createSession(): Promise<any> { throw new Error("Not implemented"); }
-  async getSessionById(): Promise<any> { throw new Error("Not implemented"); }
-  async deleteSession(): Promise<boolean> { throw new Error("Not implemented"); }
-  async cleanupExpiredSessions(): Promise<void> { throw new Error("Not implemented"); }
+  async upsertUser(user: UpsertUser): Promise<User> {
+    const existingUser = this.users.get(user.id);
+    if (existingUser) {
+      return this.updateUser(user.id, user) as Promise<User>;
+    } else {
+      return this.createUser(user);
+    }
+  }
+
+  // Session management implementation
+  private sessions = new Map<string, UserSession>();
+  private currentSessionId = 1;
+
+  async createSession(userId: string): Promise<UserSession> {
+    const sessionId = `sess_${this.currentSessionId++}`;
+    const session: UserSession = {
+      id: sessionId,
+      userId,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+      ipAddress: null,
+      userAgent: null,
+      createdAt: new Date(),
+      lastAccessedAt: new Date(),
+    };
+    this.sessions.set(sessionId, session);
+    return session;
+  }
+
+  async getSessionById(sessionId: string): Promise<UserSession | undefined> {
+    return this.sessions.get(sessionId);
+  }
+
+  async deleteSession(sessionId: string): Promise<boolean> {
+    return this.sessions.delete(sessionId);
+  }
+
+  async cleanupExpiredSessions(): Promise<void> {
+    const now = new Date();
+    for (const [id, session] of this.sessions.entries()) {
+      if (session.expiresAt < now) {
+        this.sessions.delete(id);
+      }
+    }
+  }
   async getReviewsByCommunity(): Promise<any[]> { return []; }
   async getReviewsByUser(): Promise<any[]> { return []; }
   async createReview(): Promise<any> { throw new Error("Not implemented"); }

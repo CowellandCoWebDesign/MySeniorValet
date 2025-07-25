@@ -59,7 +59,7 @@ function updateUserSession(
 async function upsertUser(
   claims: any,
 ) {
-  // Handle ID mapping between Replit Auth (string) and database (integer)
+  // Handle ID mapping between Replit Auth (string) and database (varchar)
   const userEmail = claims["email"];
   const replitUserId = claims["sub"];
   
@@ -68,11 +68,11 @@ async function upsertUser(
     let user = await storage.getUserByEmail(userEmail);
     
     if (!user) {
-      // Create new user - use a simple sequential ID strategy
+      // Create new user - use Replit user ID as primary key
       const result = await db.execute(sql`
-        INSERT INTO users (username, email, first_name, last_name, profile_image_url, password)
-        VALUES (${userEmail}, ${userEmail}, ${claims["first_name"]}, ${claims["last_name"]}, ${claims["profile_image_url"]}, 'replit_auth')
-        RETURNING id, username, email, first_name, last_name, profile_image_url
+        INSERT INTO users (id, username, email, "firstName", "lastName", "profileImageUrl", password)
+        VALUES (${replitUserId}, ${userEmail}, ${userEmail}, ${claims["first_name"] || null}, ${claims["last_name"] || null}, ${claims["profile_image_url"] || null}, 'replit_auth')
+        RETURNING id, username, email, "firstName", "lastName", "profileImageUrl"
       `);
       user = result.rows[0] as any;
     } else {
@@ -80,9 +80,9 @@ async function upsertUser(
       await db.execute(sql`
         UPDATE users 
         SET email = ${userEmail}, 
-            first_name = ${claims["first_name"]}, 
-            last_name = ${claims["last_name"]}, 
-            profile_image_url = ${claims["profile_image_url"]}
+            "firstName" = ${claims["first_name"] || null}, 
+            "lastName" = ${claims["last_name"] || null}, 
+            "profileImageUrl" = ${claims["profile_image_url"] || null}
         WHERE id = ${user.id}
       `);
     }
