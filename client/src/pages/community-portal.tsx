@@ -45,6 +45,11 @@ export default function CommunityPortal() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('');
   const [showPricing, setShowPricing] = useState(false);
+  
+  // Handle login redirect to main auth system
+  const handleLoginRedirect = () => {
+    window.location.href = "/api/login";
+  };
 
   const plans = [
     {
@@ -242,10 +247,7 @@ export default function CommunityPortal() {
     setCurrentStep('verification');
   };
 
-  const handleLogin = () => {
-    // Redirect to the actual authentication endpoint
-    window.location.href = "/api/login";
-  };
+
 
   const renderLandingPage = () => (
     <div className="space-y-12">
@@ -263,70 +265,71 @@ export default function CommunityPortal() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Button 
             size="lg" 
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-6 text-lg"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-6 text-lg group shadow-lg"
             onClick={() => setCurrentStep('search')}
           >
-            <Building className="w-5 h-5 mr-2" />
+            <Shield className="w-5 h-5 mr-2" />
             Claim Your Community
+            <Building className="w-5 h-5 ml-2 group-hover:scale-110 transition-transform" />
           </Button>
           <Button 
             size="lg" 
             variant="outline" 
-            className="px-8 py-6 text-lg"
+            className="px-8 py-6 text-lg border-2 hover:bg-gray-50 dark:hover:bg-gray-800 shadow-md"
             onClick={() => setShowPricing(true)}
           >
-            <CreditCard className="w-5 h-5 mr-2" />
-            View Pricing
+            <Eye className="w-5 h-5 mr-2" />
+            View Pricing Plans
           </Button>
         </div>
       </div>
       
-      {/* Value Proposition */}
+      {/* Modern Features Grid */}
       <div className="grid md:grid-cols-3 gap-8">
-        <Card className="text-center p-6">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Eye className="w-8 h-8 text-blue-600" />
+        <Card className="text-center p-6 hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Eye className="w-8 h-8 text-white" />
           </div>
-          <h3 className="text-xl font-semibold mb-2">Increase Visibility</h3>
-          <p className="text-gray-600">Stand out among 25,000+ communities with enhanced search placement and premium features</p>
+          <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-white">Increase Visibility</h3>
+          <p className="text-gray-600 dark:text-gray-300">Stand out among 31,000+ communities with enhanced search placement and premium features</p>
         </Card>
         
-        <Card className="text-center p-6">
-          <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Users className="w-8 h-8 text-purple-600" />
+        <Card className="text-center p-6 hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
+          <div className="bg-gradient-to-r from-purple-600 to-purple-700 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Users className="w-8 h-8 text-white" />
           </div>
-          <h3 className="text-xl font-semibold mb-2">Connect with Families</h3>
-          <p className="text-gray-600">Direct messaging, tour scheduling, and family collaboration tools to convert leads</p>
+          <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-white">Connect with Families</h3>
+          <p className="text-gray-600 dark:text-gray-300">Direct messaging, tour scheduling, and family collaboration tools to convert leads</p>
         </Card>
         
-        <Card className="text-center p-6">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Settings className="w-8 h-8 text-green-600" />
+        <Card className="text-center p-6 hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
+          <div className="bg-gradient-to-r from-green-600 to-green-700 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Settings className="w-8 h-8 text-white" />
           </div>
-          <h3 className="text-xl font-semibold mb-2">Streamline Operations</h3>
-          <p className="text-gray-600">Automated leasing tools, payment processing, and comprehensive reporting dashboard</p>
+          <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-white">Streamline Operations</h3>
+          <p className="text-gray-600 dark:text-gray-300">Automated leasing tools, payment processing, and comprehensive reporting dashboard</p>
         </Card>
       </div>
       
       {/* Success Stats */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-8">
-        <h3 className="text-2xl font-bold text-center mb-8">Join Thousands of Successful Communities</h3>
+      <div className="bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 dark:from-blue-950 dark:via-purple-950 dark:to-pink-950 rounded-2xl p-8 shadow-lg">
+        <h3 className="text-3xl font-bold text-center mb-8 text-gray-900 dark:text-white">Join Thousands of Successful Communities</h3>
         <div className="grid md:grid-cols-4 gap-8 text-center">
-          <div>
-            <div className="text-3xl font-bold text-blue-600">25,000+</div>
-            <div className="text-gray-600">Communities Listed</div>
+          <div className="space-y-2">
+            <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">31,000+</div>
+            <div className="text-gray-600 dark:text-gray-300 font-medium">Communities Listed</div>
           </div>
-          <div>
-            <div className="text-3xl font-bold text-purple-600">85%</div>
-            <div className="text-gray-600">Lead Conversion Rate</div>
+          <div className="space-y-2">
+            <div className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-purple-700 bg-clip-text text-transparent">89%</div>
+            <div className="text-gray-600 dark:text-gray-300 font-medium">Average Occupancy</div>
           </div>
-          <div>
-            <div className="text-3xl font-bold text-green-600">3.5x</div>
-            <div className="text-gray-600">More Tour Bookings</div>
+          <div className="space-y-2">
+            <div className="text-4xl font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">4.8</div>
+            <div className="text-gray-600 dark:text-gray-300 font-medium">Average Rating</div>
           </div>
-          <div>
-            <div className="text-3xl font-bold text-yellow-600">24/7</div>
-            <div className="text-gray-600">Family Engagement</div>
+          <div className="space-y-2">
+            <div className="text-4xl font-bold bg-gradient-to-r from-orange-600 to-red-700 bg-clip-text text-transparent">24/7</div>
+            <div className="text-gray-600 dark:text-gray-300 font-medium">Support Available</div>
           </div>
         </div>
       </div>
@@ -376,7 +379,7 @@ export default function CommunityPortal() {
       
       <div className="text-center">
         <p className="text-sm text-gray-600 mb-4">Already have an account?</p>
-        <Button variant="outline" onClick={handleLogin}>
+        <Button variant="outline" onClick={handleLoginRedirect}>
           Login to Portal
         </Button>
       </div>
@@ -887,20 +890,23 @@ export default function CommunityPortal() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
-      {/* Top Navigation */}
-      <nav className="bg-white shadow-sm border-b">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      {/* Modern Top Navigation */}
+      <nav className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-3">
-              <Link href="/" className="flex items-center space-x-2">
-                <Building className="w-8 h-8 text-blue-600" />
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  MySeniorValet
-                </span>
+              <Link href="/" className="flex items-center space-x-3">
+                <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-2 rounded-xl">
+                  <Building className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    MySeniorValet
+                  </span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">Community Portal</span>
+                </div>
               </Link>
-              <span className="text-gray-300">|</span>
-              <span className="text-gray-600 font-medium">Community Portal</span>
             </div>
             
             <div className="flex items-center space-x-4">
@@ -908,7 +914,7 @@ export default function CommunityPortal() {
                 <Button 
                   variant="ghost" 
                   onClick={() => setCurrentStep('landing')}
-                  className="text-gray-600 hover:text-blue-600"
+                  className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
                 >
                   <Building className="w-4 h-4 mr-2" />
                   Portal Home
@@ -919,17 +925,17 @@ export default function CommunityPortal() {
                 <Button 
                   variant="ghost" 
                   onClick={() => setShowPricing(true)}
-                  className="text-gray-600 hover:text-blue-600"
+                  className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
                 >
                   <CreditCard className="w-4 h-4 mr-2" />
-                  Pricing
+                  View Pricing
                 </Button>
               )}
               
               <Button 
                 variant="outline" 
-                onClick={handleLogin}
-                className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                onClick={handleLoginRedirect}
+                className="text-blue-600 border-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-400 dark:hover:bg-blue-900/20"
               >
                 <Shield className="w-4 h-4 mr-2" />
                 Sign In
