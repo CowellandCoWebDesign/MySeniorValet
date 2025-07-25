@@ -14,7 +14,7 @@ import { EnhancedPlatformStats } from "@/components/EnhancedPlatformStats";
 import { FeaturedAndCoastalSection } from "@/components/FeaturedAndCoastalSection";
 
 export default function Home() {
-  console.log("HOME PAGE LOADED - VERSION 2 WITH 26,306 COMMUNITIES");
+  console.log("HOME PAGE LOADED - VERSION 3 WITH CONCIERGE SERVICES PRIORITIZED - 26,306 COMMUNITIES");
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
       {/* Responsive Animated Background Elements */}
@@ -249,12 +249,12 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Complete Concierge Services Section - MOVED TO POSITION #2 */}
+        {/* Complete Concierge Services Section - MOVED TO POSITION #2 - CACHE BUST v3 */}
         <section className="py-20 lg:py-24 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-4xl lg:text-5xl xl:text-6xl font-display font-bold text-gray-900 dark:text-white mb-8">
-                Complete Concierge Services
+                🎯 Complete Concierge Services
               </h2>
               <p className="text-2xl lg:text-3xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto font-medium leading-relaxed">
                 Everything you need for senior living decisions and transitions, all in one place
