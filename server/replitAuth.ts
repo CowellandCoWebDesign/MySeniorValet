@@ -130,6 +130,10 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
+    // Store the referrer URL to redirect back after login
+    const returnTo = req.headers.referer || '/';
+    (req.session as any).returnTo = returnTo;
+    
     // Use the actual Replit domain instead of localhost for authentication
     const domain = process.env.REPLIT_DOMAINS!.split(",")[0];
     passport.authenticate(`replitauth:${domain}`, {
@@ -142,7 +146,7 @@ export async function setupAuth(app: Express) {
     // Use the actual Replit domain instead of localhost for authentication
     const domain = process.env.REPLIT_DOMAINS!.split(",")[0];
     passport.authenticate(`replitauth:${domain}`, {
-      successReturnToOrRedirect: "/",
+      successRedirect: (req.session as any).returnTo || "/",
       failureRedirect: "/api/login",
     })(req, res, next);
   });

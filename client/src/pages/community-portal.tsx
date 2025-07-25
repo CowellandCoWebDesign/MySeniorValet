@@ -243,8 +243,8 @@ export default function CommunityPortal() {
   };
 
   const handleLogin = () => {
-    setIsLoggedIn(true);
-    setCurrentStep('dashboard');
+    // Redirect to the actual authentication endpoint
+    window.location.href = "/api/login";
   };
 
   const renderLandingPage = () => (
