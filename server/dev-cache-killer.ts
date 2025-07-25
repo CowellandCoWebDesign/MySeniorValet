@@ -2,6 +2,8 @@
 // This ensures edits are visible immediately in development
 
 import { Request, Response, NextFunction } from 'express';
+import path from 'path';
+import fs from 'fs';
 
 export const DEV_VERSION = 'dev_' + Date.now();
 
