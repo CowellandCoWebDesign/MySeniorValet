@@ -1257,7 +1257,7 @@ export default function MySeniorValetHome() {
             <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
               <div className="text-center text-white px-4">
                 <h2 className="text-2xl font-bold mb-2">Understanding Care Levels & Pricing</h2>
-                <p className="text-sm opacity-90">Based on pricing data from 25,782 verified communities across North America</p>
+                <p className="text-sm opacity-90">General pricing guidance - actual costs vary significantly by location and services</p>
               </div>
             </div>
           </div>
@@ -1271,10 +1271,10 @@ export default function MySeniorValetHome() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Skilled Nursing</h3>
-                    <Badge className="bg-red-100 text-red-800 text-xs">8% of communities</Badge>
+                    <Badge className="bg-red-100 text-red-800 text-xs">Most Expensive</Badge>
                   </div>
                   <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">24/7 medical care, rehabilitation, complex medical needs</p>
-                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">$7,500 - $15,000/month</div>
+                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">Contact communities for current pricing</div>
                 </div>
                 <div className="w-12 h-12 bg-red-100 dark:bg-red-900/50 rounded-lg flex items-center justify-center">
                   <Heart className="w-6 h-6 text-red-600 dark:text-red-400" />
@@ -1290,10 +1290,10 @@ export default function MySeniorValetHome() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Memory Care</h3>
-                    <Badge className="bg-purple-100 text-purple-800 text-xs">18% of communities</Badge>
+                    <Badge className="bg-purple-100 text-purple-800 text-xs">Specialized Care</Badge>
                   </div>
                   <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">Specialized dementia/Alzheimer's care, secure environment</p>
-                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">$5,500 - $10,000/month</div>
+                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">Contact communities for current pricing</div>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center">
                   <span className="text-purple-600 dark:text-purple-400 font-bold text-lg">🧠</span>
@@ -1309,10 +1309,10 @@ export default function MySeniorValetHome() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Assisted Living</h3>
-                    <Badge className="bg-green-100 text-green-800 text-xs">45% of communities</Badge>
+                    <Badge className="bg-green-100 text-green-800 text-xs">Most Common</Badge>
                   </div>
                   <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">Personal care assistance, medication management, meals</p>
-                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">$3,500 - $6,500/month</div>
+                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">Contact communities for current pricing</div>
                 </div>
                 <div className="w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center">
                   <span className="text-green-600 dark:text-green-400 font-bold text-lg">🤝</span>
@@ -1328,10 +1328,10 @@ export default function MySeniorValetHome() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Independent Living with Services</h3>
-                    <Badge className="bg-blue-100 text-blue-800 text-xs">15% of communities</Badge>
+                    <Badge className="bg-blue-100 text-blue-800 text-xs">Mid-Range</Badge>
                   </div>
                   <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">Independent apartments plus care services, housekeeping</p>
-                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">$2,800 - $4,800/month</div>
+                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">Contact communities for current pricing</div>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
                   <Home className="w-6 h-6 text-blue-600 dark:text-blue-400" />
@@ -1347,10 +1347,10 @@ export default function MySeniorValetHome() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Independent Living</h3>
-                    <Badge className="bg-orange-100 text-orange-800 text-xs">14% of communities</Badge>
+                    <Badge className="bg-orange-100 text-orange-800 text-xs">Entry Level</Badge>
                   </div>
                   <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">Active senior communities, social activities, dining</p>
-                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">$2,200 - $4,200/month</div>
+                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">Contact communities for current pricing</div>
                 </div>
                 <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/50 rounded-lg flex items-center justify-center">
                   <span className="text-orange-600 dark:text-orange-400 font-bold text-lg">🏃</span>
