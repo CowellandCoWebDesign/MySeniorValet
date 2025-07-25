@@ -1364,12 +1364,34 @@ export default function MySeniorValetHome() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-1">Senior Apartments</h3>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Senior Apartments</h3>
+                    <Badge className="bg-gray-100 text-gray-800 text-xs">Age-Restricted</Badge>
+                  </div>
                   <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">Age-restricted housing, minimal services, independent living</p>
-                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">$1,800 - $3,200/month</div>
+                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">Contact communities for current pricing</div>
                 </div>
                 <div className="w-12 h-12 bg-gray-100 dark:bg-gray-600 rounded-lg flex items-center justify-center">
                   <span className="text-gray-600 dark:text-gray-300 font-bold text-lg">🏠</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Senior Mobile Home Parks & RV Communities */}
+          <Card className="border-0 shadow-sm dark:bg-gray-700 dark:border-gray-600">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Senior Mobile Home Parks & RV Communities</h3>
+                    <Badge className="bg-teal-100 text-teal-800 text-xs">Most Affordable</Badge>
+                  </div>
+                  <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">55+ manufactured housing communities, RV parks, mobile home ownership</p>
+                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">Contact communities for current pricing</div>
+                </div>
+                <div className="w-12 h-12 bg-teal-100 dark:bg-teal-900/50 rounded-lg flex items-center justify-center">
+                  <span className="text-teal-600 dark:text-teal-400 font-bold text-lg">🚐</span>
                 </div>
               </div>
             </CardContent>
@@ -1380,9 +1402,12 @@ export default function MySeniorValetHome() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-1">HUD/VASH + In-Home Services</h3>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">HUD/VASH + In-Home Services</h3>
+                    <Badge className="bg-green-100 text-green-800 text-xs">Subsidized</Badge>
+                  </div>
                   <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">Subsidized housing with IHSS or SLS home care support</p>
-                  <div className="text-sm font-semibold text-green-600 dark:text-green-400">$800 - $1,500/month + services</div>
+                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">Contact programs for current availability & pricing</div>
                 </div>
                 <div className="w-12 h-12 bg-green-200 dark:bg-green-700 rounded-lg flex items-center justify-center">
                   <span className="text-green-700 dark:text-green-300 font-bold text-lg">🏡</span>
