@@ -14,7 +14,7 @@ import { EnhancedPlatformStats } from "@/components/EnhancedPlatformStats";
 import { FeaturedAndCoastalSection } from "@/components/FeaturedAndCoastalSection";
 
 export default function Home() {
-  console.log("HOME PAGE LOADED - VERSION 3 WITH CONCIERGE SERVICES PRIORITIZED - 26,306 COMMUNITIES");
+  console.log("HOME PAGE LOADED - VERSION 4 - CACHE BUST - STREAMLINED HERO SECTION - 26,306 COMMUNITIES - " + Date.now());
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
       {/* Responsive Animated Background Elements */}
