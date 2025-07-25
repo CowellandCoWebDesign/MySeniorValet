@@ -12,7 +12,6 @@ import {
   createRateLimit 
 } from "./security";
 import { cacheBuster, devModeHeaders } from "./cache-buster";
-import { devCacheKiller, clearViteCache } from "./dev-cache-killer";
 import { redisCache } from "./infrastructure/redis-cache";
 import { securityDashboard } from "./infrastructure/security-dashboard";
 import { performanceMonitor } from "./infrastructure/performance-monitor";
@@ -24,12 +23,6 @@ import { notificationSystem } from "./infrastructure/notification-system";
 import { integrationManager } from "./infrastructure/integration-manager";
 
 const app = express();
-
-// Clear ALL caches on startup in development
-if (process.env.NODE_ENV === 'development') {
-  clearViteCache();
-  console.log('🔥 DEVELOPMENT MODE: All caches cleared, instant edit visibility enabled');
-}
 
 // Trust proxy for accurate IP detection
 app.set('trust proxy', 1);
@@ -64,8 +57,7 @@ app.use('/api', (req, res, next) => {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
-// AGGRESSIVE cache busting for development
-app.use(devCacheKiller); // This MUST be first
+// Cache busting middleware
 app.use(cacheBuster);
 app.use(devModeHeaders);
 
@@ -73,13 +65,21 @@ app.use(devModeHeaders);
 app.use(sanitizeInput);
 app.use(sqlInjectionProtection);
 
-// Development mode - disable caching for immediate visibility
+// Development mode - disable ALL caching for immediate visibility
 if (process.env.NODE_ENV === 'development') {
   app.use((req, res, next) => {
-    res.set('Cache-Control', 'no-cache, must-revalidate');
+    // Aggressive cache busting headers
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
     res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    res.set('Surrogate-Control', 'no-store');
     res.set('X-Content-Type-Options', 'nosniff');
     res.set('X-Frame-Options', 'DENY');
+    res.set('X-Version', Date.now().toString());
+    res.set('Vary', '*');
+    // Remove ETags completely
+    res.removeHeader('ETag');
+    res.set('Last-Modified', new Date().toUTCString());
     next();
   });
 }
