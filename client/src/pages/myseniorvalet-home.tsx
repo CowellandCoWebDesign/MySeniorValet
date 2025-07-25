@@ -307,10 +307,7 @@ export default function MySeniorValetHome() {
           {/* Trust Indicators with 31,023+ Communities */}
           <div className="mb-6 animate-fade-in-up animation-delay-800">
             <div className="flex flex-wrap items-center justify-center gap-3">
-              <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full shadow-lg">
-                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-sm font-semibold text-white">26,306+ Authentic Communities</span>
-              </div>
+
               <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full shadow-lg">
                 <Building2 className="h-4 w-4 text-blue-300" />
                 <span className="text-sm font-semibold text-white">HUD + Government Sources</span>
@@ -322,7 +319,12 @@ export default function MySeniorValetHome() {
             </div>
           </div>
           
-
+          {/* Community Count Text - Updated */}
+          <div className="mb-4 animate-fade-in-up animation-delay-850">
+            <p className="text-white/90 dark:text-gray-300 text-sm md:text-base drop-shadow-md text-center">
+              Serving families across <strong className="text-amber-200">31,023+ verified senior living communities</strong>
+            </p>
+          </div>
           
           {/* Verification Badge - Larger */}
           <div className="mb-8 animate-fade-in-up animation-delay-900">
