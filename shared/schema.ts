@@ -2667,6 +2667,49 @@ export const tourReviews = pgTable("tour_reviews", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Reservations Table - For Expedia-like booking functionality
+export const reservations = pgTable("reservations", {
+  id: serial("id").primaryKey(),
+  reservationId: varchar("reservation_id", { length: 50 }).notNull().unique(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  communityName: text("community_name").notNull(),
+  
+  // Reservation Details
+  unitType: text("unit_type").default("Standard"),
+  status: text("status", {
+    enum: ["active", "cancelled", "expired", "confirmed", "checked_in"]
+  }).default("active"),
+  
+  // Timing
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  moveInDate: date("move_in_date"),
+  
+  // Contact Information
+  contactName: text("contact_name"),
+  contactEmail: text("contact_email"),
+  contactPhone: text("contact_phone"),
+  notes: text("notes"),
+  
+  // Tracking
+  updatedAt: timestamp("updated_at").defaultNow(),
+  confirmedAt: timestamp("confirmed_at"),
+  cancelledAt: timestamp("cancelled_at"),
+  
+  // Future fields for payment integration
+  depositAmount: decimal("deposit_amount", { precision: 10, scale: 2 }),
+  paymentStatus: text("payment_status", {
+    enum: ["pending", "paid", "refunded", "failed"]
+  }),
+  stripePaymentIntentId: text("stripe_payment_intent_id"),
+}, (table) => [
+  index("reservations_user_idx").on(table.userId),
+  index("reservations_community_idx").on(table.communityId),
+  index("reservations_status_idx").on(table.status),
+  index("reservations_expires_idx").on(table.expiresAt),
+]);
+
 // Feature access control utility types
 export const subscriptionTiers = {
   free: {

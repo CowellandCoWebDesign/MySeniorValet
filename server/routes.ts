@@ -65,6 +65,7 @@ import { aiRecommendationEngine, RecommendationRequest } from "./ai-recommendati
 import { ComprehensiveScraper } from "./scraper";
 import { quizRouter } from "./routes/quiz";
 // import aiAssistantRoutes from "./routes/ai-assistant"; // Commented out - causing server error
+import reservationRoutes from "./routes/reservations";
 import { licensingScraper } from "./licensing-scraper";
 import { googleReviewsAI } from "./google-reviews-ai";
 import { googlePlacesIntegration } from "./google-places-integration";
@@ -10795,6 +10796,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register infrastructure routes
   app.use('/api/infrastructure', infrastructureRoutes);
+
+  // Register reservation routes
+  app.use('/api/reservations', reservationRoutes);
 
   // Replit Auth user endpoint
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
