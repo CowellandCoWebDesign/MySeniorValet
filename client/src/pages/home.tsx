@@ -248,7 +248,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Complete Concierge Services Section */}
+        {/* Complete Concierge Services Section - MOVED TO POSITION #2 */}
         <section className="py-20 lg:py-24 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
@@ -328,6 +328,9 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* Featured & Coastal Communities Section - MOVED TO POSITION #3 */}
+        <FeaturedAndCoastalSection />
 
         {/* Massive Data Coverage Section */}
         <section className="py-20 lg:py-24 bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
