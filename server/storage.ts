@@ -646,7 +646,9 @@ export class DatabaseStorage implements IStorage {
                monthly_rent_range_start, monthly_rent_range_end,
                hud_property_id, price_tier, size_category, 
                occupancy_rate, phone, email, website, address, 
-               amenities, zip_code
+               amenities, zip_code, rent_per_month,
+               total_units_hud, available_units_hud, occupancy_rate_hud,
+               management_company, management_phone, management_email
         FROM communities 
         WHERE id = ${id} 
         LIMIT 1
@@ -668,6 +670,13 @@ export class DatabaseStorage implements IStorage {
           priceTier: community.price_tier,
           sizeCategory: community.size_category,
           occupancyRate: community.occupancy_rate,
+          rentPerMonth: community.rent_per_month,
+          totalUnitsHud: community.total_units_hud,
+          availableUnitsHud: community.available_units_hud,
+          occupancyRateHud: community.occupancy_rate_hud,
+          managementCompany: community.management_company,
+          managementPhone: community.management_phone,
+          managementEmail: community.management_email,
           zipCode: community.zip_code
         };
 
