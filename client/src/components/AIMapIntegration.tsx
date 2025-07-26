@@ -55,10 +55,21 @@ export const AIMapIntegration: React.FC<AIMapIntegrationProps> = ({
   const [aiMarkers, setAiMarkers] = useState<L.Marker[]>([]);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [showPanel, setShowPanel] = useState(false);
+  
+  // Debug log when showPanel changes
+  useEffect(() => {
+    console.log('🔍 showPanel state changed to:', showPanel);
+  }, [showPanel]);
+  
+  // Debug log when showPanel changes
+  useEffect(() => {
+    console.log('🔍 showPanel state changed to:', showPanel);
+  }, [showPanel]);
 
   // Handle map clicks for AI analysis
   const handleMapClick = useCallback(async (e: L.LeafletMouseEvent) => {
     const { lat, lng } = e.latlng;
+    console.log('🎯 Map clicked at:', lat, lng);
     setIsAnalyzing(true);
 
     try {
@@ -117,6 +128,7 @@ export const AIMapIntegration: React.FC<AIMapIntegrationProps> = ({
         // Set the analysis result for the panel
         setAnalysisResult(analysisResult);
         setShowPanel(true);
+        console.log('📊 Panel should be visible now, showPanel:', true);
         if (onShowAnalysisPanel) {
           onShowAnalysisPanel(true);
         }

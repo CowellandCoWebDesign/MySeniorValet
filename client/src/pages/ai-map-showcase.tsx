@@ -141,7 +141,7 @@ export default function AIMapShowcase() {
                   </MapContainer>
                   
                   {/* Floating Instructions */}
-                  <div className="absolute top-4 left-4 right-4 bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg z-[1000]">
+                  <div className="absolute top-4 left-4 right-4 bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg z-[400] pointer-events-none">
                     <div className="flex items-center gap-2 text-sm">
                       <Target className="h-4 w-4 text-blue-600" />
                       <span className="font-medium text-gray-900">Click anywhere on the map to trigger AI analysis</span>

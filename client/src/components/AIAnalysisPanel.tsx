@@ -58,12 +58,13 @@ export const AIAnalysisPanel: React.FC<AIAnalysisPanelProps> = ({
   onClose,
   onCommunityClick
 }) => {
+  console.log('🎨 AIAnalysisPanel render - isVisible:', isVisible, 'analysisResult:', !!analysisResult);
   if (!isVisible || !analysisResult) return null;
 
   const { location, analysis, confidence, tags, communities, insights } = analysisResult;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-2xl transition-all duration-300 z-50" 
+    <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-2xl transition-all duration-300 z-[1000]" 
          style={{ height: '70vh', transform: isVisible ? 'translateY(0)' : 'translateY(100%)' }}>
       <div className="h-full flex flex-col">
         {/* Header with AI Analysis */}
