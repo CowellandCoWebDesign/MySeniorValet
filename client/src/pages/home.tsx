@@ -17,7 +17,7 @@ import { VerifiedCommunitiesSection } from "@/components/VerifiedCommunitiesSect
 import { HudCommunitiesSection } from "@/components/HudCommunitiesSection";
 
 export default function Home() {
-  console.log("STREAMLINED HERO LOADED - v4.1 - " + Date.now() + " - Everything Senior Living Needs - In one place");
+  console.log("MYSENIORVALET HOME PAGE WITH AI MAP BUTTON - VERSION 5 - " + Date.now());
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
       {/* Responsive Animated Background Elements */}
@@ -172,7 +172,19 @@ export default function Home() {
             </div>
 
             {/* Compact Action Buttons */}
-            <div className="max-w-xl mx-auto mb-6 space-y-3 px-2">
+            <div className="max-w-xl mx-auto mb-6 space-y-4 px-2">
+              {/* NEW AI Map Showcase Button - PROMINENT PLACEMENT */}
+              <Link href="/ai-map-showcase">
+                <Button 
+                  size="lg" 
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-2xl hover:shadow-3xl transition-all duration-300 text-lg sm:text-xl py-6 flex items-center justify-center ring-4 ring-purple-300 ring-opacity-50 animate-pulse"
+                >
+                  <Brain className="mr-3 h-8 w-8" />
+                  <Sparkles className="mr-2 h-6 w-6" />
+                  <span className="font-bold">🚀 Experience AI-Powered Map Intelligence</span>
+                </Button>
+              </Link>
+
               <Link href="/map-search">
                 <Button 
                   size="lg" 
@@ -206,18 +218,6 @@ export default function Home() {
                   </Button>
                 </Link>
               </div>
-
-              {/* AI Map Showcase Button */}
-              <Link href="/ai-map-showcase">
-                <Button 
-                  size="lg" 
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 text-base sm:text-lg py-3 flex items-center justify-center"
-                >
-                  <Brain className="mr-3 h-6 w-6" />
-                  <Sparkles className="mr-2 h-5 w-5" />
-                  Experience AI-Powered Map Intelligence
-                </Button>
-              </Link>
             </div>
 
             {/* Data Integrity Promise */}

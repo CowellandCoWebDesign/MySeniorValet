@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { PricingBreakdown } from "@/components/pricing-breakdown";
@@ -207,7 +207,7 @@ export default function MySeniorValetHome() {
           </div>
 
           {/* Primary CTA - Larger */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6 animate-fade-in-up animation-delay-700">
+          <div className="flex flex-col sm:flex-row gap-4 mb-4 animate-fade-in-up animation-delay-700">
             <Link href="/quiz">
               <Button variant="outline" className="border-2 border-purple-300 text-purple-100 hover:bg-purple-400 hover:text-purple-900 px-8 py-4 rounded-2xl font-medium text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-purple-500/20 backdrop-blur-sm">
                 ✨ Find My Perfect Match
@@ -216,6 +216,19 @@ export default function MySeniorValetHome() {
             <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}>
               <Button variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 rounded-2xl font-medium text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-white/10 backdrop-blur-sm">
                 Explore Communities
+              </Button>
+            </Link>
+          </div>
+
+          {/* NEW AI Map Showcase Button */}
+          <div className="mb-6 animate-fade-in-up animation-delay-800">
+            <Link href="/ai-map-showcase">
+              <Button 
+                className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-2xl hover:shadow-3xl transition-all duration-300 text-lg px-10 py-5 rounded-2xl flex items-center justify-center ring-4 ring-purple-300 ring-opacity-50 animate-pulse"
+              >
+                <Brain className="mr-3 h-7 w-7" />
+                <Sparkles className="mr-2 h-6 w-6" />
+                <span className="font-bold">🚀 Experience AI-Powered Map Intelligence</span>
               </Button>
             </Link>
           </div>
