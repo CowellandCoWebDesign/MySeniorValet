@@ -327,6 +327,11 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
                 ✅ Verified
               </Badge>
             )}
+            {variant === 'hud' && (
+              <Badge className="absolute bottom-3 right-3 bg-green-600 text-white text-xs px-2 py-1 font-medium">
+                🏛️ HUD Official
+              </Badge>
+            )}
           </div>
           
           <CardContent className="p-3">
@@ -353,7 +358,8 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
                 'Senior Living'
               } • {variant === 'coastal' ? 'Coastal Living' : 
                    variant === 'highest-rated' ? 'Top Rated' :
-                   variant === 'verified' ? 'Verified' : 'Premium Care'}
+                   variant === 'verified' ? 'Verified' :
+                   variant === 'hud' ? 'HUD Official' : 'Premium Care'}
             </div>
             
             {/* Name */}
@@ -385,6 +391,13 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
               <div className="mb-2">
                 <Badge className="bg-emerald-600/90 text-white text-xs px-2 py-1 font-medium">
                   Verified Data
+                </Badge>
+              </div>
+            )}
+            {variant === 'hud' && (
+              <div className="mb-2">
+                <Badge className="bg-green-600/90 text-white text-xs px-2 py-1 font-medium">
+                  Government Source
                 </Badge>
               </div>
             )}
