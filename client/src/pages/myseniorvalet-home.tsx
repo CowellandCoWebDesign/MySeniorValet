@@ -230,10 +230,7 @@ export default function MySeniorValetHome() {
                 <Building2 className="h-4 w-4 text-blue-300" />
                 <span className="text-sm font-semibold text-white">HUD + Government Sources</span>
               </div>
-              <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full shadow-lg">
-                <DollarSign className="h-4 w-4 text-purple-300" />
-                <span className="text-sm font-semibold text-white">Zero "Call for Pricing"</span>
-              </div>
+
             </div>
           </div>
           
