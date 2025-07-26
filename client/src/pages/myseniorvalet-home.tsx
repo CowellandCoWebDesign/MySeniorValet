@@ -220,19 +220,7 @@ export default function MySeniorValetHome() {
             </Link>
           </div>
           
-          {/* Admin Access - Owner Only */}
-          <div className="flex flex-col sm:flex-row gap-3 mb-4 animate-fade-in-up animation-delay-750">
-            <Link href="/admin">
-              <Button variant="outline" className="border-2 border-amber-300 text-amber-100 hover:bg-amber-400 hover:text-amber-900 px-6 py-3 rounded-xl font-medium text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-amber-500/20 backdrop-blur-sm">
-                🔐 Admin Dashboard
-              </Button>
-            </Link>
-            <Link href="/real-data-pricing">
-              <Button variant="outline" className="border-2 border-emerald-300 text-emerald-100 hover:bg-emerald-400 hover:text-emerald-900 px-6 py-3 rounded-xl font-medium text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-emerald-500/20 backdrop-blur-sm">
-                📊 Pricing Intelligence
-              </Button>
-            </Link>
-          </div>
+
           
           {/* Trust Indicators with 31,023+ Communities */}
           <div className="mb-6 animate-fade-in-up animation-delay-800">
@@ -1956,7 +1944,7 @@ export default function MySeniorValetHome() {
       {/* Website Footer */}
       <footer className="bg-gray-900 text-white">
         <div className="max-w-7xl mx-auto px-4 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
             {/* Company Info */}
             <div className="lg:col-span-2">
               <div className="mb-6">
@@ -2052,6 +2040,28 @@ export default function MySeniorValetHome() {
                 <li>
                   <a href="/contact" className="hover:text-blue-400 transition-colors">
                     Contact Support
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Admin & Community Access */}
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Platform Access</h4>
+              <ul className="space-y-2 text-sm text-gray-300">
+                <li>
+                  <a href="/community-portal" className="hover:text-blue-400 transition-colors">
+                    Community Portal
+                  </a>
+                </li>
+                <li>
+                  <a href="/admin" className="hover:text-amber-400 transition-colors">
+                    🔐 Admin Dashboard
+                  </a>
+                </li>
+                <li>
+                  <a href="/real-data-pricing" className="hover:text-emerald-400 transition-colors">
+                    📊 Pricing Intelligence
                   </a>
                 </li>
               </ul>
