@@ -220,6 +220,20 @@ export default function MySeniorValetHome() {
             </Link>
           </div>
           
+          {/* Admin Access - Owner Only */}
+          <div className="flex flex-col sm:flex-row gap-3 mb-4 animate-fade-in-up animation-delay-750">
+            <Link href="/admin">
+              <Button variant="outline" className="border-2 border-amber-300 text-amber-100 hover:bg-amber-400 hover:text-amber-900 px-6 py-3 rounded-xl font-medium text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-amber-500/20 backdrop-blur-sm">
+                🔐 Admin Dashboard
+              </Button>
+            </Link>
+            <Link href="/real-data-pricing">
+              <Button variant="outline" className="border-2 border-emerald-300 text-emerald-100 hover:bg-emerald-400 hover:text-emerald-900 px-6 py-3 rounded-xl font-medium text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-emerald-500/20 backdrop-blur-sm">
+                📊 Pricing Intelligence
+              </Button>
+            </Link>
+          </div>
+          
           {/* Trust Indicators with 31,023+ Communities */}
           <div className="mb-6 animate-fade-in-up animation-delay-800">
             <div className="flex flex-wrap items-center justify-center gap-3">
