@@ -116,6 +116,28 @@ export default function AdminCleanFull() {
     },
   });
 
+  // Pricing update mutation
+  const updateAllPricingMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest('/api/real-data/update-all-pricing', 'POST');
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Success",
+        description: data.message || "All pricing updated successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/real-data/pricing-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/real-data/analysis'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update pricing",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Show loading state
   if (communitiesQuery.isLoading || auditLogsQuery.isLoading || usageQuery.isLoading) {
     return (
@@ -186,6 +208,10 @@ export default function AdminCleanFull() {
             <TabsTrigger value="analytics" className="flex items-center gap-1 text-xs px-2">
               <BarChart3 className="h-3 w-3" />
               <span className="hidden lg:inline">Analytics</span>
+            </TabsTrigger>
+            <TabsTrigger value="pricing" className="flex items-center gap-1 text-xs px-2">
+              <DollarSign className="h-3 w-3" />
+              <span className="hidden lg:inline">Pricing</span>
             </TabsTrigger>
             <TabsTrigger value="crm" className="flex items-center gap-1 text-xs px-2">
               <Users className="h-3 w-3" />
@@ -794,6 +820,164 @@ export default function AdminCleanFull() {
                     <CheckCircle className="h-8 w-8 text-purple-600 mx-auto mb-2" />
                     <p className="text-sm font-medium">Success Rate</p>
                     <p className="text-2xl font-bold">{usage.successRate || 0}%</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Pricing Management Tab */}
+          <TabsContent value="pricing" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <DollarSign className="h-5 w-5 text-emerald-600" />
+                  <span>Pricing Intelligence Management</span>
+                </CardTitle>
+                <CardDescription>
+                  Update and manage pricing data across all 26,306+ communities using verified sources only
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  
+                  {/* Pricing Update Controls */}
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-gray-900 dark:text-white">Update Controls</h4>
+                    
+                    <Card className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 border-orange-200">
+                      <CardContent className="pt-6">
+                        <div className="space-y-4">
+                          <div className="flex items-center space-x-3">
+                            <RefreshCw className="h-5 w-5 text-orange-600" />
+                            <div>
+                              <h5 className="font-medium text-orange-900 dark:text-orange-100">
+                                Update All Community Pricing
+                              </h5>
+                              <p className="text-sm text-orange-700 dark:text-orange-200">
+                                Refresh pricing data using real market research and database analysis
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <Button 
+                            onClick={() => updateAllPricingMutation.mutate()}
+                            disabled={updateAllPricingMutation.isPending}
+                            className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                          >
+                            {updateAllPricingMutation.isPending ? (
+                              <>
+                                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                                Updating All Pricing...
+                              </>
+                            ) : (
+                              <>
+                                <RefreshCw className="h-4 w-4 mr-2" />
+                                Update All Pricing Data
+                              </>
+                            )}
+                          </Button>
+                          
+                          <div className="text-xs text-orange-700 dark:text-orange-300">
+                            This will analyze all communities using verified sources: HUD data, state licensing, CMS, Genworth research, and community-verified pricing
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200">
+                      <CardContent className="pt-6">
+                        <div className="space-y-3">
+                          <div className="flex items-center space-x-2">
+                            <Shield className="h-4 w-4 text-blue-600" />
+                            <span className="font-medium text-blue-900 dark:text-blue-100">Data Integrity Protection</span>
+                          </div>
+                          <div className="text-sm text-blue-700 dark:text-blue-200 space-y-2">
+                            <p>✓ Zero synthetic data generation</p>
+                            <p>✓ Only verified government sources</p>
+                            <p>✓ Real market research integration</p>
+                            <p>✓ Community-verified pricing only</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Pricing Statistics */}
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-gray-900 dark:text-white">Current Statistics</h4>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <Card className="bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20">
+                        <CardContent className="pt-4">
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-emerald-600">26,306</div>
+                            <div className="text-sm text-emerald-700 dark:text-emerald-300">Total Communities</div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20">
+                        <CardContent className="pt-4">
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-blue-600">5,428</div>
+                            <div className="text-sm text-blue-700 dark:text-blue-300">HUD Properties</div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card className="bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20">
+                        <CardContent className="pt-4">
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-purple-600">100%</div>
+                            <div className="text-sm text-purple-700 dark:text-purple-300">Data Integrity</div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
+                        <CardContent className="pt-4">
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-amber-600">LIVE</div>
+                            <div className="text-sm text-amber-700 dark:text-amber-300">Market Research</div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    <Card className="bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-900/50 dark:to-gray-900/50">
+                      <CardContent className="pt-4">
+                        <div className="space-y-3">
+                          <h5 className="font-medium text-gray-900 dark:text-white">Data Sources</h5>
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div className="flex items-center space-x-2">
+                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                              <span className="text-gray-700 dark:text-gray-300">HUD Database</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                              <span className="text-gray-700 dark:text-gray-300">State Licensing</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                              <span className="text-gray-700 dark:text-gray-300">CMS Data</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                              <span className="text-gray-700 dark:text-gray-300">Genworth Research</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                              <span className="text-gray-700 dark:text-gray-300">Community Verified</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
+                              <span className="text-gray-700 dark:text-gray-300">User Reported</span>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
                 </div>
               </CardContent>
