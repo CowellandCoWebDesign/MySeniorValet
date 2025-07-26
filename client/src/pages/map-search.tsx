@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import Map from '@/components/Map';
 import MapErrorBoundary from '@/components/MapErrorBoundary';
+import AIMapIntegration from '@/components/AIMapIntegration';
 import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
 import { useQuery } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
