@@ -1150,6 +1150,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Senior Services API endpoints
+  app.get('/api/services/discover', async (req, res) => {
+    const { lat, lng, radius = 5, category } = req.query;
+    
+    if (!lat || !lng) {
+      return res.status(400).json({ error: 'Latitude and longitude are required' });
+    }
+    
+    try {
+      // Mock services data for now - will integrate with real APIs
+      const mockServices = [
+        {
+          id: '1',
+          category: 'moving',
+          name: 'Gentle Transitions Senior Move Management',
+          description: 'Specialized in downsizing and senior relocations',
+          provider: 'Gentle Transitions LLC',
+          address: '123 Main St',
+          phone: '(415) 555-1234',
+          website: 'https://gentletransitions.com',
+          location: { lat: parseFloat(lat as string) + 0.01, lng: parseFloat(lng as string) + 0.01 },
+          distance: 2.3,
+          rating: 4.8,
+          features: ['Packing', 'Unpacking', 'Estate sales', 'Donation coordination'],
+          pricing: 'Free consultation',
+          verified: true
+        },
+        {
+          id: '2',
+          category: 'prescription_delivery',
+          name: 'CVS Pharmacy Delivery',
+          description: 'Free prescription delivery for seniors',
+          provider: 'CVS Health',
+          phone: '(415) 555-2345',
+          location: { lat: parseFloat(lat as string) - 0.005, lng: parseFloat(lng as string) + 0.005 },
+          distance: 0.8,
+          rating: 4.5,
+          features: ['Same-day delivery', 'Medication sync', 'Auto-refill'],
+          pricing: 'Free delivery',
+          verified: true
+        },
+        {
+          id: '3',
+          category: 'senior_center',
+          name: 'Golden Gate Senior Center',
+          description: 'Community activities and social programs',
+          provider: 'City Department',
+          address: '456 Park Ave',
+          phone: '(415) 555-3456',
+          location: { lat: parseFloat(lat as string) + 0.008, lng: parseFloat(lng as string) - 0.008 },
+          distance: 1.5,
+          rating: 4.7,
+          features: ['Exercise classes', 'Meals', 'Social activities', 'Health screenings'],
+          pricing: 'Free for residents',
+          verified: true
+        }
+      ];
+      
+      // Filter by category if provided
+      let filteredServices = mockServices;
+      if (category && category !== 'all') {
+        filteredServices = mockServices.filter(s => s.category === category);
+      }
+      
+      res.json({
+        services: filteredServices,
+        total: filteredServices.length,
+        categories: ['moving', 'prescription_delivery', 'senior_center', 'medical_transport', 'meal_delivery']
+      });
+    } catch (error) {
+      console.error('Failed to discover services:', error);
+      res.status(500).json({ error: 'Failed to discover services' });
+    }
+  });
+
   // PostGIS-enabled spatial search endpoint
   app.get('/api/communities/search/spatial', async (req, res) => {
     try {

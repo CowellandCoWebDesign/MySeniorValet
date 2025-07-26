@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Brain, MapPin, Star, Phone, DollarSign, Users, Sparkles, TrendingUp } from 'lucide-react';
+import { Brain, MapPin, Star, Phone, DollarSign, Users, Sparkles, TrendingUp, Package } from 'lucide-react';
 import { getPricingDisplay } from '@/lib/utils';
+import { LocalServicesPanel } from './LocalServicesPanel';
 
 // Community interface matching our database schema
 interface Community {
@@ -59,6 +60,8 @@ export const AIAnalysisPanel: React.FC<AIAnalysisPanelProps> = ({
   onCommunityClick
 }) => {
   console.log('🎨 AIAnalysisPanel render - isVisible:', isVisible, 'analysisResult:', !!analysisResult);
+  const [activeTab, setActiveTab] = useState<'communities' | 'services'>('communities');
+  
   if (!isVisible || !analysisResult) return null;
 
   const { location, analysis, confidence, tags, communities, insights } = analysisResult;
@@ -143,11 +146,35 @@ export const AIAnalysisPanel: React.FC<AIAnalysisPanelProps> = ({
           </div>
         </div>
 
-        {/* Communities List */}
+        {/* Tab Navigation */}
+        <div className="border-b border-gray-200 dark:border-gray-700 px-6">
+          <div className="flex gap-4">
+            <Button
+              variant={activeTab === 'communities' ? 'default' : 'ghost'}
+              onClick={() => setActiveTab('communities')}
+              className="flex items-center gap-2"
+            >
+              <Brain className="w-4 h-4" />
+              Communities ({communities.length})
+            </Button>
+            <Button
+              variant={activeTab === 'services' ? 'default' : 'ghost'}
+              onClick={() => setActiveTab('services')}
+              className="flex items-center gap-2"
+            >
+              <Package className="w-4 h-4" />
+              Local Services
+            </Button>
+          </div>
+        </div>
+
+        {/* Content Area */}
         <div className="flex-1 overflow-y-auto p-6">
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-            {communities.length} Communities in This Area
-          </h3>
+          {activeTab === 'communities' ? (
+            <>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                {communities.length} Communities in This Area
+              </h3>
           
           <div className="space-y-4">
             {communities.map((community) => (
@@ -220,6 +247,20 @@ export const AIAnalysisPanel: React.FC<AIAnalysisPanelProps> = ({
               </Card>
             ))}
           </div>
+            </>
+          ) : (
+            <LocalServicesPanel
+              location={location}
+              careTypes={communities.flatMap(c => c.careTypes || [])}
+              amazonAssociateTag="myseniorvalet-20"
+              onServiceClick={(service) => {
+                console.log('Service clicked:', service);
+                if (service.website) {
+                  window.open(service.website, '_blank');
+                }
+              }}
+            />
+          )}
         </div>
       </div>
     </div>
