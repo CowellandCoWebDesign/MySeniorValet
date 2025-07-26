@@ -1511,6 +1511,369 @@ export const vendorConnections = pgTable("vendor_connections", {
   index("vendor_connections_active_idx").on(table.isActive),
 ]);
 
+// ============ VENDOR MARKETPLACE TABLES ============
+
+// Vendors - Main vendor account table
+export const vendors = pgTable("vendors", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).unique(), // Link to user account
+  
+  // Business Information
+  businessName: varchar("business_name", { length: 255 }).notNull(),
+  businessType: varchar("business_type", { length: 50 }).notNull(), // 'individual', 'company', 'franchise'
+  taxId: varchar("tax_id", { length: 100 }), // EIN or SSN (encrypted)
+  
+  // Contact Information
+  primaryContactName: varchar("primary_contact_name", { length: 255 }).notNull(),
+  primaryContactEmail: varchar("primary_contact_email", { length: 255 }).notNull(),
+  primaryContactPhone: varchar("primary_contact_phone", { length: 20 }).notNull(),
+  businessAddress: text("business_address"),
+  businessCity: varchar("business_city", { length: 100 }),
+  businessState: varchar("business_state", { length: 2 }),
+  businessZip: varchar("business_zip", { length: 10 }),
+  
+  // Profile Information
+  logoUrl: text("logo_url"),
+  coverImageUrl: text("cover_image_url"),
+  description: text("description"),
+  shortDescription: varchar("short_description", { length: 500 }),
+  yearsInBusiness: integer("years_in_business"),
+  employeeCount: varchar("employee_count", { length: 50 }), // '1-5', '6-20', '21-50', '51-100', '100+'
+  website: varchar("website", { length: 255 }),
+  socialLinks: jsonb("social_links").$type<{
+    facebook?: string;
+    instagram?: string;
+    linkedin?: string;
+    youtube?: string;
+  }>().default({}),
+  
+  // Service Coverage
+  serviceAreas: text("service_areas").array().default([]), // Cities/regions served
+  serviceRadius: integer("service_radius"), // Miles from business location
+  
+  // Verification & Compliance
+  isVerified: boolean("is_verified").default(false),
+  verificationDate: timestamp("verification_date"),
+  verificationDocuments: jsonb("verification_documents").$type<Array<{
+    type: string; // 'business_license', 'insurance', 'certification'
+    fileName: string;
+    uploadedAt: string;
+    verifiedAt?: string;
+    expiresAt?: string;
+  }>>().default([]),
+  insuranceExpiry: date("insurance_expiry"),
+  licenseNumber: varchar("license_number", { length: 100 }),
+  licenseState: varchar("license_state", { length: 2 }),
+  
+  // Subscription & Status
+  subscriptionStatus: varchar("subscription_status", { length: 50 }).default('trial'), // 'trial', 'active', 'past_due', 'cancelled'
+  subscriptionTier: varchar("subscription_tier", { length: 50 }).default('basic'), // 'basic', 'professional', 'enterprise'
+  subscriptionStartDate: timestamp("subscription_start_date"),
+  subscriptionEndDate: timestamp("subscription_end_date"),
+  stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
+  stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }),
+  
+  // Performance Metrics
+  totalLeads: integer("total_leads").default(0),
+  totalConversions: integer("total_conversions").default(0),
+  lifetimeRevenue: decimal("lifetime_revenue", { precision: 10, scale: 2 }).default("0"),
+  averageRating: decimal("average_rating", { precision: 3, scale: 2 }),
+  totalReviews: integer("total_reviews").default(0),
+  responseTime: integer("response_time"), // Average hours to respond
+  completionRate: decimal("completion_rate", { precision: 5, scale: 2 }), // Percentage of jobs completed
+  
+  // Commission & Payments
+  commissionRate: decimal("commission_rate", { precision: 5, scale: 2 }).default("15"), // Percentage
+  paymentMethod: varchar("payment_method", { length: 50 }), // 'bank_transfer', 'check', 'paypal'
+  paymentDetails: jsonb("payment_details").$type<{
+    bankName?: string;
+    accountLast4?: string;
+    routingNumber?: string;
+    paypalEmail?: string;
+  }>(),
+  
+  // Status & Flags
+  status: varchar("status", { length: 50 }).default('pending'), // 'pending', 'active', 'suspended', 'banned'
+  statusReason: text("status_reason"),
+  featured: boolean("featured").default(false),
+  featuredUntil: timestamp("featured_until"),
+  
+  // Settings
+  notificationPreferences: jsonb("notification_preferences").$type<{
+    emailLeads: boolean;
+    smsLeads: boolean;
+    weeklyReport: boolean;
+    monthlyReport: boolean;
+    paymentAlerts: boolean;
+  }>().default({
+    emailLeads: true,
+    smsLeads: false,
+    weeklyReport: true,
+    monthlyReport: true,
+    paymentAlerts: true,
+  }),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("vendors_user_id_idx").on(table.userId),
+  index("vendors_status_idx").on(table.status),
+  index("vendors_subscription_status_idx").on(table.subscriptionStatus),
+  index("vendors_featured_idx").on(table.featured),
+]);
+
+// Vendor Service Categories
+export const vendorServiceCategories = pgTable("vendor_service_categories", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  slug: varchar("slug", { length: 100 }).notNull().unique(),
+  description: text("description"),
+  icon: varchar("icon", { length: 50 }), // Icon name for UI
+  parentId: integer("parent_id"),
+  displayOrder: integer("display_order").default(0),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("vendor_service_categories_slug_idx").on(table.slug),
+  index("vendor_service_categories_parent_idx").on(table.parentId),
+]);
+
+// Vendor Services Offered
+export const vendorServices = pgTable("vendor_services", {
+  id: serial("id").primaryKey(),
+  vendorId: integer("vendor_id").references(() => vendors.id).notNull(),
+  categoryId: integer("category_id").references(() => vendorServiceCategories.id).notNull(),
+  
+  // Service Details
+  serviceName: varchar("service_name", { length: 255 }).notNull(),
+  serviceDescription: text("service_description"),
+  
+  // Pricing
+  pricingType: varchar("pricing_type", { length: 50 }).notNull(), // 'fixed', 'hourly', 'quote', 'subscription'
+  price: decimal("price", { precision: 10, scale: 2 }),
+  priceUnit: varchar("price_unit", { length: 50 }), // 'per_hour', 'per_room', 'per_month', etc.
+  priceRange: jsonb("price_range").$type<{ min: number; max: number }>(),
+  
+  // Service Specifics
+  duration: integer("duration"), // Estimated minutes
+  includedFeatures: text("included_features").array().default([]),
+  addOns: jsonb("add_ons").$type<Array<{
+    name: string;
+    price: number;
+    description?: string;
+  }>>().default([]),
+  
+  // Availability
+  isActive: boolean("is_active").default(true),
+  availabilityType: varchar("availability_type", { length: 50 }).default('always'), // 'always', 'scheduled', 'limited'
+  availabilitySchedule: jsonb("availability_schedule").$type<{
+    days?: string[]; // ['monday', 'tuesday', etc.]
+    hours?: { start: string; end: string };
+    blackoutDates?: string[];
+  }>(),
+  
+  // Service Area
+  serviceAreaOverride: text("service_area_override").array(), // Override vendor's default service areas
+  
+  // Performance
+  totalBookings: integer("total_bookings").default(0),
+  averageRating: decimal("average_rating", { precision: 3, scale: 2 }),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("vendor_services_vendor_idx").on(table.vendorId),
+  index("vendor_services_category_idx").on(table.categoryId),
+  index("vendor_services_active_idx").on(table.isActive),
+]);
+
+// Vendor Subscription Plans
+export const vendorSubscriptionPlans = pgTable("vendor_subscription_plans", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  slug: varchar("slug", { length: 100 }).notNull().unique(),
+  description: text("description"),
+  
+  // Pricing
+  monthlyPrice: decimal("monthly_price", { precision: 10, scale: 2 }).notNull(),
+  annualPrice: decimal("annual_price", { precision: 10, scale: 2 }),
+  setupFee: decimal("setup_fee", { precision: 10, scale: 2 }).default("0"),
+  
+  // Features
+  features: jsonb("features").$type<{
+    maxLeadsPerMonth: number;
+    commissionRate: number;
+    featuredListingDays: number;
+    analyticsAccess: boolean;
+    prioritySupport: boolean;
+    customBranding: boolean;
+    apiAccess: boolean;
+    teamMembers: number;
+  }>().notNull(),
+  
+  // Stripe Integration
+  stripeProductId: varchar("stripe_product_id", { length: 255 }),
+  stripePriceIdMonthly: varchar("stripe_price_id_monthly", { length: 255 }),
+  stripePriceIdAnnual: varchar("stripe_price_id_annual", { length: 255 }),
+  
+  displayOrder: integer("display_order").default(0),
+  isActive: boolean("is_active").default(true),
+  isPopular: boolean("is_popular").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("vendor_subscription_plans_slug_idx").on(table.slug),
+  index("vendor_subscription_plans_active_idx").on(table.isActive),
+]);
+
+// Vendor Leads & Commissions
+export const vendorLeads = pgTable("vendor_leads", {
+  id: serial("id").primaryKey(),
+  vendorId: integer("vendor_id").references(() => vendors.id).notNull(),
+  userId: varchar("user_id").references(() => users.id),
+  serviceId: integer("service_id").references(() => vendorServices.id),
+  
+  // Lead Information
+  leadType: varchar("lead_type", { length: 50 }).notNull(), // 'inquiry', 'quote_request', 'booking'
+  status: varchar("status", { length: 50 }).default('new'), // 'new', 'contacted', 'quoted', 'won', 'lost'
+  
+  // Customer Information
+  customerName: varchar("customer_name", { length: 255 }).notNull(),
+  customerEmail: varchar("customer_email", { length: 255 }),
+  customerPhone: varchar("customer_phone", { length: 20 }),
+  
+  // Service Details
+  serviceDetails: jsonb("service_details").$type<{
+    serviceDate?: string;
+    location?: string;
+    description?: string;
+    specialRequests?: string;
+    budget?: { min: number; max: number };
+  }>().notNull(),
+  
+  // Tracking
+  source: varchar("source", { length: 50 }).default('platform'), // 'platform', 'direct', 'referral'
+  referralCommunityId: integer("referral_community_id").references(() => communities.id),
+  
+  // Response & Conversion
+  respondedAt: timestamp("responded_at"),
+  responseTime: integer("response_time"), // Minutes
+  quotedAmount: decimal("quoted_amount", { precision: 10, scale: 2 }),
+  wonAmount: decimal("won_amount", { precision: 10, scale: 2 }),
+  convertedAt: timestamp("converted_at"),
+  
+  // Commission
+  commissionRate: decimal("commission_rate", { precision: 5, scale: 2 }),
+  commissionAmount: decimal("commission_amount", { precision: 10, scale: 2 }),
+  commissionStatus: varchar("commission_status", { length: 50 }).default('pending'), // 'pending', 'approved', 'paid', 'cancelled'
+  commissionPaidAt: timestamp("commission_paid_at"),
+  
+  // Notes
+  vendorNotes: text("vendor_notes"),
+  internalNotes: text("internal_notes"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("vendor_leads_vendor_idx").on(table.vendorId),
+  index("vendor_leads_user_idx").on(table.userId),
+  index("vendor_leads_service_idx").on(table.serviceId),
+  index("vendor_leads_status_idx").on(table.status),
+  index("vendor_leads_commission_status_idx").on(table.commissionStatus),
+]);
+
+// Vendor Reviews
+export const vendorReviews = pgTable("vendor_reviews", {
+  id: serial("id").primaryKey(),
+  vendorId: integer("vendor_id").references(() => vendors.id).notNull(),
+  userId: varchar("user_id").references(() => users.id),
+  leadId: integer("lead_id").references(() => vendorLeads.id),
+  
+  // Review Details
+  rating: integer("rating").notNull(), // 1-5 stars
+  title: varchar("title", { length: 255 }),
+  review: text("review").notNull(),
+  
+  // Service Information
+  serviceId: integer("service_id").references(() => vendorServices.id),
+  serviceDate: date("service_date"),
+  
+  // Review Aspects
+  aspects: jsonb("aspects").$type<{
+    quality?: number;
+    value?: number;
+    punctuality?: number;
+    communication?: number;
+    professionalism?: number;
+  }>(),
+  
+  // Media
+  photos: text("photos").array().default([]),
+  
+  // Verification
+  isVerified: boolean("is_verified").default(false), // Verified purchase/service
+  verificationMethod: varchar("verification_method", { length: 50 }), // 'booking', 'receipt', 'admin'
+  
+  // Response
+  vendorResponse: text("vendor_response"),
+  vendorRespondedAt: timestamp("vendor_responded_at"),
+  
+  // Moderation
+  status: varchar("status", { length: 50 }).default('published'), // 'pending', 'published', 'hidden', 'removed'
+  moderationNotes: text("moderation_notes"),
+  
+  // Helpful votes
+  helpfulVotes: integer("helpful_votes").default(0),
+  unhelpfulVotes: integer("unhelpful_votes").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("vendor_reviews_vendor_idx").on(table.vendorId),
+  index("vendor_reviews_user_idx").on(table.userId),
+  index("vendor_reviews_rating_idx").on(table.rating),
+  index("vendor_reviews_status_idx").on(table.status),
+]);
+
+// Vendor Analytics
+export const vendorAnalytics = pgTable("vendor_analytics", {
+  id: serial("id").primaryKey(),
+  vendorId: integer("vendor_id").references(() => vendors.id).notNull(),
+  date: date("date").notNull(),
+  
+  // Profile Metrics
+  profileViews: integer("profile_views").default(0),
+  searchImpressions: integer("search_impressions").default(0),
+  clickThroughRate: decimal("click_through_rate", { precision: 5, scale: 2 }),
+  
+  // Lead Metrics
+  leadsReceived: integer("leads_received").default(0),
+  leadsResponded: integer("leads_responded").default(0),
+  leadsConverted: integer("leads_converted").default(0),
+  averageResponseTime: integer("average_response_time"), // Minutes
+  
+  // Revenue Metrics
+  quotesProvided: integer("quotes_provided").default(0),
+  totalQuotedAmount: decimal("total_quoted_amount", { precision: 10, scale: 2 }).default("0"),
+  jobsWon: integer("jobs_won").default(0),
+  revenueGenerated: decimal("revenue_generated", { precision: 10, scale: 2 }).default("0"),
+  commissionsOwed: decimal("commissions_owed", { precision: 10, scale: 2 }).default("0"),
+  
+  // Service Metrics
+  servicesViewed: jsonb("services_viewed").$type<Record<string, number>>().default({}),
+  topPerformingServices: jsonb("top_performing_services").$type<Array<{
+    serviceId: number;
+    views: number;
+    leads: number;
+    conversions: number;
+  }>>().default([]),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("vendor_analytics_vendor_date_idx").on(table.vendorId, table.date),
+]);
+
 // Operator Team Members
 export const operatorTeamMembers = pgTable("operator_team_members", {
   id: serial("id").primaryKey(),
@@ -2775,3 +3138,87 @@ export type SelectCommunitySubscription = typeof communitySubscriptions.$inferSe
 export const insertTourReviewSchema = createInsertSchema(tourReviews);
 export type InsertTourReview = z.infer<typeof insertTourReviewSchema>;
 export type SelectTourReview = typeof tourReviews.$inferSelect;
+
+// ============ VENDOR MARKETPLACE TYPES ============
+
+// Vendor types
+export const insertVendorSchema = createInsertSchema(vendors).omit({
+  id: true,
+  isVerified: true,
+  verificationDate: true,
+  totalLeads: true,
+  totalConversions: true,
+  lifetimeRevenue: true,
+  averageRating: true,
+  totalReviews: true,
+  responseTime: true,
+  completionRate: true,
+  featured: true,
+  featuredUntil: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertVendor = z.infer<typeof insertVendorSchema>;
+export type Vendor = typeof vendors.$inferSelect;
+
+// Vendor Service Category types
+export const insertVendorServiceCategorySchema = createInsertSchema(vendorServiceCategories).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertVendorServiceCategory = z.infer<typeof insertVendorServiceCategorySchema>;
+export type VendorServiceCategory = typeof vendorServiceCategories.$inferSelect;
+
+// Vendor Service types
+export const insertVendorServiceSchema = createInsertSchema(vendorServices).omit({
+  id: true,
+  totalBookings: true,
+  averageRating: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertVendorService = z.infer<typeof insertVendorServiceSchema>;
+export type VendorService = typeof vendorServices.$inferSelect;
+
+// Vendor Subscription Plan types
+export const insertVendorSubscriptionPlanSchema = createInsertSchema(vendorSubscriptionPlans).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertVendorSubscriptionPlan = z.infer<typeof insertVendorSubscriptionPlanSchema>;
+export type VendorSubscriptionPlan = typeof vendorSubscriptionPlans.$inferSelect;
+
+// Vendor Lead types
+export const insertVendorLeadSchema = createInsertSchema(vendorLeads).omit({
+  id: true,
+  respondedAt: true,
+  responseTime: true,
+  convertedAt: true,
+  commissionAmount: true,
+  commissionPaidAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertVendorLead = z.infer<typeof insertVendorLeadSchema>;
+export type VendorLead = typeof vendorLeads.$inferSelect;
+
+// Vendor Review types
+export const insertVendorReviewSchema = createInsertSchema(vendorReviews).omit({
+  id: true,
+  vendorRespondedAt: true,
+  helpfulVotes: true,
+  unhelpfulVotes: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertVendorReview = z.infer<typeof insertVendorReviewSchema>;
+export type VendorReview = typeof vendorReviews.$inferSelect;
+
+// Vendor Analytics types
+export const insertVendorAnalyticsSchema = createInsertSchema(vendorAnalytics).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertVendorAnalytics = z.infer<typeof insertVendorAnalyticsSchema>;
+export type VendorAnalytics = typeof vendorAnalytics.$inferSelect;
