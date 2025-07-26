@@ -73,6 +73,7 @@ import { authService, requireAuth } from "./auth";
 import { simpleAuthService, requireSimpleAuth } from "./simple-auth";
 import { regionalExpansionEngine } from "./regional-expansion";
 import { comprehensivePhotoEnrichment } from "./comprehensive-photo-enrichment";
+import { AnthropicAIService, GeminiAIService, AIOrchestrator } from "./ai-services";
 import { apiCostProtection } from "./api-cost-protection";
 import { aiSearchService } from "./ai-search-service";
 import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
@@ -11947,6 +11948,174 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: 'Failed to seed community data',
         error: error instanceof Error ? error.message : 'Unknown error'
       });
+    }
+  });
+
+  // ========== AI SERVICES ENDPOINTS ==========
+
+  // Comprehensive AI Analysis
+  app.post('/api/ai/comprehensive-analysis', async (req, res) => {
+    try {
+      const { query, service = 'anthropic', preferences = {} } = req.body;
+      
+      if (!query) {
+        return res.status(400).json({ error: 'Query is required' });
+      }
+
+      // Get sample communities for analysis
+      const communities = await db.select().from(communities).limit(50);
+      
+      const analysis = await AIOrchestrator.getComprehensiveAnalysis(
+        query,
+        communities,
+        preferences
+      );
+      
+      res.json(analysis);
+    } catch (error) {
+      console.error('AI comprehensive analysis error:', error);
+      res.status(500).json({ error: 'AI analysis failed' });
+    }
+  });
+
+  // Community Recommendations
+  app.post('/api/ai/community-recommendations', async (req, res) => {
+    try {
+      const { query, preferences = {}, limit = 10 } = req.body;
+      
+      if (!query) {
+        return res.status(400).json({ error: 'Query is required' });
+      }
+
+      const communities = await db.select().from(communities).limit(100);
+      
+      const recommendations = await AnthropicAIService.generateCommunityRecommendations(
+        query,
+        communities,
+        preferences
+      );
+      
+      res.json(recommendations.slice(0, limit));
+    } catch (error) {
+      console.error('AI recommendations error:', error);
+      res.status(500).json({ error: 'Failed to generate recommendations' });
+    }
+  });
+
+  // Care Needs Assessment
+  app.post('/api/ai/care-assessment', async (req, res) => {
+    try {
+      const { healthProfile, currentSituation, familyInput } = req.body;
+      
+      if (!currentSituation) {
+        return res.status(400).json({ error: 'Current situation is required' });
+      }
+
+      const assessment = await AnthropicAIService.assessCareNeeds(
+        healthProfile || {},
+        currentSituation,
+        familyInput || ''
+      );
+      
+      res.json(assessment);
+    } catch (error) {
+      console.error('AI care assessment error:', error);
+      res.status(500).json({ error: 'Failed to assess care needs' });
+    }
+  });
+
+  // Family Report Generation
+  app.post('/api/ai/family-report', async (req, res) => {
+    try {
+      const { communityId, tourNotes, familyQuestions = [] } = req.body;
+      
+      if (!communityId) {
+        return res.status(400).json({ error: 'Community ID is required' });
+      }
+
+      const community = await storage.getCommunity(communityId);
+      if (!community) {
+        return res.status(404).json({ error: 'Community not found' });
+      }
+
+      const report = await AnthropicAIService.generateFamilyReport(
+        community,
+        tourNotes || '',
+        familyQuestions
+      );
+      
+      res.json({ report });
+    } catch (error) {
+      console.error('AI family report error:', error);
+      res.status(500).json({ error: 'Failed to generate family report' });
+    }
+  });
+
+  // Review Analysis
+  app.post('/api/ai/analyze-reviews', async (req, res) => {
+    try {
+      const { reviews = [] } = req.body;
+      
+      if (!Array.isArray(reviews) || reviews.length === 0) {
+        return res.status(400).json({ error: 'Reviews array is required' });
+      }
+
+      const analysis = await AnthropicAIService.analyzeReviews(reviews);
+      res.json(analysis);
+    } catch (error) {
+      console.error('AI review analysis error:', error);
+      res.status(500).json({ error: 'Failed to analyze reviews' });
+    }
+  });
+
+  // Image Analysis (Gemini)
+  app.post('/api/ai/analyze-image', async (req, res) => {
+    try {
+      const { image, type = 'community_photo' } = req.body;
+      
+      if (!image) {
+        return res.status(400).json({ error: 'Image data is required' });
+      }
+
+      const analysis = await GeminiAIService.analyzeCommunityImage(image);
+      res.json({ analysis, type });
+    } catch (error) {
+      console.error('AI image analysis error:', error);
+      res.status(500).json({ error: 'Failed to analyze image' });
+    }
+  });
+
+  // Smart Search Enhancement
+  app.post('/api/ai/enhance-search', async (req, res) => {
+    try {
+      const { query } = req.body;
+      
+      if (!query) {
+        return res.status(400).json({ error: 'Query is required' });
+      }
+
+      const enhancement = await GeminiAIService.enhanceSearchQuery(query);
+      res.json(enhancement);
+    } catch (error) {
+      console.error('AI search enhancement error:', error);
+      res.status(500).json({ error: 'Failed to enhance search query' });
+    }
+  });
+
+  // Translation Service
+  app.post('/api/ai/translate', async (req, res) => {
+    try {
+      const { text, targetLanguage } = req.body;
+      
+      if (!text || !targetLanguage) {
+        return res.status(400).json({ error: 'Text and target language are required' });
+      }
+
+      const translation = await GeminiAIService.translateContent(text, targetLanguage);
+      res.json({ translation, originalText: text, targetLanguage });
+    } catch (error) {
+      console.error('AI translation error:', error);
+      res.status(500).json({ error: 'Failed to translate content' });
     }
   });
 

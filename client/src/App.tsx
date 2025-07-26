@@ -65,6 +65,7 @@ import AuthDebug from "@/pages/auth-debug";
 import DatabaseTest from "@/pages/database-test";
 import IntegrationDashboard from "@/pages/integration-dashboard";
 import IntegrationsPage from "@/pages/integrations";
+import AIDemoPage from "@/pages/ai-demo";
 import { useAuth } from "@/hooks/useAuth";
 
 function Router() {
@@ -134,6 +135,7 @@ function Router() {
       <Route path="/database-test" component={DatabaseTest} />
       <Route path="/integrations" component={IntegrationsPage} />
       <Route path="/integration-dashboard" component={IntegrationDashboard} />
+      <Route path="/ai-demo" component={AIDemoPage} />
       <Route component={NotFound} />
     </Switch>
   );
