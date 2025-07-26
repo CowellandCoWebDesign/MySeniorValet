@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { PricingBreakdown } from "@/components/pricing-breakdown";
@@ -511,6 +511,97 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
+      {/* Senior Services Directory Section */}
+      <section className="px-4 py-16 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <Badge className="bg-orange-500 text-white mb-4 px-4 py-2 text-sm font-semibold">NEW ECOSYSTEM</Badge>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">Complete Senior Services Directory</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300">Beyond communities - everything seniors need for independent living</p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardContent className="p-4 text-center">
+                <Truck className="w-10 h-10 text-orange-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Moving Services</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Senior move specialists</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardContent className="p-4 text-center">
+                <Pill className="w-10 h-10 text-blue-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Rx Delivery</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Medication services</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardContent className="p-4 text-center">
+                <Building className="w-10 h-10 text-purple-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Senior Centers</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Community programs</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardContent className="p-4 text-center">
+                <Ambulance className="w-10 h-10 text-red-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Medical Transport</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Non-emergency rides</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardContent className="p-4 text-center">
+                <Package className="w-10 h-10 text-green-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">15+ More Services</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Complete ecosystem</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/20 dark:to-amber-900/20 rounded-2xl p-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                  🛍️ Amazon Product Recommendations
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 mb-4">
+                  Curated senior-friendly products including mobility aids, safety equipment, 
+                  daily living aids, and medical supplies - all with verified reviews and 
+                  competitive pricing.
+                </p>
+                <Badge className="bg-yellow-500 text-white">Coming Soon with Amazon Associates</Badge>
+              </div>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <span className="text-gray-700 dark:text-gray-300">Verified local service providers</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <span className="text-gray-700 dark:text-gray-300">Quality scoring algorithm</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <span className="text-gray-700 dark:text-gray-300">AI-matched to care needs</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-8">
+            <Link href="/senior-services">
+              <Button className="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                Explore Senior Services Directory →
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Integration Spotlight - Showcase Our Advanced Tools */}
       {showIntegrationSpotlight && (
         <section className="px-4 py-12 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 relative overflow-hidden">
@@ -561,6 +652,20 @@ export default function MySeniorValetHome() {
                   <p className="text-sm text-white/80">Real-time family sharing, notes, and collaborative decision-making tools</p>
                   <Link href="/family-collaboration">
                     <Button variant="outline" className="mt-3 border-white/30 text-white hover:bg-white/20">Start Sharing</Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Senior Services Directory */}
+              <Card className="bg-white/10 backdrop-blur-md border-white/20 text-white">
+                <CardContent className="p-6 text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl">🛎️</span>
+                  </div>
+                  <h3 className="font-semibold mb-2">Senior Services</h3>
+                  <p className="text-sm text-white/80">Moving, Rx delivery, equipment, and 15+ essential service categories</p>
+                  <Link href="/senior-services">
+                    <Button variant="outline" className="mt-3 border-white/30 text-white hover:bg-white/20">Browse Services</Button>
                   </Link>
                 </CardContent>
               </Card>

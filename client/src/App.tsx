@@ -53,6 +53,7 @@ import AllInOnePlanner from "@/pages/all-in-one-planner";
 import Costs from "@/pages/costs";
 import RealDataPricing from "@/pages/real-data-pricing";
 import Services from "@/pages/services";
+import SeniorServices from "@/pages/senior-services";
 import CommunityPaymentProgram from "@/pages/community-payment-program";
 import ResidentOnboarding from "@/pages/resident-onboarding";
 import LeaseDocumentManagement from "@/pages/lease-document-management";
@@ -125,6 +126,7 @@ function Router() {
       <Route path="/costs" component={Costs} />
       <Route path="/real-data-pricing" component={RealDataPricing} />
       <Route path="/services" component={Services} />
+      <Route path="/senior-services" component={SeniorServices} />
       <Route path="/community-payment-program" component={CommunityPaymentProgram} />
       <Route path="/resident-onboarding" component={ResidentOnboarding} />
       <Route path="/lease-management/:applicationId" component={LeaseDocumentManagement} />

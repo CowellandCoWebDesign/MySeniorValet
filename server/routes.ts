@@ -533,6 +533,165 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ===============================
+  // SENIOR SERVICES DISCOVERY ROUTES
+  // ===============================
+
+  // Discover local services
+  app.get("/api/services/discover", async (req, res) => {
+    try {
+      const { lat, lng, radius = "10", category } = req.query;
+      
+      if (!lat || !lng) {
+        return res.status(400).json({ message: "Location coordinates required" });
+      }
+
+      // Mock service data - in production, integrate with real service providers
+      const mockServices = [
+        {
+          id: "mov-1",
+          category: "moving",
+          name: "Gentle Transitions Senior Moving",
+          description: "Specialized senior move management with downsizing and organizing services",
+          provider: "Gentle Transitions LLC",
+          phone: "(916) 555-0123",
+          website: "https://gentletransitions.com",
+          distance: 2.3,
+          rating: 4.8,
+          features: ["Packing/Unpacking", "Downsizing Help", "Estate Sales", "Floor Planning"],
+          pricing: "Free consultation",
+          verified: true
+        },
+        {
+          id: "rx-1",
+          category: "prescription_delivery",
+          name: "CVS Pharmacy Delivery",
+          description: "Free prescription delivery for seniors with automatic refills",
+          provider: "CVS Health",
+          phone: "(916) 555-0456",
+          website: "https://cvs.com",
+          distance: 0.8,
+          rating: 4.5,
+          features: ["Free Delivery", "Auto Refills", "Medicare Part D", "Medication Sync"],
+          pricing: "Free delivery",
+          verified: true
+        },
+        {
+          id: "junk-1",
+          category: "junk_removal",
+          name: "1-800-GOT-JUNK? Senior Services",
+          description: "Estate cleanouts and junk removal with senior discounts",
+          provider: "1-800-GOT-JUNK?",
+          phone: "1-800-468-5865",
+          website: "https://1800gotjunk.com",
+          distance: 3.1,
+          rating: 4.6,
+          features: ["Full Service", "Same Day", "Estate Cleanouts", "Donation Handling"],
+          pricing: "10% senior discount",
+          verified: true
+        },
+        {
+          id: "stor-1",
+          category: "storage",
+          name: "Public Storage Senior Solutions",
+          description: "Climate-controlled storage with senior moving assistance",
+          provider: "Public Storage",
+          phone: "(916) 555-0789",
+          website: "https://publicstorage.com",
+          distance: 1.5,
+          rating: 4.3,
+          features: ["Climate Control", "24/7 Access", "Moving Help", "First Month Free"],
+          pricing: "From $89/month",
+          verified: true
+        },
+        {
+          id: "phone-1",
+          category: "cell_phone_access",
+          name: "Lifeline Cell Phone Program",
+          description: "Free government cell phone program for low-income seniors",
+          provider: "California LifeLine",
+          phone: "1-866-272-0349",
+          website: "https://californialifeline.com",
+          distance: 0,
+          rating: 4.2,
+          features: ["Free Phone", "Free Minutes", "Free Texts", "Emergency Features"],
+          pricing: "Free for eligible",
+          verified: true
+        },
+        {
+          id: "center-1",
+          category: "senior_center",
+          name: "Sacramento Senior Center",
+          description: "Activities, meals, and social programs for active seniors",
+          provider: "City of Sacramento",
+          phone: "(916) 555-0234",
+          website: "https://cityofsacramento.org",
+          distance: 4.2,
+          rating: 4.7,
+          features: ["Fitness Classes", "Lunch Program", "Social Activities", "Health Screenings"],
+          pricing: "Free/Low cost",
+          verified: true
+        },
+        {
+          id: "trans-1",
+          category: "medical_transport",
+          name: "LogistiCare Medical Transport",
+          description: "Non-emergency medical transportation for Medicare recipients",
+          provider: "LogistiCare",
+          phone: "1-866-527-9933",
+          website: "https://logisticare.com",
+          distance: 0,
+          rating: 4.1,
+          features: ["Door-to-Door", "Wheelchair Access", "Medicare Covered", "Advance Booking"],
+          pricing: "Medicare covered",
+          verified: true
+        }
+      ];
+
+      // Filter by category if specified
+      let services = mockServices;
+      if (category && category !== 'all') {
+        services = services.filter(s => s.category === category);
+      }
+
+      // Sort by distance
+      services.sort((a, b) => a.distance - b.distance);
+
+      res.json({
+        services,
+        total: services.length,
+        location: { lat: parseFloat(lat as string), lng: parseFloat(lng as string) },
+        radius: parseInt(radius as string)
+      });
+    } catch (error: any) {
+      console.error("Error discovering services:", error);
+      res.status(500).json({ message: "Failed to discover services" });
+    }
+  });
+
+  // Get service categories
+  app.get("/api/services/categories", async (req, res) => {
+    const categories = [
+      { id: "moving", name: "Moving Services", icon: "📦" },
+      { id: "prescription_delivery", name: "Prescription Delivery", icon: "💊" },
+      { id: "junk_removal", name: "Junk Removal", icon: "🚛" },
+      { id: "storage", name: "Storage Solutions", icon: "🏢" },
+      { id: "cell_phone_access", name: "Cell Phone Access", icon: "📱" },
+      { id: "senior_center", name: "Senior Centers", icon: "🏛️" },
+      { id: "ombudsman", name: "Ombudsman Services", icon: "⚖️" },
+      { id: "medical_transport", name: "Medical Transport", icon: "🚑" },
+      { id: "home_care", name: "Home Care", icon: "🏠" },
+      { id: "meal_delivery", name: "Meal Delivery", icon: "🍽️" },
+      { id: "legal_services", name: "Legal Services", icon: "💼" },
+      { id: "financial_planning", name: "Financial Planning", icon: "💰" },
+      { id: "medical_equipment", name: "Medical Equipment", icon: "♿" },
+      { id: "hospice_care", name: "Hospice Care", icon: "❤️" },
+      { id: "adult_day_care", name: "Adult Day Care", icon: "☀️" }
+    ];
+    
+    res.json(categories);
+  });
+
+  // ===============================
   // USER DASHBOARD ROUTES
   // ===============================
 
