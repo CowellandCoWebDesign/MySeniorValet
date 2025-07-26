@@ -14,6 +14,7 @@ import { EnhancedPlatformStats } from "@/components/EnhancedPlatformStats";
 import { FeaturedAndCoastalSection } from "@/components/FeaturedAndCoastalSection";
 import { HighestRatedSection } from "@/components/HighestRatedSection";
 import { VerifiedCommunitiesSection } from "@/components/VerifiedCommunitiesSection";
+import { HudCommunitiesSection } from "@/components/HudCommunitiesSection";
 
 export default function Home() {
   console.log("STREAMLINED HERO LOADED - v4.1 - " + Date.now() + " - Everything Senior Living Needs - In one place");
@@ -331,6 +332,9 @@ export default function Home() {
 
         {/* Verified Communities Section */}
         <VerifiedCommunitiesSection />
+
+        {/* HUD Communities with Official Pricing Section */}
+        <HudCommunitiesSection />
 
         {/* Massive Data Coverage Section */}
         <section className="py-20 lg:py-24 bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">

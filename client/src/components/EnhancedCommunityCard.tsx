@@ -59,7 +59,7 @@ interface CommunityCardProps {
     };
   };
   index?: number;
-  variant?: 'standard' | 'featured' | 'coastal' | 'trending' | 'list' | 'horizontal' | 'default' | 'highest-rated' | 'verified';
+  variant?: 'standard' | 'featured' | 'coastal' | 'trending' | 'list' | 'horizontal' | 'default' | 'highest-rated' | 'verified' | 'hud';
   onSelect?: () => void;
 }
 
