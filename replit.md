@@ -95,6 +95,16 @@ This file contains the current technical architecture, key components, and essen
 - Brand name in code: MySeniorValet
 - This is non-negotiable and must be protected at all times
 
+# Critical Architecture Rules
+
+**SINGLE HOME PAGE RULE - USE ONLY myseniorvalet-home.tsx**
+- The primary home page is `client/src/pages/myseniorvalet-home.tsx` (VERSION 3)
+- DO NOT create or use `home.tsx` - this causes routing confusion
+- User spent countless dev hours on the myseniorvalet-home.tsx design
+- All home page edits must target myseniorvalet-home.tsx
+- Root path "/" routes to MySeniorValetHome component only
+- This prevents duplicate home page confusion (July 26, 2025)
+
 ## Complete Development Journey: Day 1 to Present
 
 ### Phase 1: Foundation & Core Architecture (July 2, 2025)

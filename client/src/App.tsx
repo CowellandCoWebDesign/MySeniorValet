@@ -10,7 +10,6 @@ import { ThemeProvider } from "@/components/theme-provider";
 
 // Import Leaflet CSS globally for map functionality
 import 'leaflet/dist/leaflet.css';
-import Home from "@/pages/home";
 import MySeniorValetHome from "@/pages/myseniorvalet-home";
 import Claim from "@/pages/claim";
 import Admin from "@/pages/admin";
