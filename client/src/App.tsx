@@ -67,6 +67,8 @@ import IntegrationDashboard from "@/pages/integration-dashboard";
 import IntegrationsPage from "@/pages/integrations";
 import AIDemoPage from "@/pages/ai-demo";
 import AIMapShowcase from "@/pages/ai-map-showcase";
+import VendorSignup from "@/pages/vendor-signup";
+import VendorDashboard from "@/pages/vendor-dashboard";
 import { useAuth } from "@/hooks/useAuth";
 
 function Router() {
@@ -139,6 +141,8 @@ function Router() {
       <Route path="/integration-dashboard" component={IntegrationDashboard} />
       <Route path="/ai-demo" component={AIDemoPage} />
       <Route path="/ai-map-showcase" component={AIMapShowcase} />
+      <Route path="/vendor/signup" component={VendorSignup} />
+      <Route path="/vendor/dashboard" component={VendorDashboard} />
       <Route component={NotFound} />
     </Switch>
   );

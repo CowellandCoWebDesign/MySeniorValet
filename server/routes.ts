@@ -19,7 +19,9 @@ import {
   communityClaims,
   claimedCommunities,
   users,
-  pendingCommunities
+  pendingCommunities,
+  vendors,
+  vendorServices
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, or, desc, inArray, sql, between, gte, lte } from "drizzle-orm";
@@ -12350,6 +12352,301 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('AI translation error:', error);
       res.status(500).json({ error: 'Failed to translate content' });
+    }
+  });
+
+  // =====================================================
+  // VENDOR MARKETPLACE API ENDPOINTS
+  // =====================================================
+  
+  const { vendorStorage } = await import('./vendor-storage');
+  
+  // Vendor authentication middleware
+  const requireVendorAuth = async (req: AuthenticatedRequest, res: express.Response, next: express.NextFunction) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
+    const userId = req.user?.claims?.sub;
+    if (!userId) {
+      return res.status(401).json({ message: "Invalid user session" });
+    }
+    
+    const vendor = await vendorStorage.getVendorByUserId(userId);
+    if (!vendor) {
+      return res.status(403).json({ message: "Vendor access required" });
+    }
+    
+    // Attach vendor to request for use in endpoints
+    (req as any).vendor = vendor;
+    next();
+  };
+  
+  // Vendor Sign Up
+  app.post('/api/vendor/signup', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+      
+      // Check if user already has a vendor account
+      const existingVendor = await vendorStorage.getVendorByUserId(userId);
+      if (existingVendor) {
+        return res.status(400).json({ message: "Vendor account already exists" });
+      }
+      
+      const vendorData = {
+        ...req.body,
+        userId,
+        verificationStatus: 'pending' as const,
+        subscriptionTier: 'basic' as const,
+        isActive: true
+      };
+      
+      const newVendor = await vendorStorage.createVendor(vendorData);
+      res.status(201).json(newVendor);
+    } catch (error) {
+      console.error('Vendor signup error:', error);
+      res.status(500).json({ message: "Failed to create vendor account" });
+    }
+  });
+  
+  // Get Vendor Profile
+  app.get('/api/vendor/profile', requireVendorAuth, async (req, res) => {
+    try {
+      const vendor = (req as any).vendor;
+      const services = await vendorStorage.getVendorServices(vendor.id);
+      
+      res.json({
+        ...vendor,
+        services
+      });
+    } catch (error) {
+      console.error('Get vendor profile error:', error);
+      res.status(500).json({ message: "Failed to get vendor profile" });
+    }
+  });
+  
+  // Update Vendor Profile
+  app.put('/api/vendor/profile', requireVendorAuth, async (req, res) => {
+    try {
+      const vendor = (req as any).vendor;
+      const updates = req.body;
+      
+      const updatedVendor = await vendorStorage.updateVendor(vendor.id, updates);
+      res.json(updatedVendor);
+    } catch (error) {
+      console.error('Update vendor profile error:', error);
+      res.status(500).json({ message: "Failed to update vendor profile" });
+    }
+  });
+  
+  // Get Vendor Services
+  app.get('/api/vendor/services', requireVendorAuth, async (req, res) => {
+    try {
+      const vendor = (req as any).vendor;
+      const services = await vendorStorage.getVendorServices(vendor.id);
+      res.json(services);
+    } catch (error) {
+      console.error('Get vendor services error:', error);
+      res.status(500).json({ message: "Failed to get vendor services" });
+    }
+  });
+  
+  // Create Vendor Service
+  app.post('/api/vendor/services', requireVendorAuth, async (req, res) => {
+    try {
+      const vendor = (req as any).vendor;
+      const serviceData = {
+        ...req.body,
+        vendorId: vendor.id
+      };
+      
+      const newService = await vendorStorage.createVendorService(serviceData);
+      res.status(201).json(newService);
+    } catch (error) {
+      console.error('Create vendor service error:', error);
+      res.status(500).json({ message: "Failed to create vendor service" });
+    }
+  });
+  
+  // Update Vendor Service
+  app.put('/api/vendor/services/:serviceId', requireVendorAuth, async (req, res) => {
+    try {
+      const { serviceId } = req.params;
+      const vendor = (req as any).vendor;
+      
+      // Verify service belongs to vendor
+      const services = await vendorStorage.getVendorServices(vendor.id);
+      const service = services.find(s => s.id === parseInt(serviceId));
+      
+      if (!service) {
+        return res.status(404).json({ message: "Service not found or unauthorized" });
+      }
+      
+      const updatedService = await vendorStorage.updateVendorService(parseInt(serviceId), req.body);
+      res.json(updatedService);
+    } catch (error) {
+      console.error('Update vendor service error:', error);
+      res.status(500).json({ message: "Failed to update vendor service" });
+    }
+  });
+  
+  // Delete Vendor Service
+  app.delete('/api/vendor/services/:serviceId', requireVendorAuth, async (req, res) => {
+    try {
+      const { serviceId } = req.params;
+      const vendor = (req as any).vendor;
+      
+      // Verify service belongs to vendor
+      const services = await vendorStorage.getVendorServices(vendor.id);
+      const service = services.find(s => s.id === parseInt(serviceId));
+      
+      if (!service) {
+        return res.status(404).json({ message: "Service not found or unauthorized" });
+      }
+      
+      const deleted = await vendorStorage.deleteVendorService(parseInt(serviceId));
+      if (deleted) {
+        res.status(204).send();
+      } else {
+        res.status(500).json({ message: "Failed to delete service" });
+      }
+    } catch (error) {
+      console.error('Delete vendor service error:', error);
+      res.status(500).json({ message: "Failed to delete vendor service" });
+    }
+  });
+  
+  // Get Vendor Leads
+  app.get('/api/vendor/leads', requireVendorAuth, async (req, res) => {
+    try {
+      const vendor = (req as any).vendor;
+      const { status, startDate, endDate } = req.query;
+      
+      const filters: any = {};
+      if (status) filters.status = status as string;
+      if (startDate) filters.startDate = new Date(startDate as string);
+      if (endDate) filters.endDate = new Date(endDate as string);
+      
+      const leads = await vendorStorage.getVendorLeads(vendor.id, filters);
+      res.json(leads);
+    } catch (error) {
+      console.error('Get vendor leads error:', error);
+      res.status(500).json({ message: "Failed to get vendor leads" });
+    }
+  });
+  
+  // Update Lead Status
+  app.put('/api/vendor/leads/:leadId', requireVendorAuth, async (req, res) => {
+    try {
+      const { leadId } = req.params;
+      const vendor = (req as any).vendor;
+      const updates = req.body;
+      
+      // Verify lead belongs to vendor
+      const leads = await vendorStorage.getVendorLeads(vendor.id);
+      const lead = leads.find(l => l.id === parseInt(leadId));
+      
+      if (!lead) {
+        return res.status(404).json({ message: "Lead not found or unauthorized" });
+      }
+      
+      const updatedLead = await vendorStorage.updateVendorLead(parseInt(leadId), updates);
+      res.json(updatedLead);
+    } catch (error) {
+      console.error('Update vendor lead error:', error);
+      res.status(500).json({ message: "Failed to update vendor lead" });
+    }
+  });
+  
+  // Get Vendor Analytics
+  app.get('/api/vendor/analytics', requireVendorAuth, async (req, res) => {
+    try {
+      const vendor = (req as any).vendor;
+      const { startDate, endDate } = req.query;
+      
+      if (!startDate || !endDate) {
+        return res.status(400).json({ message: "Start date and end date are required" });
+      }
+      
+      const analytics = await vendorStorage.getVendorAnalytics(
+        vendor.id,
+        new Date(startDate as string),
+        new Date(endDate as string)
+      );
+      
+      res.json(analytics);
+    } catch (error) {
+      console.error('Get vendor analytics error:', error);
+      res.status(500).json({ message: "Failed to get vendor analytics" });
+    }
+  });
+  
+  // Get Vendor Reviews
+  app.get('/api/vendor/reviews', requireVendorAuth, async (req, res) => {
+    try {
+      const vendor = (req as any).vendor;
+      const reviews = await vendorStorage.getVendorReviews(vendor.id);
+      res.json(reviews);
+    } catch (error) {
+      console.error('Get vendor reviews error:', error);
+      res.status(500).json({ message: "Failed to get vendor reviews" });
+    }
+  });
+  
+  // Update Vendor Metrics (called periodically)
+  app.post('/api/vendor/update-metrics', requireVendorAuth, async (req, res) => {
+    try {
+      const vendor = (req as any).vendor;
+      await vendorStorage.updateVendorMetrics(vendor.id);
+      res.json({ message: "Metrics updated successfully" });
+    } catch (error) {
+      console.error('Update vendor metrics error:', error);
+      res.status(500).json({ message: "Failed to update vendor metrics" });
+    }
+  });
+  
+  // Get Service Categories (public endpoint)
+  app.get('/api/vendor/service-categories', async (req, res) => {
+    try {
+      const categories = await vendorStorage.getServiceCategories();
+      res.json(categories);
+    } catch (error) {
+      console.error('Get service categories error:', error);
+      res.status(500).json({ message: "Failed to get service categories" });
+    }
+  });
+  
+  // Search Vendors (public endpoint)
+  app.get('/api/vendor/search', async (req, res) => {
+    try {
+      const { category, location, query } = req.query;
+      
+      // Simple search implementation - can be enhanced later
+      const allVendors = await db.select().from(vendors).where(eq(vendors.isActive, true));
+      
+      let results = allVendors;
+      
+      if (category) {
+        const vendorServices = await db.select().from(vendorServices).where(eq(vendorServices.categoryId, parseInt(category as string)));
+        const vendorIds = vendorServices.map(s => s.vendorId);
+        results = results.filter(v => vendorIds.includes(v.id));
+      }
+      
+      if (query) {
+        const searchTerm = (query as string).toLowerCase();
+        results = results.filter(v => 
+          v.businessName.toLowerCase().includes(searchTerm) ||
+          v.description?.toLowerCase().includes(searchTerm)
+        );
+      }
+      
+      res.json(results);
+    } catch (error) {
+      console.error('Search vendors error:', error);
+      res.status(500).json({ message: "Failed to search vendors" });
     }
   });
 
