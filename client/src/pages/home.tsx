@@ -6,7 +6,7 @@ import { PremiumImage } from "@/components/premium-image";
 import { PricingBreakdown } from "@/components/pricing-breakdown";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Shield, FolderSync, MapPin, Database, Tag, Map, Check, Star, DollarSign, Clock, Users, Wifi, Car, Activity, MapIcon, Building, Heart, Eye, Truck, Sofa, Pill, Phone, Info, MessageCircle, Link2 } from "lucide-react";
+import { Shield, FolderSync, MapPin, Database, Tag, Map, Check, Star, DollarSign, Clock, Users, Wifi, Car, Activity, MapIcon, Building, Heart, Eye, Truck, Sofa, Pill, Phone, Info, MessageCircle, Link2, Brain, Sparkles } from "lucide-react";
 import { Link } from "wouter";
 import { GreetingMascot } from "@/components/mascot";
 import { Badge } from "@/components/ui/badge";
@@ -206,6 +206,18 @@ export default function Home() {
                   </Button>
                 </Link>
               </div>
+
+              {/* AI Map Showcase Button */}
+              <Link href="/ai-map-showcase">
+                <Button 
+                  size="lg" 
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 text-base sm:text-lg py-3 flex items-center justify-center"
+                >
+                  <Brain className="mr-3 h-6 w-6" />
+                  <Sparkles className="mr-2 h-5 w-5" />
+                  Experience AI-Powered Map Intelligence
+                </Button>
+              </Link>
             </div>
 
             {/* Data Integrity Promise */}
