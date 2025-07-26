@@ -136,6 +136,7 @@ export default function AIMapShowcase() {
                     <AIMapIntegration 
                       onLocationAnalysis={handleLocationAnalysis}
                       onCommunityRecommendations={handleCommunityRecommendations}
+                      onShowAnalysisPanel={(show) => console.log('AI Analysis Panel:', show ? 'Open' : 'Closed')}
                     />
                   </MapContainer>
                   
