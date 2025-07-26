@@ -1989,6 +1989,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get HUD communities with verified pricing for homepage showcase (must be before :id route)
+  app.get('/api/communities/hud-featured', async (req, res) => {
+    console.log('🏡 HUD-FEATURED ROUTE HIT - Processing request');
+    try {
+      const startTime = Date.now();
+      const limit = parseInt(req.query.limit as string) || 8;
+      
+      // Query HUD communities with verified pricing using Drizzle ORM
+      const hudCommunities = await db
+        .select()
+        .from(communities)
+        .where(and(
+          sql`hud_property_id IS NOT NULL`,
+          sql`rent_per_month IS NOT NULL`,
+          sql`CAST(rent_per_month AS DECIMAL) > 0`
+        ))
+        .orderBy(sql`CAST(rent_per_month AS DECIMAL) ASC`)
+        .limit(limit);
+      
+      const verifiedHudCommunities = hudCommunities
+        .map((community: any) => eliminateCallForPricing(community));
+      
+      console.log(`HUD featured communities loaded in ${Date.now() - startTime}ms - Found ${verifiedHudCommunities.length} communities`);
+      res.json(verifiedHudCommunities);
+    } catch (error) {
+      console.error('Error fetching HUD featured communities:', error);
+      // Return empty array instead of error to prevent UI breakage
+      res.json([]);
+    }
+  });
+
   // Get coastal communities for horizontal sections (must be before :id route)
   app.get('/api/communities/coastal', async (req, res) => {
     try {
@@ -4448,7 +4479,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get individual community by ID (must be last among community routes)
   app.get("/api/communities/:id", async (req, res) => {
     try {
-      const communityId = parseInt(req.params.id);
+      const idParam = req.params.id;
+      
+      // Skip processing for non-numeric IDs (API endpoints like 'hud-featured')
+      if (idParam === 'hud-featured' || idParam === 'trending' || idParam === 'coastal' || idParam === 'search') {
+        return res.status(404).json({ message: "Route not found" });
+      }
+      
+      const communityId = parseInt(idParam);
       if (isNaN(communityId)) {
         return res.status(400).json({ message: "Invalid community ID" });
       }
