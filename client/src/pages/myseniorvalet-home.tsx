@@ -9,7 +9,7 @@ import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { PricingBreakdown } from "@/components/pricing-breakdown";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { EnhancedPlatformStats } from "@/components/EnhancedPlatformStats";
+
 
 
 export default function MySeniorValetHome() {
@@ -216,15 +216,6 @@ export default function MySeniorValetHome() {
             <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}>
               <Button variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 rounded-2xl font-medium text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-white/10 backdrop-blur-sm">
                 Explore Communities
-              </Button>
-            </Link>
-          </div>
-          
-          {/* Real Data Pricing Badge */}
-          <div className="mb-4 animate-fade-in-up animation-delay-750">
-            <Link href="/real-data-pricing">
-              <Button variant="outline" className="border-2 border-green-300 text-green-100 hover:bg-green-400 hover:text-green-900 px-6 py-3 rounded-xl font-medium text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-green-500/20 backdrop-blur-sm">
-                🔍 View Real Data Pricing Intelligence
               </Button>
             </Link>
           </div>
@@ -498,19 +489,7 @@ export default function MySeniorValetHome() {
                 </CardContent>
               </Card>
 
-              {/* Enterprise Infrastructure */}
-              <Card className="bg-white/10 backdrop-blur-md border-white/20 text-white">
-                <CardContent className="p-6 text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl">⚡</span>
-                  </div>
-                  <h3 className="font-semibold mb-2">Enterprise Security</h3>
-                  <p className="text-sm text-white/80">Real-time threat detection, encrypted communications, and HIPAA compliance</p>
-                  <Link href="/admin">
-                    <Button variant="outline" className="mt-3 border-white/30 text-white hover:bg-white/20">Security Center</Button>
-                  </Link>
-                </CardContent>
-              </Card>
+
             </div>
 
             <div className="text-center">
@@ -1957,13 +1936,6 @@ export default function MySeniorValetHome() {
               Contact Sales Team
             </Button>
           </div>
-        </div>
-      </section>
-
-      {/* Enhanced Platform Statistics */}
-      <section className="px-4 py-16 bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-7xl mx-auto">
-          <EnhancedPlatformStats />
         </div>
       </section>
 
