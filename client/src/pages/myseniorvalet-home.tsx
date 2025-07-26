@@ -253,6 +253,71 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
+      {/* Featured & Coastal Communities Section - Position 2 */}
+      <section className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
+        {/* Background Ocean Wave Image */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://images.unsplash.com/photo-1505142468610-359e7d316be0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+            alt="Ocean waves background"
+            className="w-full h-full object-cover opacity-75"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-50/40 to-cyan-50/40 dark:from-gray-900/60 dark:to-gray-800/60"></div>
+        </div>
+        
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                Featured & Coastal Communities
+              </h2>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                <span className="text-sm text-purple-700 dark:text-purple-300 font-medium">Premium communities</span>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">Ocean views available</span>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-lg font-bold text-gray-900 dark:text-gray-100">$3,200 - $4,800</div>
+              <div className="text-sm text-purple-600 dark:text-purple-300 font-medium">Featured & coastal</div>
+            </div>
+          </div>
+          
+          <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
+            {(((coastalCommunities as any[])?.length || 0) + ((featuredCommunities as any[])?.length || 0))} premium communities • 
+            Featured selections and coastal charm
+          </p>
+        
+          <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
+            {/* Show combined premium communities (coastal + featured) */}
+            {(coastalLoading || trendingLoading) ? (
+              // Loading skeleton cards
+              Array.from({ length: 4 }).map((_, index) => (
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border border-gray-200 animate-pulse">
+                  <div className="aspect-[4/3] bg-gray-200"></div>
+                  <CardContent className="p-3">
+                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-1"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded"></div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              premiumCommunities.map((community: any, index) => (
+                <EnhancedCommunityCard
+                  key={`premium-${community.id}-${index}`}
+                  community={community}
+                  index={index}
+                  variant={index < 4 ? 'coastal' : 'featured'}
+                />
+              ))
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* Complete Concierge Services - Enhanced Styling */}
       <section className="px-4 py-16 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 relative overflow-hidden">
         {/* Background Pattern */}
@@ -376,7 +441,7 @@ export default function MySeniorValetHome() {
           </div>
 
           {/* HUD Communities Grid */}
-          {!hudProperties || hudProperties.length === 0 ? (
+          {!hudProperties || (hudProperties as any[]).length === 0 ? (
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
               <p className="text-gray-600 dark:text-gray-300">Loading HUD communities with verified pricing...</p>
@@ -388,7 +453,6 @@ export default function MySeniorValetHome() {
                   <EnhancedCommunityCard
                     community={community}
                     variant="horizontal"
-                    showPricingBadge={true}
                     onClick={() => window.location.href = `/community/${community.id}`}
                   />
                 </div>
@@ -873,70 +937,7 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Coastal Living Section */}
-      <section className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
-        {/* Background Ocean Wave Image */}
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="https://images.unsplash.com/photo-1505142468610-359e7d316be0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-            alt="Ocean waves background"
-            className="w-full h-full object-cover opacity-75"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-50/40 to-cyan-50/40 dark:from-gray-900/60 dark:to-gray-800/60"></div>
-        </div>
-        
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                Featured & Coastal Communities
-              </h2>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-purple-700 dark:text-purple-300 font-medium">Premium communities</span>
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">Ocean views available</span>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-lg font-bold text-gray-900 dark:text-gray-100">$3,200 - $4,800</div>
-              <div className="text-sm text-purple-600 dark:text-purple-300 font-medium">Featured & coastal</div>
-            </div>
-          </div>
-          
-          <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
-            {(((coastalCommunities as any[])?.length || 0) + ((featuredCommunities as any[])?.length || 0))} premium communities • 
-            Featured selections and coastal charm
-          </p>
-        
-          <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
-            {/* Show combined premium communities (coastal + featured) */}
-            {(coastalLoading || trendingLoading) ? (
-              // Loading skeleton cards
-              Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border border-gray-200 animate-pulse">
-                  <div className="aspect-[4/3] bg-gray-200"></div>
-                  <CardContent className="p-3">
-                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-1"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded"></div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              premiumCommunities.map((community: any, index) => (
-                <EnhancedCommunityCard
-                  key={`premium-${community.id}-${index}`}
-                  community={community}
-                  index={index}
-                  variant={index < 4 ? 'coastal' : 'featured'}
-                />
-              ))
-            )}
-      </div>
-        </div>
-      </section>
+
 
       {/* Move-In Cost Calculator */}
       <section className="px-4 py-8 gradient-card">
