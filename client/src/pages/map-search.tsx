@@ -119,10 +119,7 @@ export default function MapSearchClean() {
   const [showBottomPanel, setShowBottomPanel] = useState(true); // Show panel by default
   const [panelHeight, setPanelHeight] = useState(75);
   const [peekHeight] = useState(80); // Height when panel is "peeking"
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [isMapMoving, setIsMapMoving] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(false);
 
   // Restore search state from sessionStorage when page loads
   useEffect(() => {
@@ -255,26 +252,7 @@ export default function MapSearchClean() {
     },
   });
 
-  // Fetch autocomplete suggestions
-  const { data: autocompleteSuggestions = [], isLoading: isLoadingSuggestions } = useQuery<string[]>({
-    queryKey: ['autocomplete', searchQuery],
-    queryFn: async () => {
-      if (!searchQuery || searchQuery.length < 2) return [];
-      
-      try {
-        const response = await fetch(`/api/search/suggestions?q=${encodeURIComponent(searchQuery)}`);
-        if (!response.ok) throw new Error('Failed to fetch suggestions');
-        
-        const data = await response.json();
-        return Array.isArray(data) ? data : [];
-      } catch (error) {
-        console.error('Autocomplete error:', error);
-        return [];
-      }
-    },
-    enabled: searchQuery.length >= 2 && showSuggestions,
-    staleTime: 60000,
-  });
+  // Removed predictive search suggestions to improve performance
 
   // Handle initial search query from URL
   useEffect(() => {
@@ -511,7 +489,6 @@ export default function MapSearchClean() {
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
-                  setShowSuggestions(e.target.value.length >= 2);
                   // Save search to session storage
                   sessionStorage.setItem('lastSearchQuery', e.target.value);
                   sessionStorage.setItem('lastMapCenter', JSON.stringify(mapCenter));
@@ -521,9 +498,6 @@ export default function MapSearchClean() {
                   if (e.key === 'Enter' && searchQuery.trim()) {
                     handleLocationSearch(searchQuery);
                     setHasSearched(true);
-                    setShowSuggestions(false);
-                  } else if (e.key === 'Escape') {
-                    setShowSuggestions(false);
                   }
                 }}
                 onFocus={() => setShowSuggestions(searchQuery.length >= 2)}
@@ -536,32 +510,7 @@ export default function MapSearchClean() {
                 </Badge>
               </div>
               
-              {/* Autocomplete suggestions dropdown */}
-              {showSuggestions && searchQuery.length >= 2 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-50 max-h-60 overflow-auto">
-                  {isLoadingSuggestions ? (
-                    <div className="p-4 text-center text-gray-500 dark:text-gray-400">Loading suggestions...</div>
-                  ) : autocompleteSuggestions.length > 0 ? (
-                    autocompleteSuggestions.map((suggestion, idx) => (
-                      <button
-                        key={idx}
-                        className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 last:border-b-0 flex items-center space-x-3 transition-colors"
-                        onMouseDown={(e) => {
-                          e.preventDefault();
-                          setSearchQuery(suggestion);
-                          handleLocationSearch(suggestion);
-                          setShowSuggestions(false);
-                        }}
-                      >
-                        <Search className="h-4 w-4 text-gray-400" />
-                        <span className="text-base">{suggestion}</span>
-                      </button>
-                    ))
-                  ) : (
-                    <div className="p-4 text-center text-gray-500 dark:text-gray-400">No suggestions found</div>
-                  )}
-                </div>
-              )}
+
             </div>
 
             {/* Beautiful Filter Interface */}

@@ -1700,11 +1700,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      // Build the SQL query
+      // Build the SQL query with golden rule enforcement for price-specific searches
       let sqlQuery = `
         SELECT * FROM communities
         WHERE 1=1
       `;
+      
+      // GOLDEN RULE: For price-specific searches, ONLY show communities with verified pricing
+      if (searchIntent.priceRange && (searchIntent.priceRange.min || searchIntent.priceRange.max)) {
+        console.log('🚫 PRICE-SPECIFIC SEARCH DETECTED - Enforcing golden rule for verified pricing only');
+        sqlQuery += ` AND (
+          -- HUD properties with verified rent data
+          (hud_property_id IS NOT NULL AND rent_per_month IS NOT NULL) OR
+          -- Government-sourced communities with verified pricing
+          (government_sourced = true AND price_range->>'min' IS NOT NULL AND price_range->>'min' != '0') OR
+          -- Claimed communities with verified live pricing within 30 days
+          (claimed_by IS NOT NULL AND pricing_type = 'live' AND pricing_last_verified > NOW() - INTERVAL '30 days')
+        )`;
+      }
       
       if (conditions.length > 0) {
         sqlQuery += ` AND (${conditions.join(' AND ')})`;
@@ -1830,7 +1843,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const communities = await enhancedSearchService.searchCommunities(searchParams);
       
       // Apply intelligent pricing
-      const communitiesWithPricing = communities.map(community => eliminateCallForPricing(community));
+      const communitiesWithPricing = communities.map((community: any) => eliminateCallForPricing(community));
 
       res.json({
         communities: communitiesWithPricing,

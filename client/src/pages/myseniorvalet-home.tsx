@@ -15,8 +15,7 @@ import { EnhancedPlatformStats } from "@/components/EnhancedPlatformStats";
 export default function MySeniorValetHome() {
   console.log("MYSENIORVALET HOME PAGE LOADED - VERSION 3 WITH CONCIERGE SERVICES PRIORITIZED - 31,023 COMMUNITIES");
   const [searchQuery, setSearchQuery] = useState("");
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+
   const [showIntegrationSpotlight, setShowIntegrationSpotlight] = useState(true);
   
   // ONLY get cached community count - no need for full community list on homepage
@@ -25,13 +24,7 @@ export default function MySeniorValetHome() {
     retry: false,
   });
 
-  // Predictive search suggestions
-  const { data: searchSuggestions } = useQuery({
-    queryKey: [`/api/search/suggestions?q=${searchQuery}`],
-    enabled: searchQuery.length >= 2,
-    retry: false,
-    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
-  });
+  // Removed predictive search suggestions to improve performance
 
   const { data: heroImages } = useQuery({
     queryKey: ["/api/images/hero"],
@@ -96,33 +89,8 @@ export default function MySeniorValetHome() {
     ...((featuredCommunities as any[]) || []).slice(0, 4)
   ];
 
-  // Update suggestions when search suggestions data changes
-  useEffect(() => {
-    if ((searchSuggestions as string[]) && searchQuery.length >= 2) {
-      setSuggestions(searchSuggestions as string[]);
-      setShowSuggestions(true);
-    } else {
-      setSuggestions([]);
-      setShowSuggestions(false);
-    }
-  }, [searchSuggestions, searchQuery]);
-
-
-
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
-    // The useQuery will automatically trigger with the new value when length >= 2
-    if (value.length < 2) {
-      setSuggestions([]);
-      setShowSuggestions(false);
-    }
-  };
-
-  const handleSuggestionClick = (suggestion: string) => {
-    setSearchQuery(suggestion);
-    setShowSuggestions(false);
-    const query = `?q=${encodeURIComponent(suggestion)}`;
-    window.location.href = `/map-search${query}`;
   };
 
   return (
@@ -202,7 +170,7 @@ export default function MySeniorValetHome() {
               // Navigate to map-search with the query - let that page handle the AI search
               window.location.href = `/map-search?q=${encodeURIComponent(searchQuery)}`;
             }}>
-              <div className={`relative bg-white dark:bg-gray-800 ${showSuggestions && suggestions.length > 0 ? 'rounded-t-3xl' : 'rounded-3xl'} shadow-xl overflow-hidden`}>
+              <div className="relative bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden">
                 <div className="flex items-center">
                   <input
                     type="text"
@@ -212,31 +180,10 @@ export default function MySeniorValetHome() {
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
-                        setShowSuggestions(false);
                         if (searchQuery) {
                           window.location.href = `/map-search?q=${encodeURIComponent(searchQuery)}`;
                         }
-                      } else if (e.key === 'Escape') {
-                        setShowSuggestions(false);
                       }
-                    }}
-                    onFocus={() => {
-                      if (suggestions.length > 0) {
-                        setShowSuggestions(true);
-                      }
-                      // Scroll to input on mobile to prevent keyboard hiding dropdown
-                      if (window.innerWidth <= 768) {
-                        setTimeout(() => {
-                          const input = document.activeElement as HTMLInputElement;
-                          if (input) {
-                            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                          }
-                        }, 300);
-                      }
-                    }}
-                    onBlur={() => {
-                      // Delay hiding suggestions to allow click events
-                      setTimeout(() => setShowSuggestions(false), 200);
                     }}
                     className="flex-1 px-6 py-4 text-base border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                   />
@@ -256,29 +203,7 @@ export default function MySeniorValetHome() {
               
             </form>
             
-            {/* Suggestions Dropdown - Connected directly to search box */}
-            {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 bg-white dark:bg-gray-800 rounded-b-3xl shadow-2xl border border-gray-200 dark:border-gray-600 border-t-0 overflow-hidden max-h-60 overflow-y-auto" style={{ zIndex: 999999 }}>
-                {suggestions.map((suggestion, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => handleSuggestionClick(suggestion)}
-                    className="w-full px-6 py-4 text-left hover:bg-blue-50 dark:hover:bg-gray-700 active:bg-blue-100 dark:active:bg-gray-600 border-b border-gray-100 dark:border-gray-600 last:border-b-0 flex items-center space-x-4 transition-colors text-base"
-                  >
-                    {/* Icon based on suggestion type */}
-                    {suggestion.includes(', CA') || suggestion.includes(', AZ') || suggestion.includes(', TX') ? (
-                      <MapPin className="w-5 h-5 text-blue-500 flex-shrink-0" />
-                    ) : suggestion.includes('Living') || suggestion.includes('Care') || suggestion.includes('Nursing') ? (
-                      <Heart className="w-5 h-5 text-red-500 flex-shrink-0" />
-                    ) : (
-                      <Search className="w-5 h-5 text-gray-500 flex-shrink-0" />
-                    )}
-                    <span className="text-gray-800 dark:text-gray-200 font-medium">{suggestion}</span>
-                  </button>
-                ))}
-              </div>
-            )}
+
           </div>
 
           {/* Primary CTA - Larger */}
