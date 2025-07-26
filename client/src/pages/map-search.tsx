@@ -155,23 +155,32 @@ export default function MapSearchClean() {
     return `bounds_${sw.lng.toFixed(6)}_${sw.lat.toFixed(6)}_${ne.lng.toFixed(6)}_${ne.lat.toFixed(6)}`;
   }, [mapBounds]);
 
-  // Fetch communities within map bounds for list view
+  // Debounced bounds change to reduce API calls
+  const [debouncedBounds, setDebouncedBounds] = useState<any>(null);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedBounds(mapBounds);
+    }, 500); // 500ms debounce for smooth transitions
+    
+    return () => clearTimeout(timer);
+  }, [mapBounds]);
+
+  // Fetch communities within map bounds for list view with optimization
   const { data: mapCommunities = [], isLoading: isLoadingCommunities, isFetching: isFetchingCommunities } = useQuery<Community[]>({
-    queryKey: ['communities-spatial', boundsKey, showBottomPanel, viewMode, activeCareTypes, activePriceRanges, activeFeatures],
+    queryKey: ['communities-spatial', boundsKey, showBottomPanel, viewMode, activeCareTypes, activePriceRanges, activeFeatures, activeAmenities, activeRatings, activeAvailability],
     queryFn: async () => {
-      if (!mapBounds) {
-        console.log('🚫 SKIPPING QUERY - no bounds available');
+      if (!debouncedBounds) {
         return [];
       }
 
-      console.log('🌍 FETCHING COMMUNITIES FOR BOUNDS:', boundsKey);
-      const sw = mapBounds.getSouthWest();
-      const ne = mapBounds.getNorthEast();
+      const sw = debouncedBounds.getSouthWest();
+      const ne = debouncedBounds.getNorthEast();
 
       try {
-        let url = `/api/communities/search/spatial?swLat=${sw.lat}&swLng=${sw.lng}&neLat=${ne.lat}&neLng=${ne.lng}&limit=100`;
+        let url = `/api/communities/search/spatial?swLat=${sw.lat}&swLng=${sw.lng}&neLat=${ne.lat}&neLng=${ne.lng}&limit=200`;
         
-        // Apply active filters
+        // Apply all active filters to backend
         if (activeCareTypes.length > 0) {
           url += `&careTypes=${encodeURIComponent(activeCareTypes.join(','))}`;
         }
@@ -180,6 +189,15 @@ export default function MapSearchClean() {
         }
         if (activeFeatures.includes('Live Pricing')) {
           url += `&livePricing=true`;
+        }
+        if (activeFeatures.includes('Available Now')) {
+          url += `&availableNow=true`;
+        }
+        if (activeAmenities.length > 0) {
+          url += `&amenities=${encodeURIComponent(activeAmenities.join(','))}`;
+        }
+        if (activeRatings.length > 0) {
+          url += `&ratings=${encodeURIComponent(activeRatings.join(','))}`;
         }
         
         const response = await fetch(url);
@@ -229,7 +247,7 @@ export default function MapSearchClean() {
         throw error;
       }
     },
-    enabled: !!mapBounds && (showBottomPanel || viewMode === 'list'),
+    enabled: !!debouncedBounds && (showBottomPanel || viewMode === 'list'),
     staleTime: 30000,
     retry: (failureCount, error) => {
       console.log(`Query retry ${failureCount}:`, error);
@@ -753,6 +771,9 @@ export default function MapSearchClean() {
                                         activeAvailability.length > 0 ? activeAvailability.join(',') : 'All Status'
                           });
                           
+                          // Close the filters pane
+                          setShowFilters(false);
+                          
                           // Force refresh of map data with new filters
                           queryClient.invalidateQueries({ queryKey: ['communities-spatial'] });
                         }}
@@ -768,6 +789,8 @@ export default function MapSearchClean() {
                           setActiveFeatures([]);
                           setActiveRatings([]);
                           setActiveAvailability([]);
+                          // Close the filters pane
+                          setShowFilters(false);
                           // Also refresh data when clearing filters
                           queryClient.invalidateQueries({ queryKey: ['communities-spatial'] });
                         }}

@@ -102,19 +102,18 @@ class SuperclusterService {
         nodeSize: 64,
       };
     } else if (zoom >= 13) {
-      // Neighborhood view - stronger clustering for performance
+      // City/Neighborhood view - NO clustering, show all individual markers
       return {
-        radius: 60,        // Increased radius to prevent too many individual markers
+        radius: 10,        // Very small radius, minimal clustering
         maxZoom: 20,
         minZoom: 0,
-        minPoints: 2,      // Cluster any 2+ communities for better performance
+        minPoints: 10,     // Only cluster if 10+ communities are extremely close
         generateId: true,
         extent: 512,
         nodeSize: 64,
       };
     } else if (zoom >= 11) {
-      // City view - ALWAYS cluster for performance (Yelp/Zillow style)
-      // Never show thousands of individual markers
+      // Regional view - light clustering starts here
       return {
         radius: 80,        // Increased radius to ensure clustering at city level
         maxZoom: 20,
