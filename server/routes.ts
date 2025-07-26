@@ -2113,6 +2113,95 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get highest-rated communities for homepage showcase (must be before :id route)
+  app.get('/api/communities/highest-rated', async (req, res) => {
+    console.log('⭐ HIGHEST-RATED ROUTE HIT - Processing request');
+    try {
+      const startTime = Date.now();
+      const limit = parseInt(req.query.limit as string) || 12;
+      
+      // Query highest-rated communities with good review counts using Drizzle ORM
+      const highestRatedCommunities = await db
+        .select()
+        .from(communities)
+        .where(and(
+          sql`rating IS NOT NULL`,
+          sql`CAST(rating AS DECIMAL) >= 4.0`,
+          sql`review_count IS NOT NULL`,
+          sql`CAST(review_count AS INTEGER) >= 10`
+        ))
+        .orderBy(
+          sql`CAST(rating AS DECIMAL) DESC`,
+          sql`CAST(review_count AS INTEGER) DESC`
+        )
+        .limit(limit);
+      
+      const verifiedHighestRated = highestRatedCommunities
+        .map((community: any) => eliminateCallForPricing(community));
+      
+      console.log(`Highest-rated communities loaded in ${Date.now() - startTime}ms - Found ${verifiedHighestRated.length} communities`);
+      res.json(verifiedHighestRated);
+    } catch (error) {
+      console.error('Error fetching highest-rated communities:', error);
+      // Return empty array instead of error to prevent UI breakage
+      res.json([]);
+    }
+  });
+
+  // Get verified communities for homepage showcase (must be before :id route)
+  app.get('/api/communities/verified', async (req, res) => {
+    console.log('✅ VERIFIED ROUTE HIT - Processing request');
+    try {
+      const startTime = Date.now();
+      const limit = parseInt(req.query.limit as string) || 12;
+      
+      // Query verified communities with multiple verification criteria using Drizzle ORM
+      const verifiedCommunities = await db
+        .select()
+        .from(communities)
+        .where(or(
+          // HUD verified properties
+          and(
+            sql`hud_property_id IS NOT NULL`,
+            sql`rent_per_month IS NOT NULL`
+          ),
+          // Government-sourced communities
+          sql`government_sourced = true`,
+          // Claimed communities with verified data
+          and(
+            sql`claimed_by IS NOT NULL`,
+            sql`pricing_last_verified > NOW() - INTERVAL '90 days'`
+          ),
+          // Communities with license numbers (regulatory verification)
+          sql`license_number IS NOT NULL`,
+          // Communities with recent inspection data
+          sql`last_inspection_date > NOW() - INTERVAL '2 years'`
+        ))
+        .orderBy(
+          sql`CASE 
+            WHEN hud_property_id IS NOT NULL THEN 1
+            WHEN government_sourced = true THEN 2
+            WHEN claimed_by IS NOT NULL THEN 3
+            WHEN license_number IS NOT NULL THEN 4
+            ELSE 5
+          END`,
+          sql`CAST(rating AS DECIMAL) DESC NULLS LAST`,
+          sql`name ASC`
+        )
+        .limit(limit);
+      
+      const verifiedWithPricing = verifiedCommunities
+        .map((community: any) => eliminateCallForPricing(community));
+      
+      console.log(`Verified communities loaded in ${Date.now() - startTime}ms - Found ${verifiedWithPricing.length} communities`);
+      res.json(verifiedWithPricing);
+    } catch (error) {
+      console.error('Error fetching verified communities:', error);
+      // Return empty array instead of error to prevent UI breakage
+      res.json([]);
+    }
+  });
+
   // Viewport-optimized Supercluster endpoint for 25,782+ communities
   app.get('/api/communities/clusters', async (req, res) => {
     try {

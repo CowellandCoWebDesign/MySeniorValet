@@ -59,7 +59,7 @@ interface CommunityCardProps {
     };
   };
   index?: number;
-  variant?: 'standard' | 'featured' | 'coastal' | 'trending' | 'list' | 'horizontal' | 'default';
+  variant?: 'standard' | 'featured' | 'coastal' | 'trending' | 'list' | 'horizontal' | 'default' | 'highest-rated' | 'verified';
   onSelect?: () => void;
 }
 
@@ -317,6 +317,16 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
                 🌊 Ocean View
               </Badge>
             )}
+            {variant === 'highest-rated' && (
+              <Badge className="absolute bottom-3 right-3 bg-amber-600 text-white text-xs px-2 py-1 font-medium">
+                ⭐ Top Rated
+              </Badge>
+            )}
+            {variant === 'verified' && (
+              <Badge className="absolute bottom-3 right-3 bg-emerald-600 text-white text-xs px-2 py-1 font-medium">
+                ✅ Verified
+              </Badge>
+            )}
           </div>
           
           <CardContent className="p-3">
@@ -338,10 +348,12 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
             
             {/* Care Type */}
             <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
-              {community.careTypes?.length > 0 ? 
+              {community.careTypes && community.careTypes.length > 0 ? 
                 community.careTypes[0] : 
                 'Senior Living'
-              } • {variant === 'coastal' ? 'Coastal Living' : 'Premium Care'}
+              } • {variant === 'coastal' ? 'Coastal Living' : 
+                   variant === 'highest-rated' ? 'Top Rated' :
+                   variant === 'verified' ? 'Verified' : 'Premium Care'}
             </div>
             
             {/* Name */}
@@ -359,6 +371,20 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
               <div className="mb-2">
                 <Badge className="bg-cyan-600/90 text-white text-xs px-2 py-1 font-medium">
                   Coastal Region
+                </Badge>
+              </div>
+            )}
+            {variant === 'highest-rated' && (
+              <div className="mb-2">
+                <Badge className="bg-amber-600/90 text-white text-xs px-2 py-1 font-medium">
+                  Top Performer
+                </Badge>
+              </div>
+            )}
+            {variant === 'verified' && (
+              <div className="mb-2">
+                <Badge className="bg-emerald-600/90 text-white text-xs px-2 py-1 font-medium">
+                  Verified Data
                 </Badge>
               </div>
             )}

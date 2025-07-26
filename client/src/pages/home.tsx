@@ -12,6 +12,8 @@ import { GreetingMascot } from "@/components/mascot";
 import { Badge } from "@/components/ui/badge";
 import { EnhancedPlatformStats } from "@/components/EnhancedPlatformStats";
 import { FeaturedAndCoastalSection } from "@/components/FeaturedAndCoastalSection";
+import { HighestRatedSection } from "@/components/HighestRatedSection";
+import { VerifiedCommunitiesSection } from "@/components/VerifiedCommunitiesSection";
 
 export default function Home() {
   console.log("STREAMLINED HERO LOADED - v4.1 - " + Date.now() + " - Everything Senior Living Needs - In one place");
@@ -323,6 +325,12 @@ export default function Home() {
 
         {/* Featured & Coastal Communities Section - MOVED TO POSITION #3 */}
         <FeaturedAndCoastalSection />
+
+        {/* Highest Rated Communities Section */}
+        <HighestRatedSection />
+
+        {/* Verified Communities Section */}
+        <VerifiedCommunitiesSection />
 
         {/* Massive Data Coverage Section */}
         <section className="py-20 lg:py-24 bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
