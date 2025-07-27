@@ -348,13 +348,13 @@ export default function MySeniorValetHome() {
               Complete Concierge Services
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4 leading-tight">
-              Everything Senior Living Needs
+              Your Senior Living
               <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-                In One Place
+                Concierge Team
               </span>
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Complete experience from starting to look to calling somewhere home 🏡
+              Professional services and trusted vendors for every step of your senior living journey
             </p>
           </div>
           
