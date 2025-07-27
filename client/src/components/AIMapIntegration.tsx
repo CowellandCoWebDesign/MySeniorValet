@@ -368,8 +368,8 @@ function calculateAveragePrice(communities: Community[]): string {
       if (typeof c.priceRange === 'object' && c.priceRange?.min) {
         return (c.priceRange.min + c.priceRange.max) / 2;
       }
-      if (c.monthlyRentRangeStart && c.monthlyRentRangeEnd) {
-        return (c.monthlyRentRangeStart + c.monthlyRentRangeEnd) / 2;
+      if (c.priceRange && c.priceRange.min && c.priceRange.max) {
+        return (c.priceRange.min + c.priceRange.max) / 2;
       }
       return null;
     })

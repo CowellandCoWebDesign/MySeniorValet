@@ -10,6 +10,9 @@ import {
   type Lead, type InsertLead, type LeadActivity, type InsertLeadActivity
 } from "@shared/schema";
 import { db } from "./db";
+
+// Export db for build compatibility
+export { db };
 import { eq, like, ilike, gte, and, or, sql, inArray, desc, isNotNull, gt } from "drizzle-orm";
 import { zipCodeService } from "./zip-code-mapping";
 import { cache } from "./cache";

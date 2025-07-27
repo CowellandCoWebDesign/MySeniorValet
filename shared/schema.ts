@@ -383,7 +383,22 @@ export const communities = pgTable("communities", {
   reviewCount: integer("review_count").default(0),
   googleRating: decimal("google_rating", { precision: 3, scale: 2 }),
   googleReviewCount: integer("google_review_count").default(0),
+  googlePlaceId: text("google_place_id"), // Google Places API place ID
   googleReviewSnippets: json("google_review_snippets").$type<Array<{
+    text: string;
+    rating: number;
+    author: string;
+    date: string;
+    isPositive: boolean;
+  }>>().default([]),
+  googlePlaceReviews: json("google_place_reviews").$type<Array<{
+    text: string;
+    rating: number;
+    author: string;
+    date: string;
+    isPositive: boolean;
+  }>>().default([]),
+  reviews: json("reviews").$type<Array<{
     text: string;
     rating: number;
     author: string;

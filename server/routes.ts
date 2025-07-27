@@ -23,7 +23,10 @@ import {
   vendors,
   vendorServices,
   communityDashboardStats,
-  communityMessages
+  communityMessages,
+  securityAuditLogs,
+  auditLogs,
+  userActivity
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, or, desc, inArray, sql, between, gte, lte, isNotNull } from "drizzle-orm";
@@ -7653,7 +7656,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const logs = await db
           .select()
           .from(securityAuditLogs)
-          .orderBy(desc(securityAuditLogs.createdAt))
+          .orderBy(desc(securityAuditLogs.timestamp))
           .limit(limitNum)
           .offset(offset);
 
@@ -7740,17 +7743,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const totalResult = await db
           .select({ count: sql`count(*)` })
           .from(securityAuditLogs)
-          .where(gte(securityAuditLogs.createdAt, since));
+          .where(gte(securityAuditLogs.timestamp, since));
 
         // Get severity breakdown
         const severityResult = await db
           .select({
-            severity: securityAuditLogs.severity,
+            severity: securityAuditLogs.riskLevel,
             count: sql<number>`count(*)`
           })
           .from(securityAuditLogs)
-          .where(gte(securityAuditLogs.createdAt, since))
-          .groupBy(securityAuditLogs.severity);
+          .where(gte(securityAuditLogs.timestamp, since))
+          .groupBy(securityAuditLogs.riskLevel);
 
         // Get action breakdown
         const actionResult = await db
@@ -7766,12 +7769,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Get resource type breakdown
         const resourceResult = await db
           .select({
-            resourceType: securityAuditLogs.resourceType,
+            resourceType: securityAuditLogs.resource,
             count: sql<number>`count(*)`
           })
           .from(securityAuditLogs)
-          .where(gte(securityAuditLogs.createdAt, since))
-          .groupBy(securityAuditLogs.resourceType);
+          .where(gte(securityAuditLogs.timestamp, since))
+          .groupBy(securityAuditLogs.resource);
 
         res.json({
           timeframe,

@@ -172,3 +172,10 @@ Provide a 2-3 sentence summary of what was found and any helpful context.`
     return `Found ${results.length} communities matching your search.`;
   }
 }
+
+// Export class for build compatibility
+export class AnthropicAIService {
+  static interpretSearchQuery = interpretSearchQuery;
+  static generateSearchSuggestions = generateSearchSuggestions;
+  static enhanceSearchResults = enhanceSearchResults;
+}
