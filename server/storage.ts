@@ -146,91 +146,10 @@ export class MemStorage implements IStorage {
     this.currentCommunityId = 1;
     this.currentInspectionId = 1;
     
-    // Initialize with sample data
-    this.initializeSampleData();
+    // No sample data - only real data allowed
   }
 
-  private initializeSampleData() {
-    // Sample communities for demonstration
-    const sampleCommunities: InsertCommunity[] = [
-      {
-        name: "Sunrise Manor",
-        address: "123 Oak Street",
-        city: "Denver",
-        state: "CO",
-        zipCode: "80202",
-        phone: "", // Phone will be populated from real data
-        email: "info@sunrisemanor.com",
-        website: "www.sunrisemanor.com",
-        description: "Premier senior living community with comprehensive care services and beautiful amenities.",
-        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
-        amenities: ["Pet Friendly", "Transportation", "Fitness Center", "Dining Options"],
-        priceRange: { min: 4200, max: 8500 },
-        rating: "4.8",
-        imageUrl: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3",
-        latitude: "39.7392358",
-        longitude: "-104.9902719",
-        licenseNumber: "CO-SL-001",
-        licenseStatus: "Licensed",
-        lastInspection: new Date("2024-01-15"),
-        violations: 0,
-        isVerified: true,
-        isClaimed: false,
-      },
-      {
-        name: "Golden Years Community",
-        address: "456 Pine Avenue",
-        city: "Colorado Springs",
-        state: "CO",
-        zipCode: "80903",
-        phone: "", // Phone will be populated from real data
-        email: "contact@goldenyears.com",
-        website: "www.goldenyears.com",
-        description: "Affordable assisted living and memory care in a warm, family-like environment.",
-        careTypes: ["Assisted Living", "Memory Care"],
-        amenities: ["Pet Friendly", "Transportation", "Activities"],
-        priceRange: { min: 3800, max: 6200 },
-        rating: "4.6",
-        imageUrl: "https://images.unsplash.com/photo-1576086213369-97a306d36557?ixlib=rb-4.0.3",
-        latitude: "38.8338816",
-        longitude: "-104.8213634",
-        licenseNumber: "CO-SL-002",
-        licenseStatus: "Under Review",
-        lastInspection: new Date("2023-12-10"),
-        violations: 2,
-        isVerified: true,
-        isClaimed: false,
-      },
-      {
-        name: "Heritage Hills Senior Living",
-        address: "789 Mountain View Drive",
-        city: "Boulder",
-        state: "CO",
-        zipCode: "80301",
-        phone: "", // Phone will be populated from real data
-        email: "info@heritagehills.com",
-        website: "www.heritagehills.com",
-        description: "Luxury senior living with stunning mountain views and premium amenities.",
-        careTypes: ["Independent Living", "Assisted Living"],
-        amenities: ["Fitness Center", "Dining Options", "Spa Services", "Golf Course"],
-        priceRange: { min: 5200, max: 12000 },
-        rating: "4.9",
-        imageUrl: "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?ixlib=rb-4.0.3",
-        latitude: "40.0149856",
-        longitude: "-105.2705456",
-        licenseNumber: "CO-SL-003",
-        licenseStatus: "Licensed",
-        lastInspection: new Date("2024-02-20"),
-        violations: 0,
-        isVerified: true,
-        isClaimed: true,
-      },
-    ];
-
-    sampleCommunities.forEach(community => {
-      this.createCommunity(community);
-    });
-  }
+  // NO SAMPLE DATA - GOLDEN DATA RULE ENFORCED
 
   async getUser(id: string): Promise<User | undefined> {
     return this.users.get(id);

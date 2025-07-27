@@ -72,105 +72,11 @@ export const LocalServicesPanel: React.FC<LocalServicesPanelProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [loading, setLoading] = useState(false);
 
-  // Mock data for demonstration - in production, this would come from the API
+  // NO MOCK DATA - GOLDEN DATA RULE ENFORCED
   useEffect(() => {
-    const mockServices: LocalService[] = [
-      {
-        id: '1',
-        category: 'moving',
-        name: 'Gentle Transitions Senior Move Management',
-        description: 'Specialized in downsizing and senior relocations',
-        provider: 'Gentle Transitions LLC',
-        address: '123 Main St, San Francisco, CA',
-        phone: '(415) 555-1234',
-        website: 'https://gentletransitions.com',
-        distance: 2.3,
-        rating: 4.8,
-        features: ['Packing', 'Unpacking', 'Estate sales', 'Donation coordination'],
-        pricing: 'Free consultation',
-        verified: true
-      },
-      {
-        id: '2',
-        category: 'prescription_delivery',
-        name: 'CVS Pharmacy Delivery',
-        description: 'Free prescription delivery for seniors',
-        provider: 'CVS Health',
-        phone: '(415) 555-2345',
-        distance: 0.8,
-        rating: 4.5,
-        features: ['Same-day delivery', 'Medication sync', 'Auto-refill'],
-        pricing: 'Free delivery',
-        verified: true
-      },
-      {
-        id: '3',
-        category: 'senior_center',
-        name: 'Golden Gate Senior Center',
-        description: 'Community activities and social programs',
-        provider: 'City of San Francisco',
-        address: '456 Park Ave, San Francisco, CA',
-        phone: '(415) 555-3456',
-        distance: 1.5,
-        rating: 4.7,
-        features: ['Exercise classes', 'Meals', 'Social activities', 'Health screenings'],
-        pricing: 'Free for residents',
-        verified: true
-      },
-      {
-        id: '4',
-        category: 'medical_transport',
-        name: 'Senior Care Medical Transport',
-        description: 'Non-emergency medical transportation',
-        provider: 'Senior Care Transport Inc.',
-        phone: '(415) 555-4567',
-        distance: 3.2,
-        rating: 4.6,
-        features: ['Wheelchair accessible', 'Door-to-door', 'Insurance accepted'],
-        pricing: 'Medicare covered',
-        verified: true
-      },
-      {
-        id: '5',
-        category: 'meal_delivery',
-        name: 'Meals on Wheels San Francisco',
-        description: 'Nutritious meals delivered to seniors',
-        provider: 'Meals on Wheels',
-        phone: '(415) 555-5678',
-        distance: 0.5,
-        rating: 4.9,
-        features: ['Hot meals', 'Special diets', 'Wellness checks'],
-        pricing: 'Sliding scale',
-        verified: true
-      }
-    ];
-
-    // Mock Amazon products
-    const mockProducts: AmazonProduct[] = [
-      {
-        asin: 'B07DHSQMBT',
-        title: 'Drive Medical Folding Walker with Wheels',
-        price: '$89.99',
-        rating: 4.5,
-        reviewCount: 12453,
-        imageUrl: 'https://m.media-amazon.com/images/I/71HfVzCmNSL._AC_UL320_.jpg',
-        productUrl: `https://www.amazon.com/dp/B07DHSQMBT?tag=${amazonAssociateTag || 'myseniorvalet-20'}`,
-        prime: true
-      },
-      {
-        asin: 'B07YNL4K9R',
-        title: 'MedCenter Monthly Pill Organizer with Alarm',
-        price: '$34.95',
-        rating: 4.6,
-        reviewCount: 8921,
-        imageUrl: 'https://m.media-amazon.com/images/I/81YZR5DmCYL._AC_UL320_.jpg',
-        productUrl: `https://www.amazon.com/dp/B07YNL4K9R?tag=${amazonAssociateTag || 'myseniorvalet-20'}`,
-        prime: true
-      }
-    ];
-
-    setServices(mockServices);
-    setRecommendedProducts(mockProducts);
+    // Only real data from API allowed
+    setServices([]);
+    setRecommendedProducts([]);
   }, [location, amazonAssociateTag]);
 
   const filteredServices = selectedCategory === 'all' 

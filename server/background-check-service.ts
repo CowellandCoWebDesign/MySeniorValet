@@ -108,29 +108,21 @@ class BackgroundCheckService {
   }
 
   async checkStatus(requestId: string): Promise<BackgroundCheckResult> {
-    // In production, this would check with the actual provider API
-    // For demonstration, we'll simulate different statuses
+    // GOLDEN DATA RULE ENFORCED - NO FAKE BACKGROUND CHECK DATA
+    // Real background check API integration required
+    // This would check with the actual provider API when credentials are provided
     
-    const mockResults: BackgroundCheckResult = {
+    // Return pending status until real API is connected
+    const result: BackgroundCheckResult = {
       requestId,
-      status: "completed",
-      criminalRecord: {
-        hasRecords: false,
-      },
-      creditScore: 720,
-      evictionHistory: {
-        hasEvictions: false,
-        count: 0,
-      },
-      sexOffenderRegistry: {
-        isRegistered: false,
-      },
-      verificationStatus: "verified",
-      reportUrl: `https://example.com/reports/${requestId}`,
-      completedAt: new Date(),
+      status: "pending",
+      verificationStatus: "needs_review",
+      reportUrl: "",
+      completedAt: undefined,
     };
 
-    return mockResults;
+    console.log('Background check status requested - real API integration required');
+    return result;
   }
 
   async updateApplicationWithResults(applicationId: number, results: BackgroundCheckResult): Promise<void> {

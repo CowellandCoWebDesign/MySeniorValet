@@ -117,10 +117,9 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
-  // Seed the database on startup (non-blocking)
-  seedDatabase().catch(error => {
-    console.error('Failed to seed database:', error);
-  });
+  // NO SEEDING - GOLDEN DATA RULE ENFORCED
+  // seedDatabase() is permanently disabled to prevent fake data
+  console.log('✅ Database seeding DISABLED - only real data allowed');
 
   // Create demo user (non-blocking)
   import('./seed-demo-user').then(({ createDemoUser }) => {

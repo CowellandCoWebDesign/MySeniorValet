@@ -8,7 +8,8 @@ import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
 import { useAuth } from '@/hooks/useAuth';
 import { Link as RouterLink, useLocation } from 'wouter';
 
-// Mock community data for demonstration
+// GOLDEN DATA RULE - Use real community data from database when available
+// This is a demo community structure - phone number removed per golden data rule
 const sampleCommunity = {
   id: 1,
   name: "Sunset Gardens Senior Living",
@@ -22,7 +23,7 @@ const sampleCommunity = {
     "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?auto=format&fit=crop&w=800&q=80",
     "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80"
   ],
-  phone: "(916) 555-0123",
+  phone: "", // Contact for pricing - no fake phone numbers allowed
   website: "https://sunsetgardens.com"
 };
 

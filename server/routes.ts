@@ -548,119 +548,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Location coordinates required" });
       }
 
-      // Real service providers will be integrated from APIs
-      const mockServices = [
-        {
-          id: "mov-1",
-          category: "moving",
-          name: "Gentle Transitions Senior Moving",
-          description: "Specialized senior move management with downsizing and organizing services",
-          provider: "Gentle Transitions LLC",
-          phone: "", // Phone will be populated from real API
-          website: "https://gentletransitions.com",
-          distance: 2.3,
-          rating: 4.8,
-          features: ["Packing/Unpacking", "Downsizing Help", "Estate Sales", "Floor Planning"],
-          pricing: "Free consultation",
-          verified: true
-        },
-        {
-          id: "rx-1",
-          category: "prescription_delivery",
-          name: "CVS Pharmacy Delivery",
-          description: "Free prescription delivery for seniors with automatic refills",
-          provider: "CVS Health",
-          phone: "", // Phone will be populated from real API
-          website: "https://cvs.com",
-          distance: 0.8,
-          rating: 4.5,
-          features: ["Free Delivery", "Auto Refills", "Medicare Part D", "Medication Sync"],
-          pricing: "Free delivery",
-          verified: true
-        },
-        {
-          id: "junk-1",
-          category: "junk_removal",
-          name: "1-800-GOT-JUNK? Senior Services",
-          description: "Estate cleanouts and junk removal with senior discounts",
-          provider: "1-800-GOT-JUNK?",
-          phone: "1-800-468-5865",
-          website: "https://1800gotjunk.com",
-          distance: 3.1,
-          rating: 4.6,
-          features: ["Full Service", "Same Day", "Estate Cleanouts", "Donation Handling"],
-          pricing: "10% senior discount",
-          verified: true
-        },
-        {
-          id: "stor-1",
-          category: "storage",
-          name: "Public Storage Senior Solutions",
-          description: "Climate-controlled storage with senior moving assistance",
-          provider: "Public Storage",
-          phone: "", // Phone will be populated from real API
-          website: "https://publicstorage.com",
-          distance: 1.5,
-          rating: 4.3,
-          features: ["Climate Control", "24/7 Access", "Moving Help", "First Month Free"],
-          pricing: "From $89/month",
-          verified: true
-        },
-        {
-          id: "phone-1",
-          category: "cell_phone_access",
-          name: "Lifeline Cell Phone Program",
-          description: "Free government cell phone program for low-income seniors",
-          provider: "California LifeLine",
-          phone: "1-866-272-0349",
-          website: "https://californialifeline.com",
-          distance: 0,
-          rating: 4.2,
-          features: ["Free Phone", "Free Minutes", "Free Texts", "Emergency Features"],
-          pricing: "Free for eligible",
-          verified: true
-        },
-        {
-          id: "center-1",
-          category: "senior_center",
-          name: "Sacramento Senior Center",
-          description: "Activities, meals, and social programs for active seniors",
-          provider: "City of Sacramento",
-          phone: "", // Phone will be populated from real API
-          website: "https://cityofsacramento.org",
-          distance: 4.2,
-          rating: 4.7,
-          features: ["Fitness Classes", "Lunch Program", "Social Activities", "Health Screenings"],
-          pricing: "Free/Low cost",
-          verified: true
-        },
-        {
-          id: "trans-1",
-          category: "medical_transport",
-          name: "LogistiCare Medical Transport",
-          description: "Non-emergency medical transportation for Medicare recipients",
-          provider: "LogistiCare",
-          phone: "1-866-527-9933",
-          website: "https://logisticare.com",
-          distance: 0,
-          rating: 4.1,
-          features: ["Door-to-Door", "Wheelchair Access", "Medicare Covered", "Advance Booking"],
-          pricing: "Medicare covered",
-          verified: true
-        }
-      ];
+      // GOLDEN DATA RULE ENFORCED - NO FAKE SERVICES ALLOWED
+      // Real service providers must be integrated from real APIs only
+      const services: any[] = [];
 
       // Filter by category if specified
-      let services = mockServices;
+      let filteredServices = services;
       if (category && category !== 'all') {
-        services = services.filter(s => s.category === category);
+        filteredServices = filteredServices.filter(s => s.category === category);
       }
 
-      // Sort by distance
-      services.sort((a, b) => a.distance - b.distance);
+      // Sort by distance (no services to sort with fake data removed)
+      filteredServices.sort((a, b) => a.distance - b.distance);
 
       res.json({
-        services,
+        services: filteredServices,
         total: services.length,
         location: { lat: parseFloat(lat as string), lng: parseFloat(lng as string) },
         radius: parseInt(radius as string)
@@ -1304,59 +1206,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     
     try {
-      // Mock services data for now - will integrate with real APIs
-      const mockServices = [
-        {
-          id: '1',
-          category: 'moving',
-          name: 'Gentle Transitions Senior Move Management',
-          description: 'Specialized in downsizing and senior relocations',
-          provider: 'Gentle Transitions LLC',
-          address: '123 Main St',
-          phone: '', // Phone will be populated from real API
-          website: 'https://gentletransitions.com',
-          location: { lat: parseFloat(lat as string) + 0.01, lng: parseFloat(lng as string) + 0.01 },
-          distance: 2.3,
-          rating: 4.8,
-          features: ['Packing', 'Unpacking', 'Estate sales', 'Donation coordination'],
-          pricing: 'Free consultation',
-          verified: true
-        },
-        {
-          id: '2',
-          category: 'prescription_delivery',
-          name: 'CVS Pharmacy Delivery',
-          description: 'Free prescription delivery for seniors',
-          provider: 'CVS Health',
-          phone: '', // Phone will be populated from real API
-          location: { lat: parseFloat(lat as string) - 0.005, lng: parseFloat(lng as string) + 0.005 },
-          distance: 0.8,
-          rating: 4.5,
-          features: ['Same-day delivery', 'Medication sync', 'Auto-refill'],
-          pricing: 'Free delivery',
-          verified: true
-        },
-        {
-          id: '3',
-          category: 'senior_center',
-          name: 'Golden Gate Senior Center',
-          description: 'Community activities and social programs',
-          provider: 'City Department',
-          address: '456 Park Ave',
-          phone: '', // Phone will be populated from real API
-          location: { lat: parseFloat(lat as string) + 0.008, lng: parseFloat(lng as string) - 0.008 },
-          distance: 1.5,
-          rating: 4.7,
-          features: ['Exercise classes', 'Meals', 'Social activities', 'Health screenings'],
-          pricing: 'Free for residents',
-          verified: true
-        }
-      ];
+      // GOLDEN DATA RULE ENFORCED - NO FAKE SERVICES ALLOWED
+      // Real service providers must be integrated from real APIs only
+      const services: any[] = [];
       
       // Filter by category if provided
-      let filteredServices = mockServices;
+      let filteredServices = services;
       if (category && category !== 'all') {
-        filteredServices = mockServices.filter(s => s.category === category);
+        filteredServices = services.filter(s => s.category === category);
       }
       
       res.json({
@@ -4384,10 +4241,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const state = req.query.state as string;
       
-      // HUD/VASH facilities will be populated from real data
-      const sampleFacilities = [] as any[]; // Will be populated from real HUD API
-      
-      let facilities = sampleFacilities;
+      // GOLDEN DATA RULE ENFORCED - NO FAKE FACILITIES ALLOWED
+      const facilities: any[] = []; // Only real HUD API data allowed
       if (state && state !== 'all') {
         facilities = facilities.filter(facility => facility.state === state);
       }
@@ -4419,13 +4274,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const state = req.query.state as string;
       
-      // HUD/VASH facilities will be populated from real data
-      const sampleFacilities = [] as any[]; // Will be populated from real HUD API
+      // GOLDEN DATA RULE ENFORCED - NO FAKE FACILITIES ALLOWED
+      const facilities: any[] = []; // Only real HUD API data allowed
       
       // Filter by state if provided
-      let facilities = sampleFacilities;
+      let filteredFacilities = facilities;
       if (state && state !== 'all') {
-        facilities = facilities.filter(facility => facility.state === state);
+        filteredFacilities = facilities.filter(facility => facility.state === state);
       }
       
       // Categorize facilities
