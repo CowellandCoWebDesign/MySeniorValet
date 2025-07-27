@@ -6,14 +6,15 @@ import { Brain, Eye, TrendingUp, Shield, BookOpen, Calculator } from 'lucide-rea
 
 /*
 COMPREHENSIVE MULTI-AI INTELLIGENCE SHOWCASE
-Highlights the unprecedented combination of Anthropic Claude + Google Gemini
-for senior living decision-making intelligence
+World-changing transparency through 3-AI collaboration:
+Claude (Complex Reasoning) + Gemini (Visual Intelligence) + ChatGPT (Financial Transparency)
+Truth in Senior Living - NOT a placement agency
 */
 
 interface AICapability {
   id: string;
   name: string;
-  ai: 'Claude' | 'Gemini' | 'Multi-AI';
+  ai: 'Claude' | 'Gemini' | 'ChatGPT' | 'Multi-AI';
   icon: any;
   description: string;
   capabilities: string[];
@@ -23,28 +24,45 @@ interface AICapability {
 
 const aiCapabilities: AICapability[] = [
   {
-    id: 'comprehensive-analysis',
-    name: 'Comprehensive Community Analysis',
+    id: 'three-ai-cross-verification',
+    name: '3-AI Cross-Verification System',
     ai: 'Multi-AI',
     icon: Brain,
-    description: 'Combined Claude reasoning + Gemini intelligence for complete community evaluation',
+    description: 'Claude, Gemini & ChatGPT work together, cross-checking each other for absolute accuracy',
     capabilities: [
-      'Deep care level appropriateness analysis',
-      'Long-term suitability assessment',
-      'Budget sustainability over 5-10 years',
-      'Family involvement opportunities',
-      'Quality of life factor analysis',
-      'Risk assessment and mitigation'
+      'Triple AI consensus for critical decisions',
+      'Cross-verification of all findings',
+      'Exposing hidden information through AI collaboration',
+      'World-changing transparency in senior living',
+      'Eliminating decades of industry opacity',
+      'Truth in Senior Living - NOT placement services'
     ],
-    confidence: 95,
-    color: 'from-purple-500 to-blue-600'
+    confidence: 98,
+    color: 'from-purple-600 to-pink-600'
+  },
+  {
+    id: 'financial-transparency',
+    name: 'Financial Transparency Analysis',
+    ai: 'ChatGPT',
+    icon: Calculator,
+    description: 'ChatGPT-4o exposes hidden costs and financial manipulation in senior living',
+    capabilities: [
+      'Hidden fee detection and exposure',
+      'Annual escalation clause analysis',
+      'Move-out penalty identification',
+      'Long-term cost projections with inflation',
+      'Financial assistance qualification analysis',
+      'Contract red flag detection'
+    ],
+    confidence: 94,
+    color: 'from-green-500 to-emerald-600'
   },
   {
     id: 'visual-intelligence',
     name: 'Visual Intelligence & Photo Analysis',
     ai: 'Gemini',
     icon: Eye,
-    description: 'Advanced visual analysis of community photos and facilities',
+    description: 'Gemini 2.5 Flash analyzes photos to reveal facility reality vs marketing',
     capabilities: [
       'Facility quality and maintenance assessment',
       'Accessibility features identification',
@@ -54,24 +72,7 @@ const aiCapabilities: AICapability[] = [
       'Cleanliness and upkeep standards'
     ],
     confidence: 88,
-    color: 'from-green-500 to-teal-600'
-  },
-  {
-    id: 'market-intelligence',
-    name: 'Real-Time Market Intelligence',
-    ai: 'Gemini',
-    icon: TrendingUp,
-    description: 'Live market data and trends for informed decision-making',
-    capabilities: [
-      'Current pricing trends analysis',
-      'Occupancy rates and availability',
-      'New developments tracking',
-      'Quality improvement trends',
-      'Technology adoption patterns',
-      'Investment market stability'
-    ],
-    confidence: 85,
-    color: 'from-orange-500 to-red-600'
+    color: 'from-blue-500 to-cyan-600'
   },
   {
     id: 'care-planning',
@@ -131,8 +132,9 @@ export default function AIIntelligenceShowcase() {
 
   const getAIBadgeColor = (ai: string) => {
     switch (ai) {
-      case 'Claude': return 'bg-blue-500 text-white';
-      case 'Gemini': return 'bg-green-500 text-white';
+      case 'Claude': return 'bg-orange-500 text-white';
+      case 'Gemini': return 'bg-blue-500 text-white';
+      case 'ChatGPT': return 'bg-green-500 text-white';
       case 'Multi-AI': return 'bg-purple-500 text-white';
       default: return 'bg-gray-500 text-white';
     }
