@@ -221,7 +221,7 @@ This file contains the current technical architecture, key components, and essen
   - Popular locations tracking
   - Platform insights (response time, error rate, peak hours, session duration)
   - Progress bars for resource utilization
-  - Real-time data refresh every 5-10 seconds
+  - Industry-standard refresh intervals: 60s for stats, 30s for activity/health
 - **Professional UI Enhancements**: Added Progress component for resource visualization, ScrollArea for activity feeds, proper loading states, and color-coded status badges
 - **Complete Real-time Integration**: All dashboard data now pulls from live database queries with automatic updates, replacing all mock data with authentic platform metrics
 

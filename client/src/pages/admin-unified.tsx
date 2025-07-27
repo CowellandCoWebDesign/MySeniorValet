@@ -158,27 +158,30 @@ interface User {
 
 // Enterprise Overview Component
 const EnterpriseOverview = () => {
-  const [refreshInterval, setRefreshInterval] = useState(5000); // 5 seconds
+  // Industry-standard refresh intervals
+  const STATS_REFRESH = 60000; // 60 seconds for general statistics
+  const ACTIVITY_REFRESH = 30000; // 30 seconds for activity feed
+  const HEALTH_REFRESH = 30000; // 30 seconds for system health
   
   // Real-time stats query
   const { data: realtimeStats, isLoading: statsLoading, error: statsError } = useQuery({
     queryKey: ['/api/admin/realtime/stats'],
     queryFn: () => apiRequest('GET', '/api/admin/realtime/stats'),
-    refetchInterval: refreshInterval,
+    refetchInterval: STATS_REFRESH,
   });
 
   // Activity feed query
   const { data: activityFeed, isLoading: feedLoading } = useQuery({
     queryKey: ['/api/admin/activity/feed'],
     queryFn: () => apiRequest('GET', '/api/admin/activity/feed?limit=20'),
-    refetchInterval: refreshInterval,
+    refetchInterval: ACTIVITY_REFRESH,
   });
 
   // System health query
   const { data: systemHealth, isLoading: healthLoading } = useQuery({
     queryKey: ['/api/admin/system/health'],
     queryFn: () => apiRequest('GET', '/api/admin/system/health'),
-    refetchInterval: 10000, // 10 seconds
+    refetchInterval: HEALTH_REFRESH,
   });
 
   const stats = realtimeStats || {
@@ -202,6 +205,13 @@ const EnterpriseOverview = () => {
   return (
     <div className="space-y-6">
       {/* Real-time Stats Cards */}
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold">Platform Overview</h3>
+        <Badge variant="outline" className="text-xs">
+          <Clock className="h-3 w-3 mr-1" />
+          Updates every 60s
+        </Badge>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -267,7 +277,7 @@ const EnterpriseOverview = () => {
               <span>Live Activity Feed</span>
               <Badge variant="outline" className="ml-2">
                 <Clock className="h-3 w-3 mr-1" />
-                Real-time
+                Updates every 30s
               </Badge>
             </CardTitle>
             <CardDescription>
@@ -315,10 +325,16 @@ const EnterpriseOverview = () => {
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span>System Health</span>
-              <Badge variant={health.status === 'healthy' ? 'success' : 'destructive'}>
-                {health.status === 'healthy' ? <CheckCircle className="h-3 w-3 mr-1" /> : <AlertCircle className="h-3 w-3 mr-1" />}
-                {health.status}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="text-xs">
+                  <Clock className="h-3 w-3 mr-1" />
+                  30s
+                </Badge>
+                <Badge variant={health.status === 'healthy' ? 'success' : 'destructive'}>
+                  {health.status === 'healthy' ? <CheckCircle className="h-3 w-3 mr-1" /> : <AlertCircle className="h-3 w-3 mr-1" />}
+                  {health.status}
+                </Badge>
+              </div>
             </CardTitle>
             <CardDescription>
               Infrastructure monitoring
