@@ -591,14 +591,15 @@ export class DatabaseStorage implements IStorage {
     // Since our current database only has username, we'll treat email as username
     // Use raw SQL query to avoid schema mismatch issues
     const result = await db.execute(
-      sql`SELECT id, username, password FROM users WHERE username = ${email}`
+      sql`SELECT id, username, password, role FROM users WHERE username = ${email}`
     );
     const userRow = result.rows[0];
     if (userRow) {
       return {
         id: userRow.id as number,
         username: userRow.username as string,
-        password: userRow.password as string
+        password: userRow.password as string,
+        role: userRow.role as string
       } as User;
     }
     return undefined;
