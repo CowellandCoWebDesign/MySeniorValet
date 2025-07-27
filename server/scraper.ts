@@ -207,7 +207,7 @@ export class ComprehensiveScraper {
     }
   }
 
-  private extractText($el: cheerio.Cheerio<cheerio.Element>, selectors: string[]): string {
+  private extractText($el: cheerio.Cheerio<any>, selectors: string[]): string {
     for (const selector of selectors) {
       const text = $el.find(selector).first().text().trim();
       if (text) return text;
@@ -215,7 +215,7 @@ export class ComprehensiveScraper {
     return '';
   }
 
-  private extractAttribute($el: cheerio.Cheerio<cheerio.Element>, selectors: string[], attribute: string): string {
+  private extractAttribute($el: cheerio.Cheerio<any>, selectors: string[], attribute: string): string {
     for (const selector of selectors) {
       const attr = $el.find(selector).first().attr(attribute);
       if (attr) return attr;
@@ -223,7 +223,7 @@ export class ComprehensiveScraper {
     return '';
   }
 
-  private extractAmenities($el: cheerio.Cheerio<cheerio.Element>): string[] {
+  private extractAmenities($el: cheerio.Cheerio<any>): string[] {
     const amenities: string[] = [];
     const amenitySelectors = [
       '.amenities li', '.features li', '.services li',
@@ -232,7 +232,7 @@ export class ComprehensiveScraper {
 
     for (const selector of amenitySelectors) {
       $el.find(selector).each((_, amenityEl) => {
-        const amenity = $(amenityEl).text().trim();
+        const amenity = cheerio.load(amenityEl).text().trim();
         if (amenity) amenities.push(amenity);
       });
       if (amenities.length > 0) break;
@@ -241,7 +241,7 @@ export class ComprehensiveScraper {
     return amenities;
   }
 
-  private extractPricing($el: cheerio.Cheerio<cheerio.Element>): string {
+  private extractPricing($el: cheerio.Cheerio<any>): string {
     const priceSelectors = [
       '.price', '.pricing', '.cost', '.rate',
       '.monthly-rate', '.starting-at', '.from'
@@ -254,7 +254,7 @@ export class ComprehensiveScraper {
     return '';
   }
 
-  private extractImage($el: cheerio.Cheerio<cheerio.Element>): string {
+  private extractImage($el: cheerio.Cheerio<any>): string {
     const imgSelectors = [
       'img', '.property-image img', '.community-image img',
       '.photo img', '.thumbnail img'
@@ -458,7 +458,7 @@ export class ComprehensiveScraper {
       services: [], // To be populated later if available
       medicalRestrictions: [], // Independent Living typically has fewer restrictions
       priceRange: priceRange,
-      availabilityStatus: 'Contact',
+      availabilityStatus: 'Unknown',
       availableUnits: null,
       totalUnits: null,
       rating: null,
@@ -520,12 +520,16 @@ export class ComprehensiveScraper {
 
       // Scrape assisted living facilities
       if (!careType || careType === 'Assisted Living') {
-        await this.scrapeAssistedLivingFacilities(state, stateUrls.assisted_living);
+        if ('assisted_living' in stateUrls) {
+          await this.scrapeAssistedLivingFacilities(state, stateUrls.assisted_living);
+        }
       }
 
       // Scrape skilled nursing facilities
       if (!careType || careType === 'Skilled Nursing') {
-        await this.scrapeSkilledNursingFacilities(state, stateUrls.skilled_nursing);
+        if ('skilled_nursing' in stateUrls) {
+          await this.scrapeSkilledNursingFacilities(state, stateUrls.skilled_nursing);
+        }
       }
 
     } catch (error) {
@@ -550,38 +554,45 @@ export class ComprehensiveScraper {
       // State-specific selectors (would need customization for each state)
       const facilitySelectors = this.getFacilitySelectors(state);
       
-      $(facilitySelectors.container).each(async (index, element) => {
-        try {
-          const facilityData = this.extractFacilityData($, element, state, facilitySelectors);
-          
-          if (facilityData.name && facilityData.address) {
-            // Check if facility already exists
-            const existingCommunities = await storage.searchCommunities({
-              name: facilityData.name,
-              city: facilityData.city
-            });
-
-            if (existingCommunities.length === 0) {
-              await storage.createCommunity(facilityData);
-              console.log(`Added new facility: ${facilityData.name}`);
-            } else {
-              // Update existing facility with licensing info
-              await storage.updateCommunity(existingCommunities[0].id, {
-                licenseNumber: facilityData.licenseNumber,
-                licenseStatus: facilityData.licenseStatus,
-                lastInspectionDate: facilityData.lastInspectionDate
+      const facilityPromises: Promise<void>[] = [];
+      
+      $(facilitySelectors.container).each((index, element) => {
+        const promise = (async () => {
+          try {
+            const facilityData = this.extractFacilityData($, element, state, facilitySelectors);
+            
+            if (facilityData.name && facilityData.address) {
+              // Check if facility already exists
+              const existingCommunities = await storage.searchCommunities({
+                location: `${facilityData.city}, ${facilityData.state}`
               });
-            }
 
-            // Scrape inspection data if available
-            if (facilityData.licenseNumber) {
-              await this.scrapeInspectionReports(existingCommunities[0]?.id || 0, facilityData.licenseNumber);
+              if (existingCommunities.length === 0) {
+                await storage.createCommunity(facilityData);
+                console.log(`Added new facility: ${facilityData.name}`);
+              } else {
+                // Update existing facility with licensing info
+                await storage.updateCommunity(existingCommunities[0].id, {
+                  licenseNumber: facilityData.licenseNumber,
+                  licenseStatus: facilityData.licenseStatus,
+                  lastInspection: facilityData.lastInspection
+                });
+              }
+
+              // Scrape inspection data if available
+              if (facilityData.licenseNumber) {
+                await this.scrapeInspectionReports(existingCommunities[0]?.id || 0, facilityData.licenseNumber);
+              }
             }
+          } catch (error) {
+            console.error(`Error processing facility ${index}:`, error);
           }
-        } catch (error) {
-          console.error(`Error processing facility ${index}:`, error);
-        }
+        })();
+        
+        facilityPromises.push(promise);
       });
+      
+      await Promise.all(facilityPromises);
 
     } catch (error) {
       console.error(`Error scraping assisted living facilities for ${state}:`, error);
@@ -727,8 +738,7 @@ export class ComprehensiveScraper {
       licenseNumber,
       licenseStatus: this.normalizeLicenseStatus(status),
       careTypes: ['Assisted Living'], // Default, would be enhanced with actual data
-      dataSource: `${state}_licensing`,
-      lastScrapedAt: new Date()
+      amenities: []
     };
   }
 
@@ -742,7 +752,7 @@ export class ComprehensiveScraper {
       
       // This is a simplified example - real implementation would need
       // to handle the specific structure of each state's licensing website
-      const response = await axios.get(this.baseUrls.colorado, {
+      const response = await axios.get(this.dataSources.colorado.assisted_living, {
         timeout: 10000,
         headers: {
           'User-Agent': 'MySeniorValet-DataScraper/1.0'
@@ -752,51 +762,59 @@ export class ComprehensiveScraper {
       const $ = cheerio.load(response.data);
       
       // Example scraping logic - would need to be customized for each state
-      $('.facility-listing').each(async (index, element) => {
-        const name = $(element).find('.facility-name').text().trim();
-        const address = $(element).find('.facility-address').text().trim();
-        const licenseNumber = $(element).find('.license-number').text().trim();
-        const status = $(element).find('.license-status').text().trim();
-        
-        if (name && address) {
-          // Parse address into components
-          const addressParts = address.split(',');
-          const city = addressParts[1]?.trim() || '';
-          const stateZip = addressParts[2]?.trim().split(' ') || [];
-          const state = stateZip[0] || 'CO';
-          const zipCode = stateZip[1] || '';
+      const communityPromises: Promise<void>[] = [];
+      
+      $('.facility-listing').each((index, element) => {
+        const promise = (async () => {
+          const name = $(element).find('.facility-name').text().trim();
+          const address = $(element).find('.facility-address').text().trim();
+          const licenseNumber = $(element).find('.license-number').text().trim();
+          const status = $(element).find('.license-status').text().trim();
+          
+          if (name && address) {
+            // Parse address into components
+            const addressParts = address.split(',');
+            const city = addressParts[1]?.trim() || '';
+            const stateZip = addressParts[2]?.trim().split(' ') || [];
+            const state = stateZip[0] || 'CO';
+            const zipCode = stateZip[1] || '';
 
-          const communityData: InsertCommunity = {
-            name,
-            address: addressParts[0]?.trim() || address,
-            city,
-            state,
-            zipCode,
-            licenseNumber,
-            licenseStatus: this.normalizeLicenseStatus(status),
-            careTypes: ['Assisted Living'], // Default, would be parsed from data
-            amenities: [],
-            isVerified: true,
-            isClaimed: false,
-          };
+            const communityData: InsertCommunity = {
+              name,
+              address: addressParts[0]?.trim() || address,
+              city,
+              state,
+              zipCode,
+              licenseNumber,
+              licenseStatus: this.normalizeLicenseStatus(status),
+              careTypes: ['Assisted Living'], // Default, would be parsed from data
+              amenities: [],
+              isVerified: true,
+              isClaimed: false,
+            };
 
-          // Check if community already exists before creating
-          const existingCommunities = await storage.searchCommunities({
-            location: `${city}, ${state}`,
-          });
+            // Check if community already exists before creating
+            const existingCommunities = await storage.searchCommunities({
+              location: `${city}, ${state}`,
+            });
 
-          const exists = existingCommunities.some(c => 
-            c.name === name && c.licenseNumber === licenseNumber
-          );
+            const exists = existingCommunities.some(c => 
+              c.name === name && c.licenseNumber === licenseNumber
+            );
 
-          if (!exists) {
-            await storage.createCommunity(communityData);
-            console.log(`Added new community: ${name}`);
-          } else {
-            console.log(`Community already exists: ${name}`);
+            if (!exists) {
+              await storage.createCommunity(communityData);
+              console.log(`Added new community: ${name}`);
+            } else {
+              console.log(`Community already exists: ${name}`);
+            }
           }
-        }
+        })();
+        
+        communityPromises.push(promise);
       });
+      
+      await Promise.all(communityPromises);
 
       console.log('Colorado licensing data scrape completed');
     } catch (error) {
