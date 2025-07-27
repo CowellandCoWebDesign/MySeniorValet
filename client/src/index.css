@@ -18,150 +18,42 @@ body {
   max-width: 100vw;
 }
 
-/* Senior-Friendly Responsive Typography - Prioritizing Readability */
+/* Responsive font sizes - compact but readable */
 @layer base {
   html {
-    font-size: 17px; /* Larger mobile base for better readability */
-  }
-  
-  @media (min-width: 640px) {
-    html {
-      font-size: 18px; /* Tablet size */
-    }
+    font-size: 15px; /* More compact base size */
   }
   
   @media (min-width: 768px) {
     html {
-      font-size: 19px; /* Desktop size */
+      font-size: 16px; /* Standard desktop size */
     }
   }
   
-  @media (min-width: 1024px) {
-    html {
-      font-size: 20px; /* Large desktop size */
-    }
-  }
-  
-  @media (min-width: 1280px) {
-    html {
-      font-size: 21px; /* Extra large desktop size */
-    }
-  }
-  
-  /* Senior-friendly body text */
+  /* Ensure minimum readable sizes */
   body {
-    font-size: 1.1rem; /* Larger than default */
-    line-height: 1.6; /* Better line spacing */
-    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.5;
   }
   
-  /* Larger, more readable headings */
-  h1 { font-size: 2.5rem; line-height: 1.2; }
-  h2 { font-size: 2rem; line-height: 1.3; }
-  h3 { font-size: 1.75rem; line-height: 1.3; }
-  h4 { font-size: 1.5rem; line-height: 1.4; }
-  h5 { font-size: 1.25rem; line-height: 1.4; }
-  h6 { font-size: 1.125rem; line-height: 1.4; }
+  /* More compact headings */
+  h1 { font-size: 1.875rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.25rem; }
+  h4 { font-size: 1.125rem; }
+  h5 { font-size: 1rem; }
+  h6 { font-size: 0.95rem; }
   
-  /* Larger buttons and inputs for better accessibility */
+  /* Compact buttons and inputs */
   button, input, select, textarea {
-    font-size: 1.1rem;
-    min-height: 3rem; /* Taller for easier interaction */
-    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    min-height: 2.5rem;
   }
   
-  /* Card text should be easily readable */
+  /* Card text should be readable but compact */
   .card-text {
-    font-size: 1rem;
-    line-height: 1.6;
-  }
-  
-  /* Paragraphs with better spacing */
-  p {
-    font-size: 1.1rem;
-    line-height: 1.6;
-    margin-bottom: 1rem;
-  }
-  
-  /* Lists with better readability */
-  ul, ol {
-    font-size: 1.1rem;
-    line-height: 1.6;
-  }
-  
-  /* Labels and small text should still be readable */
-  label {
-    font-size: 1rem;
-    font-weight: 500;
-  }
-  
-  /* Links with better visibility */
-  a {
-    font-size: inherit;
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 2px;
-  }
-  
-  /* Senior-friendly utility classes */
-  .text-senior-sm { font-size: 1rem; }
-  .text-senior-base { font-size: 1.125rem; }
-  .text-senior-lg { font-size: 1.25rem; }
-  .text-senior-xl { font-size: 1.375rem; }
-  .text-senior-2xl { font-size: 1.5rem; }
-  .text-senior-3xl { font-size: 1.75rem; }
-  
-  /* Better card typography */
-  .card-title { 
-    font-size: 1.25rem !important; 
-    font-weight: 600 !important;
-    line-height: 1.4 !important;
-  }
-  
-  .card-description { 
-    font-size: 1rem !important; 
-    line-height: 1.6 !important;
-  }
-  
-  .card-meta { 
-    font-size: 0.95rem !important; 
-    line-height: 1.5 !important;
-  }
-  
-  /* Form elements with better readability */
-  .form-label {
-    font-size: 1.1rem !important;
-    font-weight: 500 !important;
-    margin-bottom: 0.5rem !important;
-  }
-  
-  .form-input {
-    font-size: 1.1rem !important;
-    padding: 0.875rem 1rem !important;
-    line-height: 1.5 !important;
-  }
-  
-  /* Search results and list items */
-  .search-result-title {
-    font-size: 1.25rem !important;
-    font-weight: 600 !important;
-    line-height: 1.4 !important;
-  }
-  
-  .search-result-description {
-    font-size: 1rem !important;
-    line-height: 1.6 !important;
-  }
-  
-  /* Better button text */
-  .btn-lg {
-    font-size: 1.125rem !important;
-    padding: 0.875rem 1.5rem !important;
-  }
-  
-  .btn-base {
-    font-size: 1rem !important;
-    padding: 0.75rem 1.25rem !important;
+    font-size: 0.9rem;
+    line-height: 1.5;
   }
 }
 

@@ -146,15 +146,15 @@ export default function MySeniorValetHome() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/60 dark:from-black/60 dark:via-black/70 dark:to-black/80"></div>
         </div>
         
-        <div className="relative z-10 flex flex-col items-center justify-center hero-content min-h-[60vh] sm:min-h-[85vh] md:min-h-screen px-4 py-4 sm:py-8 md:py-16 mobile-keyboard-safe">
+        <div className="relative z-10 flex flex-col items-center justify-center hero-content min-h-screen px-6 py-16 mobile-keyboard-safe">
           {/* Centered Headlines - Much Larger */}
-          <div className="text-center mb-4 sm:mb-8 md:mb-12 max-w-6xl">
-            <div className="space-y-3 sm:space-y-6 mb-4 sm:mb-8">
-              <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black text-white dark:text-gray-100 leading-tight drop-shadow-2xl animate-fade-in-up tracking-tight">
-                <span className="block mb-1 sm:mb-2">Everything Senior Living Needs</span>
+          <div className="text-center mb-8 md:mb-12 max-w-6xl">
+            <div className="space-y-6 mb-8">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white dark:text-gray-100 leading-none drop-shadow-2xl animate-fade-in-up tracking-tight">
+                <span className="block mb-2">Everything Senior Living Needs</span>
                 <span className="block text-gradient bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-300 bg-clip-text text-transparent drop-shadow-none">in one place</span>
               </h1>
-              <h2 className="text-sm sm:text-lg md:text-2xl text-white dark:text-gray-200 opacity-95 drop-shadow-lg px-2 sm:px-4 animate-fade-in-up animation-delay-300 max-w-5xl mx-auto font-medium leading-relaxed">
+              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-white dark:text-gray-200 opacity-95 drop-shadow-lg px-4 animate-fade-in-up animation-delay-300 max-w-5xl mx-auto font-medium leading-relaxed">
                 From live pricing and unit availability to move coordination, furniture setup, and prescription delivery, MySeniorValet is your white-glove partner.
               </h2>
             </div>
@@ -163,7 +163,7 @@ export default function MySeniorValetHome() {
 
 
           {/* Search Bar - Wider */}
-          <div className="w-full max-w-4xl mb-3 sm:mb-4 relative animate-fade-in-up animation-delay-600" style={{ zIndex: 99999 }}>
+          <div className="w-full max-w-4xl mb-4 relative animate-fade-in-up animation-delay-600" style={{ zIndex: 99999 }}>
             <form onSubmit={async (e) => {
               e.preventDefault();
               if (!searchQuery) return;
@@ -186,7 +186,7 @@ export default function MySeniorValetHome() {
                         }
                       }
                     }}
-                    className="flex-1 px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base md:text-lg border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                    className="flex-1 px-6 py-4 text-lg md:text-xl border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                   />
                   <div className="flex items-center mr-2">
                     <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-sm md:text-base px-3 py-2">
@@ -208,24 +208,24 @@ export default function MySeniorValetHome() {
           </div>
 
           {/* Primary CTA - Larger */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-3 sm:mb-4 animate-fade-in-up animation-delay-700">
+          <div className="flex flex-col sm:flex-row gap-4 mb-4 animate-fade-in-up animation-delay-700">
             <Link href="/quiz">
-              <Button variant="outline" className="border-2 border-purple-300 text-purple-100 hover:bg-purple-400 hover:text-purple-900 px-4 sm:px-6 py-2 sm:py-3 rounded-2xl font-medium text-sm sm:text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-purple-500/20 backdrop-blur-sm">
+              <Button variant="outline" className="border-2 border-purple-300 text-purple-100 hover:bg-purple-400 hover:text-purple-900 px-8 py-4 rounded-2xl font-medium text-xl md:text-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-purple-500/20 backdrop-blur-sm">
                 ✨ Find My Perfect Match
               </Button>
             </Link>
             <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}>
-              <Button variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-4 sm:px-6 py-2 sm:py-3 rounded-2xl font-medium text-sm sm:text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-white/10 backdrop-blur-sm">
+              <Button variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 rounded-2xl font-medium text-xl md:text-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-white/10 backdrop-blur-sm">
                 Explore Communities
               </Button>
             </Link>
           </div>
 
           {/* NEW AI Map Showcase Button */}
-          <div className="mb-3 sm:mb-6 animate-fade-in-up animation-delay-800">
+          <div className="mb-6 animate-fade-in-up animation-delay-800">
             <Link href="/ai-map-showcase">
               <Button 
-                className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-2xl hover:shadow-3xl transition-all duration-300 text-lg sm:text-xl md:text-2xl px-8 sm:px-10 py-4 sm:py-5 rounded-2xl flex items-center justify-center ring-4 ring-purple-300 ring-opacity-50 animate-slow-pulse"
+                className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-2xl hover:shadow-3xl transition-all duration-300 text-xl md:text-2xl px-10 py-5 rounded-2xl flex items-center justify-center ring-4 ring-purple-300 ring-opacity-50 animate-slow-pulse"
               >
                 <Brain className="mr-3 h-8 w-8" />
                 <Sparkles className="mr-2 h-7 w-7" />
