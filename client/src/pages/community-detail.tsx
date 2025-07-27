@@ -916,41 +916,112 @@ export default function CommunityDetail() {
 
                     {/* Enhanced Tour Section - Combined Ready to Tour & Tour Tracker */}
                     <div className="space-y-6">
-                      {/* Tour Tracker Integration */}
+                      {/* Comprehensive Tour Tracker Integration */}
                       <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-600 rounded-lg p-4">
                         <div className="flex items-center mb-3">
                           <ClipboardList className="w-5 h-5 mr-2 text-blue-600" />
-                          <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-200">Tour Tracker™</h3>
-                          <Badge className="ml-2 bg-blue-600 text-white text-xs">Pro Feature</Badge>
+                          <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-200">Tour Tracker™ Pro</h3>
+                          <Badge className="ml-2 bg-blue-600 text-white text-xs">Comprehensive</Badge>
                         </div>
                         <p className="text-sm text-blue-700 dark:text-blue-300 mb-4">
-                          Document your family visit with our comprehensive tour tracking system
+                          Grade every aspect of your visit with our 360° evaluation system
                         </p>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-                          <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-600">
-                            <Shield className="w-4 h-4 text-blue-600 mr-2 flex-shrink-0" />
+                        {/* Main Evaluation Categories */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+                          {/* Units & Living Spaces */}
+                          <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-green-200 dark:border-green-600">
+                            <Home className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">Inspection Checklist</p>
-                              <p className="text-xs text-gray-600 dark:text-gray-400 truncate">Pass/fail criteria</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Units & Living Spaces</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">Size, layout, condition, storage</p>
                             </div>
                           </div>
 
+                          {/* Common Areas & Amenities */}
                           <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-600">
-                            <Star className="w-4 h-4 text-blue-600 mr-2 flex-shrink-0" />
+                            <Users className="w-4 h-4 text-blue-600 mr-2 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">Rate During Visit</p>
-                              <p className="text-xs text-gray-600 dark:text-gray-400 truncate">Live scoring system</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Common Areas</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">Dining, lobby, activities, library</p>
                             </div>
                           </div>
 
-                          <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-600">
-                            <UserCheck className="w-4 h-4 text-blue-600 mr-2 flex-shrink-0" />
+                          {/* Outdoor Spaces */}
+                          <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-emerald-200 dark:border-emerald-600">
+                            <MapIcon className="w-4 h-4 text-emerald-600 mr-2 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">Family Collaboration</p>
-                              <p className="text-xs text-gray-600 dark:text-gray-400 truncate">Share instantly</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Outdoor Spaces</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">Gardens, patios, walking paths</p>
                             </div>
                           </div>
+
+                          {/* Staff & Care Quality */}
+                          <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-600">
+                            <UserCheck className="w-4 h-4 text-purple-600 mr-2 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Staff & Care</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">Friendliness, knowledge, ratio</p>
+                            </div>
+                          </div>
+
+                          {/* Food & Dining */}
+                          <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-orange-200 dark:border-orange-600">
+                            <UtensilsCrossed className="w-4 h-4 text-orange-600 mr-2 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Food & Dining</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">Quality, variety, atmosphere</p>
+                            </div>
+                          </div>
+
+                          {/* Safety & Security */}
+                          <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-red-200 dark:border-red-600">
+                            <Shield className="w-4 h-4 text-red-600 mr-2 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Safety & Security</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">Emergency systems, access control</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Additional Evaluation Areas */}
+                        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg p-3 mb-4">
+                          <h4 className="text-sm font-semibold text-indigo-800 dark:text-indigo-200 mb-2">Additional Evaluation Areas:</h4>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                            <div className="flex items-center">
+                              <Activity className="w-3 h-3 text-indigo-600 mr-1" />
+                              <span className="text-indigo-700 dark:text-indigo-300">Activities & Programs</span>
+                            </div>
+                            <div className="flex items-center">
+                              <Car className="w-3 h-3 text-indigo-600 mr-1" />
+                              <span className="text-indigo-700 dark:text-indigo-300">Transportation</span>
+                            </div>
+                            <div className="flex items-center">
+                              <DollarSign className="w-3 h-3 text-indigo-600 mr-1" />
+                              <span className="text-indigo-700 dark:text-indigo-300">Value for Money</span>
+                            </div>
+                            <div className="flex items-center">
+                              <Heart className="w-3 h-3 text-indigo-600 mr-1" />
+                              <span className="text-indigo-700 dark:text-indigo-300">Overall Atmosphere</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Grading System Preview */}
+                        <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">A-F Grading System</h4>
+                            <div className="flex space-x-1">
+                              <span className="px-2 py-1 text-xs font-bold bg-green-100 text-green-800 rounded">A</span>
+                              <span className="px-2 py-1 text-xs font-bold bg-blue-100 text-blue-800 rounded">B</span>
+                              <span className="px-2 py-1 text-xs font-bold bg-yellow-100 text-yellow-800 rounded">C</span>
+                              <span className="px-2 py-1 text-xs font-bold bg-orange-100 text-orange-800 rounded">D</span>
+                              <span className="px-2 py-1 text-xs font-bold bg-red-100 text-red-800 rounded">F</span>
+                            </div>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">
+                            Grade each category during your visit. Your scores help future families and contribute to community transparency.
+                          </p>
                         </div>
                       </div>
 
@@ -1150,17 +1221,17 @@ export default function CommunityDetail() {
                       </Button>
                     </div>
 
-                    {/* Tour Documentation Button */}
+                    {/* Comprehensive Tour Grading Button */}
                     <div className="mt-4">
                       <Button 
                         onClick={() => window.location.href = `/tour-tracker?communityId=${community.id}`}
-                        className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white py-3"
+                        className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white py-3 font-semibold"
                       >
                         <ClipboardList className="w-4 h-4 mr-2" />
-                        Start Tour Documentation
+                        Start Comprehensive Tour Grading
                       </Button>
                       <p className="text-xs text-center text-blue-700 dark:text-blue-300 mt-2">
-                        Your tour data contributes to our composite ratings
+                        Grade 10+ categories with A-F scoring • Your evaluations help future families make informed decisions
                       </p>
                     </div>
                   </div>
