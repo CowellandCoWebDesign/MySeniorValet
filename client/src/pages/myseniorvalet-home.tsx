@@ -374,7 +374,7 @@ export default function MySeniorValetHome() {
                       </div>
                     </div>
                     <p className="text-white/90 text-lg leading-relaxed mb-6">
-                      Our AI analyzes {(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '26,306+'} senior living communities across ALL care levels: Skilled Nursing, Memory Care, Assisted Living, Independent Living with Supportive Services, Independent Living, Affordable Senior Housing, and HUD/VASH options. Real-time pricing, availability, and intelligent matching for every senior's unique needs.
+                      Our AI analyzes {(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '26,306+'} senior living communities across the complete spectrum of care options. Real-time pricing analysis, availability tracking, and intelligent matching tailored to every senior's unique care requirements and budget.
                     </p>
                     <div className="grid grid-cols-2 gap-2 mb-6">
                       <div className="flex items-center bg-white/20 backdrop-blur-sm px-2 py-1.5 rounded-lg">
