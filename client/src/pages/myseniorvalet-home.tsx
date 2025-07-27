@@ -2109,139 +2109,115 @@ export default function MySeniorValetHome() {
             </div>
           </div>
           
-          {/* Consolidated Geographic Coverage & Live HUD Data */}
+          {/* Geographic Coverage */}
+          <div className="mb-8">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 text-center mb-6">Complete Geographic Coverage</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* United States */}
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
+                <CardContent className="p-6 text-center">
+                  <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">🇺🇸</div>
+                  <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">20,279</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">United States</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">All 50 states + territories</p>
+                  <div className="mt-3 flex flex-wrap gap-1 justify-center">
+                    <Badge variant="secondary" className="text-xs">California: 2,965</Badge>
+                    <Badge variant="secondary" className="text-xs">Texas: 2,283</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Canada */}
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20">
+                <CardContent className="p-6 text-center">
+                  <div className="text-4xl font-bold text-red-600 dark:text-red-400 mb-2">🇨🇦</div>
+                  <div className="text-3xl font-bold text-red-600 dark:text-red-400 mb-2">3,810</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Canada</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">All provinces & territories</p>
+                  <div className="mt-3 flex flex-wrap gap-1 justify-center">
+                    <Badge variant="secondary" className="text-xs">Ontario: 800</Badge>
+                    <Badge variant="secondary" className="text-xs">Quebec: 750</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Mexico */}
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
+                <CardContent className="p-6 text-center">
+                  <div className="text-4xl font-bold text-green-600 dark:text-green-400 mb-2">🇲🇽</div>
+                  <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">1,693</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Mexico</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">All 32 states covered</p>
+                  <div className="mt-3 flex flex-wrap gap-1 justify-center">
+                    <Badge variant="secondary" className="text-xs">Jalisco: 120</Badge>
+                    <Badge variant="secondary" className="text-xs">CDMX: 150</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Live Government HUD Data */}
           <div className="mb-12">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 text-center mb-6">Geographic Coverage & Live Government HUD Data</h3>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 text-center mb-6">Live Government HUD Data Integration</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* United States + Lowest HUD Rent */}
               <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 hover:shadow-xl transition-all">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="text-4xl">🇺🇸</div>
-                    <DollarSign className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 text-center">
-                    <div>
-                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">20,279</div>
-                      <p className="text-xs text-gray-600 dark:text-gray-300">US Communities</p>
-                      <Badge variant="secondary" className="text-xs mt-1">All 50 States</Badge>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">$303</div>
-                      <p className="text-xs text-gray-600 dark:text-gray-300">Lowest HUD Rent</p>
-                      <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 text-xs mt-1">Live CA Data</Badge>
-                    </div>
-                  </div>
+                <CardContent className="p-6 text-center">
+                  <DollarSign className="w-12 h-12 text-blue-600 dark:text-blue-400 mx-auto mb-4" />
+                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2">$303</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Lowest HUD Rent</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Florin Gardens, CA</p>
+                  <Badge className="mt-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">Live Data</Badge>
                 </CardContent>
               </Card>
 
-              {/* Canada + Available Units */}
-              <Card className="border-0 shadow-lg bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 hover:shadow-xl transition-all">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="text-4xl">🇨🇦</div>
-                    <Building2 className="w-8 h-8 text-red-600 dark:text-red-400" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 text-center">
-                    <div>
-                      <div className="text-2xl font-bold text-red-600 dark:text-red-400 mb-1">3,810</div>
-                      <p className="text-xs text-gray-600 dark:text-gray-300">CA Communities</p>
-                      <Badge variant="secondary" className="text-xs mt-1">All Provinces</Badge>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-red-600 dark:text-red-400 mb-1">427K</div>
-                      <p className="text-xs text-gray-600 dark:text-gray-300">Housing Units</p>
-                      <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 text-xs mt-1">Real Count</Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Mexico + Occupancy Rate */}
               <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 hover:shadow-xl transition-all">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="text-4xl">🇲🇽</div>
-                    <Users className="w-8 h-8 text-green-600 dark:text-green-400" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 text-center">
-                    <div>
-                      <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">1,693</div>
-                      <p className="text-xs text-gray-600 dark:text-gray-300">MX Communities</p>
-                      <Badge variant="secondary" className="text-xs mt-1">32 States</Badge>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">86.6%</div>
-                      <p className="text-xs text-gray-600 dark:text-gray-300">Occupancy Rate</p>
-                      <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300 text-xs mt-1">Live HUD Stats</Badge>
-                    </div>
-                  </div>
+                <CardContent className="p-6 text-center">
+                  <Building2 className="w-12 h-12 text-green-600 dark:text-green-400 mx-auto mb-4" />
+                  <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-2">427,979</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Total Housing Units</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Across all HUD properties</p>
+                  <Badge className="mt-2 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">Real Count</Badge>
                 </CardContent>
               </Card>
 
-              {/* HUD Properties + States Covered */}
-              <Card className="border-0 shadow-lg bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/20 dark:to-teal-800/20 hover:shadow-xl transition-all">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <Shield className="w-8 h-8 text-teal-600 dark:text-teal-400" />
-                    <MapPin className="w-8 h-8 text-teal-600 dark:text-teal-400" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 text-center">
-                    <div>
-                      <div className="text-2xl font-bold text-teal-600 dark:text-teal-400 mb-1">5,528</div>
-                      <p className="text-xs text-gray-600 dark:text-gray-300">HUD Properties</p>
-                      <Badge className="bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300 text-xs mt-1">Official Gov</Badge>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-teal-600 dark:text-teal-400 mb-1">34</div>
-                      <p className="text-xs text-gray-600 dark:text-gray-300">States Covered</p>
-                      <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300 text-xs mt-1">100% Coverage</Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Price Range + Total Communities */}
               <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 hover:shadow-xl transition-all">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <TrendingUp className="w-8 h-8 text-purple-600 dark:text-purple-400" />
-                    <div className="text-2xl">📊</div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 text-center">
-                    <div>
-                      <div className="text-lg font-bold text-purple-600 dark:text-purple-400 mb-1">$136-$5K</div>
-                      <p className="text-xs text-gray-600 dark:text-gray-300">HUD Price Range</p>
-                      <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300 text-xs mt-1">Verified</Badge>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">26,306</div>
-                      <p className="text-xs text-gray-600 dark:text-gray-300">Total Communities</p>
-                      <Badge className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300 text-xs mt-1">100% Real</Badge>
-                    </div>
-                  </div>
+                <CardContent className="p-6 text-center">
+                  <Users className="w-12 h-12 text-purple-600 dark:text-purple-400 mx-auto mb-4" />
+                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-2">86.6%</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Average Occupancy Rate</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Across all HUD properties</p>
+                  <Badge className="mt-2 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300">Live Stats</Badge>
                 </CardContent>
               </Card>
 
-              {/* Platform Summary */}
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/20 dark:to-teal-800/20 hover:shadow-xl transition-all">
+                <CardContent className="p-6 text-center">
+                  <Shield className="w-12 h-12 text-teal-600 dark:text-teal-400 mx-auto mb-4" />
+                  <div className="text-2xl font-bold text-teal-600 dark:text-teal-400 mb-2">5,528</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">HUD Properties</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Government verified data</p>
+                  <Badge className="mt-2 bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300">Official</Badge>
+                </CardContent>
+              </Card>
+
               <Card className="border-0 shadow-lg bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 hover:shadow-xl transition-all">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="text-2xl">⭐</div>
-                    <div className="text-2xl">🌍</div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 text-center">
-                    <div>
-                      <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 mb-1">100%</div>
-                      <p className="text-xs text-gray-600 dark:text-gray-300">Real Pricing</p>
-                      <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300 text-xs mt-1">No Fake Data</Badge>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 mb-1">6,078</div>
-                      <p className="text-xs text-gray-600 dark:text-gray-300">Gov Properties</p>
-                      <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300 text-xs mt-1">Live HUD</Badge>
-                    </div>
-                  </div>
+                <CardContent className="p-6 text-center">
+                  <MapPin className="w-12 h-12 text-amber-600 dark:text-amber-400 mx-auto mb-4" />
+                  <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 mb-2">34</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">States with HUD Data</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Complete coverage achieved</p>
+                  <Badge className="mt-2 bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300">100% Coverage</Badge>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 hover:shadow-xl transition-all">
+                <CardContent className="p-6 text-center">
+                  <TrendingUp className="w-12 h-12 text-red-600 dark:text-red-400 mx-auto mb-4" />
+                  <div className="text-2xl font-bold text-red-600 dark:text-red-400 mb-2">$136-$5,000</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">HUD Price Range</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Transparent pricing data</p>
+                  <Badge className="mt-2 bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">Verified</Badge>
                 </CardContent>
               </Card>
             </div>
