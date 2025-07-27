@@ -376,22 +376,38 @@ export default function MySeniorValetHome() {
                     <p className="text-white/90 text-lg leading-relaxed mb-6">
                       Our AI analyzes {(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '26,306+'} senior living communities across ALL care levels: Skilled Nursing, Memory Care, Assisted Living, Independent Living with Supportive Services, Independent Living, Affordable Senior Housing, and HUD/VASH options. Real-time pricing, availability, and intelligent matching for every senior's unique needs.
                     </p>
-                    <div className="grid grid-cols-2 gap-3 mb-6">
-                      <div className="flex items-center bg-white/20 backdrop-blur-sm px-3 py-2 rounded-lg">
-                        <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
-                        <span className="text-sm font-medium">Skilled Nursing & Memory Care</span>
+                    <div className="grid grid-cols-2 gap-2 mb-6">
+                      <div className="flex items-center bg-white/20 backdrop-blur-sm px-2 py-1.5 rounded-lg">
+                        <div className="w-2 h-2 bg-red-400 rounded-full mr-2 animate-pulse"></div>
+                        <span className="text-xs font-medium">Skilled Nursing</span>
                       </div>
-                      <div className="flex items-center bg-white/20 backdrop-blur-sm px-3 py-2 rounded-lg">
+                      <div className="flex items-center bg-white/20 backdrop-blur-sm px-2 py-1.5 rounded-lg">
+                        <div className="w-2 h-2 bg-orange-400 rounded-full mr-2 animate-pulse animation-delay-100"></div>
+                        <span className="text-xs font-medium">Memory Care</span>
+                      </div>
+                      <div className="flex items-center bg-white/20 backdrop-blur-sm px-2 py-1.5 rounded-lg">
                         <div className="w-2 h-2 bg-blue-400 rounded-full mr-2 animate-pulse animation-delay-200"></div>
-                        <span className="text-sm font-medium">Assisted & Independent Living</span>
+                        <span className="text-xs font-medium">Assisted Living</span>
                       </div>
-                      <div className="flex items-center bg-white/20 backdrop-blur-sm px-3 py-2 rounded-lg">
-                        <div className="w-2 h-2 bg-purple-400 rounded-full mr-2 animate-pulse animation-delay-400"></div>
-                        <span className="text-sm font-medium">Affordable & HUD Housing</span>
+                      <div className="flex items-center bg-white/20 backdrop-blur-sm px-2 py-1.5 rounded-lg">
+                        <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse animation-delay-300"></div>
+                        <span className="text-xs font-medium">Independent + Support</span>
                       </div>
-                      <div className="flex items-center bg-white/20 backdrop-blur-sm px-3 py-2 rounded-lg">
+                      <div className="flex items-center bg-white/20 backdrop-blur-sm px-2 py-1.5 rounded-lg">
+                        <div className="w-2 h-2 bg-teal-400 rounded-full mr-2 animate-pulse animation-delay-400"></div>
+                        <span className="text-xs font-medium">Independent Living</span>
+                      </div>
+                      <div className="flex items-center bg-white/20 backdrop-blur-sm px-2 py-1.5 rounded-lg">
+                        <div className="w-2 h-2 bg-purple-400 rounded-full mr-2 animate-pulse animation-delay-500"></div>
+                        <span className="text-xs font-medium">Affordable Housing</span>
+                      </div>
+                      <div className="flex items-center bg-white/20 backdrop-blur-sm px-2 py-1.5 rounded-lg">
                         <div className="w-2 h-2 bg-yellow-400 rounded-full mr-2 animate-pulse animation-delay-600"></div>
-                        <span className="text-sm font-medium">Live Pricing Intelligence</span>
+                        <span className="text-xs font-medium">HUD/VASH Options</span>
+                      </div>
+                      <div className="flex items-center bg-white/20 backdrop-blur-sm px-2 py-1.5 rounded-lg">
+                        <div className="w-2 h-2 bg-pink-400 rounded-full mr-2 animate-pulse animation-delay-700"></div>
+                        <span className="text-xs font-medium">Live Pricing</span>
                       </div>
                     </div>
                     <Link href="/search">
