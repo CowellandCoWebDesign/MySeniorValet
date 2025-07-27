@@ -1,8 +1,17 @@
 import { Request, Response } from 'express';
 import { redisCache } from './redis-cache';
 import { db } from '../db';
-import { communities, users, userFavorites } from '@shared/schema';
-import { sql, count, avg, sum, desc, asc } from 'drizzle-orm';
+import { 
+  communities, 
+  users, 
+  userFavorites,
+  userActivity,
+  searchHistory,
+  communityMessages,
+  paymentTransactions,
+  communitySubscriptions
+} from '@shared/schema';
+import { sql, count, avg, sum, desc, asc, gte, lt, and, eq, isNotNull } from 'drizzle-orm';
 
 interface BusinessMetrics {
   revenue: {
@@ -105,61 +114,40 @@ class BusinessIntelligence {
     
     return {
       revenue: {
-        totalMonthlyRevenue: monthlyRevenue,
-        revenueGrowth: 12.5,
-        revenueBySource: [
-          { source: 'Premium Listings', amount: monthlyRevenue * 0.6, percentage: 60 },
-          { source: 'Featured Placements', amount: monthlyRevenue * 0.25, percentage: 25 },
-          { source: 'Document Services', amount: monthlyRevenue * 0.1, percentage: 10 },
-          { source: 'Analytics Dashboard', amount: monthlyRevenue * 0.05, percentage: 5 }
-        ],
-        averageRevenuePerUser: Math.round(monthlyRevenue / Math.max(activeUsers, 1)),
-        projectedAnnualRevenue: annualRevenue
+        totalMonthlyRevenue: 0, // Will be calculated from actual payment data
+        revenueGrowth: 0, // Will be calculated from month-over-month data
+        revenueBySource: [], // Will be populated from actual transaction categories
+        averageRevenuePerUser: 0, // Will be calculated from real data
+        projectedAnnualRevenue: 0 // Will be based on actual trends
       },
       users: {
         totalActiveUsers: activeUsers,
         newUsersThisMonth: newUsersThisMonth,
-        userGrowthRate: 8.2,
-        userRetentionRate: 73.5,
-        averageSessionDuration: 342, // seconds
-        topUserSegments: [
-          { segment: 'Families', count: Math.floor(activeUsers * 0.65), percentage: 65 },
-          { segment: 'Communities', count: Math.floor(activeUsers * 0.25), percentage: 25 },
-          { segment: 'Advisors', count: Math.floor(activeUsers * 0.1), percentage: 10 }
-        ]
+        userGrowthRate: 0, // Will be calculated from actual growth
+        userRetentionRate: 0, // Will be calculated from retention data
+        averageSessionDuration: 0, // Will be calculated from activity logs
+        topUserSegments: [] // Will be populated from actual user roles
       },
       communities: {
         totalCommunities: communityCount,
-        premiumCommunities: Math.floor(communityCount * 0.23),
-        conversionRate: 15.3,
-        topPerformingCommunities: [
-          { id: 1, name: 'Sunrise Senior Living', views: 2430, inquiries: 187, conversionRate: 7.7 },
-          { id: 2, name: 'Brookdale Senior Living', views: 2100, inquiries: 156, conversionRate: 7.4 },
-          { id: 3, name: 'Atria Senior Living', views: 1890, inquiries: 134, conversionRate: 7.1 },
-          { id: 4, name: 'Assisted Living Concepts', views: 1650, inquiries: 112, conversionRate: 6.8 },
-          { id: 5, name: 'Senior Lifestyle Corporation', views: 1520, inquiries: 98, conversionRate: 6.4 }
-        ],
-        averageListingViews: 145
+        premiumCommunities: 0, // Will count actual claimed communities
+        conversionRate: 0, // Will be calculated from actual conversions
+        topPerformingCommunities: [], // Will be populated from real view/inquiry data
+        averageListingViews: 0 // Will be calculated from actual views
       },
       engagement: {
-        totalSearches: Math.floor(communityCount * 25),
-        averageSearchesPerUser: 8.3,
-        popularSearchTerms: [
-          { term: 'memory care', count: 4250 },
-          { term: 'assisted living near me', count: 3890 },
-          { term: 'senior living california', count: 2340 },
-          { term: 'independent living', count: 1950 },
-          { term: 'nursing home cost', count: 1680 }
-        ],
-        bounceRate: 23.5,
-        pageViewsPerSession: 4.2
+        totalSearches: 0, // Will be counted from search history
+        averageSearchesPerUser: 0, // Will be calculated from actual data
+        popularSearchTerms: [], // Will be populated from real search data
+        bounceRate: 0, // Will be calculated from session data
+        pageViewsPerSession: 0 // Will be calculated from activity data
       },
       financial: {
-        customerAcquisitionCost: 45,
-        customerLifetimeValue: 1250,
-        monthlyRecurringRevenue: monthlyRevenue,
-        churnRate: 3.2,
-        profitMargin: 68.5
+        customerAcquisitionCost: 0, // Will be calculated from marketing spend
+        customerLifetimeValue: 0, // Will be calculated from revenue data
+        monthlyRecurringRevenue: 0, // Will be calculated from subscriptions
+        churnRate: 0, // Will be calculated from cancellation data
+        profitMargin: 0 // Will be calculated from actual costs
       }
     };
   }
@@ -192,15 +180,19 @@ class BusinessIntelligence {
       .from(communities)
       .groupBy(communities.state)
       .orderBy(desc(count()));
+    
+    // Get total community count for market penetration calculation
+    const [totalCount] = await db.select({ count: count() }).from(communities);
+    const totalCommunities = totalCount?.count || 1;
 
     return stateStats.slice(0, 20).map((stat, index) => ({
       state: stat.state || 'Unknown',
       totalCommunities: stat.count,
-      totalViews: stat.count * 145, // Average views per community
-      totalInquiries: Math.floor(stat.count * 145 * 0.08), // 8% inquiry rate
-      averagePricing: Math.round(stat.avgPrice || 3500),
-      marketPenetration: Math.round((stat.count / 31023) * 100 * 10) / 10,
-      growth: Math.round((Math.random() * 20 + 5) * 10) / 10 // Simulated growth 5-25%
+      totalViews: 0, // Will be calculated from actual view data
+      totalInquiries: 0, // Will be calculated from actual inquiry data
+      averagePricing: Math.round(stat.avgPrice || 0),
+      marketPenetration: Math.round((stat.count / totalCommunities) * 100 * 10) / 10,
+      growth: 0 // Will be calculated from actual growth data
     }));
   }
 
@@ -433,35 +425,120 @@ class BusinessIntelligence {
       change: number;
     };
   }> {
-    const metrics = await this.generateBusinessMetrics();
-    const dailyRevenue = metrics.revenue.totalMonthlyRevenue / 30;
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     
-    return {
-      revenue: {
-        today: Math.round(dailyRevenue + (Math.random() * dailyRevenue * 0.2)),
-        thisWeek: Math.round(dailyRevenue * 7 * (1 + Math.random() * 0.15)),
-        thisMonth: metrics.revenue.totalMonthlyRevenue,
-        change: 12.5
-      },
-      users: {
-        online: Math.floor(Math.random() * 150 + 50),
-        newToday: Math.floor(Math.random() * 25 + 10),
-        activeThisWeek: Math.floor(metrics.users.totalActiveUsers * 0.3),
-        change: 8.2
-      },
-      engagement: {
-        searchesToday: Math.floor(Math.random() * 500 + 200),
-        inquiriesThisWeek: Math.floor(Math.random() * 150 + 80),
-        conversionRate: 15.3,
-        change: 3.7
-      },
-      communities: {
-        newListings: Math.floor(Math.random() * 12 + 3),
-        premiumUpgrades: Math.floor(Math.random() * 8 + 2),
-        totalActive: metrics.communities.totalCommunities,
-        change: 2.1
-      }
-    };
+    try {
+      // Get real user metrics from database
+      const [newUsersToday] = await db
+        .select({ count: count() })
+        .from(users)
+        .where(gte(users.createdAt, todayStart));
+      
+      const [activeUsersWeek] = await db
+        .select({ count: count() })
+        .from(userActivity)
+        .where(gte(userActivity.createdAt, weekStart));
+      
+      // Get real search and inquiry data
+      const [searchesToday] = await db
+        .select({ count: count() })
+        .from(searchHistory)
+        .where(and(
+          gte(searchHistory.createdAt, todayStart),
+          eq(searchHistory.searchType, 'location')
+        ));
+      
+      const [inquiriesWeek] = await db
+        .select({ count: count() })
+        .from(communityMessages)
+        .where(gte(communityMessages.createdAt, weekStart));
+      
+      // Get real community metrics
+      const [newCommunities] = await db
+        .select({ count: count() })
+        .from(communities)
+        .where(gte(communities.createdAt, weekStart));
+      
+      const [claimedCommunities] = await db
+        .select({ count: count() })
+        .from(communities)
+        .where(and(
+          isNotNull(communities.claimedBy),
+          gte(communities.updatedAt, weekStart)
+        ));
+      
+      // Calculate real revenue based on actual data
+      const [paymentData] = await db
+        .select({ 
+          todayTotal: sum(paymentTransactions.amount),
+          weekTotal: sum(paymentTransactions.amount)
+        })
+        .from(paymentTransactions)
+        .where(gte(paymentTransactions.createdAt, todayStart));
+      
+      // Calculate real percentage changes
+      const [lastMonthUsers] = await db
+        .select({ count: count() })
+        .from(users)
+        .where(and(
+          gte(users.createdAt, lastMonthStart),
+          lt(users.createdAt, monthStart)
+        ));
+      
+      const [thisMonthUsers] = await db
+        .select({ count: count() })
+        .from(users)
+        .where(gte(users.createdAt, monthStart));
+      
+      const userGrowth = lastMonthUsers[0]?.count > 0 
+        ? ((thisMonthUsers[0]?.count - lastMonthUsers[0]?.count) / lastMonthUsers[0]?.count) * 100
+        : 0;
+      
+      return {
+        revenue: {
+          today: Number(paymentData[0]?.todayTotal || 0) / 100, // Convert from cents
+          thisWeek: Number(paymentData[0]?.weekTotal || 0) / 100,
+          thisMonth: 0, // Will be calculated from actual transactions
+          change: 0 // Will be calculated from actual month-over-month data
+        },
+        users: {
+          online: activeUsersWeek[0]?.count || 0, // Active in last week
+          newToday: newUsersToday[0]?.count || 0,
+          activeThisWeek: activeUsersWeek[0]?.count || 0,
+          change: Math.round(userGrowth * 10) / 10
+        },
+        engagement: {
+          searchesToday: searchesToday[0]?.count || 0,
+          inquiriesThisWeek: inquiriesWeek[0]?.count || 0,
+          conversionRate: 0, // Will be calculated from actual conversion data
+          change: 0 // Will be calculated from actual week-over-week data
+        },
+        communities: {
+          newListings: newCommunities[0]?.count || 0,
+          premiumUpgrades: claimedCommunities[0]?.count || 0,
+          totalActive: await this.getTotalCommunities(),
+          change: 0 // Will be calculated from actual growth data
+        }
+      };
+    } catch (error) {
+      console.error('Error getting real-time KPIs:', error);
+      // Return zeros instead of fake data
+      return {
+        revenue: { today: 0, thisWeek: 0, thisMonth: 0, change: 0 },
+        users: { online: 0, newToday: 0, activeThisWeek: 0, change: 0 },
+        engagement: { searchesToday: 0, inquiriesThisWeek: 0, conversionRate: 0, change: 0 },
+        communities: { newListings: 0, premiumUpgrades: 0, totalActive: 0, change: 0 }
+      };
+    }
+  }
+  
+  private async getTotalCommunities(): Promise<number> {
+    const [result] = await db.select({ count: count() }).from(communities);
+    return result?.count || 0;
   }
 }
 

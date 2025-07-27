@@ -159,7 +159,7 @@ export class MemStorage implements IStorage {
         city: "Denver",
         state: "CO",
         zipCode: "80202",
-        phone: "(303) 555-0101",
+        phone: "", // Phone will be populated from real data
         email: "info@sunrisemanor.com",
         website: "www.sunrisemanor.com",
         description: "Premier senior living community with comprehensive care services and beautiful amenities.",
@@ -183,7 +183,7 @@ export class MemStorage implements IStorage {
         city: "Colorado Springs",
         state: "CO",
         zipCode: "80903",
-        phone: "(719) 555-0202",
+        phone: "", // Phone will be populated from real data
         email: "contact@goldenyears.com",
         website: "www.goldenyears.com",
         description: "Affordable assisted living and memory care in a warm, family-like environment.",
@@ -207,7 +207,7 @@ export class MemStorage implements IStorage {
         city: "Boulder",
         state: "CO",
         zipCode: "80301",
-        phone: "(303) 555-0303",
+        phone: "", // Phone will be populated from real data
         email: "info@heritagehills.com",
         website: "www.heritagehills.com",
         description: "Luxury senior living with stunning mountain views and premium amenities.",

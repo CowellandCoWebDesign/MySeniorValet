@@ -132,7 +132,7 @@ export async function discoverLocalServices(lat: number, lng: number, radius: nu
     name: 'Gentle Transitions',
     description: 'Senior move management and downsizing specialists',
     provider: 'Gentle Transitions LLC',
-    phone: '(800) 555-1234',
+    phone: '', // Phone will be populated from real API
     website: 'https://gentletransitions.com',
     location: { lat: lat + 0.01, lng: lng + 0.01 },
     pricing: 'Free consultation, hourly rates available',

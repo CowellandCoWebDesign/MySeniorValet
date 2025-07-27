@@ -288,10 +288,10 @@ export class AdvancedFinancialAnalytics {
       revenueConfidenceInterval,
       growthTrend,
       seasonalityFactors: {
-        'Q1': 0.95,
-        'Q2': 1.05,
-        'Q3': 0.98,
-        'Q4': 1.02
+        'Q1': 1.0, // Will be calculated from historical Q1 data
+        'Q2': 1.0, // Will be calculated from historical Q2 data
+        'Q3': 1.0, // Will be calculated from historical Q3 data
+        'Q4': 1.0  // Will be calculated from historical Q4 data
       },
       riskFactors: [
         'High customer acquisition cost in some segments',
@@ -299,7 +299,7 @@ export class AdvancedFinancialAnalytics {
         'Dependency on affiliate partner performance'
       ],
       opportunities: [
-        'Expand real estate partnership program (+23% revenue potential)',
+        'Expand real estate partnership program',
         'Increase average transaction value through premium services',
         'Geographical expansion into underserved markets',
         'Add recurring revenue streams through membership programs'

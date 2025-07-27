@@ -320,7 +320,7 @@ export async function seedDatabase() {
         city: "Colorado Springs",
         state: "CO",
         zipCode: "80903",
-        phone: "(719) 555-0202",
+        phone: "", // Phone will be populated from real data
         email: "contact@goldenyears.com",
         website: "www.goldenyears.com",
         description: "Affordable assisted living and memory care in a warm, family-like environment.",
@@ -360,7 +360,7 @@ export async function seedDatabase() {
         city: "Boulder",
         state: "CO",
         zipCode: "80301",
-        phone: "(303) 555-0303",
+        phone: "", // Phone will be populated from real data
         email: "info@heritagehills.com",
         website: "www.heritagehills.com",
         description: "Luxury senior living with stunning mountain views and premium amenities.",

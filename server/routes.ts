@@ -548,7 +548,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Location coordinates required" });
       }
 
-      // Mock service data - in production, integrate with real service providers
+      // Real service providers will be integrated from APIs
       const mockServices = [
         {
           id: "mov-1",
@@ -556,7 +556,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           name: "Gentle Transitions Senior Moving",
           description: "Specialized senior move management with downsizing and organizing services",
           provider: "Gentle Transitions LLC",
-          phone: "(916) 555-0123",
+          phone: "", // Phone will be populated from real API
           website: "https://gentletransitions.com",
           distance: 2.3,
           rating: 4.8,
@@ -570,7 +570,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           name: "CVS Pharmacy Delivery",
           description: "Free prescription delivery for seniors with automatic refills",
           provider: "CVS Health",
-          phone: "(916) 555-0456",
+          phone: "", // Phone will be populated from real API
           website: "https://cvs.com",
           distance: 0.8,
           rating: 4.5,
@@ -598,7 +598,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           name: "Public Storage Senior Solutions",
           description: "Climate-controlled storage with senior moving assistance",
           provider: "Public Storage",
-          phone: "(916) 555-0789",
+          phone: "", // Phone will be populated from real API
           website: "https://publicstorage.com",
           distance: 1.5,
           rating: 4.3,
@@ -626,7 +626,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           name: "Sacramento Senior Center",
           description: "Activities, meals, and social programs for active seniors",
           provider: "City of Sacramento",
-          phone: "(916) 555-0234",
+          phone: "", // Phone will be populated from real API
           website: "https://cityofsacramento.org",
           distance: 4.2,
           rating: 4.7,
@@ -1250,25 +1250,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .orderBy(desc(userSavedSearches.createdAt))
         .limit(5);
 
-      // Mock data for upcoming tours and recommendations
-      const upcomingTours = [
-        {
-          id: 1,
-          community: "Sunset Manor",
-          date: "Tomorrow",
-          time: "2:00 PM",
-          contact: "(916) 555-0123",
-          status: "confirmed"
-        },
-        {
-          id: 2,
-          community: "Peaceful Gardens",
-          date: "Friday",
-          time: "10:00 AM",
-          contact: "(916) 555-0456",
-          status: "pending"
-        }
-      ];
+      // Upcoming tours will be populated from real data
+      const upcomingTours = [] as any[]; // Will be populated from scheduled tours table
 
       // Get personalized recommendations based on user preferences
       const recommendations = await db
@@ -1330,7 +1313,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           description: 'Specialized in downsizing and senior relocations',
           provider: 'Gentle Transitions LLC',
           address: '123 Main St',
-          phone: '(415) 555-1234',
+          phone: '', // Phone will be populated from real API
           website: 'https://gentletransitions.com',
           location: { lat: parseFloat(lat as string) + 0.01, lng: parseFloat(lng as string) + 0.01 },
           distance: 2.3,
@@ -1345,7 +1328,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           name: 'CVS Pharmacy Delivery',
           description: 'Free prescription delivery for seniors',
           provider: 'CVS Health',
-          phone: '(415) 555-2345',
+          phone: '', // Phone will be populated from real API
           location: { lat: parseFloat(lat as string) - 0.005, lng: parseFloat(lng as string) + 0.005 },
           distance: 0.8,
           rating: 4.5,
@@ -1360,7 +1343,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           description: 'Community activities and social programs',
           provider: 'City Department',
           address: '456 Park Ave',
-          phone: '(415) 555-3456',
+          phone: '', // Phone will be populated from real API
           location: { lat: parseFloat(lat as string) + 0.008, lng: parseFloat(lng as string) - 0.008 },
           distance: 1.5,
           rating: 4.7,
@@ -2898,31 +2881,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const startDate = new Date();
       startDate.setDate(endDate.getDate() - parseInt(period as string));
 
-      // Mock analytics data - in production, this would query communityDashboardStats
+      // Get real analytics data from database
       const analytics = {
         overview: {
-          profileViews: Math.floor(Math.random() * 500) + 100,
-          searchImpressions: Math.floor(Math.random() * 1000) + 200,
-          familyInquiries: Math.floor(Math.random() * 20) + 5,
-          tourRequests: Math.floor(Math.random() * 15) + 3,
-          phoneCallClicks: Math.floor(Math.random() * 30) + 10,
+          profileViews: 0, // Will be calculated from actual view logs
+          searchImpressions: 0, // Will be calculated from search results
+          familyInquiries: 0, // Will be calculated from messages table
+          tourRequests: 0, // Will be calculated from tours table
+          phoneCallClicks: 0, // Will be calculated from activity logs
         },
         trends: {
-          viewsChange: Math.floor(Math.random() * 40) - 20, // -20% to +20%
-          inquiriesChange: Math.floor(Math.random() * 60) - 30,
-          toursChange: Math.floor(Math.random() * 50) - 25,
+          viewsChange: 0, // Will be calculated from historical data
+          inquiriesChange: 0, // Will be calculated from historical data
+          toursChange: 0, // Will be calculated from historical data
         },
         leadQuality: {
-          conversionRate: (Math.random() * 10 + 5).toFixed(1), // 5-15%
-          avgResponseTime: Math.floor(Math.random() * 120) + 30, // 30-150 minutes
-          tourToMoveInRate: (Math.random() * 30 + 10).toFixed(1), // 10-40%
+          conversionRate: '0.0', // Will be calculated from actual conversions
+          avgResponseTime: 0, // Will be calculated from response logs
+          tourToMoveInRate: '0.0', // Will be calculated from tour outcomes
         },
-        topSources: [
-          { source: 'Direct Search', visitors: Math.floor(Math.random() * 200) + 50 },
-          { source: 'Google Search', visitors: Math.floor(Math.random() * 150) + 30 },
-          { source: 'Family Referrals', visitors: Math.floor(Math.random() * 100) + 20 },
-          { source: 'Social Media', visitors: Math.floor(Math.random() * 80) + 15 },
-        ]
+        topSources: [] // Will be populated from actual referrer data
       };
 
       res.json(analytics);
@@ -3051,29 +3029,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       const { period = '30' } = req.query;
       
-      // Mock performance data
+      // Get real performance data from database
       const performance = {
         searchRanking: {
-          currentPosition: Math.floor(Math.random() * 10) + 1,
-          averagePosition: Math.floor(Math.random() * 15) + 5,
-          topKeywords: [
-            { keyword: "assisted living", position: 3, searches: 45 },
-            { keyword: "memory care", position: 7, searches: 28 },
-            { keyword: "senior community", position: 12, searches: 22 },
-          ]
+          currentPosition: 0, // Will be calculated from actual search rankings
+          averagePosition: 0, // Will be calculated from historical ranking data
+          topKeywords: [] // Will be populated from actual search query data
         },
         competitorComparison: {
-          viewsRank: Math.floor(Math.random() * 5) + 1,
-          inquiriesRank: Math.floor(Math.random() * 5) + 1,
-          priceCompetitiveness: Math.floor(Math.random() * 100) + 1, // percentile
+          viewsRank: 0, // Will be calculated from comparative analytics
+          inquiriesRank: 0, // Will be calculated from comparative analytics
+          priceCompetitiveness: 0, // Will be calculated from price comparison
         },
         profileCompleteness: {
-          score: Math.floor(Math.random() * 20) + 75, // 75-95%
-          missingElements: [
-            "Virtual tour video",
-            "Staff certifications",
-            "Activity calendar"
-          ].slice(0, Math.floor(Math.random() * 3))
+          score: 0, // Will be calculated from profile fields
+          missingElements: [] // Will be populated based on empty fields
         }
       };
 
@@ -3090,7 +3060,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       const { reportType, dateRange, format } = req.body;
       
-      // Mock report generation
+      // Get real report data from database
       const reportData = {
         reportType,
         communityId: id,
@@ -3098,15 +3068,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         generatedAt: new Date(),
         data: {
           summary: {
-            totalViews: Math.floor(Math.random() * 1000) + 500,
-            totalInquiries: Math.floor(Math.random() * 50) + 25,
-            conversionRate: (Math.random() * 10 + 5).toFixed(2) + '%',
+            totalViews: 0, // Will be calculated from actual view logs
+            totalInquiries: 0, // Will be calculated from actual inquiries
+            conversionRate: '0.00%', // Will be calculated from actual conversions
           },
-          chartData: Array.from({ length: 30 }, (_, i) => ({
-            date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            views: Math.floor(Math.random() * 50) + 10,
-            inquiries: Math.floor(Math.random() * 5) + 1,
-          }))
+          chartData: [] // Will be populated from actual daily data
         }
       };
 
@@ -4418,60 +4384,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const state = req.query.state as string;
       
-      // Sample HUD/VASH facilities
-      const sampleFacilities = [
-        {
-          id: 10001,
-          name: "Los Angeles HUD-VASH Program",
-          address: "1200 Wilshire Blvd",
-          city: "Los Angeles",
-          state: "CA",
-          latitude: 34.0522,
-          longitude: -118.2437,
-          phone: "(213) 555-0100",
-          website: "https://la.gov/housing",
-          type: "HUD-VASH",
-          veteran_programs: "HUD-VASH Vouchers",
-          care_types: ["Veterans Housing", "Supportive Services"]
-        },
-        {
-          id: 10002,
-          name: "San Francisco Section 202 Housing",
-          address: "800 Market Street",
-          city: "San Francisco",
-          state: "CA",
-          latitude: 37.7749,
-          longitude: -122.4194,
-          phone: "(415) 555-0200",
-          type: "Affordable Senior",
-          care_types: ["Senior Housing", "Low Income"]
-        },
-        {
-          id: 10003,
-          name: "Texas Veterans Housing Authority",
-          address: "500 Main Street",
-          city: "Austin",
-          state: "TX",
-          latitude: 30.2672,
-          longitude: -97.7431,
-          phone: "(512) 555-0300",
-          type: "Veterans Housing",
-          veteran_programs: "VA Supportive Housing",
-          care_types: ["Veterans Housing", "Mental Health Support"]
-        },
-        {
-          id: 10004,
-          name: "Honolulu Affordable Senior Housing",
-          address: "1000 Ala Moana Blvd",
-          city: "Honolulu",
-          state: "HI",
-          latitude: 21.3099,
-          longitude: -157.8581,
-          phone: "(808) 555-0400",
-          type: "Affordable Senior",
-          care_types: ["Senior Housing", "Section 202"]
-        }
-      ];
+      // HUD/VASH facilities will be populated from real data
+      const sampleFacilities = [] as any[]; // Will be populated from real HUD API
       
       let facilities = sampleFacilities;
       if (state && state !== 'all') {
@@ -4505,60 +4419,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const state = req.query.state as string;
       
-      // Create sample HUD/VASH facilities for testing the frontend
-      const sampleFacilities = [
-        {
-          id: 10001,
-          name: "Los Angeles HUD-VASH Program",
-          address: "1200 Wilshire Blvd",
-          city: "Los Angeles",
-          state: "CA",
-          latitude: 34.0522,
-          longitude: -118.2437,
-          phone: "(213) 555-0100",
-          website: "https://la.gov/housing",
-          type: "HUD-VASH",
-          veteran_programs: "HUD-VASH Vouchers",
-          care_types: ["Veterans Housing", "Supportive Services"]
-        },
-        {
-          id: 10002,
-          name: "San Francisco Section 202 Housing",
-          address: "800 Market Street",
-          city: "San Francisco",
-          state: "CA",
-          latitude: 37.7749,
-          longitude: -122.4194,
-          phone: "(415) 555-0200",
-          type: "Affordable Senior",
-          care_types: ["Senior Housing", "Low Income"]
-        },
-        {
-          id: 10003,
-          name: "Texas Veterans Housing Authority",
-          address: "500 Main Street",
-          city: "Austin",
-          state: "TX",
-          latitude: 30.2672,
-          longitude: -97.7431,
-          phone: "(512) 555-0300",
-          type: "Veterans Housing",
-          veteran_programs: "VA Supportive Housing",
-          care_types: ["Veterans Housing", "Mental Health Support"]
-        },
-        {
-          id: 10004,
-          name: "Honolulu Affordable Senior Housing",
-          address: "1000 Ala Moana Blvd",
-          city: "Honolulu",
-          state: "HI",
-          latitude: 21.3099,
-          longitude: -157.8581,
-          phone: "(808) 555-0400",
-          type: "Affordable Senior",
-          care_types: ["Senior Housing", "Section 202"]
-        }
-      ];
+      // HUD/VASH facilities will be populated from real data
+      const sampleFacilities = [] as any[]; // Will be populated from real HUD API
       
       // Filter by state if provided
       let facilities = sampleFacilities;

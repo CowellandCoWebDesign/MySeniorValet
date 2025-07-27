@@ -66,7 +66,7 @@ export default function AIMapShowcase() {
             matches: matchData.features?.slice(0, 3).map((f: any) => ({
               name: f.properties.name,
               reason: 'Good match for assisted living with medication management',
-              aiConfidence: Math.floor(Math.random() * 20) + 80
+              aiConfidence: 0 // Will be calculated from actual AI scoring
             })) || []
           });
           break;
