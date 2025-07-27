@@ -13,7 +13,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 
 
 export default function MySeniorValetHome() {
-  console.log("MYSENIORVALET HOME PAGE LOADED - VERSION 3 WITH CONCIERGE SERVICES PRIORITIZED - 31,023 COMMUNITIES");
+  console.log("MYSENIORVALET HOME PAGE LOADED - VERSION 3 WITH CONCIERGE SERVICES PRIORITIZED - 26,306 COMMUNITIES");
   const [searchQuery, setSearchQuery] = useState("");
 
   const [showIntegrationSpotlight, setShowIntegrationSpotlight] = useState(true);
@@ -235,7 +235,7 @@ export default function MySeniorValetHome() {
           
 
           
-          {/* Trust Indicators with 31,023+ Communities */}
+          {/* Trust Indicators with 26,306+ Communities */}
           <div className="mb-6 animate-fade-in-up animation-delay-800">
             <div className="flex flex-wrap items-center justify-center gap-3">
 
@@ -250,7 +250,7 @@ export default function MySeniorValetHome() {
           {/* Community Count Text - Updated */}
           <div className="mb-4 animate-fade-in-up animation-delay-850">
             <p className="text-white/90 dark:text-gray-300 text-sm md:text-base drop-shadow-md text-center">
-              Serving families across <strong className="text-amber-200">31,023+ verified senior living communities</strong>
+              Serving families across <strong className="text-amber-200">{(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '26,306+'} verified senior living communities</strong>
             </p>
           </div>
           
@@ -466,7 +466,6 @@ export default function MySeniorValetHome() {
                   <EnhancedCommunityCard
                     community={community}
                     variant="horizontal"
-                    onClick={() => window.location.href = `/community/${community.id}`}
                   />
                 </div>
               ))}
