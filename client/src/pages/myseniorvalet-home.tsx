@@ -437,6 +437,60 @@ export default function MySeniorValetHome() {
             </Card>
           </div>
 
+          {/* Services & Vendors - Existing Services */}
+          <div className="mb-8">
+            <Card className="group bg-white dark:bg-gray-800 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-teal-50/50 to-cyan-50/50 dark:from-teal-900/20 dark:to-cyan-900/20"></div>
+              <CardContent className="p-8 relative z-10">
+                <div className="text-center mb-6">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">Services & Vendors</h3>
+                  <p className="text-gray-600 dark:text-gray-300 text-lg">
+                    Connect with all the services families need during their senior living journey
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="text-center group/item">
+                    <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
+                      <Truck className="w-8 h-8 text-white" />
+                    </div>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Moving Services</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Professional movers, packing, storage</p>
+                  </div>
+                  <div className="text-center group/item">
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
+                      <Phone className="w-8 h-8 text-white" />
+                    </div>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Technology Support</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Cell phone programs, tech setup</p>
+                  </div>
+                  <div className="text-center group/item">
+                    <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
+                      <Scale className="w-8 h-8 text-white" />
+                    </div>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Legal & Financial</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Elder law, financial planning</p>
+                  </div>
+                  <div className="text-center group/item">
+                    <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
+                      <Sofa className="w-8 h-8 text-white" />
+                    </div>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Medical Equipment</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Mobility aids, safety equipment</p>
+                  </div>
+                </div>
+                
+                <div className="text-center mt-8">
+                  <Link href="/senior-services">
+                    <Button className="bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                      Explore All Services →
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           {/* Care Marketplace - Coming Soon */}
           <div className="mb-8">
             <Card className="group bg-white dark:bg-gray-800 border-2 border-orange-200 dark:border-orange-400 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden relative">
@@ -488,60 +542,6 @@ export default function MySeniorValetHome() {
                   <Button className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200" disabled>
                     Care Marketplace - Launching Soon
                   </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Services & Vendors - Existing Services */}
-          <div className="mb-8">
-            <Card className="group bg-white dark:bg-gray-800 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-teal-50/50 to-cyan-50/50 dark:from-teal-900/20 dark:to-cyan-900/20"></div>
-              <CardContent className="p-8 relative z-10">
-                <div className="text-center mb-6">
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">Services & Vendors</h3>
-                  <p className="text-gray-600 dark:text-gray-300 text-lg">
-                    Connect with all the services families need during their senior living journey
-                  </p>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <div className="text-center group/item">
-                    <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
-                      <Truck className="w-8 h-8 text-white" />
-                    </div>
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Moving Services</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">Professional movers, packing, storage</p>
-                  </div>
-                  <div className="text-center group/item">
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
-                      <Phone className="w-8 h-8 text-white" />
-                    </div>
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Technology Support</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">Cell phone programs, tech setup</p>
-                  </div>
-                  <div className="text-center group/item">
-                    <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
-                      <Scale className="w-8 h-8 text-white" />
-                    </div>
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Legal & Financial</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">Elder law, financial planning</p>
-                  </div>
-                  <div className="text-center group/item">
-                    <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
-                      <Sofa className="w-8 h-8 text-white" />
-                    </div>
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Medical Equipment</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">Mobility aids, safety equipment</p>
-                  </div>
-                </div>
-                
-                <div className="text-center mt-8">
-                  <Link href="/senior-services">
-                    <Button className="bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
-                      Explore All Services →
-                    </Button>
-                  </Link>
                 </div>
               </CardContent>
             </Card>
