@@ -1089,80 +1089,7 @@ export default function MySeniorValetHome() {
 
 
 
-      {/* Real-Time HUD Data Showcase */}
-      <section className="px-4 py-16 bg-white dark:bg-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">Live Government HUD Data</h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300">6,078+ affordable housing properties with real-time pricing</p>
-          </div>
 
-          {/* HUD Data Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 hover:shadow-xl transition-all">
-              <CardContent className="p-6 text-center">
-                <DollarSign className="w-12 h-12 text-blue-600 dark:text-blue-400 mx-auto mb-4" />
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2">$303</div>
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Lowest HUD Rent</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Florin Gardens, CA</p>
-                <Badge className="mt-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">Live Data</Badge>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 hover:shadow-xl transition-all">
-              <CardContent className="p-6 text-center">
-                <Building2 className="w-12 h-12 text-green-600 dark:text-green-400 mx-auto mb-4" />
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-2">427,979</div>
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Available Units</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Total housing units</p>
-                <Badge className="mt-2 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">Real Count</Badge>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 hover:shadow-xl transition-all">
-              <CardContent className="p-6 text-center">
-                <Users className="w-12 h-12 text-purple-600 dark:text-purple-400 mx-auto mb-4" />
-                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-2">86.6%</div>
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Occupancy Rate</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Average across all HUD</p>
-                <Badge className="mt-2 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300">Live Stats</Badge>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 hover:shadow-xl transition-all">
-              <CardContent className="p-6 text-center">
-                <MapPin className="w-12 h-12 text-amber-600 dark:text-amber-400 mx-auto mb-4" />
-                <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 mb-2">34</div>
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">States Covered</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Complete HUD coverage</p>
-                <Badge className="mt-2 bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300">100% Coverage</Badge>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 hover:shadow-xl transition-all">
-              <CardContent className="p-6 text-center">
-                <TrendingUp className="w-12 h-12 text-red-600 dark:text-red-400 mx-auto mb-4" />
-                <div className="text-2xl font-bold text-red-600 dark:text-red-400 mb-2">$136-$5,000</div>
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Price Range</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300">HUD transparent pricing</p>
-                <Badge className="mt-2 bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">Verified</Badge>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/20 dark:to-teal-800/20 hover:shadow-xl transition-all">
-              <CardContent className="p-6 text-center">
-                <Shield className="w-12 h-12 text-teal-600 dark:text-teal-400 mx-auto mb-4" />
-                <div className="text-2xl font-bold text-teal-600 dark:text-teal-400 mb-2">5,528</div>
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">HUD Properties</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Government verified</p>
-                <Badge className="mt-2 bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300">Official</Badge>
-              </CardContent>
-            </Card>
-          </div>
-
-
-        </div>
-      </section>
 
 
 
@@ -2173,7 +2100,13 @@ export default function MySeniorValetHome() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">North America's Most Comprehensive Senior Living Database</h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300">26,306+ communities with 100% authentic government data</p>
+            <p className="text-xl text-gray-600 dark:text-gray-300">26,306+ communities with live government HUD data and transparent pricing</p>
+            <div className="mt-4 flex flex-wrap gap-2 justify-center">
+              <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">6,078+ HUD Properties</Badge>
+              <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">427,979 Housing Units</Badge>
+              <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300">34 States Covered</Badge>
+              <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300">$136-$15,000 Price Range</Badge>
+            </div>
           </div>
           
           {/* Geographic Coverage Map */}
@@ -2227,41 +2160,97 @@ export default function MySeniorValetHome() {
             </div>
           </div>
 
-          {/* Live Data Dashboard */}
+          {/* Live Government & HUD Data Dashboard */}
           <div className="mb-12">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 text-center mb-6">Live Platform Statistics</h3>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 text-center mb-6">Live Government HUD Data Integration</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 hover:shadow-xl transition-all">
+                <CardContent className="p-6 text-center">
+                  <DollarSign className="w-12 h-12 text-blue-600 dark:text-blue-400 mx-auto mb-4" />
+                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2">$303</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Lowest HUD Rent</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Florin Gardens, CA</p>
+                  <Badge className="mt-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">Live Data</Badge>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 hover:shadow-xl transition-all">
+                <CardContent className="p-6 text-center">
+                  <Building2 className="w-12 h-12 text-green-600 dark:text-green-400 mx-auto mb-4" />
+                  <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-2">427,979</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Available Units</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Total housing units</p>
+                  <Badge className="mt-2 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">Real Count</Badge>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 hover:shadow-xl transition-all">
+                <CardContent className="p-6 text-center">
+                  <Users className="w-12 h-12 text-purple-600 dark:text-purple-400 mx-auto mb-4" />
+                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-2">86.6%</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Occupancy Rate</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Average across all HUD</p>
+                  <Badge className="mt-2 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300">Live Stats</Badge>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 hover:shadow-xl transition-all">
+                <CardContent className="p-6 text-center">
+                  <MapPin className="w-12 h-12 text-amber-600 dark:text-amber-400 mx-auto mb-4" />
+                  <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 mb-2">34</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">States Covered</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Complete HUD coverage</p>
+                  <Badge className="mt-2 bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300">100% Coverage</Badge>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 hover:shadow-xl transition-all">
+                <CardContent className="p-6 text-center">
+                  <TrendingUp className="w-12 h-12 text-red-600 dark:text-red-400 mx-auto mb-4" />
+                  <div className="text-2xl font-bold text-red-600 dark:text-red-400 mb-2">$136-$5,000</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Price Range</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">HUD transparent pricing</p>
+                  <Badge className="mt-2 bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">Verified</Badge>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/20 dark:to-teal-800/20 hover:shadow-xl transition-all">
+                <CardContent className="p-6 text-center">
+                  <Shield className="w-12 h-12 text-teal-600 dark:text-teal-400 mx-auto mb-4" />
+                  <div className="text-2xl font-bold text-teal-600 dark:text-teal-400 mb-2">5,528</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">HUD Properties</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Government verified</p>
+                  <Badge className="mt-2 bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300">Official</Badge>
+                </CardContent>
+              </Card>
+            </div>
+            
+            {/* Summary Statistics Row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20">
                 <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">26,306</div>
+                  <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mb-1">26,306</div>
                   <p className="text-xs text-gray-600 dark:text-gray-300">Total Communities</p>
                 </CardContent>
               </Card>
               
-              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
+              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-rose-50 to-rose-100 dark:from-rose-900/20 dark:to-rose-800/20">
                 <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">6,078</div>
+                  <div className="text-2xl font-bold text-rose-600 dark:text-rose-400 mb-1">6,078</div>
                   <p className="text-xs text-gray-600 dark:text-gray-300">HUD Properties</p>
                 </CardContent>
               </Card>
               
-              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
+              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20">
                 <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">427K</div>
+                  <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mb-1">427K</div>
                   <p className="text-xs text-gray-600 dark:text-gray-300">Housing Units</p>
                 </CardContent>
               </Card>
               
-              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20">
+              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20">
                 <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 mb-1">86.6%</div>
-                  <p className="text-xs text-gray-600 dark:text-gray-300">Occupancy Data</p>
-                </CardContent>
-              </Card>
-              
-              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20">
-                <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-red-600 dark:text-red-400 mb-1">100%</div>
+                  <div className="text-2xl font-bold text-orange-600 dark:text-orange-400 mb-1">100%</div>
                   <p className="text-xs text-gray-600 dark:text-gray-300">Real Pricing</p>
                 </CardContent>
               </Card>
