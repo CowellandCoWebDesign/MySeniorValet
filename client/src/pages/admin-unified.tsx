@@ -213,7 +213,30 @@ export default function UnifiedAdminDashboard() {
     );
   }
 
-  if (!currentUser || !userRole) {
+  if (!currentUser) {
+    return (
+      <div className="container mx-auto py-12 px-4">
+        <Card className="max-w-2xl mx-auto">
+          <CardHeader>
+            <CardTitle>Login Required</CardTitle>
+            <CardDescription>
+              Please log in to access the admin dashboard.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex gap-4">
+            <Button onClick={() => window.location.href = "/api/login"}>
+              Log In
+            </Button>
+            <Button variant="outline" onClick={() => window.location.href = "/"}>
+              Return to Home
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+  
+  if (!userRole) {
     return (
       <div className="container mx-auto py-12 px-4">
         <Card className="max-w-2xl mx-auto">
