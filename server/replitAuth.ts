@@ -85,7 +85,6 @@ async function upsertUser(
         email: userEmail,
         firstName: claims["first_name"] || null,
         lastName: claims["last_name"] || null,
-        profileImageUrl: claims["profile_image_url"] || null,
         password: 'replit_auth',
         role: userRole
       });
@@ -98,8 +97,7 @@ async function upsertUser(
       user = await storage.updateUser(user.id, {
         email: userEmail,
         firstName: claims["first_name"] || null,
-        lastName: claims["last_name"] || null,
-        profileImageUrl: claims["profile_image_url"] || null
+        lastName: claims["last_name"] || null
       }) || user;
     }
     

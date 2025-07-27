@@ -54,6 +54,7 @@ import {
 } from "./security-admin-endpoints";
 import { stripePaymentService } from "./stripe-payments";
 import Stripe from "stripe";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 
 // Scalable infrastructure imports
 import { searchCache, communityCache, apiCache } from "./infrastructure/cache";
@@ -11169,90 +11170,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // Simple demo authentication endpoint for development
-  app.get('/api/auth/user', async (req: any, res) => {
+  // Production Replit Auth endpoint - replaced demo system
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      console.log("Auth user endpoint hit");
+      const userId = req.user.claims.sub;
+      console.log("✅ Replit Auth - Fetching user with ID:", userId);
       
-      // Check if we have a demo user session or use demo user
-      let userEmail = 'demo@myseniorvalet.com';
-      
-      // Try to get from session first
-      if (req.session && req.session.userEmail) {
-        userEmail = req.session.userEmail;
-      }
-      
-      console.log("Looking up user by email:", userEmail);
-      
-      // Get user by email
-      const user = await storage.getUserByEmail(userEmail);
+      const user = await storage.getUser(userId);
       if (!user) {
-        console.log("User not found in storage for email:", userEmail);
+        console.log("❌ User not found in database for ID:", userId);
         return res.status(404).json({ message: "User not found" });
       }
       
-      console.log("User found:", user.id, user.email);
+      console.log("✅ Replit Auth - User found:", user.id, user.email, user.role);
       res.json(user);
     } catch (error) {
-      console.error("Error fetching user:", error);
+      console.error("❌ Error fetching authenticated user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
     }
   });
 
-  // Demo login endpoint - TEMPORARILY ENABLED for development
+  // DISABLED: Demo login endpoint - Now using production Replit Auth
+  // For local testing only. In production, users must use Replit Auth (/api/login)
+  /*
   app.post('/api/auth/demo-login', async (req, res) => {
-    try {
-      const { email } = req.body;
-      const userEmail = email || 'demo@myseniorvalet.com';
-      
-      // Special handling for William.cowell01@gmail.com to get super admin access
-      if (userEmail === 'William.cowell01@gmail.com') {
-        // Create/update user with super admin role
-        let user = await storage.getUserByEmail(userEmail);
-        if (!user) {
-          user = await storage.createUser({
-            username: userEmail,
-            password: 'replit_auth',
-            role: 'super_admin'
-          });
-          console.log('🔑 Super admin account created for William.cowell01@gmail.com');
-        } else if (user.role !== 'super_admin') {
-          user = await storage.updateUser(user.id.toString(), { role: 'super_admin' });
-          console.log('🔑 Super admin role granted to William.cowell01@gmail.com');
-        }
-        
-        // Store user email in session
-        req.session.userEmail = userEmail;
-        return res.json({ success: true, user, message: 'Super admin access granted!' });
-      }
-      
-      // Store user email in session
-      req.session.userEmail = userEmail;
-      
-      const user = await storage.getUserByEmail(userEmail);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      
-      res.json({ success: true, user });
-    } catch (error) {
-      res.status(500).json({ message: "Login failed" });
-    }
+    res.status(404).json({ 
+      message: "Demo login disabled. Please use Replit Auth.", 
+      loginUrl: "/api/login" 
+    });
   });
+  */
 
-  // Get current user's role with permissions
-  app.get('/api/auth/user/role', async (req: any, res) => {
+  // Get current user's role with permissions - Production Replit Auth
+  app.get('/api/auth/user/role', isAuthenticated, async (req: any, res) => {
     try {
-      // Check if we have a demo user session or use demo user
-      let userEmail = 'demo@myseniorvalet.com';
-      
-      // Try to get from session first
-      if (req.session && req.session.userEmail) {
-        userEmail = req.session.userEmail;
-      }
-      
-      const user = await storage.getUserByEmail(userEmail);
-      console.log("Role endpoint - user found:", user ? { id: user.id, email: user.email, role: user.role } : null);
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      console.log("✅ Role endpoint - Replit Auth user:", user ? { id: user.id, email: user.email, role: user.role } : null);
       
       if (!user) {
         return res.status(404).json({ message: "User not found" });
@@ -11265,7 +11219,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         lastName: user.lastName
       });
     } catch (error) {
-      console.error("Error fetching user role:", error);
+      console.error("❌ Error fetching user role:", error);
       res.status(500).json({ message: "Failed to fetch user role" });
     }
   });
