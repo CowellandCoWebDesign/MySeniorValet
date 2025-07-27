@@ -178,21 +178,18 @@ const EnterpriseOverview = () => {
   // Real-time stats query
   const { data: realtimeStats, isLoading: statsLoading, error: statsError } = useQuery({
     queryKey: ['/api/admin/realtime/stats'],
-    queryFn: () => apiRequest('GET', '/api/admin/realtime/stats'),
     refetchInterval: STATS_REFRESH,
   });
 
   // Activity feed query
   const { data: activityFeed, isLoading: feedLoading } = useQuery({
     queryKey: ['/api/admin/activity/feed'],
-    queryFn: () => apiRequest('GET', '/api/admin/activity/feed?limit=20'),
     refetchInterval: ACTIVITY_REFRESH,
   });
 
   // System health query
   const { data: systemHealth, isLoading: healthLoading } = useQuery({
     queryKey: ['/api/admin/system/health'],
-    queryFn: () => apiRequest('GET', '/api/admin/system/health'),
     refetchInterval: HEALTH_REFRESH,
   });
 
