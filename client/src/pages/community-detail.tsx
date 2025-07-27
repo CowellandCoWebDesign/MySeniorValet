@@ -914,14 +914,55 @@ export default function CommunityDetail() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <Dialog open={isScheduleTourOpen} onOpenChange={setIsScheduleTourOpen}>
-                        <DialogTrigger asChild>
-                          <Button className="bg-blue-600 hover:bg-blue-700 text-white py-4 text-base font-semibold">
-                            <CalendarIcon className="w-5 h-5 mr-2" />
-                            Schedule Tour
-                          </Button>
-                        </DialogTrigger>
+                    {/* Enhanced Tour Section - Combined Ready to Tour & Tour Tracker */}
+                    <div className="space-y-6">
+                      {/* Tour Tracker Integration */}
+                      <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-600 rounded-lg p-4">
+                        <div className="flex items-center mb-3">
+                          <ClipboardList className="w-5 h-5 mr-2 text-blue-600" />
+                          <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-200">Tour Tracker™</h3>
+                          <Badge className="ml-2 bg-blue-600 text-white text-xs">Pro Feature</Badge>
+                        </div>
+                        <p className="text-sm text-blue-700 dark:text-blue-300 mb-4">
+                          Document your family visit with our comprehensive tour tracking system
+                        </p>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                          <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-600">
+                            <Shield className="w-4 h-4 text-blue-600 mr-2 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">Inspection Checklist</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400 truncate">Pass/fail criteria</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-600">
+                            <Star className="w-4 h-4 text-blue-600 mr-2 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">Rate During Visit</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400 truncate">Live scoring system</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-600">
+                            <UserCheck className="w-4 h-4 text-blue-600 mr-2 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">Family Collaboration</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400 truncate">Share instantly</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Main Action Buttons */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <Dialog open={isScheduleTourOpen} onOpenChange={setIsScheduleTourOpen}>
+                          <DialogTrigger asChild>
+                            <Button className="bg-blue-600 hover:bg-blue-700 text-white py-4 text-base font-semibold">
+                              <CalendarIcon className="w-5 h-5 mr-2" />
+                              Schedule Tour
+                            </Button>
+                          </DialogTrigger>
                         <DialogContent className="sm:max-w-md">
                           <DialogHeader>
                             <DialogTitle>Schedule a Tour</DialogTitle>
@@ -1108,6 +1149,21 @@ export default function CommunityDetail() {
                         Message
                       </Button>
                     </div>
+
+                    {/* Tour Documentation Button */}
+                    <div className="mt-4">
+                      <Button 
+                        onClick={() => window.location.href = `/tour-tracker?communityId=${community.id}`}
+                        className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white py-3"
+                      >
+                        <ClipboardList className="w-4 h-4 mr-2" />
+                        Start Tour Documentation
+                      </Button>
+                      <p className="text-xs text-center text-blue-700 dark:text-blue-300 mt-2">
+                        Your tour data contributes to our composite ratings
+                      </p>
+                    </div>
+                  </div>
                   </div>
                 </div>
               </CardContent>
@@ -1873,55 +1929,7 @@ export default function CommunityDetail() {
 
 
 
-            {/* Tour Tracker - Family Visit Documentation */}
-            <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-blue-200 dark:border-blue-600">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center">
-                  <ClipboardList className="w-5 h-5 mr-2 text-blue-600" />
-                  Tour Tracker™
-                </CardTitle>
-                <p className="text-sm text-blue-700 dark:text-blue-300">Document your family visit</p>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-600">
-                    <Shield className="w-4 h-4 text-blue-600 mr-2" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Inspection Checklist</p>
-                      <p className="text-xs text-gray-900 dark:text-gray-100">Pass/fail criteria for key areas</p>
-                    </div>
-                  </div>
 
-                  <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-600">
-                    <Star className="w-4 h-4 text-blue-600 mr-2" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Rate During Visit</p>
-                      <p className="text-xs text-gray-900 dark:text-gray-100">Cleanliness, staff, food, safety</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-600">
-                    <UserCheck className="w-4 h-4 text-blue-600 mr-2" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Family Collaboration</p>
-                      <p className="text-xs text-gray-900 dark:text-gray-100">Share photos & notes instantly</p>
-                    </div>
-                  </div>
-                </div>
-
-                <Button 
-                  onClick={() => window.location.href = `/tour-tracker?communityId=${community.id}`}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  <ClipboardList className="w-4 h-4 mr-2" />
-                  Start Tour Documentation
-                </Button>
-
-                <p className="text-xs text-center text-blue-700 dark:text-blue-300">
-                  Your tour data contributes to our composite ratings
-                </p>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>
