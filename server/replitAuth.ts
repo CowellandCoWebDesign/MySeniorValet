@@ -7,8 +7,6 @@ import type { Express, RequestHandler } from "express";
 import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
-import { db } from "./db";
-import { sql } from "drizzle-orm";
 
 if (!process.env.REPLIT_DOMAINS) {
   throw new Error("Environment variable REPLIT_DOMAINS not provided");
@@ -29,18 +27,19 @@ export function getSession() {
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
     conString: process.env.DATABASE_URL,
-    createTableIfMissing: false,
+    createTableIfMissing: true, // Changed to true to ensure table exists
     ttl: sessionTtl,
     tableName: "sessions",
   });
   return session({
-    secret: process.env.SESSION_SECRET!,
+    secret: process.env.SESSION_SECRET || 'development-secret-key-change-in-production',
     store: sessionStore,
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true, // Changed to true to ensure session is created
     cookie: {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'production', // Only require secure in production
+      sameSite: 'lax', // Added for better compatibility
       maxAge: sessionTtl,
     },
   });
@@ -69,26 +68,24 @@ async function upsertUser(
     
     if (!user) {
       // Create new user - use Replit user ID as primary key with default 'user' role
-      const result = await db.execute(sql`
-        INSERT INTO users (id, username, email, first_name, last_name, profile_image_url, password, role)
-        VALUES (${replitUserId}, ${userEmail}, ${userEmail}, ${claims["first_name"] || null}, ${claims["last_name"] || null}, ${claims["profile_image_url"] || null}, 'replit_auth', 'user')
-        RETURNING id, username, email, first_name AS "firstName", last_name AS "lastName", profile_image_url AS "profileImageUrl", role
-      `);
-      user = result.rows[0] as any;
+      user = await storage.createUser({
+        id: replitUserId,
+        username: userEmail,
+        email: userEmail,
+        firstName: claims["first_name"] || null,
+        lastName: claims["last_name"] || null,
+        profileImageUrl: claims["profile_image_url"] || null,
+        password: 'replit_auth',
+        role: 'user'
+      });
     } else {
       // Update existing user
-      await db.execute(sql`
-        UPDATE users 
-        SET email = ${userEmail}, 
-            first_name = ${claims["first_name"] || null}, 
-            last_name = ${claims["last_name"] || null}, 
-            profile_image_url = ${claims["profile_image_url"] || null}
-        WHERE id = ${user.id}
-      `);
-      // Update the user object with the new claims data
-      user.firstName = claims["first_name"] || user.firstName;
-      user.lastName = claims["last_name"] || user.lastName;
-      user.profileImageUrl = claims["profile_image_url"] || user.profileImageUrl;
+      user = await storage.updateUser(user.id, {
+        email: userEmail,
+        firstName: claims["first_name"] || null,
+        lastName: claims["last_name"] || null,
+        profileImageUrl: claims["profile_image_url"] || null
+      }) || user;
     }
     
     return user;
@@ -110,13 +107,22 @@ export async function setupAuth(app: Express) {
     tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
     verified: passport.AuthenticateCallback
   ) => {
-    const user: any = {};
-    updateUserSession(user, tokens);
-    const dbUser = await upsertUser(tokens.claims());
-    // Add database user info to session user object
-    user.dbUserId = dbUser.id;
-    user.email = dbUser.email;
-    verified(null, user);
+    try {
+      const user: any = {};
+      updateUserSession(user, tokens);
+      const dbUser = await upsertUser(tokens.claims());
+      
+      // Ensure dbUser exists before accessing properties
+      if (dbUser) {
+        user.dbUserId = dbUser.id;
+        user.email = dbUser.email;
+      }
+      
+      verified(null, user);
+    } catch (error) {
+      console.error("Verify function error:", error);
+      verified(error as Error, null);
+    }
   };
 
   for (const domain of process.env
@@ -148,9 +154,25 @@ export async function setupAuth(app: Express) {
   });
 
   app.get("/api/callback", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
-      successRedirect: (req.session as any).returnTo || "/",
-      failureRedirect: "/api/login",
+    passport.authenticate(`replitauth:${req.hostname}`, (err: any, user: any, info: any) => {
+      if (err || !user) {
+        console.error("Authentication failed:", err || info);
+        return res.redirect("/api/login?error=auth_failed");
+      }
+      
+      req.logIn(user, (loginErr) => {
+        if (loginErr) {
+          console.error("Login failed:", loginErr);
+          return res.redirect("/api/login?error=login_failed");
+        }
+        
+        // Save session and redirect
+        req.session.save(() => {
+          const returnTo = (req.session as any).returnTo || "/";
+          delete (req.session as any).returnTo;
+          res.redirect(returnTo);
+        });
+      });
     })(req, res, next);
   });
 
