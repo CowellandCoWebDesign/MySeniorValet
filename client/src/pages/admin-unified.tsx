@@ -57,42 +57,74 @@ const ROLE_DEFINITIONS = {
   super_admin: {
     label: "Super Admin",
     description: "Full system access",
-    dashboards: ["admin", "users", "community", "vendor", "financial", "security"]
+    dashboards: ["admin", "users", "community", "vendor", "financial", "security"],
+    color: "bg-gradient-to-r from-gray-300 to-gray-100",
+    textColor: "text-gray-900",
+    badgeClass: "bg-gradient-to-r from-gray-300 to-gray-100 text-gray-900 border-gray-400",
+    tier: "Platinum"
   },
   admin: {
     label: "Admin",
     description: "Administrative access (includes analytics & integrations)",
-    dashboards: ["admin", "users", "community", "security"]
+    dashboards: ["admin", "users", "community", "security"],
+    color: "bg-gradient-to-r from-yellow-400 to-yellow-200",
+    textColor: "text-yellow-900",
+    badgeClass: "bg-gradient-to-r from-yellow-400 to-yellow-200 text-yellow-900 border-yellow-500",
+    tier: "Gold"
   },
   financial_admin: {
     label: "Financial Admin",
     description: "Financial and revenue management",
-    dashboards: ["financial", "admin"]
+    dashboards: ["financial", "admin"],
+    color: "bg-gradient-to-r from-emerald-400 to-emerald-200",
+    textColor: "text-emerald-900",
+    badgeClass: "bg-gradient-to-r from-emerald-400 to-emerald-200 text-emerald-900 border-emerald-500",
+    tier: "Emerald"
   },
   support_agent: {
     label: "Support Agent",
     description: "User support and community management",
-    dashboards: ["users", "community"]
+    dashboards: ["users", "community"],
+    color: "bg-gradient-to-r from-blue-400 to-blue-200",
+    textColor: "text-blue-900",
+    badgeClass: "bg-gradient-to-r from-blue-400 to-blue-200 text-blue-900 border-blue-500",
+    tier: "Silver"
   },
   analytics_viewer: {
     label: "Analytics Viewer",
     description: "View-only analytics access (via admin dashboard)",
-    dashboards: ["admin"]
+    dashboards: ["admin"],
+    color: "bg-gradient-to-r from-purple-400 to-purple-200",
+    textColor: "text-purple-900",
+    badgeClass: "bg-gradient-to-r from-purple-400 to-purple-200 text-purple-900 border-purple-500",
+    tier: "Bronze"
   },
   community_owner: {
     label: "Community Owner",
     description: "Community management access",
-    dashboards: ["community"]
+    dashboards: ["community"],
+    color: "bg-gradient-to-r from-orange-400 to-orange-200",
+    textColor: "text-orange-900",
+    badgeClass: "bg-gradient-to-r from-orange-400 to-orange-200 text-orange-900 border-orange-500",
+    tier: "Bronze"
   },
   vendor: {
     label: "Vendor",
     description: "Vendor dashboard access",
-    dashboards: ["vendor"]
+    dashboards: ["vendor"],
+    color: "bg-gradient-to-r from-teal-400 to-teal-200",
+    textColor: "text-teal-900",
+    badgeClass: "bg-gradient-to-r from-teal-400 to-teal-200 text-teal-900 border-teal-500",
+    tier: "Bronze"
   },
   user: {
     label: "User",
     description: "Basic user access",
-    dashboards: ["user"]
+    dashboards: ["user"],
+    color: "bg-gray-200",
+    textColor: "text-gray-700",
+    badgeClass: "bg-gray-200 text-gray-700 border-gray-400",
+    tier: "Standard"
   }
 };
 
@@ -256,7 +288,10 @@ export default function UnifiedAdminDashboard() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <Badge variant="outline">{userRole.role}</Badge>
+              <div className={`px-4 py-2 rounded-full font-semibold text-sm shadow-md border ${ROLE_DEFINITIONS[userRole.role as keyof typeof ROLE_DEFINITIONS]?.badgeClass || 'bg-gray-200 text-gray-700 border-gray-400'}`}>
+                <span className="mr-2">{ROLE_DEFINITIONS[userRole.role as keyof typeof ROLE_DEFINITIONS]?.tier}</span>
+                {ROLE_DEFINITIONS[userRole.role as keyof typeof ROLE_DEFINITIONS]?.label}
+              </div>
               <span className="text-sm text-gray-600 dark:text-gray-400">
                 {currentUser.firstName} {currentUser.lastName}
               </span>
@@ -267,6 +302,26 @@ export default function UnifiedAdminDashboard() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
+        {/* Welcome Banner with Role-based Color Coding */}
+        <div className={`mb-8 p-6 rounded-lg shadow-lg ${ROLE_DEFINITIONS[userRole.role as keyof typeof ROLE_DEFINITIONS]?.color || 'bg-gray-200'}`}>
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className={`text-2xl font-bold ${ROLE_DEFINITIONS[userRole.role as keyof typeof ROLE_DEFINITIONS]?.textColor || 'text-gray-700'}`}>
+                Welcome, {currentUser.firstName || 'User'}!
+              </h2>
+              <p className={`mt-1 ${ROLE_DEFINITIONS[userRole.role as keyof typeof ROLE_DEFINITIONS]?.textColor || 'text-gray-700'} opacity-90`}>
+                You have <strong>{ROLE_DEFINITIONS[userRole.role as keyof typeof ROLE_DEFINITIONS]?.tier}</strong> tier access as a {ROLE_DEFINITIONS[userRole.role as keyof typeof ROLE_DEFINITIONS]?.label}
+              </p>
+              <p className={`mt-2 text-sm ${ROLE_DEFINITIONS[userRole.role as keyof typeof ROLE_DEFINITIONS]?.textColor || 'text-gray-700'} opacity-80`}>
+                {ROLE_DEFINITIONS[userRole.role as keyof typeof ROLE_DEFINITIONS]?.description}
+              </p>
+            </div>
+            <div className={`text-4xl font-bold ${ROLE_DEFINITIONS[userRole.role as keyof typeof ROLE_DEFINITIONS]?.textColor || 'text-gray-700'} opacity-20`}>
+              {ROLE_DEFINITIONS[userRole.role as keyof typeof ROLE_DEFINITIONS]?.tier}
+            </div>
+          </div>
+        </div>
+        
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="flex flex-wrap gap-2 h-auto p-2">
             {availableDashboards.includes('admin') && (
@@ -412,9 +467,10 @@ export default function UnifiedAdminDashboard() {
                                     </SelectContent>
                                   </Select>
                                 ) : (
-                                  <Badge variant="outline">
+                                  <div className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold border ${ROLE_DEFINITIONS[user.role as keyof typeof ROLE_DEFINITIONS]?.badgeClass || 'bg-gray-200 text-gray-700 border-gray-400'}`}>
+                                    <span className="mr-1">{ROLE_DEFINITIONS[user.role as keyof typeof ROLE_DEFINITIONS]?.tier}</span>
                                     {ROLE_DEFINITIONS[user.role as keyof typeof ROLE_DEFINITIONS]?.label || user.role}
-                                  </Badge>
+                                  </div>
                                 )}
                               </TableCell>
                               <TableCell>
