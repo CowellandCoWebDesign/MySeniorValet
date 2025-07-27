@@ -21,10 +21,12 @@ import {
   users,
   pendingCommunities,
   vendors,
-  vendorServices
+  vendorServices,
+  communityDashboardStats,
+  communityMessages
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, or, desc, inArray, sql, between, gte, lte } from "drizzle-orm";
+import { eq, and, or, desc, inArray, sql, between, gte, lte, isNotNull } from "drizzle-orm";
 import { careTypeClassifier } from './care-type-classifier';
 import { dataQualityEnhancement } from './data-quality-enhancement';
 import { enhancedSearchService } from "./enhanced-search-service";
@@ -222,7 +224,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const citiesCovered = [...new Set(communitiesData.map(c => c.city).filter(Boolean))].length;
       const verifiedCommunities = communitiesData.filter(c => c.phone && c.website).length;
       const withPhotos = communitiesData.filter(c => c.photos && Array.isArray(c.photos) && c.photos.length > 0).length;
-      const googePlacesEnriched = communitiesData.filter(c => c.googlePlaceId).length;
+      const googePlacesEnriched = communitiesData.filter(c => c.googlePlaceReviews && c.googlePlaceReviews.length > 0).length;
       
       // Group by county for detailed breakdown
       const countiesData = communitiesData.reduce((acc: any, community) => {
@@ -1923,10 +1925,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('AI Search - Generated Filters:', filters);
 
       // Execute search using enhanced search service
-      const communities = await enhancedSearchService.searchCommunities(searchParams);
+      const searchResult = await enhancedSearchService.searchCommunities(searchParams);
       
       // Apply intelligent pricing
-      const communitiesWithPricing = communities.map((community: any) => eliminateCallForPricing(community));
+      const communitiesWithPricing = searchResult.communities.map((community: any) => eliminateCallForPricing(community));
 
       res.json({
         communities: communitiesWithPricing,
@@ -2334,11 +2336,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const props = cluster.properties;
           const hasLiveData = (props.rentPerMonth && props.rentPerMonth > 0) ||
                               (props.priceRange && 
-                               ((typeof props.priceRange === 'object' && props.priceRange.min) ||
+                               ((typeof props.priceRange === 'object' && props.priceRange?.min) ||
                                 (typeof props.priceRange === 'string' && !props.priceRange.includes('Contact')))) ||
                               (props.availability && props.availability !== 'Contact for availability') ||
-                              props.hudPropertyId ||
-                              props.dataSource === 'HUD';
+                              props.hudPropertyId;
           
           return hasLiveData;
         });
@@ -3168,7 +3169,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', { apiVersion: '2023-10-16' });
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', { apiVersion: '2025-06-30.basil' });
       const event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
       
       await stripePaymentService.handleWebhook(event);
@@ -3457,7 +3458,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { field: 'website', weight: 10, value: checkField(community.website) },
         { field: 'description', weight: 15, value: checkField(community.description) },
         { field: 'photos', weight: 20, value: checkArray(community.photos) },
-        { field: 'amenities', weight: 15, value: checkArray(community.amenitiesOffered) },
+        { field: 'amenities', weight: 15, value: checkArray(community.amenities) },
         { field: 'care_types', weight: 10, value: checkArray(community.careTypes) },
         { field: 'pricing', weight: 10, value: checkField(community.priceRange) },
         { field: 'contact_info', weight: 10, value: checkField(community.address) }
@@ -3735,7 +3736,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Mock data for now
-      const templates = [];
+      const templates: any[] = [];
       
       res.json(templates);
     } catch (error) {
@@ -4218,20 +4219,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const state = req.query.state as string;
       
       // Build query for affordable housing
-      let query = db
-        .select()
-        .from(communities)
-        .where(eq(communities.facilityType, 'Affordable Senior'));
+      const whereConditions = [eq(communities.facilityType, 'Affordable Senior')];
       
       // Filter by state if provided
       if (state && state !== 'all') {
-        query = query.where(and(
-          eq(communities.facilityType, 'Affordable Senior'),
-          eq(communities.state, state)
-        ));
+        whereConditions.push(eq(communities.state, state));
       }
       
-      const facilities = await query;
+      const facilities = await db
+        .select()
+        .from(communities)
+        .where(and(...whereConditions));
       
       console.log(`Found ${facilities.length} affordable housing facilities${state && state !== 'all' ? ` in ${state}` : ''}`);
       res.json(facilities);
@@ -4247,7 +4245,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const state = req.query.state as string;
       
       // GOLDEN DATA RULE ENFORCED - NO FAKE FACILITIES ALLOWED
-      const facilities: any[] = []; // Only real HUD API data allowed
+      let facilities: any[] = []; // Only real HUD API data allowed
       if (state && state !== 'all') {
         facilities = facilities.filter(facility => facility.state === state);
       }
@@ -4398,8 +4396,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         address: community[0].address,
         phone: community[0].phone,
         description: community[0].description,
-        facility_type: community[0].facilityType,
-        data_source: community[0].dataSource
+        facility_type: community[0].facilityType
       });
 
       await ServiceListingClassifier.flagAsServiceProvider(communityId, analysis);
@@ -4567,7 +4564,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         aplaceformomReviews: community.aplaceformomReviews,
         googleReviewSnippets: community.googleReviewSnippets,
         googleRating: community.googleRating,
-        googleReviewCount: community.google_review_count
+        googleReviewCount: community.googleReviewCount
       };
       
       res.json(formattedCommunity);
@@ -4850,7 +4847,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         familyPriorities: z.array(z.string()).optional()
       });
 
-      const request: RecommendationRequest = requestSchema.parse(req.body);
+      const request = requestSchema.parse(req.body) as RecommendationRequest;
       
       // Get communities that match basic criteria
       let communities = await storage.getAllCommunities();
@@ -4876,7 +4873,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalCommunities: communities.length,
         requestId: Math.random().toString(36).substr(2, 9),
         timestamp: new Date().toISOString(),
-        disclaimer: "This ranking is informational. TrueView receives no referral fees and is not a licensed placement agency. Verify suitability directly with each community."
+        disclaimer: "This ranking is informational. MySeniorValet receives no referral fees and is not a licensed placement agency. Verify suitability directly with each community."
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -5253,7 +5250,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Quiz answers received:', answers);
 
       // Get communities based on location - start with all communities if no location
-      let baseQuery = db.select().from(communities);
+      const whereConditions = [];
       
       if (answers.location) {
         // Handle state name mappings
@@ -5268,7 +5265,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         const mappedLocation = stateMap[answers.location] || answers.location;
         
-        baseQuery = baseQuery.where(
+        whereConditions.push(
           or(
             eq(communities.city, answers.location),
             eq(communities.state, mappedLocation),
@@ -5277,7 +5274,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         );
       }
       
-      const allCommunities = await baseQuery
+      let query = db.select().from(communities);
+      if (whereConditions.length > 0) {
+        query = query.where(and(...whereConditions));
+      }
+      
+      const allCommunities = await query
         .orderBy(desc(communities.rating))
         .limit(100);
 
@@ -5305,8 +5307,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         // Budget matching
-        if (answers.budget && community.priceRangeMin && community.priceRangeMax) {
-          const communityAvg = (community.priceRangeMin + community.priceRangeMax) / 2;
+        if (answers.budget && community.priceRange && community.priceRange.min && community.priceRange.max) {
+          const communityAvg = (community.priceRange.min + community.priceRange.max) / 2;
           const budgetDiff = Math.abs(communityAvg - answers.budget);
           
           if (budgetDiff <= 500) {
@@ -5349,8 +5351,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           phone: community.phone || '',
           website: community.website || '',
           priceRange: {
-            min: community.priceRangeMin || 2000,
-            max: community.priceRangeMax || 8000
+            min: community.priceRange?.min || 2000,
+            max: community.priceRange?.max || 8000
           },
           photos: community.photos || [],
           description: community.description || '',
@@ -5592,9 +5594,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const status = community.licenseStatus || 'Unknown';
         licensingStats.byLicenseStatus[status] = (licensingStats.byLicenseStatus[status] || 0) + 1;
 
-        // Data source stats
-        const source = community.dataSource || 'Unknown';
-        licensingStats.byDataSource[source] = (licensingStats.byDataSource[source] || 0) + 1;
+        // Data source stats - always 'Unknown' since dataSource field doesn't exist
+        licensingStats.byDataSource['Unknown'] = (licensingStats.byDataSource['Unknown'] || 0) + 1;
       });
 
       res.json(licensingStats);
@@ -5877,16 +5878,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { city, state } = req.query;
       
-      let query = db.select().from(communities);
+      const whereConditions = [];
       
       if (city && state) {
-        query = query.where(and(
+        whereConditions.push(
           eq(communities.city, city as string),
           eq(communities.state, state as string)
-        ));
+        );
       }
       
-      const allCommunities = await query;
+      const allCommunities = await db
+        .select()
+        .from(communities)
+        .where(whereConditions.length > 0 ? and(...whereConditions) : undefined);
       
       const stats = {
         total: allCommunities.length,
@@ -5894,9 +5898,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         withLicense: allCommunities.filter(c => c.licenseNumber).length,
         withPhone: allCommunities.filter(c => c.phone).length,
         withWebsite: allCommunities.filter(c => c.website).length,
-        averageConfidence: allCommunities.reduce((acc, c) => acc + (c.confidenceScore || 0), 0) / allCommunities.length,
-        verificationSources: this.getTopVerificationSources(allCommunities),
-        careTypeDistribution: this.getCareTypeDistribution(allCommunities)
+        averageConfidence: 0, // confidenceScore field not available
+        verificationSources: [], // Method not implemented
+        careTypeDistribution: {} // Method not implemented
       };
       
       res.json({
@@ -5925,7 +5929,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         limit = 20 
       } = req.query;
       
-      let query = db.select().from(communities);
       const conditions: any[] = [];
       
       // Location filtering
@@ -5933,10 +5936,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const [city, state] = (location as string).split(',').map(s => s.trim());
         if (city && state) {
           conditions.push(
-            and(
-              eq(communities.city, city),
-              eq(communities.state, state)
-            )
+            eq(communities.city, city),
+            eq(communities.state, state)
           );
         }
       }
@@ -5946,17 +5947,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         conditions.push(sql`${communities.careTypes} && ARRAY[${careType}]`);
       }
       
-      // Confidence filtering
+      // Confidence filtering - confidenceScore field not available
       const confidenceThreshold = parseInt(minConfidence as string) || 50;
-      conditions.push(gte(communities.confidenceScore || 0, confidenceThreshold));
+      // Removed confidenceScore filter as field doesn't exist
       
+      let query = db.select().from(communities);
       if (conditions.length > 0) {
         query = query.where(and(...conditions));
       }
       
-      query = query.limit(parseInt(limit as string) || 20);
-      
-      const results = await query;
+      const results = await query.limit(parseInt(limit as string) || 20);
       
       res.json({
         success: true,
@@ -5969,9 +5969,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         communities: results.map(community => ({
           ...community,
           verificationDetails: {
-            confidenceScore: community.confidenceScore,
-            verificationSources: community.verificationSources,
-            crossReferencedData: community.crossReferencedData,
             isVerified: community.isVerified,
             licenseStatus: community.licenseStatus
           }
@@ -6133,17 +6130,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           marketType: market.type,
           totalCommunities: communities.length,
           verifiedCount: communities.filter(c => c.isVerified).length,
-          averageConfidence: communities.reduce((acc, c) => acc + (c.confidenceScore || 0), 0) / communities.length,
-          lowConfidenceCount: communities.filter(c => (c.confidenceScore || 0) < 60).length,
+          averageConfidence: 0, // confidenceScore field not available
+          lowConfidenceCount: 0, // confidenceScore field not available
           withPhoneCount: communities.filter(c => c.phone).length,
           withLicenseCount: communities.filter(c => c.licenseNumber).length,
-          lowConfidenceFlag: communities.filter(c => (c.confidenceScore || 0) < 60).length / communities.length > 0.25,
+          lowConfidenceFlag: false, // confidenceScore field not available
           communities: communities.map(c => ({
             name: c.name,
-            confidenceScore: c.confidenceScore || 0,
-            sourcesMatched: c.verificationSources?.length || 0,
+            confidenceScore: 0, // field not available
+            sourcesMatched: 0, // verificationSources field not available
             phoneValid: c.phone ? 1 : 0,
-            lowConfidenceFlag: (c.confidenceScore || 0) < 60
+            lowConfidenceFlag: false // confidenceScore field not available
           }))
         };
         
@@ -7309,21 +7306,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Community not found' });
       }
 
-      // Refresh with Google Places if we have a places ID
-      if (community.googlePlaceId) {
-        const { googlePlacesIntegration } = await import('./google-places-integration');
-        const enrichmentResult = await googlePlacesIntegration.enrichCommunityWithGooglePlaces(community);
-        
-        if (enrichmentResult && enrichmentResult.success) {
-          // Update community with fresh data
-          await storage.updateCommunity(communityId, {
-            rating: enrichmentResult.rating,
-            photos: [...(community.photos || []), ...enrichmentResult.photos],
-            website: enrichmentResult.website || community.website,
-            phone: enrichmentResult.phone || community.phone,
-            updatedAt: new Date()
-          });
-        }
+      // Refresh with Google Places - always attempt enrichment
+      const { googlePlacesIntegration } = await import('./google-places-integration');
+      const enrichmentResult = await googlePlacesIntegration.enrichCommunityWithGooglePlaces(community);
+      
+      if (enrichmentResult && enrichmentResult.success) {
+        // Update community with fresh data
+        await storage.updateCommunity(communityId, {
+          rating: enrichmentResult.rating,
+          photos: [...(community.photos || []), ...enrichmentResult.photos],
+          website: enrichmentResult.website || community.website,
+          phone: enrichmentResult.phone || community.phone,
+          updatedAt: new Date()
+        });
       }
 
       const updatedCommunity = await storage.getCommunity(communityId);
@@ -7344,22 +7339,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Community not found' });
       }
 
-      // Run Google Places enrichment if not already done
-      if (!community.googlePlaceId) {
-        const { googlePlacesIntegration } = await import('./google-places-integration');
-        const enrichmentResult = await googlePlacesIntegration.enrichCommunityWithGooglePlaces(community);
-        
-        if (enrichmentResult && enrichmentResult.success) {
-          await storage.updateCommunity(communityId, {
-            googlePlaceId: enrichmentResult.placeId,
-            rating: enrichmentResult.rating,
-            photos: [...(community.photos || []), ...enrichmentResult.photos],
-            reviews: [...(community.reviews || []), ...enrichmentResult.reviews],
-            website: enrichmentResult.website || community.website,
-            phone: enrichmentResult.phone || community.phone,
-            updatedAt: new Date()
-          });
-        }
+      // Run Google Places enrichment
+      const { googlePlacesIntegration } = await import('./google-places-integration');
+      const enrichmentResult = await googlePlacesIntegration.enrichCommunityWithGooglePlaces(community);
+      
+      if (enrichmentResult && enrichmentResult.success) {
+        await storage.updateCommunity(communityId, {
+          rating: enrichmentResult.rating,
+          photos: [...(community.photos || []), ...enrichmentResult.photos],
+          reviews: [...(community.reviews || []), ...enrichmentResult.reviews],
+          website: enrichmentResult.website || community.website,
+          phone: enrichmentResult.phone || community.phone,
+          updatedAt: new Date()
+        });
       }
 
       const updatedCommunity = await storage.getCommunity(communityId);

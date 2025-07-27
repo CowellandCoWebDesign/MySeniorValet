@@ -1,6 +1,6 @@
 /**
  * Comprehensive ZIP Code to County/City Mapping System
- * Provides intelligent geographic search expansion for TrueView
+ * Provides intelligent geographic search expansion for MySeniorValet
  */
 
 export interface ZipCodeMapping {

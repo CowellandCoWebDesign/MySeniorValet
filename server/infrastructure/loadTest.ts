@@ -1,5 +1,5 @@
 /**
- * Load Testing Utility for TrueView Scalability Verification
+ * Load Testing Utility for MySeniorValet Scalability Verification
  * Tests system performance under 10,000+ concurrent user loads
  */
 
@@ -216,7 +216,7 @@ export class LoadTester {
     const latest = this.results[this.results.length - 1];
     
     return `
-=== TrueView Scalability Test Report ===
+=== MySeniorValet Scalability Test Report ===
 Total Requests: ${latest.totalRequests.toLocaleString()}
 Successful: ${latest.successfulRequests.toLocaleString()} (${((latest.successfulRequests / latest.totalRequests) * 100).toFixed(2)}%)
 Failed: ${latest.failedRequests.toLocaleString()} (${latest.errorRate.toFixed(2)}%)

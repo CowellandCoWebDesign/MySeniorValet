@@ -540,7 +540,7 @@ export class ComprehensiveScraper {
       const response = await axios.get(url, {
         timeout: 15000,
         headers: {
-          'User-Agent': 'TrueView-DataScraper/1.0 (Senior Living Transparency Platform)',
+          'User-Agent': 'MySeniorValet-DataScraper/1.0 (Senior Living Transparency Platform)',
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
         }
       });
@@ -745,7 +745,7 @@ export class ComprehensiveScraper {
       const response = await axios.get(this.baseUrls.colorado, {
         timeout: 10000,
         headers: {
-          'User-Agent': 'TrueView-DataScraper/1.0'
+          'User-Agent': 'MySeniorValet-DataScraper/1.0'
         }
       });
 

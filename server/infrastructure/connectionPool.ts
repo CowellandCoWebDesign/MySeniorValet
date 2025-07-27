@@ -38,7 +38,7 @@ export class ScalableConnectionPool {
       connectionTimeoutMillis: 5000, // Connection timeout
       query_timeout: 30000, // Query timeout
       allowExitOnIdle: false,
-      application_name: 'TrueView-Production'
+      application_name: 'MySeniorValet-Production'
     });
 
     this.stats = {
@@ -131,7 +131,7 @@ export class ScalableConnectionPool {
         connectionTimeoutMillis: 5000,
         query_timeout: 30000,
         allowExitOnIdle: false,
-        application_name: 'TrueView-Production-Recovered'
+        application_name: 'MySeniorValet-Production-Recovered'
       });
       
       this.setupEventListeners();
