@@ -122,6 +122,9 @@ export interface IStorage {
       [key: string]: Community[];
     };
   }>;
+  
+  // Super admin count
+  getSuperAdminCount(): Promise<number>;
 
   // Search suggestions
   getSearchSuggestions(query: string): Promise<string[]>;
@@ -608,15 +611,58 @@ export class DatabaseStorage implements IStorage {
   async createUser(insertUser: any): Promise<User> {
     // Use raw SQL to match current database structure
     const result = await db.execute(
-      sql`INSERT INTO users (username, password) VALUES (${insertUser.username}, ${insertUser.password}) RETURNING id, username, password`
+      sql`INSERT INTO users (username, password, role) VALUES (${insertUser.username}, ${insertUser.password}, ${insertUser.role || 'user'}) RETURNING id, username, password, role`
     );
     
     const userRow = result.rows[0];
     return {
       id: userRow.id as number,
       username: userRow.username as string,
-      password: userRow.password as string
+      password: userRow.password as string,
+      role: userRow.role as string
     } as User;
+  }
+
+  async updateUser(id: string, updates: Partial<InsertUser>): Promise<User | undefined> {
+    // Build dynamic SET clause for updates
+    const setFields: string[] = [];
+    const values: any[] = [];
+    
+    if (updates.username) {
+      setFields.push('username = $' + (values.length + 1));
+      values.push(updates.username);
+    }
+    if (updates.password) {
+      setFields.push('password = $' + (values.length + 1));
+      values.push(updates.password);
+    }
+    if (updates.role) {
+      setFields.push('role = $' + (values.length + 1));
+      values.push(updates.role);
+    }
+    
+    if (setFields.length === 0) {
+      // No updates provided
+      return this.getUser(id);
+    }
+    
+    // Add the id as the last parameter
+    values.push(id);
+    
+    const result = await db.execute(
+      sql`UPDATE users SET ${sql.raw(setFields.join(', '))} WHERE id = $${values.length} RETURNING id, username, password, role`
+    );
+    
+    const userRow = result.rows[0];
+    if (userRow) {
+      return {
+        id: userRow.id as number,
+        username: userRow.username as string,
+        password: userRow.password as string,
+        role: userRow.role as string
+      } as User;
+    }
+    return undefined;
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
@@ -1763,6 +1809,15 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(communities)
       .where(inArray(communities.id, ids));
+  }
+
+  async getSuperAdminCount(): Promise<number> {
+    const result = await db
+      .select({ count: sql`count(*)` })
+      .from(users)
+      .where(eq(users.role, 'super_admin'));
+    
+    return Number(result[0]?.count || 0);
   }
 }
 

@@ -11482,26 +11482,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Demo login endpoint
-  app.post('/api/auth/demo-login', async (req, res) => {
-    try {
-      const { email } = req.body;
-      const userEmail = email || 'demo@myseniorvalet.com';
-      
-      // Store user email in session
-      req.session.userEmail = userEmail;
-      
-      const user = await storage.getUserByEmail(userEmail);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      
-      res.json({ success: true, user });
-    } catch (error) {
-      console.error("Demo login error:", error);
-      res.status(500).json({ message: "Failed to login" });
-    }
-  });
+  // Demo login endpoint - DISABLED to use proper Replit Auth
+  // app.post('/api/auth/demo-login', async (req, res) => {
+  //   try {
+  //     const { email } = req.body;
+  //     const userEmail = email || 'demo@myseniorvalet.com';
+  //     
+  //     // Store user email in session
+  //     req.session.userEmail = userEmail;
+  //     
+  //     const user = await storage.getUserByEmail(userEmail);
+  //     if (!user) {
+  //       return res.status(404).json({ message: "User not found" });
+  //     }
+  //     
+  //     res.json({ success: true, user });
+  //   } catch (error) {
+  //     res.status(500).json({ message: "Login failed" });
+  //   }
+  // });
 
   // Get current user's role with permissions
   app.get('/api/auth/user/role', async (req: any, res) => {

@@ -67,7 +67,11 @@ async function upsertUser(
     let user = await storage.getUserByEmail(userEmail);
     
     if (!user) {
-      // Create new user - use Replit user ID as primary key with default 'user' role
+      // Check if this is the first user (no super_admin exists)
+      const superAdminCount = await storage.getSuperAdminCount();
+      const userRole = superAdminCount === 0 ? 'super_admin' : 'user';
+      
+      // Create new user - use Replit user ID as primary key
       user = await storage.createUser({
         id: replitUserId,
         username: userEmail,
@@ -76,8 +80,12 @@ async function upsertUser(
         lastName: claims["last_name"] || null,
         profileImageUrl: claims["profile_image_url"] || null,
         password: 'replit_auth',
-        role: 'user'
+        role: userRole
       });
+      
+      if (userRole === 'super_admin') {
+        console.log(`First user ${userEmail} created as super_admin`);
+      }
     } else {
       // Update existing user
       user = await storage.updateUser(user.id, {
