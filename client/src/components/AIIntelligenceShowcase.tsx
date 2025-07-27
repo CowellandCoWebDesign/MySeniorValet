@@ -174,7 +174,7 @@ export default function AIIntelligenceShowcase() {
             </h2>
           </div>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            World-changing transparency through <strong>4-AI collaboration</strong>: Claude + Gemini + ChatGPT + <span className="text-red-600">Grok (Coming Soon)</span>
+            Industry-leading transparency through <strong>4-AI verification</strong>: Claude + Gemini + ChatGPT + <span className="text-red-600">Grok (Coming Soon)</span>
           </p>
           
           {/* AI Service Badges */}
