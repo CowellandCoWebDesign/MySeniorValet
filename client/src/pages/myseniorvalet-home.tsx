@@ -9,6 +9,7 @@ import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { PricingBreakdown } from "@/components/pricing-breakdown";
 import { ThemeToggle } from "@/components/theme-toggle";
+import AIIntelligenceShowcase from "@/components/AIIntelligenceShowcase";
 
 
 
@@ -1118,6 +1119,9 @@ export default function MySeniorValetHome() {
           </div>
         </div>
       </section>
+
+      {/* Multi-AI Intelligence Showcase - PROMINENT DISPLAY OF COMPREHENSIVE AI CAPABILITIES */}
+      <AIIntelligenceShowcase />
 
       {/* Senior Services Directory Section */}
       <section className="px-4 py-16 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
