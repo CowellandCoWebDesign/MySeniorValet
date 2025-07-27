@@ -1104,7 +1104,10 @@ export default function MySeniorValetHome() {
         
         {/* Complete Care Level Guide */}
         <div className="space-y-4 mb-8">
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 text-center mb-6">Complete Care Level Guide</h3>
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 text-center mb-2">Complete Care Level Guide</h3>
+          <p className="text-center text-gray-600 dark:text-gray-300 text-sm mb-6 max-w-2xl mx-auto">
+            Market intelligence ranges shown below. Find your preferred communities to discover which ones have confirmed live pricing and current availability through community transparency.
+          </p>
           
           {/* Skilled Nursing */}
           <Card className="border-0 shadow-md dark:bg-gray-700 dark:border-gray-600">
@@ -1117,7 +1120,7 @@ export default function MySeniorValetHome() {
                     <Badge className="bg-orange-100 text-orange-800">$8,000-$15,000/month</Badge>
                   </div>
                   <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">24/7 medical care, rehabilitation, complex medical needs, licensed nursing staff</p>
-                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">Contact communities for current pricing and availability</div>
+                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">Market range shown above • Find your preferred community to see if they've confirmed live pricing</div>
                 </div>
                 <div className="w-16 h-16 bg-red-100 dark:bg-red-900/50 rounded-lg flex items-center justify-center">
                   <Heart className="w-8 h-8 text-red-600 dark:text-red-400" />
@@ -1137,7 +1140,7 @@ export default function MySeniorValetHome() {
                     <Badge className="bg-purple-100 text-purple-800">$6,500-$12,000/month</Badge>
                   </div>
                   <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">Specialized dementia/Alzheimer's care, secure environment, specialized programming</p>
-                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">4,345 properties available • Contact for current pricing</div>
+                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">4,345 properties available • Search communities to find verified live pricing</div>
                 </div>
                 <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center">
                   <span className="text-purple-600 dark:text-purple-400 font-bold text-2xl">🧠</span>
@@ -1157,7 +1160,7 @@ export default function MySeniorValetHome() {
                     <Badge className="bg-purple-100 text-purple-800">$4,000-$7,500/month</Badge>
                   </div>
                   <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">Personal care assistance, medication management, meals, social activities</p>
-                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">12,400 properties available • Contact for current pricing</div>
+                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">12,400 properties available • Find communities with confirmed live pricing & availability</div>
                 </div>
                 <div className="w-16 h-16 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center">
                   <span className="text-green-600 dark:text-green-400 font-bold text-2xl">🤝</span>
@@ -1177,7 +1180,7 @@ export default function MySeniorValetHome() {
                     <Badge className="bg-green-100 text-green-800">$2,500-$4,500/month</Badge>
                   </div>
                   <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">Active senior communities, social activities, dining, transportation</p>
-                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">8,200 properties available • Contact for current pricing</div>
+                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">8,200 properties available • Browse communities to discover verified pricing & availability</div>
                 </div>
                 <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900/50 rounded-lg flex items-center justify-center">
                   <span className="text-orange-600 dark:text-orange-400 font-bold text-2xl">🏃</span>
@@ -1197,7 +1200,7 @@ export default function MySeniorValetHome() {
                     <Badge className="bg-blue-100 text-blue-800">$303-$800/month</Badge>
                   </div>
                   <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">Subsidized housing with IHSS or SLS home care support, income-based rent</p>
-                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">6,078 properties available • Contact programs for current availability</div>
+                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">6,078 properties with verified HUD pricing • Many show exact monthly rates</div>
                 </div>
                 <div className="w-16 h-16 bg-green-200 dark:bg-green-700 rounded-lg flex items-center justify-center">
                   <span className="text-green-700 dark:text-green-300 font-bold text-2xl">🏡</span>
