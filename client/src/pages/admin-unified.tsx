@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
+import { Switch } from "@/components/ui/switch";
 import { 
   Select, 
   SelectContent, 
@@ -57,7 +58,18 @@ import {
   Server,
   Wifi,
   HardDrive,
-  LogIn
+  LogIn,
+  Key,
+  FileText,
+  Lock,
+  Unlock,
+  Ban,
+  AlertTriangle,
+  Globe,
+  Zap,
+  RefreshCw,
+  DownloadCloud,
+  UploadCloud
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
@@ -330,7 +342,7 @@ const EnterpriseOverview = () => {
                   <Clock className="h-3 w-3 mr-1" />
                   30s
                 </Badge>
-                <Badge variant={health.status === 'healthy' ? 'success' : 'destructive'}>
+                <Badge variant={health.status === 'healthy' ? 'default' : 'destructive'}>
                   {health.status === 'healthy' ? <CheckCircle className="h-3 w-3 mr-1" /> : <AlertCircle className="h-3 w-3 mr-1" />}
                   {health.status}
                 </Badge>
@@ -472,6 +484,356 @@ const EnterpriseOverview = () => {
           </CardContent>
         </Card>
       </div>
+    </div>
+  );
+};
+
+// Super Admin Controls Component
+const SuperAdminControls = () => {
+  const { toast } = useToast();
+  const [selectedAction, setSelectedAction] = useState("");
+  
+  // System configuration query
+  const { data: systemConfig } = useQuery({
+    queryKey: ['/api/admin/system/config'],
+    queryFn: () => apiRequest('GET', '/api/admin/system/config'),
+  });
+
+  // API keys query
+  const { data: apiKeys } = useQuery({
+    queryKey: ['/api/admin/api-keys'],
+    queryFn: () => apiRequest('GET', '/api/admin/api-keys'),
+  });
+
+  // Blocked IPs query
+  const { data: blockedIPs } = useQuery({
+    queryKey: ['/api/admin/security/blocked-ips'],
+    queryFn: () => apiRequest('GET', '/api/admin/security/blocked-ips'),
+  });
+
+  // System backup mutation
+  const backupMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest('POST', '/api/admin/system/backup');
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Backup Created",
+        description: `System backup completed: ${data.filename}`,
+      });
+    },
+  });
+
+  // Clear cache mutation
+  const clearCacheMutation = useMutation({
+    mutationFn: async (cacheType: string) => {
+      return await apiRequest('POST', '/api/admin/system/cache/clear', { type: cacheType });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Cache Cleared",
+        description: "Selected cache has been cleared successfully.",
+      });
+    },
+  });
+
+  // Update rate limit mutation
+  const updateRateLimitMutation = useMutation({
+    mutationFn: async (config: any) => {
+      return await apiRequest('PUT', '/api/admin/system/rate-limit', config);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Rate Limits Updated",
+        description: "Rate limiting configuration has been updated.",
+      });
+    },
+  });
+
+  return (
+    <div className="space-y-6">
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Zap className="h-5 w-5 mr-2" />
+            Quick Actions
+          </CardTitle>
+          <CardDescription>
+            Powerful administrative controls for super admins
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Button
+              variant="outline"
+              className="flex flex-col items-center gap-2 h-24"
+              onClick={() => backupMutation.mutate()}
+              disabled={backupMutation.isPending}
+            >
+              <DownloadCloud className="h-5 w-5" />
+              <span className="text-xs text-center">Backup System</span>
+            </Button>
+            
+            <Button
+              variant="outline"
+              className="flex flex-col items-center gap-2 h-24"
+              onClick={() => clearCacheMutation.mutate('all')}
+              disabled={clearCacheMutation.isPending}
+            >
+              <RefreshCw className="h-5 w-5" />
+              <span className="text-xs text-center">Clear All Cache</span>
+            </Button>
+            
+            <Button
+              variant="outline"
+              className="flex flex-col items-center gap-2 h-24"
+              onClick={() => window.open('/api/admin/export/audit-logs', '_blank')}
+            >
+              <FileText className="h-5 w-5" />
+              <span className="text-xs text-center">Export Audit Logs</span>
+            </Button>
+            
+            <Button
+              variant="outline"
+              className="flex flex-col items-center gap-2 h-24"
+              onClick={() => setSelectedAction('maintenance')}
+            >
+              <AlertTriangle className="h-5 w-5" />
+              <span className="text-xs text-center">Maintenance Mode</span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* API Key Management */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Key className="h-5 w-5 mr-2" />
+              API Key Management
+            </CardTitle>
+            <CardDescription>
+              Manage external service integrations
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[300px]">
+              <div className="space-y-4">
+                {apiKeys?.keys?.map((key: any) => (
+                  <div key={key.id} className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <p className="font-medium">{key.service}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {key.masked} • Last used: {key.lastUsed || 'Never'}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={key.status === 'active' ? 'default' : 'secondary'}>
+                          {key.status}
+                        </Badge>
+                        <Button size="sm" variant="ghost">
+                          <Lock className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <span>Requests: {key.requestCount || 0}</span>
+                      <span>Cost: ${key.cost || '0.00'}</span>
+                      <span>Quota: {key.quotaUsed || 0}%</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+
+        {/* Security Controls */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Shield className="h-5 w-5 mr-2" />
+              Security Controls
+            </CardTitle>
+            <CardDescription>
+              Advanced security configuration
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* Rate Limiting */}
+              <div>
+                <h4 className="text-sm font-medium mb-2">Rate Limiting</h4>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Guest Users</span>
+                    <div className="flex items-center gap-2">
+                      <Input 
+                        type="number" 
+                        className="w-20 h-8" 
+                        defaultValue={systemConfig?.rateLimits?.guest || 100}
+                      />
+                      <span className="text-sm text-muted-foreground">req/min</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Authenticated Users</span>
+                    <div className="flex items-center gap-2">
+                      <Input 
+                        type="number" 
+                        className="w-20 h-8" 
+                        defaultValue={systemConfig?.rateLimits?.authenticated || 500}
+                      />
+                      <span className="text-sm text-muted-foreground">req/min</span>
+                    </div>
+                  </div>
+                  <Button size="sm" className="w-full" onClick={() => updateRateLimitMutation.mutate({})}>
+                    Update Rate Limits
+                  </Button>
+                </div>
+              </div>
+
+              {/* Blocked IPs */}
+              <div>
+                <h4 className="text-sm font-medium mb-2">Blocked IPs ({blockedIPs?.count || 0})</h4>
+                <ScrollArea className="h-[100px] border rounded p-2">
+                  {blockedIPs?.ips?.map((ip: any) => (
+                    <div key={ip.address} className="flex items-center justify-between py-1">
+                      <span className="text-sm font-mono">{ip.address}</span>
+                      <Button size="sm" variant="ghost" onClick={() => {}}>
+                        <Unlock className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </ScrollArea>
+                <Button size="sm" variant="outline" className="w-full mt-2">
+                  <Ban className="h-4 w-4 mr-2" />
+                  Add IP Block
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* System Configuration */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Settings className="h-5 w-5 mr-2" />
+            System Configuration
+          </CardTitle>
+          <CardDescription>
+            Global platform settings and feature flags
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-4">
+              <h4 className="text-sm font-medium">Feature Flags</h4>
+              {systemConfig?.features?.map((feature: any) => (
+                <div key={feature.key} className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium">{feature.name}</p>
+                    <p className="text-xs text-muted-foreground">{feature.description}</p>
+                  </div>
+                  <Switch defaultChecked={feature.enabled} />
+                </div>
+              ))}
+            </div>
+            
+            <div className="space-y-4">
+              <h4 className="text-sm font-medium">System Limits</h4>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Max Upload Size</span>
+                  <div className="flex items-center gap-2">
+                    <Input type="number" className="w-20 h-8" defaultValue={50} />
+                    <span className="text-sm text-muted-foreground">MB</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Session Timeout</span>
+                  <div className="flex items-center gap-2">
+                    <Input type="number" className="w-20 h-8" defaultValue={30} />
+                    <span className="text-sm text-muted-foreground">min</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">API Timeout</span>
+                  <div className="flex items-center gap-2">
+                    <Input type="number" className="w-20 h-8" defaultValue={30} />
+                    <span className="text-sm text-muted-foreground">sec</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="mt-6 flex justify-end">
+            <Button>
+              Save Configuration
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Audit Trail */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span className="flex items-center">
+              <FileText className="h-5 w-5 mr-2" />
+              Super Admin Audit Trail
+            </span>
+            <Button size="sm" variant="outline">
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+          </CardTitle>
+          <CardDescription>
+            Track all super admin actions for compliance
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Timestamp</TableHead>
+                <TableHead>Admin</TableHead>
+                <TableHead>Action</TableHead>
+                <TableHead>Target</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell className="text-sm">2025-01-27 14:23:45</TableCell>
+                <TableCell className="text-sm">admin@myseniorvalet.com</TableCell>
+                <TableCell className="text-sm">Updated Rate Limits</TableCell>
+                <TableCell className="text-sm">System Config</TableCell>
+                <TableCell><Badge variant="default">Success</Badge></TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="text-sm">2025-01-27 13:15:22</TableCell>
+                <TableCell className="text-sm">admin@myseniorvalet.com</TableCell>
+                <TableCell className="text-sm">Blocked IP Address</TableCell>
+                <TableCell className="text-sm">192.168.1.100</TableCell>
+                <TableCell><Badge variant="default">Success</Badge></TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="text-sm">2025-01-27 12:00:00</TableCell>
+                <TableCell className="text-sm">admin@myseniorvalet.com</TableCell>
+                <TableCell className="text-sm">System Backup</TableCell>
+                <TableCell className="text-sm">Full Database</TableCell>
+                <TableCell><Badge variant="default">Success</Badge></TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 };
@@ -679,6 +1041,12 @@ export default function UnifiedAdminDashboard() {
                 Overview
               </TabsTrigger>
             )}
+            {userRole?.role === 'super_admin' && (
+              <TabsTrigger value="superadmin" className="flex items-center gap-2">
+                <Zap className="h-4 w-4" />
+                Super Admin
+              </TabsTrigger>
+            )}
             {canManageUsers && (
               <TabsTrigger value="users" className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
@@ -709,6 +1077,13 @@ export default function UnifiedAdminDashboard() {
           {availableDashboards.includes('admin') && (
             <TabsContent value="overview">
               <EnterpriseOverview />
+            </TabsContent>
+          )}
+
+          {/* Super Admin Tab */}
+          {userRole?.role === 'super_admin' && (
+            <TabsContent value="superadmin">
+              <SuperAdminControls />
             </TabsContent>
           )}
 

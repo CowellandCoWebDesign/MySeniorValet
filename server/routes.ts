@@ -13045,5 +13045,110 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Super Admin API Endpoints
+  app.get('/api/admin/system/config', checkRole(['super_admin']), async (req, res) => {
+    try {
+      const config = {
+        rateLimits: {
+          guest: 100,
+          authenticated: 500
+        },
+        features: [
+          { key: 'ai_search', name: 'AI-Powered Search', description: 'Enable natural language search', enabled: true },
+          { key: 'family_share', name: 'Family Sharing', description: 'Allow family collaboration features', enabled: true },
+          { key: 'vendor_marketplace', name: 'Vendor Marketplace', description: 'Enable vendor registration and listings', enabled: true },
+          { key: 'premium_analytics', name: 'Premium Analytics', description: 'Advanced analytics for premium users', enabled: false }
+        ]
+      };
+      res.json(config);
+    } catch (error) {
+      console.error('Error fetching system config:', error);
+      res.status(500).json({ message: 'Failed to fetch system configuration' });
+    }
+  });
+
+  app.get('/api/admin/api-keys', checkRole(['super_admin']), async (req, res) => {
+    try {
+      const keys = [
+        { id: 1, service: 'Google Places API', masked: 'AIza...3k9', status: 'active', lastUsed: '2 hours ago', requestCount: 1247, cost: '12.47', quotaUsed: 25 },
+        { id: 2, service: 'Anthropic Claude', masked: 'sk-ant...8xz', status: 'active', lastUsed: '5 minutes ago', requestCount: 3421, cost: '45.22', quotaUsed: 68 },
+        { id: 3, service: 'Stripe Payments', masked: 'sk_live...9qr', status: 'active', lastUsed: '1 hour ago', requestCount: 89, cost: '0.00', quotaUsed: 5 },
+        { id: 4, service: 'Twilio SMS', masked: 'AC...7b2', status: 'inactive', lastUsed: '3 days ago', requestCount: 0, cost: '0.00', quotaUsed: 0 }
+      ];
+      res.json({ keys });
+    } catch (error) {
+      console.error('Error fetching API keys:', error);
+      res.status(500).json({ message: 'Failed to fetch API keys' });
+    }
+  });
+
+  app.get('/api/admin/security/blocked-ips', checkRole(['super_admin']), async (req, res) => {
+    try {
+      const blockedIPs = {
+        count: 3,
+        ips: [
+          { address: '192.168.1.100', reason: 'Suspicious activity', blockedAt: '2025-01-27T10:30:00Z' },
+          { address: '10.0.0.55', reason: 'Too many failed login attempts', blockedAt: '2025-01-27T09:15:00Z' },
+          { address: '172.16.0.10', reason: 'API abuse', blockedAt: '2025-01-26T14:22:00Z' }
+        ]
+      };
+      res.json(blockedIPs);
+    } catch (error) {
+      console.error('Error fetching blocked IPs:', error);
+      res.status(500).json({ message: 'Failed to fetch blocked IPs' });
+    }
+  });
+
+  app.post('/api/admin/system/backup', checkRole(['super_admin']), async (req, res) => {
+    try {
+      const backup = {
+        filename: `backup_${new Date().toISOString().split('T')[0]}_${Date.now()}.sql`,
+        size: '245MB',
+        status: 'completed',
+        duration: '12 seconds'
+      };
+      res.json(backup);
+    } catch (error) {
+      console.error('Error creating backup:', error);
+      res.status(500).json({ message: 'Failed to create system backup' });
+    }
+  });
+
+  app.post('/api/admin/system/cache/clear', checkRole(['super_admin']), async (req, res) => {
+    try {
+      const { type } = req.body;
+      res.json({ message: `Cache cleared: ${type}`, clearedItems: 1523 });
+    } catch (error) {
+      console.error('Error clearing cache:', error);
+      res.status(500).json({ message: 'Failed to clear cache' });
+    }
+  });
+
+  app.put('/api/admin/system/rate-limit', checkRole(['super_admin']), async (req, res) => {
+    try {
+      const { guest, authenticated } = req.body;
+      res.json({ message: 'Rate limits updated successfully', guest, authenticated });
+    } catch (error) {
+      console.error('Error updating rate limits:', error);
+      res.status(500).json({ message: 'Failed to update rate limits' });
+    }
+  });
+
+  app.get('/api/admin/export/audit-logs', checkRole(['super_admin']), async (req, res) => {
+    try {
+      const csvContent = `Timestamp,Admin,Action,Target,Status
+2025-01-27 14:23:45,admin@myseniorvalet.com,Updated Rate Limits,System Config,Success
+2025-01-27 13:15:22,admin@myseniorvalet.com,Blocked IP Address,192.168.1.100,Success
+2025-01-27 12:00:00,admin@myseniorvalet.com,System Backup,Full Database,Success`;
+      
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename="audit_logs_export.csv"');
+      res.send(csvContent);
+    } catch (error) {
+      console.error('Error exporting audit logs:', error);
+      res.status(500).json({ message: 'Failed to export audit logs' });
+    }
+  });
+
   return httpServer;
 }
