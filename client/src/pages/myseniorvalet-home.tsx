@@ -369,30 +369,34 @@ export default function MySeniorValetHome() {
                         <MapPin className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <h3 className="text-2xl font-bold">AI-Powered Map Intelligence</h3>
-                        <p className="text-blue-100">Live Pricing & Real-Time Availability</p>
+                        <h3 className="text-2xl font-bold">Complete Senior Living Intelligence</h3>
+                        <p className="text-blue-100">All 7 Levels of Care • Live Pricing • Real Availability</p>
                       </div>
                     </div>
                     <p className="text-white/90 text-lg leading-relaxed mb-6">
-                      Our advanced AI analyzes {(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '26,306+'} communities in real-time, providing instant pricing updates, availability status, and intelligent matching based on your specific care needs and preferences.
+                      Our AI analyzes {(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '26,306+'} senior living communities across ALL care levels: Skilled Nursing, Memory Care, Assisted Living, Independent Living with Supportive Services, Independent Living, Affordable Senior Housing, and HUD/VASH options. Real-time pricing, availability, and intelligent matching for every senior's unique needs.
                     </p>
-                    <div className="flex flex-wrap gap-3 mb-6">
+                    <div className="grid grid-cols-2 gap-3 mb-6">
                       <div className="flex items-center bg-white/20 backdrop-blur-sm px-3 py-2 rounded-lg">
                         <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
-                        <span className="text-sm font-medium">Live Pricing Updates</span>
+                        <span className="text-sm font-medium">Skilled Nursing & Memory Care</span>
                       </div>
                       <div className="flex items-center bg-white/20 backdrop-blur-sm px-3 py-2 rounded-lg">
-                        <div className="w-2 h-2 bg-blue-400 rounded-full mr-2 animate-pulse"></div>
-                        <span className="text-sm font-medium">Real-Time Availability</span>
+                        <div className="w-2 h-2 bg-blue-400 rounded-full mr-2 animate-pulse animation-delay-200"></div>
+                        <span className="text-sm font-medium">Assisted & Independent Living</span>
                       </div>
                       <div className="flex items-center bg-white/20 backdrop-blur-sm px-3 py-2 rounded-lg">
-                        <div className="w-2 h-2 bg-purple-400 rounded-full mr-2 animate-pulse"></div>
-                        <span className="text-sm font-medium">AI Smart Matching</span>
+                        <div className="w-2 h-2 bg-purple-400 rounded-full mr-2 animate-pulse animation-delay-400"></div>
+                        <span className="text-sm font-medium">Affordable & HUD Housing</span>
+                      </div>
+                      <div className="flex items-center bg-white/20 backdrop-blur-sm px-3 py-2 rounded-lg">
+                        <div className="w-2 h-2 bg-yellow-400 rounded-full mr-2 animate-pulse animation-delay-600"></div>
+                        <span className="text-sm font-medium">Live Pricing Intelligence</span>
                       </div>
                     </div>
                     <Link href="/search">
                       <Button className="bg-white text-blue-600 hover:bg-blue-50 px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
-                        Explore Map Intelligence →
+                        Search All Senior Living Levels →
                       </Button>
                     </Link>
                   </div>
