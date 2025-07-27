@@ -810,134 +810,7 @@ export default function MySeniorValetHome() {
                   </div>
                 </div>
 
-                {/* Interactive Demo Section */}
-                <div className="mb-8 bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-                  <h4 className="text-xl font-bold text-white mb-4 text-center">🚀 Try It Right Now - Experience the AI</h4>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-                    {/* Interactive Search Bar */}
-                    <div className="space-y-4">
-                      <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <Search className="h-5 w-5 text-gray-400" />
-                        </div>
-                        <input
-                          type="text"
-                          className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg leading-5 bg-white/95 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
-                          placeholder="Try: 'Memory care under $4,000 near Sacramento with therapy'"
-                          onChange={(e) => {
-                            // Real-time AI search demonstration
-                            if (e.target.value.length > 10) {
-                              // Show typing indicator
-                              const indicator = document.getElementById('ai-indicator');
-                              if (indicator) {
-                                indicator.textContent = 'AI analyzing your request...';
-                                indicator.className = 'text-xs text-yellow-300 animate-pulse';
-                              }
-                            }
-                          }}
-                        />
-                      </div>
-                      <div id="ai-indicator" className="text-xs text-white/60">Start typing to see AI in action</div>
-                      
-                      {/* Quick Demo Buttons */}
-                      <div className="flex flex-wrap gap-2">
-                        <button 
-                          className="px-3 py-1 bg-blue-500/20 text-blue-200 rounded-full text-xs hover:bg-blue-500/30 transition-colors"
-                          onClick={() => {
-                            const input = document.querySelector('input[placeholder*="Memory care"]') as HTMLInputElement;
-                            if (input) {
-                              input.value = 'Assisted living under $3000 in Sacramento';
-                              input.focus();
-                            }
-                          }}
-                        >
-                          Assisted Living
-                        </button>
-                        <button 
-                          className="px-3 py-1 bg-green-500/20 text-green-200 rounded-full text-xs hover:bg-green-500/30 transition-colors"
-                          onClick={() => {
-                            const input = document.querySelector('input[placeholder*="Memory care"]') as HTMLInputElement;
-                            if (input) {
-                              input.value = 'Pet-friendly memory care with therapy programs';
-                              input.focus();
-                            }
-                          }}
-                        >
-                          Pet-Friendly
-                        </button>
-                        <button 
-                          className="px-3 py-1 bg-purple-500/20 text-purple-200 rounded-full text-xs hover:bg-purple-500/30 transition-colors"
-                          onClick={() => {
-                            const input = document.querySelector('input[placeholder*="Memory care"]') as HTMLInputElement;
-                            if (input) {
-                              input.value = 'HUD affordable housing near me';
-                              input.focus();
-                            }
-                          }}
-                        >
-                          HUD Housing
-                        </button>
-                      </div>
-                      
-                      <Link href="/search">
-                        <Button className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 rounded-lg font-semibold transition-all duration-200">
-                          Search with AI →
-                        </Button>
-                      </Link>
-                    </div>
 
-                    {/* Miniature Interactive Map */}
-                    <div className="relative">
-                      <div className="w-full h-64 bg-gradient-to-br from-green-400/20 to-blue-500/20 rounded-lg border border-white/30 overflow-hidden relative">
-                        {/* Mock Map Interface */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-green-100/10 to-blue-100/10">
-                          {/* Map Pins */}
-                          <div className="absolute top-8 left-12 w-3 h-3 bg-green-400 rounded-full animate-pulse cursor-pointer" title="Verified Pricing"></div>
-                          <div className="absolute top-16 right-16 w-3 h-3 bg-red-400 rounded-full animate-pulse cursor-pointer" title="Call for Pricing"></div>
-                          <div className="absolute bottom-20 left-20 w-3 h-3 bg-green-400 rounded-full animate-pulse cursor-pointer" title="HUD Property"></div>
-                          <div className="absolute top-20 left-1/2 w-3 h-3 bg-green-400 rounded-full animate-pulse cursor-pointer" title="Live Pricing"></div>
-                          <div className="absolute bottom-16 right-12 w-3 h-3 bg-red-400 rounded-full animate-pulse cursor-pointer" title="Contact Required"></div>
-                          
-                          {/* Search Result Popup */}
-                          <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg max-w-48">
-                            <div className="text-xs font-semibold text-gray-800 mb-1">AI Search Results</div>
-                            <div className="text-xs text-gray-600 mb-2">Found 23 matches</div>
-                            <div className="space-y-1">
-                              <div className="flex items-center justify-between text-xs">
-                                <span className="text-gray-700">Memory Care</span>
-                                <span className="text-green-600 font-semibold">$3,850</span>
-                              </div>
-                              <div className="flex items-center justify-between text-xs">
-                                <span className="text-gray-700">Assisted Living</span>
-                                <span className="text-green-600 font-semibold">$2,400</span>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Map Controls */}
-                          <div className="absolute bottom-4 right-4 bg-white/90 rounded p-2">
-                            <div className="flex space-x-2">
-                              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                              <span className="text-xs text-gray-600">Live Pricing</span>
-                            </div>
-                            <div className="flex space-x-2 mt-1">
-                              <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                              <span className="text-xs text-gray-600">Contact for Pricing</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="text-center mt-3">
-                        <Link href="/search">
-                          <Button variant="outline" className="text-white border-white/30 hover:bg-white/10 text-sm">
-                            View Full Interactive Map
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
                   <div className="text-white">
@@ -1023,6 +896,130 @@ export default function MySeniorValetHome() {
 
                 <div className="text-center mt-8">
                   <p className="text-white text-lg mb-4">Ready to get started?</p>
+                  
+                  {/* Interactive Demo Section */}
+                  <div className="mb-6 bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                    <h4 className="text-lg font-bold text-white mb-4 text-center">🚀 Try It Right Now - Experience the AI</h4>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                      {/* Interactive Search Bar */}
+                      <div className="space-y-4">
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Search className="h-5 w-5 text-gray-400" />
+                          </div>
+                          <input
+                            type="text"
+                            className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg leading-5 bg-white/95 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                            placeholder="Try: 'Memory care under $4,000 near Sacramento with therapy'"
+                            onChange={(e) => {
+                              // Real-time AI search demonstration
+                              if (e.target.value.length > 10) {
+                                // Show typing indicator
+                                const indicator = document.getElementById('ai-indicator');
+                                if (indicator) {
+                                  indicator.textContent = 'AI analyzing your request...';
+                                  indicator.className = 'text-xs text-yellow-300 animate-pulse';
+                                }
+                              }
+                            }}
+                          />
+                        </div>
+                        <div id="ai-indicator" className="text-xs text-white/60">Start typing to see AI in action</div>
+                        
+                        {/* Quick Demo Buttons */}
+                        <div className="flex flex-wrap gap-2">
+                          <button 
+                            className="px-3 py-1 bg-blue-500/20 text-blue-200 rounded-full text-xs hover:bg-blue-500/30 transition-colors"
+                            onClick={() => {
+                              const input = document.querySelector('input[placeholder*="Memory care"]') as HTMLInputElement;
+                              if (input) {
+                                input.value = 'Assisted living under $3000 in Sacramento';
+                                input.focus();
+                              }
+                            }}
+                          >
+                            Assisted Living
+                          </button>
+                          <button 
+                            className="px-3 py-1 bg-green-500/20 text-green-200 rounded-full text-xs hover:bg-green-500/30 transition-colors"
+                            onClick={() => {
+                              const input = document.querySelector('input[placeholder*="Memory care"]') as HTMLInputElement;
+                              if (input) {
+                                input.value = 'Pet-friendly memory care with therapy programs';
+                                input.focus();
+                              }
+                            }}
+                          >
+                            Pet-Friendly
+                          </button>
+                          <button 
+                            className="px-3 py-1 bg-purple-500/20 text-purple-200 rounded-full text-xs hover:bg-purple-500/30 transition-colors"
+                            onClick={() => {
+                              const input = document.querySelector('input[placeholder*="Memory care"]') as HTMLInputElement;
+                              if (input) {
+                                input.value = 'HUD affordable housing near me';
+                                input.focus();
+                              }
+                            }}
+                          >
+                            HUD Housing
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Miniature Interactive Map */}
+                      <div className="relative">
+                        <div className="w-full h-64 bg-gradient-to-br from-green-400/20 to-blue-500/20 rounded-lg border border-white/30 overflow-hidden relative">
+                          {/* Mock Map Interface */}
+                          <div className="absolute inset-0 bg-gradient-to-br from-green-100/10 to-blue-100/10">
+                            {/* Map Pins */}
+                            <div className="absolute top-8 left-12 w-3 h-3 bg-green-400 rounded-full animate-pulse cursor-pointer" title="Verified Pricing"></div>
+                            <div className="absolute top-16 right-16 w-3 h-3 bg-red-400 rounded-full animate-pulse cursor-pointer" title="Call for Pricing"></div>
+                            <div className="absolute bottom-20 left-20 w-3 h-3 bg-green-400 rounded-full animate-pulse cursor-pointer" title="HUD Property"></div>
+                            <div className="absolute top-20 left-1/2 w-3 h-3 bg-green-400 rounded-full animate-pulse cursor-pointer" title="Live Pricing"></div>
+                            <div className="absolute bottom-16 right-12 w-3 h-3 bg-red-400 rounded-full animate-pulse cursor-pointer" title="Contact Required"></div>
+                            
+                            {/* Search Result Popup */}
+                            <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg max-w-48">
+                              <div className="text-xs font-semibold text-gray-800 mb-1">AI Search Results</div>
+                              <div className="text-xs text-gray-600 mb-2">Found 23 matches</div>
+                              <div className="space-y-1">
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="text-gray-700">Memory Care</span>
+                                  <span className="text-green-600 font-semibold">$3,850</span>
+                                </div>
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="text-gray-700">Assisted Living</span>
+                                  <span className="text-green-600 font-semibold">$2,400</span>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Map Controls */}
+                            <div className="absolute bottom-4 right-4 bg-white/90 rounded p-2">
+                              <div className="flex space-x-2">
+                                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                                <span className="text-xs text-gray-600">Live Pricing</span>
+                              </div>
+                              <div className="flex space-x-2 mt-1">
+                                <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                                <span className="text-xs text-gray-600">Contact for Pricing</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="text-center mt-3">
+                          <Link href="/search">
+                            <Button variant="outline" className="text-white border-white/30 hover:bg-white/10 text-sm">
+                              View Full Interactive Map
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   <Link href="/search">
                     <Button className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-gray-900 px-8 py-4 rounded-xl font-bold text-lg shadow-2xl hover:shadow-3xl transition-all duration-200 transform hover:scale-105">
                       🚀 Try AI-Powered Search Now
