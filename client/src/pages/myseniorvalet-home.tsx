@@ -1373,10 +1373,10 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Care Level Guide */}
+      {/* Care Level Guide with Live Market Intelligence */}
       <section className="px-4 py-8 bg-gradient-to-br from-green-50 to-blue-50 dark:from-gray-800 dark:to-gray-900">
         {/* Healthcare Hero Image */}
-        <div className="mb-6 relative">
+        <div className="mb-8 relative">
           <div className="aspect-[16/9] bg-gradient-to-r from-blue-50 to-green-50 rounded-lg overflow-hidden">
             <img 
               src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80"
@@ -1385,181 +1385,193 @@ export default function MySeniorValetHome() {
             />
             <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
               <div className="text-center text-white px-4">
-                <h2 className="text-2xl font-bold mb-2">Understanding Care Levels & Pricing</h2>
-                <p className="text-sm opacity-90">General pricing guidance - actual costs vary significantly by location and services</p>
+                <h2 className="text-3xl font-bold mb-2">Understanding Care Levels & Live Market Intelligence</h2>
+                <p className="text-lg opacity-90">Real pricing data from 26,306+ communities with transparent market analysis</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Live Market Intelligence Dashboard */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-600 mb-8">
+          <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-6 text-center">Live Market Pricing Intelligence</h3>
+          
+          {/* Pricing Tiers */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="text-center bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-6 rounded-lg">
+              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">$303-$800</div>
+              <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">HUD Affordable Housing</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">Government subsidized housing for seniors</p>
+              <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">6,078 properties</Badge>
+            </div>
+            
+            <div className="text-center bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-6 rounded-lg">
+              <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">$2,500-$4,500</div>
+              <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Independent Living</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">Active lifestyle communities</p>
+              <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">8,200 properties</Badge>
+            </div>
+            
+            <div className="text-center bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-6 rounded-lg">
+              <div className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">$4,000-$7,500</div>
+              <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Assisted Living</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">Personal care and support</p>
+              <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300">12,400 properties</Badge>
+            </div>
+            
+            <div className="text-center bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 p-6 rounded-lg">
+              <div className="text-3xl font-bold text-amber-600 dark:text-amber-400 mb-2">$6,500-$12,000</div>
+              <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Memory Care</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">Specialized dementia care</p>
+              <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300">4,345 properties</Badge>
+            </div>
+          </div>
+
+          {/* Real Property Examples */}
+          <div className="border-t border-gray-200 dark:border-gray-600 pt-6">
+            <h4 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6 text-center">Featured Real Properties with Live Pricing</h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-6 rounded-lg text-center">
+                <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">$303/month</div>
+                <p className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-1">Florin Gardens Cooperative</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">HUD Property • Sacramento, CA</p>
+                <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">Available Units</Badge>
+              </div>
+              
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-6 rounded-lg text-center">
+                <div className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">$5,200/month</div>
+                <p className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-1">Bay Area Assisted Living</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">Licensed Facility • San Francisco, CA</p>
+                <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300">Waitlist Available</Badge>
+              </div>
+              
+              <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-6 rounded-lg text-center">
+                <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">$9,200/month</div>
+                <p className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-1">Premium Memory Care</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">Specialized Care • Palo Alto, CA</p>
+                <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">Immediate Availability</Badge>
               </div>
             </div>
           </div>
         </div>
         
-        <div className="space-y-4">
+        {/* Detailed Care Level Information */}
+        <div className="space-y-4 mb-8">
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 text-center mb-6">Complete Care Level Guide</h3>
+          
           {/* Skilled Nursing */}
-          <Card className="border-0 shadow-sm dark:bg-gray-700 dark:border-gray-600">
-            <CardContent className="p-4">
+          <Card className="border-0 shadow-md dark:bg-gray-700 dark:border-gray-600">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Skilled Nursing</h3>
-                    <Badge className="bg-red-100 text-red-800 text-xs">Most Expensive</Badge>
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">Skilled Nursing</h3>
+                    <Badge className="bg-red-100 text-red-800">Highest Care Level</Badge>
+                    <Badge className="bg-orange-100 text-orange-800">$8,000-$15,000/month</Badge>
                   </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">24/7 medical care, rehabilitation, complex medical needs</p>
-                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">Contact communities for current pricing</div>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">24/7 medical care, rehabilitation, complex medical needs, licensed nursing staff</p>
+                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">Contact communities for current pricing and availability</div>
                 </div>
-                <div className="w-12 h-12 bg-red-100 dark:bg-red-900/50 rounded-lg flex items-center justify-center">
-                  <Heart className="w-6 h-6 text-red-600 dark:text-red-400" />
+                <div className="w-16 h-16 bg-red-100 dark:bg-red-900/50 rounded-lg flex items-center justify-center">
+                  <Heart className="w-8 h-8 text-red-600 dark:text-red-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Memory Care */}
-          <Card className="border-0 shadow-sm dark:bg-gray-700 dark:border-gray-600">
-            <CardContent className="p-4">
+          <Card className="border-0 shadow-md dark:bg-gray-700 dark:border-gray-600">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Memory Care</h3>
-                    <Badge className="bg-purple-100 text-purple-800 text-xs">Specialized Care</Badge>
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">Memory Care</h3>
+                    <Badge className="bg-amber-100 text-amber-800">Specialized Care</Badge>
+                    <Badge className="bg-purple-100 text-purple-800">$6,500-$12,000/month</Badge>
                   </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">Specialized dementia/Alzheimer's care, secure environment</p>
-                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">Contact communities for current pricing</div>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">Specialized dementia/Alzheimer's care, secure environment, specialized programming</p>
+                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">4,345 properties available • Contact for current pricing</div>
                 </div>
-                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center">
-                  <span className="text-purple-600 dark:text-purple-400 font-bold text-lg">🧠</span>
+                <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center">
+                  <span className="text-purple-600 dark:text-purple-400 font-bold text-2xl">🧠</span>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Assisted Living */}
-          <Card className="border-0 shadow-sm dark:bg-gray-700 dark:border-gray-600">
-            <CardContent className="p-4">
+          <Card className="border-0 shadow-md dark:bg-gray-700 dark:border-gray-600">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Assisted Living</h3>
-                    <Badge className="bg-green-100 text-green-800 text-xs">Most Common</Badge>
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">Assisted Living</h3>
+                    <Badge className="bg-green-100 text-green-800">Most Common</Badge>
+                    <Badge className="bg-purple-100 text-purple-800">$4,000-$7,500/month</Badge>
                   </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">Personal care assistance, medication management, meals</p>
-                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">Contact communities for current pricing</div>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">Personal care assistance, medication management, meals, social activities</p>
+                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">12,400 properties available • Contact for current pricing</div>
                 </div>
-                <div className="w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center">
-                  <span className="text-green-600 dark:text-green-400 font-bold text-lg">🤝</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Independent Living with Services */}
-          <Card className="border-0 shadow-sm dark:bg-gray-700 dark:border-gray-600">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Independent Living with Services</h3>
-                    <Badge className="bg-blue-100 text-blue-800 text-xs">Mid-Range</Badge>
-                  </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">Independent apartments plus care services, housekeeping</p>
-                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">Contact communities for current pricing</div>
-                </div>
-                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
-                  <Home className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                <div className="w-16 h-16 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center">
+                  <span className="text-green-600 dark:text-green-400 font-bold text-2xl">🤝</span>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Independent Living */}
-          <Card className="border-0 shadow-sm dark:bg-gray-700 dark:border-gray-600">
-            <CardContent className="p-4">
+          <Card className="border-0 shadow-md dark:bg-gray-700 dark:border-gray-600">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Independent Living</h3>
-                    <Badge className="bg-orange-100 text-orange-800 text-xs">Entry Level</Badge>
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">Independent Living</h3>
+                    <Badge className="bg-orange-100 text-orange-800">Active Lifestyle</Badge>
+                    <Badge className="bg-green-100 text-green-800">$2,500-$4,500/month</Badge>
                   </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">Active senior communities, social activities, dining</p>
-                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">Contact communities for current pricing</div>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">Active senior communities, social activities, dining, transportation</p>
+                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">8,200 properties available • Contact for current pricing</div>
                 </div>
-                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/50 rounded-lg flex items-center justify-center">
-                  <span className="text-orange-600 dark:text-orange-400 font-bold text-lg">🏃</span>
+                <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900/50 rounded-lg flex items-center justify-center">
+                  <span className="text-orange-600 dark:text-orange-400 font-bold text-2xl">🏃</span>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Senior Apartments */}
-          <Card className="border-0 shadow-sm dark:bg-gray-700 dark:border-gray-600">
-            <CardContent className="p-4">
+          {/* HUD/VASH Affordable Housing */}
+          <Card className="border-0 shadow-md bg-green-50 dark:bg-green-900/50">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Senior Apartments</h3>
-                    <Badge className="bg-gray-100 text-gray-800 text-xs">Age-Restricted</Badge>
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">HUD/VASH Affordable Housing</h3>
+                    <Badge className="bg-green-100 text-green-800">Government Subsidized</Badge>
+                    <Badge className="bg-blue-100 text-blue-800">$303-$800/month</Badge>
                   </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">Age-restricted housing, minimal services, independent living</p>
-                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">Contact communities for current pricing</div>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">Subsidized housing with IHSS or SLS home care support, income-based rent</p>
+                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">6,078 properties available • Contact programs for current availability</div>
                 </div>
-                <div className="w-12 h-12 bg-gray-100 dark:bg-gray-600 rounded-lg flex items-center justify-center">
-                  <span className="text-gray-600 dark:text-gray-300 font-bold text-lg">🏠</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Senior Mobile Home Parks & RV Communities */}
-          <Card className="border-0 shadow-sm dark:bg-gray-700 dark:border-gray-600">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Senior Mobile Home Parks & RV Communities</h3>
-                    <Badge className="bg-teal-100 text-teal-800 text-xs">Most Affordable</Badge>
-                  </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">55+ manufactured housing communities, RV parks, mobile home ownership</p>
-                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">Contact communities for current pricing</div>
-                </div>
-                <div className="w-12 h-12 bg-teal-100 dark:bg-teal-900/50 rounded-lg flex items-center justify-center">
-                  <span className="text-teal-600 dark:text-teal-400 font-bold text-lg">🚐</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* HUD/VASH + In-Home Services */}
-          <Card className="border-0 shadow-sm bg-green-50 dark:bg-green-900/50">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">HUD/VASH + In-Home Services</h3>
-                    <Badge className="bg-green-100 text-green-800 text-xs">Subsidized</Badge>
-                  </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">Subsidized housing with IHSS or SLS home care support</p>
-                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">Contact programs for current availability & pricing</div>
-                </div>
-                <div className="w-12 h-12 bg-green-200 dark:bg-green-700 rounded-lg flex items-center justify-center">
-                  <span className="text-green-700 dark:text-green-300 font-bold text-lg">🏡</span>
+                <div className="w-16 h-16 bg-green-200 dark:bg-green-700 rounded-lg flex items-center justify-center">
+                  <span className="text-green-700 dark:text-green-300 font-bold text-2xl">🏡</span>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
         
-
-        
-        <div className="mt-6 space-y-3">
+        <div className="mt-8 space-y-4">
           <Link href="/search?view=care-levels">
-            <Button className="w-full gradient-tertiary hover:opacity-90 text-white border-0">
-              Find communities by care level
+            <Button className="w-full gradient-tertiary hover:opacity-90 text-white border-0 h-12 text-lg">
+              Search by Care Level & Live Pricing
             </Button>
           </Link>
           <Link href="/search">
             <Button 
               variant="outline" 
-              className="w-full border-blue-200 text-blue-600 hover:bg-blue-50"
+              className="w-full border-blue-200 text-blue-600 hover:bg-blue-50 h-12 text-lg"
             >
-              Try New Rental Search with Maps
+              Try Interactive Map Search
             </Button>
           </Link>
         </div>
@@ -2223,68 +2235,7 @@ export default function MySeniorValetHome() {
             </div>
           </div>
 
-          {/* Market Intelligence Dashboard */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-600">
-            <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-6 text-center">Live Market Intelligence</h3>
-            
-            {/* Pricing Tiers */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              <div className="text-center bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2">$303-$800</div>
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">HUD Affordable</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Government subsidized housing for seniors</p>
-                <Badge className="mt-2 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">6,078 properties</Badge>
-              </div>
-              
-              <div className="text-center bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-4 rounded-lg">
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-2">$2,500-$4,500</div>
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Independent Living</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Active lifestyle communities</p>
-                <Badge className="mt-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">8,200 properties</Badge>
-              </div>
-              
-              <div className="text-center bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-4 rounded-lg">
-                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-2">$4,000-$7,500</div>
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Assisted Living</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Personal care and support</p>
-                <Badge className="mt-2 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300">12,400 properties</Badge>
-              </div>
-              
-              <div className="text-center bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 p-4 rounded-lg">
-                <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 mb-2">$6,500-$12,000</div>
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Memory Care</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Specialized dementia care</p>
-                <Badge className="mt-2 bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300">4,345 properties</Badge>
-              </div>
-            </div>
 
-            {/* Real Examples */}
-            <div className="border-t border-gray-200 dark:border-gray-600 pt-6">
-              <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">Featured Real Properties</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">$303/month</div>
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Florin Gardens Cooperative</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">HUD Property • Sacramento, CA</p>
-                  <Badge className="mt-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">Available Units</Badge>
-                </div>
-                
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-4 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">$5,200/month</div>
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Bay Area Assisted Living</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Licensed Facility • San Francisco, CA</p>
-                  <Badge className="mt-2 bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300">Waitlist Available</Badge>
-                </div>
-                
-                <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-4 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">$9,200/month</div>
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Premium Memory Care</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Specialized Care • Palo Alto, CA</p>
-                  <Badge className="mt-2 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">Immediate Availability</Badge>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
