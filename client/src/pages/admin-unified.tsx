@@ -277,6 +277,19 @@ export default function UnifiedAdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Tier Access Badge Banner */}
+      <div className={`w-full py-2 px-4 text-center ${ROLE_DEFINITIONS[userRole?.role as keyof typeof ROLE_DEFINITIONS]?.color || 'bg-gray-200'}`}>
+        <div className="flex items-center justify-center gap-2">
+          <Shield className={`h-5 w-5 ${ROLE_DEFINITIONS[userRole?.role as keyof typeof ROLE_DEFINITIONS]?.textColor || 'text-gray-700'}`} />
+          <span className={`text-sm font-bold uppercase tracking-wider ${ROLE_DEFINITIONS[userRole?.role as keyof typeof ROLE_DEFINITIONS]?.textColor || 'text-gray-700'}`}>
+            {ROLE_DEFINITIONS[userRole?.role as keyof typeof ROLE_DEFINITIONS]?.tier} TIER ACCESS
+          </span>
+          <span className={`text-sm ${ROLE_DEFINITIONS[userRole?.role as keyof typeof ROLE_DEFINITIONS]?.textColor || 'text-gray-700'} opacity-80`}>
+            • {ROLE_DEFINITIONS[userRole?.role as keyof typeof ROLE_DEFINITIONS]?.label}
+          </span>
+        </div>
+      </div>
+      
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="container mx-auto px-4 py-6">
@@ -284,16 +297,12 @@ export default function UnifiedAdminDashboard() {
             <div>
               <h1 className="text-2xl font-bold">MySeniorValet Admin Center</h1>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                {ROLE_DEFINITIONS[userRole.role as keyof typeof ROLE_DEFINITIONS]?.label} Access
+                Manage your platform with {ROLE_DEFINITIONS[userRole?.role as keyof typeof ROLE_DEFINITIONS]?.tier} tier privileges
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <div className={`px-4 py-2 rounded-full font-semibold text-sm shadow-md border ${ROLE_DEFINITIONS[userRole.role as keyof typeof ROLE_DEFINITIONS]?.badgeClass || 'bg-gray-200 text-gray-700 border-gray-400'}`}>
-                <span className="mr-2">{ROLE_DEFINITIONS[userRole.role as keyof typeof ROLE_DEFINITIONS]?.tier}</span>
-                {ROLE_DEFINITIONS[userRole.role as keyof typeof ROLE_DEFINITIONS]?.label}
-              </div>
               <span className="text-sm text-gray-600 dark:text-gray-400">
-                {currentUser.firstName} {currentUser.lastName}
+                Welcome, {currentUser?.firstName} {currentUser?.lastName}
               </span>
             </div>
           </div>
@@ -302,26 +311,6 @@ export default function UnifiedAdminDashboard() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
-        {/* Welcome Banner with Role-based Color Coding */}
-        <div className={`mb-8 p-6 rounded-lg shadow-lg ${ROLE_DEFINITIONS[userRole.role as keyof typeof ROLE_DEFINITIONS]?.color || 'bg-gray-200'}`}>
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className={`text-2xl font-bold ${ROLE_DEFINITIONS[userRole.role as keyof typeof ROLE_DEFINITIONS]?.textColor || 'text-gray-700'}`}>
-                Welcome, {currentUser.firstName || 'User'}!
-              </h2>
-              <p className={`mt-1 ${ROLE_DEFINITIONS[userRole.role as keyof typeof ROLE_DEFINITIONS]?.textColor || 'text-gray-700'} opacity-90`}>
-                You have <strong>{ROLE_DEFINITIONS[userRole.role as keyof typeof ROLE_DEFINITIONS]?.tier}</strong> tier access as a {ROLE_DEFINITIONS[userRole.role as keyof typeof ROLE_DEFINITIONS]?.label}
-              </p>
-              <p className={`mt-2 text-sm ${ROLE_DEFINITIONS[userRole.role as keyof typeof ROLE_DEFINITIONS]?.textColor || 'text-gray-700'} opacity-80`}>
-                {ROLE_DEFINITIONS[userRole.role as keyof typeof ROLE_DEFINITIONS]?.description}
-              </p>
-            </div>
-            <div className={`text-4xl font-bold ${ROLE_DEFINITIONS[userRole.role as keyof typeof ROLE_DEFINITIONS]?.textColor || 'text-gray-700'} opacity-20`}>
-              {ROLE_DEFINITIONS[userRole.role as keyof typeof ROLE_DEFINITIONS]?.tier}
-            </div>
-          </div>
-        </div>
-        
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="flex flex-wrap gap-2 h-auto p-2">
             {availableDashboards.includes('admin') && (
