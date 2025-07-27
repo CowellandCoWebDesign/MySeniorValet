@@ -128,7 +128,7 @@ export default function MySeniorValetHome() {
       </header>
 
       {/* Hero Section with Search */}
-      <section className="relative hero-mobile-safe bg-gradient-to-br from-slate-50 to-amber-50 dark:from-gray-900 dark:to-gray-800">
+      <section className="relative min-h-screen bg-gradient-to-br from-slate-50 to-amber-50 dark:from-gray-900 dark:to-gray-800">
         <div className="absolute inset-0">
           {(heroImages as any) && (heroImages as any).length > 0 ? (
             <img
@@ -146,10 +146,10 @@ export default function MySeniorValetHome() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/60 dark:from-black/60 dark:via-black/70 dark:to-black/80"></div>
         </div>
         
-        <div className="relative z-10 flex flex-col items-center justify-center hero-content min-h-screen px-6 py-16 mobile-keyboard-safe">
+        <div className="relative z-10 flex flex-col items-center justify-center hero-content min-h-screen px-6 py-8 mobile-keyboard-safe">
           {/* Centered Headlines - Much Larger */}
-          <div className="text-center mb-8 md:mb-12 max-w-6xl">
-            <div className="space-y-6 mb-8">
+          <div className="text-center mb-4 md:mb-6 max-w-6xl">
+            <div className="space-y-4 mb-4">
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white dark:text-gray-100 leading-tight drop-shadow-2xl animate-fade-in-up tracking-tight">
                 <span className="block mb-2">Everything Senior Living Needs</span>
                 <span className="block text-gradient bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-300 bg-clip-text text-transparent drop-shadow-none">in one place</span>
@@ -208,7 +208,7 @@ export default function MySeniorValetHome() {
           </div>
 
           {/* Primary CTA - Larger */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-4 animate-fade-in-up animation-delay-700">
+          <div className="flex flex-col sm:flex-row gap-3 mb-3 animate-fade-in-up animation-delay-700">
             <Link href="/quiz">
               <Button variant="outline" className="border-2 border-purple-300 text-purple-100 hover:bg-purple-400 hover:text-purple-900 px-6 py-3 rounded-2xl font-medium text-base md:text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-purple-500/20 backdrop-blur-sm">
                 ✨ Find My Perfect Match
@@ -222,7 +222,7 @@ export default function MySeniorValetHome() {
           </div>
 
           {/* NEW AI Map Showcase Button */}
-          <div className="mb-6 animate-fade-in-up animation-delay-800">
+          <div className="mb-3 animate-fade-in-up animation-delay-800">
             <Link href="/ai-map-showcase">
               <Button 
                 className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-2xl hover:shadow-3xl transition-all duration-300 text-base md:text-lg px-8 py-4 rounded-2xl flex items-center justify-center ring-4 ring-purple-300 ring-opacity-50 animate-slow-pulse"
@@ -237,7 +237,7 @@ export default function MySeniorValetHome() {
 
           
           {/* Trust Indicators with 26,306+ Communities */}
-          <div className="mb-6 animate-fade-in-up animation-delay-800">
+          <div className="mb-3 animate-fade-in-up animation-delay-800">
             <div className="flex flex-wrap items-center justify-center gap-3">
 
               <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full shadow-lg">
@@ -249,14 +249,14 @@ export default function MySeniorValetHome() {
           </div>
           
           {/* Community Count Text - Updated */}
-          <div className="mb-4 animate-fade-in-up animation-delay-850">
+          <div className="mb-2 animate-fade-in-up animation-delay-850">
             <p className="text-white/90 dark:text-gray-300 text-base md:text-lg lg:text-xl drop-shadow-md text-center font-medium">
               Serving families across <strong className="text-amber-200">{(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '26,306+'} verified senior living communities</strong>
             </p>
           </div>
           
           {/* Verification Badge - Larger */}
-          <div className="mb-8 animate-fade-in-up animation-delay-900">
+          <div className="mb-4 animate-fade-in-up animation-delay-900">
             <div className="inline-flex items-center px-4 py-2 bg-white/20 dark:bg-white/10 backdrop-blur-sm rounded-full text-white dark:text-gray-200 text-sm md:text-base font-medium shadow-lg">
               <div className="w-3 h-3 bg-green-400 rounded-full mr-3 animate-pulse"></div>
               Verified Pricing • Real Availability • No Pressure
@@ -354,7 +354,7 @@ export default function MySeniorValetHome() {
               </span>
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              From discovery to move-in and beyond, we handle every detail of your senior living journey
+              Complete experience from starting to look to calling somewhere home 🏡
             </p>
           </div>
           
@@ -369,9 +369,9 @@ export default function MySeniorValetHome() {
                     Coming This Week
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">Services & Vendors</h3>
-                  <p className="text-gray-600 dark:text-gray-300 text-lg">
-                    Connect with all the services families need during their senior living journey
-                  </p>
+            <p className="text-gray-600 dark:text-gray-300 text-lg">
+              Everything families need from search to settlement
+            </p>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-6">
