@@ -551,17 +551,28 @@ export default function CreativeAdminDashboard() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-700">Monthly Growth</span>
-                      <Badge className="bg-emerald-100 text-emerald-800">+23%</Badge>
+                      <Badge className="bg-emerald-100 text-emerald-800">
+                        {usageData?.activeUsers > 0 && usageData?.totalUsers > 0 ? 
+                          `+${((usageData.activeUsers / usageData.totalUsers) * 100).toFixed(1)}%` : '0%'}
+                      </Badge>
                     </div>
-                    <Progress value={85} className="h-2" />
+                    <Progress value={usageData?.activeUsers > 0 && usageData?.totalUsers > 0 ? 
+                      (usageData.activeUsers / usageData.totalUsers) * 100 : 0} className="h-2" />
                     <div className="grid grid-cols-2 gap-4 mt-4">
                       <div className="text-center p-3 bg-white/60 rounded-lg">
-                        <div className="text-2xl font-bold text-emerald-600">147</div>
-                        <p className="text-xs text-gray-600">New Users</p>
+                        <div className="text-2xl font-bold text-emerald-600">
+                          {usageData?.totalUsers || 0}
+                        </div>
+                        <p className="text-xs text-gray-600">Total Users</p>
                       </div>
                       <div className="text-center p-3 bg-white/60 rounded-lg">
-                        <div className="text-2xl font-bold text-teal-600">2.3k</div>
-                        <p className="text-xs text-gray-600">Page Views</p>
+                        <div className="text-2xl font-bold text-teal-600">
+                          {usageData?.totalViews ? 
+                            (usageData.totalViews > 1000 ? 
+                              `${(usageData.totalViews / 1000).toFixed(1)}k` : 
+                              usageData.totalViews) : 0}
+                        </div>
+                        <p className="text-xs text-gray-600">Total Views</p>
                       </div>
                     </div>
                   </div>
