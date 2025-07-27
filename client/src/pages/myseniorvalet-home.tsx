@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { PricingBreakdown } from "@/components/pricing-breakdown";
@@ -656,9 +656,65 @@ export default function MySeniorValetHome() {
             
             <Card className="hover:shadow-lg transition-shadow cursor-pointer">
               <CardContent className="p-4 text-center">
-                <Package className="w-10 h-10 text-green-500 mx-auto mb-2" />
-                <h4 className="font-semibold text-sm">15+ More Services</h4>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Complete ecosystem</p>
+                <Utensils className="w-10 h-10 text-green-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Meal Delivery</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Senior nutrition services</p>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardContent className="p-4 text-center">
+                <Stethoscope className="w-10 h-10 text-teal-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Home Healthcare</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Nursing & therapy</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardContent className="p-4 text-center">
+                <Scale className="w-10 h-10 text-indigo-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Legal Services</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Elder law attorneys</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardContent className="p-4 text-center">
+                <Calculator className="w-10 h-10 text-emerald-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Financial Planning</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Senior financial advisors</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardContent className="p-4 text-center">
+                <Scissors className="w-10 h-10 text-pink-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Personal Care</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Mobile barber & beauty</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardContent className="p-4 text-center">
+                <Trash2 className="w-10 h-10 text-gray-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Junk Removal</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Decluttering services</p>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardContent className="p-4 text-center">
+                <Users2 className="w-10 h-10 text-cyan-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Companion Care</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Social companionship</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardContent className="p-4 text-center">
+                <Phone className="w-10 h-10 text-violet-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Tech Support</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Device setup & training</p>
               </CardContent>
             </Card>
           </div>
