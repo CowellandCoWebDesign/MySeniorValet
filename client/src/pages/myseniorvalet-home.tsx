@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { PricingBreakdown } from "@/components/pricing-breakdown";
@@ -357,72 +357,172 @@ export default function MySeniorValetHome() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* Live Pricing & Availability */}
-            <Card className="group bg-white dark:bg-gray-800 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <CardContent className="p-8 text-center relative z-10">
-                <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-                  <Eye className="w-10 h-10 text-white" />
+          {/* AI-Powered Map Intelligence & Live Pricing - Top Priority */}
+          <div className="mb-8">
+            <Card className="group bg-gradient-to-br from-blue-600 to-purple-700 border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 overflow-hidden relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-600/20 group-hover:from-blue-400/30 group-hover:to-purple-500/30 transition-all duration-300"></div>
+              <CardContent className="p-10 relative z-10">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                  <div className="text-white">
+                    <div className="flex items-center mb-4">
+                      <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mr-4">
+                        <MapPin className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-bold">AI-Powered Map Intelligence</h3>
+                        <p className="text-blue-100">Live Pricing & Real-Time Availability</p>
+                      </div>
+                    </div>
+                    <p className="text-white/90 text-lg leading-relaxed mb-6">
+                      Our advanced AI analyzes {(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '26,306+'} communities in real-time, providing instant pricing updates, availability status, and intelligent matching based on your specific care needs and preferences.
+                    </p>
+                    <div className="flex flex-wrap gap-3 mb-6">
+                      <div className="flex items-center bg-white/20 backdrop-blur-sm px-3 py-2 rounded-lg">
+                        <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+                        <span className="text-sm font-medium">Live Pricing Updates</span>
+                      </div>
+                      <div className="flex items-center bg-white/20 backdrop-blur-sm px-3 py-2 rounded-lg">
+                        <div className="w-2 h-2 bg-blue-400 rounded-full mr-2 animate-pulse"></div>
+                        <span className="text-sm font-medium">Real-Time Availability</span>
+                      </div>
+                      <div className="flex items-center bg-white/20 backdrop-blur-sm px-3 py-2 rounded-lg">
+                        <div className="w-2 h-2 bg-purple-400 rounded-full mr-2 animate-pulse"></div>
+                        <span className="text-sm font-medium">AI Smart Matching</span>
+                      </div>
+                    </div>
+                    <Link href="/search">
+                      <Button className="bg-white text-blue-600 hover:bg-blue-50 px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                        Explore Map Intelligence →
+                      </Button>
+                    </Link>
+                  </div>
+                  <div className="flex justify-center">
+                    <div className="relative">
+                      <div className="w-80 h-60 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 shadow-2xl overflow-hidden">
+                        <div className="absolute inset-4 bg-gradient-to-br from-green-400/20 to-blue-500/20 rounded-xl">
+                          <div className="absolute top-4 left-4 flex space-x-2">
+                            <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                            <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse animation-delay-200"></div>
+                            <div className="w-3 h-3 bg-purple-400 rounded-full animate-pulse animation-delay-400"></div>
+                          </div>
+                          <div className="absolute bottom-4 right-4 bg-white/90 px-3 py-2 rounded-lg text-sm font-semibold text-gray-800">
+                            $2,850/mo • Available Now
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">Live Pricing & Availability</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">Real-time pricing and unit availability across all communities</p>
-                <Link href="/search">
-                  <Button className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
-                    Check Pricing
-                  </Button>
-                </Link>
               </CardContent>
             </Card>
+          </div>
 
-            {/* Move Coordination */}
-            <Card className="group bg-white dark:bg-gray-800 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-green-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <CardContent className="p-8 text-center relative z-10">
-                <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-                  <Truck className="w-10 h-10 text-white" />
+          {/* Care Marketplace - Coming Soon */}
+          <div className="mb-8">
+            <Card className="group bg-white dark:bg-gray-800 border-2 border-orange-200 dark:border-orange-400 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-50/50 to-red-50/50 dark:from-orange-900/20 dark:to-red-900/20"></div>
+              <CardContent className="p-8 relative z-10">
+                <div className="text-center mb-6">
+                  <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-red-600 rounded-full text-white text-sm font-semibold mb-4 shadow-lg">
+                    <span className="mr-2">🚀</span>
+                    Coming This Week
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">Care Marketplace</h3>
+                  <p className="text-gray-600 dark:text-gray-300 text-lg max-w-3xl mx-auto">
+                    For Independent Living and below, connect with local healthcare and caregiving services in your area
+                  </p>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">Move Coordination</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">Professional moving services and timeline coordination</p>
-                <Link href="/moving-services">
-                  <Button className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
-                    Plan Move
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                      <Heart className="w-8 h-8 text-white" />
+                    </div>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">IHSS & SLS Services</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">In-home support services</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                      <Stethoscope className="w-8 h-8 text-white" />
+                    </div>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Private Care</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Local care companies</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                      <Activity className="w-8 h-8 text-white" />
+                    </div>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Physical Therapy</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Rehabilitation services</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                      <ShieldCheck className="w-8 h-8 text-white" />
+                    </div>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Hospice & End-of-Life</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Complete care services</p>
+                  </div>
+                </div>
+                
+                <div className="text-center">
+                  <Button className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200" disabled>
+                    Care Marketplace - Launching Soon
                   </Button>
-                </Link>
+                </div>
               </CardContent>
             </Card>
+          </div>
 
-            {/* Medical Equipment & Furniture */}
-            <Card className="group bg-white dark:bg-gray-800 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-purple-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <CardContent className="p-8 text-center relative z-10">
-                <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-                  <Sofa className="w-10 h-10 text-white" />
+          {/* Services & Vendors - Existing Services */}
+          <div className="mb-8">
+            <Card className="group bg-white dark:bg-gray-800 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-teal-50/50 to-cyan-50/50 dark:from-teal-900/20 dark:to-cyan-900/20"></div>
+              <CardContent className="p-8 relative z-10">
+                <div className="text-center mb-6">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">Services & Vendors</h3>
+                  <p className="text-gray-600 dark:text-gray-300 text-lg">
+                    Connect with all the services families need during their senior living journey
+                  </p>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">Medical Equipment & Furniture</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">Medical equipment purchase and furniture delivery services</p>
-                <Link href="/concierge">
-                  <Button className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
-                    Shop Equipment
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-
-            {/* Family Collaboration & Tour Tracker */}
-            <Card className="group bg-white dark:bg-gray-800 border-2 border-amber-200 dark:border-amber-400 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-orange-600/10"></div>
-              <CardContent className="p-8 text-center relative z-10">
-                <div className="w-20 h-20 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-                  <Users className="w-10 h-10 text-white" />
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="text-center group/item">
+                    <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
+                      <Truck className="w-8 h-8 text-white" />
+                    </div>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Moving Services</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Professional movers, packing, storage</p>
+                  </div>
+                  <div className="text-center group/item">
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
+                      <Phone className="w-8 h-8 text-white" />
+                    </div>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Technology Support</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Cell phone programs, tech setup</p>
+                  </div>
+                  <div className="text-center group/item">
+                    <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
+                      <Scale className="w-8 h-8 text-white" />
+                    </div>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Legal & Financial</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Elder law, financial planning</p>
+                  </div>
+                  <div className="text-center group/item">
+                    <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
+                      <Sofa className="w-8 h-8 text-white" />
+                    </div>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Medical Equipment</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Mobility aids, safety equipment</p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">Family Collaboration & Tour Tracker</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">Family sharing tools and tour scheduling with progress tracking</p>
-                <Link href="/family-collaboration">
-                  <Button className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
-                    Try Family Tools
-                  </Button>
-                </Link>
+                
+                <div className="text-center mt-8">
+                  <Link href="/senior-services">
+                    <Button className="bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                      Explore All Services →
+                    </Button>
+                  </Link>
+                </div>
               </CardContent>
             </Card>
           </div>
