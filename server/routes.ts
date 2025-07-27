@@ -90,6 +90,7 @@ import { affiliateTracker } from "./affiliate-tracking";
 import { enhancedPlatformStats } from "./enhanced-platform-stats";
 import multer from "multer";
 import { realDataAnalyzer } from "./real-data-analyzer";
+import financialRoutes from "./routes/financial-api";
 
 // Configure multer for file uploads
 const multerStorage = multer.memoryStorage();
@@ -13149,6 +13150,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: 'Failed to export audit logs' });
     }
   });
+
+  // Register financial API routes
+  app.use('/api/financial', financialRoutes);
 
   return httpServer;
 }
