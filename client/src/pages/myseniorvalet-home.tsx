@@ -491,34 +491,48 @@ export default function MySeniorValetHome() {
                   </p>
                 </div>
                 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                      <Heart className="w-8 h-8 text-white" />
+                    <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                      <Heart className="w-7 h-7 text-white" />
                     </div>
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">IHSS & SLS Services</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">In-home support services</p>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 text-sm">IHSS & SLS Services</h4>
+                    <p className="text-xs text-gray-600 dark:text-gray-300">In-home support services</p>
                   </div>
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                      <Stethoscope className="w-8 h-8 text-white" />
+                    <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                      <Stethoscope className="w-7 h-7 text-white" />
                     </div>
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Private Care</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">Local care companies</p>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 text-sm">Home Healthcare</h4>
+                    <p className="text-xs text-gray-600 dark:text-gray-300">Nursing & medical care</p>
                   </div>
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                      <Activity className="w-8 h-8 text-white" />
+                    <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                      <Activity className="w-7 h-7 text-white" />
                     </div>
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Physical Therapy</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">Rehabilitation services</p>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 text-sm">Occupational Therapy</h4>
+                    <p className="text-xs text-gray-600 dark:text-gray-300">Daily living skills</p>
                   </div>
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                      <ShieldCheck className="w-8 h-8 text-white" />
+                    <div className="w-14 h-14 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                      <Home className="w-7 h-7 text-white" />
                     </div>
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Hospice & End-of-Life</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">Complete care services</p>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 text-sm">In-home Care Programs</h4>
+                    <p className="text-xs text-gray-600 dark:text-gray-300">Comprehensive care plans</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                      <Users2 className="w-7 h-7 text-white" />
+                    </div>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 text-sm">Caregivers & Home Care</h4>
+                    <p className="text-xs text-gray-600 dark:text-gray-300">Personal care providers</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                      <Flower className="w-7 h-7 text-white" />
+                    </div>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 text-sm">Hospice Care</h4>
+                    <p className="text-xs text-gray-600 dark:text-gray-300">End-of-life comfort care</p>
                   </div>
                 </div>
                 
@@ -662,13 +676,7 @@ export default function MySeniorValetHome() {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-              <CardContent className="p-4 text-center">
-                <Stethoscope className="w-10 h-10 text-teal-500 mx-auto mb-2" />
-                <h4 className="font-semibold text-sm">Home Healthcare</h4>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Nursing & therapy</p>
-              </CardContent>
-            </Card>
+
             
             <Card className="hover:shadow-lg transition-shadow cursor-pointer">
               <CardContent className="p-4 text-center">
