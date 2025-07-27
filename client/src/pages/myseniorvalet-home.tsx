@@ -1733,6 +1733,83 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
+      {/* Affordable Housing Section */}
+      <section className="px-4 py-8 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900">
+        <div className="mb-6">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+            HUD Affordable Housing Options
+          </h2>
+          <p className="text-gray-600 dark:text-gray-300 text-sm">
+            Government-subsidized housing for seniors and disabled adults
+          </p>
+        </div>
+        
+        <div className="bg-white dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-6 mb-4">
+          <div className="flex items-start space-x-4">
+            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center flex-shrink-0">
+              <Building2 className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Section 202 & 811 Housing</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                HUD provides affordable housing for elderly residents (62+) and adults with disabilities. 
+                Select communities are income-based with rent capped at 30% of your adjusted monthly income.
+              </p>
+              <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1 mb-4">
+                <div className="flex items-center gap-2">
+                  <Home className="w-4 h-4 text-gray-400" />
+                  <span><strong>66+ facilities</strong> available in California</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <DollarSign className="w-4 h-4 text-gray-400" />
+                  <span>Income-based rent (30% of income) - income must be below 50% of area median</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-gray-400" />
+                  <span>For seniors 62+ and disabled adults</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-gray-400" />
+                  <span>Standard wait lists: 6+ months expected</span>
+                </div>
+              </div>
+              <Link href="/search?careType=Affordable%20Housing">
+                <Button className="gradient-primary hover:opacity-90 text-white">
+                  View Affordable Housing Options
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+          <div className="flex items-center space-x-2 mb-2">
+            <Info className="w-5 h-5 text-amber-600" />
+            <span className="text-sm font-semibold text-amber-800">Application Process</span>
+          </div>
+          <p className="text-xs text-amber-700 mb-2">
+            Apply directly with each property. Due to high demand, most properties have waiting lists of 6+ months. 
+            Apply to multiple properties to increase your chances.
+          </p>
+          <p className="text-xs text-amber-700">
+            <strong>Income requirements:</strong> Must qualify as "very low income" (below 50% of area median income).
+          </p>
+        </div>
+        
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="flex items-center space-x-2 mb-2">
+            <Info className="w-5 h-5 text-green-600" />
+            <span className="text-sm font-semibold text-green-800">Also Check Veterans Housing</span>
+          </div>
+          <p className="text-xs text-green-700 mb-2">
+            If you're a veteran, explore HUD-VASH housing which combines rental assistance with VA supportive services.
+          </p>
+          <a href="https://www.va.gov/housing-assistance/" target="_blank" rel="noopener noreferrer" className="text-xs text-green-600 hover:text-green-700 underline font-medium">
+            Learn about Veterans Housing →
+          </a>
+        </div>
+      </section>
+
       {/* Family Collaboration Section */}
       <section className="px-4 py-8 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-900">
         <div className="text-center mb-8">
@@ -1857,83 +1934,6 @@ export default function MySeniorValetHome() {
               Learn More About Family Collaboration
             </Button>
           </Link>
-        </div>
-      </section>
-
-      {/* Affordable Housing Section */}
-      <section className="px-4 py-8 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900">
-        <div className="mb-6">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            HUD Affordable Housing Options
-          </h2>
-          <p className="text-gray-600 dark:text-gray-300 text-sm">
-            Government-subsidized housing for seniors and disabled adults
-          </p>
-        </div>
-        
-        <div className="bg-white dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-6 mb-4">
-          <div className="flex items-start space-x-4">
-            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center flex-shrink-0">
-              <Building2 className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Section 202 & 811 Housing</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                HUD provides affordable housing for elderly residents (62+) and adults with disabilities. 
-                Select communities are income-based with rent capped at 30% of your adjusted monthly income.
-              </p>
-              <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1 mb-4">
-                <div className="flex items-center gap-2">
-                  <Home className="w-4 h-4 text-gray-400" />
-                  <span><strong>66+ facilities</strong> available in California</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <DollarSign className="w-4 h-4 text-gray-400" />
-                  <span>Income-based rent (30% of income) - income must be below 50% of area median</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-gray-400" />
-                  <span>For seniors 62+ and disabled adults</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-gray-400" />
-                  <span>Standard wait lists: 6+ months expected</span>
-                </div>
-              </div>
-              <Link href="/search?careType=Affordable%20Housing">
-                <Button className="gradient-primary hover:opacity-90 text-white">
-                  View Affordable Housing Options
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-        
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
-          <div className="flex items-center space-x-2 mb-2">
-            <Info className="w-5 h-5 text-amber-600" />
-            <span className="text-sm font-semibold text-amber-800">Application Process</span>
-          </div>
-          <p className="text-xs text-amber-700 mb-2">
-            Apply directly with each property. Due to high demand, most properties have waiting lists of 6+ months. 
-            Apply to multiple properties to increase your chances.
-          </p>
-          <p className="text-xs text-amber-700">
-            <strong>Income requirements:</strong> Must qualify as "very low income" (below 50% of area median income).
-          </p>
-        </div>
-        
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-          <div className="flex items-center space-x-2 mb-2">
-            <Info className="w-5 h-5 text-green-600" />
-            <span className="text-sm font-semibold text-green-800">Also Check Veterans Housing</span>
-          </div>
-          <p className="text-xs text-green-700 mb-2">
-            If you're a veteran, explore HUD-VASH housing which combines rental assistance with VA supportive services.
-          </p>
-          <a href="https://www.va.gov/housing-assistance/" target="_blank" rel="noopener noreferrer" className="text-xs text-green-600 hover:text-green-700 underline font-medium">
-            Learn about Veterans Housing →
-          </a>
         </div>
       </section>
 
