@@ -51,24 +51,23 @@ const CommunityDashboard = lazy(() => import("./community-dashboard-modern"));
 const UserDashboard = lazy(() => import("./dashboard"));
 const VendorDashboard = lazy(() => import("./vendor-dashboard"));
 const FinancialDashboard = lazy(() => import("./financial-dashboard"));
-const IntegrationDashboard = lazy(() => import("./integration-dashboard"));
 
 // Role definitions
 const ROLE_DEFINITIONS = {
   super_admin: {
     label: "Super Admin",
     description: "Full system access",
-    dashboards: ["admin", "users", "community", "vendor", "financial", "analytics", "integration", "security"]
+    dashboards: ["admin", "users", "community", "vendor", "financial", "security"]
   },
   admin: {
     label: "Admin",
-    description: "Administrative access",
-    dashboards: ["admin", "users", "community", "analytics", "security"]
+    description: "Administrative access (includes analytics & integrations)",
+    dashboards: ["admin", "users", "community", "security"]
   },
   financial_admin: {
     label: "Financial Admin",
     description: "Financial and revenue management",
-    dashboards: ["financial", "analytics"]
+    dashboards: ["financial", "admin"]
   },
   support_agent: {
     label: "Support Agent",
@@ -77,8 +76,8 @@ const ROLE_DEFINITIONS = {
   },
   analytics_viewer: {
     label: "Analytics Viewer",
-    description: "View-only analytics access",
-    dashboards: ["analytics"]
+    description: "View-only analytics access (via admin dashboard)",
+    dashboards: ["admin"]
   },
   community_owner: {
     label: "Community Owner",
@@ -235,8 +234,6 @@ export default function UnifiedAdminDashboard() {
         return <VendorDashboard />;
       case 'financial':
         return <FinancialDashboard />;
-      case 'integration':
-        return <IntegrationDashboard />;
       default:
         return (
           <div className="text-center py-12">
@@ -300,18 +297,6 @@ export default function UnifiedAdminDashboard() {
               <TabsTrigger value="financial" className="flex items-center gap-2">
                 <DollarSign className="h-4 w-4" />
                 Financial
-              </TabsTrigger>
-            )}
-            {availableDashboards.includes('analytics') && (
-              <TabsTrigger value="analytics" className="flex items-center gap-2">
-                <BarChart3 className="h-4 w-4" />
-                Analytics
-              </TabsTrigger>
-            )}
-            {availableDashboards.includes('integration') && (
-              <TabsTrigger value="integration" className="flex items-center gap-2">
-                <Link className="h-4 w-4" />
-                Integrations
               </TabsTrigger>
             )}
           </TabsList>
@@ -578,17 +563,7 @@ export default function UnifiedAdminDashboard() {
             </TabsContent>
           )}
 
-          {availableDashboards.includes('integration') && (
-            <TabsContent value="integration">
-              <Suspense fallback={
-                <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
-                </div>
-              }>
-                {renderDashboard('integration')}
-              </Suspense>
-            </TabsContent>
-          )}
+
         </Tabs>
       </div>
     </div>

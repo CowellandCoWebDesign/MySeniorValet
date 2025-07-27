@@ -31,7 +31,14 @@ import {
   Shield,
   AlertTriangle,
   Eye,
-  RefreshCw
+  RefreshCw,
+  BarChart3,
+  Link,
+  Database,
+  Activity,
+  Globe,
+  Zap,
+  Download
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -57,6 +64,28 @@ export default function AdminDashboard() {
 
   const expansionQuery = useQuery({
     queryKey: ['/api/admin/expansion/results'],
+    retry: false,
+  });
+
+  // Analytics queries
+  const platformStatsQuery = useQuery({
+    queryKey: ['/api/admin/analytics/platform-stats'],
+    retry: false,
+  });
+
+  const userBehaviorQuery = useQuery({
+    queryKey: ['/api/admin/analytics/user-behavior'],
+    retry: false,
+  });
+
+  // Integration queries
+  const integrationsQuery = useQuery({
+    queryKey: ['/api/infrastructure/external-integrations'],
+    retry: false,
+  });
+
+  const integrationHealthQuery = useQuery({
+    queryKey: ['/api/infrastructure/integration-health'],
     retry: false,
   });
 
@@ -115,9 +144,11 @@ export default function AdminDashboard() {
         </div>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="communities">Communities</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="integrations">Integrations</TabsTrigger>
             <TabsTrigger value="expansion">Regional Expansion</TabsTrigger>
             <TabsTrigger value="security">Security & Audit</TabsTrigger>
           </TabsList>
@@ -485,6 +516,257 @@ export default function AdminDashboard() {
                     ))}
                   </TableBody>
                 </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold">Platform Analytics</h2>
+              <Button variant="outline">
+                <Download className="h-4 w-4 mr-2" />
+                Export Report
+              </Button>
+            </div>
+
+            {/* Analytics Overview Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {platformStatsQuery.data?.totalUsers || 0}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    +{platformStatsQuery.data?.newUsersThisMonth || 0} this month
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Active Sessions</CardTitle>
+                  <Activity className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {platformStatsQuery.data?.activeSessions || 0}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Currently online
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    ${platformStatsQuery.data?.totalRevenue?.toFixed(2) || '0.00'}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    +{platformStatsQuery.data?.revenueGrowth || 0}% this month
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Search Volume</CardTitle>
+                  <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {platformStatsQuery.data?.searchVolume || 0}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Searches this week
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* User Behavior Analytics */}
+            <Card>
+              <CardHeader>
+                <CardTitle>User Behavior Analytics</CardTitle>
+                <CardDescription>Understanding user engagement patterns</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Average Session Duration</p>
+                      <p className="text-2xl font-bold">
+                        {userBehaviorQuery.data?.avgSessionDuration || '0'} min
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Pages Per Session</p>
+                      <p className="text-2xl font-bold">
+                        {userBehaviorQuery.data?.pagesPerSession || '0'}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Top Search Terms</p>
+                    <div className="space-y-2">
+                      {userBehaviorQuery.data?.topSearchTerms?.map((term: any, index: number) => (
+                        <div key={index} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                          <span>{term.term}</span>
+                          <Badge variant="secondary">{term.count} searches</Badge>
+                        </div>
+                      )) || <p className="text-muted-foreground">No search data available</p>}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Popular Communities</p>
+                    <div className="space-y-2">
+                      {userBehaviorQuery.data?.popularCommunities?.map((community: any, index: number) => (
+                        <div key={index} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                          <span>{community.name}</span>
+                          <Badge variant="secondary">{community.views} views</Badge>
+                        </div>
+                      )) || <p className="text-muted-foreground">No community data available</p>}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Integrations Tab */}
+          <TabsContent value="integrations" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold">External Integrations</h2>
+              <Button>
+                <Zap className="h-4 w-4 mr-2" />
+                Add Integration
+              </Button>
+            </div>
+
+            {/* Integration Status Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {integrationsQuery.data?.integrations?.map((integration: any) => (
+                <Card key={integration.id}>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-base">{integration.name}</CardTitle>
+                      <Badge variant={integration.status === 'active' ? 'default' : 'secondary'}>
+                        {integration.status}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Globe className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm">{integration.provider}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Database className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm">{integration.dataSync || 'Real-time'}</span>
+                      </div>
+                      <div className="mt-4 pt-4 border-t">
+                        <div className="flex justify-between text-sm">
+                          <span>Last Sync</span>
+                          <span className="text-muted-foreground">
+                            {integration.lastSync ? new Date(integration.lastSync).toLocaleString() : 'Never'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-sm mt-2">
+                          <span>Records Synced</span>
+                          <span className="text-muted-foreground">{integration.recordsSynced || 0}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )) || (
+                <Card className="col-span-3">
+                  <CardContent className="text-center py-8">
+                    <p className="text-muted-foreground">No integrations configured</p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            {/* Integration Health Status */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Integration Health Status</CardTitle>
+                <CardDescription>Monitor the health of all external connections</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Service</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Response Time</TableHead>
+                      <TableHead>Uptime</TableHead>
+                      <TableHead>Last Check</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {integrationHealthQuery.data?.services?.map((service: any) => (
+                      <TableRow key={service.name}>
+                        <TableCell className="font-medium">{service.name}</TableCell>
+                        <TableCell>
+                          <Badge variant={service.status === 'healthy' ? 'default' : 'destructive'}>
+                            {service.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{service.responseTime}ms</TableCell>
+                        <TableCell>{service.uptime}%</TableCell>
+                        <TableCell>{new Date(service.lastCheck).toLocaleString()}</TableCell>
+                      </TableRow>
+                    )) || (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center text-muted-foreground">
+                          No health data available
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+
+            {/* API Usage */}
+            <Card>
+              <CardHeader>
+                <CardTitle>API Usage Statistics</CardTitle>
+                <CardDescription>Track API calls and rate limits</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {integrationHealthQuery.data?.apiUsage?.map((api: any) => (
+                    <div key={api.name} className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium">{api.name}</span>
+                        <span className="text-sm text-muted-foreground">
+                          {api.callsToday} / {api.dailyLimit} calls
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div
+                          className="bg-blue-600 h-2 rounded-full"
+                          style={{ width: `${(api.callsToday / api.dailyLimit) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                  )) || <p className="text-muted-foreground">No API usage data available</p>}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

@@ -193,12 +193,13 @@ This file contains the current technical architecture, key components, and essen
 **UNIFIED ADMIN DASHBOARD WITH ROLE-BASED ACCESS CONTROL COMPLETED**: Successfully implemented comprehensive role-based access control system with unified admin dashboard (January 27, 2025). Created consolidated admin center that provides role-specific dashboard access for designated users:
 - **Expanded Role System**: Added 8 distinct roles: super_admin (full access), admin (administrative access), financial_admin (financial management), support_agent (user support), analytics_viewer (view-only analytics), community_owner (community management), vendor (vendor dashboard), and user (basic access)
 - **Role Permissions Infrastructure**: Created rolePermissions and userRoleAssignments tables for granular dashboard access control with permission levels (view, edit, delete, export, manage_users)
-- **Unified Admin Dashboard**: New admin-unified.tsx consolidates all dashboards (admin, community, user, vendor, financial, analytics, integration, security) into single interface with role-based tab visibility
+- **Unified Admin Dashboard**: New admin-unified.tsx consolidates all dashboards (admin, community, user, vendor, financial, security) into single interface with role-based tab visibility
 - **User Management Interface**: Super admins and admins can manage user roles through comprehensive interface with search, filtering, pagination, and inline role editing
 - **Enhanced Security Middleware**: Created checkRole middleware in replitAuth.ts supporting multiple role requirements with super_admin override capability
 - **API Endpoints**: Added /api/auth/user/role, /api/admin/users (list/search), /api/admin/users/:userId/role (update), and /api/admin/users/:userId (delete) with proper role checking
 - **Dashboard Features**: Lazy loading for performance, role-based tab visibility, user activity tracking, role assignment with notes, and comprehensive user search/filter capabilities
-- **Access Control**: Each role has specific dashboard access - super_admin sees all, financial_admin sees financial/analytics only, support_agent sees users/community only, etc.
+- **Access Control**: Each role has specific dashboard access - super_admin sees all, financial_admin sees financial/admin, support_agent sees users/community only, etc.
+- **Analytics & Integrations Consolidation**: Successfully combined analytics and integrations features into the main admin dashboard (January 27, 2025) - Analytics tab includes platform metrics, user behavior analytics, search patterns, and popular communities; Integrations tab shows external service status, API health monitoring, and usage statistics
 
 ## Current Status (July 26, 2025)
 
