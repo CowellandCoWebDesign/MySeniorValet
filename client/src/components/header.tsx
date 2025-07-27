@@ -31,8 +31,8 @@ export function Header() {
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full opacity-0 group-hover:opacity-100 animate-pulse transition-opacity duration-300"></div>
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-display font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent group-hover:scale-105 transform transition-all duration-300">MySeniorValet</span>
-                <span className="text-xs text-gray-500 font-medium -mt-1 group-hover:text-gray-600 dark:text-gray-400 transition-colors duration-300">Your Personal Senior Living Concierge</span>
+                <span className="text-2xl font-display font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent group-hover:scale-105 transform transition-all duration-300">MySeniorValet</span>
+                <span className="text-sm text-gray-500 font-medium -mt-1 group-hover:text-gray-600 dark:text-gray-400 transition-colors duration-300">Your Personal Senior Living Concierge</span>
               </div>
             </Link>
             <nav className="hidden lg:flex space-x-1">
@@ -42,7 +42,7 @@ export function Header() {
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`relative flex items-center space-x-2 px-3 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 group ${
+                    className={`relative flex items-center space-x-2 px-4 py-3 rounded-lg font-medium text-base transition-all duration-300 transform hover:scale-105 group ${
                       location === item.href
                         ? "text-primary bg-primary/10 shadow-sm"
                         : "text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50"
@@ -59,13 +59,13 @@ export function Header() {
           <div className="flex items-center space-x-3">
             <ThemeToggle />
             <Link to="/community-portal" className="hidden lg:block">
-              <Button variant="ghost" className="text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700 font-medium">
-                <Building2 className="h-4 w-4 mr-2" />
+              <Button variant="ghost" className="text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700 font-medium text-base px-4 py-3">
+                <Building2 className="h-5 w-5 mr-2" />
                 Community Portal
               </Button>
             </Link>
             <Link to="/login">
-              <Button className="shadow-sm hover:shadow-md transition-shadow" aria-label="Sign in to MySeniorValet">
+              <Button className="shadow-sm hover:shadow-md transition-shadow text-base px-6 py-3" aria-label="Sign in to MySeniorValet">
                 Sign In
               </Button>
             </Link>
@@ -93,7 +93,7 @@ export function Header() {
                         <Link
                           key={item.name}
                           href={item.href}
-                          className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
+                          className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-base transition-all duration-200 ${
                             location === item.href
                               ? "text-primary bg-primary/10 shadow-sm"
                               : "text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50"

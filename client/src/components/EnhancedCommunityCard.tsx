@@ -185,35 +185,35 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
                   </div>
 
                   {/* Stats Row */}
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  <div className="flex flex-wrap items-center gap-4 text-base text-gray-600 dark:text-gray-400 mb-4">
                     {community.rating && (
                       <div className="flex items-center">
-                        <Star className="h-4 w-4 text-yellow-400 mr-1" />
-                        <span className="font-medium">{community.rating.toFixed(1)}</span>
+                        <Star className="h-5 w-5 text-yellow-400 mr-1" />
+                        <span className="font-medium text-lg">{community.rating.toFixed(1)}</span>
                         {community.reviewCount && (
-                          <span className="ml-1">({community.reviewCount} reviews)</span>
+                          <span className="ml-1 text-base">({community.reviewCount} reviews)</span>
                         )}
                       </div>
                     )}
                     
                     {community.totalUnits && (
                       <div className="flex items-center">
-                        <Building className="h-4 w-4 mr-1" />
-                        <span>{community.totalUnits} units</span>
+                        <Building className="h-5 w-5 mr-1" />
+                        <span className="text-base">{community.totalUnits} units</span>
                       </div>
                     )}
                     
                     {community.occupancyRate && (
                       <div className="flex items-center">
-                        <Users className="h-4 w-4 mr-1" />
-                        <span>{Math.round(community.occupancyRate)}% occupied</span>
+                        <Users className="h-5 w-5 mr-1" />
+                        <span className="text-base">{Math.round(community.occupancyRate)}% occupied</span>
                       </div>
                     )}
                   </div>
 
                   {/* Description */}
                   {community.description && (
-                    <p className="text-gray-700 dark:text-gray-300 text-sm line-clamp-2 mb-4">
+                    <p className="text-gray-700 dark:text-gray-300 text-base line-clamp-2 mb-4 leading-relaxed">
                       {community.description}
                     </p>
                   )}
@@ -225,14 +225,14 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
                     href={`/communities/${community.id}`}
                     className="flex-1 min-w-32"
                   >
-                    <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-2 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                    <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-3 rounded-lg font-semibold text-base transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
                       View Details
                     </button>
                   </Link>
-                  <button className="flex-1 min-w-32 border-2 border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 px-4 py-2 rounded-lg font-semibold hover:bg-blue-600 hover:text-white dark:hover:bg-blue-400 dark:hover:text-white transition-all duration-200">
+                  <button className="flex-1 min-w-32 border-2 border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 px-4 py-3 rounded-lg font-semibold text-base hover:bg-blue-600 hover:text-white dark:hover:bg-blue-400 dark:hover:text-white transition-all duration-200">
                     Schedule Tour
                   </button>
-                  <button className="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors">
+                  <button className="px-4 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 text-base dark:text-gray-300 rounded-lg transition-colors">
                     Call Now
                   </button>
                 </div>
