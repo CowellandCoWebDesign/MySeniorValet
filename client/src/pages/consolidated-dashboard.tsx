@@ -1,14 +1,24 @@
 import { useAuth } from "@/hooks/useAuth";
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, Users, Building2, DollarSign, BarChart3, Settings, Shield, Zap, TrendingUp, Globe, Crown, Star, Diamond, Gem } from "lucide-react";
+import { AlertCircle, Users, Building2, DollarSign, BarChart3, Settings, Shield, Zap, TrendingUp, Globe, Crown, Star, Diamond, Gem, Activity, Package, MessageSquare, Calendar, Heart, Search, UserCheck, Briefcase } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { useToast } from "@/hooks/use-toast";
+import type { 
+  PlatformStats, 
+  CommunityAnalytics, 
+  VendorStats, 
+  UserDashboardData,
+  SecurityAuditLog,
+  UserManagementData,
+  FinancialStats
+} from "@shared/dashboard-types";
+import { User } from "@shared/schema";
 
 // Role-based tier configurations
 const ROLE_TIERS = {
@@ -44,14 +54,22 @@ const ROLE_TIERS = {
   }
 };
 
+// Dashboard Components
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center p-8">
+    <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+  </div>
+);
+
 export default function ConsolidatedDashboard() {
   const { user, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("overview");
 
-  // Get user role configuration
-  const userRole = user?.role || 'user';
+  // Get user role configuration with proper typing
+  const typedUser = user as User | undefined;
+  const userRole = typedUser?.role || 'user';
   const roleConfig = ROLE_TIERS[userRole as keyof typeof ROLE_TIERS] || ROLE_TIERS.user;
   const TierIcon = roleConfig.icon;
 
