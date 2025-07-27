@@ -767,261 +767,11 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Integration Spotlight - Showcase Our Advanced Tools */}
-      {showIntegrationSpotlight && (
-        <section className="px-4 py-12 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 relative overflow-hidden">
-          <div className="absolute inset-0 bg-black/10"></div>
-          <div className="relative z-10 max-w-6xl mx-auto">
-            <div className="text-center mb-8">
-              <Badge className="bg-white/20 text-white mb-4 px-4 py-2 text-sm font-semibold">🚀 ENTERPRISE FEATURES LIVE</Badge>
-              <h2 className="text-3xl font-bold text-white mb-4">Advanced AI & Integration Platform</h2>
-              <p className="text-white/90 text-lg">Powered by Fortune 500-level infrastructure and cutting-edge AI</p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {/* AI-Powered Matching */}
-              <Card className="bg-white/10 backdrop-blur-md border-white/20 text-white">
-                <CardContent className="p-6 text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl">🧠</span>
-                  </div>
-                  <h3 className="font-semibold mb-2">Anthropic AI Matching</h3>
-                  <p className="text-sm text-white/80">AI analyzes 31,000+ communities to find perfect matches based on your unique needs</p>
-                  <Link href="/quiz">
-                    <Button variant="outline" className="mt-3 border-white/30 text-white hover:bg-white/20">Try AI Match</Button>
-                  </Link>
-                </CardContent>
-              </Card>
-
-              {/* Real-Time Analytics */}
-              <Card className="bg-white/10 backdrop-blur-md border-white/20 text-white">
-                <CardContent className="p-6 text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl">📊</span>
-                  </div>
-                  <h3 className="font-semibold mb-2">Business Intelligence</h3>
-                  <p className="text-sm text-white/80">Real-time market analytics, pricing trends, and occupancy insights</p>
-                  <Link href="/integrations">
-                    <Button variant="outline" className="mt-3 border-white/30 text-white hover:bg-white/20">View Analytics</Button>
-                  </Link>
-                </CardContent>
-              </Card>
-
-              {/* Family Collaboration Platform */}
-              <Card className="bg-white/10 backdrop-blur-md border-white/20 text-white">
-                <CardContent className="p-6 text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl">👨‍👩‍👧‍👦</span>
-                  </div>
-                  <h3 className="font-semibold mb-2">Family Collaboration</h3>
-                  <p className="text-sm text-white/80">Real-time family sharing, notes, and collaborative decision-making tools</p>
-                  <Link href="/family-collaboration">
-                    <Button variant="outline" className="mt-3 border-white/30 text-white hover:bg-white/20">Start Sharing</Button>
-                  </Link>
-                </CardContent>
-              </Card>
-
-              {/* Senior Services Directory */}
-              <Card className="bg-white/10 backdrop-blur-md border-white/20 text-white">
-                <CardContent className="p-6 text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl">🛎️</span>
-                  </div>
-                  <h3 className="font-semibold mb-2">Senior Services</h3>
-                  <p className="text-sm text-white/80">Moving, Rx delivery, equipment, and 15+ essential service categories</p>
-                  <Link href="/senior-services">
-                    <Button variant="outline" className="mt-3 border-white/30 text-white hover:bg-white/20">Browse Services</Button>
-                  </Link>
-                </CardContent>
-              </Card>
-
-
-            </div>
-
-            <div className="text-center">
-              <Button 
-                variant="outline" 
-                className="border-white/30 text-white hover:bg-white/20 mr-4"
-                onClick={() => setShowIntegrationSpotlight(false)}
-              >
-                Continue to Communities
-              </Button>
-              <Link href="/integrations">
-                <Button className="bg-white text-purple-600 hover:bg-gray-100">
-                  Explore All Integrations
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
 
 
 
-      {/* Massive Data Coverage Section - Enhanced */}
-      <section className="px-4 py-16 bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">North America's Most Comprehensive Senior Living Database</h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300">31,023+ communities with 100% authentic government data</p>
-          </div>
-          
-          {/* Geographic Coverage Map */}
-          <div className="mb-12">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 text-center mb-6">Complete Geographic Coverage</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* United States */}
-              <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
-                <CardContent className="p-6 text-center">
-                  <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">🇺🇸</div>
-                  <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">20,279</div>
-                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">United States</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">All 50 states + territories</p>
-                  <div className="mt-3 flex flex-wrap gap-1 justify-center">
-                    <Badge variant="secondary" className="text-xs">California: 2,965</Badge>
-                    <Badge variant="secondary" className="text-xs">Texas: 2,283</Badge>
-                    <Badge variant="secondary" className="text-xs">Florida: 690</Badge>
-                  </div>
-                </CardContent>
-              </Card>
 
-              {/* Canada */}
-              <Card className="border-0 shadow-lg bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20">
-                <CardContent className="p-6 text-center">
-                  <div className="text-4xl font-bold text-red-600 dark:text-red-400 mb-2">🇨🇦</div>
-                  <div className="text-3xl font-bold text-red-600 dark:text-red-400 mb-2">3,810</div>
-                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Canada</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">All provinces & territories</p>
-                  <div className="mt-3 flex flex-wrap gap-1 justify-center">
-                    <Badge variant="secondary" className="text-xs">Ontario: 800</Badge>
-                    <Badge variant="secondary" className="text-xs">Quebec: 750</Badge>
-                    <Badge variant="secondary" className="text-xs">BC: 600</Badge>
-                  </div>
-                </CardContent>
-              </Card>
 
-              {/* Mexico */}
-              <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
-                <CardContent className="p-6 text-center">
-                  <div className="text-4xl font-bold text-green-600 dark:text-green-400 mb-2">🇲🇽</div>
-                  <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">1,693</div>
-                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Mexico</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">All 32 states covered</p>
-                  <div className="mt-3 flex flex-wrap gap-1 justify-center">
-                    <Badge variant="secondary" className="text-xs">Jalisco: 120</Badge>
-                    <Badge variant="secondary" className="text-xs">CDMX: 150</Badge>
-                    <Badge variant="secondary" className="text-xs">Baja: 85</Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          {/* Live Data Dashboard */}
-          <div className="mb-12">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 text-center mb-6">Live Platform Statistics</h3>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
-                <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">31,023</div>
-                  <p className="text-xs text-gray-600 dark:text-gray-300">Total Communities</p>
-                </CardContent>
-              </Card>
-              
-              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
-                <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">6,078</div>
-                  <p className="text-xs text-gray-600 dark:text-gray-300">HUD Properties</p>
-                </CardContent>
-              </Card>
-              
-              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
-                <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">427K</div>
-                  <p className="text-xs text-gray-600 dark:text-gray-300">Housing Units</p>
-                </CardContent>
-              </Card>
-              
-              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20">
-                <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 mb-1">86.6%</div>
-                  <p className="text-xs text-gray-600 dark:text-gray-300">Occupancy Data</p>
-                </CardContent>
-              </Card>
-              
-              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20">
-                <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-red-600 dark:text-red-400 mb-1">100%</div>
-                  <p className="text-xs text-gray-600 dark:text-gray-300">Real Pricing</p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          {/* Market Intelligence Dashboard */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-600">
-            <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-6 text-center">Live Market Intelligence</h3>
-            
-            {/* Pricing Tiers */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              <div className="text-center bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2">$303-$800</div>
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">HUD Affordable</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Government subsidized housing for seniors</p>
-                <Badge className="mt-2 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">6,078 properties</Badge>
-              </div>
-              
-              <div className="text-center bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-4 rounded-lg">
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-2">$2,500-$4,500</div>
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Independent Living</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Active lifestyle communities</p>
-                <Badge className="mt-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">8,200 properties</Badge>
-              </div>
-              
-              <div className="text-center bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-4 rounded-lg">
-                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-2">$4,000-$7,500</div>
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Assisted Living</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Personal care and support</p>
-                <Badge className="mt-2 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300">12,400 properties</Badge>
-              </div>
-              
-              <div className="text-center bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 p-4 rounded-lg">
-                <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 mb-2">$6,500-$12,000</div>
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Memory Care</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Specialized dementia care</p>
-                <Badge className="mt-2 bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300">4,345 properties</Badge>
-              </div>
-            </div>
-
-            {/* Real Examples */}
-            <div className="border-t border-gray-200 dark:border-gray-600 pt-6">
-              <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">Featured Real Properties</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">$303/month</div>
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Florin Gardens Cooperative</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">HUD Property • Sacramento, CA</p>
-                  <Badge className="mt-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">Available Units</Badge>
-                </div>
-                
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-4 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">$5,200/month</div>
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Bay Area Assisted Living</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Licensed Facility • San Francisco, CA</p>
-                  <Badge className="mt-2 bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300">Waitlist Available</Badge>
-                </div>
-                
-                <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-4 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">$9,200/month</div>
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Premium Memory Care</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Specialized Care • Palo Alto, CA</p>
-                  <Badge className="mt-2 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">Immediate Availability</Badge>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Real-Time HUD Data Showcase */}
       <section className="px-4 py-16 bg-white dark:bg-gray-800">
@@ -2218,6 +1968,171 @@ export default function MySeniorValetHome() {
               <Phone className="w-5 h-5 mr-2" />
               Contact Sales Team
             </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Massive Data Coverage Section - Enhanced */}
+      <section className="px-4 py-16 bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">North America's Most Comprehensive Senior Living Database</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300">26,306+ communities with 100% authentic government data</p>
+          </div>
+          
+          {/* Geographic Coverage Map */}
+          <div className="mb-12">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 text-center mb-6">Complete Geographic Coverage</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* United States */}
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
+                <CardContent className="p-6 text-center">
+                  <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">🇺🇸</div>
+                  <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">20,279</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">United States</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">All 50 states + territories</p>
+                  <div className="mt-3 flex flex-wrap gap-1 justify-center">
+                    <Badge variant="secondary" className="text-xs">California: 2,965</Badge>
+                    <Badge variant="secondary" className="text-xs">Texas: 2,283</Badge>
+                    <Badge variant="secondary" className="text-xs">Florida: 690</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Canada */}
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20">
+                <CardContent className="p-6 text-center">
+                  <div className="text-4xl font-bold text-red-600 dark:text-red-400 mb-2">🇨🇦</div>
+                  <div className="text-3xl font-bold text-red-600 dark:text-red-400 mb-2">3,810</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Canada</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">All provinces & territories</p>
+                  <div className="mt-3 flex flex-wrap gap-1 justify-center">
+                    <Badge variant="secondary" className="text-xs">Ontario: 800</Badge>
+                    <Badge variant="secondary" className="text-xs">Quebec: 750</Badge>
+                    <Badge variant="secondary" className="text-xs">BC: 600</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Mexico */}
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
+                <CardContent className="p-6 text-center">
+                  <div className="text-4xl font-bold text-green-600 dark:text-green-400 mb-2">🇲🇽</div>
+                  <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">1,693</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Mexico</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">All 32 states covered</p>
+                  <div className="mt-3 flex flex-wrap gap-1 justify-center">
+                    <Badge variant="secondary" className="text-xs">Jalisco: 120</Badge>
+                    <Badge variant="secondary" className="text-xs">CDMX: 150</Badge>
+                    <Badge variant="secondary" className="text-xs">Baja: 85</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Live Data Dashboard */}
+          <div className="mb-12">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 text-center mb-6">Live Platform Statistics</h3>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">26,306</div>
+                  <p className="text-xs text-gray-600 dark:text-gray-300">Total Communities</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">6,078</div>
+                  <p className="text-xs text-gray-600 dark:text-gray-300">HUD Properties</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">427K</div>
+                  <p className="text-xs text-gray-600 dark:text-gray-300">Housing Units</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20">
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 mb-1">86.6%</div>
+                  <p className="text-xs text-gray-600 dark:text-gray-300">Occupancy Data</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20">
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold text-red-600 dark:text-red-400 mb-1">100%</div>
+                  <p className="text-xs text-gray-600 dark:text-gray-300">Real Pricing</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Market Intelligence Dashboard */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-600">
+            <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-6 text-center">Live Market Intelligence</h3>
+            
+            {/* Pricing Tiers */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+              <div className="text-center bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 rounded-lg">
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2">$303-$800</div>
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">HUD Affordable</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Government subsidized housing for seniors</p>
+                <Badge className="mt-2 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">6,078 properties</Badge>
+              </div>
+              
+              <div className="text-center bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-4 rounded-lg">
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-2">$2,500-$4,500</div>
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Independent Living</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Active lifestyle communities</p>
+                <Badge className="mt-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">8,200 properties</Badge>
+              </div>
+              
+              <div className="text-center bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-4 rounded-lg">
+                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-2">$4,000-$7,500</div>
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Assisted Living</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Personal care and support</p>
+                <Badge className="mt-2 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300">12,400 properties</Badge>
+              </div>
+              
+              <div className="text-center bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 p-4 rounded-lg">
+                <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 mb-2">$6,500-$12,000</div>
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Memory Care</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Specialized dementia care</p>
+                <Badge className="mt-2 bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300">4,345 properties</Badge>
+              </div>
+            </div>
+
+            {/* Real Examples */}
+            <div className="border-t border-gray-200 dark:border-gray-600 pt-6">
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">Featured Real Properties</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 rounded-lg text-center">
+                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">$303/month</div>
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Florin Gardens Cooperative</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">HUD Property • Sacramento, CA</p>
+                  <Badge className="mt-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">Available Units</Badge>
+                </div>
+                
+                <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-4 rounded-lg text-center">
+                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">$5,200/month</div>
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Bay Area Assisted Living</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Licensed Facility • San Francisco, CA</p>
+                  <Badge className="mt-2 bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300">Waitlist Available</Badge>
+                </div>
+                
+                <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-4 rounded-lg text-center">
+                  <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">$9,200/month</div>
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Premium Memory Care</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Specialized Care • Palo Alto, CA</p>
+                  <Badge className="mt-2 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">Immediate Availability</Badge>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
