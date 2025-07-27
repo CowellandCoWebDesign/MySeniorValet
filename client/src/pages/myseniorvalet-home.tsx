@@ -798,64 +798,107 @@ export default function MySeniorValetHome() {
             <Card className="group bg-gradient-to-br from-blue-600 to-purple-700 border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 overflow-hidden relative">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-600/20 group-hover:from-blue-400/30 group-hover:to-purple-500/30 transition-all duration-300"></div>
               <CardContent className="p-10 relative z-10">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                  <div className="text-white">
-                    <div className="flex items-center mb-4">
-                      <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mr-4">
-                        <MapPin className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-bold">Complete Senior Living Intelligence</h3>
-                        <p className="text-blue-100">Advanced Search • Smart Matching • Real-Time Analysis</p>
-                      </div>
+                <div className="text-center mb-8">
+                  <div className="flex items-center justify-center mb-4">
+                    <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mr-4">
+                      <span className="text-3xl">🧠</span>
                     </div>
-                    <p className="text-white/90 text-lg leading-relaxed mb-6">
-                      Advanced search technology analyzes {(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '26,306+'} communities across all 7 care levels. Natural language search understands complex requests like "memory care under $4,000 near Sacramento with therapy programs" and instantly finds matching communities with verified pricing and current availability.
-                    </p>
-                    <div className="flex flex-wrap gap-3 mb-6">
-                      <div className="flex items-center bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
-                        <div className="w-2 h-2 bg-blue-400 rounded-full mr-2 animate-pulse"></div>
-                        <span className="text-sm font-medium">Natural Language Search</span>
-                      </div>
-                      <div className="flex items-center bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
-                        <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse animation-delay-200"></div>
-                        <span className="text-sm font-medium">Smart Matching</span>
-                      </div>
-                      <div className="flex items-center bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
-                        <div className="w-2 h-2 bg-purple-400 rounded-full mr-2 animate-pulse animation-delay-400"></div>
-                        <span className="text-sm font-medium">Real-Time Analysis</span>
-                      </div>
+                    <div>
+                      <h3 className="text-3xl font-bold text-white">AI-Powered Senior Living Intelligence</h3>
+                      <p className="text-blue-100 text-lg">Revolutionary AI technology transforming senior care discovery</p>
                     </div>
-                    <Link href="/search">
-                      <Button className="bg-white text-blue-600 hover:bg-blue-50 px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
-                        Try Advanced Search →
-                      </Button>
-                    </Link>
                   </div>
-                  <div className="flex justify-center">
-                    <div className="relative">
-                      <div className="w-80 h-60 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 shadow-2xl overflow-hidden">
-                        <div className="absolute inset-4 bg-gradient-to-br from-green-400/20 to-blue-500/20 rounded-xl">
-                          <div className="absolute top-4 left-4">
-                            <div className="bg-white/90 px-3 py-2 rounded-lg text-xs font-medium text-gray-800 mb-2">
-                              "Memory care under $4,000 near me"
-                            </div>
-                            <div className="flex space-x-1">
-                              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse animation-delay-200"></div>
-                              <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse animation-delay-400"></div>
-                            </div>
-                          </div>
-                          <div className="absolute bottom-4 right-4 bg-white/90 px-3 py-2 rounded-lg text-sm font-semibold text-gray-800">
-                            5 matches found
-                          </div>
-                          <div className="absolute bottom-4 left-4 bg-green-400/90 px-2 py-1 rounded text-xs font-medium text-white">
-                            $3,850/mo
-                          </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+                  <div className="text-white">
+                    <h4 className="text-xl font-bold mb-4 text-yellow-300">🚀 What Makes This Revolutionary</h4>
+                    <div className="space-y-4 mb-6">
+                      <div className="flex items-start">
+                        <div className="w-8 h-8 bg-yellow-400/20 rounded-lg flex items-center justify-center mr-3 mt-0.5">
+                          <span className="text-yellow-300 font-bold">1</span>
+                        </div>
+                        <div>
+                          <h5 className="font-semibold text-yellow-200 mb-1">Natural Language AI Search</h5>
+                          <p className="text-white/90 text-sm">Ask naturally: "Find memory care under $4,000 in Sacramento with pet therapy" - our AI understands context, location, budget, and specific needs</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start">
+                        <div className="w-8 h-8 bg-green-400/20 rounded-lg flex items-center justify-center mr-3 mt-0.5">
+                          <span className="text-green-300 font-bold">2</span>
+                        </div>
+                        <div>
+                          <h5 className="font-semibold text-green-200 mb-1">Live Pricing Intelligence</h5>
+                          <p className="text-white/90 text-sm">AI automatically prioritizes communities with verified HUD pricing ($303-$800), community-confirmed rates, then industry research - no more "call for pricing" guessing</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start">
+                        <div className="w-8 h-8 bg-purple-400/20 rounded-lg flex items-center justify-center mr-3 mt-0.5">
+                          <span className="text-purple-300 font-bold">3</span>
+                        </div>
+                        <div>
+                          <h5 className="font-semibold text-purple-200 mb-1">Geospatial Mapping AI</h5>
+                          <p className="text-white/90 text-sm">Interactive clustering technology processes 26,306+ communities in real-time, showing live data pins (green = verified pricing, red = call for pricing)</p>
                         </div>
                       </div>
                     </div>
                   </div>
+
+                  <div className="text-white">
+                    <h4 className="text-xl font-bold mb-4 text-cyan-300">⚡ Advanced AI Integrations</h4>
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                        <div className="text-2xl mb-2">🤖</div>
+                        <h5 className="font-semibold text-cyan-200 mb-1">Anthropic Claude AI</h5>
+                        <p className="text-white/80 text-xs">Natural language processing for complex search queries and intelligent matching</p>
+                      </div>
+                      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                        <div className="text-2xl mb-2">🗺️</div>
+                        <h5 className="font-semibold text-cyan-200 mb-1">PostGIS Spatial AI</h5>
+                        <p className="text-white/80 text-xs">Advanced geospatial queries with real-time community clustering and proximity analysis</p>
+                      </div>
+                      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                        <div className="text-2xl mb-2">💰</div>
+                        <h5 className="font-semibold text-cyan-200 mb-1">Pricing Intelligence Engine</h5>
+                        <p className="text-white/80 text-xs">AI-powered pricing analysis across government data, community verified rates, and industry research</p>
+                      </div>
+                      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                        <div className="text-2xl mb-2">🎯</div>
+                        <h5 className="font-semibold text-cyan-200 mb-1">Smart Matching Algorithm</h5>
+                        <p className="text-white/80 text-xs">Machine learning that understands care needs, budget constraints, and family preferences</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                  <h4 className="text-xl font-bold text-white mb-4 text-center">🌟 What You Can Do Right Now</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div>
+                      <div className="text-3xl mb-2">💬</div>
+                      <h5 className="font-semibold text-white mb-1">Ask Naturally</h5>
+                      <p className="text-white/80 text-sm">"Pet-friendly assisted living under $5,000 near me"</p>
+                    </div>
+                    <div>
+                      <div className="text-3xl mb-2">🔍</div>
+                      <h5 className="font-semibold text-white mb-1">See Live Data</h5>
+                      <p className="text-white/80 text-sm">Green pins = verified pricing, red pins = call for pricing</p>
+                    </div>
+                    <div>
+                      <div className="text-3xl mb-2">⚡</div>
+                      <h5 className="font-semibold text-white mb-1">Get Instant Results</h5>
+                      <p className="text-white/80 text-sm">AI-ranked communities with pricing transparency</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-center mt-8">
+                  <Link href="/search">
+                    <Button className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-gray-900 px-8 py-4 rounded-xl font-bold text-lg shadow-2xl hover:shadow-3xl transition-all duration-200 transform hover:scale-105">
+                      🚀 Try AI-Powered Search Now
+                    </Button>
+                  </Link>
+                  <p className="text-white/80 text-sm mt-3">Experience the future of senior living discovery</p>
                 </div>
               </CardContent>
             </Card>
