@@ -424,20 +424,29 @@ export default function MySeniorValetHome() {
                     Featured Service Providers
                   </h3>
                   <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm text-teal-700 dark:text-teal-300 font-medium">Verified providers</span>
-                    <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm text-orange-700 dark:text-orange-300 font-medium">Licensed & insured</span>
+                    <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm text-amber-700 dark:text-amber-300 font-medium">Demo providers shown</span>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">Real providers coming soon</span>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-lg font-bold text-gray-900 dark:text-gray-100">Available Now</div>
-                  <div className="text-sm text-teal-600 dark:text-teal-300 font-medium">Professional services</div>
+                  <div className="text-lg font-bold text-gray-900 dark:text-gray-100">Framework Ready</div>
+                  <div className="text-sm text-amber-600 dark:text-amber-300 font-medium">API integration pending</div>
+                </div>
+              </div>
+              
+              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-3 mb-4">
+                <div className="flex items-center">
+                  <div className="text-amber-600 dark:text-amber-400 mr-2">⚠️</div>
+                  <p className="text-sm text-amber-800 dark:text-amber-200 font-medium">
+                    <strong>Demo Content:</strong> These are example service providers for demonstration purposes. Real verified providers will be available once API integrations are complete.
+                  </p>
                 </div>
               </div>
               
               <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
-                12 service categories • Professional providers ready to help with your senior living transition
+                Framework ready for 12+ service categories • Real provider directory launching soon
               </p>
             </div>
 
