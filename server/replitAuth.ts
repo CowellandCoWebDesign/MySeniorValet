@@ -227,3 +227,50 @@ export const isAdmin: RequestHandler = async (req, res, next) => {
     res.status(500).json({ message: "Authentication error" });
   }
 };
+
+// Enhanced role checking middleware
+export const checkRole = (allowedRoles: string[]): RequestHandler => {
+  return async (req, res, next) => {
+    const user = req.user as any;
+    
+    // First check if authenticated
+    if (!req.isAuthenticated() || !user.expires_at) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
+    try {
+      // Get user from database to check role
+      const userEmail = user.claims?.email;
+      if (!userEmail) {
+        return res.status(401).json({ message: "No user email found" });
+      }
+      
+      const dbUser = await storage.getUserByEmail(userEmail);
+      if (!dbUser) {
+        return res.status(401).json({ message: "User not found" });
+      }
+      
+      // Super admin has access to everything
+      if (dbUser.role === 'super_admin') {
+        (req as any).dbUser = dbUser;
+        next();
+        return;
+      }
+      
+      // Check if user's role is in allowed roles
+      if (!dbUser.role || !allowedRoles.includes(dbUser.role)) {
+        return res.status(403).json({ 
+          message: `Access denied. Required roles: ${allowedRoles.join(', ')}` 
+        });
+      }
+      
+      // Attach user to request for use in routes
+      (req as any).dbUser = dbUser;
+      
+      next();
+    } catch (error) {
+      console.error("Role check error:", error);
+      res.status(500).json({ message: "Authentication error" });
+    }
+  };
+};

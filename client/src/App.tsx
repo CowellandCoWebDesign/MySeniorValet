@@ -15,6 +15,7 @@ import Claim from "@/pages/claim";
 import Admin from "@/pages/admin";
 import AdminCleanFull from "@/pages/admin-clean-full";
 import AdminCreative from "@/pages/admin-creative";
+import AdminUnified from "@/pages/admin-unified";
 import ExpansionMonitor from "@/pages/expansion-monitor";
 import ApiCostDashboard from "@/pages/api-cost-dashboard";
 import ServiceListingsAdmin from "@/pages/admin/service-listings";
@@ -91,6 +92,7 @@ function Router() {
       <Route path="/claim/:communityId" component={Claim} />
       <Route path="/admin" component={AdminCreative} />
       <Route path="/admin-creative" component={AdminCreative} />
+      <Route path="/admin-unified" component={AdminUnified} />
       <Route path="/admin/service-listings" component={ServiceListingsAdmin} />
       <Route path="/expansion-monitor" component={ExpansionMonitor} />
       <Route path="/api-costs" component={ApiCostDashboard} />

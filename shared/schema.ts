@@ -99,7 +99,7 @@ export const users = pgTable("users", {
   passwordResetExpires: timestamp("password_reset_expires"),
   lastLoginAt: timestamp("last_login_at"),
   isActive: boolean("is_active").default(true),
-  role: text("role", { enum: ["user", "admin", "community_owner"] }).default("user"),
+  role: text("role", { enum: ["user", "admin", "community_owner", "vendor", "financial_admin", "support_agent", "analytics_viewer", "super_admin"] }).default("user"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -1514,6 +1514,47 @@ export const vendorConnections = pgTable("vendor_connections", {
 // ============ VENDOR MARKETPLACE TABLES ============
 
 // Vendors - Main vendor account table
+// Role permissions table for dashboard access control
+export const rolePermissions = pgTable("role_permissions", {
+  id: serial("id").primaryKey(),
+  role: text("role", { 
+    enum: ["user", "admin", "community_owner", "vendor", "financial_admin", "support_agent", "analytics_viewer", "super_admin"] 
+  }).notNull(),
+  dashboard: text("dashboard", {
+    enum: ["admin", "community", "user", "vendor", "financial", "analytics", "integration", "security", "all"]
+  }).notNull(),
+  permissions: json("permissions").$type<{
+    view: boolean;
+    edit: boolean;
+    delete: boolean;
+    export: boolean;
+    manage_users?: boolean;
+  }>().notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("role_permissions_role_idx").on(table.role),
+]);
+
+// User role assignments for flexible permission management
+export const userRoleAssignments = pgTable("user_role_assignments", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  assignedBy: varchar("assigned_by").notNull().references(() => users.id),
+  role: text("role", { 
+    enum: ["user", "admin", "community_owner", "vendor", "financial_admin", "support_agent", "analytics_viewer", "super_admin"] 
+  }).notNull(),
+  dashboardAccess: text("dashboard_access").array().default([]),
+  notes: text("notes"),
+  expiresAt: timestamp("expires_at"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("user_role_assignments_user_id_idx").on(table.userId),
+  index("user_role_assignments_assigned_by_idx").on(table.assignedBy),
+]);
+
 export const vendors = pgTable("vendors", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id).unique(), // Link to user account

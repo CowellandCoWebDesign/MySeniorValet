@@ -78,7 +78,7 @@ import { comprehensivePhotoEnrichment } from "./comprehensive-photo-enrichment";
 import { AnthropicAIService, GeminiAIService, AIOrchestrator } from "./ai-services";
 import { apiCostProtection } from "./api-cost-protection";
 import { aiSearchService } from "./ai-search-service";
-import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
+import { setupAuth, isAuthenticated, isAdmin, checkRole } from "./replitAuth";
 import { communityStatsCache } from "./community-stats-cache";
 import { systematicPhotoEnrichment } from "./systematic-photo-enrichment";
 import { emergencyEnrichment } from "./emergency-enrichment";
@@ -11464,6 +11464,126 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Get current user's role with permissions
+  app.get('/api/auth/user/role', isAuthenticated, async (req: any, res) => {
+    try {
+      const userEmail = req.user.claims.email;
+      const user = await storage.getUserByEmail(userEmail);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json({
+        role: user.role || 'user',
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName
+      });
+    } catch (error) {
+      console.error("Error fetching user role:", error);
+      res.status(500).json({ message: "Failed to fetch user role" });
+    }
+  });
+
+  // Admin: Get all users
+  app.get('/api/admin/users', checkRole(['admin', 'super_admin']), async (req, res) => {
+    try {
+      const { page = '1', search = '', role = 'all' } = req.query;
+      const pageNum = parseInt(page as string);
+      const limit = 20;
+      const offset = (pageNum - 1) * limit;
+      
+      // Build query
+      let query = db.select({
+        id: users.id,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        role: users.role,
+        isActive: users.isActive,
+        createdAt: users.createdAt,
+        lastLoginAt: users.lastLoginAt
+      }).from(users);
+
+      // Apply filters
+      if (search) {
+        query = query.where(
+          or(
+            like(users.email, `%${search}%`),
+            like(users.firstName, `%${search}%`),
+            like(users.lastName, `%${search}%`)
+          )
+        );
+      }
+
+      if (role !== 'all') {
+        query = query.where(eq(users.role, role as string));
+      }
+
+      const allUsers = await query.orderBy(desc(users.createdAt));
+      
+      res.json(allUsers);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
+  // Admin: Update user role
+  app.put('/api/admin/users/:userId/role', checkRole(['admin', 'super_admin']), async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { role } = req.body;
+      
+      // Validate role
+      const validRoles = ['user', 'admin', 'community_owner', 'vendor', 'financial_admin', 'support_agent', 'analytics_viewer', 'super_admin'];
+      if (!validRoles.includes(role)) {
+        return res.status(400).json({ message: "Invalid role" });
+      }
+
+      // Prevent demoting super_admin unless done by another super_admin
+      const currentUserRole = (req as any).dbUser.role;
+      const targetUser = await storage.getUser(userId);
+      
+      if (targetUser?.role === 'super_admin' && currentUserRole !== 'super_admin') {
+        return res.status(403).json({ message: "Only super admins can modify super admin roles" });
+      }
+
+      // Update user role
+      await db.update(users)
+        .set({ role, updatedAt: new Date() })
+        .where(eq(users.id, userId));
+
+      res.json({ message: "User role updated successfully" });
+    } catch (error) {
+      console.error("Error updating user role:", error);
+      res.status(500).json({ message: "Failed to update user role" });
+    }
+  });
+
+  // Admin: Delete user
+  app.delete('/api/admin/users/:userId', checkRole(['super_admin']), async (req, res) => {
+    try {
+      const { userId } = req.params;
+      
+      // Prevent self-deletion
+      const currentUserEmail = (req as any).dbUser.email;
+      const targetUser = await storage.getUser(userId);
+      
+      if (targetUser?.email === currentUserEmail) {
+        return res.status(400).json({ message: "Cannot delete your own account" });
+      }
+
+      // Delete user
+      await db.delete(users).where(eq(users.id, userId));
+
+      res.json({ message: "User deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      res.status(500).json({ message: "Failed to delete user" });
     }
   });
 
