@@ -150,11 +150,11 @@ export default function MySeniorValetHome() {
           {/* Centered Headlines - Much Larger */}
           <div className="text-center mb-8 md:mb-12 max-w-6xl">
             <div className="space-y-6 mb-8">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white dark:text-gray-100 leading-none drop-shadow-2xl animate-fade-in-up tracking-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white dark:text-gray-100 leading-tight drop-shadow-2xl animate-fade-in-up tracking-tight">
                 <span className="block mb-2">Everything Senior Living Needs</span>
                 <span className="block text-gradient bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-300 bg-clip-text text-transparent drop-shadow-none">in one place</span>
               </h1>
-              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-white dark:text-gray-200 opacity-95 drop-shadow-lg px-4 animate-fade-in-up animation-delay-300 max-w-5xl mx-auto font-medium leading-relaxed">
+              <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl text-white dark:text-gray-200 opacity-95 drop-shadow-lg px-4 animate-fade-in-up animation-delay-300 max-w-4xl mx-auto font-medium leading-relaxed">
                 From live pricing and unit availability to move coordination, furniture setup, and prescription delivery, MySeniorValet is your white-glove partner.
               </h2>
             </div>
@@ -186,10 +186,10 @@ export default function MySeniorValetHome() {
                         }
                       }
                     }}
-                    className="flex-1 px-6 py-4 text-lg md:text-xl border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                    className="flex-1 px-6 py-4 text-base md:text-lg border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                   />
                   <div className="flex items-center mr-2">
-                    <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-sm md:text-base px-3 py-2">
+                    <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-xs md:text-sm px-3 py-2">
                       AI-Powered
                     </Badge>
                   </div>
@@ -210,12 +210,12 @@ export default function MySeniorValetHome() {
           {/* Primary CTA - Larger */}
           <div className="flex flex-col sm:flex-row gap-4 mb-4 animate-fade-in-up animation-delay-700">
             <Link href="/quiz">
-              <Button variant="outline" className="border-2 border-purple-300 text-purple-100 hover:bg-purple-400 hover:text-purple-900 px-8 py-4 rounded-2xl font-medium text-xl md:text-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-purple-500/20 backdrop-blur-sm">
+              <Button variant="outline" className="border-2 border-purple-300 text-purple-100 hover:bg-purple-400 hover:text-purple-900 px-6 py-3 rounded-2xl font-medium text-base md:text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-purple-500/20 backdrop-blur-sm">
                 ✨ Find My Perfect Match
               </Button>
             </Link>
             <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}>
-              <Button variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 rounded-2xl font-medium text-xl md:text-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-white/10 backdrop-blur-sm">
+              <Button variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-6 py-3 rounded-2xl font-medium text-base md:text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-white/10 backdrop-blur-sm">
                 Explore Communities
               </Button>
             </Link>
@@ -225,10 +225,10 @@ export default function MySeniorValetHome() {
           <div className="mb-6 animate-fade-in-up animation-delay-800">
             <Link href="/ai-map-showcase">
               <Button 
-                className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-2xl hover:shadow-3xl transition-all duration-300 text-xl md:text-2xl px-10 py-5 rounded-2xl flex items-center justify-center ring-4 ring-purple-300 ring-opacity-50 animate-slow-pulse"
+                className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-2xl hover:shadow-3xl transition-all duration-300 text-base md:text-lg px-8 py-4 rounded-2xl flex items-center justify-center ring-4 ring-purple-300 ring-opacity-50 animate-slow-pulse"
               >
-                <Brain className="mr-3 h-8 w-8" />
-                <Sparkles className="mr-2 h-7 w-7" />
+                <Brain className="mr-3 h-6 w-6" />
+                <Sparkles className="mr-2 h-5 w-5" />
                 <span className="font-bold">🚀 Experience AI-Powered Map Intelligence</span>
               </Button>
             </Link>
@@ -250,14 +250,14 @@ export default function MySeniorValetHome() {
           
           {/* Community Count Text - Updated */}
           <div className="mb-4 animate-fade-in-up animation-delay-850">
-            <p className="text-white/90 dark:text-gray-300 text-lg md:text-xl lg:text-2xl xl:text-3xl drop-shadow-md text-center font-medium">
+            <p className="text-white/90 dark:text-gray-300 text-base md:text-lg lg:text-xl drop-shadow-md text-center font-medium">
               Serving families across <strong className="text-amber-200">{(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '26,306+'} verified senior living communities</strong>
             </p>
           </div>
           
           {/* Verification Badge - Larger */}
           <div className="mb-8 animate-fade-in-up animation-delay-900">
-            <div className="inline-flex items-center px-6 py-3 bg-white/20 dark:bg-white/10 backdrop-blur-sm rounded-full text-white dark:text-gray-200 text-base md:text-lg font-medium shadow-lg">
+            <div className="inline-flex items-center px-4 py-2 bg-white/20 dark:bg-white/10 backdrop-blur-sm rounded-full text-white dark:text-gray-200 text-sm md:text-base font-medium shadow-lg">
               <div className="w-3 h-3 bg-green-400 rounded-full mr-3 animate-pulse"></div>
               Verified Pricing • Real Availability • No Pressure
             </div>
