@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { PricingBreakdown } from "@/components/pricing-breakdown";
@@ -1098,7 +1098,7 @@ export default function MySeniorValetHome() {
           </div>
 
           {/* HUD Data Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
             <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 hover:shadow-xl transition-all">
               <CardContent className="p-6 text-center">
                 <DollarSign className="w-12 h-12 text-blue-600 dark:text-blue-400 mx-auto mb-4" />
@@ -1138,153 +1138,33 @@ export default function MySeniorValetHome() {
                 <Badge className="mt-2 bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300">100% Coverage</Badge>
               </CardContent>
             </Card>
+
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 hover:shadow-xl transition-all">
+              <CardContent className="p-6 text-center">
+                <TrendingUp className="w-12 h-12 text-red-600 dark:text-red-400 mx-auto mb-4" />
+                <div className="text-2xl font-bold text-red-600 dark:text-red-400 mb-2">$136-$5,000</div>
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Price Range</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">HUD transparent pricing</p>
+                <Badge className="mt-2 bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">Verified</Badge>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/20 dark:to-teal-800/20 hover:shadow-xl transition-all">
+              <CardContent className="p-6 text-center">
+                <Shield className="w-12 h-12 text-teal-600 dark:text-teal-400 mx-auto mb-4" />
+                <div className="text-2xl font-bold text-teal-600 dark:text-teal-400 mb-2">5,528</div>
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">HUD Properties</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Government verified</p>
+                <Badge className="mt-2 bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300">Official</Badge>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Featured HUD Properties */}
-          <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 rounded-xl p-8">
-            <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-6 text-center">Featured Affordable Properties</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md hover:shadow-lg transition-all">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">$303/mo</div>
-                  <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">Available</Badge>
-                </div>
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Florin Gardens Cooperative</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">Sacramento, California</p>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500 dark:text-gray-400">HUD Property ID:</span>
-                    <span className="font-medium text-gray-700 dark:text-gray-300">800001515</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500 dark:text-gray-400">Occupancy:</span>
-                    <span className="font-medium text-gray-700 dark:text-gray-300">92%</span>
-                  </div>
-                </div>
-                <Button className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white">View Details</Button>
-              </div>
 
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md hover:shadow-lg transition-all">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">$355/mo</div>
-                  <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300">Waitlist</Badge>
-                </div>
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Sacramento Elderly Apartments</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">Sacramento, California</p>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500 dark:text-gray-400">HUD Property ID:</span>
-                    <span className="font-medium text-gray-700 dark:text-gray-300">800067910</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500 dark:text-gray-400">Occupancy:</span>
-                    <span className="font-medium text-gray-700 dark:text-gray-300">98%</span>
-                  </div>
-                </div>
-                <Button className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white">Join Waitlist</Button>
-              </div>
-
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md hover:shadow-lg transition-all">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">$373/mo</div>
-                  <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">Open</Badge>
-                </div>
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Lincoln Court Apartments</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">California</p>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500 dark:text-gray-400">HUD Property ID:</span>
-                    <span className="font-medium text-gray-700 dark:text-gray-300">800002393</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500 dark:text-gray-400">Occupancy:</span>
-                    <span className="font-medium text-gray-700 dark:text-gray-300">85%</span>
-                  </div>
-                </div>
-                <Button className="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white">Apply Now</Button>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* Advanced Search Intelligence */}
-      <section className="px-4 py-16 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900 dark:via-purple-900 dark:to-pink-900">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">AI-Powered Search Intelligence</h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300">Search across 31,023+ communities with advanced filters</p>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-              <CardContent className="p-6 text-center">
-                <Search className="w-12 h-12 text-blue-600 dark:text-blue-400 mx-auto mb-4" />
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Smart Location Search</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300">AI understands "near beaches", "close to family", or specific zip codes</p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-              <CardContent className="p-6 text-center">
-                <DollarSign className="w-12 h-12 text-green-600 dark:text-green-400 mx-auto mb-4" />
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Budget Intelligence</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Find options within your budget from $303 to $15,000+ monthly</p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-              <CardContent className="p-6 text-center">
-                <Heart className="w-12 h-12 text-red-600 dark:text-red-400 mx-auto mb-4" />
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Care Level Matching</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Independent, assisted living, memory care, or skilled nursing</p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-              <CardContent className="p-6 text-center">
-                <Clock className="w-12 h-12 text-purple-600 dark:text-purple-400 mx-auto mb-4" />
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Availability Tracking</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Real-time availability updates and waitlist management</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Quick Search Categories */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
-            <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-6 text-center">Popular Search Categories</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Link href="/search?q=HUD affordable housing">
-                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2 hover:bg-blue-50 dark:hover:bg-blue-900/20">
-                  <DollarSign className="h-6 w-6 text-blue-600" />
-                  <span className="text-sm font-medium">HUD Affordable</span>
-                </Button>
-              </Link>
-              
-              <Link href="/search?q=assisted living bay area">
-                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2 hover:bg-green-50 dark:hover:bg-green-900/20">
-                  <Heart className="h-6 w-6 text-green-600" />
-                  <span className="text-sm font-medium">Assisted Living</span>
-                </Button>
-              </Link>
-              
-              <Link href="/search?q=memory care california">
-                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2 hover:bg-purple-50 dark:hover:bg-purple-900/20">
-                  <Users className="h-6 w-6 text-purple-600" />
-                  <span className="text-sm font-medium">Memory Care</span>
-                </Button>
-              </Link>
-              
-              <Link href="/search?q=luxury senior living">
-                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2 hover:bg-amber-50 dark:hover:bg-amber-900/20">
-                  <Star className="h-6 w-6 text-amber-600" />
-                  <span className="text-sm font-medium">Luxury Communities</span>
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
 
 
 
