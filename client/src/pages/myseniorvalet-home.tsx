@@ -250,7 +250,7 @@ export default function MySeniorValetHome() {
           
           {/* Community Count Text - Updated */}
           <div className="mb-4 animate-fade-in-up animation-delay-850">
-            <p className="text-white/90 dark:text-gray-300 text-base md:text-lg lg:text-xl drop-shadow-md text-center">
+            <p className="text-white/90 dark:text-gray-300 text-lg md:text-xl lg:text-2xl xl:text-3xl drop-shadow-md text-center font-medium">
               Serving families across <strong className="text-amber-200">{(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '26,306+'} verified senior living communities</strong>
             </p>
           </div>
