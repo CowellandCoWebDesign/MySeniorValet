@@ -11454,12 +11454,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Replit Auth user endpoint
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
+      console.log("Auth user endpoint hit, req.user:", req.user);
+      
+      if (!req.user || !req.user.claims) {
+        console.error("No user or claims in request");
+        return res.status(401).json({ message: "Invalid session data" });
+      }
+      
       const userEmail = req.user.claims.email;
+      console.log("Looking up user by email:", userEmail);
+      
       // Get user by email since Replit Auth uses string IDs but our DB uses integer IDs
       const user = await storage.getUserByEmail(userEmail);
       if (!user) {
+        console.log("User not found in storage for email:", userEmail);
         return res.status(404).json({ message: "User not found" });
       }
+      
+      console.log("User found:", user.id, user.email);
       res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
