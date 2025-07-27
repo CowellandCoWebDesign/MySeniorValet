@@ -186,10 +186,10 @@ export default function MySeniorValetHome() {
                         }
                       }
                     }}
-                    className="flex-1 px-6 py-4 text-base border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                    className="flex-1 px-6 py-4 text-lg md:text-xl border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                   />
                   <div className="flex items-center mr-2">
-                    <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-xs px-2 py-1">
+                    <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-sm md:text-base px-3 py-2">
                       AI-Powered
                     </Badge>
                   </div>
@@ -210,12 +210,12 @@ export default function MySeniorValetHome() {
           {/* Primary CTA - Larger */}
           <div className="flex flex-col sm:flex-row gap-4 mb-4 animate-fade-in-up animation-delay-700">
             <Link href="/quiz">
-              <Button variant="outline" className="border-2 border-purple-300 text-purple-100 hover:bg-purple-400 hover:text-purple-900 px-8 py-4 rounded-2xl font-medium text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-purple-500/20 backdrop-blur-sm">
+              <Button variant="outline" className="border-2 border-purple-300 text-purple-100 hover:bg-purple-400 hover:text-purple-900 px-8 py-4 rounded-2xl font-medium text-xl md:text-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-purple-500/20 backdrop-blur-sm">
                 ✨ Find My Perfect Match
               </Button>
             </Link>
             <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}>
-              <Button variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 rounded-2xl font-medium text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-white/10 backdrop-blur-sm">
+              <Button variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 rounded-2xl font-medium text-xl md:text-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-white/10 backdrop-blur-sm">
                 Explore Communities
               </Button>
             </Link>
@@ -225,10 +225,10 @@ export default function MySeniorValetHome() {
           <div className="mb-6 animate-fade-in-up animation-delay-800">
             <Link href="/ai-map-showcase">
               <Button 
-                className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-2xl hover:shadow-3xl transition-all duration-300 text-lg px-10 py-5 rounded-2xl flex items-center justify-center ring-4 ring-purple-300 ring-opacity-50 animate-slow-pulse"
+                className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-2xl hover:shadow-3xl transition-all duration-300 text-xl md:text-2xl px-10 py-5 rounded-2xl flex items-center justify-center ring-4 ring-purple-300 ring-opacity-50 animate-slow-pulse"
               >
-                <Brain className="mr-3 h-7 w-7" />
-                <Sparkles className="mr-2 h-6 w-6" />
+                <Brain className="mr-3 h-8 w-8" />
+                <Sparkles className="mr-2 h-7 w-7" />
                 <span className="font-bold">🚀 Experience AI-Powered Map Intelligence</span>
               </Button>
             </Link>
@@ -240,9 +240,9 @@ export default function MySeniorValetHome() {
           <div className="mb-6 animate-fade-in-up animation-delay-800">
             <div className="flex flex-wrap items-center justify-center gap-3">
 
-              <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full shadow-lg">
-                <Building2 className="h-4 w-4 text-blue-300" />
-                <span className="text-sm font-semibold text-white">HUD + Government Sources</span>
+              <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full shadow-lg">
+                <Building2 className="h-5 w-5 text-blue-300" />
+                <span className="text-base md:text-lg font-semibold text-white">HUD + Government Sources</span>
               </div>
 
             </div>
@@ -250,14 +250,14 @@ export default function MySeniorValetHome() {
           
           {/* Community Count Text - Updated */}
           <div className="mb-4 animate-fade-in-up animation-delay-850">
-            <p className="text-white/90 dark:text-gray-300 text-sm md:text-base drop-shadow-md text-center">
+            <p className="text-white/90 dark:text-gray-300 text-base md:text-lg lg:text-xl drop-shadow-md text-center">
               Serving families across <strong className="text-amber-200">{(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '26,306+'} verified senior living communities</strong>
             </p>
           </div>
           
           {/* Verification Badge - Larger */}
           <div className="mb-8 animate-fade-in-up animation-delay-900">
-            <div className="inline-flex items-center px-4 py-2 bg-white/20 dark:bg-white/10 backdrop-blur-sm rounded-full text-white dark:text-gray-200 text-sm font-medium shadow-lg">
+            <div className="inline-flex items-center px-6 py-3 bg-white/20 dark:bg-white/10 backdrop-blur-sm rounded-full text-white dark:text-gray-200 text-base md:text-lg font-medium shadow-lg">
               <div className="w-3 h-3 bg-green-400 rounded-full mr-3 animate-pulse"></div>
               Verified Pricing • Real Availability • No Pressure
             </div>
