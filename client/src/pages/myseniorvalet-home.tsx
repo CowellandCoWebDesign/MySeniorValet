@@ -357,67 +357,7 @@ export default function MySeniorValetHome() {
             </p>
           </div>
           
-          {/* AI-Powered Map Intelligence & Live Pricing - Top Priority */}
-          <div className="mb-8">
-            <Card className="group bg-gradient-to-br from-blue-600 to-purple-700 border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-600/20 group-hover:from-blue-400/30 group-hover:to-purple-500/30 transition-all duration-300"></div>
-              <CardContent className="p-10 relative z-10">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                  <div className="text-white">
-                    <div className="flex items-center mb-4">
-                      <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mr-4">
-                        <MapPin className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-bold">Complete Senior Living Intelligence</h3>
-                        <p className="text-blue-100">All 7 Levels of Care • Live Pricing • Real Availability</p>
-                      </div>
-                    </div>
-                    <p className="text-white/90 text-lg leading-relaxed mb-6">
-                      Our AI analyzes {(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '26,306+'} senior living communities across all care levels - from skilled nursing to independent living. Real-time pricing analysis, availability tracking, and intelligent matching.
-                    </p>
-                    <div className="flex flex-wrap gap-3 mb-6">
-                      <div className="flex items-center bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
-                        <div className="w-2 h-2 bg-blue-400 rounded-full mr-2 animate-pulse"></div>
-                        <span className="text-sm font-medium">All 7 Care Levels</span>
-                      </div>
-                      <div className="flex items-center bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
-                        <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse animation-delay-200"></div>
-                        <span className="text-sm font-medium">Live Pricing</span>
-                      </div>
-                      <div className="flex items-center bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
-                        <div className="w-2 h-2 bg-purple-400 rounded-full mr-2 animate-pulse animation-delay-400"></div>
-                        <span className="text-sm font-medium">Real Availability</span>
-                      </div>
-                    </div>
-                    <Link href="/search">
-                      <Button className="bg-white text-blue-600 hover:bg-blue-50 px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
-                        Search All Senior Living Levels →
-                      </Button>
-                    </Link>
-                  </div>
-                  <div className="flex justify-center">
-                    <div className="relative">
-                      <div className="w-80 h-60 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 shadow-2xl overflow-hidden">
-                        <div className="absolute inset-4 bg-gradient-to-br from-green-400/20 to-blue-500/20 rounded-xl">
-                          <div className="absolute top-4 left-4 flex space-x-2">
-                            <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-                            <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse animation-delay-200"></div>
-                            <div className="w-3 h-3 bg-purple-400 rounded-full animate-pulse animation-delay-400"></div>
-                          </div>
-                          <div className="absolute bottom-4 right-4 bg-white/90 px-3 py-2 rounded-lg text-sm font-semibold text-gray-800">
-                            $2,850/mo • Available Now
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Services & Vendors - Coming This Week */}
+          {/* Services & Vendors - Top Priority */}
           <div className="mb-8">
             <Card className="group bg-white dark:bg-gray-800 border-2 border-teal-200 dark:border-teal-400 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden relative">
               <div className="absolute inset-0 bg-gradient-to-br from-teal-50/50 to-cyan-50/50 dark:from-teal-900/20 dark:to-cyan-900/20"></div>
@@ -540,6 +480,66 @@ export default function MySeniorValetHome() {
                   <Button className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200" disabled>
                     Care Marketplace - Launching Soon
                   </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Complete Senior Living Intelligence - Third Position */}
+          <div className="mb-8">
+            <Card className="group bg-gradient-to-br from-blue-600 to-purple-700 border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 overflow-hidden relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-600/20 group-hover:from-blue-400/30 group-hover:to-purple-500/30 transition-all duration-300"></div>
+              <CardContent className="p-10 relative z-10">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                  <div className="text-white">
+                    <div className="flex items-center mb-4">
+                      <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mr-4">
+                        <MapPin className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-bold">Complete Senior Living Intelligence</h3>
+                        <p className="text-blue-100">All 7 Levels of Care • Live Pricing • Real Availability</p>
+                      </div>
+                    </div>
+                    <p className="text-white/90 text-lg leading-relaxed mb-6">
+                      Our AI analyzes {(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '26,306+'} senior living communities across all care levels - from skilled nursing to independent living. Real-time pricing analysis, availability tracking, and intelligent matching.
+                    </p>
+                    <div className="flex flex-wrap gap-3 mb-6">
+                      <div className="flex items-center bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
+                        <div className="w-2 h-2 bg-blue-400 rounded-full mr-2 animate-pulse"></div>
+                        <span className="text-sm font-medium">All 7 Care Levels</span>
+                      </div>
+                      <div className="flex items-center bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
+                        <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse animation-delay-200"></div>
+                        <span className="text-sm font-medium">Live Pricing</span>
+                      </div>
+                      <div className="flex items-center bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
+                        <div className="w-2 h-2 bg-purple-400 rounded-full mr-2 animate-pulse animation-delay-400"></div>
+                        <span className="text-sm font-medium">Real Availability</span>
+                      </div>
+                    </div>
+                    <Link href="/search">
+                      <Button className="bg-white text-blue-600 hover:bg-blue-50 px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                        Search All Senior Living Levels →
+                      </Button>
+                    </Link>
+                  </div>
+                  <div className="flex justify-center">
+                    <div className="relative">
+                      <div className="w-80 h-60 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 shadow-2xl overflow-hidden">
+                        <div className="absolute inset-4 bg-gradient-to-br from-green-400/20 to-blue-500/20 rounded-xl">
+                          <div className="absolute top-4 left-4 flex space-x-2">
+                            <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                            <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse animation-delay-200"></div>
+                            <div className="w-3 h-3 bg-purple-400 rounded-full animate-pulse animation-delay-400"></div>
+                          </div>
+                          <div className="absolute bottom-4 right-4 bg-white/90 px-3 py-2 rounded-lg text-sm font-semibold text-gray-800">
+                            $2,850/mo • Available Now
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
