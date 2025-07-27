@@ -829,7 +829,7 @@ export default function MySeniorValetHome() {
                         </div>
                         <div>
                           <h5 className="font-semibold text-green-200 mb-1">Live Pricing Intelligence</h5>
-                          <p className="text-white/90 text-sm">AI automatically prioritizes communities with verified HUD pricing ($303-$800), community-confirmed rates, then industry research - no more "call for pricing" guessing</p>
+                          <p className="text-white/90 text-sm">AI shows complete pricing spectrum from affordable HUD housing ($303-$800) to luxury resort-style communities ($8,000+) - verified pricing across all care levels and budgets</p>
                         </div>
                       </div>
                       <div className="flex items-start">
@@ -893,6 +893,7 @@ export default function MySeniorValetHome() {
                 </div>
 
                 <div className="text-center mt-8">
+                  <p className="text-white text-lg mb-4">Ready to get started?</p>
                   <Link href="/search">
                     <Button className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-gray-900 px-8 py-4 rounded-xl font-bold text-lg shadow-2xl hover:shadow-3xl transition-all duration-200 transform hover:scale-105">
                       🚀 Try AI-Powered Search Now
@@ -904,19 +905,7 @@ export default function MySeniorValetHome() {
             </Card>
           </div>
           
-          {/* All-in-One Planner Button */}
-          <div className="text-center mt-12">
-            <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-3xl p-8 shadow-2xl">
-              <h3 className="text-2xl font-bold text-white mb-4">Ready to Get Started?</h3>
-              <p className="text-blue-100 mb-6 text-lg">Access all services through our comprehensive planning tool</p>
-              <Button 
-                className="bg-white text-blue-600 hover:bg-blue-50 px-10 py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 border-0"
-                onClick={() => window.location.href = '/all-in-one-planner'}
-              >
-                Start Your All-in-One Planner →
-              </Button>
-            </div>
-          </div>
+
         </div>
       </section>
 
