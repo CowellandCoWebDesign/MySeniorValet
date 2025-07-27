@@ -190,6 +190,12 @@ This file contains the current technical architecture, key components, and essen
 
 ## Current Status (January 27, 2025)
 
+**AUTHENTICATION SYSTEM FIX COMPLETED**: Fixed critical Replit Auth login issue where authentication was failing with 401 errors (January 27, 2025). The issue was caused by authentication routes using hardcoded domains from environment variables instead of actual request hostname. Fixed by:
+- **Dynamic Hostname Authentication**: Changed `/api/login` and `/api/callback` routes to use `req.hostname` instead of hardcoded `REPLIT_DOMAINS[0]`
+- **Default Role Assignment**: New users now automatically get assigned 'user' role during registration preventing permission errors
+- **Session Data Enhancement**: Verify function now properly stores database user info in session for consistent authentication state
+- **Authentication Flow**: Login → Replit Auth → Callback → User creation/update with role → Session established → Access granted
+
 **UNIFIED ADMIN DASHBOARD WITH ROLE-BASED ACCESS CONTROL COMPLETED**: Successfully implemented comprehensive role-based access control system with unified admin dashboard (January 27, 2025). Created consolidated admin center that provides role-specific dashboard access for designated users:
 - **Expanded Role System**: Added 8 distinct roles: super_admin (full access), admin (administrative access), financial_admin (financial management), support_agent (user support), analytics_viewer (view-only analytics), community_owner (community management), vendor (vendor dashboard), and user (basic access)
 - **Role Permissions Infrastructure**: Created rolePermissions and userRoleAssignments tables for granular dashboard access control with permission levels (view, edit, delete, export, manage_users)

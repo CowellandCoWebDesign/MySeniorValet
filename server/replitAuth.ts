@@ -68,11 +68,11 @@ async function upsertUser(
     let user = await storage.getUserByEmail(userEmail);
     
     if (!user) {
-      // Create new user - use Replit user ID as primary key
+      // Create new user - use Replit user ID as primary key with default 'user' role
       const result = await db.execute(sql`
-        INSERT INTO users (id, username, email, first_name, last_name, profile_image_url, password)
-        VALUES (${replitUserId}, ${userEmail}, ${userEmail}, ${claims["first_name"] || null}, ${claims["last_name"] || null}, ${claims["profile_image_url"] || null}, 'replit_auth')
-        RETURNING id, username, email, first_name AS "firstName", last_name AS "lastName", profile_image_url AS "profileImageUrl"
+        INSERT INTO users (id, username, email, first_name, last_name, profile_image_url, password, role)
+        VALUES (${replitUserId}, ${userEmail}, ${userEmail}, ${claims["first_name"] || null}, ${claims["last_name"] || null}, ${claims["profile_image_url"] || null}, 'replit_auth', 'user')
+        RETURNING id, username, email, first_name AS "firstName", last_name AS "lastName", profile_image_url AS "profileImageUrl", role
       `);
       user = result.rows[0] as any;
     } else {
@@ -85,6 +85,10 @@ async function upsertUser(
             profile_image_url = ${claims["profile_image_url"] || null}
         WHERE id = ${user.id}
       `);
+      // Update the user object with the new claims data
+      user.firstName = claims["first_name"] || user.firstName;
+      user.lastName = claims["last_name"] || user.lastName;
+      user.profileImageUrl = claims["profile_image_url"] || user.profileImageUrl;
     }
     
     return user;
@@ -106,9 +110,12 @@ export async function setupAuth(app: Express) {
     tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
     verified: passport.AuthenticateCallback
   ) => {
-    const user = {};
+    const user: any = {};
     updateUserSession(user, tokens);
-    await upsertUser(tokens.claims());
+    const dbUser = await upsertUser(tokens.claims());
+    // Add database user info to session user object
+    user.dbUserId = dbUser.id;
+    user.email = dbUser.email;
     verified(null, user);
   };
 
@@ -134,18 +141,14 @@ export async function setupAuth(app: Express) {
     const returnTo = req.headers.referer || '/';
     (req.session as any).returnTo = returnTo;
     
-    // Use the actual Replit domain instead of localhost for authentication
-    const domain = process.env.REPLIT_DOMAINS!.split(",")[0];
-    passport.authenticate(`replitauth:${domain}`, {
+    passport.authenticate(`replitauth:${req.hostname}`, {
       prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
     })(req, res, next);
   });
 
   app.get("/api/callback", (req, res, next) => {
-    // Use the actual Replit domain instead of localhost for authentication
-    const domain = process.env.REPLIT_DOMAINS!.split(",")[0];
-    passport.authenticate(`replitauth:${domain}`, {
+    passport.authenticate(`replitauth:${req.hostname}`, {
       successRedirect: (req.session as any).returnTo || "/",
       failureRedirect: "/api/login",
     })(req, res, next);
