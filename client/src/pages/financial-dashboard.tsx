@@ -399,8 +399,9 @@ export default function FinancialDashboard() {
                           </div>
                         </div>
                       </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -473,8 +474,9 @@ export default function FinancialDashboard() {
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

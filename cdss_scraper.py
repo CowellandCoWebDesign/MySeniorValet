@@ -206,7 +206,7 @@ if __name__ == "__main__":
         try:
             print("\nTrying to find working API endpoints...")
             response = requests.get("https://www.ccld.dss.ca.gov/carefacilitysearch/", 
-                                  headers={'User-Agent': 'Mozilla/5.0 (compatible; TrueViewBot/1.0)'})
+                                  headers={'User-Agent': 'Mozilla/5.0 (compatible; MySeniorValetBot/1.0)'})
             
             if response.status_code == 200:
                 print("✅ Main site is accessible")

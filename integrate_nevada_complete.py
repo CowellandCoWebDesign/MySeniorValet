@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Integrate Complete Nevada Dataset into TrueView Database
+Integrate Complete Nevada Dataset into MySeniorValet Database
 Processes the comprehensive 166-facility Nevada dataset and creates SQL INSERT statements
 """
 
@@ -81,7 +81,7 @@ def save_sql_file(sql_statements, filename="nevada_complete_integration.sql"):
 
 def main():
     """Main integration function"""
-    print("🎲 Complete Nevada Integration - TrueView Database")
+    print("🎲 Complete Nevada Integration - MySeniorValet Database")
     print("="*60)
     
     # Read the complete Nevada dataset
@@ -106,7 +106,7 @@ def main():
             print(f"🏙️  Cities: {len(set(f['city'] for f in facilities))}")
             print(f"📝 SQL Batches: {len(sql_statements)}")
             print(f"📁 SQL File: {sql_file}")
-            print("\n🚀 Ready to execute SQL statements in TrueView!")
+            print("\n🚀 Ready to execute SQL statements in MySeniorValet!")
         else:
             print("❌ Failed to save SQL file")
     else:

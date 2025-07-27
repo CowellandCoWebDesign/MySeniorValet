@@ -716,7 +716,7 @@ export default function MapSearch() {
 
       setLoadingSuggestions(true);
       try {
-        const response = await fetch(`/api/search/suggestions?q=${encodeURIComponent(searchQuery)}`);
+        const response = await fetch('/api/search/suggestions?q=' + encodeURIComponent(searchQuery));
         if (response.ok) {
           const data = await response.json();
           setSuggestions(data.slice(0, 8));
@@ -734,14 +734,18 @@ export default function MapSearch() {
 
   const handleCommunityClick = (community: Community) => {
     setSelectedCommunity(community);
-    setLocation(`/communities/${community.id}`);
+    setLocation('/communities/' + community.id);
   };
 
   // Handle map bounds change with enhanced debugging and forced refresh
   const handleMapBoundsChange = useCallback((bounds: any) => {
     console.log('🗺️ MAP BOUNDS CHANGE DETECTED:', {
-      bounds: bounds ? `${bounds.getSouthWest().lng},${bounds.getSouthWest().lat},${bounds.getNorthEast().lng},${bounds.getNorthEast().lat}` : 'null',
-      previousBounds: mapBounds ? `${mapBounds.getSouthWest().lng},${mapBounds.getSouthWest().lat},${mapBounds.getNorthEast().lng},${mapBounds.getNorthEast().lat}` : 'null',
+      bounds: bounds ? 
+        bounds.getSouthWest().lng + ',' + bounds.getSouthWest().lat + ',' + bounds.getNorthEast().lng + ',' + bounds.getNorthEast().lat : 
+        'null',
+      previousBounds: mapBounds ? 
+        mapBounds.getSouthWest().lng + ',' + mapBounds.getSouthWest().lat + ',' + mapBounds.getNorthEast().lng + ',' + mapBounds.getNorthEast().lat : 
+        'null',
       showBottomPanel,
       currentCommunities: mapCommunities.length,
       timestamp: Date.now()
@@ -779,7 +783,9 @@ export default function MapSearch() {
   useEffect(() => {
     if (showBottomPanel && mapBounds && mapCommunities.length === 0) {
       console.log('🔄 PANEL OPENED WITH BOUNDS - FORCING QUERY:', {
-        mapBounds: `${mapBounds.getSouthWest().lng},${mapBounds.getSouthWest().lat},${mapBounds.getNorthEast().lng},${mapBounds.getNorthEast().lat}`,
+        mapBounds: mapBounds ? 
+          mapBounds.getSouthWest().lng + ',' + mapBounds.getSouthWest().lat + ',' + mapBounds.getNorthEast().lng + ',' + mapBounds.getNorthEast().lat : 
+          'null',
         timestamp: Date.now()
       });
       queryClient.invalidateQueries({ queryKey: ['communities-spatial'] });
@@ -790,7 +796,7 @@ export default function MapSearch() {
     // FIXED: Do not switch to list view automatically on cluster clicks
     // Let users manually control view mode via the floating button
     // The Map component will handle the zoom-in functionality
-    console.log(`Cluster ${clusterId} clicked at zoom ${zoomLevel} - staying in map view for drill-down`);
+    console.log('Cluster ' + clusterId + ' clicked at zoom ' + zoomLevel + ' - staying in map view for drill-down');
   };
 
   const availableAmenities = [
@@ -827,7 +833,7 @@ export default function MapSearch() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-800">
       {/* Header */}
-      <div className={`shadow-sm border-b ${isDarkMode ? 'bg-gray-900 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}>
+      <div className={"shadow-sm border-b " + (isDarkMode ? 'bg-gray-900 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700')}>
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -835,7 +841,7 @@ export default function MapSearch() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setLocation('/')}
-                className={`${isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:text-white'}`}
+                className={isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:text-white'}
               >
                 ← Back
               </Button>
@@ -857,7 +863,7 @@ export default function MapSearch() {
                   variant="ghost"
                   size="sm"
                   onClick={handleStartTutorial}
-                  className={`${isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:text-white'}`}
+                  className={isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:text-white'}
                   title="Map Navigation Tutorial"
                 >
                   <HelpCircle className="w-4 h-4" />
@@ -869,7 +875,7 @@ export default function MapSearch() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsDarkMode(!isDarkMode)}
-                className={`${isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:text-white'}`}
+                className={isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:text-white'}
               >
                 {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </Button>
@@ -883,13 +889,13 @@ export default function MapSearch() {
                     setViewMode('map');
                     setShowBottomPanel(false);
                   }}
-                  className={`relative transition-all duration-300 ${
+                  className={"relative transition-all duration-300 " + (
                     viewMode === 'map' && !showBottomPanel
                       ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg transform scale-105' 
                       : isDarkMode 
                       ? 'text-gray-300 hover:text-white hover:bg-gray-600' 
                       : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:text-white hover:bg-gray-100 dark:bg-gray-700'
-                  }`}
+                  )}
                 >
                   <MapIcon className="w-4 h-4" />
                   {viewMode === 'map' && !showBottomPanel && (
@@ -906,13 +912,13 @@ export default function MapSearch() {
                     console.log('List clicked, refreshing communities...');
                     refetchCommunities();
                   }}
-                  className={`relative transition-all duration-300 ${
+                  className={"relative transition-all duration-300 " + (
                     showBottomPanel 
                       ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg transform scale-105' 
                       : isDarkMode 
                       ? 'text-gray-300 hover:text-white hover:bg-gray-600' 
                       : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:text-white hover:bg-gray-100 dark:bg-gray-700'
-                  }`}
+                  )}
                 >
                   <List className="w-4 h-4" />
                   {showBottomPanel && (
@@ -926,7 +932,7 @@ export default function MapSearch() {
       </div>
 
       {/* Search Bar */}
-      <div className={`border-b p-4 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}>
+      <div className={"border-b p-4 " + (isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700')}>
         <div className="flex gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -945,25 +951,25 @@ export default function MapSearch() {
               }}
               onFocus={() => setShowSuggestions(true)}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-              className={`pl-10 ${isDarkMode 
+              className={"pl-10 " + (isDarkMode 
                 ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500' 
                 : 'bg-white dark:bg-gray-800 border-gray-300 text-gray-900 dark:text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500'
-              }`}
+              )}
             />
             {/* Autocomplete suggestions */}
             {showSuggestions && searchQuery.length > 0 && suggestions.length > 0 && (
-              <div className={`absolute top-full left-0 right-0 mt-1 rounded-md shadow-lg z-50 max-h-60 overflow-auto ${
+              <div className={"absolute top-full left-0 right-0 mt-1 rounded-md shadow-lg z-50 max-h-60 overflow-auto " + (
                 isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'
-              } border`}>
+              ) + " border"}>
                 {loadingSuggestions ? (
                   <div className="px-4 py-2 text-gray-500">Loading...</div>
                 ) : (
                   suggestions.map((suggestion, idx) => (
                     <button
                       key={idx}
-                      className={`w-full text-left px-4 py-2 hover:bg-blue-50 dark:hover:bg-gray-600 ${
+                      className={"w-full text-left px-4 py-2 hover:bg-blue-50 dark:hover:bg-gray-600 " + (
                         isDarkMode ? 'text-gray-200' : 'text-gray-700'
-                      }`}
+                      )}
                       onMouseDown={(e) => {
                         e.preventDefault();
                         setSearchQuery(suggestion);
@@ -991,7 +997,7 @@ export default function MapSearch() {
       </div>
 
       {/* Filters Bar */}
-      <div className={`border-b p-2 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}>
+      <div className={"border-b p-2 " + (isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700')}>
         <div className="flex items-center gap-2 overflow-x-auto">
           <Drawer>
             <DrawerTrigger asChild>
@@ -1162,25 +1168,25 @@ export default function MapSearch() {
 
           {/* Active Filters */}
           {filters.careType !== 'All Types' && (
-            <Badge variant="secondary" className={`gap-1 ${isDarkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-200 text-gray-800 dark:text-gray-200 hover:bg-gray-300'}`}>
+            <Badge variant="secondary" className={"gap-1 " + (isDarkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-200 text-gray-800 dark:text-gray-200 hover:bg-gray-300')}>
               {filters.careType}
               <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({...filters, careType: 'All Types'})} />
             </Badge>
           )}
           {filters.budget !== 'Any Budget' && (
-            <Badge variant="secondary" className={`gap-1 ${isDarkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-200 text-gray-800 dark:text-gray-200 hover:bg-gray-300'}`}>
+            <Badge variant="secondary" className={"gap-1 " + (isDarkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-200 text-gray-800 dark:text-gray-200 hover:bg-gray-300')}>
               {filters.budget}
               <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({...filters, budget: 'Any Budget'})} />
             </Badge>
           )}
           {filters.minRating > 0 && (
-            <Badge variant="secondary" className={`gap-1 ${isDarkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-200 text-gray-800 dark:text-gray-200 hover:bg-gray-300'}`}>
+            <Badge variant="secondary" className={"gap-1 " + (isDarkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-200 text-gray-800 dark:text-gray-200 hover:bg-gray-300')}>
               {filters.minRating}+ Stars
               <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({...filters, minRating: 0})} />
             </Badge>
           )}
           {filters.amenities.map((amenity) => (
-            <Badge key={amenity} variant="secondary" className={`gap-1 ${isDarkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-200 text-gray-800 dark:text-gray-200 hover:bg-gray-300'}`}>
+            <Badge key={amenity} variant="secondary" className={"gap-1 " + (isDarkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-200 text-gray-800 dark:text-gray-200 hover:bg-gray-300')}>
               {amenity}
               <X 
                 className="w-3 h-3 cursor-pointer" 
@@ -1210,11 +1216,11 @@ export default function MapSearch() {
 
       {/* Enhanced Bottom Slide Panel - Fixed visibility */}
       <div 
-        className={`fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 dark:bg-gray-900 shadow-2xl rounded-t-2xl transition-all duration-500 ease-out z-[998] border-t-4 border-blue-500 ${
+        className={"fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 dark:bg-gray-900 shadow-2xl rounded-t-2xl transition-all duration-500 ease-out z-[998] border-t-4 border-blue-500 " + (
           showBottomPanel ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
-        }`}
+        )}
         style={{ 
-          height: showBottomPanel ? `${panelHeight}vh` : '0vh',
+          height: showBottomPanel ? panelHeight + 'vh' : '0vh',
           minHeight: showBottomPanel ? '300px' : '0px',
           maxHeight: '80vh'
         }}
@@ -1252,7 +1258,7 @@ export default function MapSearch() {
               <h3 className="text-xl font-bold text-blue-800 dark:text-blue-200 flex items-center gap-2">
                 🏠 {!mapBounds ? 'Position map to see communities' : 
                  isLoadingCommunities || isFetchingCommunities ? 'Loading communities...' : 
-                 `${mapCommunities.length} Communities Found`}
+                 mapCommunities.length + ' Communities Found'}
                 {(isLoadingCommunities || isFetchingCommunities) && (
                   <div className="inline-flex items-center gap-1 text-sm font-normal text-blue-600 dark:text-blue-400">
                     <div className="w-3 h-3 border-2 border-blue-600 dark:border-blue-400 border-t-transparent rounded-full animate-spin"></div>
@@ -1291,7 +1297,7 @@ export default function MapSearch() {
         </div>
 
         {/* Enhanced Panel Content - Beautiful List View */}
-        <div className="overflow-y-auto p-4 bg-gradient-to-b from-blue-50/30 to-white dark:from-blue-900/10 dark:to-gray-900" style={{ height: `calc(${panelHeight}vh - 140px)` }}>
+        <div className="overflow-y-auto p-4 bg-gradient-to-b from-blue-50/30 to-white dark:from-blue-900/10 dark:to-gray-900" style={{ height: 'calc(' + panelHeight + 'vh - 140px)' }}>
           {!mapBounds ? (
             <div className="text-center py-12">
               <div className="bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 rounded-2xl p-8 mx-4">
@@ -1401,7 +1407,7 @@ export default function MapSearch() {
                           <div className="text-sm font-semibold text-green-600 dark:text-green-400">
                             {(community as any).displayPricing?.displayPrice || 
                              (community.priceRange && typeof community.priceRange === 'object' && 'min' in community.priceRange
-                              ? `$${(community.priceRange as any).min.toLocaleString()}/month`
+                              ? '$' + (community.priceRange as any).min.toLocaleString() + '/month'
                               : 'Market Rate')}
                           </div>
                           {community.rating > 0 && (
@@ -1445,7 +1451,7 @@ export default function MapSearch() {
 
           <Button
             onClick={() => {
-              console.log(`Floating button clicked! ${showBottomPanel ? 'Closing' : 'Opening'} list view...`);
+              console.log('Floating button clicked! ' + (showBottomPanel ? 'Closing' : 'Opening') + ' list view...');
               if (!showBottomPanel) {
                 setPanelHeight(70); // Set to 70% when opening
                 setShowBottomPanel(true);
@@ -1456,11 +1462,11 @@ export default function MapSearch() {
                 setShowBottomPanel(false);
               }
             }}
-            className={`relative transition-all duration-300 transform hover:scale-105 group w-14 h-14 rounded-full shadow-lg hover:shadow-xl ${
-              showBottomPanel 
+            className={"relative transition-all duration-300 transform hover:scale-105 group w-14 h-14 rounded-full shadow-lg hover:shadow-xl " + 
+              (showBottomPanel 
                 ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white' 
-                : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
-            }`}
+                : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white')
+            }
             title={showBottomPanel ? "Close Communities List" : "View Communities List"}
             size="lg"
           >
@@ -1493,4 +1499,3 @@ export default function MapSearch() {
     </div>
   );
 }
-// The final code file is generated with list toggle button functionality, community loading, and other fixes.

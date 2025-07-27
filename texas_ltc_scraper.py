@@ -7,7 +7,7 @@ BASE_SEARCH_URL = "https://apps.hhs.texas.gov/ltcsearch/"
 SEARCH_STEP_URL = BASE_SEARCH_URL + "search"
 DETAIL_BASE_URL = BASE_SEARCH_URL + "details?ProviderID="
 
-HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; TrueViewBot/1.0)"}
+HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; MySeniorValetBot/1.0)"}
 
 def get_provider_ids(page=1):
     resp = requests.get(SEARCH_STEP_URL, params={'page': page}, headers=HEADERS)

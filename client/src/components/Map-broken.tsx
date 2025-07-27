@@ -195,9 +195,7 @@ export default function Map({
     enabled: true, // Always enabled - will use fallback bounds if needed
     staleTime: 30000, // 30 second cache time for better performance
     gcTime: 60000, // 1 minute garbage collection time
-    refetchOnWindowFocus: false // Don't refetch when window regains focus
     refetchOnWindowFocus: false, // Don't refetch when window regains focus
-    gcTime: 10000, // Garbage collect after 10 seconds
   });
 
   const getIconForCommunity = (community: Community) => {

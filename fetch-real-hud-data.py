@@ -263,7 +263,7 @@ def main():
     print("\n🎯 Data Collection Complete!")
     print(f"   Total PHAs: {len(phas)}")
     print("   All data is from official HUD sources")
-    print("   Ready for integration into TrueView")
+    print("   Ready for integration into MySeniorValet")
 
 if __name__ == "__main__":
     main()

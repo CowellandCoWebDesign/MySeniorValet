@@ -21,7 +21,7 @@ def fetch_residential_operations(limit=2000, offset=0):
     
     headers = {
         "Accept": "application/json",
-        "User-Agent": "TrueView Data Collection"
+        "User-Agent": "MySeniorValet Data Collection"
     }
     
     try:

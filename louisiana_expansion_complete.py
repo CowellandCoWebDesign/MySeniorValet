@@ -387,7 +387,7 @@ def main():
     
     print(f"\nLouisiana Expansion Complete!")
     print(f"Generated {len(facilities)} facilities across all 64 Louisiana parishes")
-    print(f"Ready for integration into TrueView database")
+    print(f"Ready for integration into MySeniorValet database")
     print(f"100% parish coverage achieved for Louisiana state expansion")
 
 if __name__ == "__main__":

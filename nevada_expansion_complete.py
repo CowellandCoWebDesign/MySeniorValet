@@ -289,7 +289,7 @@ def main():
         print(f"   📊 {csv_file}")
         print(f"   📋 {json_file}")
         print(f"   📈 {stats_file}")
-        print("\n🚀 Ready for TrueView database integration!")
+        print("\n🚀 Ready for MySeniorValet database integration!")
         
     else:
         print("❌ No facilities generated. Check configuration.")

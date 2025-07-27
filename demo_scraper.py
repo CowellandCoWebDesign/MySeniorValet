@@ -1,6 +1,6 @@
 """
 Demo Senior Living Data Scraper
-Creates sample data structure for TrueView integration
+Creates sample data structure for MySeniorValet integration
 Shows how scraped data would be formatted and integrated
 """
 
@@ -12,7 +12,7 @@ from datetime import datetime
 def create_sample_scraped_data():
     """Create sample scraped data structure for demonstration"""
     
-    # Sample data structure that matches TrueView schema
+    # Sample data structure that matches MySeniorValet schema
     sample_communities = [
         {
             "Name": "Sunrise Senior Living of Palo Alto",
@@ -100,10 +100,10 @@ def save_to_json(data, filename="seniorhousingnet_sample.json"):
     else:
         print("❌ No data to save")
 
-def convert_to_trueview_format(scraped_data):
-    """Convert scraped data to TrueView database format"""
+def convert_to_myseniorvalet_format(scraped_data):
+    """Convert scraped data to MySeniorValet database format"""
     
-    trueview_communities = []
+    myseniorvalet_communities = []
     
     for community in scraped_data:
         # Parse care types
@@ -128,8 +128,8 @@ def convert_to_trueview_format(scraped_data):
                 max_price = int(prices[1].replace(",", ""))
                 price_range = {"min": min_price, "max": max_price}
         
-        # Create TrueView format
-        trueview_community = {
+        # Create MySeniorValet format
+        myseniorvalet_community = {
             "name": community["Name"],
             "address": community["Address"],
             "phone": community["Phone"],
@@ -145,9 +145,9 @@ def convert_to_trueview_format(scraped_data):
             "needsReview": True
         }
         
-        trueview_communities.append(trueview_community)
+        myseniorvalet_communities.append(myseniorvalet_community)
     
-    return trueview_communities
+    return myseniorvalet_communities
 
 def main():
     """Main demonstration function"""
@@ -163,10 +163,10 @@ def main():
     save_to_csv(scraped_data)
     save_to_json(scraped_data)
     
-    # Convert to TrueView format
-    print("\n🔄 Converting to TrueView database format...")
-    trueview_data = convert_to_trueview_format(scraped_data)
-    save_to_json(trueview_data, "trueview_import_ready.json")
+    # Convert to MySeniorValet format
+    print("\n🔄 Converting to MySeniorValet database format...")
+    myseniorvalet_data = convert_to_myseniorvalet_format(scraped_data)
+    save_to_json(myseniorvalet_data, "myseniorvalet_import_ready.json")
     
     # Show sample data
     print("\n📊 Sample scraped data structure:")
@@ -175,10 +175,10 @@ def main():
     for key, value in sample.items():
         print(f"{key}: {value[:80]}{'...' if len(str(value)) > 80 else ''}")
     
-    print("\n📊 Sample TrueView import format:")
+    print("\n📊 Sample MySeniorValet import format:")
     print("-" * 40)
-    trueview_sample = trueview_data[0]
-    for key, value in trueview_sample.items():
+    myseniorvalet_sample = myseniorvalet_data[0]
+    for key, value in myseniorvalet_sample.items():
         if isinstance(value, list):
             print(f"{key}: {value}")
         elif isinstance(value, dict):
@@ -190,7 +190,7 @@ def main():
     print("📄 Files created:")
     print("  - seniorhousingnet_sample.csv (Raw scraped data)")
     print("  - seniorhousingnet_sample.json (JSON format)")
-    print("  - trueview_import_ready.json (TrueView database format)")
+    print("  - myseniorvalet_import_ready.json (MySeniorValet database format)")
 
 if __name__ == "__main__":
     main()

@@ -259,7 +259,7 @@ def save_facilities_to_csv(facilities, filename):
     print(f"💾 Saved {len(facilities)} facilities to {filename}")
 
 def create_integration_script(facilities):
-    """Create integration script for TrueView"""
+    """Create integration script for MySeniorValet"""
     count = len(facilities)
     
     script = f"""const {{ Pool, neonConfig }} = require('@neondatabase/serverless');

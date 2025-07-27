@@ -17,7 +17,7 @@ def fetch_texas_senior_facilities():
     
     headers = {
         "Accept": "application/json",
-        "User-Agent": "TrueView Data Collection"
+        "User-Agent": "MySeniorValet Data Collection"
     }
     
     print("Fetching sample data to understand structure...")

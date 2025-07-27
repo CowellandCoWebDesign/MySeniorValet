@@ -33,7 +33,7 @@ DATASETS = {
 }
 
 HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (compatible; TrueViewBot/1.0; +https://trueviewsenior.com)'
+    'User-Agent': 'Mozilla/5.0 (compatible; MySeniorValetBot/1.0; +https://myseniorvalet.com)'
 }
 
 def download_dataset(dataset_key, dataset_info):

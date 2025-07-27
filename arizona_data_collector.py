@@ -35,7 +35,7 @@ ARIZONA_CITIES = [
 ]
 
 HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (compatible; TrueViewBot/1.0; +https://trueviewsenior.com)',
+    'User-Agent': 'Mozilla/5.0 (compatible; MySeniorValetBot/1.0; +https://myseniorvalet.com)',
     'Accept': 'application/json, text/plain, */*',
     'Accept-Language': 'en-US,en;q=0.9',
     'Accept-Encoding': 'gzip, deflate, br',
@@ -377,7 +377,7 @@ def main():
         print(f"🏛️  Source: Arizona Department of Health Services")
         print(f"✅ Compliance: 100% Golden Rule")
         print(f"📁 Files: {csv_file}, {json_file}, {script_file}")
-        print("\n🚀 Ready for TrueView integration!")
+        print("\n🚀 Ready for MySeniorValet integration!")
         
     else:
         print("❌ No facilities found. Check API endpoints.")

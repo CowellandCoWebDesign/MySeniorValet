@@ -560,7 +560,7 @@ class TexasTulipAdvancedScraper:
         self.create_integration_script()
     
     def create_integration_script(self):
-        """Create integration script for TrueView"""
+        """Create integration script for MySeniorValet"""
         count = len(self.facilities)
         
         script = f"""const {{ Pool, neonConfig }} = require('@neondatabase/serverless');
@@ -712,7 +712,7 @@ async def main():
         
         print(f"\n🚀 Next Steps:")
         print(f"   1. Run: node integrate-texas-tulip-scraped.cjs")
-        print(f"   2. This will add {len(scraper.facilities)} Texas facilities to TrueView")
+        print(f"   2. This will add {len(scraper.facilities)} Texas facilities to MySeniorValet")
         
     else:
         logger.error("❌ No facilities found - check debug files")

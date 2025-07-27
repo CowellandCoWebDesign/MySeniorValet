@@ -503,7 +503,7 @@ def main():
     
     print(f"\nGeorgia Expansion Complete!")
     print(f"Generated {len(facilities)} facilities across all 159 Georgia counties")
-    print(f"Ready for integration into TrueView database")
+    print(f"Ready for integration into MySeniorValet database")
     print(f"100% county coverage achieved for Georgia state expansion")
 
 if __name__ == "__main__":

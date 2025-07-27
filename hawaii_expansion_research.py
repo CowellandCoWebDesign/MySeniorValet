@@ -1,6 +1,6 @@
 """
 Hawaii Senior Living Facility Research and Data Collection
-Research authentic Hawaii senior living facilities for TrueView expansion
+Research authentic Hawaii senior living facilities for MySeniorValet expansion
 """
 
 import requests
@@ -235,7 +235,7 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 async function integrateHawaiiFacilities() {
   console.log('🌺 INTEGRATING HAWAII SENIOR LIVING FACILITIES');
-  console.log('Adding authentic Hawaii facilities to TrueView...');
+  console.log('Adding authentic Hawaii facilities to MySeniorValet...');
   
   const facilities = [];
   
@@ -350,7 +350,7 @@ async function integrateHawaiiFacilities() {
   }
   
   await pool.end();
-  console.log(`\\n🌺 ALOHA! TrueView now covers Hawaii!`);
+  console.log(`\\n🌺 ALOHA! MySeniorValet now covers Hawaii!`);
 }
 
 if (require.main === module) {
@@ -382,7 +382,7 @@ def main():
     print(f"   Dataset: {len(facilities)} facilities across 4 counties")
     print(f"   Coverage: Honolulu, Hawaii, Maui, Kauai counties")
     print(f"   Command: node integrate-hawaii-facilities.cjs")
-    print(f"   🏝️ Aloha! Ready to add Hawaii to TrueView!")
+    print(f"   🏝️ Aloha! Ready to add Hawaii to MySeniorValet!")
 
 if __name__ == "__main__":
     main()

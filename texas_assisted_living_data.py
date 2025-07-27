@@ -14,7 +14,7 @@ def fetch_assisted_living_facilities():
     
     headers = {
         "Accept": "application/json",
-        "User-Agent": "TrueView Data Collection"
+        "User-Agent": "MySeniorValet Data Collection"
     }
     
     all_facilities = []
@@ -118,7 +118,7 @@ def fetch_assisted_living_facilities():
     return all_facilities
 
 def integrate_texas_facilities():
-    """Integrate Texas facilities into TrueView database"""
+    """Integrate Texas facilities into MySeniorValet database"""
     facilities = fetch_assisted_living_facilities()
     
     if not facilities:

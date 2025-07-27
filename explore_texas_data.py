@@ -14,7 +14,7 @@ def explore_texas_data():
     
     headers = {
         "Accept": "application/json",
-        "User-Agent": "TrueView Data Collection"
+        "User-Agent": "MySeniorValet Data Collection"
     }
     
     print("Exploring Texas data structure...")

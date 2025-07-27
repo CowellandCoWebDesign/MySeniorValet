@@ -1,5 +1,5 @@
 """
-Integrate Complete Idaho Dataset into TrueView Database
+Integrate Complete Idaho Dataset into MySeniorValet Database
 Processes the comprehensive 251-facility Idaho dataset and creates SQL INSERT statements
 """
 
@@ -228,7 +228,7 @@ def main():
         print(f"🌆 Cities: {len(set(f['city'] for f in facilities))}")
         print()
         print("Next steps:")
-        print("1. Execute the SQL file against the TrueView database")
+        print("1. Execute the SQL file against the MySeniorValet database")
         print("2. Add coordinates to Idaho facilities for map display")
         print("3. Verify integration and test search functionality")
     else:

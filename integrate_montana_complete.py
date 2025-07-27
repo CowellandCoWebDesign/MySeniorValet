@@ -1,5 +1,5 @@
 """
-Integrate Complete Montana Dataset into TrueView Database
+Integrate Complete Montana Dataset into MySeniorValet Database
 Processes the comprehensive Montana dataset and creates SQL INSERT statements
 """
 
@@ -142,7 +142,7 @@ def main():
         print(f"   SQL File: {sql_file}")
         
         print(f"\n🏆 Montana integration ready!")
-        print(f"🚀 Next step: Execute the SQL file to add Montana to TrueView database")
+        print(f"🚀 Next step: Execute the SQL file to add Montana to MySeniorValet database")
         
     except Exception as e:
         print(f"❌ Error in Montana integration: {e}")

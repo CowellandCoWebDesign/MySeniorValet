@@ -1,6 +1,6 @@
 """
 Texas Comprehensive Assisted Living Dataset
-Creates 1,000+ authentic Texas assisted living facilities for TrueView expansion
+Creates 1,000+ authentic Texas assisted living facilities for MySeniorValet expansion
 Based on real Texas counties, cities, and healthcare naming conventions
 """
 
@@ -200,7 +200,7 @@ def save_to_json(facilities, filename='texas_tulip_facilities.json'):
     print(f"Saved {len(facilities)} facilities to {filename}")
 
 def create_integration_script(count):
-    """Create integration script for TrueView"""
+    """Create integration script for MySeniorValet"""
     script = f"""const {{ Pool, neonConfig }} = require('@neondatabase/serverless');
 const ws = require('ws');
 const fs = require('fs');
@@ -375,7 +375,7 @@ def main():
     
     print(f"\n🚀 Next Steps:")
     print(f"   1. Run: node integrate-texas-comprehensive.cjs")
-    print(f"   2. This will add {len(facilities)} Texas facilities to TrueView")
+    print(f"   2. This will add {len(facilities)} Texas facilities to MySeniorValet")
     print(f"   3. Database will expand to 2,935 + {len(facilities)} = {2935 + len(facilities)} total communities")
     print(f"   4. Texas will have comprehensive statewide coverage")
 

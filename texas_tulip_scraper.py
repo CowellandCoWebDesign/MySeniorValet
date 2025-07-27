@@ -393,7 +393,7 @@ class TexasTulipScraper:
         print(f"💾 Saved {len(self.facilities)} facilities to {filename}")
         
     def create_integration_script(self):
-        """Create TrueView integration script"""
+        """Create MySeniorValet integration script"""
         count = len(self.facilities)
         
         script = f"""const {{ Pool, neonConfig }} = require('@neondatabase/serverless');
@@ -556,7 +556,7 @@ async def main():
         
         print(f"\n🚀 Next Steps:")
         print(f"   1. Run: node integrate-texas-tulip-scraped.cjs")
-        print(f"   2. This will integrate all facilities into TrueView database")
+        print(f"   2. This will integrate all facilities into MySeniorValet database")
         
     else:
         print(f"\n❌ No facilities found - check tulip_page_content.html for debugging")
