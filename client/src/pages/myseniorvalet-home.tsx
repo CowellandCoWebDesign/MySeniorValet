@@ -225,7 +225,7 @@ export default function MySeniorValetHome() {
           <div className="mb-6 animate-fade-in-up animation-delay-800">
             <Link href="/ai-map-showcase">
               <Button 
-                className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-2xl hover:shadow-3xl transition-all duration-300 text-lg px-10 py-5 rounded-2xl flex items-center justify-center ring-4 ring-purple-300 ring-opacity-50 animate-pulse"
+                className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-2xl hover:shadow-3xl transition-all duration-300 text-lg px-10 py-5 rounded-2xl flex items-center justify-center ring-4 ring-purple-300 ring-opacity-50 animate-slow-pulse"
               >
                 <Brain className="mr-3 h-7 w-7" />
                 <Sparkles className="mr-2 h-6 w-6" />
