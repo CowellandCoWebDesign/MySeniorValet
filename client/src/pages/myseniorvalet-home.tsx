@@ -922,6 +922,15 @@ export default function MySeniorValetHome() {
                                 }
                               }
                             }}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                const query = (e.target as HTMLInputElement).value;
+                                if (query.trim()) {
+                                  // Navigate to search with the query
+                                  window.location.href = `/search?q=${encodeURIComponent(query)}`;
+                                }
+                              }
+                            }}
                           />
                         </div>
                         <div id="ai-indicator" className="text-xs text-white/60">Start typing to see AI in action</div>
@@ -965,6 +974,22 @@ export default function MySeniorValetHome() {
                             HUD Housing
                           </button>
                         </div>
+                        
+                        <Button 
+                          className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-gray-900 py-3 rounded-xl font-bold text-lg shadow-2xl hover:shadow-3xl transition-all duration-200 transform hover:scale-105"
+                          onClick={() => {
+                            const input = document.querySelector('input[placeholder*="Memory care"]') as HTMLInputElement;
+                            const query = input?.value?.trim() || '';
+                            if (query) {
+                              window.location.href = `/search?q=${encodeURIComponent(query)}`;
+                            } else {
+                              window.location.href = '/search';
+                            }
+                          }}
+                        >
+                          🚀 Try AI-Powered Search Now
+                        </Button>
+                        <p className="text-white/80 text-sm mt-3 text-center">Experience the future of senior living discovery</p>
                       </div>
 
                       {/* Miniature Interactive Map */}
@@ -1019,13 +1044,6 @@ export default function MySeniorValetHome() {
                       </div>
                     </div>
                   </div>
-
-                  <Link href="/search">
-                    <Button className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-gray-900 px-8 py-4 rounded-xl font-bold text-lg shadow-2xl hover:shadow-3xl transition-all duration-200 transform hover:scale-105">
-                      🚀 Try AI-Powered Search Now
-                    </Button>
-                  </Link>
-                  <p className="text-white/80 text-sm mt-3">Experience the future of senior living discovery</p>
                 </div>
               </CardContent>
             </Card>
