@@ -1102,10 +1102,8 @@ export default function MySeniorValetHome() {
           </div>
         </div>
         
-        {/* Complete Care Level Guide */}
+        {/* Market Intelligence and Care Level Guide */}
         <div className="space-y-4 mb-8">
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 text-center mb-2">Complete Care Level Guide</h3>
-          
           {/* Market Intelligence Explanation */}
           <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-6 max-w-4xl mx-auto">
             <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2 text-center">How Our Live Market Intelligence Works</h4>
