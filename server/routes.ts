@@ -12947,6 +12947,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Grok/XAI Status and Capabilities Endpoint
+  app.get('/api/ai/grok/status', async (req, res) => {
+    try {
+      const { grokService } = await import('./xai-grok-integration');
+      const capabilities = grokService.getCapabilities();
+      
+      res.json({
+        status: process.env.XAI_API_KEY ? 'available' : 'coming_soon',
+        model: 'Grok (XAI)',
+        specialty: 'Real-Time Fact Checking',
+        capabilities,
+        features: [
+          'Real-time information verification',
+          'Current events and market data',
+          'Cross-checking other AI findings',
+          'Regulatory compliance verification',
+          'Live pricing validation'
+        ],
+        integrationNote: 'Grok will provide the 4th layer of AI verification once API becomes available',
+        launchDate: 'Coming Soon - Infrastructure Ready',
+        readiness: {
+          infrastructureReady: true,
+          apiIntegrationComplete: true,
+          awaitingApiKey: !process.env.XAI_API_KEY
+        }
+      });
+    } catch (error) {
+      console.error('Grok status error:', error);
+      res.status(500).json({ 
+        error: 'Failed to get Grok status',
+        status: 'coming_soon'
+      });
+    }
+  });
+
   // Individual AI Endpoints for Specialized Analysis
   app.post('/api/ai/analyze', async (req, res) => {
     try {

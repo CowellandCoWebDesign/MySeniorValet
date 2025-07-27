@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Brain, Eye, TrendingUp, Shield, BookOpen, Calculator } from 'lucide-react';
+import { Brain, Eye, TrendingUp, Shield, BookOpen, Calculator, Rocket } from 'lucide-react';
 
 /*
 COMPREHENSIVE MULTI-AI INTELLIGENCE SHOWCASE
@@ -14,12 +14,13 @@ Truth in Senior Living - NOT a placement agency
 interface AICapability {
   id: string;
   name: string;
-  ai: 'Claude' | 'Gemini' | 'ChatGPT' | 'Multi-AI';
+  ai: 'Claude' | 'Gemini' | 'ChatGPT' | 'Grok' | 'Multi-AI';
   icon: any;
   description: string;
   capabilities: string[];
   confidence: number;
   color: string;
+  status?: 'active' | 'coming_soon';
 }
 
 const aiCapabilities: AICapability[] = [
@@ -124,6 +125,24 @@ const aiCapabilities: AICapability[] = [
     ],
     confidence: 87,
     color: 'from-yellow-500 to-orange-600'
+  },
+  {
+    id: 'grok-real-time',
+    name: 'Real-Time Fact Checking (Coming Soon)',
+    ai: 'Grok',
+    icon: Rocket,
+    description: 'Grok/XAI will provide real-time verification and fact-checking as the 4th AI layer',
+    capabilities: [
+      'Real-time information verification',
+      'Current events and market data',
+      'Cross-checking other AI findings',
+      'Regulatory compliance verification',
+      'Live pricing validation',
+      'Industry news and updates'
+    ],
+    confidence: 95,
+    color: 'from-red-500 to-orange-600',
+    status: 'coming_soon'
   }
 ];
 
@@ -135,6 +154,7 @@ export default function AIIntelligenceShowcase() {
       case 'Claude': return 'bg-orange-500 text-white';
       case 'Gemini': return 'bg-blue-500 text-white';
       case 'ChatGPT': return 'bg-green-500 text-white';
+      case 'Grok': return 'bg-red-500 text-white';
       case 'Multi-AI': return 'bg-purple-500 text-white';
       default: return 'bg-gray-500 text-white';
     }
@@ -154,20 +174,25 @@ export default function AIIntelligenceShowcase() {
             </h2>
           </div>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Unprecedented senior living intelligence combining <strong>Anthropic Claude</strong> + <strong>Google Gemini</strong> 
-            for comprehensive decision-making support
+            World-changing transparency through <strong>4-AI collaboration</strong>: Claude + Gemini + ChatGPT + <span className="text-red-600">Grok (Coming Soon)</span>
           </p>
           
           {/* AI Service Badges */}
-          <div className="flex items-center justify-center gap-4 mt-6">
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
+            <Badge className="bg-orange-500 text-white px-4 py-2 text-sm">
+              Claude 4.0 • Complex Care Planning
+            </Badge>
             <Badge className="bg-blue-500 text-white px-4 py-2 text-sm">
-              Claude 4.0 Sonnet • Complex Reasoning
+              Gemini 2.5 • Visual Intelligence
             </Badge>
             <Badge className="bg-green-500 text-white px-4 py-2 text-sm">
-              Gemini 2.5 Flash • Visual Intelligence
+              ChatGPT-4o • Financial Transparency
             </Badge>
-            <Badge className="bg-purple-500 text-white px-4 py-2 text-sm">
-              Multi-AI Orchestration
+            <Badge className="bg-red-500 text-white px-4 py-2 text-sm relative">
+              Grok/XAI • Real-Time Facts
+              <span className="absolute -top-2 -right-2 bg-yellow-500 text-black text-xs px-2 py-1 rounded-full font-bold">
+                Soon
+              </span>
             </Badge>
           </div>
         </div>
@@ -191,9 +216,16 @@ export default function AIIntelligenceShowcase() {
                     <div className={`p-3 rounded-full bg-gradient-to-r ${capability.color}`}>
                       <Icon className="h-6 w-6 text-white" />
                     </div>
-                    <Badge className={getAIBadgeColor(capability.ai)}>
-                      {capability.ai}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge className={getAIBadgeColor(capability.ai)}>
+                        {capability.ai}
+                      </Badge>
+                      {capability.status === 'coming_soon' && (
+                        <Badge className="bg-yellow-500 text-black text-xs">
+                          Coming Soon
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                   <CardTitle className="text-lg">{capability.name}</CardTitle>
                   <CardDescription>{capability.description}</CardDescription>

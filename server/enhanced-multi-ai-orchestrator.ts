@@ -1,10 +1,12 @@
 // Enhanced Multi-AI Orchestrator for MySeniorValet
 // World-changing transparency through AI cross-verification
 // Truth in Senior Living - NOT a placement agency
+// Ready for 4-AI orchestration with Grok
 
 import { ClaudeIntelligenceService } from './multi-ai-intelligence';
 import { GeminiIntelligenceService } from './multi-ai-intelligence';
 import { ChatGPTIntelligenceService } from './openai-intelligence';
+import { grokService } from './xai-grok-integration';
 
 export interface CrossVerificationResult {
   agreement: 'strong' | 'moderate' | 'weak';
@@ -24,17 +26,20 @@ export interface TransparencyReport {
     claude: any;
     gemini: any;
     chatgpt: any;
+    grok?: any; // Optional until API available
   };
   crossVerification: {
     claudeVerifiesGemini: CrossVerificationResult | null;
     geminiVerifiesChatGPT: CrossVerificationResult | null;
     chatGPTVerifiesClaude: CrossVerificationResult | null;
+    grokVerifiesAll?: CrossVerificationResult | null; // Optional until API available
     overallConsensus: number;
   };
   warnings: any[];
   transparencyScore: number;
   disclaimer: string;
   timestamp: string;
+  grokStatus: 'available' | 'coming_soon';
 }
 
 export const EnhancedMultiAIOrchestrator = {
@@ -80,7 +85,8 @@ export const EnhancedMultiAIOrchestrator = {
           crossVerification
         ),
         disclaimer: 'MySeniorValet provides transparency and truth in senior living. We are NOT a placement agency and receive NO compensation from communities. Our AI systems work together to expose hidden information and provide families with complete transparency.',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        grokStatus: grokService.getCapabilities().realTimeFactChecking ? 'available' : 'coming_soon'
       };
 
       console.log('✅ Multi-AI Transparency Report completed');
