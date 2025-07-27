@@ -498,29 +498,29 @@ export default function MySeniorValetHome() {
                       </div>
                       <div>
                         <h3 className="text-2xl font-bold">Complete Senior Living Intelligence</h3>
-                        <p className="text-blue-100">All 7 Levels of Care • Live Pricing • Real Availability</p>
+                        <p className="text-blue-100">Advanced Search • Smart Matching • Real-Time Analysis</p>
                       </div>
                     </div>
                     <p className="text-white/90 text-lg leading-relaxed mb-6">
-                      Our AI analyzes {(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '26,306+'} senior living communities across all care levels - from skilled nursing to independent living. Real-time pricing analysis, availability tracking, and intelligent matching.
+                      Advanced search technology analyzes {(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '26,306+'} communities across all 7 care levels. Natural language search understands complex requests like "memory care under $4,000 near Sacramento with therapy programs" and instantly finds matching communities with verified pricing and current availability.
                     </p>
                     <div className="flex flex-wrap gap-3 mb-6">
                       <div className="flex items-center bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
                         <div className="w-2 h-2 bg-blue-400 rounded-full mr-2 animate-pulse"></div>
-                        <span className="text-sm font-medium">All 7 Care Levels</span>
+                        <span className="text-sm font-medium">Natural Language Search</span>
                       </div>
                       <div className="flex items-center bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
                         <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse animation-delay-200"></div>
-                        <span className="text-sm font-medium">Live Pricing</span>
+                        <span className="text-sm font-medium">Smart Matching</span>
                       </div>
                       <div className="flex items-center bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
                         <div className="w-2 h-2 bg-purple-400 rounded-full mr-2 animate-pulse animation-delay-400"></div>
-                        <span className="text-sm font-medium">Real Availability</span>
+                        <span className="text-sm font-medium">Real-Time Analysis</span>
                       </div>
                     </div>
                     <Link href="/search">
                       <Button className="bg-white text-blue-600 hover:bg-blue-50 px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
-                        Search All Senior Living Levels →
+                        Try Advanced Search →
                       </Button>
                     </Link>
                   </div>
@@ -528,13 +528,21 @@ export default function MySeniorValetHome() {
                     <div className="relative">
                       <div className="w-80 h-60 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 shadow-2xl overflow-hidden">
                         <div className="absolute inset-4 bg-gradient-to-br from-green-400/20 to-blue-500/20 rounded-xl">
-                          <div className="absolute top-4 left-4 flex space-x-2">
-                            <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-                            <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse animation-delay-200"></div>
-                            <div className="w-3 h-3 bg-purple-400 rounded-full animate-pulse animation-delay-400"></div>
+                          <div className="absolute top-4 left-4">
+                            <div className="bg-white/90 px-3 py-2 rounded-lg text-xs font-medium text-gray-800 mb-2">
+                              "Memory care under $4,000 near me"
+                            </div>
+                            <div className="flex space-x-1">
+                              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse animation-delay-200"></div>
+                              <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse animation-delay-400"></div>
+                            </div>
                           </div>
                           <div className="absolute bottom-4 right-4 bg-white/90 px-3 py-2 rounded-lg text-sm font-semibold text-gray-800">
-                            $2,850/mo • Available Now
+                            5 matches found
+                          </div>
+                          <div className="absolute bottom-4 left-4 bg-green-400/90 px-2 py-1 rounded text-xs font-medium text-white">
+                            $3,850/mo
                           </div>
                         </div>
                       </div>
