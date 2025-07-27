@@ -1105,9 +1105,31 @@ export default function MySeniorValetHome() {
         {/* Complete Care Level Guide */}
         <div className="space-y-4 mb-8">
           <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 text-center mb-2">Complete Care Level Guide</h3>
-          <p className="text-center text-gray-600 dark:text-gray-300 text-sm mb-6 max-w-2xl mx-auto">
-            Market intelligence ranges shown below. Find your preferred communities to discover which ones have confirmed live pricing and current availability through community transparency.
-          </p>
+          
+          {/* Market Intelligence Explanation */}
+          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-6 max-w-4xl mx-auto">
+            <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2 text-center">How Our Live Market Intelligence Works</h4>
+            <div className="text-sm text-blue-800 dark:text-blue-200 space-y-2">
+              <p className="text-center mb-3">Pricing ranges below come from three verified data sources in priority order:</p>
+              <div className="grid md:grid-cols-3 gap-4 text-center">
+                <div>
+                  <div className="font-semibold text-green-700 dark:text-green-300">🏛️ Priority 1: Government Data</div>
+                  <p className="text-xs">6,078 HUD properties with exact verified rent amounts (like $303, $355, $373/month)</p>
+                </div>
+                <div>
+                  <div className="font-semibold text-blue-700 dark:text-blue-300">✓ Priority 2: Community Verified</div>
+                  <p className="text-xs">Communities that have confirmed current pricing within the last 30 days</p>
+                </div>
+                <div>
+                  <div className="font-semibold text-purple-700 dark:text-purple-300">📊 Priority 3: Industry Research</div>
+                  <p className="text-xs">Genworth Cost of Care Study, AARP research, and CMS data for market ranges</p>
+                </div>
+              </div>
+              <p className="text-center text-xs mt-3 font-medium">
+                Find your preferred communities below to discover which ones have confirmed live pricing and current availability through community transparency.
+              </p>
+            </div>
+          </div>
           
           {/* Skilled Nursing */}
           <Card className="border-0 shadow-md dark:bg-gray-700 dark:border-gray-600">
