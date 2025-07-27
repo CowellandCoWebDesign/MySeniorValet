@@ -417,12 +417,16 @@ export default function MySeniorValetHome() {
             </Card>
           </div>
 
-          {/* Services & Vendors - Existing Services */}
+          {/* Services & Vendors - Coming This Week */}
           <div className="mb-8">
-            <Card className="group bg-white dark:bg-gray-800 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden relative">
+            <Card className="group bg-white dark:bg-gray-800 border-2 border-teal-200 dark:border-teal-400 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden relative">
               <div className="absolute inset-0 bg-gradient-to-br from-teal-50/50 to-cyan-50/50 dark:from-teal-900/20 dark:to-cyan-900/20"></div>
               <CardContent className="p-8 relative z-10">
                 <div className="text-center mb-6">
+                  <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-teal-500 to-cyan-600 rounded-full text-white text-sm font-semibold mb-4 shadow-lg">
+                    <span className="mr-2">🚀</span>
+                    Coming This Week
+                  </div>
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">Services & Vendors</h3>
                   <p className="text-gray-600 dark:text-gray-300 text-lg">
                     Connect with all the services families need during their senior living journey
