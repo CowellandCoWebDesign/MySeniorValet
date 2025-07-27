@@ -563,69 +563,67 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* HUD Communities Showcase - Government Verified Pricing */}
-      <section className="px-4 py-16 bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-green-900/20 dark:via-emerald-900/20 dark:to-teal-900/20">
-        <div className="max-w-6xl mx-auto">
-          {/* Section Header */}
-          <div className="text-center mb-12">
-            <Badge className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 mb-4 px-4 py-2 text-sm font-semibold">🏛️ GOVERNMENT VERIFIED</Badge>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">HUD Communities with Official Pricing</h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">Discover affordable senior housing with transparent, government-verified pricing from $0-$800/month</p>
-          </div>
-
-          {/* HUD Communities Grid */}
-          {!hudProperties || (hudProperties as any[]).length === 0 ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-              <p className="text-gray-600 dark:text-gray-300">Loading HUD communities with verified pricing...</p>
+      {/* HUD Communities Showcase - Position 3 */}
+      <section className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
+        {/* Background Government Building Image */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+            alt="Government building background"
+            className="w-full h-full object-cover opacity-75"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-green-50/40 to-emerald-50/40 dark:from-gray-900/60 dark:to-gray-800/60"></div>
+        </div>
+        
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                HUD Communities & Government Verified
+              </h2>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-sm text-green-700 dark:text-green-300 font-medium">Government verified pricing</span>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">Income-based affordable</span>
+              </div>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {(hudProperties as any[]).slice(0, 8).map((community, index) => (
-                <div key={community.id || index} className="group">
-                  <EnhancedCommunityCard
-                    community={community}
-                    variant="horizontal"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* HUD Benefits Highlight */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl border border-green-200 dark:border-green-700">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-              <div>
-                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <DollarSign className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Transparent Pricing</h3>
-                <p className="text-gray-600 dark:text-gray-300">Government-verified rent amounts with no hidden fees or surprises</p>
-              </div>
-              <div>
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Building2 className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Quality Housing</h3>
-                <p className="text-gray-600 dark:text-gray-300">HUD-inspected properties meeting federal housing quality standards</p>
-              </div>
-              <div>
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Heart className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Income-Based</h3>
-                <p className="text-gray-600 dark:text-gray-300">Affordable housing options based on 30% of adjusted income</p>
-              </div>
+            <div className="text-right">
+              <div className="text-lg font-bold text-gray-900 dark:text-gray-100">$57 - $800</div>
+              <div className="text-sm text-green-600 dark:text-green-300 font-medium">HUD verified</div>
             </div>
           </div>
-
-          {/* Explore More HUD Button */}
-          <div className="text-center mt-8">
-            <Link href="/affordable-housing">
-              <Button className="bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
-                Explore All HUD Communities →
-              </Button>
-            </Link>
+          
+          <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
+            {(hudProperties as any[])?.length || 8} affordable communities • 
+            Government transparency and income-based options
+          </p>
+        
+          <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
+            {/* Show HUD communities */}
+            {(!hudProperties || (hudProperties as any[]).length === 0) ? (
+              // Loading skeleton cards
+              Array.from({ length: 4 }).map((_, index) => (
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border border-gray-200 animate-pulse">
+                  <div className="aspect-[4/3] bg-gray-200"></div>
+                  <CardContent className="p-3">
+                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-1"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded"></div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              (hudProperties as any[]).slice(0, 8).map((community: any, index) => (
+                <EnhancedCommunityCard
+                  key={`hud-${community.id}-${index}`}
+                  community={community}
+                  index={index}
+                  variant='hud'
+                />
+              ))
+            )}
           </div>
         </div>
       </section>
