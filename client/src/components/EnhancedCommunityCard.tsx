@@ -259,12 +259,12 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
     }
   };
 
-  // Standard card layout for featured, coastal, and other variants
-  const cardClass = variant === 'featured' || variant === 'coastal' 
+  // Standard card layout for featured, coastal, hud, and other variants
+  const cardClass = variant === 'featured' || variant === 'coastal' || variant === 'hud'
     ? "overflow-hidden flex-shrink-0 w-56 h-[30rem] animate-float dark:bg-gray-700"
     : "group hover:shadow-lg transition-all duration-200";
 
-  if (variant === 'featured' || variant === 'coastal') {
+  if (variant === 'featured' || variant === 'coastal' || variant === 'hud') {
     return (
       <Link href={`/community/${community.id}`}>
         <Card className={cardClass} style={{animationDelay: `${index * 0.2}s`}}>
@@ -345,9 +345,23 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
             
             {/* Price */}
             <div className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-              <span className="text-sm">Starting at</span> {displayPrice}
-              {!isHudProperty && (
-                <span className="text-xs text-gray-500 dark:text-gray-400 ml-1 font-normal">est.</span>
+              {variant === 'hud' ? (
+                <>
+                  <div className="text-sm text-green-600 dark:text-green-400 font-medium">HUD Official Rate</div>
+                  <div className="text-lg">{displayPrice}</div>
+                  {community.hudPropertyId && (
+                    <div className="text-xs text-gray-600 dark:text-gray-400 font-normal">
+                      Property ID: {community.hudPropertyId}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <span className="text-sm">Starting at</span> {displayPrice}
+                  {!isHudProperty && (
+                    <span className="text-xs text-gray-500 dark:text-gray-400 ml-1 font-normal">est.</span>
+                  )}
+                </>
               )}
             </div>
             
@@ -403,19 +417,59 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
             )}
             
             {/* Enhanced Features Row */}
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center text-gray-500 dark:text-gray-400">
-                {community.rating && (
-                  <>
-                    <Star className="h-3 w-3 text-yellow-400 mr-1" />
-                    <span>{typeof community.rating === 'number' ? community.rating.toFixed(1) : parseFloat(community.rating).toFixed(1)}</span>
-                  </>
+            <div className="space-y-1 text-xs">
+              {/* Rating and Live Data Row */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center text-gray-500 dark:text-gray-400">
+                  {community.rating && (
+                    <>
+                      <Star className="h-3 w-3 text-yellow-400 mr-1" />
+                      <span>{typeof community.rating === 'number' ? community.rating.toFixed(1) : parseFloat(community.rating).toFixed(1)}</span>
+                    </>
+                  )}
+                </div>
+                {isHudProperty && (
+                  <div className="text-green-600 dark:text-green-400 font-medium">
+                    ✓ Live Data
+                  </div>
                 )}
               </div>
-              {isHudProperty && (
-                <div className="text-green-600 dark:text-green-400 font-medium">
-                  ✓ Live Data
-                </div>
+              
+              {/* HUD-specific details */}
+              {variant === 'hud' && (
+                <>
+                  {/* Occupancy Rate */}
+                  {community.occupancyRate && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Occupancy:</span>
+                      <span className="text-gray-900 dark:text-white font-medium">{Math.round(community.occupancyRate)}%</span>
+                    </div>
+                  )}
+                  
+                  {/* Total Units */}
+                  {community.totalUnits && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Units:</span>
+                      <span className="text-gray-900 dark:text-white font-medium">{community.totalUnits} total</span>
+                    </div>
+                  )}
+                  
+                  {/* Size Category */}
+                  {community.sizeCategory && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Size:</span>
+                      <span className="text-gray-900 dark:text-white font-medium capitalize">{community.sizeCategory}</span>
+                    </div>
+                  )}
+                  
+                  {/* Senior Percentage */}
+                  {community.seniorPercentage && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Seniors:</span>
+                      <span className="text-gray-900 dark:text-white font-medium">{Math.round(community.seniorPercentage)}%</span>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </CardContent>
