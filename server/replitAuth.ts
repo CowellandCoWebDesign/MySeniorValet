@@ -67,9 +67,16 @@ async function upsertUser(
     let user = await storage.getUserByEmail(userEmail);
     
     if (!user) {
-      // Check if this is the first user (no super_admin exists)
-      const superAdminCount = await storage.getSuperAdminCount();
-      const userRole = superAdminCount === 0 ? 'super_admin' : 'user';
+      // Check if this is William Cowell (guaranteed super admin)
+      let userRole = 'user';
+      if (userEmail === 'William.cowell01@gmail.com') {
+        userRole = 'super_admin';
+        console.log('🔑 Super admin access granted to William.cowell01@gmail.com');
+      } else {
+        // Check if this is the first user (no super_admin exists)
+        const superAdminCount = await storage.getSuperAdminCount();
+        userRole = superAdminCount === 0 ? 'super_admin' : 'user';
+      }
       
       // Create new user - use Replit user ID as primary key
       user = await storage.createUser({

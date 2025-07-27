@@ -11199,25 +11199,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Demo login endpoint - DISABLED to use proper Replit Auth
-  // app.post('/api/auth/demo-login', async (req, res) => {
-  //   try {
-  //     const { email } = req.body;
-  //     const userEmail = email || 'demo@myseniorvalet.com';
-  //     
-  //     // Store user email in session
-  //     req.session.userEmail = userEmail;
-  //     
-  //     const user = await storage.getUserByEmail(userEmail);
-  //     if (!user) {
-  //       return res.status(404).json({ message: "User not found" });
-  //     }
-  //     
-  //     res.json({ success: true, user });
-  //   } catch (error) {
-  //     res.status(500).json({ message: "Login failed" });
-  //   }
-  // });
+  // Demo login endpoint - TEMPORARILY ENABLED for development
+  app.post('/api/auth/demo-login', async (req, res) => {
+    try {
+      const { email } = req.body;
+      const userEmail = email || 'demo@myseniorvalet.com';
+      
+      // Special handling for William.cowell01@gmail.com to get super admin access
+      if (userEmail === 'William.cowell01@gmail.com') {
+        // Create/update user with super admin role
+        let user = await storage.getUserByEmail(userEmail);
+        if (!user) {
+          user = await storage.createUser({
+            username: userEmail,
+            password: 'replit_auth',
+            role: 'super_admin'
+          });
+          console.log('🔑 Super admin account created for William.cowell01@gmail.com');
+        } else if (user.role !== 'super_admin') {
+          user = await storage.updateUser(user.id.toString(), { role: 'super_admin' });
+          console.log('🔑 Super admin role granted to William.cowell01@gmail.com');
+        }
+        
+        // Store user email in session
+        req.session.userEmail = userEmail;
+        return res.json({ success: true, user, message: 'Super admin access granted!' });
+      }
+      
+      // Store user email in session
+      req.session.userEmail = userEmail;
+      
+      const user = await storage.getUserByEmail(userEmail);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json({ success: true, user });
+    } catch (error) {
+      res.status(500).json({ message: "Login failed" });
+    }
+  });
 
   // Get current user's role with permissions
   app.get('/api/auth/user/role', async (req: any, res) => {

@@ -545,6 +545,18 @@ export class DatabaseStorage implements IStorage {
     } as User;
   }
 
+  async getSuperAdminCount(): Promise<number> {
+    try {
+      const result = await db.execute(
+        sql`SELECT COUNT(*) as count FROM users WHERE role = 'super_admin'`
+      );
+      return parseInt(result.rows[0].count as string) || 0;
+    } catch (error) {
+      console.error("Error getting super admin count:", error);
+      return 0;
+    }
+  }
+
   async updateUser(id: string, updates: Partial<InsertUser>): Promise<User | undefined> {
     // Build dynamic SET clause for updates
     const setFields: string[] = [];
