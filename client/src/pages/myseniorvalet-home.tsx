@@ -146,10 +146,10 @@ export default function MySeniorValetHome() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/60 dark:from-black/60 dark:via-black/70 dark:to-black/80"></div>
         </div>
         
-        <div className="relative z-10 flex flex-col items-center justify-center hero-content min-h-screen px-6 py-16 mobile-keyboard-safe">
+        <div className="relative z-10 flex flex-col items-center justify-center hero-content min-h-[85vh] sm:min-h-screen px-6 py-8 sm:py-16 mobile-keyboard-safe">
           {/* Centered Headlines - Much Larger */}
-          <div className="text-center mb-8 md:mb-12 max-w-6xl">
-            <div className="space-y-6 mb-8">
+          <div className="text-center mb-4 sm:mb-8 md:mb-12 max-w-6xl">
+            <div className="space-y-3 sm:space-y-6 mb-4 sm:mb-8">
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white dark:text-gray-100 leading-none drop-shadow-2xl animate-fade-in-up tracking-tight">
                 <span className="block mb-2">Everything Senior Living Needs</span>
                 <span className="block text-gradient bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-300 bg-clip-text text-transparent drop-shadow-none">in one place</span>
@@ -163,7 +163,7 @@ export default function MySeniorValetHome() {
 
 
           {/* Search Bar - Wider */}
-          <div className="w-full max-w-4xl mb-4 relative animate-fade-in-up animation-delay-600" style={{ zIndex: 99999 }}>
+          <div className="w-full max-w-4xl mb-3 sm:mb-4 relative animate-fade-in-up animation-delay-600" style={{ zIndex: 99999 }}>
             <form onSubmit={async (e) => {
               e.preventDefault();
               if (!searchQuery) return;
@@ -208,7 +208,7 @@ export default function MySeniorValetHome() {
           </div>
 
           {/* Primary CTA - Larger */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-4 animate-fade-in-up animation-delay-700">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-3 sm:mb-4 animate-fade-in-up animation-delay-700">
             <Link href="/quiz">
               <Button variant="outline" className="border-2 border-purple-300 text-purple-100 hover:bg-purple-400 hover:text-purple-900 px-6 py-3 rounded-2xl font-medium text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-purple-500/20 backdrop-blur-sm">
                 ✨ Find My Perfect Match
@@ -222,10 +222,10 @@ export default function MySeniorValetHome() {
           </div>
 
           {/* NEW AI Map Showcase Button */}
-          <div className="mb-6 animate-fade-in-up animation-delay-800">
+          <div className="mb-3 sm:mb-6 animate-fade-in-up animation-delay-800">
             <Link href="/ai-map-showcase">
               <Button 
-                className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-2xl hover:shadow-3xl transition-all duration-300 text-xl md:text-2xl px-10 py-5 rounded-2xl flex items-center justify-center ring-4 ring-purple-300 ring-opacity-50 animate-slow-pulse"
+                className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-2xl hover:shadow-3xl transition-all duration-300 text-lg sm:text-xl md:text-2xl px-8 sm:px-10 py-4 sm:py-5 rounded-2xl flex items-center justify-center ring-4 ring-purple-300 ring-opacity-50 animate-slow-pulse"
               >
                 <Brain className="mr-3 h-8 w-8" />
                 <Sparkles className="mr-2 h-7 w-7" />
