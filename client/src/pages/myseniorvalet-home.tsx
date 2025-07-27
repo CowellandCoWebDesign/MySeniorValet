@@ -648,6 +648,151 @@ export default function MySeniorValetHome() {
             </Card>
           </div>
 
+          {/* Care Marketplace Featured Services Horizontal Slider */}
+          <div className="mb-8">
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                    Featured Healthcare Services
+                  </h3>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm text-amber-700 dark:text-amber-300 font-medium">Demo services shown</span>
+                    <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm text-orange-700 dark:text-orange-300 font-medium">Real providers launching soon</span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-lg font-bold text-gray-900 dark:text-gray-100">Coming This Week</div>
+                  <div className="text-sm text-orange-600 dark:text-orange-300 font-medium">Healthcare marketplace</div>
+                </div>
+              </div>
+              
+              <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-lg p-3 mb-4">
+                <div className="flex items-center">
+                  <div className="text-orange-600 dark:text-orange-400 mr-2">🚀</div>
+                  <p className="text-sm text-orange-800 dark:text-orange-200 font-medium">
+                    <strong>Launching This Week:</strong> Preview of healthcare services for Independent Living and below. Real certified providers will be available in the full Care Marketplace launch.
+                  </p>
+                </div>
+              </div>
+              
+              <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
+                6 healthcare service categories • Specialized care for Independent Living and below
+              </p>
+            </div>
+
+            <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
+              {/* Healthcare Service Cards - Framework Ready */}
+              {Array.from({ length: 6 }).map((_, index) => {
+                const healthcareServices = [
+                  { 
+                    name: "Sacramento IHSS Services", 
+                    category: "IHSS & SLS Services", 
+                    rating: "4.9", 
+                    price: "$18/hr", 
+                    features: ["State-funded program", "Personal care", "Housekeeping services"],
+                    color: "from-blue-500 to-blue-600",
+                    icon: "🏠"
+                  },
+                  { 
+                    name: "CareTeam Home Health", 
+                    category: "Home Healthcare", 
+                    rating: "4.8", 
+                    price: "$65/visit", 
+                    features: ["RN-supervised care", "Medication management", "Wound care"],
+                    color: "from-green-500 to-green-600",
+                    icon: "🩺"
+                  },
+                  { 
+                    name: "Mobility Masters OT", 
+                    category: "Occupational Therapy", 
+                    rating: "4.9", 
+                    price: "$120/session", 
+                    features: ["Home safety assessments", "Adaptive equipment", "Fall prevention"],
+                    color: "from-purple-500 to-purple-600",
+                    icon: "🧩"
+                  },
+                  { 
+                    name: "ComfortCare Program", 
+                    category: "In-home Care Programs", 
+                    rating: "4.7", 
+                    price: "$28/hr", 
+                    features: ["Comprehensive care plans", "Family coordination", "24/7 support"],
+                    color: "from-teal-500 to-teal-600",
+                    icon: "🏡"
+                  },
+                  { 
+                    name: "Golden Years Caregivers", 
+                    category: "Caregivers & Home Care", 
+                    rating: "4.8", 
+                    price: "$22/hr", 
+                    features: ["Certified caregivers", "Companion care", "Light housekeeping"],
+                    color: "from-orange-500 to-orange-600",
+                    icon: "👨‍⚕️"
+                  },
+                  { 
+                    name: "Serenity Hospice Care", 
+                    category: "Hospice Care", 
+                    rating: "4.9", 
+                    price: "Medicare covered", 
+                    features: ["24/7 on-call support", "Pain management", "Family bereavement"],
+                    color: "from-indigo-500 to-indigo-600",
+                    icon: "🕊️"
+                  }
+                ];
+                
+                const service = healthcareServices[index] || healthcareServices[0];
+                
+                return (
+                  <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[28rem] border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                    <div className="relative">
+                      <div className={`h-32 bg-gradient-to-br ${service.color} flex items-center justify-center`}>
+                        <div className="text-4xl">{service.icon}</div>
+                        <div className="absolute top-3 right-3 bg-white/90 px-2 py-1 rounded-full text-xs font-semibold text-gray-800">
+                          ⭐ {service.rating}
+                        </div>
+                      </div>
+                    </div>
+                    <CardContent className="p-4 flex flex-col h-[calc(28rem-8rem)]">
+                      <div className="mb-2">
+                        <div className="text-xs text-orange-600 dark:text-orange-400 font-medium mb-1">{service.category}</div>
+                        <h4 className="font-bold text-gray-900 dark:text-gray-100 text-sm leading-tight">{service.name}</h4>
+                      </div>
+                      
+                      <div className="mb-3">
+                        <div className="text-lg font-bold text-gray-900 dark:text-gray-100">{service.price}</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">Starting rate</div>
+                      </div>
+                      
+                      <div className="space-y-1 mb-4 flex-grow">
+                        {service.features.map((feature, idx) => (
+                          <div key={idx} className="flex items-center text-xs text-gray-600 dark:text-gray-300">
+                            <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mr-2"></div>
+                            {feature}
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <div className="space-y-2 mt-auto">
+                        <Button 
+                          className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 text-xs font-semibold"
+                          disabled
+                        >
+                          Request Care Services
+                        </Button>
+                        <div className="text-xs text-center text-gray-500 dark:text-gray-400">
+                          Launching This Week
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Complete Senior Living Intelligence - Third Position */}
           <div className="mb-8">
             <Card className="group bg-gradient-to-br from-blue-600 to-purple-700 border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 overflow-hidden relative">
