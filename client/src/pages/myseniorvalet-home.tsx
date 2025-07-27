@@ -415,6 +415,160 @@ export default function MySeniorValetHome() {
             </Card>
           </div>
 
+          {/* Featured Services & Vendors Horizontal Slider */}
+          <div className="mb-8">
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                    Featured Service Providers
+                  </h3>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm text-teal-700 dark:text-teal-300 font-medium">Verified providers</span>
+                    <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm text-orange-700 dark:text-orange-300 font-medium">Licensed & insured</span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-lg font-bold text-gray-900 dark:text-gray-100">Available Now</div>
+                  <div className="text-sm text-teal-600 dark:text-teal-300 font-medium">Professional services</div>
+                </div>
+              </div>
+              
+              <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
+                12 service categories • Professional providers ready to help with your senior living transition
+              </p>
+            </div>
+
+            <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
+              {/* Service Provider Cards - Framework Ready */}
+              {Array.from({ length: 8 }).map((_, index) => {
+                const serviceTypes = [
+                  { 
+                    name: "Elite Moving Specialists", 
+                    category: "Moving Services", 
+                    rating: "4.9", 
+                    price: "$89/hr", 
+                    features: ["Senior specialists", "Packing included", "Insurance covered"],
+                    color: "from-green-500 to-green-600",
+                    icon: "🚚"
+                  },
+                  { 
+                    name: "TechCare Support", 
+                    category: "Technology Support", 
+                    rating: "4.8", 
+                    price: "$45/visit", 
+                    features: ["Cell phone setup", "Wifi installation", "Device training"],
+                    color: "from-blue-500 to-blue-600",
+                    icon: "📱"
+                  },
+                  { 
+                    name: "Elder Law Partners", 
+                    category: "Legal Services", 
+                    rating: "4.9", 
+                    price: "$200/hr", 
+                    features: ["Estate planning", "Medicare guidance", "Power of attorney"],
+                    color: "from-purple-500 to-purple-600",
+                    icon: "⚖️"
+                  },
+                  { 
+                    name: "Medical Supply Co", 
+                    category: "Medical Equipment", 
+                    rating: "4.7", 
+                    price: "$25/day", 
+                    features: ["Mobility aids", "Safety equipment", "Home delivery"],
+                    color: "from-orange-500 to-orange-600",
+                    icon: "🦽"
+                  },
+                  { 
+                    name: "Senior Financial Advisors", 
+                    category: "Financial Planning", 
+                    rating: "4.9", 
+                    price: "$150/hr", 
+                    features: ["Retirement planning", "Long-term care", "Investment advice"],
+                    color: "from-emerald-500 to-emerald-600",
+                    icon: "💰"
+                  },
+                  { 
+                    name: "CleanStart Specialists", 
+                    category: "Junk Removal", 
+                    rating: "4.6", 
+                    price: "$120/load", 
+                    features: ["Decluttering", "Donation sorting", "Estate cleanouts"],
+                    color: "from-gray-500 to-gray-600",  
+                    icon: "🗑️"
+                  },
+                  { 
+                    name: "MediCare Transport", 
+                    category: "Medical Transport", 
+                    rating: "4.8", 
+                    price: "$35/trip", 
+                    features: ["Non-emergency", "Wheelchair accessible", "Insurance billing"],
+                    color: "from-red-500 to-red-600",
+                    icon: "🚑"
+                  },
+                  { 
+                    name: "Comfort Care Companions", 
+                    category: "Companion Care", 
+                    rating: "4.9", 
+                    price: "$25/hr", 
+                    features: ["Social visits", "Light housekeeping", "Meal preparation"],
+                    color: "from-pink-500 to-pink-600",
+                    icon: "👥"
+                  }
+                ];
+                
+                const service = serviceTypes[index] || serviceTypes[0];
+                
+                return (
+                  <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[28rem] border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                    <div className="relative">
+                      <div className={`h-32 bg-gradient-to-br ${service.color} flex items-center justify-center`}>
+                        <div className="text-4xl">{service.icon}</div>
+                        <div className="absolute top-3 right-3 bg-white/90 px-2 py-1 rounded-full text-xs font-semibold text-gray-800">
+                          ⭐ {service.rating}
+                        </div>
+                      </div>
+                    </div>
+                    <CardContent className="p-4 flex flex-col h-[calc(28rem-8rem)]">
+                      <div className="mb-2">
+                        <div className="text-xs text-teal-600 dark:text-teal-400 font-medium mb-1">{service.category}</div>
+                        <h4 className="font-bold text-gray-900 dark:text-gray-100 text-sm leading-tight">{service.name}</h4>
+                      </div>
+                      
+                      <div className="mb-3">
+                        <div className="text-lg font-bold text-gray-900 dark:text-gray-100">{service.price}</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">Starting rate</div>
+                      </div>
+                      
+                      <div className="space-y-1 mb-4 flex-grow">
+                        {service.features.map((feature, idx) => (
+                          <div key={idx} className="flex items-center text-xs text-gray-600 dark:text-gray-300">
+                            <div className="w-1.5 h-1.5 bg-teal-500 rounded-full mr-2"></div>
+                            {feature}
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <div className="space-y-2 mt-auto">
+                        <Button 
+                          className="w-full bg-teal-500 hover:bg-teal-600 text-white py-2 text-xs font-semibold"
+                          disabled
+                        >
+                          Contact Provider
+                        </Button>
+                        <div className="text-xs text-center text-gray-500 dark:text-gray-400">
+                          API Integration Coming Soon
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Care Marketplace - Coming Soon */}
           <div className="mb-8">
             <Card className="group bg-white dark:bg-gray-800 border-2 border-orange-200 dark:border-orange-400 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden relative">
