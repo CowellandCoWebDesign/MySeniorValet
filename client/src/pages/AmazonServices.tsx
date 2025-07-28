@@ -22,6 +22,17 @@ const AmazonServices = () => {
       reviews: '12,000+'
     },
     {
+      name: 'U-Haul Small Moving Box Kit',
+      description: 'U-Haul Small Moving Box Kit (10-pack with tape roll). 12-5/8" x 16-3/8" x 12-5/8" boxes with perforated handles, 65-pound capacity. Perfect for books, tools, and downsizing seniors.',
+      priceRange: '$15.99 - $22.99',
+      features: ['U-Haul branded quality', '65-pound weight capacity', 'Perforated handles for easy carrying', 'Includes tape roll', 'Prime shipping eligible', 'Perfect for heavy items like books'],
+      icon: <Package className="w-6 h-6" />,
+      color: 'from-blue-500 to-blue-600',
+      affiliateUrl: 'https://amzn.to/4mjSqxW',
+      rating: 4.7,
+      reviews: '1,400+'
+    },
+    {
       name: 'Complete Packing Supplies Kit',
       description: 'Comprehensive packing kit including bubble wrap, packing tape, markers, labels, and protective materials. Everything needed for a safe move.',
       priceRange: '$19.99 - $49.99',
@@ -113,7 +124,7 @@ const AmazonServices = () => {
             Complete Moving Supply Solutions
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Everything you need for a successful senior living transition, delivered fast with Amazon Prime
+            5 professional moving supply options for a successful senior living transition, delivered fast with Amazon Prime
           </p>
         </div>
 
