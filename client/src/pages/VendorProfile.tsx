@@ -105,8 +105,12 @@ export default function VendorProfile({}: VendorProfileProps) {
                 alt={vendor.name}
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                  e.currentTarget.nextElementSibling.style.display = 'flex';
+                  const target = e.currentTarget;
+                  const nextElement = target.nextElementSibling as HTMLElement;
+                  target.style.display = 'none';
+                  if (nextElement) {
+                    nextElement.style.display = 'flex';
+                  }
                 }}
               />
               <div className="w-full h-full flex items-center justify-center hidden">
@@ -193,7 +197,8 @@ export default function VendorProfile({}: VendorProfileProps) {
                         <img 
                           src={product.url} 
                           alt={product.name}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform"
+                          onClick={() => window.open('https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals', '_blank')}
                           onError={(e) => {
                             e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgZmlsbD0iIzlDQTNBRiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNDgiPjwvdGV4dD4KPC9zdmc+';
                           }}
@@ -294,16 +299,23 @@ export default function VendorProfile({}: VendorProfileProps) {
 
             {/* Action Buttons */}
             <div className="space-y-3">
+              <Button 
+                className="w-full bg-pink-500 hover:bg-pink-600 text-white"
+                onClick={() => window.open('https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals', '_blank')}
+              >
+                Order Flowers Now (1-800-FLORALS) →
+              </Button>
               <Link href="/floral-services">
-                <Button className="w-full bg-pink-500 hover:bg-pink-600 text-white">
-                  Browse Floral Services
+                <Button variant="outline" className="w-full">
+                  Browse Full Catalog
                 </Button>
               </Link>
-              <Button variant="outline" className="w-full">
-                Request Custom Quote
-              </Button>
-              <Button variant="outline" className="w-full">
-                Schedule Consultation
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => window.open('tel:1-800-356-7257')}
+              >
+                Call: 1-800-FLORALS
               </Button>
             </div>
           </div>

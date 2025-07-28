@@ -1209,12 +1209,27 @@ export default function MySeniorValetHome() {
             </Card>
 
             <Link href="/vendor/1800florals">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-pink-200 bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 relative">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-pink-200 bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 relative overflow-hidden">
                 <CardContent className="p-4 text-center">
                   <div className="absolute top-2 right-2">
                     <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                   </div>
-                  <div className="w-10 h-10 text-pink-500 mx-auto mb-2 font-bold text-2xl flex items-center justify-center">🌸</div>
+                  <div className="w-16 h-16 mx-auto mb-2 rounded-lg overflow-hidden bg-white shadow-sm">
+                    <img 
+                      src="https://www.800florals.com/img/4810Dmd.jpg" 
+                      alt="1-800-FLORALS Arrangements"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        const nextElement = target.nextElementSibling as HTMLElement;
+                        target.style.display = 'none';
+                        if (nextElement) {
+                          nextElement.style.display = 'flex';
+                        }
+                      }}
+                    />
+                    <div className="w-full h-full hidden items-center justify-center text-pink-500 text-2xl font-bold">🌸</div>
+                  </div>
                   <h4 className="font-semibold text-sm text-pink-700 dark:text-pink-300">Professional Florals</h4>
                   <p className="text-xs text-pink-600 dark:text-pink-400 mt-1">Move-in arrangements & gifts</p>
                   <div className="flex gap-1 justify-center mt-1">

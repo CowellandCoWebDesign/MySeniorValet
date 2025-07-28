@@ -71,7 +71,14 @@ export default function FloralServices() {
       .then(data => {
         if (data.success && data.orderUrl) {
           window.open(data.orderUrl, '_blank');
+        } else {
+          // Fallback to direct affiliate link
+          window.open('https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals', '_blank');
         }
+      })
+      .catch(() => {
+        // Fallback to direct affiliate link
+        window.open('https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals', '_blank');
       })
       .catch(console.error);
   };
