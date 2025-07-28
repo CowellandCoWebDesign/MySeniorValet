@@ -1320,10 +1320,25 @@ export default function MySeniorValetHome() {
             {/* Featured Service: 1-800-FLORALS */}
             <div className="bg-gradient-to-r from-pink-100 to-rose-100 dark:from-pink-900/20 dark:to-rose-900/20 rounded-2xl p-6 border-2 border-pink-200">
               <div className="flex items-start gap-4">
-                <div className="w-16 h-16 bg-pink-500 rounded-xl flex items-center justify-center text-white text-2xl font-bold">
-                  🌸
+                <div className="w-20 h-20 bg-white rounded-xl overflow-hidden shadow-sm flex-shrink-0">
+                  <img 
+                    src="https://www.800florals.com/img/T2533md.jpg" 
+                    alt="1-800-FLORALS Professional Arrangements"
+                    className="w-full h-full object-cover"
+                    crossOrigin="anonymous"
+                    loading="eager"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      const nextElement = target.nextElementSibling as HTMLElement;
+                      target.style.display = 'none';
+                      if (nextElement) {
+                        nextElement.style.display = 'flex';
+                      }
+                    }}
+                  />
+                  <div className="w-full h-full hidden items-center justify-center text-pink-500 text-2xl font-bold">🌸</div>
                 </div>
-                <div>
+                <div className="flex-1">
                   <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                     Professional Floral Services
                   </h3>
