@@ -346,14 +346,19 @@ export default function MySeniorValetHome() {
               <div className="absolute inset-0 bg-gradient-to-br from-teal-50/50 to-cyan-50/50 dark:from-teal-900/20 dark:to-cyan-900/20"></div>
               <CardContent className="p-10 relative z-10">
                 <div className="text-center mb-8">
-                  {/* Beautiful Header Layout */}
+                  {/* Powerful Header Layout */}
                   <div className="mb-6">
-                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                      Your Senior Living
+                    <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-2 leading-tight">
+                      Your Personal Senior Living
                     </h2>
-                    <h3 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-teal-600 bg-clip-text text-transparent mb-4">
-                      Concierge Team
+                    <h3 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-teal-600 bg-clip-text text-transparent mb-4 leading-tight">
+                      Concierge Experts
                     </h3>
+                    <div className="text-lg md:text-xl text-gray-700 dark:text-gray-300 font-medium mb-4">
+                      <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent font-bold">
+                        White-Glove Service • Dedicated Support • Expert Guidance
+                      </span>
+                    </div>
                   </div>
                   
                   {/* Elegant Badge */}
