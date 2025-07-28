@@ -231,21 +231,8 @@ export default function VendorProfile({}: VendorProfileProps) {
                           alt={product.name}
                           className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform"
                           onClick={() => window.open('https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals', '_blank')}
-                          onError={(e) => {
-                            const target = e.currentTarget;
-                            const parent = target.parentElement;
-                            if (parent) {
-                              parent.innerHTML = `
-                                <div class="w-full h-full flex items-center justify-center bg-pink-50 text-pink-500 cursor-pointer hover:bg-pink-100 transition-colors" 
-                                     onclick="window.open('https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals', '_blank')">
-                                  <div class="text-center">
-                                    <div class="text-4xl mb-2">🌸</div>
-                                    <div class="text-sm font-semibold">Click to Order</div>
-                                  </div>
-                                </div>
-                              `;
-                            }
-                          }}
+                          crossOrigin="anonymous"
+                          loading="eager"
                         />
                       </div>
                       <div className="p-4">
