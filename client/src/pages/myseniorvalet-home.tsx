@@ -533,7 +533,7 @@ export default function MySeniorValetHome() {
                 const service = serviceTypes[index] || serviceTypes[0];
                 
                 return (
-                  <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[28rem] border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                  <Card key={index} className="overflow-hidden flex-shrink-0 w-80 h-[28rem] border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                     <div className="relative">
                       <div className={`h-32 bg-gradient-to-br ${service.color} flex items-center justify-center`}>
                         <div className="text-4xl">{service.icon}</div>
@@ -748,7 +748,7 @@ export default function MySeniorValetHome() {
                 const service = healthcareServices[index] || healthcareServices[0];
                 
                 return (
-                  <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[28rem] border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                  <Card key={index} className="overflow-hidden flex-shrink-0 w-80 h-[28rem] border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                     <div className="relative">
                       <div className={`h-32 bg-gradient-to-br ${service.color} flex items-center justify-center`}>
                         <div className="text-4xl">{service.icon}</div>

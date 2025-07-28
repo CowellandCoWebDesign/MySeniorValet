@@ -229,22 +229,13 @@ export function registerCommunityRoutes(app: Express) {
         .orderBy(desc(reviews.createdAt))
         .limit(10);
 
-      // Check if community is claimed
-      const [claim] = await db
-        .select()
-        .from(claimedCommunities)
-        .where(eq(claimedCommunities.communityId, communityId))
-        .limit(1);
-
+      // Skip claimed community check for now - table doesn't exist
+      
       res.json({
         ...community,
         reviews: communityReviews,
-        isClaimed: !!claim,
-        claimInfo: claim ? {
-          businessName: claim.businessName,
-          operatorType: claim.operatorType,
-          subscriptionPlan: claim.subscriptionPlan
-        } : null
+        isClaimed: false,
+        claimInfo: null
       });
     } catch (error) {
       console.error("Error fetching community:", error);
