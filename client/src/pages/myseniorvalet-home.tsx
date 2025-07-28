@@ -39,6 +39,13 @@ export default function MySeniorValetHome() {
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
+  // Concierge service images for matching tropical theme
+  const { data: conciergeImages } = useQuery({
+    queryKey: ["/api/images/concierge-services"],
+    retry: false,
+    staleTime: 24 * 60 * 60 * 1000, // Cache for 24 hours
+  });
+
   // Real-time market data
   const { data: marketData } = useQuery({
     queryKey: ["/api/market/overview"],
@@ -481,8 +488,16 @@ export default function MySeniorValetHome() {
               <Link href="/moving">
                 <Card className="overflow-hidden flex-shrink-0 w-64 hover:shadow-xl transition-all duration-300 border-2 border-green-200 dark:border-green-400 bg-white dark:bg-gray-800">
                   <div className="relative">
-                    <div className="aspect-[4/3] bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 flex items-center justify-center p-4">
-                      <div className="w-full h-full flex items-center justify-center">
+                    <div 
+                      className="aspect-[4/3] bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 flex items-center justify-center p-4 relative overflow-hidden"
+                      style={{
+                        backgroundImage: conciergeImages?.[0]?.url ? `url(${conciergeImages[0].url})` : undefined,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                      }}
+                    >
+                      <div className="absolute inset-0 bg-black/20"></div>
+                      <div className="w-full h-full flex items-center justify-center relative z-10 bg-white/90 rounded-lg shadow-lg">
                         <img 
                           src="/two-men-and-a-truck-logo.svg" 
                           alt="TWO MEN AND A TRUCK Official Logo"
@@ -534,7 +549,15 @@ export default function MySeniorValetHome() {
               <Link href="/florals">
                 <Card className="overflow-hidden flex-shrink-0 w-64 hover:shadow-xl transition-all duration-300 border-2 border-pink-200 dark:border-pink-400 bg-white dark:bg-gray-800">
                   <div className="relative">
-                    <div className="aspect-[4/3] bg-gradient-to-br from-pink-100 to-rose-200 dark:from-pink-900 dark:to-rose-800 flex items-center justify-center">
+                    <div 
+                      className="aspect-[4/3] bg-gradient-to-br from-pink-100 to-rose-200 dark:from-pink-900 dark:to-rose-800 flex items-center justify-center relative overflow-hidden"
+                      style={{
+                        backgroundImage: conciergeImages?.[1]?.url ? `url(${conciergeImages[1].url})` : undefined,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                      }}
+                    >
+                      <div className="absolute inset-0 bg-black/20"></div>
                       <div className="text-center">
                         <div className="text-4xl mb-2">🌸</div>
                         <div className="text-lg font-bold text-pink-800 dark:text-pink-200">1-800-FLORALS</div>
@@ -584,8 +607,16 @@ export default function MySeniorValetHome() {
               <Link href="/transportation">
                 <Card className="overflow-hidden flex-shrink-0 w-64 hover:shadow-xl transition-all duration-300 border-2 border-blue-200 dark:border-blue-400 bg-white dark:bg-gray-800">
                   <div className="relative">
-                    <div className="aspect-[4/3] bg-gradient-to-br from-blue-100 to-cyan-200 dark:from-blue-900 dark:to-cyan-800 flex items-center justify-center">
-                      <div className="text-center">
+                    <div 
+                      className="aspect-[4/3] bg-gradient-to-br from-blue-100 to-cyan-200 dark:from-blue-900 dark:to-cyan-800 flex items-center justify-center relative overflow-hidden"
+                      style={{
+                        backgroundImage: conciergeImages?.[2]?.url ? `url(${conciergeImages[2].url})` : undefined,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                      }}
+                    >
+                      <div className="absolute inset-0 bg-black/20"></div>
+                      <div className="text-center relative z-10 bg-white/90 rounded-lg p-3 shadow-lg">
                         <div className="text-2xl mb-2">🚗</div>
                         <div className="text-lg font-bold text-blue-800 dark:text-blue-200">GoGoGrandparent</div>
                         <div className="text-sm text-blue-600 dark:text-blue-300">Transportation Services</div>
@@ -1543,8 +1574,16 @@ export default function MySeniorValetHome() {
             </div>
 
             {/* Amazon Product Recommendations */}
-            <div className="bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/20 dark:to-amber-900/20 rounded-2xl p-6">
-              <div>
+            <div 
+              className="bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/20 dark:to-amber-900/20 rounded-2xl p-6 relative overflow-hidden"
+              style={{
+                backgroundImage: conciergeImages?.[3]?.url ? `url(${conciergeImages[3].url})` : undefined,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }}
+            >
+              <div className="absolute inset-0 bg-orange-100/80 dark:bg-orange-900/80 rounded-2xl"></div>
+              <div className="relative z-10">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                   🛍️ Amazon Product Recommendations
                 </h3>

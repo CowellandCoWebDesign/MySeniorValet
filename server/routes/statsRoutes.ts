@@ -34,6 +34,43 @@ export function registerStatsRoutes(app: Express) {
       res.status(500).json({ error: 'Failed to fetch hero images' });
     }
   });
+
+  // Concierge service images endpoint - Matching tropical/resort theme
+  app.get('/api/images/concierge-services', async (req, res) => {
+    try {
+      const { pixabayService } = await import('../pixabay-api');
+      
+      // Get curated service images with tropical/luxury resort theme
+      const serviceImages = await Promise.all([
+        pixabayService.searchImages('luxury spa wellness relaxation resort', 'places', 800),
+        pixabayService.searchImages('tropical resort concierge service hospitality', 'places', 800),
+        pixabayService.searchImages('luxury hotel business center professional', 'business', 800),
+        pixabayService.searchImages('resort pool service luxury hospitality', 'places', 800)
+      ]);
+      
+      const selectedImages = serviceImages.map((images, index) => {
+        const image = images && images.length > 0 ? images[0] : null;
+        const fallbacks = [
+          'https://cdn.pixabay.com/photo/2017/08/03/21/48/drinks-2578446_1280.jpg', // tropical drinks/service
+          'https://cdn.pixabay.com/photo/2016/11/23/17/28/building-1854030_1280.jpg', // luxury resort
+          'https://cdn.pixabay.com/photo/2017/03/28/12/16/chairs-2181960_1280.jpg', // resort seating
+          'https://cdn.pixabay.com/photo/2017/12/15/13/51/polynesia-3021072_1280.jpg' // tropical paradise
+        ];
+        
+        return {
+          url: image?.largeImageURL || fallbacks[index],
+          alt: image ? `Luxury resort service - ${image.tags}` : 'Premium resort-style service',
+          credit: image ? `Pixabay - ${image.user}` : 'Pixabay'
+        };
+      });
+      
+      res.json(selectedImages);
+    } catch (error) {
+      console.error('Error fetching concierge service images:', error);
+      res.status(500).json({ error: 'Failed to fetch service images' });
+    }
+  });
+
   // Platform-wide statistics
   app.get('/api/stats/platform', async (req, res) => {
     try {
