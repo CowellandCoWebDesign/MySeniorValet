@@ -363,18 +363,55 @@ export default function MySeniorValetHome() {
           <div className="mb-8">
             <Card className="group bg-white dark:bg-gray-800 border-2 border-teal-200 dark:border-teal-400 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden relative">
               <div className="absolute inset-0 bg-gradient-to-br from-teal-50/50 to-cyan-50/50 dark:from-teal-900/20 dark:to-cyan-900/20"></div>
-              <CardContent className="p-8 relative z-10">
-                <div className="text-center mb-6">
-                  <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-teal-500 to-cyan-600 rounded-full text-white text-sm font-semibold mb-4 shadow-lg">
-                    <span className="mr-2">🚀</span>
-                    Now Available!
+              <CardContent className="p-10 relative z-10">
+                <div className="text-center mb-8">
+                  {/* Beautiful Header Layout */}
+                  <div className="mb-6">
+                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                      Your Senior Living
+                    </h2>
+                    <h3 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-teal-600 bg-clip-text text-transparent mb-4">
+                      Concierge Team
+                    </h3>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">Services & Vendors</h3>
-            <p className="text-gray-600 dark:text-gray-300 text-lg">
-              Everything families need from search to settlement
-            </p>
+                  
+                  {/* Elegant Badge */}
+                  <div className="mb-6">
+                    <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-500 via-blue-500 to-teal-500 rounded-full text-white font-semibold shadow-lg transform hover:scale-105 transition-all duration-300">
+                      <div className="w-2 h-2 bg-white rounded-full mr-3 animate-pulse"></div>
+                      Complete Concierge Services
+                    </div>
+                  </div>
+                  
+                  {/* Refined Description */}
+                  <p className="text-gray-600 dark:text-gray-300 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+                    Professional services and trusted vendors for every step of your senior living journey
+                  </p>
                 </div>
                 
+                {/* Service Categories Grid */}
+                <div className="text-center mb-8">
+                  {/* Elegant "Now Available" Badge */}
+                  <div className="mb-6">
+                    <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-teal-500 to-cyan-600 rounded-full text-white font-semibold shadow-lg transform hover:scale-105 transition-all duration-300">
+                      <div className="w-2 h-2 bg-white rounded-full mr-3 animate-pulse"></div>
+                      Now Available!
+                    </div>
+                  </div>
+                  
+                  {/* Beautiful Services Header */}
+                  <div className="mb-4">
+                    <h3 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent mb-3">
+                      Services & Vendors
+                    </h3>
+                  </div>
+                  
+                  {/* Refined Description */}
+                  <p className="text-gray-600 dark:text-gray-300 text-lg max-w-xl mx-auto leading-relaxed mb-8">
+                    Everything families need from search to settlement
+                  </p>
+                </div>
+
                 <div className="grid grid-cols-2 gap-6">
                   <Link href="/moving" className="text-center group/item block">
                     <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
