@@ -139,14 +139,10 @@ export default function MySeniorValetHome() {
       <section className="relative min-h-screen bg-gradient-to-br from-slate-50 to-amber-50 dark:from-gray-900 dark:to-gray-800">
         <div className="absolute inset-0">
           <img
-            src={heroImages?.url || "https://cdn.pixabay.com/photo/2017/12/15/13/51/polynesia-3021072_1280.jpg"}
-            alt={heroImages?.alt || "Tropical beach with palm trees and crystal clear water - Premium senior living paradise"}
+            src={heroImages?.url || "https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg"}
+            alt={heroImages?.alt || "Beautiful senior living community with elegant architecture and landscaping"}
             className="w-full h-full object-cover"
-            onError={(e) => {
-              console.log('Primary hero image failed, trying backup from Pixabay');
-              // Fallback to a high-quality resort/tropical image from Pixabay
-              (e.target as HTMLImageElement).src = "https://cdn.pixabay.com/photo/2017/12/15/13/51/polynesia-3021072_1280.jpg";
-            }}
+            loading="eager"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/60 dark:from-black/60 dark:via-black/70 dark:to-black/80"></div>
         </div>
