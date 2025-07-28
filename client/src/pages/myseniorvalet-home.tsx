@@ -369,9 +369,9 @@ export default function MySeniorValetHome() {
                     </div>
                   </div>
                   
-                  {/* Powerful Impact Statement */}
-                  <p className="text-gray-600 dark:text-gray-300 text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
-                    <span className="font-semibold text-gray-900 dark:text-gray-100">Navigate senior living with confidence.</span> Our expert concierge team connects you with vetted professionals and trusted service providers for every aspect of your transition—from moving and transportation to healthcare coordination and family support. Experience the peace of mind that comes with having dedicated advocates by your side throughout your entire senior living journey.
+                  {/* Concise Impact Statement */}
+                  <p className="text-gray-600 dark:text-gray-300 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+                    Professional services and trusted vendors for every step of your senior living journey
                   </p>
                 </div>
                 
@@ -392,9 +392,9 @@ export default function MySeniorValetHome() {
                     </h3>
                   </div>
                   
-                  {/* Impactful Service Description */}
-                  <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto leading-relaxed mb-8">
-                    <span className="font-semibold text-gray-900 dark:text-gray-100">Your complete support ecosystem.</span> From initial community search to successful settlement, we provide comprehensive services that eliminate stress and ensure a smooth transition. Our trusted network of professionals handles every detail, so you can focus on what matters most—finding the perfect home.
+                  {/* Concise Service Description */}
+                  <p className="text-gray-600 dark:text-gray-300 text-lg max-w-xl mx-auto leading-relaxed mb-8">
+                    Everything families need from search to settlement
                   </p>
                 </div>
 
@@ -404,28 +404,28 @@ export default function MySeniorValetHome() {
                       <Truck className="w-8 h-8 text-white" />
                     </div>
                     <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Moving Services</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">TWO MEN AND A TRUCK • Stress-free relocation with professional movers, expert packing, secure storage, and complete moving coordination</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">TWO MEN AND A TRUCK • Professional movers, packing, storage</p>
                   </Link>
                   <Link href="/transportation" className="text-center group/item block">
                     <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
                       <Car className="w-8 h-8 text-white" />
                     </div>
                     <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Transportation Services</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">GoGoGrandparent • Reliable transportation, meal delivery, grocery service, and prescription pickup—all accessible without a smartphone</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">GoGoGrandparent • No smartphone needed</p>
                   </Link>
                   <div className="text-center group/item">
                     <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
                       <Scale className="w-8 h-8 text-white" />
                     </div>
                     <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Legal & Financial</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">Expert elder law attorneys, comprehensive financial planning, and estate protection services</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Elder law, financial planning</p>
                   </div>
                   <div className="text-center group/item">
                     <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
                       <Sofa className="w-8 h-8 text-white" />
                     </div>
                     <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Medical Equipment</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">Professional mobility aids, advanced safety equipment, and home modification specialists</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Mobility aids, safety equipment</p>
                   </div>
                 </div>
                 
@@ -553,7 +553,7 @@ export default function MySeniorValetHome() {
                         <span className="text-sm font-bold text-gray-900 dark:text-gray-100">4.9</span>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Premium Floral Services & Special Occasion Arrangements</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Floral Services</p>
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-lg font-bold text-pink-600 dark:text-pink-400">$29.99+</span>
                       <span className="text-xs bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200 px-2 py-1 rounded-full">Same Day Delivery</span>
