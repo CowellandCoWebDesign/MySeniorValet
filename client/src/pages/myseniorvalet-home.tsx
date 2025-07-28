@@ -392,9 +392,9 @@ export default function MySeniorValetHome() {
                     </h3>
                   </div>
                   
-                  {/* Enhanced Service Description */}
-                  <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto leading-relaxed mb-8">
-                    Vetted professionals and trusted service providers to handle every aspect of your senior living transition. From professional movers and transportation to legal guidance and medical equipment - we connect you with the right experts at the right time.
+                  {/* Comprehensive Service Description */}
+                  <p className="text-gray-600 dark:text-gray-300 text-lg max-w-3xl mx-auto leading-relaxed mb-8">
+                    Our carefully vetted network of professional service providers handles the complexities of senior living transitions. Whether you need experienced movers, reliable transportation without smartphones, elder law attorneys, medical equipment specialists, or beautiful floral arrangements - we've partnered with trusted experts who understand the unique needs of seniors and their families.
                   </p>
                 </div>
 
