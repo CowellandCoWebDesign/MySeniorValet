@@ -421,10 +421,25 @@ body {
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
+    overflow-x: auto !important;
+    scroll-behavior: smooth;
   }
 
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+  
+  /* Ensure horizontal scrolling works */
+  .horizontal-scroll-container {
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    white-space: nowrap;
+  }
+  
+  /* Ensure cards have minimum width for horizontal scrolling */
+  .horizontal-card-gradient > * {
+    flex: 0 0 auto;
+    min-width: 280px;
   }
 
   /* Smooth sliding panel optimizations */

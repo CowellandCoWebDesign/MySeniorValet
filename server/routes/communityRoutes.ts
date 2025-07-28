@@ -21,6 +21,85 @@ import { realDataAnalyzer } from "../real-data-analyzer";
 import { z } from "zod";
 
 export function registerCommunityRoutes(app: Express) {
+  // IMPORTANT: Specific routes must come BEFORE the /:id route
+  
+  // Get community count
+  app.get("/api/communities/count", async (_req, res) => {
+    try {
+      const [{ count }] = await db
+        .select({ count: sql`count(*)` })
+        .from(communities);
+      
+      res.json({ count: count.toString() });
+    } catch (error) {
+      console.error("Error getting community count:", error);
+      res.status(500).json({ error: "Failed to get community count" });
+    }
+  });
+  
+  // HUD featured communities
+  app.get("/api/communities/hud-featured", async (req, res) => {
+    try {
+      const hudFeatured = await db
+        .select()
+        .from(communities)
+        .where(
+          and(
+            isNotNull(communities.hudPropertyId),
+            sql`${communities.rentPerMonth} IS NOT NULL AND CAST(${communities.rentPerMonth} AS DECIMAL) < 150`
+          )
+        )
+        .orderBy(sql`CAST(${communities.rentPerMonth} AS DECIMAL) ASC`)
+        .limit(8);
+
+      res.json(hudFeatured);
+    } catch (error) {
+      console.error("Error fetching HUD featured communities:", error);
+      res.status(500).json({ error: "Failed to fetch HUD featured communities" });
+    }
+  });
+
+  // Trending communities
+  app.get("/api/communities/trending", async (req, res) => {
+    try {
+      const trending = await db
+        .select()
+        .from(communities)
+        .where(gte(communities.rating, 4.0))
+        .orderBy(desc(communities.rating))
+        .limit(20);
+
+      res.json(trending);
+    } catch (error) {
+      console.error("Error fetching trending communities:", error);
+      res.status(500).json({ error: "Failed to fetch trending communities" });
+    }
+  });
+
+  // Coastal communities
+  app.get("/api/communities/coastal", async (req, res) => {
+    try {
+      const coastal = await db
+        .select()
+        .from(communities)
+        .where(
+          or(
+            eq(communities.state, 'CA'),
+            eq(communities.state, 'FL'),
+            eq(communities.state, 'OR'),
+            eq(communities.state, 'WA')
+          )
+        )
+        .orderBy(desc(communities.rating))
+        .limit(20);
+
+      res.json(coastal);
+    } catch (error) {
+      console.error("Error fetching coastal communities:", error);
+      res.status(500).json({ error: "Failed to fetch coastal communities" });
+    }
+  });
+  
   // Get all communities with filters
   app.get("/api/communities", async (req, res) => {
     try {
@@ -40,15 +119,8 @@ export function registerCommunityRoutes(app: Express) {
       let query = db.select().from(communities);
       const conditions = [];
 
-      // Exclude pending communities by default
-      if (excludePending === "true") {
-        conditions.push(
-          or(
-            eq(communities.status, 'active'),
-            sql`${communities.status} IS NULL`
-          )
-        );
-      }
+      // Exclude pending communities - status field doesn't exist
+      // All communities are considered active
 
       // Care type filter
       if (careTypes) {
@@ -60,12 +132,12 @@ export function registerCommunityRoutes(app: Express) {
         );
       }
 
-      // Price filter
+      // Price filter - using rentPerMonth field which exists
       if (priceMin) {
-        conditions.push(gte(communities.priceMin, parseInt(priceMin as string)));
+        conditions.push(sql`CAST(${communities.rentPerMonth} AS DECIMAL) >= ${parseInt(priceMin as string)}`);
       }
       if (priceMax) {
-        conditions.push(lte(communities.priceMax, parseInt(priceMax as string)));
+        conditions.push(sql`CAST(${communities.rentPerMonth} AS DECIMAL) <= ${parseInt(priceMax as string)}`);
       }
 
       // Location filters
@@ -96,7 +168,7 @@ export function registerCommunityRoutes(app: Express) {
       }
 
       const result = await query
-        .orderBy(desc(communities.rating))
+        .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
         .limit(parseInt(limit as string))
         .offset(parseInt(offset as string));
 
@@ -107,10 +179,37 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
 
-  // Get single community by ID
+  // Get communities by location
+  app.get("/api/communities/by-location/:location", async (req, res) => {
+    try {
+      const location = req.params.location;
+      const locationCommunities = await db
+        .select()
+        .from(communities)
+        .where(
+          or(
+            eq(communities.state, location),
+            eq(communities.city, location)
+          )
+        )
+        .orderBy(desc(communities.rating))
+        .limit(20);
+
+      res.json(locationCommunities);
+    } catch (error) {
+      console.error("Error fetching communities by location:", error);
+      res.status(500).json({ error: "Failed to fetch communities by location" });
+    }
+  });
+
+  // Get single community by ID - MUST BE LAST
   app.get("/api/communities/:id", async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
+      
+      if (isNaN(communityId)) {
+        return res.status(400).json({ error: "Invalid community ID" });
+      }
       
       const [community] = await db
         .select()
@@ -485,13 +584,7 @@ export function registerCommunityRoutes(app: Express) {
           totalHUD: sql`COUNT(CASE WHEN ${communities.hudPropertyId} IS NOT NULL THEN 1 END)`,
           stateCount: sql`COUNT(DISTINCT ${communities.state})`
         })
-        .from(communities)
-        .where(
-          or(
-            eq(communities.status, 'active'),
-            sql`${communities.status} IS NULL`
-          )
-        );
+        .from(communities);
 
       const stateDistribution = await db
         .select({
@@ -499,12 +592,6 @@ export function registerCommunityRoutes(app: Express) {
           count: sql`COUNT(*)`
         })
         .from(communities)
-        .where(
-          or(
-            eq(communities.status, 'active'),
-            sql`${communities.status} IS NULL`
-          )
-        )
         .groupBy(communities.state)
         .orderBy(desc(sql`COUNT(*)`))
         .limit(10);

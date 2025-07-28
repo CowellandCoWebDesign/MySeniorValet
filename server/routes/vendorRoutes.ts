@@ -1,7 +1,7 @@
 import { type Express } from "express";
 import { db } from "../db";
-import { vendors, vendorServices, vendorAds } from "@shared/schema";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { vendors, vendorServices } from "@shared/schema";
+import { eq, and, desc, sql, or } from "drizzle-orm";
 import { isAuthenticated as requireAuth, checkRole } from "../replitAuth";
 import { z } from "zod";
 
@@ -30,6 +30,24 @@ const createServiceSchema = z.object({
 });
 
 export function registerVendorRoutes(app: Express) {
+  // Get featured vendors (public)
+  app.get("/api/vendors/featured", async (_req, res) => {
+    try {
+      // For now, return demo featured vendors
+      const featuredVendors = [
+        { id: 1, businessName: "Elite Moving Specialists", category: "Moving Services", rating: 4.9 },
+        { id: 2, businessName: "Care Provider Network", category: "Home Health", rating: 4.8 },
+        { id: 3, businessName: "Senior Tech Solutions", category: "Technology Support", rating: 5.0 },
+        { id: 4, businessName: "Estate Planning Partners", category: "Legal Services", rating: 4.7 }
+      ];
+      
+      res.json(featuredVendors);
+    } catch (error) {
+      console.error("Error fetching featured vendors:", error);
+      res.status(500).json({ error: "Failed to fetch featured vendors" });
+    }
+  });
+
   // Get all vendors
   app.get('/api/vendors', async (req, res) => {
     try {
