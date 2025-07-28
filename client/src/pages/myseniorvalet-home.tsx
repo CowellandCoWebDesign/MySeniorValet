@@ -584,6 +584,57 @@ export default function MySeniorValetHome() {
             </div>
 
             <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+              {/* Live Provider: Amazon Move-In Essentials */}
+              <Link href="/amazon-supplies">
+                <Card className="overflow-hidden flex-shrink-0 w-64 hover:shadow-xl transition-all duration-300 border-2 border-orange-200 dark:border-orange-400 bg-white dark:bg-gray-800">
+                  <div className="relative">
+                    <div className="aspect-[4/3] bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+                      <div className="text-center text-white">
+                        <Package className="w-12 h-12 mb-2 mx-auto" />
+                        <div className="text-2xl font-bold">AMAZON</div>
+                        <div className="text-sm">Move-In Essentials</div>
+                      </div>
+                    </div>
+                    <div className="absolute top-2 right-2">
+                      <Badge className="bg-green-500 text-white text-xs px-2 py-1 font-bold animate-pulse">
+                        🟢 LIVE NOW
+                      </Badge>
+                    </div>
+                  </div>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Amazon Marketplace</h4>
+                      <div className="flex items-center space-x-1">
+                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">4.8</span>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Essential move-in products</p>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-lg font-bold text-orange-600 dark:text-orange-400">$15.99 - $45.99</span>
+                      <span className="text-xs bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded-full">Prime Eligible</span>
+                    </div>
+                    <div className="space-y-1 mb-3">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-600 dark:text-gray-300">7 Essential Products</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-600 dark:text-gray-300">Prime Shipping Eligible</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-600 dark:text-gray-300">Senior-friendly items</span>
+                      </div>
+                    </div>
+                    <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white text-sm py-2">
+                      View Products →
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Link>
+              
               {/* Live Provider: Two Men and a Truck */}
               <Link href="/moving">
                 <Card className="overflow-hidden flex-shrink-0 w-64 hover:shadow-xl transition-all duration-300 border-2 border-green-200 dark:border-green-400 bg-white dark:bg-gray-800">
@@ -747,57 +798,6 @@ export default function MySeniorValetHome() {
                     <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm py-2">
                       <Phone className="w-4 h-4 mr-2" />
                       Call to Book
-                    </Button>
-                  </CardContent>
-                </Card>
-              </Link>
-              
-              {/* Live Provider: Amazon Move-In Essentials */}
-              <Link href="/amazon-supplies">
-                <Card className="overflow-hidden flex-shrink-0 w-64 hover:shadow-xl transition-all duration-300 border-2 border-orange-200 dark:border-orange-400 bg-white dark:bg-gray-800">
-                  <div className="relative">
-                    <div className="aspect-[4/3] bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
-                      <div className="text-center text-white">
-                        <Package className="w-12 h-12 mb-2 mx-auto" />
-                        <div className="text-2xl font-bold">AMAZON</div>
-                        <div className="text-sm">Move-In Essentials</div>
-                      </div>
-                    </div>
-                    <div className="absolute top-2 right-2">
-                      <Badge className="bg-green-500 text-white text-xs px-2 py-1 font-bold animate-pulse">
-                        🟢 LIVE NOW
-                      </Badge>
-                    </div>
-                  </div>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Amazon Marketplace</h4>
-                      <div className="flex items-center space-x-1">
-                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">4.8</span>
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Essential move-in products</p>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-lg font-bold text-orange-600 dark:text-orange-400">$15.99 - $45.99</span>
-                      <span className="text-xs bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded-full">Prime Eligible</span>
-                    </div>
-                    <div className="space-y-1 mb-3">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
-                        <span className="text-xs text-gray-600 dark:text-gray-300">7 Essential Products</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
-                        <span className="text-xs text-gray-600 dark:text-gray-300">Prime Shipping Eligible</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
-                        <span className="text-xs text-gray-600 dark:text-gray-300">Senior-friendly items</span>
-                      </div>
-                    </div>
-                    <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white text-sm py-2">
-                      View Products →
                     </Button>
                   </CardContent>
                 </Card>
