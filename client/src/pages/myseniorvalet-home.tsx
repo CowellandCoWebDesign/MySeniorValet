@@ -304,7 +304,7 @@ export default function MySeniorValetHome() {
             Featured selections and coastal charm
           </p>
         
-          <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
+          <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
             {/* Show combined premium communities (coastal + featured) */}
             {(coastalLoading || trendingLoading) ? (
               // Loading skeleton cards
@@ -479,7 +479,7 @@ export default function MySeniorValetHome() {
               </p>
             </div>
 
-            <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
+            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
               {/* Live Provider: Two Men and a Truck */}
               <Link href="/moving">
                 <Card className="overflow-hidden flex-shrink-0 w-64 hover:shadow-xl transition-all duration-300 border-2 border-green-200 dark:border-green-400 bg-white dark:bg-gray-800">
@@ -873,7 +873,7 @@ export default function MySeniorValetHome() {
               </p>
             </div>
 
-            <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
+            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
               {/* Healthcare Service Cards - Framework Ready */}
               {Array.from({ length: 6 }).map((_, index) => {
                 const healthcareServices = [
@@ -1303,7 +1303,7 @@ export default function MySeniorValetHome() {
             Government transparency and income-based options
           </p>
         
-          <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
+          <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
             {/* Show HUD communities */}
             {(!hudProperties || (hudProperties as any[]).length === 0) ? (
               // Loading skeleton cards
@@ -2013,7 +2013,7 @@ export default function MySeniorValetHome() {
           
           <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{(californiaCommunities as any[])?.length || 0} communities • Silicon Valley, LA Metro, San Diego with immediate openings</p>
         
-          <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide horizontal-card-gradient">
+          <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
             {californiaLoading ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
@@ -2032,8 +2032,12 @@ export default function MySeniorValetHome() {
                 <Link key={`california-${community.id}-${index}`} href={`/community/${community.id}`}>
                   <Card className="overflow-hidden flex-shrink-0 w-56 h-[30rem] animate-float california-card dark:bg-gray-700" style={{animationDelay: `${index * 0.2}s`}}>
                     <div className="relative">
-                      <div className="aspect-[4/3] bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
-                        <Home className="w-12 h-12 text-gray-400 dark:text-gray-500" />
+                      <div className="aspect-[4/3] bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 flex items-center justify-center">
+                        <div className="text-center">
+                          <div className="text-2xl mb-2">📷</div>
+                          <div className="text-sm font-medium text-blue-800 dark:text-blue-200">Photos Coming Soon</div>
+                          <div className="text-xs text-blue-600 dark:text-blue-300">Verifying authentic images</div>
+                        </div>
                       </div>
                       
                       {/* Heart Icon */}
@@ -2161,6 +2165,13 @@ export default function MySeniorValetHome() {
                             💎 Premium
                           </div>
                         )}
+                      </div>
+                      
+                      {/* View Details Button */}
+                      <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                        <Button size="sm" variant="outline" className="w-full text-xs py-2 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
+                          View Full Details →
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>

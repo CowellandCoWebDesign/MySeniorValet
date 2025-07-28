@@ -269,7 +269,7 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
       <Link href={`/community/${community.id}`}>
         <Card className={cardClass} style={{animationDelay: `${index * 0.2}s`}}>
           <div className="relative">
-            <div className="aspect-[4/3] bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
+            <div className="aspect-[4/3] bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 flex items-center justify-center">
               {community.photos && community.photos.length > 0 ? (
                 <img 
                   src={community.photos[0]} 
@@ -277,7 +277,11 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <Home className="w-12 h-12 text-gray-400 dark:text-gray-500" />
+                <div className="text-center">
+                  <div className="text-2xl mb-2">📷</div>
+                  <div className="text-sm font-medium text-blue-800 dark:text-blue-200">Photos Coming Soon</div>
+                  <div className="text-xs text-blue-600 dark:text-blue-300">Verifying authentic images</div>
+                </div>
               )}
             </div>
             
@@ -471,6 +475,13 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
                   )}
                 </>
               )}
+            </div>
+            
+            {/* View Details Button */}
+            <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+              <div className="w-full text-center py-2 text-xs text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors">
+                View Full Details →
+              </div>
             </div>
           </CardContent>
         </Card>
