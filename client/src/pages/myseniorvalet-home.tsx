@@ -418,6 +418,49 @@ export default function MySeniorValetHome() {
                 </CardContent>
               </Card>
             </Link>
+            
+            <Link href="/amazon-supplies">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-orange-200 relative overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-br from-orange-500 to-orange-600">
+                  <div className="absolute top-2 right-2">
+                    <Badge className="bg-green-500 text-white text-xs px-2 py-1 flex items-center gap-1">
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                      LIVE NOW
+                    </Badge>
+                  </div>
+                  <div className="flex flex-col items-center justify-center h-full text-white">
+                    <Package className="w-10 h-10 mb-1" />
+                    <h4 className="font-bold text-lg">AMAZON</h4>
+                    <p className="text-xs">Move-In Essentials</p>
+                  </div>
+                </div>
+                <CardContent className="p-4 pt-28 bg-gray-800 dark:bg-gray-900 text-white">
+                  <h4 className="font-semibold text-lg mb-1">Amazon Marketplace</h4>
+                  <div className="flex items-center gap-1 mb-2">
+                    <span className="text-yellow-400">⭐</span>
+                    <span className="text-sm font-medium">4.8</span>
+                  </div>
+                  <p className="text-xs text-gray-300 mb-3">Essential move-in products including bathroom accessories, bedroom items, and furniture supplies.</p>
+                  <div className="space-y-1 text-xs mb-3">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-3 h-3 text-green-400" />
+                      <span>7 Essential Products</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-3 h-3 text-green-400" />
+                      <span>Prime Shipping Eligible</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-3 h-3 text-green-400" />
+                      <span>$15.99 - $45.99 Range</span>
+                    </div>
+                  </div>
+                  <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white text-sm">
+                    View Products →
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
 
             <Link href="/vendor/1800florals">
               <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-pink-200 bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 relative overflow-hidden">
