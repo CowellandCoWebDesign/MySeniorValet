@@ -61,6 +61,7 @@ import TransportationServices from "@/pages/TransportationServices";
 import MoveInServices from "@/pages/MoveInServices";
 import AmazonServices from "@/pages/AmazonServices";
 import VendorProfile from "@/pages/VendorProfile";
+import FamilyConnect from "@/pages/family-connect";
 import CommunityPaymentProgram from "@/pages/community-payment-program";
 import ResidentOnboarding from "@/pages/resident-onboarding";
 import LeaseDocumentManagement from "@/pages/lease-document-management";
@@ -112,6 +113,7 @@ function Router() {
       {/* HudVashMap route removed */}
       <Route path="/affordable-housing" component={AffordableHousing} />
       <Route path="/family-collaboration" component={FamilyCollaboration} />
+      <Route path="/family-connect" component={FamilyConnect} />
       <Route path="/login" component={Login} />
       <Route path="/signup" component={Signup} />
       <Route path="/about" component={About} />

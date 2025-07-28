@@ -27,6 +27,7 @@ import { registerFloralRoutes } from "./floralRoutes";
 import { registerMoveInServicesRoutes } from "./moveInServicesRoutes";
 import movingRoutes from "./movingRoutes";
 import transportationRoutes from "./transportationRoutes";
+import familyConnectRoutes from "./familyConnectRoutes";
 
 // Import existing routers
 import { quizRouter } from "./quiz";
@@ -75,6 +76,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register transportation services routes
   app.use('/api/transportation', transportationRoutes);
+  
+  // Register family connect routes
+  app.use('/api/family-connect', familyConnectRoutes);
 
   // Register existing specialized routers
   app.use('/api/quiz', quizRouter);

@@ -3278,3 +3278,102 @@ export const insertVendorAnalyticsSchema = createInsertSchema(vendorAnalytics).o
 });
 export type InsertVendorAnalytics = z.infer<typeof insertVendorAnalyticsSchema>;
 export type VendorAnalytics = typeof vendorAnalytics.$inferSelect;
+
+// Family Connect Tables
+export const familyGroups = pgTable('family_groups', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull(),
+  primaryUserId: integer('primary_user_id').references(() => users.id),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  inviteCode: text('invite_code').unique(),
+});
+
+export const familyMembers = pgTable('family_members', {
+  id: serial('id').primaryKey(),
+  groupId: integer('group_id').references(() => familyGroups.id).notNull(),
+  userId: integer('user_id').references(() => users.id),
+  email: text('email').notNull(),
+  name: text('name').notNull(),
+  role: text('role').notNull().default('member'), // admin, member
+  status: text('status').notNull().default('pending'), // pending, active
+  invitedAt: timestamp('invited_at').defaultNow().notNull(),
+  joinedAt: timestamp('joined_at'),
+});
+
+export const familyMessages = pgTable('family_messages', {
+  id: serial('id').primaryKey(),
+  groupId: integer('group_id').references(() => familyGroups.id).notNull(),
+  senderId: integer('sender_id').references(() => users.id).notNull(),
+  message: text('message').notNull(),
+  attachments: jsonb('attachments').$type<Array<{url: string; name: string; type: string}>>(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  editedAt: timestamp('edited_at'),
+});
+
+export const familyNotes = pgTable('family_notes', {
+  id: serial('id').primaryKey(),
+  groupId: integer('group_id').references(() => familyGroups.id).notNull(),
+  authorId: integer('author_id').references(() => users.id).notNull(),
+  communityId: integer('community_id').references(() => communities.id),
+  title: text('title').notNull(),
+  content: text('content').notNull(),
+  tags: text('tags').array(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const familyTasks = pgTable('family_tasks', {
+  id: serial('id').primaryKey(),
+  groupId: integer('group_id').references(() => familyGroups.id).notNull(),
+  assignedTo: integer('assigned_to').references(() => users.id),
+  createdBy: integer('created_by').references(() => users.id).notNull(),
+  title: text('title').notNull(),
+  description: text('description'),
+  dueDate: timestamp('due_date'),
+  status: text('status').notNull().default('pending'), // pending, in_progress, completed
+  priority: text('priority').notNull().default('medium'), // low, medium, high
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  completedAt: timestamp('completed_at'),
+});
+
+// Insert schemas for Family Connect
+export const insertFamilyGroupSchema = createInsertSchema(familyGroups).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertFamilyGroup = z.infer<typeof insertFamilyGroupSchema>;
+export type FamilyGroup = typeof familyGroups.$inferSelect;
+
+export const insertFamilyMemberSchema = createInsertSchema(familyMembers).omit({
+  id: true,
+  invitedAt: true,
+  joinedAt: true,
+});
+export type InsertFamilyMember = z.infer<typeof insertFamilyMemberSchema>;
+export type FamilyMember = typeof familyMembers.$inferSelect;
+
+export const insertFamilyMessageSchema = createInsertSchema(familyMessages).omit({
+  id: true,
+  createdAt: true,
+  editedAt: true,
+});
+export type InsertFamilyMessage = z.infer<typeof insertFamilyMessageSchema>;
+export type FamilyMessage = typeof familyMessages.$inferSelect;
+
+export const insertFamilyNoteSchema = createInsertSchema(familyNotes).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertFamilyNote = z.infer<typeof insertFamilyNoteSchema>;
+export type FamilyNote = typeof familyNotes.$inferSelect;
+
+export const insertFamilyTaskSchema = createInsertSchema(familyTasks).omit({
+  id: true,
+  createdAt: true,
+  completedAt: true,
+});
+export type InsertFamilyTask = z.infer<typeof insertFamilyTaskSchema>;
+export type FamilyTask = typeof familyTasks.$inferSelect;

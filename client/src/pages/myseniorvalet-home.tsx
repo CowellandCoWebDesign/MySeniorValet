@@ -402,14 +402,22 @@ export default function MySeniorValetHome() {
               </Card>
             </Link>
             
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
-              <CardContent className="p-4 text-center relative">
-                <Utensils className="w-10 h-10 text-green-500 mx-auto mb-2" />
-                <h4 className="font-semibold text-sm">Meal Delivery</h4>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Senior nutrition services</p>
-                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
-              </CardContent>
-            </Card>
+            <Link href="/family-connect">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 relative overflow-hidden">
+                <CardContent className="p-4 text-center">
+                  <div className="absolute top-2 right-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  </div>
+                  <Users className="w-10 h-10 text-indigo-500 mx-auto mb-2" />
+                  <h4 className="font-semibold text-sm text-indigo-700 dark:text-indigo-300">Family Connect</h4>
+                  <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-1">Coordinate care together</p>
+                  <div className="flex gap-1 justify-center mt-1">
+                    <Badge className="bg-green-500 text-white text-xs px-2 py-0.5">✓ NEW</Badge>
+                    <Badge className="bg-indigo-500 text-white text-xs px-2 py-0.5">SECURE</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
 
             <Link href="/vendor/1800florals">
               <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-pink-200 bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 relative overflow-hidden">
