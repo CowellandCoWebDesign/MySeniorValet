@@ -23,6 +23,7 @@ import { registerDocumentRoutes } from "./documentRoutes";
 import { registerSecurityRoutes } from "./securityRoutes";
 import { registerInfrastructureRoutes } from "./infrastructureRoutes";
 import { registerEmailRoutes } from "./emailRoutes";
+import { registerFloralRoutes } from "./floralRoutes";
 
 // Import existing routers
 import { quizRouter } from "./quiz";
@@ -63,6 +64,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerSecurityRoutes(app);
   registerInfrastructureRoutes(app);
   registerEmailRoutes(app);
+  registerFloralRoutes(app);
 
   // Register existing specialized routers
   app.use('/api/quiz', quizRouter);

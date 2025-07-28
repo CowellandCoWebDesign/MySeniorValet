@@ -1196,6 +1196,17 @@ export default function MySeniorValetHome() {
               </CardContent>
             </Card>
 
+            <Link href="/floral-services">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-pink-200 bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20">
+                <CardContent className="p-4 text-center">
+                  <div className="w-10 h-10 text-pink-500 mx-auto mb-2 font-bold text-2xl flex items-center justify-center">🌸</div>
+                  <h4 className="font-semibold text-sm text-pink-700 dark:text-pink-300">Professional Florals</h4>
+                  <p className="text-xs text-pink-600 dark:text-pink-400 mt-1">Move-in arrangements & gifts</p>
+                  <Badge className="bg-pink-500 text-white text-xs px-2 py-0.5 mt-1">1-800-FLORALS</Badge>
+                </CardContent>
+              </Card>
+            </Link>
+
 
             
             <Card className="hover:shadow-lg transition-shadow cursor-pointer">
@@ -1247,32 +1258,70 @@ export default function MySeniorValetHome() {
             </Card>
           </div>
 
-          <div className="bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/20 dark:to-amber-900/20 rounded-2xl p-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {/* Featured Service: 1-800-FLORALS */}
+            <div className="bg-gradient-to-r from-pink-100 to-rose-100 dark:from-pink-900/20 dark:to-rose-900/20 rounded-2xl p-6 border-2 border-pink-200">
+              <div className="flex items-start gap-4">
+                <div className="w-16 h-16 bg-pink-500 rounded-xl flex items-center justify-center text-white text-2xl font-bold">
+                  🌸
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                    Professional Floral Services
+                  </h3>
+                  <p className="text-gray-700 dark:text-gray-300 mb-3">
+                    Move-in welcome arrangements, special occasion flowers, and monthly subscriptions 
+                    through our partnership with 1-800-FLORALS.
+                  </p>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Same-day delivery available</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Move-in welcome specials</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Monthly subscription options</span>
+                    </div>
+                  </div>
+                  <Link href="/floral-services">
+                    <Button className="bg-pink-500 hover:bg-pink-600 text-white">
+                      Browse Floral Services →
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Amazon Product Recommendations */}
+            <div className="bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/20 dark:to-amber-900/20 rounded-2xl p-6">
               <div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                   🛍️ Amazon Product Recommendations
                 </h3>
-                <p className="text-gray-700 dark:text-gray-300 mb-4">
+                <p className="text-gray-700 dark:text-gray-300 mb-3">
                   Curated senior-friendly products including mobility aids, safety equipment, 
                   daily living aids, and medical supplies - all with verified reviews and 
                   competitive pricing.
                 </p>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Verified local service providers</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Quality scoring algorithm</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">AI-matched to care needs</span>
+                  </div>
+                </div>
                 <Badge className="bg-yellow-500 text-white">Coming Soon with Amazon Associates</Badge>
-              </div>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                  <span className="text-gray-700 dark:text-gray-300">Verified local service providers</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                  <span className="text-gray-700 dark:text-gray-300">Quality scoring algorithm</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                  <span className="text-gray-700 dark:text-gray-300">AI-matched to care needs</span>
-                </div>
               </div>
             </div>
           </div>
