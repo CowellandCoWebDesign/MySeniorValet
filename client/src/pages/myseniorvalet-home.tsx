@@ -139,8 +139,8 @@ export default function MySeniorValetHome() {
       <section className="relative min-h-screen bg-gradient-to-br from-slate-50 to-amber-50 dark:from-gray-900 dark:to-gray-800">
         <div className="absolute inset-0">
           <img
-            src={heroImages?.url || "https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg"}
-            alt={heroImages?.alt || "Beautiful senior living community with elegant architecture and landscaping"}
+            src={(heroImages as any)?.url || "https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg"}
+            alt={(heroImages as any)?.alt || "Beautiful senior living community with elegant architecture and landscaping"}
             className="w-full h-full object-cover"
             loading="eager"
           />
@@ -329,258 +329,6 @@ export default function MySeniorValetHome() {
                 />
               ))
             )}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Vendor: Amazon - Comprehensive Senior Living Solutions */}
-      <section className="px-4 py-12 bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <Badge className="bg-orange-500 text-white px-4 py-2 text-sm font-semibold">FEATURED VENDOR</Badge>
-              <Badge className="bg-green-500 text-white px-4 py-2 text-sm font-semibold flex items-center gap-2">
-                <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                LIVE INTEGRATION
-              </Badge>
-            </div>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-              Amazon: Your Complete Senior Living Partner
-            </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 mb-2">
-              From move-in essentials to ongoing care supplies - all with Prime delivery
-            </p>
-            <div className="flex items-center justify-center gap-2">
-              <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-              <span className="text-lg font-bold">4.8</span>
-              <span className="text-gray-600 dark:text-gray-400">• Trusted by millions of seniors</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {/* Amazon Move-In Essentials */}
-            <Link href="/amazon-supplies">
-              <Card className="hover:shadow-xl transition-all duration-300 border-2 border-orange-200 dark:border-orange-400 cursor-pointer group">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <Package className="w-12 h-12 text-orange-500 group-hover:scale-110 transition-transform" />
-                    <Badge className="bg-green-100 text-green-700 px-3 py-1 text-xs font-semibold">ACTIVE</Badge>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Move-In Essentials</h3>
-                  <p className="text-gray-600 dark:text-gray-300 mb-4">
-                    Everything needed for a smooth transition to senior living
-                  </p>
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center gap-2 text-sm">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Bathroom safety items</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Bedroom essentials</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Organization solutions</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-lg font-bold text-orange-600">$15.99 - $45.99</span>
-                    <ArrowRight className="w-5 h-5 text-orange-500 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            {/* Amazon Medical Supplies - Coming Soon */}
-            <Card className="hover:shadow-lg transition-all duration-300 border-2 border-gray-300 dark:border-gray-600 opacity-75">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <Stethoscope className="w-12 h-12 text-blue-500" />
-                  <Badge className="bg-yellow-100 text-yellow-700 px-3 py-1 text-xs font-semibold">COMING SOON</Badge>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Medical Supplies</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  Daily health and medical necessities delivered monthly
-                </p>
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>Incontinence products</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>First aid supplies</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>OTC medications</span>
-                  </div>
-                </div>
-                <div className="text-center text-gray-500">
-                  <span className="text-sm">Launching Q1 2025</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Amazon Fresh Grocery - Coming Soon */}
-            <Card className="hover:shadow-lg transition-all duration-300 border-2 border-gray-300 dark:border-gray-600 opacity-75">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <ShoppingCart className="w-12 h-12 text-green-500" />
-                  <Badge className="bg-yellow-100 text-yellow-700 px-3 py-1 text-xs font-semibold">COMING SOON</Badge>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Fresh Grocery Delivery</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  Weekly grocery delivery tailored for senior nutrition
-                </p>
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>Senior meal plans</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>Dietary restrictions</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>Same-day delivery</span>
-                  </div>
-                </div>
-                <div className="text-center text-gray-500">
-                  <span className="text-sm">Launching Q2 2025</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Amazon Pharmacy - Future */}
-            <Card className="hover:shadow-lg transition-all duration-300 border-2 border-gray-300 dark:border-gray-600 opacity-75">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <Pill className="w-12 h-12 text-purple-500" />
-                  <Badge className="bg-gray-100 text-gray-600 px-3 py-1 text-xs font-semibold">PLANNED</Badge>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Amazon Pharmacy</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  Prescription management and delivery services
-                </p>
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>Rx management</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>Auto-refills</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>Insurance billing</span>
-                  </div>
-                </div>
-                <div className="text-center text-gray-500">
-                  <span className="text-sm">Future Integration</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Amazon Home Services - Future */}
-            <Card className="hover:shadow-lg transition-all duration-300 border-2 border-gray-300 dark:border-gray-600 opacity-75">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <Home className="w-12 h-12 text-indigo-500" />
-                  <Badge className="bg-gray-100 text-gray-600 px-3 py-1 text-xs font-semibold">PLANNED</Badge>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Home Services</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  Professional home maintenance and modifications
-                </p>
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>Grab bar installation</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>Home repairs</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>Safety assessments</span>
-                  </div>
-                </div>
-                <div className="text-center text-gray-500">
-                  <span className="text-sm">Future Integration</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Amazon Echo for Seniors - Future */}
-            <Card className="hover:shadow-lg transition-all duration-300 border-2 border-gray-300 dark:border-gray-600 opacity-75">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <MessageCircle className="w-12 h-12 text-teal-500" />
-                  <Badge className="bg-gray-100 text-gray-600 px-3 py-1 text-xs font-semibold">PLANNED</Badge>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Echo for Seniors</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  Voice-activated assistance and emergency support
-                </p>
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>Medication reminders</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>Emergency calling</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>Family connectivity</span>
-                  </div>
-                </div>
-                <div className="text-center text-gray-500">
-                  <span className="text-sm">Future Integration</span>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Amazon Benefits Banner */}
-          <div className="bg-orange-100 dark:bg-orange-900/20 rounded-xl p-6 border-2 border-orange-200 dark:border-orange-700">
-            <div className="flex flex-col md:flex-row items-center justify-between">
-              <div className="mb-4 md:mb-0">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                  Why Choose Amazon for Senior Living Needs?
-                </h3>
-                <div className="flex flex-wrap gap-4 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Truck className="w-4 h-4 text-orange-600" />
-                    <span>Free Prime Delivery</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-orange-600" />
-                    <span>Trusted & Secure</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-orange-600" />
-                    <span>24/7 Customer Support</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Heart className="w-4 h-4 text-orange-600" />
-                    <span>Senior-Friendly Service</span>
-                  </div>
-                </div>
-              </div>
-              <Link href="/amazon-supplies">
-                <Button className="bg-orange-500 hover:bg-orange-600 text-white">
-                  Shop Amazon Essentials
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
-            </div>
           </div>
         </div>
       </section>
@@ -944,7 +692,7 @@ export default function MySeniorValetHome() {
                     <div 
                       className="aspect-[4/3] bg-gradient-to-br from-pink-100 to-rose-200 dark:from-pink-900 dark:to-rose-800 flex items-center justify-center relative overflow-hidden"
                       style={{
-                        backgroundImage: conciergeImages?.[1]?.url ? `url(${conciergeImages[1].url})` : undefined,
+                        backgroundImage: (conciergeImages as any)?.[1]?.url ? `url(${(conciergeImages as any)[1].url})` : undefined,
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
                       }}
@@ -1002,7 +750,7 @@ export default function MySeniorValetHome() {
                     <div 
                       className="aspect-[4/3] bg-gradient-to-br from-blue-100 to-cyan-200 dark:from-blue-900 dark:to-cyan-800 flex items-center justify-center relative overflow-hidden"
                       style={{
-                        backgroundImage: conciergeImages?.[2]?.url ? `url(${conciergeImages[2].url})` : undefined,
+                        backgroundImage: (conciergeImages as any)?.[2]?.url ? `url(${(conciergeImages as any)[2].url})` : undefined,
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
                       }}
@@ -1737,6 +1485,99 @@ export default function MySeniorValetHome() {
                 />
               ))
             )}
+          </div>
+        </div>
+
+        {/* Amazon Featured Vendor - Compact Section */}
+        <div className="mt-12 mb-8">
+          <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-xl p-6 border-2 border-orange-200 dark:border-orange-600">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <Package className="w-8 h-8 text-orange-500" />
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Amazon Senior Living Solutions</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Growing partnership - more services coming soon</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge className="bg-green-500 text-white px-3 py-1 text-xs font-semibold">LIVE</Badge>
+                <div className="flex items-center gap-1">
+                  <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                  <span className="text-sm font-bold">4.8</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {/* Move-In Essentials - Active */}
+              <Link href="/amazon-supplies">
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-orange-200 dark:border-orange-600 hover:shadow-md transition-all cursor-pointer group">
+                  <Package className="w-6 h-6 text-orange-500 mb-2 group-hover:scale-110 transition-transform" />
+                  <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">Move-In Essentials</h4>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">$15.99-$45.99</p>
+                  <Badge className="bg-green-100 text-green-700 text-xs px-2 py-0.5">Active</Badge>
+                </div>
+              </Link>
+
+              {/* Medical Supplies - Coming Soon */}
+              <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-300 dark:border-gray-600 opacity-75">
+                <Stethoscope className="w-6 h-6 text-blue-500 mb-2" />
+                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Medical Supplies</h4>
+                <p className="text-xs text-gray-500 dark:text-gray-500 mb-2">Daily care items</p>
+                <Badge className="bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5">Q1 2025</Badge>
+              </div>
+
+              {/* Fresh Grocery - Coming Soon */}
+              <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-300 dark:border-gray-600 opacity-75">
+                <ShoppingCart className="w-6 h-6 text-green-500 mb-2" />
+                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Fresh Grocery</h4>
+                <p className="text-xs text-gray-500 dark:text-gray-500 mb-2">Senior nutrition</p>
+                <Badge className="bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5">Q2 2025</Badge>
+              </div>
+
+              {/* Pharmacy - Planned */}
+              <div className="bg-white/30 dark:bg-gray-800/30 rounded-lg p-4 border border-gray-300 dark:border-gray-600 opacity-50">
+                <Pill className="w-6 h-6 text-purple-500 mb-2" />
+                <h4 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Pharmacy</h4>
+                <p className="text-xs text-gray-500 dark:text-gray-500 mb-2">Prescriptions</p>
+                <Badge className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5">Planned</Badge>
+              </div>
+
+              {/* Home Services - Planned */}
+              <div className="bg-white/30 dark:bg-gray-800/30 rounded-lg p-4 border border-gray-300 dark:border-gray-600 opacity-50">
+                <Home className="w-6 h-6 text-indigo-500 mb-2" />
+                <h4 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Home Services</h4>
+                <p className="text-xs text-gray-500 dark:text-gray-500 mb-2">Modifications</p>
+                <Badge className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5">Planned</Badge>
+              </div>
+
+              {/* Echo for Seniors - Planned */}
+              <div className="bg-white/30 dark:bg-gray-800/30 rounded-lg p-4 border border-gray-300 dark:border-gray-600 opacity-50">
+                <MessageCircle className="w-6 h-6 text-teal-500 mb-2" />
+                <h4 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Echo Seniors</h4>
+                <p className="text-xs text-gray-500 dark:text-gray-500 mb-2">Voice assistant</p>
+                <Badge className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5">Planned</Badge>
+              </div>
+            </div>
+
+            <div className="mt-4 flex items-center justify-between bg-orange-100 dark:bg-orange-900/30 rounded-lg p-3">
+              <div className="flex items-center gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <Truck className="w-4 h-4 text-orange-600" />
+                  <span className="text-gray-700 dark:text-gray-300">Prime Delivery</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-orange-600" />
+                  <span className="text-gray-700 dark:text-gray-300">Trusted Service</span>
+                </div>
+              </div>
+              <Link href="/amazon-supplies">
+                <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white">
+                  Shop Amazon
+                  <ArrowRight className="w-3 h-3 ml-1" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
