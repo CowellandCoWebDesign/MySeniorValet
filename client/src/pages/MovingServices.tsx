@@ -236,6 +236,89 @@ const MovingServices = () => {
 
 
 
+      {/* Amazon Moving Supplies Section */}
+      <div className="max-w-6xl mx-auto px-6 py-12">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+            Amazon Moving Supplies
+          </h2>
+          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            Professional moving supplies delivered with Prime shipping. Multiple product options for every moving need.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6 mb-8">
+          {/* Professional Moving Box Sets */}
+          <Card className="overflow-hidden border-2 border-orange-200 dark:border-orange-400 bg-white dark:bg-gray-800">
+            <CardContent className="p-6">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center text-white flex-shrink-0">
+                  <Package className="w-6 h-6" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                    Professional Moving Box Sets
+                  </h3>
+                  <div className="text-lg font-bold text-orange-600 dark:text-orange-400 mb-2">
+                    $24.99 - $39.99
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">
+                    Heavy-duty moving boxes in multiple sizes. Professional-grade cardboard construction.
+                  </p>
+                </div>
+              </div>
+              <Button 
+                onClick={() => window.open('https://amzn.to/4lUWCV4', '_blank')}
+                className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+              >
+                Shop on Amazon
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* U-Haul Small Box Kit */}
+          <Card className="overflow-hidden border-2 border-blue-200 dark:border-blue-400 bg-white dark:bg-gray-800">
+            <CardContent className="p-6">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white flex-shrink-0">
+                  <Package className="w-6 h-6" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                    U-Haul Small Moving Box Kit
+                  </h3>
+                  <div className="text-lg font-bold text-blue-600 dark:text-blue-400 mb-2">
+                    $15.99 - $22.99
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">
+                    10-pack with tape roll. Perfect for books, tools, and downsizing seniors.
+                  </p>
+                </div>
+              </div>
+              <Button 
+                onClick={() => window.open('https://amzn.to/4mjSqxW', '_blank')}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                Shop on Amazon
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="text-center">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+            * MySeniorValet earns from qualifying Amazon purchases as an Amazon Associate
+          </p>
+          <Button 
+            onClick={() => window.open('/amazon-supplies', '_blank')}
+            variant="outline"
+            className="border-orange-600 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20"
+          >
+            View All Amazon Moving Supplies
+          </Button>
+        </div>
+      </div>
+
       {/* Contact Section */}
       <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white py-16">
         <div className="max-w-4xl mx-auto px-6 text-center">

@@ -448,7 +448,7 @@ export default function MySeniorValetHome() {
               </div>
               
               <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
-                4 vendor partnerships • 1-800-FLORALS • TWO MEN AND A TRUCK • GoGoGrandparent • Amazon
+                3 live vendor partnerships • 1-800-FLORALS • TWO MEN AND A TRUCK • GoGoGrandparent + Amazon supply integration
               </p>
             </div>
 
@@ -608,57 +608,7 @@ export default function MySeniorValetHome() {
                 </Card>
               </Link>
 
-              {/* Live Provider: Amazon Moving Supplies */}
-              <Link href="/amazon">
-                <Card className="overflow-hidden flex-shrink-0 w-64 hover:shadow-xl transition-all duration-300 border-2 border-orange-200 dark:border-orange-400 bg-white dark:bg-gray-800">
-                  <div className="relative">
-                    <div className="aspect-[4/3] bg-gradient-to-br from-orange-100 to-yellow-200 dark:from-orange-900 dark:to-yellow-800 flex items-center justify-center">
-                      <div className="text-center">
-                        <div className="text-2xl mb-2">📦</div>
-                        <div className="text-lg font-bold text-orange-800 dark:text-orange-200">Amazon</div>
-                        <div className="text-sm text-orange-600 dark:text-orange-300">Moving Supplies</div>
-                      </div>
-                    </div>
-                    <div className="absolute top-2 right-2">
-                      <Badge className="bg-orange-500 text-white text-xs px-2 py-1 font-bold animate-pulse">
-                        🚚 PRIME
-                      </Badge>
-                    </div>
-                  </div>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Amazon</h4>
-                      <div className="flex items-center space-x-1">
-                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">4.2</span>
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Moving Supplies</p>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-lg font-bold text-orange-600 dark:text-orange-400">$15.99+</span>
-                      <span className="text-xs bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded-full">Prime Eligible</span>
-                    </div>
-                    <div className="space-y-1 mb-3">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
-                        <span className="text-xs text-gray-600 dark:text-gray-300">Professional moving boxes</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
-                        <span className="text-xs text-gray-600 dark:text-gray-300">2-day Prime shipping</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
-                        <span className="text-xs text-gray-600 dark:text-gray-300">Easy returns</span>
-                      </div>
-                    </div>
-                    <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white text-sm py-2">
-                      <Package className="w-4 h-4 mr-2" />
-                      Shop Now
-                    </Button>
-                  </CardContent>
-                </Card>
-              </Link>
+
               
               {/* Service Provider Cards - Framework Ready */}
               {Array.from({ length: 5 }).map((_, index) => {

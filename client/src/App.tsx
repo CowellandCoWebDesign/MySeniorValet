@@ -139,7 +139,7 @@ function Router() {
       <Route path="/florals" component={FloralServices} />
       <Route path="/moving" component={MovingServices} />
       <Route path="/transportation" component={TransportationServices} />
-      <Route path="/amazon" component={AmazonServices} />
+      <Route path="/amazon-supplies" component={AmazonServices} />
       <Route path="/vendor/:vendorId" component={VendorProfile} />
       <Route path="/community-payment-program" component={CommunityPaymentProgram} />
       <Route path="/resident-onboarding" component={ResidentOnboarding} />
