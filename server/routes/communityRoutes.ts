@@ -202,6 +202,51 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
 
+  // Map data endpoint - MUST BE BEFORE /:id
+  app.get("/api/communities/map-data", async (req, res) => {
+    try {
+      const { bounds } = req.query;
+      
+      if (!bounds) {
+        return res.status(400).json({ error: "Bounds parameter required" });
+      }
+      
+      // Parse bounds: "west,south,east,north"
+      const [west, south, east, north] = (bounds as string).split(',').map(Number);
+      
+      if ([west, south, east, north].some(isNaN)) {
+        return res.status(400).json({ error: "Invalid bounds format" });
+      }
+      
+      const mapData = await db
+        .select({
+          id: communities.id,
+          name: communities.name,
+          latitude: communities.latitude,
+          longitude: communities.longitude,
+          city: communities.city,
+          state: communities.state,
+          careTypes: communities.careTypes,
+          rating: communities.rating
+        })
+        .from(communities)
+        .where(
+          and(
+            gte(communities.latitude, south),
+            lte(communities.latitude, north),
+            gte(communities.longitude, west),
+            lte(communities.longitude, east)
+          )
+        )
+        .limit(1000);
+      
+      res.json(mapData);
+    } catch (error) {
+      console.error("Error fetching map data:", error);
+      res.status(500).json({ error: "Failed to fetch map data" });
+    }
+  });
+
   // Get single community by ID - MUST BE LAST
   app.get("/api/communities/:id", async (req, res) => {
     try {

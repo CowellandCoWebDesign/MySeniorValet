@@ -20,19 +20,12 @@ export function registerReviewRoutes(app: Express) {
           userId: reviews.userId,
           rating: reviews.rating,
           title: reviews.title,
-          content: reviews.content,
+          content: reviews.reviewText,
           helpful: reviews.helpful,
           verified: reviews.verified,
-          source: reviews.source,
-          sourceReviewId: reviews.sourceReviewId,
-          createdAt: reviews.createdAt,
-          user: {
-            firstName: users.firstName,
-            lastName: users.lastName
-          }
+          createdAt: reviews.createdAt
         })
         .from(reviews)
-        .leftJoin(users, eq(reviews.userId, users.id))
         .where(eq(reviews.communityId, communityId))
         .orderBy(desc(reviews.createdAt))
         .limit(parseInt(limit as string))

@@ -6,6 +6,19 @@ import { communityStatsCache } from "../community-stats-cache";
 import { enhancedPlatformStats } from "../enhanced-platform-stats";
 
 export function registerStatsRoutes(app: Express) {
+  // Hero images endpoint
+  app.get('/api/images/hero', async (req, res) => {
+    try {
+      res.json({
+        url: '/hero-senior-living.jpg',
+        alt: 'Premium senior living community pool',
+        credit: 'MySeniorValet'
+      });
+    } catch (error) {
+      console.error('Error fetching hero images:', error);
+      res.status(500).json({ error: 'Failed to fetch hero images' });
+    }
+  });
   // Platform-wide statistics
   app.get('/api/stats/platform', async (req, res) => {
     try {
