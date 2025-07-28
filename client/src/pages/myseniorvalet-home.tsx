@@ -131,19 +131,15 @@ export default function MySeniorValetHome() {
       {/* Hero Section with Search */}
       <section className="relative min-h-screen bg-gradient-to-br from-slate-50 to-amber-50 dark:from-gray-900 dark:to-gray-800">
         <div className="absolute inset-0">
-          {(heroImages as any) && (heroImages as any).length > 0 ? (
-            <img
-              src={(heroImages as any)[0].urls.regular}
-              alt={(heroImages as any)[0].alt_description || "Senior living community"}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <img
-              src="https://pixabay.com/get/g372c8ac6025184bd57e3348911d318d34fcc4ca6449ecbf324afd9556d94a2c42d7268c79e269273cd17612ed16277c831e8cc000499572736f947139d518211_1280.jpg"
-              alt="Resort style swimming pool with comfortable seating"
-              className="w-full h-full object-cover"
-            />
-          )}
+          <img
+            src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+            alt="Resort style swimming pool with comfortable seating - Senior living community"
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              console.log('Primary hero image failed, trying backup');
+              (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80";
+            }}
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/60 dark:from-black/60 dark:via-black/70 dark:to-black/80"></div>
         </div>
         
