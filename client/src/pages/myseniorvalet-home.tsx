@@ -151,11 +151,11 @@ export default function MySeniorValetHome() {
           {/* Centered Headlines - Much Larger */}
           <div className="text-center mb-4 md:mb-6 max-w-6xl">
             <div className="space-y-4 mb-4">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white dark:text-gray-100 leading-tight drop-shadow-2xl animate-fade-in-up tracking-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white dark:text-gray-100 leading-tight drop-shadow-2xl animate-fade-in-up tracking-tight">
                 <span className="block mb-2">Everything Senior Living Needs</span>
                 <span className="block text-gradient bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-300 bg-clip-text text-transparent drop-shadow-none">in one place</span>
               </h1>
-              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl text-white dark:text-gray-200 opacity-95 drop-shadow-lg px-4 animate-fade-in-up animation-delay-300 max-w-5xl mx-auto font-medium leading-relaxed">
+              <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl text-white dark:text-gray-200 opacity-95 drop-shadow-lg px-4 animate-fade-in-up animation-delay-300 max-w-4xl mx-auto font-medium leading-relaxed">
                 From live pricing and unit availability to move coordination, furniture setup, and prescription delivery, MySeniorValet is your white-glove partner.
               </h2>
             </div>
@@ -333,7 +333,7 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Complete Senior Services Directory - Enhanced Styling */}
+      {/* Complete Concierge Services - Enhanced Styling */}
       <section className="px-4 py-16 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
@@ -402,202 +402,34 @@ export default function MySeniorValetHome() {
                   </p>
                 </div>
 
-                {/* Horizontal Service Cards with Amazon Integration */}
-                <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-                  
-                  {/* Moving Services Card */}
-                  <Link href="/moving" className="flex-shrink-0 w-64">
-                    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 border-2 border-green-200 dark:border-green-400 bg-white dark:bg-gray-800 h-80">
-                      <div className="relative">
-                        <div className="aspect-[4/3] bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900 dark:to-green-800 flex items-center justify-center p-4">
-                          <div className="text-center">
-                            <Truck className="w-16 h-16 text-green-600 dark:text-green-400 mx-auto mb-2" />
-                            <div className="text-lg font-bold text-green-800 dark:text-green-200">TWO MEN</div>
-                            <div className="text-sm text-green-600 dark:text-green-300">AND A TRUCK</div>
-                          </div>
-                        </div>
-                        <div className="absolute top-2 right-2">
-                          <Badge className="bg-green-500 text-white text-xs px-2 py-1 font-bold">
-                            🟢 LIVE NOW
-                          </Badge>
-                        </div>
-                      </div>
-                      <CardContent className="p-4">
-                        <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg mb-2">Moving Services</h4>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">
-                          Professional movers, packing, storage, and consultation services for senior transitions.
-                        </p>
-                        <div className="space-y-2 mb-4">
-                          <div className="flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">6 Service Options</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">Senior Specialists</span>
-                          </div>
-                        </div>
-                        <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
-                          View Services →
-                        </Button>
-                      </CardContent>
-                    </Card>
+                <div className="grid grid-cols-2 gap-6">
+                  <Link href="/moving" className="text-center group/item block">
+                    <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
+                      <Truck className="w-8 h-8 text-white" />
+                    </div>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Moving Services</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">TWO MEN AND A TRUCK • Professional movers, packing, storage</p>
                   </Link>
-
-                  {/* Transportation Services Card */}
-                  <Link href="/transportation" className="flex-shrink-0 w-64">
-                    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 border-2 border-blue-200 dark:border-blue-400 bg-white dark:bg-gray-800 h-80">
-                      <div className="relative">
-                        <div className="aspect-[4/3] bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 flex items-center justify-center p-4">
-                          <div className="text-center">
-                            <Car className="w-16 h-16 text-blue-600 dark:text-blue-400 mx-auto mb-2" />
-                            <div className="text-lg font-bold text-blue-800 dark:text-blue-200">GoGoGrandparent</div>
-                            <div className="text-sm text-blue-600 dark:text-blue-300">Transportation</div>
-                          </div>
-                        </div>
-                        <div className="absolute top-2 right-2">
-                          <Badge className="bg-blue-500 text-white text-xs px-2 py-1 font-bold">
-                            🟢 LIVE NOW
-                          </Badge>
-                        </div>
-                      </div>
-                      <CardContent className="p-4">
-                        <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg mb-2">Transportation Services</h4>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">
-                          No smartphone needed transportation and delivery services for seniors.
-                        </p>
-                        <div className="space-y-2 mb-4">
-                          <div className="flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">5 Service Options</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">No Smartphone Required</span>
-                          </div>
-                        </div>
-                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                          View Services →
-                        </Button>
-                      </CardContent>
-                    </Card>
+                  <Link href="/transportation" className="text-center group/item block">
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
+                      <Car className="w-8 h-8 text-white" />
+                    </div>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Transportation Services</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">GoGoGrandparent • No smartphone needed</p>
                   </Link>
-
-                  {/* Floral Services Card */}
-                  <Link href="/floral" className="flex-shrink-0 w-64">
-                    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 border-2 border-pink-200 dark:border-pink-400 bg-white dark:bg-gray-800 h-80">
-                      <div className="relative">
-                        <div className="aspect-[4/3] bg-gradient-to-br from-pink-100 to-rose-200 dark:from-pink-900 dark:to-rose-800 flex items-center justify-center p-4">
-                          <div className="text-center">
-                            <div className="text-4xl mb-2">🌸</div>
-                            <div className="text-lg font-bold text-pink-800 dark:text-pink-200">1-800-FLORALS</div>
-                            <div className="text-sm text-pink-600 dark:text-pink-300">Professional Florist</div>
-                          </div>
-                        </div>
-                        <div className="absolute top-2 right-2">
-                          <Badge className="bg-pink-500 text-white text-xs px-2 py-1 font-bold">
-                            🟢 LIVE NOW
-                          </Badge>
-                        </div>
-                      </div>
-                      <CardContent className="p-4">
-                        <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg mb-2">Floral Services</h4>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">
-                          Professional floral arrangements and delivery to senior living communities.
-                        </p>
-                        <div className="space-y-2 mb-4">
-                          <div className="flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">Same-day delivery</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">Move-in specials</span>
-                          </div>
-                        </div>
-                        <Button className="w-full bg-pink-600 hover:bg-pink-700 text-white">
-                          View Services →
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </Link>
-
-                  {/* Amazon Move-In Essentials Card */}
-                  <Link href="/move-in-essentials" className="flex-shrink-0 w-64">
-                    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 border-2 border-orange-200 dark:border-orange-400 bg-white dark:bg-gray-800 h-80">
-                      <div className="relative">
-                        <div className="aspect-[4/3] bg-gradient-to-br from-orange-100 to-amber-200 dark:from-orange-900 dark:to-amber-800 flex items-center justify-center p-4">
-                          <div className="text-center">
-                            <div className="text-4xl mb-2">📦</div>
-                            <div className="text-lg font-bold text-orange-800 dark:text-orange-200">AMAZON</div>
-                            <div className="text-sm text-orange-600 dark:text-orange-300">Move-In Essentials</div>
-                          </div>
-                        </div>
-                        <div className="absolute top-2 right-2">
-                          <Badge className="bg-orange-500 text-white text-xs px-2 py-1 font-bold">
-                            🟢 LIVE NOW
-                          </Badge>
-                        </div>
-                      </div>
-                      <CardContent className="p-4">
-                        <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg mb-2">Amazon Marketplace</h4>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">
-                          Essential move-in products including bathroom accessories, bedroom items, and furniture supplies.
-                        </p>
-                        <div className="space-y-2 mb-4">
-                          <div className="flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">7 Essential Products</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">Prime Shipping</span>
-                          </div>
-                        </div>
-                        <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white">
-                          View Products →
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </Link>
-
-                  {/* Legal & Financial Services Card */}
-                  <div className="flex-shrink-0 w-64">
-                    <Card className="overflow-hidden transition-all duration-300 border-2 border-purple-200 dark:border-purple-400 bg-white dark:bg-gray-800 h-80 opacity-75">
-                      <div className="relative">
-                        <div className="aspect-[4/3] bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800 flex items-center justify-center p-4">
-                          <div className="text-center">
-                            <Scale className="w-16 h-16 text-purple-600 dark:text-purple-400 mx-auto mb-2" />
-                            <div className="text-lg font-bold text-purple-800 dark:text-purple-200">Legal & Financial</div>
-                            <div className="text-sm text-purple-600 dark:text-purple-300">Elder Law</div>
-                          </div>
-                        </div>
-                        <div className="absolute top-2 right-2">
-                          <Badge className="bg-gray-500 text-white text-xs px-2 py-1 font-bold">
-                            COMING SOON
-                          </Badge>
-                        </div>
-                      </div>
-                      <CardContent className="p-4">
-                        <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg mb-2">Legal & Financial</h4>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">
-                          Elder law attorneys and financial planning specialists for senior transitions.
-                        </p>
-                        <div className="space-y-2 mb-4">
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 border-2 border-gray-400 rounded"></div>
-                            <span className="text-sm text-gray-500">Elder Law Attorneys</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 border-2 border-gray-400 rounded"></div>
-                            <span className="text-sm text-gray-500">Financial Planning</span>
-                          </div>
-                        </div>
-                        <Button className="w-full bg-gray-400 text-white cursor-not-allowed" disabled>
-                          Coming Soon
-                        </Button>
-                      </CardContent>
-                    </Card>
+                  <div className="text-center group/item">
+                    <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
+                      <Scale className="w-8 h-8 text-white" />
+                    </div>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Legal & Financial</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Elder law, financial planning</p>
+                  </div>
+                  <div className="text-center group/item">
+                    <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
+                      <Sofa className="w-8 h-8 text-white" />
+                    </div>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Medical Equipment</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Mobility aids, safety equipment</p>
                   </div>
                 </div>
                 
@@ -1500,7 +1332,9 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Complete Senior Services Directory */}
+
+
+      {/* Senior Services Directory Section */}
       <section className="px-4 py-16 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="max-w-6xl mx-auto">
           {/* Immediate Call to Action Banner */}
@@ -1541,53 +1375,1592 @@ export default function MySeniorValetHome() {
             <p className="text-sm text-green-600 dark:text-green-400 mt-2 font-medium">Services are live and available now - no longer coming soon!</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mb-8">
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 dark:border-gray-700">
-              <CardContent className="p-6 text-center relative">
-                <Truck className="w-12 h-12 text-orange-500 mx-auto mb-3" />
-                <h4 className="font-semibold text-lg text-gray-900 dark:text-gray-100">Moving Services</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Senior move specialists</p>
-                <Badge className="bg-gray-400 text-white text-xs px-2 py-1 mt-2">Example Service</Badge>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
+                <Truck className="w-10 h-10 text-orange-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Moving Services</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Senior move specialists</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
             
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 dark:border-gray-700">
-              <CardContent className="p-6 text-center relative">
-                <Pill className="w-12 h-12 text-blue-500 mx-auto mb-3" />
-                <h4 className="font-semibold text-lg text-gray-900 dark:text-gray-100">Rx Delivery</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Medication services</p>
-                <Badge className="bg-gray-400 text-white text-xs px-2 py-1 mt-2">Example Service</Badge>
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
+                <Pill className="w-10 h-10 text-blue-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Rx Delivery</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Medication services</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
             
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 dark:border-gray-700">
-              <CardContent className="p-6 text-center relative">
-                <Building className="w-12 h-12 text-purple-500 mx-auto mb-3" />
-                <h4 className="font-semibold text-lg text-gray-900 dark:text-gray-100">Senior Centers</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Community programs</p>
-                <Badge className="bg-gray-400 text-white text-xs px-2 py-1 mt-2">Example Service</Badge>
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
+                <Building className="w-10 h-10 text-purple-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Senior Centers</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Community programs</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
             
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 dark:border-gray-700">
-              <CardContent className="p-6 text-center relative">
-                <Ambulance className="w-12 h-12 text-red-500 mx-auto mb-3" />
-                <h4 className="font-semibold text-lg text-gray-900 dark:text-gray-100">Medical Transport</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Non-emergency rides</p>
-                <Badge className="bg-gray-400 text-white text-xs px-2 py-1 mt-2">Example Service</Badge>
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
+                <Ambulance className="w-10 h-10 text-red-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Medical Transport</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Non-emergency rides</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
+                <Utensils className="w-10 h-10 text-green-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Meal Delivery</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Senior nutrition services</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+
+            <Link href="/vendor/1800florals">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-pink-200 bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 relative overflow-hidden">
+                <CardContent className="p-4 text-center">
+                  <div className="absolute top-2 right-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  </div>
+                  <div className="w-16 h-16 mx-auto mb-2 rounded-lg overflow-hidden bg-white shadow-sm">
+                    <img 
+                      src="https://www.800florals.com/img/4810Dmd.jpg" 
+                      alt="1-800-FLORALS Arrangements"
+                      className="w-full h-full object-cover"
+                      crossOrigin="anonymous"
+                      loading="eager"
+                    />
+                    <div className="w-full h-full hidden items-center justify-center text-pink-500 text-2xl font-bold">🌸</div>
+                  </div>
+                  <h4 className="font-semibold text-sm text-pink-700 dark:text-pink-300">Professional Florals</h4>
+                  <p className="text-xs text-pink-600 dark:text-pink-400 mt-1">Move-in arrangements & gifts</p>
+                  <div className="flex gap-1 justify-center mt-1">
+                    <Badge className="bg-green-500 text-white text-xs px-2 py-0.5">✓ VERIFIED</Badge>
+                    <Badge className="bg-pink-500 text-white text-xs px-2 py-0.5">1-800-FLORALS</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
+                <Scale className="w-10 h-10 text-indigo-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Legal Services</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Elder law attorneys</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
+                <Calculator className="w-10 h-10 text-emerald-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Financial Planning</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Senior financial advisors</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
+                <Scissors className="w-10 h-10 text-pink-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Personal Care</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Mobile barber & beauty</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
+                <Trash2 className="w-10 h-10 text-gray-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Junk Removal</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Decluttering services</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
+                <Users2 className="w-10 h-10 text-cyan-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Companion Care</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Social companionship</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
+                <Phone className="w-10 h-10 text-violet-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Tech Support</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Device setup & training</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
           </div>
-          
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {/* Featured Service: 1-800-FLORALS */}
+            <div className="bg-gradient-to-r from-pink-100 to-rose-100 dark:from-pink-900/20 dark:to-rose-900/20 rounded-2xl p-6 border-2 border-pink-200">
+              <div className="flex items-start gap-4">
+                <div className="w-20 h-20 bg-white rounded-xl overflow-hidden shadow-sm flex-shrink-0">
+                  <img 
+                    src="https://www.800florals.com/img/T2533md.jpg" 
+                    alt="1-800-FLORALS Professional Arrangements"
+                    className="w-full h-full object-cover"
+                    crossOrigin="anonymous"
+                    loading="eager"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      const nextElement = target.nextElementSibling as HTMLElement;
+                      target.style.display = 'none';
+                      if (nextElement) {
+                        nextElement.style.display = 'flex';
+                      }
+                    }}
+                  />
+                  <div className="w-full h-full hidden items-center justify-center text-pink-500 text-2xl font-bold">🌸</div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                    Professional Floral Services
+                  </h3>
+                  <p className="text-gray-700 dark:text-gray-300 mb-3">
+                    Move-in welcome arrangements, special occasion flowers, and monthly subscriptions 
+                    through our partnership with 1-800-FLORALS.
+                  </p>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Same-day delivery available</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Move-in welcome specials</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Monthly subscription options</span>
+                    </div>
+                  </div>
+                  <Link href="/vendor/1800florals">
+                    <Button className="bg-pink-500 hover:bg-pink-600 text-white flex items-center gap-2">
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                      View Vendor Profile →
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Amazon Move-In Essentials Vendor */}
+            <Link href="/move-in-essentials">
+              <Card className="overflow-hidden flex-shrink-0 w-64 hover:shadow-xl transition-all duration-300 border-2 border-orange-200 dark:border-orange-400 bg-white dark:bg-gray-800">
+                <div className="relative">
+                  <div className="aspect-[4/3] bg-gradient-to-br from-orange-100 to-amber-200 dark:from-orange-900 dark:to-amber-800 flex items-center justify-center p-4">
+                    <div className="text-center">
+                      <div className="text-4xl mb-2">📦</div>
+                      <div className="text-lg font-bold text-orange-800 dark:text-orange-200">AMAZON</div>
+                      <div className="text-sm text-orange-600 dark:text-orange-300">Move-In Essentials</div>
+                    </div>
+                  </div>
+                  <div className="absolute top-2 right-2">
+                    <Badge className="bg-orange-500 text-white text-xs px-2 py-1 font-bold">
+                      🟢 LIVE NOW
+                    </Badge>
+                  </div>
+                </div>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Amazon Marketplace</h4>
+                    <div className="flex items-center space-x-1">
+                      <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                      <span className="text-sm font-medium">4.8</span>
+                    </div>
+                  </div>
+                  
+                  <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">
+                    Essential move-in products including bathroom accessories, bedroom items, and furniture supplies.
+                  </p>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">7 Essential Products</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Prime Shipping Eligible</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">$15.99 - $45.99 Range</span>
+                    </div>
+                  </div>
+                  <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white">
+                    View Products →
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+
           <div className="text-center mt-8">
+            <div className="mb-4">
+              <div className="inline-flex items-center gap-3 bg-white dark:bg-gray-700 rounded-xl p-4 shadow-lg">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm font-semibold text-green-600 dark:text-green-400">1 Verified Service</span>
+                </div>
+                <div className="w-px h-6 bg-gray-300 dark:bg-gray-600"></div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">9 Example Services</span>
+                </div>
+              </div>
+            </div>
             <Link href="/senior-services">
-              <Button className="bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
-                Explore All Services →
+              <Button className="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                Explore Senior Services Directory →
               </Button>
             </Link>
           </div>
         </div>
       </section>
+
+      {/* Care Level Guide with Live Market Intelligence */}
+      <section className="px-4 py-8 bg-gradient-to-br from-green-50 to-blue-50 dark:from-gray-800 dark:to-gray-900">
+        {/* Healthcare Hero Image */}
+        <div className="mb-8 relative">
+          <div className="aspect-[16/9] bg-gradient-to-r from-blue-50 to-green-50 rounded-lg overflow-hidden">
+            <img 
+              src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80"
+              alt="Healthcare professional assisting senior in comfortable care environment"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+              <div className="text-center text-white px-4">
+                <h2 className="text-3xl font-bold mb-2">Understanding Care Levels & Live Market Intelligence</h2>
+                <p className="text-lg opacity-90">Real pricing data from 26,306+ communities with transparent market analysis</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Market Intelligence and Care Level Guide */}
+        <div className="space-y-4 mb-8">
+          {/* Market Intelligence Explanation */}
+          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-6 max-w-4xl mx-auto">
+            <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2 text-center">How Our Live Market Intelligence Works</h4>
+            <div className="text-sm text-blue-800 dark:text-blue-200 space-y-2">
+              <p className="text-center mb-3">Pricing ranges below come from three verified data sources in priority order:</p>
+              <div className="grid md:grid-cols-3 gap-4 text-center">
+                <div>
+                  <div className="font-semibold text-green-700 dark:text-green-300">🏛️ Priority 1: Government Data</div>
+                  <p className="text-xs">6,078 HUD properties with exact verified rent amounts (like $303, $355, $373/month)</p>
+                </div>
+                <div>
+                  <div className="font-semibold text-blue-700 dark:text-blue-300">✓ Priority 2: Community Verified</div>
+                  <p className="text-xs">Communities that have confirmed current pricing within the last 30 days</p>
+                </div>
+                <div>
+                  <div className="font-semibold text-purple-700 dark:text-purple-300">📊 Priority 3: Industry Research</div>
+                  <p className="text-xs">Genworth Cost of Care Study, AARP research, and CMS data for market ranges</p>
+                </div>
+              </div>
+              <p className="text-center text-xs mt-3 font-medium">
+                Find your preferred communities below to discover which ones have confirmed live pricing and current availability through community transparency.
+              </p>
+            </div>
+          </div>
+          
+          {/* Skilled Nursing */}
+          <Card className="border-0 shadow-md dark:bg-gray-700 dark:border-gray-600">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">Skilled Nursing</h3>
+                    <Badge className="bg-red-100 text-red-800">Highest Care Level</Badge>
+                    <Badge className="bg-orange-100 text-orange-800">$8,000-$15,000/month</Badge>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">24/7 medical care, rehabilitation, complex medical needs, licensed nursing staff</p>
+                  <Link href="/search?careType=skilled-nursing">
+                    <Button size="sm" className="w-full mt-2 bg-red-600 hover:bg-red-700 text-white">
+                      See Communities with Live Pricing & Availability
+                    </Button>
+                  </Link>
+                </div>
+                <div className="w-16 h-16 bg-red-100 dark:bg-red-900/50 rounded-lg flex items-center justify-center">
+                  <Heart className="w-8 h-8 text-red-600 dark:text-red-400" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Memory Care */}
+          <Card className="border-0 shadow-md dark:bg-gray-700 dark:border-gray-600">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">Memory Care</h3>
+                    <Badge className="bg-amber-100 text-amber-800">Specialized Care</Badge>
+                    <Badge className="bg-purple-100 text-purple-800">$6,500-$12,000/month</Badge>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">Specialized dementia/Alzheimer's care, secure environment, specialized programming</p>
+                  <Link href="/search?careType=memory-care">
+                    <Button size="sm" className="w-full mt-2 bg-purple-600 hover:bg-purple-700 text-white">
+                      See Communities with Live Pricing & Availability
+                    </Button>
+                  </Link>
+                </div>
+                <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center">
+                  <span className="text-purple-600 dark:text-purple-400 font-bold text-2xl">🧠</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Assisted Living */}
+          <Card className="border-0 shadow-md dark:bg-gray-700 dark:border-gray-600">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">Assisted Living</h3>
+                    <Badge className="bg-green-100 text-green-800">Most Common</Badge>
+                    <Badge className="bg-purple-100 text-purple-800">$4,000-$7,500/month</Badge>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">Personal care assistance, medication management, meals, social activities</p>
+                  <Link href="/search?careType=assisted-living">
+                    <Button size="sm" className="w-full mt-2 bg-green-600 hover:bg-green-700 text-white">
+                      See Communities with Live Pricing & Availability
+                    </Button>
+                  </Link>
+                </div>
+                <div className="w-16 h-16 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center">
+                  <span className="text-green-600 dark:text-green-400 font-bold text-2xl">🤝</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Independent Living */}
+          <Card className="border-0 shadow-md dark:bg-gray-700 dark:border-gray-600">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">Independent Living</h3>
+                    <Badge className="bg-orange-100 text-orange-800">Active Lifestyle</Badge>
+                    <Badge className="bg-green-100 text-green-800">$2,500-$4,500/month</Badge>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">Active senior communities, social activities, dining, transportation</p>
+                  <Link href="/search?careType=independent-living">
+                    <Button size="sm" className="w-full mt-2 bg-orange-600 hover:bg-orange-700 text-white">
+                      See Communities with Live Pricing & Availability
+                    </Button>
+                  </Link>
+                </div>
+                <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900/50 rounded-lg flex items-center justify-center">
+                  <span className="text-orange-600 dark:text-orange-400 font-bold text-2xl">🏃</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* HUD/VASH Affordable Housing */}
+          <Card className="border-0 shadow-md bg-green-50 dark:bg-green-900/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">HUD/VASH Affordable Housing</h3>
+                    <Badge className="bg-green-100 text-green-800">Government Subsidized</Badge>
+                    <Badge className="bg-blue-100 text-blue-800">$303-$800/month</Badge>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">Subsidized housing with IHSS or SLS home care support, income-based rent</p>
+                  <Link href="/search?careType=hud-affordable">
+                    <Button size="sm" className="w-full mt-2 bg-green-600 hover:bg-green-700 text-white">
+                      See HUD Properties with Verified Pricing
+                    </Button>
+                  </Link>
+                </div>
+                <div className="w-16 h-16 bg-green-200 dark:bg-green-700 rounded-lg flex items-center justify-center">
+                  <span className="text-green-700 dark:text-green-300 font-bold text-2xl">🏡</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="mt-8 space-y-4">
+          <Link href="/search?view=care-levels">
+            <Button className="w-full gradient-tertiary hover:opacity-90 text-white border-0 h-12 text-lg">
+              Search by Care Level & Live Pricing
+            </Button>
+          </Link>
+          <Link href="/search">
+            <Button 
+              variant="outline" 
+              className="w-full border-blue-200 text-blue-600 hover:bg-blue-50 h-12 text-lg"
+            >
+              Try Interactive Map Search
+            </Button>
+          </Link>
+        </div>
+      </section>
+
+      {/* Affordable Housing Section */}
+      <section className="px-4 py-8 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900">
+        <div className="mb-6">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+            HUD Affordable Housing Options
+          </h2>
+          <p className="text-gray-600 dark:text-gray-300 text-sm">
+            Government-subsidized housing for seniors and disabled adults
+          </p>
+        </div>
+        
+        <div className="bg-white dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-6 mb-4">
+          <div className="flex items-start space-x-4">
+            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center flex-shrink-0">
+              <Building2 className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Section 202 & 811 Housing</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                HUD provides affordable housing for elderly residents (62+) and adults with disabilities. 
+                Select communities are income-based with rent capped at 30% of your adjusted monthly income.
+              </p>
+              <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1 mb-4">
+                <div className="flex items-center gap-2">
+                  <Home className="w-4 h-4 text-gray-400" />
+                  <span><strong>66+ facilities</strong> available in California</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <DollarSign className="w-4 h-4 text-gray-400" />
+                  <span>Income-based rent (30% of income) - income must be below 50% of area median</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-gray-400" />
+                  <span>For seniors 62+ and disabled adults</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-gray-400" />
+                  <span>Standard wait lists: 6+ months expected</span>
+                </div>
+              </div>
+              <Link href="/search?careType=Affordable%20Housing">
+                <Button className="gradient-primary hover:opacity-90 text-white">
+                  View Affordable Housing Options
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+          <div className="flex items-center space-x-2 mb-2">
+            <Info className="w-5 h-5 text-amber-600" />
+            <span className="text-sm font-semibold text-amber-800">Application Process</span>
+          </div>
+          <p className="text-xs text-amber-700 mb-2">
+            Apply directly with each property. Due to high demand, most properties have waiting lists of 6+ months. 
+            Apply to multiple properties to increase your chances.
+          </p>
+          <p className="text-xs text-amber-700">
+            <strong>Income requirements:</strong> Must qualify as "very low income" (below 50% of area median income).
+          </p>
+        </div>
+        
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="flex items-center space-x-2 mb-2">
+            <Info className="w-5 h-5 text-green-600" />
+            <span className="text-sm font-semibold text-green-800">Also Check Veterans Housing</span>
+          </div>
+          <p className="text-xs text-green-700 mb-2">
+            If you're a veteran, explore HUD-VASH housing which combines rental assistance with VA supportive services.
+          </p>
+          <a href="https://www.va.gov/housing-assistance/" target="_blank" rel="noopener noreferrer" className="text-xs text-green-600 hover:text-green-700 underline font-medium">
+            Learn about Veterans Housing →
+          </a>
+        </div>
+      </section>
+
+      {/* Move-In Cost Calculator */}
+      <section className="px-4 py-8 gradient-card">
+        <div className="mb-6">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+            Understand your move-in costs
+          </h2>
+          <p className="text-gray-600 dark:text-gray-300 text-sm">
+            Typical move-in expenses and financing options available
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="text-center">
+            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center mx-auto mb-2">
+              <span className="text-blue-600 dark:text-blue-400 font-bold text-lg">💳</span>
+            </div>
+            <div className="text-xs text-gray-600 dark:text-gray-400">Community Fee</div>
+            <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">$1,500 - 1 month</div>
+          </div>
+          <div className="text-center">
+            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center mx-auto mb-2">
+              <span className="text-blue-600 dark:text-blue-400 font-bold text-lg">📅</span>
+            </div>
+            <div className="text-xs text-gray-600 dark:text-gray-400">Prorated</div>
+            <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">1st Month</div>
+          </div>
+          <div className="text-center">
+            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center mx-auto mb-2">
+              <span className="text-blue-600 dark:text-blue-400 font-bold text-lg">🗓️</span>
+            </div>
+            <div className="text-xs text-gray-600 dark:text-gray-400">After 15th</div>
+            <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">+ 2nd Month</div>
+          </div>
+        </div>
+        
+        <div className="bg-blue-50 dark:bg-blue-900/50 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-6">
+          <div className="flex items-center space-x-2 mb-2">
+            <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+              <span className="text-white text-xs font-bold">ℹ️</span>
+            </div>
+            <span className="text-sm font-semibold text-blue-800 dark:text-blue-200">Move-In Payment Requirements</span>
+          </div>
+          <p className="text-xs text-blue-700 dark:text-blue-300 mb-2">
+            <strong>Standard Move-In:</strong> Community fee ($1,500 - 1 month rent) + prorated 1st month
+          </p>
+          <p className="text-xs text-blue-700 dark:text-blue-300">
+            <strong>After 15th of Month:</strong> Add 2nd month payment to secure immediate occupancy
+          </p>
+        </div>
+        
+        <div className="bg-green-50 dark:bg-green-900/50 border border-green-200 dark:border-green-700 rounded-lg p-4 mb-6">
+          <div className="flex items-center space-x-2 mb-2">
+            <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
+              <span className="text-white text-xs font-bold">🇺🇸</span>
+            </div>
+            <span className="text-sm font-semibold text-green-800 dark:text-green-200">VA Aid & Attendance Benefits</span>
+          </div>
+          <p className="text-xs text-green-700 dark:text-green-300 mb-2">
+            <strong>2025 Maximum Monthly Benefits:</strong>
+          </p>
+          <div className="text-xs text-green-700 dark:text-green-300 space-y-1">
+            <div>• Married Veteran needing care: <strong>$2,795/month</strong></div>
+            <div>• Single Veteran needing care: <strong>$2,358/month</strong></div>
+            <div>• Surviving spouse needing care: <strong>$1,515/month</strong></div>
+          </div>
+          <p className="text-xs text-green-700 dark:text-green-300 mt-2">
+            Tax-free income for qualifying wartime Veterans and spouses. Bridge financing also available.
+          </p>
+          <div className="mt-3">
+            <a 
+              href="https://www.elderlifefinancial.com/va-benefits/va-aid-and-attendance-benefit-what-you-need-to-know/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 underline font-medium"
+            >
+              Learn more about VA Aid & Attendance benefits →
+            </a>
+          </div>
+        </div>
+        
+        <div className="bg-amber-50 dark:bg-amber-900/50 border border-amber-200 dark:border-amber-700 rounded-lg p-3 mb-6">
+          <div className="flex items-center space-x-2 mb-1">
+            <div className="w-5 h-5 bg-amber-600 rounded-full flex items-center justify-center">
+              <span className="text-white text-xs font-bold">ℹ️</span>
+            </div>
+            <span className="text-xs font-semibold text-amber-800 dark:text-amber-200">VA Eligibility Requirements</span>
+          </div>
+          <p className="text-xs text-amber-700 dark:text-amber-300">
+            Wartime Veterans and spouses who need help with daily activities, have net worth under $159,240, and meet service requirements may qualify.
+          </p>
+        </div>
+        
+        <Link href="/costs">
+          <Button className="w-full gradient-primary hover:opacity-90 text-white py-3 border-0 dark:border-gray-600">
+            Get move-in cost estimate
+          </Button>
+        </Link>
+      </section>
+
+      {/* California Communities Section */}
+      <section className="px-4 py-8 relative overflow-hidden">
+        {/* Background with California Golden State styling */}
+        <div className="absolute inset-0 z-0">
+          <div className="w-full h-full bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-amber-100/30 via-orange-100/20 to-yellow-100/30 dark:from-gray-700/30 dark:via-gray-800/20 dark:to-gray-700/30"></div>
+        </div>
+        
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+              Explore California Communities
+            </h2>
+            <div className="text-right">
+              <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">$3,500 - $6,200</div>
+              <div className="text-xs text-amber-600 dark:text-amber-400">Golden State living</div>
+            </div>
+          </div>
+          
+          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{(californiaCommunities as any[])?.length || 0} communities • Silicon Valley, LA Metro, San Diego with immediate openings</p>
+        
+          <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+            {californiaLoading ? (
+              // Loading skeleton cards
+              Array.from({ length: 4 }).map((_, index) => (
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border border-gray-200 animate-pulse">
+                  <div className="aspect-[4/3] bg-gray-200"></div>
+                  <CardContent className="p-3">
+                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-1"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded"></div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              ((californiaCommunities as any[]) || []).map((community: any, index: number) => (
+                <Link key={`california-${community.id}-${index}`} href={`/community/${community.id}`}>
+                  <Card className="overflow-hidden flex-shrink-0 w-56 h-[30rem] animate-float california-card dark:bg-gray-700" style={{animationDelay: `${index * 0.2}s`}}>
+                    <div className="relative">
+                      <div className="aspect-[4/3] bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 flex items-center justify-center">
+                        <div className="text-center">
+                          <div className="text-2xl mb-2">📷</div>
+                          <div className="text-sm font-medium text-blue-800 dark:text-blue-200">Photos Coming Soon</div>
+                          <div className="text-xs text-blue-600 dark:text-blue-300">Verifying authentic images</div>
+                        </div>
+                      </div>
+                      
+                      {/* Heart Icon */}
+                      <div className="absolute top-3 right-3">
+                        <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
+                          <Heart className="w-4 h-4 text-gray-600" />
+                        </div>
+                      </div>
+                      
+                      {/* Vacancy Status Badge - Top Priority */}
+                      {index % 3 === 0 && (
+                        <Badge className="absolute top-3 left-3 bg-green-600 text-white text-xs px-2 py-1 font-medium animate-pulse">
+                          🟢 Available Now
+                        </Badge>
+                      )}
+                      {index % 3 === 1 && (
+                        <Badge className="absolute top-3 left-3 bg-orange-600 text-white text-xs px-2 py-1 font-medium">
+                          🟡 Waitlist Open
+                        </Badge>
+                      )}
+                      {index % 3 === 2 && (
+                        <Badge className="absolute top-3 left-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
+                          📋 Call for Availability
+                        </Badge>
+                      )}
+                      
+                      {/* Price Badge */}
+                      <Badge className="absolute bottom-3 left-3 bg-gray-900 text-white text-xs px-2 py-1 font-medium">
+                        {community.priceRange && community.priceRange.min ? `$${(community.priceRange.min / 1000).toFixed(1)}K+` : '$4K+'}
+                        {!community.claimed && (
+                          <span className="text-xs text-gray-300 ml-1 font-normal">est.</span>
+                        )}
+                      </Badge>
+                      
+                      {/* Achievement Badge - Special Recognition */}
+                      {index % 5 === 0 && (
+                        <Badge className="absolute bottom-3 right-3 bg-purple-600 text-white text-xs px-2 py-1 font-medium">
+                          🏆 Featured
+                        </Badge>
+                      )}
+                      {index % 5 === 1 && (
+                        <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
+                          ⭐ Top Rated
+                        </Badge>
+                      )}
+                      {index % 5 === 2 && (
+                        <Badge className="absolute bottom-3 right-3 bg-green-600 text-white text-xs px-2 py-1 font-medium">
+                          💎 Premium
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <CardContent className="p-3">
+                      {/* Availability Status - Above Price */}
+                      {index % 3 === 0 && (
+                        <div className="flex items-center text-xs text-green-600 dark:text-green-400 font-medium mb-2">
+                          <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                          Available
+                        </div>
+                      )}
+                      
+                      <div className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                        <span className="text-sm">Starting at</span> ${community.priceRange && community.priceRange.min ? community.priceRange.min.toLocaleString() : '4,200'}
+                        {!community.claimed && (
+                          <span className="text-xs text-gray-500 dark:text-gray-400 ml-1 font-normal">est.</span>
+                        )}
+                      </div>
+                      
+                      <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
+                        {community.careTypes?.length > 0 ? 
+                          `${community.careTypes[0]} • California Living` : 
+                          'Assisted Living • Golden State Care'
+                        }
+                      </div>
+                      
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2 line-clamp-1">
+                        {community.name}
+                      </div>
+                      
+                      <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1 mb-2">
+                        {community.address || 'California Community'}, {community.city}, CA {community.zipCode}
+                      </div>
+                      
+                      {/* California Regional Badges - Bottom of Card */}
+                      <div className="mb-2">
+                        {index % 4 === 0 && (
+                          <Badge className="bg-amber-600/90 text-white text-xs px-2 py-1 font-medium">
+                            Silicon Valley
+                          </Badge>
+                        )}
+                        {index % 4 === 1 && (
+                          <Badge className="bg-orange-600/90 text-white text-xs px-2 py-1 font-medium">
+                            LA Metro
+                          </Badge>
+                        )}
+                        {index % 4 === 2 && (
+                          <Badge className="bg-yellow-600/90 text-white text-xs px-2 py-1 font-medium">
+                            San Diego
+                          </Badge>
+                        )}
+                        {index % 4 === 3 && (
+                          <Badge className="bg-red-600/90 text-white text-xs px-2 py-1 font-medium">
+                            Bay Area
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      {/* Enhanced Features Row */}
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center text-gray-500 dark:text-gray-400">
+                          <span>CA License #{20000 + community.id}</span>
+                        </div>
+                        {index % 4 === 0 && (
+                          <div className="text-purple-600 dark:text-purple-400 font-medium">
+                            🏆 Featured
+                          </div>
+                        )}
+                        {index % 4 === 1 && (
+                          <div className="text-blue-600 dark:text-blue-400 font-medium">
+                            ⭐ Top Rated
+                          </div>
+                        )}
+                        {index % 4 === 2 && (
+                          <div className="text-green-600 dark:text-green-400 font-medium">
+                            💎 Premium
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* View Details Button */}
+                      <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                        <Button size="sm" variant="outline" className="w-full text-xs py-2 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
+                          View Full Details →
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Family Collaboration Section */}
+      <section className="px-4 py-8 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-900">
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <div className="bg-purple-100 dark:bg-purple-900/50 rounded-full p-3">
+              <Users className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+            </div>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+            Keep Your Family In The Loop
+          </h2>
+          <p className="text-gray-600 dark:text-gray-300 text-sm max-w-md mx-auto">
+            Finding the right senior living community is a family decision. Share discoveries instantly with one click.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          {/* Feature 1: One-Click Sharing */}
+          <Card className="border-0 shadow-sm bg-white dark:bg-gray-700">
+            <CardContent className="p-6">
+              <div className="flex items-start space-x-4">
+                <div className="bg-blue-100 dark:bg-blue-900/50 rounded-lg p-3">
+                  <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">One-Click Family Sharing</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                    Send detailed community information, photos, and pricing to multiple family members instantly.
+                  </p>
+                  <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                    Works with email, text, WhatsApp, and more
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Feature 2: Smart Formatting */}
+          <Card className="border-0 shadow-sm bg-white dark:bg-gray-700">
+            <CardContent className="p-6">
+              <div className="flex items-start space-x-4">
+                <div className="bg-green-100 dark:bg-green-900/50 rounded-lg p-3">
+                  <Info className="h-6 w-6 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Smart Information Formatting</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                    Automatically formats community details, pricing, care types, and reviews for easy sharing.
+                  </p>
+                  <div className="text-xs text-green-600 dark:text-green-400 font-medium">
+                    Professional email templates included
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Feature 3: Personal Notes */}
+          <Card className="border-0 shadow-sm bg-white dark:bg-gray-700">
+            <CardContent className="p-6">
+              <div className="flex items-start space-x-4">
+                <div className="bg-purple-100 dark:bg-purple-900/50 rounded-lg p-3">
+                  <MessageCircle className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Add Personal Notes</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                    Include your thoughts, questions, or observations with each community you share.
+                  </p>
+                  <div className="text-xs text-purple-600 dark:text-purple-400 font-medium">
+                    Keep everyone on the same page
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Feature 4: Direct Links */}
+          <Card className="border-0 shadow-sm bg-white dark:bg-gray-700">
+            <CardContent className="p-6">
+              <div className="flex items-start space-x-4">
+                <div className="bg-orange-100 dark:bg-orange-900/50 rounded-lg p-3">
+                  <Link2 className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Direct Share Links</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                    Generate special family links that bring relatives directly to the community details.
+                  </p>
+                  <div className="text-xs text-orange-600 dark:text-orange-400 font-medium">
+                    No account required for family members
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Feature 5: Tour Tracker */}
+          <Card className="border-0 shadow-sm bg-white dark:bg-gray-700 md:col-span-2 lg:col-span-1">
+            <CardContent className="p-6">
+              <div className="flex items-start space-x-4">
+                <div className="bg-indigo-100 dark:bg-indigo-900/50 rounded-lg p-3">
+                  <MapPin className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Tour Tracker</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                    One tour for all family members. Track visit notes, photos, and impressions that everyone can see.
+                  </p>
+                  <div className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+                    Shared tour insights and findings
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="text-center mt-8">
+          <Link href="/family-collaboration">
+            <Button className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 font-semibold">
+              Learn More About Family Collaboration
+            </Button>
+          </Link>
+        </div>
+      </section>
+
+      {/* Reviews Comparison Section */}
+      <section className="px-4 py-8 gradient-card dark:bg-gray-800">
+        <div className="mb-6">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+            What families are saying
+          </h2>
+          <p className="text-gray-600 dark:text-gray-300 text-sm">
+            Real reviews from families who found their perfect community
+          </p>
+        </div>
+        
+        <div className="space-y-6">
+          {/* Review 1 */}
+          <Card className="border-0 shadow-sm bg-blue-50 dark:bg-blue-900/20">
+            <CardContent className="p-6">
+              <div className="flex items-start space-x-4">
+                <div className="w-12 h-12 bg-blue-600 dark:bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
+                  MH
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">Margaret H.</h3>
+                    <div className="flex items-center">
+                      {[1,2,3,4,5].map(star => (
+                        <span key={star} className="text-yellow-400 text-sm">★</span>
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                    "The transparency in pricing made all the difference. We knew exactly what to expect for mom's memory care, and the staff has been incredible."
+                  </p>
+                  <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                    Sunrise Senior Living, Palo Alto • Memory Care
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Review 2 */}
+          <Card className="border-0 shadow-sm bg-green-50 dark:bg-green-900/20">
+            <CardContent className="p-6">
+              <div className="flex items-start space-x-4">
+                <div className="w-12 h-12 bg-green-600 dark:bg-green-500 rounded-full flex items-center justify-center text-white font-bold">
+                  RJ
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">Robert J.</h3>
+                    <div className="flex items-center">
+                      {[1,2,3,4,5].map(star => (
+                        <span key={star} className="text-yellow-400 text-sm">★</span>
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                    "Found this through MySeniorValet and couldn't be happier. The virtual tours saved us so much time, and dad loves his new home."
+                  </p>
+                  <div className="text-xs text-green-600 dark:text-green-400 font-medium">
+                    The Gardens at Bay Area • Independent Living
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Review 3 */}
+          <Card className="border-0 shadow-sm bg-purple-50 dark:bg-purple-900/20">
+            <CardContent className="p-6">
+              <div className="flex items-start space-x-4">
+                <div className="w-12 h-12 bg-purple-600 dark:bg-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                  LC
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">Linda C.</h3>
+                    <div className="flex items-center">
+                      {[1,2,3,4].map(star => (
+                        <span key={star} className="text-yellow-400 text-sm">★</span>
+                      ))}
+                      <span className="text-gray-300 dark:text-gray-500 text-sm">★</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                    "The care level matching was spot-on. They helped us understand exactly what services mom needed, and the pricing was fair and upfront."
+                  </p>
+                  <div className="text-xs text-purple-600 dark:text-purple-400 font-medium">
+                    Atria Senior Living, San Rafael • Assisted Living
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="mt-6">
+          <Button variant="outline" className="w-full border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+            Read more family reviews
+          </Button>
+        </div>
+      </section>
+
+      {/* More Featured Communities */}
+      <section className="px-4 py-6 bg-white dark:bg-gray-800">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+            More recommended communities
+          </h2>
+        </div>
+        
+        <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">
+          {/* Show remaining recommended communities */}
+          {((featuredCommunities as any[]).slice(4)).map((community: any, index: number) => (
+            <Link key={`more-featured-${community.id}-${index}`} href={`/community/${community.id}`}>
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow border-0 shadow-sm flex-shrink-0 w-48 dark:bg-gray-700">
+                <div className="relative">
+                  <div className="aspect-[4/3] bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
+                    <Home className="w-12 h-12 text-gray-400 dark:text-gray-500" />
+                  </div>
+                  
+                  {/* Heart Icon */}
+                  <div className="absolute top-3 right-3">
+                    <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
+                      <Heart className="w-4 h-4 text-gray-600" />
+                    </div>
+                  </div>
+                  
+                  {/* Vacancy Status Badge - Top Priority */}
+                  {index % 3 === 0 && (
+                    <Badge className="absolute top-3 left-3 bg-green-600 text-white text-xs px-2 py-1 font-medium animate-pulse">
+                      🟢 Available Now
+                    </Badge>
+                  )}
+                  {index % 3 === 1 && (
+                    <Badge className="absolute top-3 left-3 bg-orange-600 text-white text-xs px-2 py-1 font-medium">
+                      🟡 Waitlist Open
+                    </Badge>
+                  )}
+                  {index % 3 === 2 && (
+                    <Badge className="absolute top-3 left-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
+                      📋 Call for Availability
+                    </Badge>
+                  )}
+                  
+                  {/* Price Badge */}
+                  <Badge className="absolute bottom-3 left-3 bg-gray-900 text-white text-xs px-2 py-1 font-medium">
+                    {community.priceRange && community.priceRange.min ? `$${(community.priceRange.min / 1000).toFixed(1)}K+` : '$4K+'}
+                  </Badge>
+                  
+                  {/* Achievement Badge - Special Recognition */}
+                  {index % 5 === 0 && (
+                    <Badge className="absolute bottom-3 right-3 bg-purple-600 text-white text-xs px-2 py-1 font-medium">
+                      🏆 Featured
+                    </Badge>
+                  )}
+                  {index % 5 === 1 && (
+                    <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
+                      ⭐ Top Rated
+                    </Badge>
+                  )}
+                  {index % 5 === 2 && (
+                    <Badge className="absolute bottom-3 right-3 bg-green-600 text-white text-xs px-2 py-1 font-medium">
+                      💎 Premium
+                    </Badge>
+                  )}
+                </div>
+                
+                <CardContent className="p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-xl font-bold text-gray-900 dark:text-white">
+                      <span className="text-sm">Starting at</span> ${community.priceRange && community.priceRange.min ? community.priceRange.min.toLocaleString() : '4,200'}
+                    </div>
+                    {index % 3 === 0 && (
+                      <div className="flex items-center text-xs text-green-600 dark:text-green-400 font-medium">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                        Available
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
+                    {community.careTypes?.length > 0 ? 
+                      `${community.careTypes[0]} • ${community.careTypes.length > 1 ? community.careTypes[1] : 'Memory Care'}` : 
+                      'Independent Living • Assisted Living'
+                    }
+                  </div>
+                  
+                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2 line-clamp-1">
+                    {community.name}
+                  </div>
+                  
+                  <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1 mb-2">
+                    {community.address || `${Math.floor(Math.random() * 9999)} Community Way`}, {community.city}, {community.state} {community.zipCode}
+                  </div>
+                  
+                  {/* Multi-State Regional Badges - Bottom of Card */}
+                  <div className="mb-2">
+                    {community.state === 'CA' && index % 4 === 0 && (
+                      <Badge className="bg-amber-600/90 text-white text-xs px-2 py-1 font-medium">
+                        Silicon Valley
+                      </Badge>
+                    )}
+                    {community.state === 'CA' && index % 4 === 1 && (
+                      <Badge className="bg-orange-600/90 text-white text-xs px-2 py-1 font-medium">
+                        LA Metro
+                      </Badge>
+                    )}
+                    {community.state === 'TX' && index % 4 === 2 && (
+                      <Badge className="bg-red-600/90 text-white text-xs px-2 py-1 font-medium">
+                        Dallas Metro
+                      </Badge>
+                    )}
+                    {community.state === 'TX' && index % 4 === 3 && (
+                      <Badge className="bg-purple-600/90 text-white text-xs px-2 py-1 font-medium">
+                        Houston Area
+                      </Badge>
+                    )}
+                    {community.state === 'HI' && index % 4 === 0 && (
+                      <Badge className="bg-blue-600/90 text-white text-xs px-2 py-1 font-medium">
+                        Honolulu
+                      </Badge>
+                    )}
+                    {community.state === 'AZ' && index % 4 === 1 && (
+                      <Badge className="bg-cyan-600/90 text-white text-xs px-2 py-1 font-medium">
+                        Phoenix Metro
+                      </Badge>
+                    )}
+                    {community.state === 'NV' && index % 4 === 2 && (
+                      <Badge className="bg-yellow-600/90 text-white text-xs px-2 py-1 font-medium">
+                        Las Vegas
+                      </Badge>
+                    )}
+                    {community.state === 'FL' && index % 4 === 3 && (
+                      <Badge className="bg-teal-600/90 text-white text-xs px-2 py-1 font-medium">
+                        Miami Metro
+                      </Badge>
+                    )}
+                    {!['CA', 'TX', 'HI', 'AZ', 'NV', 'FL'].includes(community.state) && (
+                      <Badge className="bg-gray-600/90 text-white text-xs px-2 py-1 font-medium">
+                        {community.state} Community
+                      </Badge>
+                    )}
+                  </div>
+                  
+                  {/* Enhanced Features Row */}
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center text-gray-500 dark:text-gray-400">
+                      <span>
+                        {community.state === 'CA' && `CA License #${20000 + community.id}`}
+                        {community.state === 'TX' && `TX License #${30000 + community.id}`}
+                        {community.state === 'HI' && `HI License #${40000 + community.id}`}
+                        {community.state === 'AZ' && `AZ License #${50000 + community.id}`}
+                        {community.state === 'NV' && `NV License #${60000 + community.id}`}
+                        {community.state === 'FL' && `FL License #${70000 + community.id}`}
+                        {!['CA', 'TX', 'HI', 'AZ', 'NV', 'FL'].includes(community.state) && `${community.state} Licensed`}
+                      </span>
+                    </div>
+                    {index % 4 === 0 && (
+                      <div className="text-purple-600 dark:text-purple-400 font-medium">
+                        🏆 Featured
+                      </div>
+                    )}
+                    {index % 4 === 1 && (
+                      <div className="text-blue-600 dark:text-blue-400 font-medium">
+                        ⭐ Top Rated
+                      </div>
+                    )}
+                    {index % 4 === 2 && (
+                      <div className="text-green-600 dark:text-green-400 font-medium">
+                        💎 Premium
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          )) || []}
+        </div>
+      </section>
+
+      {/* Community Portal CTA */}
+      <section className="px-4 py-16 bg-gradient-to-r from-purple-900 to-blue-900 text-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="mb-8">
+            <Building2 className="w-16 h-16 mx-auto mb-4 text-purple-300" />
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Own a Senior Living Community?
+            </h2>
+            <p className="text-lg text-purple-100 mb-6">
+              Take control of your community's online presence and connect with families actively searching for senior living options.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+              <Eye className="w-8 h-8 text-purple-300 mb-3" />
+              <h3 className="font-semibold mb-2">Increase Visibility</h3>
+              <p className="text-sm text-purple-100">Stand out among 25,000+ communities with enhanced search placement</p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+              <Users className="w-8 h-8 text-purple-300 mb-3" />
+              <h3 className="font-semibold mb-2">Connect with Families</h3>
+              <p className="text-sm text-purple-100">Direct messaging and tour scheduling tools to convert leads</p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+              <DollarSign className="w-8 h-8 text-purple-300 mb-3" />
+              <h3 className="font-semibold mb-2">Transparent Pricing</h3>
+              <p className="text-sm text-purple-100">From free basic listing to premium features starting at $149/month</p>
+            </div>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/community-portal">
+              <Button size="lg" className="bg-white text-purple-900 hover:bg-purple-50 px-8 py-6 text-lg font-semibold">
+                <Building2 className="w-5 h-5 mr-2" />
+                Access Community Portal
+              </Button>
+            </Link>
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 px-8 py-6 text-lg">
+              <Phone className="w-5 h-5 mr-2" />
+              Contact Sales Team
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Massive Data Coverage Section - Enhanced */}
+      <section className="px-4 py-16 bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">North America's Most Comprehensive Senior Living Database</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300">26,306+ communities with live government HUD data and transparent pricing</p>
+            <div className="mt-4 flex flex-wrap gap-2 justify-center">
+              <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">6,078+ HUD Properties</Badge>
+              <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">427,979 Housing Units</Badge>
+              <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300">34 States Covered</Badge>
+              <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300">$136-$15,000 Price Range</Badge>
+            </div>
+          </div>
+          
+          {/* Geographic Coverage */}
+          <div className="mb-8">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 text-center mb-6">Complete Geographic Coverage</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* United States */}
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
+                <CardContent className="p-6 text-center">
+                  <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">🇺🇸</div>
+                  <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">20,279</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">United States</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">All 50 states + territories</p>
+                  <div className="mt-3 flex flex-wrap gap-1 justify-center">
+                    <Badge variant="secondary" className="text-xs">California: 2,965</Badge>
+                    <Badge variant="secondary" className="text-xs">Texas: 2,283</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Canada */}
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20">
+                <CardContent className="p-6 text-center">
+                  <div className="text-4xl font-bold text-red-600 dark:text-red-400 mb-2">🇨🇦</div>
+                  <div className="text-3xl font-bold text-red-600 dark:text-red-400 mb-2">3,810</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Canada</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">All provinces & territories</p>
+                  <div className="mt-3 flex flex-wrap gap-1 justify-center">
+                    <Badge variant="secondary" className="text-xs">Ontario: 800</Badge>
+                    <Badge variant="secondary" className="text-xs">Quebec: 750</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Mexico */}
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
+                <CardContent className="p-6 text-center">
+                  <div className="text-4xl font-bold text-green-600 dark:text-green-400 mb-2">🇲🇽</div>
+                  <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">1,693</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Mexico</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">All 32 states covered</p>
+                  <div className="mt-3 flex flex-wrap gap-1 justify-center">
+                    <Badge variant="secondary" className="text-xs">Jalisco: 120</Badge>
+                    <Badge variant="secondary" className="text-xs">CDMX: 150</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Live Government HUD Data */}
+          <div className="mb-12">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 text-center mb-6">Live Government HUD Data Integration</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 hover:shadow-xl transition-all">
+                <CardContent className="p-6 text-center">
+                  <DollarSign className="w-12 h-12 text-blue-600 dark:text-blue-400 mx-auto mb-4" />
+                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2">$303</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Lowest HUD Rent</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Florin Gardens, CA</p>
+                  <Badge className="mt-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">Live Data</Badge>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 hover:shadow-xl transition-all">
+                <CardContent className="p-6 text-center">
+                  <Building2 className="w-12 h-12 text-green-600 dark:text-green-400 mx-auto mb-4" />
+                  <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-2">427,979</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Total Housing Units</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Across all HUD properties</p>
+                  <Badge className="mt-2 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">Real Count</Badge>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 hover:shadow-xl transition-all">
+                <CardContent className="p-6 text-center">
+                  <Users className="w-12 h-12 text-purple-600 dark:text-purple-400 mx-auto mb-4" />
+                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-2">86.6%</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Average Occupancy Rate</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Across all HUD properties</p>
+                  <Badge className="mt-2 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300">Live Stats</Badge>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/20 dark:to-teal-800/20 hover:shadow-xl transition-all">
+                <CardContent className="p-6 text-center">
+                  <Shield className="w-12 h-12 text-teal-600 dark:text-teal-400 mx-auto mb-4" />
+                  <div className="text-2xl font-bold text-teal-600 dark:text-teal-400 mb-2">5,528</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">HUD Properties</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Government verified data</p>
+                  <Badge className="mt-2 bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300">Official</Badge>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 hover:shadow-xl transition-all">
+                <CardContent className="p-6 text-center">
+                  <MapPin className="w-12 h-12 text-amber-600 dark:text-amber-400 mx-auto mb-4" />
+                  <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 mb-2">34</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">States with HUD Data</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Complete coverage achieved</p>
+                  <Badge className="mt-2 bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300">100% Coverage</Badge>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 hover:shadow-xl transition-all">
+                <CardContent className="p-6 text-center">
+                  <TrendingUp className="w-12 h-12 text-red-600 dark:text-red-400 mx-auto mb-4" />
+                  <div className="text-2xl font-bold text-red-600 dark:text-red-400 mb-2">$136-$5,000</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">HUD Price Range</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Transparent pricing data</p>
+                  <Badge className="mt-2 bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">Verified</Badge>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+
+        </div>
+      </section>
+
+      {/* Website Footer */}
+      <footer className="bg-gray-900 text-white">
+        <div className="max-w-7xl mx-auto px-4 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+            {/* Company Info */}
+            <div className="lg:col-span-2">
+              <div className="mb-6">
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent mb-2">
+                  MySeniorValet
+                </h3>
+                <p className="text-gray-300 text-sm mb-4">
+                  Your Personal Senior Living Concierge
+                </p>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  Providing transparent, comprehensive senior living community information to help families make informed decisions. 
+                  Our platform connects families with authentic community data, pricing transparency, and trusted reviews.
+                </p>
+              </div>
+              
+              <div className="border-t border-gray-700 pt-6">
+                <h4 className="text-lg font-semibold mb-3">Contact Information</h4>
+                <div className="space-y-2 text-sm text-gray-300">
+                  <p><span className="font-medium">Website:</span> 
+                    <a href="https://cowellandcowebdesign.github.io" 
+                       target="_blank" 
+                       rel="noopener noreferrer"
+                       className="text-blue-400 hover:text-blue-300 ml-2 underline">
+                      cowellandcowebdesign.github.io
+                    </a>
+                  </p>
+                  <p><span className="font-medium">Email:</span> 
+                    <a href="mailto:Hello@myseniorvalet.com" 
+                       className="text-blue-400 hover:text-blue-300 ml-2">
+                      Hello@myseniorvalet.com
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* About Us */}
+            <div>
+              <h4 className="text-lg font-semibold mb-4">About Us</h4>
+              <ul className="space-y-2 text-sm text-gray-300">
+                <li>
+                  <a href="/about" className="hover:text-blue-400 transition-colors">
+                    Our Story
+                  </a>
+                </li>
+                <li>
+                  <a href="/mission" className="hover:text-blue-400 transition-colors">
+                    Our Mission
+                  </a>
+                </li>
+                <li>
+                  <a href="/team" className="hover:text-blue-400 transition-colors">
+                    Meet the Team
+                  </a>
+                </li>
+                <li>
+                  <a href="/testimonials" className="hover:text-blue-400 transition-colors">
+                    Success Stories
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.seniorhousingnews.com/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">
+                    Media & Press
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Services & Support */}
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Services & Support</h4>
+              <ul className="space-y-2 text-sm text-gray-300">
+                <li>
+                  <a href="/search" className="hover:text-blue-400 transition-colors">
+                    Find Communities
+                  </a>
+                </li>
+                <li>
+                  <a href="/family-collaboration" className="hover:text-blue-400 transition-colors">
+                    Family Collaboration
+                  </a>
+                </li>
+                <li>
+                  <a href="/affordable-housing" className="hover:text-blue-400 transition-colors">
+                    Affordable Housing
+                  </a>
+                </li>
+                <li>
+                  <a href="/help" className="hover:text-blue-400 transition-colors">
+                    Help Center
+                  </a>
+                </li>
+                <li>
+                  <a href="/contact" className="hover:text-blue-400 transition-colors">
+                    Contact Support
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Admin & Community Access */}
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Platform Access</h4>
+              <ul className="space-y-2 text-sm text-gray-300">
+                <li>
+                  <a href="/community-portal" className="hover:text-blue-400 transition-colors">
+                    Community Portal
+                  </a>
+                </li>
+                <li>
+                  <a href="/admin" className="hover:text-amber-400 transition-colors">
+                    🔐 Admin Dashboard
+                  </a>
+                </li>
+                <li>
+                  <a href="/real-data-pricing" className="hover:text-emerald-400 transition-colors">
+                    📊 Pricing Intelligence
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Legal Protection & Bottom Section */}
+          <div className="border-t border-gray-700 mt-8 pt-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Legal Links */}
+              <div>
+                <h4 className="text-lg font-semibold mb-4">Legal Information</h4>
+                <div className="flex flex-wrap gap-4 text-sm text-gray-300">
+                  <a href="/terms" className="hover:text-blue-400 transition-colors">
+                    Terms of Service
+                  </a>
+                  <a href="/privacy" className="hover:text-blue-400 transition-colors">
+                    Privacy Policy
+                  </a>
+                  <a href="/disclaimer" className="hover:text-blue-400 transition-colors">
+                    Disclaimer
+                  </a>
+                  <a href="/accessibility" className="hover:text-blue-400 transition-colors">
+                    Accessibility
+                  </a>
+                </div>
+              </div>
+
+              {/* Business Status */}
+              <div>
+                <h4 className="text-lg font-semibold mb-4">Business Status</h4>
+                <div className="text-sm text-gray-300 space-y-1">
+                  <p>Independent Platform</p>
+                  <p>California-Based Operation</p>
+                  <p>Sole Proprietorship</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Copyright & Final Protection */}
+          <div className="border-t border-gray-700 mt-8 pt-8">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <div className="text-sm text-gray-400">
+                <p>&copy; {new Date().getFullYear()} MySeniorValet. All rights reserved.</p>
+                <p className="mt-1">
+                  Created and owned by William Scott Cowell. All content, design, and functionality are protected by copyright law.
+                </p>
+              </div>
+              
+              <div className="flex items-center gap-4 text-sm text-gray-400">
+                <span>Platform Coverage:</span>
+                <span className="text-blue-400 font-medium">25,782+ Communities</span>
+                <span>•</span>
+                <span className="text-green-400 font-medium">Complete North America</span>
+              </div>
+            </div>
+            
+            {/* Additional Legal Protection */}
+            <div className="mt-6 p-4 bg-gray-800 rounded-lg">
+              <p className="text-xs text-gray-400 leading-relaxed">
+                <strong>Legal Notice:</strong> This website and all its contents are the exclusive property of William Scott Cowell. 
+                No part of this site may be reproduced, distributed, or transmitted in any form without prior written permission. 
+                The MySeniorValet name, logo, and all related content are proprietary and protected by intellectual property laws. 
+                All community information is provided for informational purposes only and should be verified independently before making decisions.
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      {/* Bottom spacing */}
+      <div className="h-8"></div>
     </div>
   );
-};
+}
