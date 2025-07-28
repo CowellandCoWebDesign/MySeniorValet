@@ -76,12 +76,9 @@ const MovingServices = () => {
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-6">
               <img 
-                src="https://twomenandatruck.com/sites/default/files/logo.png" 
-                alt="Two Men and a Truck Logo"
-                className="h-12 w-auto bg-white p-2 rounded-lg shadow-lg"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='40' viewBox='0 0 100 40'%3E%3Crect width='100' height='40' fill='%23ffffff'/%3E%3Ctext x='50' y='25' font-family='Arial' font-size='12' fill='%23333' text-anchor='middle'%3ETWO MEN AND A TRUCK%3C/text%3E%3C/svg%3E";
-                }}
+                src="/two-men-and-a-truck-logo.svg" 
+                alt="TWO MEN AND A TRUCK Official Logo - The Movers Who Care"
+                className="h-16 w-auto bg-white p-3 rounded-lg shadow-lg"
               />
               <div>
                 <h1 className="text-4xl md:text-5xl font-bold">TWO MEN AND A TRUCK</h1>

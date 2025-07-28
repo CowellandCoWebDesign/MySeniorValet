@@ -457,15 +457,14 @@ export default function MySeniorValetHome() {
               <Link href="/moving">
                 <Card className="overflow-hidden flex-shrink-0 w-64 hover:shadow-xl transition-all duration-300 border-2 border-green-200 dark:border-green-400 bg-white dark:bg-gray-800">
                   <div className="relative">
-                    <div className="aspect-[4/3] bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 flex items-center justify-center">
-                      <img 
-                        src="https://twomenandatruck.com/sites/default/files/logo.png" 
-                        alt="Two Men and a Truck Logo"
-                        className="h-16 w-auto bg-white p-2 rounded-lg shadow-lg"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40' viewBox='0 0 80 40'%3E%3Crect width='80' height='40' fill='%23ffffff'/%3E%3Ctext x='40' y='25' font-family='Arial' font-size='8' fill='%23333' text-anchor='middle'%3ETWO MEN AND A TRUCK%3C/text%3E%3C/svg%3E";
-                        }}
-                      />
+                    <div className="aspect-[4/3] bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 flex items-center justify-center p-4">
+                      <div className="w-full h-full flex items-center justify-center">
+                        <img 
+                          src="/two-men-and-a-truck-logo.svg" 
+                          alt="TWO MEN AND A TRUCK Official Logo"
+                          className="max-w-full max-h-full object-contain filter contrast-125"
+                        />
+                      </div>
                     </div>
                     <div className="absolute top-2 right-2">
                       <Badge className="bg-green-500 text-white text-xs px-2 py-1 font-bold animate-pulse">

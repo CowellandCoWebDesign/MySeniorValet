@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 120" width="300" height="120">
+  <!-- TWO MEN AND A TRUCK Official Logo Recreation -->
+  
+  <!-- Background -->
+  <rect width="300" height="120" fill="#FFFFFF"/>
+  
+  <!-- First Stick Figure (Man 1) -->
+  <g stroke="#000000" stroke-width="2" fill="none">
+    <!-- Head -->
+    <circle cx="60" cy="25" r="8"/>
+    <!-- Body -->
+    <line x1="60" y1="33" x2="60" y2="65"/>
+    <!-- Arms -->
+    <line x1="60" y1="45" x2="50" y2="55"/>
+    <line x1="60" y1="45" x2="70" y2="55"/>
+    <!-- Legs -->
+    <line x1="60" y1="65" x2="50" y2="80"/>
+    <line x1="60" y1="65" x2="70" y2="80"/>
+  </g>
+  
+  <!-- Truck (Simple Rectangle with Wheels) -->
+  <g stroke="#000000" stroke-width="2" fill="none">
+    <!-- Truck Body -->
+    <rect x="90" y="45" width="60" height="25"/>
+    <!-- Truck Cab -->
+    <rect x="90" y="35" width="20" height="10"/>
+    <!-- Wheels -->
+    <circle cx="100" cy="75" r="5"/>
+    <circle cx="140" cy="75" r="5"/>
+  </g>
+  
+  <!-- Second Stick Figure (Man 2) -->
+  <g stroke="#000000" stroke-width="2" fill="none">
+    <!-- Head -->
+    <circle cx="180" cy="25" r="8"/>
+    <!-- Body -->
+    <line x1="180" y1="33" x2="180" y2="65"/>
+    <!-- Arms -->
+    <line x1="180" y1="45" x2="170" y2="55"/>
+    <line x1="180" y1="45" x2="190" y2="55"/>
+    <!-- Legs -->
+    <line x1="180" y1="65" x2="170" y2="80"/>
+    <line x1="180" y1="65" x2="190" y2="80"/>
+  </g>
+  
+  <!-- Company Name Text -->
+  <text x="150" y="105" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#000000">
+    TWO MEN AND A TRUCK
+  </text>
+</svg>
