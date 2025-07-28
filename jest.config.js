@@ -16,7 +16,7 @@ export default {
       }
     }]
   },
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   testMatch: [
     '<rootDir>/tests/**/*.test.(ts|tsx|js)',
     '<rootDir>/client/src/**/*.test.(ts|tsx)',
