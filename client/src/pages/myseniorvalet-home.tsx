@@ -1150,110 +1150,134 @@ export default function MySeniorValetHome() {
       <section className="px-4 py-16 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <Badge className="bg-orange-500 text-white mb-4 px-4 py-2 text-sm font-semibold">NEW ECOSYSTEM</Badge>
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <Badge className="bg-green-500 text-white px-4 py-2 text-sm font-semibold flex items-center gap-2">
+                <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                LIVE ONLINE STATUS
+              </Badge>
+              <Badge className="bg-orange-500 text-white px-4 py-2 text-sm font-semibold">NEW ECOSYSTEM</Badge>
+            </div>
             <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">Complete Senior Services Directory</h2>
             <p className="text-xl text-gray-600 dark:text-gray-300">Beyond communities - everything seniors need for independent living</p>
+            <p className="text-sm text-green-600 dark:text-green-400 mt-2 font-medium">Services are live and available now - no longer coming soon!</p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-              <CardContent className="p-4 text-center">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
                 <Truck className="w-10 h-10 text-orange-500 mx-auto mb-2" />
                 <h4 className="font-semibold text-sm">Moving Services</h4>
                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Senior move specialists</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
             
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-              <CardContent className="p-4 text-center">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
                 <Pill className="w-10 h-10 text-blue-500 mx-auto mb-2" />
                 <h4 className="font-semibold text-sm">Rx Delivery</h4>
                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Medication services</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
             
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-              <CardContent className="p-4 text-center">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
                 <Building className="w-10 h-10 text-purple-500 mx-auto mb-2" />
                 <h4 className="font-semibold text-sm">Senior Centers</h4>
                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Community programs</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
             
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-              <CardContent className="p-4 text-center">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
                 <Ambulance className="w-10 h-10 text-red-500 mx-auto mb-2" />
                 <h4 className="font-semibold text-sm">Medical Transport</h4>
                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Non-emergency rides</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
             
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-              <CardContent className="p-4 text-center">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
                 <Utensils className="w-10 h-10 text-green-500 mx-auto mb-2" />
                 <h4 className="font-semibold text-sm">Meal Delivery</h4>
                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Senior nutrition services</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
 
             <Link href="/floral-services">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-pink-200 bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-pink-200 bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 relative">
                 <CardContent className="p-4 text-center">
+                  <div className="absolute top-2 right-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  </div>
                   <div className="w-10 h-10 text-pink-500 mx-auto mb-2 font-bold text-2xl flex items-center justify-center">🌸</div>
                   <h4 className="font-semibold text-sm text-pink-700 dark:text-pink-300">Professional Florals</h4>
                   <p className="text-xs text-pink-600 dark:text-pink-400 mt-1">Move-in arrangements & gifts</p>
-                  <Badge className="bg-pink-500 text-white text-xs px-2 py-0.5 mt-1">1-800-FLORALS</Badge>
+                  <div className="flex gap-1 justify-center mt-1">
+                    <Badge className="bg-green-500 text-white text-xs px-2 py-0.5">✓ VERIFIED</Badge>
+                    <Badge className="bg-pink-500 text-white text-xs px-2 py-0.5">1-800-FLORALS</Badge>
+                  </div>
                 </CardContent>
               </Card>
             </Link>
 
 
             
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-              <CardContent className="p-4 text-center">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
                 <Scale className="w-10 h-10 text-indigo-500 mx-auto mb-2" />
                 <h4 className="font-semibold text-sm">Legal Services</h4>
                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Elder law attorneys</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
             
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-              <CardContent className="p-4 text-center">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
                 <Calculator className="w-10 h-10 text-emerald-500 mx-auto mb-2" />
                 <h4 className="font-semibold text-sm">Financial Planning</h4>
                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Senior financial advisors</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
             
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-              <CardContent className="p-4 text-center">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
                 <Scissors className="w-10 h-10 text-pink-500 mx-auto mb-2" />
                 <h4 className="font-semibold text-sm">Personal Care</h4>
                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Mobile barber & beauty</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
             
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-              <CardContent className="p-4 text-center">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
                 <Trash2 className="w-10 h-10 text-gray-500 mx-auto mb-2" />
                 <h4 className="font-semibold text-sm">Junk Removal</h4>
                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Decluttering services</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-              <CardContent className="p-4 text-center">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
                 <Users2 className="w-10 h-10 text-cyan-500 mx-auto mb-2" />
                 <h4 className="font-semibold text-sm">Companion Care</h4>
                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Social companionship</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
             
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-              <CardContent className="p-4 text-center">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
                 <Phone className="w-10 h-10 text-violet-500 mx-auto mb-2" />
                 <h4 className="font-semibold text-sm">Tech Support</h4>
                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Device setup & training</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
           </div>
@@ -1288,8 +1312,9 @@ export default function MySeniorValetHome() {
                     </div>
                   </div>
                   <Link href="/floral-services">
-                    <Button className="bg-pink-500 hover:bg-pink-600 text-white">
-                      Browse Floral Services →
+                    <Button className="bg-pink-500 hover:bg-pink-600 text-white flex items-center gap-2">
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                      Browse Live Floral Services →
                     </Button>
                   </Link>
                 </div>
@@ -1327,6 +1352,19 @@ export default function MySeniorValetHome() {
           </div>
 
           <div className="text-center mt-8">
+            <div className="mb-4">
+              <div className="inline-flex items-center gap-3 bg-white dark:bg-gray-700 rounded-xl p-4 shadow-lg">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm font-semibold text-green-600 dark:text-green-400">1 Verified Service</span>
+                </div>
+                <div className="w-px h-6 bg-gray-300 dark:bg-gray-600"></div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">9 Example Services</span>
+                </div>
+              </div>
+            </div>
             <Link href="/senior-services">
               <Button className="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
                 Explore Senior Services Directory →
