@@ -484,21 +484,10 @@ export default function MySeniorValetHome() {
               <Link href="/moving">
                 <Card className="overflow-hidden flex-shrink-0 w-64 hover:shadow-xl transition-all duration-300 border-2 border-green-200 dark:border-green-400 bg-white dark:bg-gray-800">
                   <div className="relative">
-                    <div 
-                      className="aspect-[4/3] bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 flex items-center justify-center p-4 relative overflow-hidden"
-                      style={{
-                        backgroundImage: conciergeImages?.[0]?.url ? `url(${conciergeImages[0].url})` : undefined,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                      }}
-                    >
-                      <div className="absolute inset-0 bg-black/20"></div>
-                      <div className="w-full h-full flex items-center justify-center relative z-10 bg-white/90 rounded-lg shadow-lg">
-                        <img 
-                          src="/two-men-and-a-truck-logo.svg" 
-                          alt="TWO MEN AND A TRUCK Official Logo"
-                          className="max-w-full max-h-full object-contain filter contrast-125"
-                        />
+                    <div className="aspect-[4/3] bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 flex items-center justify-center p-4">
+                      <div className="text-center">
+                        <div className="text-4xl mb-2">🚛</div>
+                        <div className="text-lg font-bold text-blue-800 dark:text-blue-200">TWO MEN AND A TRUCK</div>
                       </div>
                     </div>
                     <div className="absolute top-2 right-2">
@@ -1569,42 +1558,55 @@ export default function MySeniorValetHome() {
               </div>
             </div>
 
-            {/* Amazon Product Recommendations */}
-            <div 
-              className="bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/20 dark:to-amber-900/20 rounded-2xl p-6 relative overflow-hidden"
-              style={{
-                backgroundImage: conciergeImages?.[3]?.url ? `url(${conciergeImages[3].url})` : undefined,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-              }}
-            >
-              <div className="absolute inset-0 bg-orange-100/80 dark:bg-orange-900/80 rounded-2xl"></div>
-              <div className="relative z-10">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                  🛍️ Amazon Product Recommendations
-                </h3>
-                <p className="text-gray-700 dark:text-gray-300 mb-3">
-                  Curated senior-friendly products including mobility aids, safety equipment, 
-                  daily living aids, and medical supplies - all with verified reviews and 
-                  competitive pricing.
-                </p>
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Verified local service providers</span>
+            {/* Amazon Move-In Essentials Vendor */}
+            <Link href="/move-in-essentials">
+              <Card className="overflow-hidden flex-shrink-0 w-64 hover:shadow-xl transition-all duration-300 border-2 border-orange-200 dark:border-orange-400 bg-white dark:bg-gray-800">
+                <div className="relative">
+                  <div className="aspect-[4/3] bg-gradient-to-br from-orange-100 to-amber-200 dark:from-orange-900 dark:to-amber-800 flex items-center justify-center p-4">
+                    <div className="text-center">
+                      <div className="text-4xl mb-2">📦</div>
+                      <div className="text-lg font-bold text-orange-800 dark:text-orange-200">AMAZON</div>
+                      <div className="text-sm text-orange-600 dark:text-orange-300">Move-In Essentials</div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Quality scoring algorithm</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">AI-matched to care needs</span>
+                  <div className="absolute top-2 right-2">
+                    <Badge className="bg-orange-500 text-white text-xs px-2 py-1 font-bold">
+                      🟢 LIVE NOW
+                    </Badge>
                   </div>
                 </div>
-                <Badge className="bg-yellow-500 text-white">Coming Soon with Amazon Associates</Badge>
-              </div>
-            </div>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Amazon Marketplace</h4>
+                    <div className="flex items-center space-x-1">
+                      <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                      <span className="text-sm font-medium">4.8</span>
+                    </div>
+                  </div>
+                  
+                  <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">
+                    Essential move-in products including bathroom accessories, bedroom items, and furniture supplies.
+                  </p>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">7 Essential Products</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Prime Shipping Eligible</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">$15.99 - $45.99 Range</span>
+                    </div>
+                  </div>
+                  <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white">
+                    View Products →
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
 
           <div className="text-center mt-8">
