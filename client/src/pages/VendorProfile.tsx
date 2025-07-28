@@ -232,7 +232,19 @@ export default function VendorProfile({}: VendorProfileProps) {
                           className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform"
                           onClick={() => window.open('https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals', '_blank')}
                           onError={(e) => {
-                            e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgZmlsbD0iIzlDQTNBRiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNDgiPjwvdGV4dD4KPC9zdmc+';
+                            const target = e.currentTarget;
+                            const parent = target.parentElement;
+                            if (parent) {
+                              parent.innerHTML = `
+                                <div class="w-full h-full flex items-center justify-center bg-pink-50 text-pink-500 cursor-pointer hover:bg-pink-100 transition-colors" 
+                                     onclick="window.open('https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals', '_blank')">
+                                  <div class="text-center">
+                                    <div class="text-4xl mb-2">🌸</div>
+                                    <div class="text-sm font-semibold">Click to Order</div>
+                                  </div>
+                                </div>
+                              `;
+                            }
                           }}
                         />
                       </div>

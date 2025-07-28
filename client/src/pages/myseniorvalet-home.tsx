@@ -1361,32 +1361,53 @@ export default function MySeniorValetHome() {
               </div>
             </div>
 
-            {/* Amazon Product Recommendations */}
+            {/* Amazon Product Recommendations - Left Side Photo Layout */}
             <div className="bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/20 dark:to-amber-900/20 rounded-2xl p-6">
-              <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                  🛍️ Amazon Product Recommendations
-                </h3>
-                <p className="text-gray-700 dark:text-gray-300 mb-3">
-                  Curated senior-friendly products including mobility aids, safety equipment, 
-                  daily living aids, and medical supplies - all with verified reviews and 
-                  competitive pricing.
-                </p>
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Verified local service providers</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Quality scoring algorithm</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">AI-matched to care needs</span>
-                  </div>
+              <div className="flex items-start gap-4">
+                {/* Left Side Photo */}
+                <div className="w-20 h-20 bg-white rounded-xl overflow-hidden shadow-sm flex-shrink-0">
+                  <img 
+                    src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" 
+                    alt="Amazon senior products"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      const nextElement = target.nextElementSibling as HTMLElement;
+                      target.style.display = 'none';
+                      if (nextElement) {
+                        nextElement.style.display = 'flex';
+                      }
+                    }}
+                  />
+                  <div className="w-full h-full hidden items-center justify-center text-orange-500 text-2xl font-bold">🛍️</div>
                 </div>
-                <Badge className="bg-yellow-500 text-white">Coming Soon with Amazon Associates</Badge>
+                
+                {/* Content */}
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                    Amazon Product Recommendations
+                  </h3>
+                  <p className="text-gray-700 dark:text-gray-300 mb-3">
+                    Curated senior-friendly products including mobility aids, safety equipment, 
+                    daily living aids, and medical supplies - all with verified reviews and 
+                    competitive pricing.
+                  </p>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Verified local service providers</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Quality scoring algorithm</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">AI-matched to care needs</span>
+                    </div>
+                  </div>
+                  <Badge className="bg-yellow-500 text-white">Coming Soon with Amazon Associates</Badge>
+                </div>
               </div>
             </div>
           </div>

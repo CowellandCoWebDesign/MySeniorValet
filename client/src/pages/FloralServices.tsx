@@ -276,7 +276,23 @@ export default function FloralServices() {
               <img 
                 src={product.image} 
                 alt={product.name}
-                className="w-full h-48 object-cover"
+                className="w-full h-48 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                onClick={() => window.open('https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals', '_blank')}
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  const parent = target.parentElement;
+                  if (parent) {
+                    parent.innerHTML = `
+                      <div class="w-full h-48 flex items-center justify-center bg-pink-50 text-pink-500 cursor-pointer hover:bg-pink-100 transition-colors" 
+                           onclick="window.open('https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals', '_blank')">
+                        <div class="text-center">
+                          <div class="text-4xl mb-2">🌸</div>
+                          <div class="text-sm font-semibold">Click to Order from 1-800-FLORALS</div>
+                        </div>
+                      </div>
+                    `;
+                  }
+                }}
               />
               <div className="absolute top-2 right-2">
                 <Badge variant="secondary" className="bg-white/90">
