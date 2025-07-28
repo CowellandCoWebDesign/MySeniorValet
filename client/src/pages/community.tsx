@@ -76,7 +76,7 @@ export default function CommunityPage() {
         text: 'Source: Market Research',
         type: 'market',
         icon: <Info className="h-3 w-3" />,
-        color: 'text-gray-600'
+        color: 'text-gray-600 dark:text-gray-300'
       };
     }
   };
@@ -237,7 +237,7 @@ export default function CommunityPage() {
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading community details...</p>
+              <p className="text-gray-600 dark:text-gray-300">Loading community details...</p>
             </div>
           </div>
         </div>
@@ -252,7 +252,7 @@ export default function CommunityPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Community Not Found</h1>
-            <p className="text-gray-600 mb-6">The community you're looking for doesn't exist or has been removed.</p>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">The community you're looking for doesn't exist or has been removed.</p>
             <Link to={getBackUrl()}>
               <Button>Back to Search</Button>
             </Link>
@@ -347,7 +347,7 @@ export default function CommunityPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-600 mb-3">
+              <p className="text-gray-600 dark:text-gray-300 mb-3">
                 If you believe this listing was incorrectly classified, please let us know.
               </p>
               <FlagListingDialog 
@@ -426,7 +426,7 @@ export default function CommunityPage() {
               </div>
             ) : (
               <div className="h-96 bg-gray-100 flex items-center justify-center">
-                <div className="text-center text-gray-500">
+                <div className="text-center text-gray-500 dark:text-gray-400">
                   <Camera className="w-16 h-16 mx-auto mb-4 opacity-50" />
                   <p className="text-lg font-medium mb-2">Photos Coming Soon</p>
                   <p className="text-sm">We're working to add photos for this community</p>
@@ -459,12 +459,12 @@ export default function CommunityPage() {
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">{community.name}</h1>
-                    <div className="flex items-center text-gray-600 mb-4">
+                    <div className="flex items-center text-gray-600 dark:text-gray-300 mb-4">
                       <MapPin className="h-5 w-5 mr-2" />
                       {community.address}, {community.city}, {community.state} {community.zipCode}
                     </div>
                     {community.description && (
-                      <p className="text-gray-700 leading-relaxed">{community.description}</p>
+                      <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{community.description}</p>
                     )}
                   </div>
                   
@@ -694,7 +694,7 @@ export default function CommunityPage() {
                     Verified Data Integration
                   </Badge>
                 </CardTitle>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 dark:text-gray-300">
                   Complete facilities and services overview from verified sources
                 </div>
               </CardHeader>
@@ -938,7 +938,7 @@ export default function CommunityPage() {
                     Medical Excellence
                   </Badge>
                 </CardTitle>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 dark:text-gray-300">
                   Comprehensive medical care and health services available
                 </div>
               </CardHeader>
@@ -1665,7 +1665,7 @@ export default function CommunityPage() {
                     <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8">
                       <Home className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                       <h3 className="text-lg font-semibold text-gray-900 mb-2">Unit Types & Floor Plans</h3>
-                      <p className="text-gray-600 mb-4">
+                      <p className="text-gray-600 dark:text-gray-300 mb-4">
                         We're working to gather verified unit type information for this community.
                       </p>
                       <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4">
@@ -1673,7 +1673,7 @@ export default function CommunityPage() {
                           <ShieldCheck className="h-5 w-5 text-blue-600" />
                           <span className="font-medium text-gray-900">What We'll Show You</span>
                         </div>
-                        <div className="text-sm text-gray-600 space-y-1">
+                        <div className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
                           <div>• Studio, 1-bedroom, and 2-bedroom options</div>
                           <div>• Square footage and floor plans</div>
                           <div>• Current availability and pricing</div>
@@ -1736,7 +1736,7 @@ export default function CommunityPage() {
                     <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8">
                       <Camera className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                       <h3 className="text-lg font-semibold text-gray-900 mb-2">Floor Plans Gallery</h3>
-                      <p className="text-gray-600 mb-4">
+                      <p className="text-gray-600 dark:text-gray-300 mb-4">
                         We're working to gather verified floor plan images for this community.
                       </p>
                       <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4">
@@ -1744,7 +1744,7 @@ export default function CommunityPage() {
                           <ShieldCheck className="h-5 w-5 text-purple-600" />
                           <span className="font-medium text-gray-900">What We'll Show You</span>
                         </div>
-                        <div className="text-sm text-gray-600 space-y-1">
+                        <div className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
                           <div>• Detailed floor plan layouts</div>
                           <div>• Room dimensions and flow</div>
                           <div>• Furniture placement options</div>
