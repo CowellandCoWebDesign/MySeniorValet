@@ -448,7 +448,7 @@ export default function MySeniorValetHome() {
               </div>
               
               <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
-                3 live provider integrations • 1-800-FLORALS • TWO MEN AND A TRUCK • GoGoGrandparent transportation
+                3 live provider integrations + Amazon Associates • 1-800-FLORALS • TWO MEN AND A TRUCK • GoGoGrandparent transportation
               </p>
             </div>
 
