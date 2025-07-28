@@ -56,6 +56,7 @@ import RealDataPricing from "@/pages/real-data-pricing";
 import Services from "@/pages/services";
 import SeniorServices from "@/pages/senior-services";
 import FloralServices from "@/pages/FloralServices";
+import VendorProfile from "@/pages/VendorProfile";
 import CommunityPaymentProgram from "@/pages/community-payment-program";
 import ResidentOnboarding from "@/pages/resident-onboarding";
 import LeaseDocumentManagement from "@/pages/lease-document-management";
@@ -133,6 +134,7 @@ function Router() {
       <Route path="/services" component={Services} />
       <Route path="/senior-services" component={SeniorServices} />
       <Route path="/florals" component={FloralServices} />
+      <Route path="/vendor/:vendorId" component={VendorProfile} />
       <Route path="/community-payment-program" component={CommunityPaymentProgram} />
       <Route path="/resident-onboarding" component={ResidentOnboarding} />
       <Route path="/lease-management/:applicationId" component={LeaseDocumentManagement} />

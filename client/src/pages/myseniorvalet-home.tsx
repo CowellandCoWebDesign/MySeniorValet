@@ -1208,7 +1208,7 @@ export default function MySeniorValetHome() {
               </CardContent>
             </Card>
 
-            <Link href="/floral-services">
+            <Link href="/vendor/1800florals">
               <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-pink-200 bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 relative">
                 <CardContent className="p-4 text-center">
                   <div className="absolute top-2 right-2">
@@ -1311,10 +1311,10 @@ export default function MySeniorValetHome() {
                       <span className="text-sm text-gray-700 dark:text-gray-300">Monthly subscription options</span>
                     </div>
                   </div>
-                  <Link href="/floral-services">
+                  <Link href="/vendor/1800florals">
                     <Button className="bg-pink-500 hover:bg-pink-600 text-white flex items-center gap-2">
                       <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                      Browse Live Floral Services →
+                      View Vendor Profile →
                     </Button>
                   </Link>
                 </div>
