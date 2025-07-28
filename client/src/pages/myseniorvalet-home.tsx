@@ -383,13 +383,13 @@ export default function MySeniorValetHome() {
                     <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Moving Services</h4>
                     <p className="text-sm text-gray-600 dark:text-gray-300">TWO MEN AND A TRUCK • Professional movers, packing, storage</p>
                   </Link>
-                  <div className="text-center group/item">
+                  <Link href="/transportation" className="text-center group/item block">
                     <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
-                      <Phone className="w-8 h-8 text-white" />
+                      <Car className="w-8 h-8 text-white" />
                     </div>
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Technology Support</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">Cell phone programs, tech setup</p>
-                  </div>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Transportation Services</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">GoGoGrandparent • No smartphone needed</p>
+                  </Link>
                   <div className="text-center group/item">
                     <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
                       <Scale className="w-8 h-8 text-white" />
@@ -448,7 +448,7 @@ export default function MySeniorValetHome() {
               </div>
               
               <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
-                2 live provider integrations • 1-800-FLORALS for flowers • TWO MEN AND A TRUCK for moving
+                3 live provider integrations • 1-800-FLORALS • TWO MEN AND A TRUCK • GoGoGrandparent transportation
               </p>
             </div>
 
@@ -557,8 +557,60 @@ export default function MySeniorValetHome() {
                 </Card>
               </Link>
               
+              {/* Live Provider: GoGoGrandparent Transportation */}
+              <Link href="/transportation">
+                <Card className="overflow-hidden flex-shrink-0 w-64 hover:shadow-xl transition-all duration-300 border-2 border-blue-200 dark:border-blue-400 bg-white dark:bg-gray-800">
+                  <div className="relative">
+                    <div className="aspect-[4/3] bg-gradient-to-br from-blue-100 to-cyan-200 dark:from-blue-900 dark:to-cyan-800 flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="text-2xl mb-2">🚗</div>
+                        <div className="text-lg font-bold text-blue-800 dark:text-blue-200">GoGoGrandparent</div>
+                        <div className="text-sm text-blue-600 dark:text-blue-300">Transportation Services</div>
+                      </div>
+                    </div>
+                    <div className="absolute top-2 right-2">
+                      <Badge className="bg-green-500 text-white text-xs px-2 py-1 font-bold animate-pulse">
+                        🟢 LIVE NOW
+                      </Badge>
+                    </div>
+                  </div>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg">GoGoGrandparent</h4>
+                      <div className="flex items-center space-x-1">
+                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">4.7</span>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Transportation Services</p>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-lg font-bold text-blue-600 dark:text-blue-400">$16.99+/month</span>
+                      <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full">No Smartphone</span>
+                    </div>
+                    <div className="space-y-1 mb-3">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-600 dark:text-gray-300">Call (855) 464-6872</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-600 dark:text-gray-300">24/7 availability</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-600 dark:text-gray-300">GoGoGuardian monitoring</span>
+                      </div>
+                    </div>
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm py-2">
+                      <Phone className="w-4 h-4 mr-2" />
+                      Call to Book
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Link>
+              
               {/* Service Provider Cards - Framework Ready */}
-              {Array.from({ length: 6 }).map((_, index) => {
+              {Array.from({ length: 5 }).map((_, index) => {
                 const serviceTypes = [
                   { 
                     name: "TechCare Support", 
