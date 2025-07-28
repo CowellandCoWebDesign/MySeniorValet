@@ -333,7 +333,7 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Complete Concierge Services - Enhanced Styling */}
+      {/* Complete Senior Services Directory - Enhanced Styling */}
       <section className="px-4 py-16 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
@@ -402,34 +402,202 @@ export default function MySeniorValetHome() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-6">
-                  <Link href="/moving" className="text-center group/item block">
-                    <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
-                      <Truck className="w-8 h-8 text-white" />
-                    </div>
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Moving Services</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">TWO MEN AND A TRUCK • Professional movers, packing, storage</p>
+                {/* Horizontal Service Cards with Amazon Integration */}
+                <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                  
+                  {/* Moving Services Card */}
+                  <Link href="/moving" className="flex-shrink-0 w-64">
+                    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 border-2 border-green-200 dark:border-green-400 bg-white dark:bg-gray-800 h-80">
+                      <div className="relative">
+                        <div className="aspect-[4/3] bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900 dark:to-green-800 flex items-center justify-center p-4">
+                          <div className="text-center">
+                            <Truck className="w-16 h-16 text-green-600 dark:text-green-400 mx-auto mb-2" />
+                            <div className="text-lg font-bold text-green-800 dark:text-green-200">TWO MEN</div>
+                            <div className="text-sm text-green-600 dark:text-green-300">AND A TRUCK</div>
+                          </div>
+                        </div>
+                        <div className="absolute top-2 right-2">
+                          <Badge className="bg-green-500 text-white text-xs px-2 py-1 font-bold">
+                            🟢 LIVE NOW
+                          </Badge>
+                        </div>
+                      </div>
+                      <CardContent className="p-4">
+                        <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg mb-2">Moving Services</h4>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">
+                          Professional movers, packing, storage, and consultation services for senior transitions.
+                        </p>
+                        <div className="space-y-2 mb-4">
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-green-600" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">6 Service Options</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-green-600" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Senior Specialists</span>
+                          </div>
+                        </div>
+                        <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
+                          View Services →
+                        </Button>
+                      </CardContent>
+                    </Card>
                   </Link>
-                  <Link href="/transportation" className="text-center group/item block">
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
-                      <Car className="w-8 h-8 text-white" />
-                    </div>
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Transportation Services</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">GoGoGrandparent • No smartphone needed</p>
+
+                  {/* Transportation Services Card */}
+                  <Link href="/transportation" className="flex-shrink-0 w-64">
+                    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 border-2 border-blue-200 dark:border-blue-400 bg-white dark:bg-gray-800 h-80">
+                      <div className="relative">
+                        <div className="aspect-[4/3] bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 flex items-center justify-center p-4">
+                          <div className="text-center">
+                            <Car className="w-16 h-16 text-blue-600 dark:text-blue-400 mx-auto mb-2" />
+                            <div className="text-lg font-bold text-blue-800 dark:text-blue-200">GoGoGrandparent</div>
+                            <div className="text-sm text-blue-600 dark:text-blue-300">Transportation</div>
+                          </div>
+                        </div>
+                        <div className="absolute top-2 right-2">
+                          <Badge className="bg-blue-500 text-white text-xs px-2 py-1 font-bold">
+                            🟢 LIVE NOW
+                          </Badge>
+                        </div>
+                      </div>
+                      <CardContent className="p-4">
+                        <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg mb-2">Transportation Services</h4>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">
+                          No smartphone needed transportation and delivery services for seniors.
+                        </p>
+                        <div className="space-y-2 mb-4">
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-green-600" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">5 Service Options</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-green-600" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">No Smartphone Required</span>
+                          </div>
+                        </div>
+                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                          View Services →
+                        </Button>
+                      </CardContent>
+                    </Card>
                   </Link>
-                  <div className="text-center group/item">
-                    <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
-                      <Scale className="w-8 h-8 text-white" />
-                    </div>
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Legal & Financial</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">Elder law, financial planning</p>
-                  </div>
-                  <div className="text-center group/item">
-                    <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover/item:shadow-xl transition-shadow duration-300">
-                      <Sofa className="w-8 h-8 text-white" />
-                    </div>
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Medical Equipment</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">Mobility aids, safety equipment</p>
+
+                  {/* Floral Services Card */}
+                  <Link href="/floral" className="flex-shrink-0 w-64">
+                    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 border-2 border-pink-200 dark:border-pink-400 bg-white dark:bg-gray-800 h-80">
+                      <div className="relative">
+                        <div className="aspect-[4/3] bg-gradient-to-br from-pink-100 to-rose-200 dark:from-pink-900 dark:to-rose-800 flex items-center justify-center p-4">
+                          <div className="text-center">
+                            <div className="text-4xl mb-2">🌸</div>
+                            <div className="text-lg font-bold text-pink-800 dark:text-pink-200">1-800-FLORALS</div>
+                            <div className="text-sm text-pink-600 dark:text-pink-300">Professional Florist</div>
+                          </div>
+                        </div>
+                        <div className="absolute top-2 right-2">
+                          <Badge className="bg-pink-500 text-white text-xs px-2 py-1 font-bold">
+                            🟢 LIVE NOW
+                          </Badge>
+                        </div>
+                      </div>
+                      <CardContent className="p-4">
+                        <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg mb-2">Floral Services</h4>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">
+                          Professional floral arrangements and delivery to senior living communities.
+                        </p>
+                        <div className="space-y-2 mb-4">
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-green-600" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Same-day delivery</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-green-600" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Move-in specials</span>
+                          </div>
+                        </div>
+                        <Button className="w-full bg-pink-600 hover:bg-pink-700 text-white">
+                          View Services →
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </Link>
+
+                  {/* Amazon Move-In Essentials Card */}
+                  <Link href="/move-in-essentials" className="flex-shrink-0 w-64">
+                    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 border-2 border-orange-200 dark:border-orange-400 bg-white dark:bg-gray-800 h-80">
+                      <div className="relative">
+                        <div className="aspect-[4/3] bg-gradient-to-br from-orange-100 to-amber-200 dark:from-orange-900 dark:to-amber-800 flex items-center justify-center p-4">
+                          <div className="text-center">
+                            <div className="text-4xl mb-2">📦</div>
+                            <div className="text-lg font-bold text-orange-800 dark:text-orange-200">AMAZON</div>
+                            <div className="text-sm text-orange-600 dark:text-orange-300">Move-In Essentials</div>
+                          </div>
+                        </div>
+                        <div className="absolute top-2 right-2">
+                          <Badge className="bg-orange-500 text-white text-xs px-2 py-1 font-bold">
+                            🟢 LIVE NOW
+                          </Badge>
+                        </div>
+                      </div>
+                      <CardContent className="p-4">
+                        <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg mb-2">Amazon Marketplace</h4>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">
+                          Essential move-in products including bathroom accessories, bedroom items, and furniture supplies.
+                        </p>
+                        <div className="space-y-2 mb-4">
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-green-600" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">7 Essential Products</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-green-600" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Prime Shipping</span>
+                          </div>
+                        </div>
+                        <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white">
+                          View Products →
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </Link>
+
+                  {/* Legal & Financial Services Card */}
+                  <div className="flex-shrink-0 w-64">
+                    <Card className="overflow-hidden transition-all duration-300 border-2 border-purple-200 dark:border-purple-400 bg-white dark:bg-gray-800 h-80 opacity-75">
+                      <div className="relative">
+                        <div className="aspect-[4/3] bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800 flex items-center justify-center p-4">
+                          <div className="text-center">
+                            <Scale className="w-16 h-16 text-purple-600 dark:text-purple-400 mx-auto mb-2" />
+                            <div className="text-lg font-bold text-purple-800 dark:text-purple-200">Legal & Financial</div>
+                            <div className="text-sm text-purple-600 dark:text-purple-300">Elder Law</div>
+                          </div>
+                        </div>
+                        <div className="absolute top-2 right-2">
+                          <Badge className="bg-gray-500 text-white text-xs px-2 py-1 font-bold">
+                            COMING SOON
+                          </Badge>
+                        </div>
+                      </div>
+                      <CardContent className="p-4">
+                        <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg mb-2">Legal & Financial</h4>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">
+                          Elder law attorneys and financial planning specialists for senior transitions.
+                        </p>
+                        <div className="space-y-2 mb-4">
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 border-2 border-gray-400 rounded"></div>
+                            <span className="text-sm text-gray-500">Elder Law Attorneys</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 border-2 border-gray-400 rounded"></div>
+                            <span className="text-sm text-gray-500">Financial Planning</span>
+                          </div>
+                        </div>
+                        <Button className="w-full bg-gray-400 text-white cursor-not-allowed" disabled>
+                          Coming Soon
+                        </Button>
+                      </CardContent>
+                    </Card>
                   </div>
                 </div>
                 
@@ -1332,49 +1500,9 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-
-
-      {/* Senior Services Directory Section */}
-      <section className="px-4 py-16 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      {/* Care Level Guide with Live Market Intelligence */}
+      <section className="px-4 py-8 bg-gradient-to-br from-green-50 to-blue-50 dark:from-gray-800 dark:to-gray-900">
         <div className="max-w-6xl mx-auto">
-          {/* Immediate Call to Action Banner */}
-          <div className="bg-gradient-to-r from-pink-500 to-rose-500 rounded-2xl p-6 mb-12 text-center shadow-xl">
-            <div className="flex items-center justify-center gap-4 mb-4">
-              <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center">
-                <span className="text-2xl">🌸</span>
-              </div>
-              <div className="text-left">
-                <h3 className="text-2xl font-bold text-white">Order Fresh Flowers Now</h3>
-                <p className="text-pink-100">Professional arrangements delivered to your senior living community</p>
-              </div>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button 
-                className="bg-white text-pink-600 hover:bg-gray-100 font-bold px-8 py-3 text-lg shadow-lg"
-                onClick={() => window.open('https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals', '_blank')}
-              >
-                🌹 Order from 1-800-FLORALS →
-              </Button>
-              <div className="flex items-center gap-2 text-white">
-                <div className="w-3 h-3 bg-green-300 rounded-full animate-pulse"></div>
-                <span className="text-sm font-semibold">Same-day delivery available</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-center mb-12">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <Badge className="bg-green-500 text-white px-4 py-2 text-sm font-semibold flex items-center gap-2">
-                <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                LIVE ONLINE STATUS
-              </Badge>
-              <Badge className="bg-orange-500 text-white px-4 py-2 text-sm font-semibold">NEW ECOSYSTEM</Badge>
-            </div>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">Complete Senior Services Directory</h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300">Beyond communities - everything seniors need for independent living</p>
-            <p className="text-sm text-green-600 dark:text-green-400 mt-2 font-medium">Services are live and available now - no longer coming soon!</p>
-          </div>
-
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
             <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
               <CardContent className="p-4 text-center relative">
