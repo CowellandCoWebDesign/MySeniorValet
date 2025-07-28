@@ -94,6 +94,38 @@ export default function VendorProfile({}: VendorProfileProps) {
         </div>
       </div>
 
+      {/* Immediate Call to Action Banner */}
+      <div className="bg-gradient-to-r from-pink-500 to-rose-500 py-6">
+        <div className="max-w-6xl mx-auto px-4 text-center">
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center">
+                <span className="text-2xl">🛒</span>
+              </div>
+              <div className="text-left">
+                <h3 className="text-2xl font-bold text-white">Ready to Order?</h3>
+                <p className="text-pink-100">Click below to browse and order from 1-800-FLORALS professional catalog</p>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button 
+                className="bg-white text-pink-600 hover:bg-gray-100 font-bold px-8 py-3 text-lg shadow-lg"
+                onClick={() => window.open('https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals', '_blank')}
+              >
+                🌹 Shop 1-800-FLORALS Now →
+              </Button>
+              <Button 
+                variant="outline" 
+                className="bg-transparent border-white text-white hover:bg-white hover:text-pink-600 px-6 py-3"
+                onClick={() => window.open('tel:1-800-356-7257')}
+              >
+                📞 Call: 1-800-FLORALS
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Hero Section */}
       <div className="relative h-64 bg-gradient-to-r from-pink-100 to-rose-100 dark:from-pink-900/20 dark:to-rose-900/20">
         <div className="absolute inset-0 bg-black/20"></div>
@@ -321,6 +353,87 @@ export default function VendorProfile({}: VendorProfileProps) {
           </div>
         </div>
       </div>
+
+      {/* Authentic 1-800-FLORALS Bottom Menu */}
+      <footer className="bg-gray-900 text-white py-12 mt-16">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-8">
+            <h3 className="text-2xl font-bold text-white mb-2">1-800-FLORALS Complete Menu</h3>
+            <p className="text-gray-300">Browse our full selection of professional floral services</p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {/* Flowers & Occasions */}
+            <div>
+              <h4 className="font-bold text-pink-400 mb-3">Flowers & Occasions</h4>
+              <ul className="space-y-2 text-sm">
+                <li><a href="https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals" target="_blank" className="text-gray-300 hover:text-white transition-colors">Birthday Flowers</a></li>
+                <li><a href="https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals" target="_blank" className="text-gray-300 hover:text-white transition-colors">Anniversary Bouquets</a></li>
+                <li><a href="https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals" target="_blank" className="text-gray-300 hover:text-white transition-colors">Get Well Flowers</a></li>
+                <li><a href="https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals" target="_blank" className="text-gray-300 hover:text-white transition-colors">Sympathy Flowers</a></li>
+                <li><a href="https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals" target="_blank" className="text-gray-300 hover:text-white transition-colors">Thank You Gifts</a></li>
+              </ul>
+            </div>
+
+            {/* Roses & Arrangements */}
+            <div>
+              <h4 className="font-bold text-pink-400 mb-3">Roses & Arrangements</h4>
+              <ul className="space-y-2 text-sm">
+                <li><a href="https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals" target="_blank" className="text-gray-300 hover:text-white transition-colors">Send Roses Online</a></li>
+                <li><a href="https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals" target="_blank" className="text-gray-300 hover:text-white transition-colors">Fresh Flower Arrangements</a></li>
+                <li><a href="https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals" target="_blank" className="text-gray-300 hover:text-white transition-colors">FTD Flowers</a></li>
+                <li><a href="https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals" target="_blank" className="text-gray-300 hover:text-white transition-colors">Teleflora Bouquets</a></li>
+                <li><a href="https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals" target="_blank" className="text-gray-300 hover:text-white transition-colors">Best Sellers</a></li>
+              </ul>
+            </div>
+
+            {/* Plants & Gifts */}
+            <div>
+              <h4 className="font-bold text-pink-400 mb-3">Plants & Gifts</h4>
+              <ul className="space-y-2 text-sm">
+                <li><a href="https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals" target="_blank" className="text-gray-300 hover:text-white transition-colors">Plant Gifts</a></li>
+                <li><a href="https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals" target="_blank" className="text-gray-300 hover:text-white transition-colors">New Baby Gifts</a></li>
+                <li><a href="https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals" target="_blank" className="text-gray-300 hover:text-white transition-colors">Graduation Flowers</a></li>
+                <li><a href="https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals" target="_blank" className="text-gray-300 hover:text-white transition-colors">Monthly Flowers</a></li>
+                <li><a href="https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals" target="_blank" className="text-gray-300 hover:text-white transition-colors">Thinking of You</a></li>
+              </ul>
+            </div>
+
+            {/* Services & Info */}
+            <div>
+              <h4 className="font-bold text-pink-400 mb-3">Services & Info</h4>
+              <ul className="space-y-2 text-sm">
+                <li><a href="https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals" target="_blank" className="text-gray-300 hover:text-white transition-colors">Custom Orders</a></li>
+                <li><a href="https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals" target="_blank" className="text-gray-300 hover:text-white transition-colors">Flower Meanings</a></li>
+                <li><a href="https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals" target="_blank" className="text-gray-300 hover:text-white transition-colors">Delivery Information</a></li>
+                <li><a href="https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals" target="_blank" className="text-gray-300 hover:text-white transition-colors">Free Reminders</a></li>
+                <li><a href="https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals" target="_blank" className="text-gray-300 hover:text-white transition-colors">Virtual Flowers</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-700 mt-8 pt-8 text-center">
+            <div className="flex flex-col md:flex-row justify-center items-center gap-4 mb-4">
+              <Button 
+                className="bg-pink-500 hover:bg-pink-600 text-white px-8 py-3"
+                onClick={() => window.open('https://www.dpbolvw.net/8j98kjspjr6878BGG7G96CCGF898?sid=movein_support_florals', '_blank')}
+              >
+                🌹 Order Now from 1-800-FLORALS
+              </Button>
+              <Button 
+                variant="outline" 
+                className="border-gray-600 text-gray-300 hover:bg-gray-800 px-6 py-3"
+                onClick={() => window.open('tel:1-800-356-7257')}
+              >
+                📞 Call 1-800-FLORALS
+              </Button>
+            </div>
+            <p className="text-gray-400 text-sm">
+              Professional florist delivery • Same-day available • 95+ years experience • Nationwide coverage
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
