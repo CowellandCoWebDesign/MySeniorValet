@@ -132,8 +132,8 @@ export default function MySeniorValetHome() {
       <section className="relative min-h-screen bg-gradient-to-br from-slate-50 to-amber-50 dark:from-gray-900 dark:to-gray-800">
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-            alt="Tropical beach with palm trees and crystal clear water - Premium senior living paradise"
+            src={heroImages?.url || "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"}
+            alt={heroImages?.alt || "Tropical beach with palm trees and crystal clear water - Premium senior living paradise"}
             className="w-full h-full object-cover"
             onError={(e) => {
               console.log('Primary hero image failed, trying backup beach image');

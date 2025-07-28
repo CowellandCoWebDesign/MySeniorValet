@@ -10,9 +10,9 @@ export function registerStatsRoutes(app: Express) {
   app.get('/api/images/hero', async (req, res) => {
     try {
       res.json({
-        url: '/hero-senior-living.jpg',
-        alt: 'Premium senior living community pool',
-        credit: 'MySeniorValet'
+        url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+        alt: 'Tropical beach with palm trees and crystal clear water - Premium senior living paradise',
+        credit: 'Unsplash - T0_fgL92Oko'
       });
     } catch (error) {
       console.error('Error fetching hero images:', error);
