@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, Sparkles as CleaningIcon } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { PricingBreakdown } from "@/components/pricing-breakdown";
@@ -1008,11 +1008,124 @@ export default function MySeniorValetHome() {
             </div>
           </div>
           
+          {/* Service Categories Grid */}
+          <div className="grid grid-cols-3 md:grid-cols-5 gap-4 mb-8">
+            {/* Live Provider: Two Men and a Truck */}
+            <Link href="/moving" className="transform hover:scale-105 transition-transform duration-200">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-green-200 bg-green-50 dark:bg-green-900/20">
+                <CardContent className="p-4 text-center relative">
+                  <Truck className="w-10 h-10 text-green-600 mx-auto mb-2" />
+                  <h4 className="font-semibold text-sm">Moving Services</h4>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">TWO MEN AND A TRUCK</p>
+                  <Badge className="bg-green-500 text-white text-xs px-2 py-0.5 mt-1 animate-pulse">🟢 LIVE</Badge>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Live Provider: GoGoGrandparent */}
+            <Link href="/transportation" className="transform hover:scale-105 transition-transform duration-200">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-blue-200 bg-blue-50 dark:bg-blue-900/20">
+                <CardContent className="p-4 text-center relative">
+                  <Car className="w-10 h-10 text-blue-600 mx-auto mb-2" />
+                  <h4 className="font-semibold text-sm">Transportation</h4>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">GoGoGrandparent</p>
+                  <Badge className="bg-blue-500 text-white text-xs px-2 py-0.5 mt-1 animate-pulse">🟢 LIVE</Badge>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Amazon Move-In Essentials */}
+            <Link href="/move-in-essentials" className="transform hover:scale-105 transition-transform duration-200">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-orange-200 bg-orange-50 dark:bg-orange-900/20">
+                <CardContent className="p-4 text-center relative">
+                  <Package className="w-10 h-10 text-orange-600 mx-auto mb-2" />
+                  <h4 className="font-semibold text-sm">Move-In Essentials</h4>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Amazon Products</p>
+                  <Badge className="bg-orange-500 text-white text-xs px-2 py-0.5 mt-1 animate-pulse">🟢 LIVE</Badge>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
+                <Heart className="w-10 h-10 text-red-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Healthcare</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Home health services</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
+                <Utensils className="w-10 h-10 text-green-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Meal Delivery</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Senior meal services</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
+                <Home className="w-10 h-10 text-blue-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Home Services</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Maintenance & repairs</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
+                <CleaningIcon className="w-10 h-10 text-purple-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Cleaning</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">House cleaning services</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
+                <Scale className="w-10 h-10 text-indigo-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Legal Services</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Elder law attorneys</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
+                <Users2 className="w-10 h-10 text-cyan-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Companion Care</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Social companionship</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center mt-8">
+            <div className="mb-4">
+              <div className="inline-flex items-center gap-3 bg-white dark:bg-gray-700 rounded-xl p-4 shadow-lg">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm font-semibold text-green-600 dark:text-green-400">3 Live Partners</span>
+                </div>
+                <div className="w-px h-6 bg-gray-300 dark:bg-gray-600"></div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">7 More Service Categories</span>
+                </div>
+              </div>
+            </div>
+            <Link href="/senior-services">
+              <Button className="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                Explore Complete Services Directory →
+              </Button>
+            </Link>
+          </div>
 
         </div>
       </section>
 
-      {/* HUD Communities Showcase - Position 3 */}
+      {/* HUD Communities Showcase - Position 4 */}
       <section className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
         {/* Background Government Building Image */}
         <div className="absolute inset-0 z-0">
