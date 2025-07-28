@@ -151,11 +151,11 @@ export default function MySeniorValetHome() {
           {/* Centered Headlines - Much Larger */}
           <div className="text-center mb-4 md:mb-6 max-w-6xl">
             <div className="space-y-4 mb-4">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white dark:text-gray-100 leading-tight drop-shadow-2xl animate-fade-in-up tracking-tight">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white dark:text-gray-100 leading-tight drop-shadow-2xl animate-fade-in-up tracking-tight">
                 <span className="block mb-2">Everything Senior Living Needs</span>
                 <span className="block text-gradient bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-300 bg-clip-text text-transparent drop-shadow-none">in one place</span>
               </h1>
-              <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl text-white dark:text-gray-200 opacity-95 drop-shadow-lg px-4 animate-fade-in-up animation-delay-300 max-w-4xl mx-auto font-medium leading-relaxed">
+              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl text-white dark:text-gray-200 opacity-95 drop-shadow-lg px-4 animate-fade-in-up animation-delay-300 max-w-5xl mx-auto font-medium leading-relaxed">
                 From live pricing and unit availability to move coordination, furniture setup, and prescription delivery, MySeniorValet is your white-glove partner.
               </h2>
             </div>
