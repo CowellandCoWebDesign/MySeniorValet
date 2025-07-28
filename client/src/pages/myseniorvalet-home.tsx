@@ -367,7 +367,7 @@ export default function MySeniorValetHome() {
                 <div className="text-center mb-6">
                   <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-teal-500 to-cyan-600 rounded-full text-white text-sm font-semibold mb-4 shadow-lg">
                     <span className="mr-2">🚀</span>
-                    Coming This Week
+                    Now Available!
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">Services & Vendors</h3>
             <p className="text-gray-600 dark:text-gray-300 text-lg">
@@ -588,7 +588,7 @@ export default function MySeniorValetHome() {
                 <div className="text-center mb-6">
                   <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-red-600 rounded-full text-white text-sm font-semibold mb-4 shadow-lg">
                     <span className="mr-2">🚀</span>
-                    Coming This Week
+                    Now Available!
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">Care Marketplace</h3>
                   <p className="text-gray-600 dark:text-gray-300 text-lg max-w-3xl mx-auto">
@@ -666,7 +666,7 @@ export default function MySeniorValetHome() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-lg font-bold text-gray-900 dark:text-gray-100">Coming This Week</div>
+                  <div className="text-lg font-bold text-gray-900 dark:text-gray-100">Now Available!</div>
                   <div className="text-sm text-orange-600 dark:text-orange-300 font-medium">Healthcare marketplace</div>
                 </div>
               </div>
