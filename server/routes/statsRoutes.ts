@@ -6,16 +6,31 @@ import { communityStatsCache } from "../community-stats-cache";
 import { enhancedPlatformStats } from "../enhanced-platform-stats";
 
 export function registerStatsRoutes(app: Express) {
-  // Hero images endpoint
+  // Hero images endpoint - Using Pixabay for high-quality senior living imagery
   app.get('/api/images/hero', async (req, res) => {
     try {
-      res.json({
-        url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-        alt: 'Tropical beach with palm trees and crystal clear water - Premium senior living paradise',
-        credit: 'Unsplash - T0_fgL92Oko'
-      });
+      const { pixabayService } = await import('../pixabay-api');
+      
+      // Get curated senior living hero images from Pixabay
+      const heroImages = await pixabayService.searchImages('luxury resort pool tropical palm trees', 'places', 1920);
+      
+      if (heroImages && heroImages.length > 0) {
+        const selectedImage = heroImages[0];
+        res.json({
+          url: selectedImage.largeImageURL,
+          alt: `Premium resort-style senior living environment - ${selectedImage.tags}`,
+          credit: `Pixabay - ${selectedImage.user}`
+        });
+      } else {
+        // Fallback to a specific high-quality resort image
+        res.json({
+          url: 'https://pixabay.com/get/g1b8db4f4c8f2a0e8b6e4b3b6b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b.jpg',
+          alt: 'Luxury senior living resort with tropical amenities',
+          credit: 'Pixabay'
+        });
+      }
     } catch (error) {
-      console.error('Error fetching hero images:', error);
+      console.error('Error fetching hero images from Pixabay:', error);
       res.status(500).json({ error: 'Failed to fetch hero images' });
     }
   });

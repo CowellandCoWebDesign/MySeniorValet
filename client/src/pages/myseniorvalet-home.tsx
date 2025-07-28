@@ -132,12 +132,13 @@ export default function MySeniorValetHome() {
       <section className="relative min-h-screen bg-gradient-to-br from-slate-50 to-amber-50 dark:from-gray-900 dark:to-gray-800">
         <div className="absolute inset-0">
           <img
-            src={heroImages?.url || "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"}
+            src={heroImages?.url || "https://cdn.pixabay.com/photo/2017/12/15/13/51/polynesia-3021072_1280.jpg"}
             alt={heroImages?.alt || "Tropical beach with palm trees and crystal clear water - Premium senior living paradise"}
             className="w-full h-full object-cover"
             onError={(e) => {
-              console.log('Primary hero image failed, trying backup beach image');
-              (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80";
+              console.log('Primary hero image failed, trying backup from Pixabay');
+              // Fallback to a high-quality resort/tropical image from Pixabay
+              (e.target as HTMLImageElement).src = "https://cdn.pixabay.com/photo/2017/12/15/13/51/polynesia-3021072_1280.jpg";
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/60 dark:from-black/60 dark:via-black/70 dark:to-black/80"></div>
