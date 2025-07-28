@@ -5,74 +5,23 @@ import { createServer, type Server } from "http";
 interface AuthenticatedRequest extends Request {
   user?: { id: number; email: string };
 }
-import { storage } from "./storage";
-import { 
-  searchCommunitySchema, 
-  insertCommunitySchema, 
-  insertReviewSchema, 
-  loginSchema, 
-  signupSchema,
-  createTourSchema,
-  communities,
-  userFavorites,
-  userSavedSearches,
-  communityClaims,
-  claimedCommunities,
-  users,
-  pendingCommunities,
-  vendors,
-  vendorServices,
-  communityDashboardStats,
-  communityMessages,
-  securityAuditLogs,
-  auditLogs,
-  userActivity
-} from "@shared/schema";
-import { db } from "./db";
-import { eq, and, or, desc, inArray, sql, between, gte, lte, isNotNull } from "drizzle-orm";
-import { careTypeClassifier } from './care-type-classifier';
-import { dataQualityEnhancement } from './data-quality-enhancement';
-import { enhancedSearchService } from "./enhanced-search-service";
-import { zipCodeService } from "./zip-code-mapping";
-import { googlePlacesReviews } from './google-places-reviews';
-// REMOVED: Unsplash integration - violates "no synthetic data" policy
-import { dataProtectionService } from './data-protection';
-import { supportResourceService } from './support-resources';
-import { pixabayService } from './pixabay-api';
-import { superclusterService } from './services/supercluster';
-import { z } from "zod";
-import { securityMonitoringMiddleware, securityMonitor } from "./security-monitor";
-import { eliminateCallForPricing } from "./intelligent-pricing-system";
-import { geocodeLocation, geocodeLocationInternational, getZoomLevel } from './geocoding-data';
-import { 
-  getSecurityDashboard, 
-  getUserTrace, 
-  blockIP, 
-  unblockIP, 
-  getSecurityEvents, 
-  generateSecurityReport 
-} from "./security-admin-endpoints";
-import { stripePaymentService } from "./stripe-payments";
-import Stripe from "stripe";
-import { setupAuth, isAuthenticated } from "./replitAuth";
 
-// Scalable infrastructure imports
-import { searchCache, communityCache, apiCache } from "./infrastructure/cache";
-import { infrastructureRoutes } from "./infrastructure/api-routes";
+// Import route registrations
+import { registerRoutes as registerModularRoutes } from "./routes/index";
+
+// Import remaining services needed for middleware and specific routes
+import { setupAuth } from "./replitAuth";
+import { securityMonitoringMiddleware } from "./security-monitor";
 import { 
   generalLimiter, 
   searchLimiter, 
   apiLimiter, 
   imageLimiter,
   authLimiter,
-  createRateLimitMiddleware 
+  createRateLimitMiddleware
 } from "./infrastructure/rateLimiter";
 import { monitor } from "./infrastructure/monitoring";
-import { loadTester } from "./infrastructure/loadTest";
-import { aiRecommendationEngine, RecommendationRequest } from "./ai-recommendations";
-import { ComprehensiveScraper } from "./scraper";
 import { quizRouter } from "./routes/quiz";
-// import aiAssistantRoutes from "./routes/ai-assistant"; // Commented out - causing server error
 import reservationRoutes from "./routes/reservations";
 import { licensingScraper } from "./licensing-scraper";
 import { googleReviewsAI } from "./google-reviews-ai";
@@ -89,7 +38,7 @@ import { comprehensivePhotoEnrichment } from "./comprehensive-photo-enrichment";
 import { AnthropicAIService, GeminiAIService, AIOrchestrator } from "./ai-services";
 import { apiCostProtection } from "./api-cost-protection";
 import { aiSearchService } from "./ai-search-service";
-import { setupAuth, isAuthenticated, isAdmin, checkRole } from "./replitAuth";
+import { isAuthenticated, isAdmin, checkRole } from "./replitAuth";
 import { communityStatsCache } from "./community-stats-cache";
 import { systematicPhotoEnrichment } from "./systematic-photo-enrichment";
 import { emergencyEnrichment } from "./emergency-enrichment";
@@ -134,8 +83,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.error('Failed to initialize community stats cache:', error);
   });
 
-  // REMOVED: /api/config endpoint - Mapbox token now handled client-side
-  
+  // Register all modular routes
+  registerModularRoutes(app);
+
   // Create a separate router for admin routes without heavy middleware interference
   const adminRouter = express.Router();
   
@@ -4148,14 +4098,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Security monitoring middleware - add to all routes
   app.use(securityMonitoringMiddleware);
-
-  // Security Admin Endpoints
-  app.get('/api/admin/security/dashboard', isAdmin, getSecurityDashboard);
-  app.get('/api/admin/security/user-trace', isAdmin, getUserTrace);
-  app.post('/api/admin/security/block-ip', isAdmin, blockIP);
-  app.post('/api/admin/security/unblock-ip', isAdmin, unblockIP);
-  app.get('/api/admin/security/events', isAdmin, getSecurityEvents);
-  app.get('/api/admin/security/report', isAdmin, generateSecurityReport);
   
   // Console data tracing endpoint for security analysis
   app.get('/api/admin/security/console-trace', isAdmin, async (req, res) => {
@@ -11150,7 +11092,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // await supportResourceService.seedInitialContent();
 
   // Register infrastructure routes
-  app.use('/api/infrastructure', infrastructureRoutes);
+  // Infrastructure routes are now handled by modular routes
 
   // Register reservation routes
   app.use('/api/reservations', reservationRoutes);
