@@ -58,6 +58,7 @@ import SeniorServices from "@/pages/senior-services";
 import FloralServices from "@/pages/FloralServices";
 import MovingServices from "@/pages/MovingServices";
 import TransportationServices from "@/pages/TransportationServices";
+import MoveInServices from "@/pages/MoveInServices";
 import AmazonServices from "@/pages/AmazonServices";
 import VendorProfile from "@/pages/VendorProfile";
 import CommunityPaymentProgram from "@/pages/community-payment-program";
@@ -139,6 +140,7 @@ function Router() {
       <Route path="/florals" component={FloralServices} />
       <Route path="/moving" component={MovingServices} />
       <Route path="/transportation" component={TransportationServices} />
+      <Route path="/move-in-essentials" component={MoveInServices} />
       <Route path="/amazon-supplies" component={AmazonServices} />
       <Route path="/vendor/:vendorId" component={VendorProfile} />
       <Route path="/community-payment-program" component={CommunityPaymentProgram} />

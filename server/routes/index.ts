@@ -24,6 +24,7 @@ import { registerSecurityRoutes } from "./securityRoutes";
 import { registerInfrastructureRoutes } from "./infrastructureRoutes";
 import { registerEmailRoutes } from "./emailRoutes";
 import { registerFloralRoutes } from "./floralRoutes";
+import { registerMoveInServicesRoutes } from "./moveInServicesRoutes";
 import movingRoutes from "./movingRoutes";
 import transportationRoutes from "./transportationRoutes";
 
@@ -67,6 +68,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerInfrastructureRoutes(app);
   registerEmailRoutes(app);
   registerFloralRoutes(app);
+  registerMoveInServicesRoutes(app);
   
   // Register moving services routes
   movingRoutes(app);
