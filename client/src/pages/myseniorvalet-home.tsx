@@ -97,6 +97,13 @@ export default function MySeniorValetHome() {
     staleTime: 0, // No cache - always fresh data
   });
 
+  // Care services analytics for accurate totals
+  const { data: careServicesAnalytics } = useQuery({
+    queryKey: ["/api/care-services/analytics"],
+    retry: false,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+
   const featuredCommunities = (trendingCommunities as any[])?.slice(0, 8) || [];
   
   // Combine coastal and featured communities for the top section
@@ -1278,7 +1285,8 @@ export default function MySeniorValetHome() {
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-2 mb-4">
                     <Shield className="w-5 h-5 text-green-600" />
-                    <span className="text-sm font-medium text-green-600">4,210+ Government Verified Providers</span>
+                    <span className="text-2xl font-bold text-green-600">{careServicesAnalytics?.totalServices?.toLocaleString() || '4,210'}</span>
+                    <span className="text-sm font-medium text-green-600">Government Verified Providers</span>
                   </div>
                   <Button className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200">
                     Browse Care Services Below
@@ -1444,25 +1452,28 @@ export default function MySeniorValetHome() {
                   Government-Verified Care Services
                 </h3>
               </div>
+              <div className="text-5xl font-bold text-purple-600 dark:text-purple-400 mb-4">
+                {careServicesAnalytics?.totalServices?.toLocaleString() || '4,210'}
+              </div>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
-                4,210+ verified care providers from authentic government databases
+                Verified care providers from authentic government databases
               </p>
               <div className="flex justify-center gap-6 text-sm text-gray-600 dark:text-gray-400 mb-6">
                 <span className="flex items-center gap-1">
                   <Building2 className="w-4 h-4" />
-                  2 Placement Agencies
+                  {careServicesAnalytics?.placementAgencies || '2'} Placement Agencies
                 </span>
                 <span className="flex items-center gap-1">
                   <Home className="w-4 h-4" />
-                  143 Home Care Services
+                  {careServicesAnalytics?.homeCareServices || '143'} Home Care Services
                 </span>
                 <span className="flex items-center gap-1">
                   <Users className="w-4 h-4" />
-                  1,627 Adult Day Care
+                  {careServicesAnalytics?.adultDayServices || '1,627'} Adult Day Care
                 </span>
                 <span className="flex items-center gap-1">
                   <Activity className="w-4 h-4" />
-                  398 Therapy Services
+                  {careServicesAnalytics?.therapyServices || '398'} Therapy Services
                 </span>
               </div>
             </div>
