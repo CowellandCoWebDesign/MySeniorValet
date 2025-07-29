@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Heart, Gift, Calendar, Star, Truck, Phone, Globe, CheckCircle } from "lucide-react";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 interface FloralProduct {
   id: string;
@@ -95,7 +96,9 @@ export default function FloralServices() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <NavigationHeader title="Floral Services" />
+      <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center gap-2 mb-4">
@@ -352,6 +355,7 @@ export default function FloralServices() {
           </CardContent>
         </Card>
       )}
+      </div>
     </div>
   );
 }

@@ -2,7 +2,8 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Truck, Clock, Shield, Star, Phone, Globe, Users, CheckCircle, Calculator, Calendar } from 'lucide-react';
+import { Truck, Clock, Shield, Star, Phone, Globe, Users, CheckCircle, Calculator, Calendar, Package } from 'lucide-react';
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 const MovingServices = () => {
   const handleContactTwoMen = () => {
@@ -70,6 +71,7 @@ const MovingServices = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <NavigationHeader title="Moving Services" />
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white py-16">
         <div className="max-w-6xl mx-auto px-6">

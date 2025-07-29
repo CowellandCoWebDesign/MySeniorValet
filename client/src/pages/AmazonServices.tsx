@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Package, Star, CheckCircle, Truck, Clock, Shield } from 'lucide-react';
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 const AmazonServices = () => {
   const handleAmazonLink = (url: string) => {
@@ -69,6 +70,8 @@ const AmazonServices = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <NavigationHeader title="Amazon Moving Supplies" />
+      
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-orange-600 via-orange-700 to-orange-800 text-white py-16">
         <div className="max-w-6xl mx-auto px-6">

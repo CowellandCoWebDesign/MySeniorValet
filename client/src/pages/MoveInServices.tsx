@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Package, ShoppingCart, Star, Truck, CheckCircle, Clock, Shield, ExternalLink } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 interface MoveInService {
   id: number;
@@ -60,6 +61,7 @@ export default function MoveInServices() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 p-4">
+        <NavigationHeader title="Move-In Essentials" />
         <div className="max-w-7xl mx-auto">
           <div className="text-center py-20">
             <Package className="w-16 h-16 mx-auto mb-4 text-blue-600" />
@@ -72,6 +74,8 @@ export default function MoveInServices() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+      <NavigationHeader title="Move-In Essentials" />
+      
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-8">

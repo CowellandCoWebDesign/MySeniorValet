@@ -2,6 +2,7 @@ import { useState, lazy, Suspense, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
+import { NavigationHeader } from "@/components/NavigationHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -996,6 +997,8 @@ export default function UnifiedAdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <NavigationHeader title="Admin Center" />
+      
       {/* Tier Access Badge Banner */}
       <div className={`w-full py-2 px-4 text-center ${ROLE_DEFINITIONS[userRole?.role as keyof typeof ROLE_DEFINITIONS]?.color || 'bg-gray-200'}`}>
         <div className="flex items-center justify-center gap-2">
