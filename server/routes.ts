@@ -41,8 +41,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Import and register webhook routes
   const webhookRoutes = await import('./routes/webhookRoutes');
   const webhookDevelopment = await import('./routes/webhookDevelopment');
+  const subscriptionStatusRoutes = await import('./routes/subscriptionStatusRoutes');
   app.use('/api/webhooks', webhookRoutes.default);
   app.use('/api/webhook-dev', webhookDevelopment.default);
+  app.use('/api/subscription-status', subscriptionStatusRoutes.default);
 
   // Debug endpoint to check authentication status
   app.get('/api/auth/debug', (req: any, res) => {
