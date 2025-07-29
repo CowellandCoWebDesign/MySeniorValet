@@ -398,94 +398,27 @@ export default function MySeniorValetHome() {
                   </div>
                 </div>
                 
-                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">33+ products across 6 categories • Individual listings with Prime delivery</p>
-                
-                {/* Category Filter Buttons */}
-                <div className="flex flex-wrap gap-2 mb-6">
-                  <Button 
-                    size="sm" 
-                    variant={selectedAmazonCategory === "all" ? "default" : "outline"}
-                    onClick={() => setSelectedAmazonCategory("all")}
-                    className="text-xs"
-                  >
-                    All Products (33+)
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant={selectedAmazonCategory === "Mobility & Safety" ? "default" : "outline"}
-                    onClick={() => setSelectedAmazonCategory("Mobility & Safety")}
-                    className="text-xs"
-                  >
-                    Mobility & Safety
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant={selectedAmazonCategory === "Daily Living Aids" ? "default" : "outline"}
-                    onClick={() => setSelectedAmazonCategory("Daily Living Aids")}
-                    className="text-xs"
-                  >
-                    Daily Living Aids
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant={selectedAmazonCategory === "Bathroom Safety" ? "default" : "outline"}
-                    onClick={() => setSelectedAmazonCategory("Bathroom Safety")}
-                    className="text-xs"
-                  >
-                    Bathroom Safety
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant={selectedAmazonCategory === "Medication Management" ? "default" : "outline"}
-                    onClick={() => setSelectedAmazonCategory("Medication Management")}
-                    className="text-xs"
-                  >
-                    Medication Management
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant={selectedAmazonCategory === "Home Essentials" ? "default" : "outline"}
-                    onClick={() => setSelectedAmazonCategory("Home Essentials")}
-                    className="text-xs"
-                  >
-                    Home Essentials
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant={selectedAmazonCategory === "Furniture & Storage" ? "default" : "outline"}
-                    onClick={() => setSelectedAmazonCategory("Furniture & Storage")}
-                    className="text-xs"
-                  >
-                    Furniture & Storage
-                  </Button>
-                </div>
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">33+ products across 6 categories • Scroll to explore all essentials with Prime delivery</p>
               
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
                   {/* Amazon Products using California Communities Card Style */}
                   {(() => {
-                    // Filter products based on selected category
+                    // Get all products from database
                     const allProducts = (amazonProductImages as any)?.products || [];
-                    const filteredProducts = selectedAmazonCategory === "all" 
-                      ? allProducts 
-                      : allProducts.filter((product: any) => product.category === selectedAmazonCategory);
                     
-                    if (filteredProducts.length === 0) {
+                    if (allProducts.length === 0) {
                       return (
-                        <div className="col-span-full text-center py-8">
+                        <div className="text-center py-8 px-4">
                           <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                          <p className="text-gray-600 dark:text-gray-400">
-                            {selectedAmazonCategory === "all" 
-                              ? "Loading Amazon products..." 
-                              : "No products in this category"}
-                          </p>
+                          <p className="text-gray-600 dark:text-gray-400">Loading Amazon products...</p>
                         </div>
                       );
                     }
 
-                    return filteredProducts.map((product: any, index: number) => {
+                    return allProducts.map((product: any, index: number) => {
                       return (
                         <a key={product.id || index} href={product.externalUrl} target="_blank" rel="noopener noreferrer">
-                          <Card className="overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer h-full">
+                          <Card className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer">
                             {/* Product Image - Same style as community cards */}
                             <div className="aspect-[4/3] bg-gray-100 relative">
                               {product.imageUrl ? (
