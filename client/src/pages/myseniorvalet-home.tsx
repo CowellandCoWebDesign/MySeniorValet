@@ -387,7 +387,7 @@ export default function MySeniorValetHome() {
                   <h4 className="font-semibold text-sm text-green-700 dark:text-green-300 mb-1">Moving Services</h4>
                   <p className="text-xs text-green-600 dark:text-green-400 leading-tight">TWO MEN AND A TRUCK® - Full-service senior moves, packing, storage</p>
                   <div className="flex gap-1 justify-center mt-2">
-                    <Badge className="bg-green-500 text-white text-xs px-2 py-0.5">DAY 1</Badge>
+                    <Badge className="bg-green-500 text-white text-xs px-2 py-0.5">✓ VERIFIED</Badge>
                     <Badge className="bg-blue-500 text-white text-xs px-2 py-0.5">6 SERVICES</Badge>
                   </div>
                 </CardContent>
@@ -422,7 +422,7 @@ export default function MySeniorValetHome() {
                   <h4 className="font-semibold text-sm text-blue-700 dark:text-blue-300 mb-1">Transportation</h4>
                   <p className="text-xs text-blue-600 dark:text-blue-400 leading-tight">GoGoGrandparent - Rides, meals, groceries, no smartphone needed</p>
                   <div className="flex gap-1 justify-center mt-2">
-                    <Badge className="bg-green-500 text-white text-xs px-2 py-0.5">DAY 1</Badge>
+                    <Badge className="bg-green-500 text-white text-xs px-2 py-0.5">✓ VERIFIED</Badge>
                     <Badge className="bg-blue-500 text-white text-xs px-2 py-0.5">5 SERVICES</Badge>
                   </div>
                 </CardContent>
@@ -439,7 +439,7 @@ export default function MySeniorValetHome() {
                   <h4 className="font-semibold text-sm text-indigo-700 dark:text-indigo-300 mb-1">Family Connect</h4>
                   <p className="text-xs text-indigo-600 dark:text-indigo-400 leading-tight">Secure messaging, shared tasks, care notes, family coordination</p>
                   <div className="flex gap-1 justify-center mt-2">
-                    <Badge className="bg-green-500 text-white text-xs px-2 py-0.5">DAY 1</Badge>
+                    <Badge className="bg-green-500 text-white text-xs px-2 py-0.5">✓ ACTIVE</Badge>
                     <Badge className="bg-indigo-500 text-white text-xs px-2 py-0.5">FREE</Badge>
                   </div>
                 </CardContent>
@@ -458,7 +458,7 @@ export default function MySeniorValetHome() {
                   <h4 className="font-semibold text-sm text-pink-700 dark:text-pink-300 mb-1">Professional Florals</h4>
                   <p className="text-xs text-pink-600 dark:text-pink-400 leading-tight">1-800-FLORALS - Sympathy, birthdays, move-in welcome bouquets</p>
                   <div className="flex gap-1 justify-center mt-2">
-                    <Badge className="bg-green-500 text-white text-xs px-2 py-0.5">DAY 1</Badge>
+                    <Badge className="bg-green-500 text-white text-xs px-2 py-0.5">✓ VERIFIED</Badge>
                     <Badge className="bg-pink-500 text-white text-xs px-2 py-0.5">50+ OPTIONS</Badge>
                   </div>
                 </CardContent>
