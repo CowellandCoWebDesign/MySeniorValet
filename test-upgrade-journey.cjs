@@ -43,7 +43,7 @@ const tierFeatures = {
   },
   platinum: {
     name: 'Platinum Partner',
-    price: '$999/month',
+    price: '$399/month',
     features: ['homepageFeatured', 'aiAccess', 'dedicatedSuccess', 'customReporting']
   }
 };

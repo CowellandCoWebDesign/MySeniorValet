@@ -28,7 +28,7 @@ export interface FeatureAccess {
   familyMessaging: boolean;
   prioritySupport: boolean;
   
-  // Platinum Partner Features ($999/mo)
+  // Platinum Partner Features ($399/mo)
   homepageFeatured: boolean;
   conciergeService: boolean;
   sponsoredContent: boolean;
