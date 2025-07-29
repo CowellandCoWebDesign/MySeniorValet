@@ -35,12 +35,12 @@ export function registerAIRoutes(app: Express) {
       const priceMatch = lowerQuery.match(/(?:under|below|less than)\s*\$?(\d+)/);
       const priceMax = priceMatch ? parseInt(priceMatch[1]) : null;
 
-      // Build database query
-      let dbQuery = db.select().from(communities);
+      // Build database query - using a simpler approach
+      const conditions = [];
       
       // Apply location filter
       if (location) {
-        dbQuery = dbQuery.where(
+        conditions.push(
           or(
             sql`LOWER(${communities.city}) LIKE LOWER(${'%' + location + '%'})`,
             sql`LOWER(${communities.state}) LIKE LOWER(${'%' + location + '%'})`
@@ -50,23 +50,30 @@ export function registerAIRoutes(app: Express) {
 
       // Apply care type filter
       if (careTypes.length > 0) {
-        dbQuery = dbQuery.where(sql`${communities.careTypes} && ARRAY[${careTypes}]::text[]`);
+        // For PostgreSQL array overlap operator
+        conditions.push(sql`${communities.careTypes} && ${careTypes}`);
       }
 
-      // Apply price filter
-      if (priceMax) {
-        dbQuery = dbQuery.where(
-          or(
-            sql`${communities.priceRange} IS NULL`,
-            sql`CAST(SUBSTRING(${communities.priceRange} FROM '\\$([0-9,]+)') AS INTEGER) <= ${priceMax}`
-          )
-        );
+      // Build query with conditions
+      let dbQuery = db.select().from(communities);
+      if (conditions.length > 0) {
+        dbQuery = dbQuery.where(and(...conditions));
       }
 
       const results = await dbQuery.limit(20);
 
+      // Filter by price in JavaScript if needed (to avoid SQL issues)
+      let filteredResults = results;
+      if (priceMax) {
+        filteredResults = results.filter(community => {
+          if (!community.priceRange) return true; // Include if no price data
+          const minPrice = community.priceRange.min || 0;
+          return minPrice <= priceMax;
+        });
+      }
+
       res.json({
-        communities: results,
+        communities: filteredResults,
         searchInterpretation: query,
         appliedFilters: {
           location,
@@ -74,8 +81,8 @@ export function registerAIRoutes(app: Express) {
           priceMax
         },
         aiInsights: {
-          topRecommendations: results.slice(0, 3),
-          priceAnalysis: `${results.length} communities found matching your criteria`,
+          topRecommendations: filteredResults.slice(0, 3),
+          priceAnalysis: `${filteredResults.length} communities found matching your criteria`,
           locationInsights: location ? `Showing communities in ${location} area` : 'Showing communities from all locations',
           careTypeMatch: careTypes.length > 0 ? `Filtered by: ${careTypes.join(', ')}` : 'All care types included'
         }
