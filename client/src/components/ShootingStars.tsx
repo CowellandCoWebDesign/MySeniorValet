@@ -1,15 +1,15 @@
 import React from 'react';
 
 export const ShootingStars: React.FC = () => {
-  // Create stars with different trajectories
-  const starTypes = ['steep', 'moderate', 'gentle'];
+  // Create stars with natural diagonal trajectories
+  const starTypes = ['diagonal-fast', 'diagonal-medium', 'diagonal-slow'];
   
-  const stars = Array.from({ length: 6 }, (_, i) => ({
+  const stars = Array.from({ length: 8 }, (_, i) => ({
     id: i,
     type: starTypes[i % starTypes.length],
-    top: Math.random() * 20, // Start from top area
-    left: 50 + Math.random() * 40, // Start more from right side
-    delay: i * 2 + Math.random() * 3, // Well spaced out
+    top: Math.random() * 40 - 10, // Start from -10% to 30% (some off-screen)
+    left: Math.random() * 120 - 20, // Start from -20% to 100% (wider spread)
+    delay: i * 3 + Math.random() * 2, // More spacing between stars
   }));
 
   return (
