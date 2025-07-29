@@ -42,8 +42,8 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
       if (searchParams.careType !== 'All Types') params.set('careType', searchParams.careType);
       if (searchParams.budget !== 'Any Budget') params.set('budget', searchParams.budget);
 
-      const url = `/map-search?${params.toString()}`;
-      console.log('Navigating to:', url);
+      const url = `/ai-search?${params.toString()}`;
+      console.log('Navigating to AI Search:', url);
       setLocation(url);
     }
   };
