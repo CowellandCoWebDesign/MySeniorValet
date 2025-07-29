@@ -10,6 +10,7 @@ import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { PricingBreakdown } from "@/components/pricing-breakdown";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { CareServiceCard } from "@/components/CareServiceCard";
 
 
 
@@ -1268,61 +1269,21 @@ export default function MySeniorValetHome() {
                           ].slice(0, 4);
                           
                           return (
-                            <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-64 h-[32rem] border-2 border-green-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-gray-600 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800 hover:-translate-y-1" style={{animationDelay: `${index * 0.05}s`}}>
-                              <CardContent className="p-6 flex flex-col h-full">
-                                <div className="flex items-start gap-4 mb-4">
-                                  <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg ring-4 ring-green-100 dark:ring-green-900">
-                                    <Home className="w-8 h-8 text-white" />
-                                  </div>
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1">
-                                      <Badge variant="outline" className="text-xs px-2 py-0.5 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 border-green-300 dark:border-green-600">
-                                        Home Care
-                                      </Badge>
-                                      {service.rating && (
-                                        <div className="flex items-center gap-1">
-                                          <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{service.rating}</span>
-                                        </div>
-                                      )}
-                                    </div>
-                                    <h3 className="font-bold text-gray-900 dark:text-gray-100 text-base mb-1 line-clamp-2">{service.name}</h3>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-1">
-                                      {service.address}, {service.city}, {service.state} {service.zipCode}
-                                    </p>
-                                  </div>
-                                </div>
-                                
-                                <div className="flex flex-wrap gap-1.5 mb-3">
-                                  {badges.map((badge, idx) => (
-                                    <Badge key={idx} variant={badge.type === 'verified' ? 'default' : 'secondary'} className="text-[10px] px-2 py-0.5">
-                                      {badge.label}
-                                    </Badge>
-                                  ))}
-                                </div>
-                                
-                                {service.phone && (
-                                  <div className="flex items-center gap-2 mb-3">
-                                    <Phone className="w-4 h-4 text-gray-500" />
-                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{service.phone}</span>
-                                  </div>
-                                )}
-                                
-                                <div className="mt-auto space-y-2">
-                                  <Button className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 text-sm font-semibold shadow-lg transform transition-all hover:scale-[1.02]">
-                                    Contact Provider
-                                  </Button>
-                                  {service.website && (
-                                    <a href={service.website} target="_blank" rel="noopener noreferrer" className="block">
-                                      <Button variant="outline" className="w-full text-sm">
-                                        <Globe className="w-3 h-3 mr-2" />
-                                        Visit Website
-                                      </Button>
-                                    </a>
-                                  )}
-                                </div>
-                              </CardContent>
-                            </Card>
+                            <CareServiceCard
+                              key={service.id || index}
+                              service={service}
+                              index={index}
+                              borderColor="border-green-200 dark:border-gray-700"
+                              hoverBorderColor="hover:border-green-300 dark:hover:border-gray-600"
+                              iconBgColor="bg-gradient-to-br from-green-500 to-green-600"
+                              iconRingColor="ring-green-100 dark:ring-green-900"
+                              icon={<Home className="w-8 h-8 text-white" />}
+                              categoryBadgeColor="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900 dark:to-green-800"
+                              categoryBadgeBorder="border-green-300 dark:border-green-600"
+                              categoryLabel="Home Care"
+                              buttonColor="bg-gradient-to-r from-green-500 to-green-600"
+                              buttonHoverColor="hover:from-green-600 hover:to-green-700"
+                            />
                           );
                         })}
                       </div>
@@ -1371,61 +1332,21 @@ export default function MySeniorValetHome() {
                           ].slice(0, 4);
                           
                           return (
-                            <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-64 h-[32rem] border-2 border-purple-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-gray-600 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800 hover:-translate-y-1" style={{animationDelay: `${index * 0.05}s`}}>
-                              <CardContent className="p-6 flex flex-col h-full">
-                                <div className="flex items-start gap-4 mb-4">
-                                  <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg ring-4 ring-purple-100 dark:ring-purple-900">
-                                    <Activity className="w-8 h-8 text-white" />
-                                  </div>
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1">
-                                      <Badge variant="outline" className="text-xs px-2 py-0.5 bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800 border-purple-300 dark:border-purple-600">
-                                        Therapy Services
-                                      </Badge>
-                                      {service.rating && (
-                                        <div className="flex items-center gap-1">
-                                          <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{service.rating}</span>
-                                        </div>
-                                      )}
-                                    </div>
-                                    <h3 className="font-bold text-gray-900 dark:text-gray-100 text-base mb-1 line-clamp-2">{service.name}</h3>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-1">
-                                      {service.address}, {service.city}, {service.state} {service.zipCode}
-                                    </p>
-                                  </div>
-                                </div>
-                                
-                                <div className="flex flex-wrap gap-1.5 mb-3">
-                                  {badges.map((badge, idx) => (
-                                    <Badge key={idx} variant={badge.type === 'verified' ? 'default' : 'secondary'} className="text-[10px] px-2 py-0.5">
-                                      {badge.label}
-                                    </Badge>
-                                  ))}
-                                </div>
-                                
-                                {service.phone && (
-                                  <div className="flex items-center gap-2 mb-3">
-                                    <Phone className="w-4 h-4 text-gray-500" />
-                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{service.phone}</span>
-                                  </div>
-                                )}
-                                
-                                <div className="mt-auto space-y-2">
-                                  <Button className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-3 text-sm font-semibold shadow-lg transform transition-all hover:scale-[1.02]">
-                                    Contact Provider
-                                  </Button>
-                                  {service.website && (
-                                    <a href={service.website} target="_blank" rel="noopener noreferrer" className="block">
-                                      <Button variant="outline" className="w-full text-sm">
-                                        <Globe className="w-3 h-3 mr-2" />
-                                        Visit Website
-                                      </Button>
-                                    </a>
-                                  )}
-                                </div>
-                              </CardContent>
-                            </Card>
+                            <CareServiceCard
+                              key={service.id || index}
+                              service={service}
+                              index={index}
+                              borderColor="border-purple-200 dark:border-gray-700"
+                              hoverBorderColor="hover:border-purple-300 dark:hover:border-gray-600"
+                              iconBgColor="bg-gradient-to-br from-purple-500 to-purple-600"
+                              iconRingColor="ring-purple-100 dark:ring-purple-900"
+                              icon={<Activity className="w-8 h-8 text-white" />}
+                              categoryBadgeColor="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800"
+                              categoryBadgeBorder="border-purple-300 dark:border-purple-600"
+                              categoryLabel="Therapy Services"
+                              buttonColor="bg-gradient-to-r from-purple-500 to-purple-600"
+                              buttonHoverColor="hover:from-purple-600 hover:to-purple-700"
+                            />
                           );
                         })}
                       </div>
@@ -1474,61 +1395,21 @@ export default function MySeniorValetHome() {
                           ].slice(0, 4);
                           
                           return (
-                            <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-64 h-[32rem] border-2 border-teal-200 dark:border-gray-700 hover:border-teal-300 dark:hover:border-gray-600 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800 hover:-translate-y-1" style={{animationDelay: `${index * 0.05}s`}}>
-                              <CardContent className="p-6 flex flex-col h-full">
-                                <div className="flex items-start gap-4 mb-4">
-                                  <div className="w-14 h-14 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg ring-4 ring-teal-100 dark:ring-teal-900">
-                                    <Users className="w-8 h-8 text-white" />
-                                  </div>
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1">
-                                      <Badge variant="outline" className="text-xs px-2 py-0.5 bg-gradient-to-r from-teal-50 to-teal-100 dark:from-teal-900 dark:to-teal-800 border-teal-300 dark:border-teal-600">
-                                        Adult Day Care
-                                      </Badge>
-                                      {service.rating && (
-                                        <div className="flex items-center gap-1">
-                                          <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{service.rating}</span>
-                                        </div>
-                                      )}
-                                    </div>
-                                    <h3 className="font-bold text-gray-900 dark:text-gray-100 text-base mb-1 line-clamp-2">{service.name}</h3>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-1">
-                                      {service.address}, {service.city}, {service.state} {service.zipCode}
-                                    </p>
-                                  </div>
-                                </div>
-                                
-                                <div className="flex flex-wrap gap-1.5 mb-3">
-                                  {badges.map((badge, idx) => (
-                                    <Badge key={idx} variant={badge.type === 'verified' ? 'default' : 'secondary'} className="text-[10px] px-2 py-0.5">
-                                      {badge.label}
-                                    </Badge>
-                                  ))}
-                                </div>
-                                
-                                {service.phone && (
-                                  <div className="flex items-center gap-2 mb-3">
-                                    <Phone className="w-4 h-4 text-gray-500" />
-                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{service.phone}</span>
-                                  </div>
-                                )}
-                                
-                                <div className="mt-auto space-y-2">
-                                  <Button className="w-full bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white py-3 text-sm font-semibold shadow-lg transform transition-all hover:scale-[1.02]">
-                                    Contact Center
-                                  </Button>
-                                  {service.website && (
-                                    <a href={service.website} target="_blank" rel="noopener noreferrer" className="block">
-                                      <Button variant="outline" className="w-full text-sm">
-                                        <Globe className="w-3 h-3 mr-2" />
-                                        Visit Website
-                                      </Button>
-                                    </a>
-                                  )}
-                                </div>
-                              </CardContent>
-                            </Card>
+                            <CareServiceCard
+                              key={service.id || index}
+                              service={service}
+                              index={index}
+                              borderColor="border-teal-200 dark:border-gray-700"
+                              hoverBorderColor="hover:border-teal-300 dark:hover:border-gray-600"
+                              iconBgColor="bg-gradient-to-br from-teal-500 to-teal-600"
+                              iconRingColor="ring-teal-100 dark:ring-teal-900"
+                              icon={<Users className="w-8 h-8 text-white" />}
+                              categoryBadgeColor="bg-gradient-to-r from-teal-50 to-teal-100 dark:from-teal-900 dark:to-teal-800"
+                              categoryBadgeBorder="border-teal-300 dark:border-teal-600"
+                              categoryLabel="Adult Day Care"
+                              buttonColor="bg-gradient-to-r from-teal-500 to-teal-600"
+                              buttonHoverColor="hover:from-teal-600 hover:to-teal-700"
+                            />
                           );
                         })}
                       </div>
@@ -1577,61 +1458,21 @@ export default function MySeniorValetHome() {
                           ].slice(0, 4);
                           
                           return (
-                            <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-64 h-[32rem] border-2 border-orange-200 dark:border-gray-700 hover:border-orange-300 dark:hover:border-gray-600 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800 hover:-translate-y-1" style={{animationDelay: `${index * 0.05}s`}}>
-                              <CardContent className="p-6 flex flex-col h-full">
-                                <div className="flex items-start gap-4 mb-4">
-                                  <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg ring-4 ring-orange-100 dark:ring-orange-900">
-                                    <Users2 className="w-8 h-8 text-white" />
-                                  </div>
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1">
-                                      <Badge variant="outline" className="text-xs px-2 py-0.5 bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900 dark:to-orange-800 border-orange-300 dark:border-orange-600">
-                                        Personal Care
-                                      </Badge>
-                                      {service.rating && (
-                                        <div className="flex items-center gap-1">
-                                          <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{service.rating}</span>
-                                        </div>
-                                      )}
-                                    </div>
-                                    <h3 className="font-bold text-gray-900 dark:text-gray-100 text-base mb-1 line-clamp-2">{service.name}</h3>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-1">
-                                      {service.address}, {service.city}, {service.state} {service.zipCode}
-                                    </p>
-                                  </div>
-                                </div>
-                                
-                                <div className="flex flex-wrap gap-1.5 mb-3">
-                                  {badges.map((badge, idx) => (
-                                    <Badge key={idx} variant={badge.type === 'verified' ? 'default' : 'secondary'} className="text-[10px] px-2 py-0.5">
-                                      {badge.label}
-                                    </Badge>
-                                  ))}
-                                </div>
-                                
-                                {service.phone && (
-                                  <div className="flex items-center gap-2 mb-3">
-                                    <Phone className="w-4 h-4 text-gray-500" />
-                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{service.phone}</span>
-                                  </div>
-                                )}
-                                
-                                <div className="mt-auto space-y-2">
-                                  <Button className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-3 text-sm font-semibold shadow-lg transform transition-all hover:scale-[1.02]">
-                                    Contact Provider
-                                  </Button>
-                                  {service.website && (
-                                    <a href={service.website} target="_blank" rel="noopener noreferrer" className="block">
-                                      <Button variant="outline" className="w-full text-sm">
-                                        <Globe className="w-3 h-3 mr-2" />
-                                        Visit Website
-                                      </Button>
-                                    </a>
-                                  )}
-                                </div>
-                              </CardContent>
-                            </Card>
+                            <CareServiceCard
+                              key={service.id || index}
+                              service={service}
+                              index={index}
+                              borderColor="border-orange-200 dark:border-gray-700"
+                              hoverBorderColor="hover:border-orange-300 dark:hover:border-gray-600"
+                              iconBgColor="bg-gradient-to-br from-orange-500 to-orange-600"
+                              iconRingColor="ring-orange-100 dark:ring-orange-900"
+                              icon={<Users2 className="w-8 h-8 text-white" />}
+                              categoryBadgeColor="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900 dark:to-orange-800"
+                              categoryBadgeBorder="border-orange-300 dark:border-orange-600"
+                              categoryLabel="Personal Care"
+                              buttonColor="bg-gradient-to-r from-orange-500 to-orange-600"
+                              buttonHoverColor="hover:from-orange-600 hover:to-orange-700"
+                            />
                           );
                         })}
                       </div>
@@ -1680,61 +1521,21 @@ export default function MySeniorValetHome() {
                           ].slice(0, 4);
                           
                           return (
-                            <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-64 h-[32rem] border-2 border-indigo-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-gray-600 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800 hover:-translate-y-1" style={{animationDelay: `${index * 0.05}s`}}>
-                              <CardContent className="p-6 flex flex-col h-full">
-                                <div className="flex items-start gap-4 mb-4">
-                                  <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg ring-4 ring-indigo-100 dark:ring-indigo-900">
-                                    <Heart className="w-8 h-8 text-white" />
-                                  </div>
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1">
-                                      <Badge variant="outline" className="text-xs px-2 py-0.5 bg-gradient-to-r from-indigo-50 to-indigo-100 dark:from-indigo-900 dark:to-indigo-800 border-indigo-300 dark:border-indigo-600">
-                                        Hospice Care
-                                      </Badge>
-                                      {service.rating && (
-                                        <div className="flex items-center gap-1">
-                                          <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{service.rating}</span>
-                                        </div>
-                                      )}
-                                    </div>
-                                    <h3 className="font-bold text-gray-900 dark:text-gray-100 text-base mb-1 line-clamp-2">{service.name}</h3>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-1">
-                                      {service.address}, {service.city}, {service.state} {service.zipCode}
-                                    </p>
-                                  </div>
-                                </div>
-                                
-                                <div className="flex flex-wrap gap-1.5 mb-3">
-                                  {badges.map((badge, idx) => (
-                                    <Badge key={idx} variant={badge.type === 'verified' ? 'default' : 'secondary'} className="text-[10px] px-2 py-0.5">
-                                      {badge.label}
-                                    </Badge>
-                                  ))}
-                                </div>
-                                
-                                {service.phone && (
-                                  <div className="flex items-center gap-2 mb-3">
-                                    <Phone className="w-4 h-4 text-gray-500" />
-                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{service.phone}</span>
-                                  </div>
-                                )}
-                                
-                                <div className="mt-auto space-y-2">
-                                  <Button className="w-full bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white py-3 text-sm font-semibold shadow-lg transform transition-all hover:scale-[1.02]">
-                                    Contact Provider
-                                  </Button>
-                                  {service.website && (
-                                    <a href={service.website} target="_blank" rel="noopener noreferrer" className="block">
-                                      <Button variant="outline" className="w-full text-sm">
-                                        <Globe className="w-3 h-3 mr-2" />
-                                        Visit Website
-                                      </Button>
-                                    </a>
-                                  )}
-                                </div>
-                              </CardContent>
-                            </Card>
+                            <CareServiceCard
+                              key={service.id || index}
+                              service={service}
+                              index={index}
+                              borderColor="border-indigo-200 dark:border-gray-700"
+                              hoverBorderColor="hover:border-indigo-300 dark:hover:border-gray-600"
+                              iconBgColor="bg-gradient-to-br from-indigo-500 to-indigo-600"
+                              iconRingColor="ring-indigo-100 dark:ring-indigo-900"
+                              icon={<Heart className="w-8 h-8 text-white" />}
+                              categoryBadgeColor="bg-gradient-to-r from-indigo-50 to-indigo-100 dark:from-indigo-900 dark:to-indigo-800"
+                              categoryBadgeBorder="border-indigo-300 dark:border-indigo-600"
+                              categoryLabel="Hospice Care"
+                              buttonColor="bg-gradient-to-r from-indigo-500 to-indigo-600"
+                              buttonHoverColor="hover:from-indigo-600 hover:to-indigo-700"
+                            />
                           );
                         })}
                       </div>
@@ -1756,7 +1557,7 @@ export default function MySeniorValetHome() {
                   (() => {
                     // Create a diverse mix of services from different categories
                     const services = (careServicesData as any).services as any[];
-                    const categories = ['Senior Placement Agency', 'Home Care Services', 'Therapy Services', 'Adult Day Care', 'Personal Care Services', 'Hospice Care'];
+                    const categories = ['Home Care Services', 'Therapy Services', 'Adult Day Care', 'Personal Care Services', 'Hospice Care', 'Respite Care'];
                     const diverseServices: any[] = [];
                     
                     // Get two services from each category to ensure diversity
@@ -1768,7 +1569,7 @@ export default function MySeniorValetHome() {
                     return diverseServices.slice(0, 12).map((service: any, index: number) => {
                   // Map service categories to colors and icons
                   const categoryConfig: any = {
-                    'Senior Placement Agency': { color: 'from-blue-500 to-blue-600', icon: <Building2 className="w-8 h-8 text-white" /> },
+                    'Respite Care': { color: 'from-rose-500 to-rose-600', icon: <RefreshCw className="w-8 h-8 text-white" /> },
                     'Home Care Services': { color: 'from-green-500 to-green-600', icon: <Home className="w-8 h-8 text-white" /> },
                     'Therapy Services': { color: 'from-purple-500 to-purple-600', icon: <Activity className="w-8 h-8 text-white" /> },
                     'Adult Day Care': { color: 'from-teal-500 to-teal-600', icon: <Users className="w-8 h-8 text-white" /> },
