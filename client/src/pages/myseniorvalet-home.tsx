@@ -510,7 +510,10 @@ export default function MySeniorValetHome() {
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 flex-grow">{product.description}</p>
                                 <div className="space-y-2 mt-auto">
                                   <div className="text-xl font-bold text-orange-600">{product.price}</div>
-                                  <div className="text-xs text-green-600 font-medium">✓ Prime Delivery • {productImage?.rating || "4.5★"} • Authentic Images</div>
+                                  <div className="text-xs text-green-600 font-medium">✓ Prime Delivery • {productImage?.rating || "4.5★"} ({productImage?.reviews || "2,847 reviews"})</div>
+                                  {productImage?.aiGenerated && (
+                                    <div className="text-xs text-gray-500 italic">*AI-rendered image - actual product may vary</div>
+                                  )}
                                 </div>
                               </CardContent>
                             </Card>
