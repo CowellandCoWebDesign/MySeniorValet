@@ -72,6 +72,11 @@ MySeniorValet is a comprehensive senior living transparency platform featuring m
 - Remove outdated files to prevent confusion
 - Focus on current operational status over historical details
 
+### Visual Design Preferences
+- Hero image: Beautiful space/astronomy image (https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg)
+- User specifically prefers the cosmic space imagery over senior living villa photos
+- Space image symbolizes infinite possibilities in senior living
+
 ## Documentation Structure
 
 **CURRENT AUTHORITATIVE DOCUMENTATION:**

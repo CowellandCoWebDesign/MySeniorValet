@@ -29,10 +29,7 @@ export default function MySeniorValetHome() {
 
   // Removed predictive search suggestions to improve performance
 
-  const { data: heroImages } = useQuery({
-    queryKey: ["/api/images/hero"],
-    retry: false,
-  });
+  // Hero image is now permanently set to the beautiful space image
 
   // Enhanced platform statistics for data-driven homepage
   const { data: platformStats } = useQuery({
@@ -162,8 +159,8 @@ export default function MySeniorValetHome() {
       <section className="relative min-h-screen bg-gradient-to-br from-slate-50 to-amber-50 dark:from-gray-900 dark:to-gray-800">
         <div className="absolute inset-0">
           <img
-            src={(heroImages as any)?.url || "https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg"}
-            alt={(heroImages as any)?.alt || "Beautiful senior living community with elegant architecture and landscaping"}
+            src="https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg"
+            alt="Beautiful cosmic space imagery symbolizing infinite possibilities in senior living"
             className="w-full h-full object-cover"
             loading="eager"
           />
