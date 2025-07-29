@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 import { 
   Loader2, 
   Database, 
@@ -15,14 +16,19 @@ import {
   Users,
   Building,
   Clock,
-  Shield
+  Shield,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
+import { GovernmentDataSources } from './GovernmentDataSources';
 
 interface EnhancedPricingIntelligenceProps {
   className?: string;
 }
 
 export function EnhancedPricingIntelligence({ className = '' }: EnhancedPricingIntelligenceProps) {
+  const [showDataSources, setShowDataSources] = useState(false);
+  
   const { data: analysis, isLoading: analysisLoading } = useQuery({
     queryKey: ['/api/real-data/analysis'],
     staleTime: 24 * 60 * 60 * 1000, // Cache for 24 hours
@@ -176,9 +182,9 @@ export function EnhancedPricingIntelligence({ className = '' }: EnhancedPricingI
               
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Data Source</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Data Sources</span>
                   <Badge variant="secondary" className="bg-purple-100 text-purple-800">
-                    {(marketData as any)?.source || 'Multi-Source'}
+                    60+ Gov Sources
                   </Badge>
                 </div>
                 <div className="flex justify-between items-center">
@@ -192,6 +198,26 @@ export function EnhancedPricingIntelligence({ className = '' }: EnhancedPricingI
                   <Badge variant="default" className="bg-purple-600">±2.3%</Badge>
                 </div>
               </div>
+              
+              {/* View All Sources Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowDataSources(!showDataSources)}
+                className="w-full mt-4 text-purple-700 border-purple-300 hover:bg-purple-50"
+              >
+                {showDataSources ? (
+                  <>
+                    <ChevronUp className="h-4 w-4 mr-2" />
+                    Hide Government Sources
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="h-4 w-4 mr-2" />
+                    View All 60+ Government Sources
+                  </>
+                )}
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -330,6 +356,13 @@ export function EnhancedPricingIntelligence({ className = '' }: EnhancedPricingI
           </div>
         </CardContent>
       </Card>
+
+      {/* Government Data Sources - Expandable Section */}
+      {showDataSources && (
+        <div className="mt-8 animate-fade-in-up">
+          <GovernmentDataSources />
+        </div>
+      )}
     </div>
   );
 }
