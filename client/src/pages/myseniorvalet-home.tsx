@@ -104,7 +104,7 @@ export default function MySeniorValetHome() {
   
   // Fetch real care services from database
   const { data: careServicesData, isLoading: careServicesLoading } = useQuery({
-    queryKey: ["/api/care-services", { limit: 6 }],
+    queryKey: ["/api/care-services"],
     retry: false,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
@@ -1217,10 +1217,10 @@ export default function MySeniorValetHome() {
                 <div className="text-center w-full py-8">
                   <p className="text-gray-600 dark:text-gray-400">Loading verified care services...</p>
                 </div>
-              ) : careServicesData && (careServicesData as any[]).length > 0 ? (
+              ) : careServicesData && (careServicesData as any).services && ((careServicesData as any).services as any[]).length > 0 ? (
                 (() => {
                   // Create a diverse mix of services from different categories
-                  const services = careServicesData as any[];
+                  const services = (careServicesData as any).services as any[];
                   const categories = ['Senior Placement Agency', 'Home Care Services', 'Therapy Services', 'Adult Day Care', 'Personal Care Services', 'Hospice Care'];
                   const diverseServices: any[] = [];
                   
