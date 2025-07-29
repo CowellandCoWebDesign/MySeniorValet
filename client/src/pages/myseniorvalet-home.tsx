@@ -367,111 +367,109 @@ export default function MySeniorValetHome() {
             </p>
           </div>
 
-          {/* Day 1 Launch Services Badge */}
-          <div className="flex items-center justify-center mb-6">
-            <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 text-lg font-bold shadow-xl flex items-center gap-3">
-              <span className="text-2xl">🚀</span>
-              <span>DAY 1 LAUNCH SERVICES - 4 VERIFIED PROVIDERS IN THE CARE MARKETPLACE</span>
-              <span className="text-2xl">🚀</span>
-            </Badge>
-          </div>
-
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
             <Link href="/moving">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 relative overflow-hidden h-44">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 relative overflow-hidden">
                 <CardContent className="p-4 text-center">
                   <div className="absolute top-2 right-2">
                     <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                   </div>
                   <Truck className="w-10 h-10 text-green-500 mx-auto mb-2" />
-                  <h4 className="font-semibold text-sm text-green-700 dark:text-green-300 mb-1">Moving Services</h4>
-                  <p className="text-xs text-green-600 dark:text-green-400 leading-tight">TWO MEN AND A TRUCK® - Full-service senior moves, packing, storage</p>
-                  <div className="flex gap-1 justify-center mt-2">
+                  <h4 className="font-semibold text-sm text-green-700 dark:text-green-300">Moving Services</h4>
+                  <p className="text-xs text-green-600 dark:text-green-400 mt-1">Senior move specialists</p>
+                  <div className="flex gap-1 justify-center mt-1">
                     <Badge className="bg-green-500 text-white text-xs px-2 py-0.5">✓ VERIFIED</Badge>
-                    <Badge className="bg-blue-500 text-white text-xs px-2 py-0.5">6 SERVICES</Badge>
+                    <Badge className="bg-blue-500 text-white text-xs px-2 py-0.5">TWO MEN</Badge>
                   </div>
                 </CardContent>
               </Card>
             </Link>
             
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-44 opacity-75">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
               <CardContent className="p-4 text-center relative">
                 <Pill className="w-10 h-10 text-blue-500 mx-auto mb-2" />
-                <h4 className="font-semibold text-sm mb-1">Rx Delivery</h4>
-                <p className="text-xs text-gray-600 dark:text-gray-400 leading-tight">CVS, Walgreens, mail-order pharmacy partners coming soon</p>
-                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-2">COMING SOON</Badge>
+                <h4 className="font-semibold text-sm">Rx Delivery</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Medication services</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
             
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-44 opacity-75">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
               <CardContent className="p-4 text-center relative">
                 <Building className="w-10 h-10 text-purple-500 mx-auto mb-2" />
-                <h4 className="font-semibold text-sm mb-1">Senior Centers</h4>
-                <p className="text-xs text-gray-600 dark:text-gray-400 leading-tight">Local activity centers, adult day programs, social clubs</p>
-                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-2">COMING SOON</Badge>
+                <h4 className="font-semibold text-sm">Senior Centers</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Community programs</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
             
             <Link href="/transportation">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-sky-50 dark:from-blue-900/20 dark:to-sky-900/20 relative overflow-hidden h-44">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-sky-50 dark:from-blue-900/20 dark:to-sky-900/20 relative overflow-hidden">
                 <CardContent className="p-4 text-center">
                   <div className="absolute top-2 right-2">
                     <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                   </div>
                   <Car className="w-10 h-10 text-blue-500 mx-auto mb-2" />
-                  <h4 className="font-semibold text-sm text-blue-700 dark:text-blue-300 mb-1">Transportation</h4>
-                  <p className="text-xs text-blue-600 dark:text-blue-400 leading-tight">GoGoGrandparent - Rides, meals, groceries, no smartphone needed</p>
-                  <div className="flex gap-1 justify-center mt-2">
+                  <h4 className="font-semibold text-sm text-blue-700 dark:text-blue-300">Transportation</h4>
+                  <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">No smartphone needed</p>
+                  <div className="flex gap-1 justify-center mt-1">
                     <Badge className="bg-green-500 text-white text-xs px-2 py-0.5">✓ VERIFIED</Badge>
-                    <Badge className="bg-blue-500 text-white text-xs px-2 py-0.5">5 SERVICES</Badge>
+                    <Badge className="bg-blue-500 text-white text-xs px-2 py-0.5">GOGO</Badge>
                   </div>
                 </CardContent>
               </Card>
             </Link>
             
             <Link href="/family-connect">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 relative overflow-hidden h-44">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 relative overflow-hidden">
                 <CardContent className="p-4 text-center">
                   <div className="absolute top-2 right-2">
                     <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                   </div>
                   <Users className="w-10 h-10 text-indigo-500 mx-auto mb-2" />
-                  <h4 className="font-semibold text-sm text-indigo-700 dark:text-indigo-300 mb-1">Family Connect</h4>
-                  <p className="text-xs text-indigo-600 dark:text-indigo-400 leading-tight">Secure messaging, shared tasks, care notes, family coordination</p>
-                  <div className="flex gap-1 justify-center mt-2">
-                    <Badge className="bg-green-500 text-white text-xs px-2 py-0.5">✓ ACTIVE</Badge>
-                    <Badge className="bg-indigo-500 text-white text-xs px-2 py-0.5">FREE</Badge>
+                  <h4 className="font-semibold text-sm text-indigo-700 dark:text-indigo-300">Family Connect</h4>
+                  <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-1">Coordinate care together</p>
+                  <div className="flex gap-1 justify-center mt-1">
+                    <Badge className="bg-green-500 text-white text-xs px-2 py-0.5">✓ NEW</Badge>
+                    <Badge className="bg-indigo-500 text-white text-xs px-2 py-0.5">SECURE</Badge>
                   </div>
                 </CardContent>
               </Card>
             </Link>
 
             <Link href="/vendor/1800florals">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-pink-200 bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 relative overflow-hidden h-44">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-pink-200 bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 relative overflow-hidden">
                 <CardContent className="p-4 text-center">
                   <div className="absolute top-2 right-2">
                     <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                   </div>
-                  <div className="w-10 h-10 mx-auto mb-2 rounded-lg overflow-hidden bg-white shadow-sm flex items-center justify-center">
-                    <span className="text-2xl">🌸</span>
+                  <div className="w-16 h-16 mx-auto mb-2 rounded-lg overflow-hidden bg-white shadow-sm">
+                    <img 
+                      src="https://www.800florals.com/img/4810Dmd.jpg" 
+                      alt="1-800-FLORALS Arrangements"
+                      className="w-full h-full object-cover"
+                      crossOrigin="anonymous"
+                      loading="eager"
+                    />
+                    <div className="w-full h-full hidden items-center justify-center text-pink-500 text-2xl font-bold">🌸</div>
                   </div>
-                  <h4 className="font-semibold text-sm text-pink-700 dark:text-pink-300 mb-1">Professional Florals</h4>
-                  <p className="text-xs text-pink-600 dark:text-pink-400 leading-tight">1-800-FLORALS - Sympathy, birthdays, move-in welcome bouquets</p>
-                  <div className="flex gap-1 justify-center mt-2">
+                  <h4 className="font-semibold text-sm text-pink-700 dark:text-pink-300">Professional Florals</h4>
+                  <p className="text-xs text-pink-600 dark:text-pink-400 mt-1">Move-in arrangements & gifts</p>
+                  <div className="flex gap-1 justify-center mt-1">
                     <Badge className="bg-green-500 text-white text-xs px-2 py-0.5">✓ VERIFIED</Badge>
-                    <Badge className="bg-pink-500 text-white text-xs px-2 py-0.5">50+ OPTIONS</Badge>
+                    <Badge className="bg-pink-500 text-white text-xs px-2 py-0.5">1-800-FLORALS</Badge>
                   </div>
                 </CardContent>
               </Card>
             </Link>
 
             
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-44 opacity-75">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
               <CardContent className="p-4 text-center relative">
                 <Scale className="w-10 h-10 text-indigo-500 mx-auto mb-2" />
-                <h4 className="font-semibold text-sm mb-1">Legal Services</h4>
-                <p className="text-xs text-gray-600 dark:text-gray-400 leading-tight">Elder law, estate planning, power of attorney assistance</p>
-                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-2">COMING SOON</Badge>
+                <h4 className="font-semibold text-sm">Legal Services</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Elder law attorneys</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
             
