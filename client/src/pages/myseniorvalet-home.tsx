@@ -683,23 +683,7 @@ export default function MySeniorValetHome() {
                 <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
-            
-            <Link href="/move-in-essentials">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 relative overflow-hidden">
-                <CardContent className="p-4 text-center">
-                  <div className="absolute top-2 right-2">
-                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                  </div>
-                  <div className="text-4xl mb-2">📦</div>
-                  <h4 className="font-semibold text-sm text-orange-700 dark:text-orange-300">Move-In Supplies</h4>
-                  <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">Amazon essentials</p>
-                  <div className="flex gap-1 justify-center mt-1">
-                    <Badge className="bg-green-500 text-white text-xs px-2 py-0.5">✓ VERIFIED</Badge>
-                    <Badge className="bg-orange-500 text-white text-xs px-2 py-0.5">AMAZON</Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
+
 
             <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
               <CardContent className="p-4 text-center relative">
@@ -718,6 +702,23 @@ export default function MySeniorValetHome() {
                 <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
+
+            <Link href="/amazon-supplies">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 relative overflow-hidden">
+                <CardContent className="p-4 text-center">
+                  <div className="absolute top-2 right-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  </div>
+                  <Package className="w-10 h-10 text-orange-500 mx-auto mb-2" />
+                  <h4 className="font-semibold text-sm">Amazon Senior Solutions</h4>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">33+ essential products</p>
+                  <div className="flex gap-1 justify-center mt-1">
+                    <Badge className="bg-green-500 text-white text-xs px-2 py-0.5">LIVE</Badge>
+                    <Badge className="bg-orange-500 text-white text-xs px-2 py-0.5">✓ VERIFIED</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
 
             <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
               <CardContent className="p-4 text-center relative">
@@ -757,100 +758,7 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Amazon Featured Vendor Section */}
-      <section className="px-4 py-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-xl p-8 border-2 border-orange-200 dark:border-orange-600">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-4">
-                <Package className="w-10 h-10 text-orange-500" />
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Amazon Senior Living Solutions</h3>
-                  <p className="text-base text-gray-600 dark:text-gray-300">Complete catalog - 33+ essential products</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Badge className="bg-green-500 text-white px-4 py-1.5 text-sm font-semibold">LIVE</Badge>
-                <div className="flex items-center gap-1.5">
-                  <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                  <span className="text-base font-bold">4.8</span>
-                </div>
-              </div>
-            </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-              {/* Move-In Essentials - Active */}
-              <Link href="/amazon-supplies">
-                <div className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-orange-200 dark:border-orange-600 hover:shadow-lg transition-all cursor-pointer group hover:scale-105">
-                  <Package className="w-8 h-8 text-orange-500 mb-3 group-hover:scale-110 transition-transform" />
-                  <h4 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-2">Move-In Essentials</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">$15.99-$45.99</p>
-                  <Badge className="bg-green-100 text-green-700 text-xs px-2 py-1">Active</Badge>
-                </div>
-              </Link>
-
-              {/* Medical Supplies - Coming Soon */}
-              <div className="bg-white/50 dark:bg-gray-800/50 rounded-xl p-5 border border-gray-300 dark:border-gray-600 opacity-75">
-                <Stethoscope className="w-8 h-8 text-blue-500 mb-3" />
-                <h4 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-2">Medical Supplies</h4>
-                <p className="text-sm text-gray-500 dark:text-gray-500 mb-3">Daily care items</p>
-                <Badge className="bg-yellow-100 text-yellow-700 text-xs px-2 py-1">Q1 2025</Badge>
-              </div>
-
-              {/* Fresh Grocery - Coming Soon */}
-              <div className="bg-white/50 dark:bg-gray-800/50 rounded-xl p-5 border border-gray-300 dark:border-gray-600 opacity-75">
-                <ShoppingCart className="w-8 h-8 text-green-500 mb-3" />
-                <h4 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-2">Fresh Grocery</h4>
-                <p className="text-sm text-gray-500 dark:text-gray-500 mb-3">Senior nutrition</p>
-                <Badge className="bg-yellow-100 text-yellow-700 text-xs px-2 py-1">Q2 2025</Badge>
-              </div>
-
-              {/* Pharmacy - Planned */}
-              <div className="bg-white/30 dark:bg-gray-800/30 rounded-xl p-5 border border-gray-300 dark:border-gray-600 opacity-50">
-                <Pill className="w-8 h-8 text-purple-500 mb-3" />
-                <h4 className="text-base font-semibold text-gray-600 dark:text-gray-400 mb-2">Pharmacy</h4>
-                <p className="text-sm text-gray-500 dark:text-gray-500 mb-3">Prescriptions</p>
-                <Badge className="bg-gray-100 text-gray-600 text-xs px-2 py-1">Planned</Badge>
-              </div>
-
-              {/* Home Services - Planned */}
-              <div className="bg-white/30 dark:bg-gray-800/30 rounded-xl p-5 border border-gray-300 dark:border-gray-600 opacity-50">
-                <Home className="w-8 h-8 text-indigo-500 mb-3" />
-                <h4 className="text-base font-semibold text-gray-600 dark:text-gray-400 mb-2">Home Services</h4>
-                <p className="text-sm text-gray-500 dark:text-gray-500 mb-3">Modifications</p>
-                <Badge className="bg-gray-100 text-gray-600 text-xs px-2 py-1">Planned</Badge>
-              </div>
-
-              {/* Echo for Seniors - Planned */}
-              <div className="bg-white/30 dark:bg-gray-800/30 rounded-xl p-5 border border-gray-300 dark:border-gray-600 opacity-50">
-                <MessageCircle className="w-8 h-8 text-teal-500 mb-3" />
-                <h4 className="text-base font-semibold text-gray-600 dark:text-gray-400 mb-2">Echo Seniors</h4>
-                <p className="text-sm text-gray-500 dark:text-gray-500 mb-3">Voice assistant</p>
-                <Badge className="bg-gray-100 text-gray-600 text-xs px-2 py-1">Planned</Badge>
-              </div>
-            </div>
-
-            <div className="mt-6 flex items-center justify-between bg-orange-100 dark:bg-orange-900/30 rounded-lg p-4">
-              <div className="flex items-center gap-6 text-base">
-                <div className="flex items-center gap-2">
-                  <Truck className="w-5 h-5 text-orange-600" />
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">Prime Delivery</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-orange-600" />
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">Trusted Service</span>
-                </div>
-              </div>
-              <Link href="/amazon-supplies">
-                <Button size="default" className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2">
-                  Shop Amazon
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Featured Services & Vendors Horizontal Slider */}
       <section className="px-4 py-8">
@@ -1369,64 +1277,74 @@ export default function MySeniorValetHome() {
                   ].slice(0, 4); // Limit to 4 badges for space
                   
                   return (
-                    <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-80 h-[30rem] border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                      <div className="relative">
-                        <div className={`h-32 bg-gradient-to-br ${config.color} flex items-center justify-center`}>
-                          {config.icon}
-                          {service.rating && (
-                            <div className="absolute top-3 right-3 bg-white/90 px-2 py-1 rounded-full text-xs font-semibold text-gray-800">
-                              ⭐ {service.rating}
+                    <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-96 h-80 border-2 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800">
+                      <CardContent className="p-6 flex flex-col h-full">
+                        <div className="flex items-start gap-4 mb-4">
+                          <div className={`w-12 h-12 bg-gradient-to-br ${config.color} rounded-xl flex items-center justify-center flex-shrink-0 shadow-md`}>
+                            {config.icon}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Badge variant="outline" className="text-xs px-2 py-0.5 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 border-gray-300 dark:border-gray-600">
+                                {service.serviceCategory}
+                              </Badge>
+                              {service.rating && (
+                                <div className="flex items-center gap-1">
+                                  <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                                  <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">{service.rating}</span>
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                      </div>
-                      <CardContent className="p-4 flex flex-col h-[calc(30rem-8rem)]">
-                        <div className="mb-2">
-                          <div className="text-xs text-gray-600 dark:text-gray-400 font-medium mb-1">{service.serviceCategory}</div>
-                          <h4 className="font-bold text-gray-900 dark:text-gray-100 text-sm leading-tight">{service.name}</h4>
-                        </div>
-                        
-                        <div className="mb-3">
-                          <div className="text-sm text-gray-600 dark:text-gray-400">{service.city}, {service.state}</div>
-                          <div className="text-lg font-bold text-gray-900 dark:text-gray-100">{service.phone}</div>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 line-clamp-1">{service.name}</h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">{service.city}, {service.state}</p>
+                          </div>
                         </div>
                         
                         <ServiceBadges badges={badges} className="mb-3" size="sm" />
                         
-                        <div className="space-y-1 mb-4 flex-grow">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Contact</span>
+                          <span className="text-base font-bold text-blue-600 dark:text-blue-400">{service.phone}</span>
+                        </div>
+                        
+                        <div className="space-y-1.5 mb-4 flex-grow">
                           {service.careTypes && service.careTypes.length > 0 ? (
                             service.careTypes.slice(0, 3).map((feature: string, idx: number) => (
                               <div key={idx} className="flex items-center text-xs text-gray-600 dark:text-gray-300">
-                                <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
-                                {feature}
+                                <CheckCircle className="w-3 h-3 text-green-500 mr-2 flex-shrink-0" />
+                                <span className="line-clamp-1">{feature}</span>
                               </div>
                             ))
                           ) : (
                             <div className="flex items-center text-xs text-gray-600 dark:text-gray-300">
-                              <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
-                              Professional care services
+                              <CheckCircle className="w-3 h-3 text-green-500 mr-2 flex-shrink-0" />
+                              <span>Professional care services</span>
                             </div>
                           )}
                         </div>
                         
                         <div className="space-y-2 mt-auto">
-                          <Button 
-                            className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-2 text-xs font-semibold"
-                            onClick={() => window.open(`tel:${service.phone}`, '_self')}
-                          >
-                            <Phone className="w-4 h-4 mr-1" />
-                            Call Now
-                          </Button>
-                          {service.website && (
+                          <div className="grid grid-cols-2 gap-2">
                             <Button 
-                              variant="outline" 
-                              className="w-full text-xs"
-                              onClick={() => window.open(service.website, '_blank')}
+                              size="sm"
+                              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300"
+                              onClick={() => window.open(`tel:${service.phone}`, '_self')}
                             >
-                              <ExternalLink className="w-4 h-4 mr-1" />
-                              Visit Website
+                              <Phone className="w-3 h-3 mr-1" />
+                              Call Now
                             </Button>
-                          )}
+                            {service.website && (
+                              <Button 
+                                size="sm"
+                                variant="outline" 
+                                className="border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 font-semibold"
+                                onClick={() => window.open(service.website, '_blank')}
+                              >
+                                <ExternalLink className="w-3 h-3 mr-1" />
+                                Website
+                              </Button>
+                            )}
+                          </div>
                           <div className="text-xs text-center text-green-600 dark:text-green-400 font-medium">
                             ✓ Government Database Verified
                           </div>
