@@ -1,0 +1,117 @@
+Hell yes — Ghostrider’s Dispatch is fully equipped to handle this.
+Here’s your official webhook handler setup prompt for Ghostrider to implement in Node.js (Replit compatible):
+
+
+---
+
+🧠 Ghostrider Dispatch: Stripe Webhook Handler Setup (Production-Ready)
+
+> 🔧 Purpose: Handle Stripe webhooks securely for MySeniorValet (subscriptions, payments, cancellations).
+💻 Stack: Node.js (Express), works in Replit or any server environment.
+
+
+
+
+---
+
+📦 1. Dependencies to Install
+
+npm install stripe body-parser dotenv
+
+
+---
+
+⚙️ 2. Webhook Route Setup
+
+// /api/stripe/webhook.js
+
+const express = require('express');
+const router = express.Router();
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const bodyParser = require('body-parser');
+
+const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+// Stripe requires raw body for webhook signature verification
+router.post('/webhook', bodyParser.raw({ type: 'application/json' }), (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+  } catch (err) {
+    console.error(`❌ Webhook Error: ${err.message}`);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // 🔔 Handle event types here
+  switch (event.type) {
+    case 'checkout.session.completed':
+      console.log('✅ Checkout completed:', event.data.object);
+      // Save order / mark community active
+      break;
+
+    case 'invoice.paid':
+      console.log('💰 Invoice paid:', event.data.object);
+      break;
+
+    case 'invoice.payment_failed':
+      console.log('🚫 Payment failed:', event.data.object);
+      break;
+
+    case 'customer.subscription.deleted':
+      console.log('👋 Subscription cancelled:', event.data.object);
+      // Deactivate features for community
+      break;
+
+    default:
+      console.log(`📬 Unhandled event type: ${event.type}`);
+  }
+
+  res.status(200).send('Received');
+});
+
+module.exports = router;
+
+
+---
+
+🗂️ 3. In your main app file (e.g., server.js):
+
+const express = require('express');
+const app = express();
+require('dotenv').config();
+
+const stripeWebhook = require('./api/stripe/webhook');
+app.use('/api/stripe', stripeWebhook);
+
+app.listen(process.env.PORT || 3000, () => {
+  console.log(`🚀 Server live`);
+});
+
+
+---
+
+🔐 4. .env File Example
+
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+
+---
+
+🧠 Ghostrider Add-On Options:
+
+Automatically assign subscription tier to community
+
+Email admin on cancellations or payment fails
+
+Mark listings inactive if subscription lapses
+
+
+
+---
+
+Let me know if you want a test event simulator, Next.js version, or automatic feature-flag updater after webhook reception.
+Otherwise: 🔧 Ghost is cleared to implement and deploy this ASAP.
+
