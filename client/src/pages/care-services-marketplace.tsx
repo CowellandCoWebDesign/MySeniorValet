@@ -241,94 +241,362 @@ export default function CareServicesMarketplace() {
           </div>
         </div>
 
-        {/* Service Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredServices.map((service) => (
-            <Card key={service.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    {getCategoryIcon(service.serviceCategory)}
-                    <Badge className={`text-xs ${getCategoryColor(service.serviceCategory)}`}>
-                      {service.serviceCategory}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                    <span className="text-sm text-gray-600">4.2</span>
-                  </div>
-                </div>
-                <CardTitle className="text-lg line-clamp-2">
-                  {service.name}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <MapPin className="w-4 h-4 flex-shrink-0" />
-                  <span className="line-clamp-1">
-                    {service.city}, {service.state}
-                  </span>
-                </div>
-                
-                {service.phone && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Phone className="w-4 h-4 flex-shrink-0" />
-                    <a 
-                      href={`tel:${service.phone}`}
-                      className="hover:text-blue-600 transition-colors"
-                    >
-                      {service.phone}
-                    </a>
-                  </div>
-                )}
+        {/* Category Sections with Horizontal Sliders */}
+        <div className="space-y-12">
+          {/* Senior Placement Agencies */}
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <Building2 className="w-6 h-6 text-blue-600" />
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  Senior Placement Agencies
+                </h3>
+                <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+                  {analytics?.placementAgencies || 2} Available
+                </Badge>
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <div className="flex gap-6 pb-4" style={{ width: 'max-content' }}>
+                {filteredServices
+                  .filter(service => service.serviceCategory === 'Senior Placement Agency')
+                  .slice(0, 10)
+                  .map((service) => (
+                    <Card key={service.id} className="flex-shrink-0 w-80 h-64 overflow-hidden border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                      <div className="relative">
+                        <div className="h-20 bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                          <Building2 className="w-8 h-8 text-white" />
+                          <div className="absolute top-2 right-2 bg-white/90 px-2 py-1 rounded-full text-xs font-semibold text-gray-800">
+                            ⭐ 4.8
+                          </div>
+                        </div>
+                      </div>
+                      <CardContent className="p-4 flex flex-col h-44">
+                        <div className="mb-2">
+                          <div className="text-xs text-blue-600 dark:text-blue-400 font-medium mb-1">Placement Agency</div>
+                          <h4 className="font-bold text-gray-900 dark:text-gray-100 text-sm leading-tight line-clamp-2">{service.name}</h4>
+                        </div>
+                        
+                        <div className="mb-3">
+                          <div className="text-sm text-gray-600 dark:text-gray-400">{service.city}, {service.state}</div>
+                        </div>
+                        
+                        <div className="space-y-2 mt-auto">
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-1 text-xs"
+                              onClick={() => window.open(`tel:${service.phone}`, '_self')}
+                            >
+                              <Phone className="w-3 h-3 mr-1" />
+                              {service.phone}
+                            </Button>
+                          </div>
+                          {service.website && (
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="w-full text-xs"
+                              onClick={() => window.open(service.website, '_blank')}
+                            >
+                              <ExternalLink className="w-3 h-3 mr-1" />
+                              Visit Website
+                            </Button>
+                          )}
+                          <div className="text-xs text-center text-gray-500 dark:text-gray-400">
+                            ✓ Government Verified
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+              </div>
+            </div>
+          </div>
 
-                {service.website && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Globe className="w-4 h-4 flex-shrink-0" />
-                    <a 
-                      href={service.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-blue-600 transition-colors line-clamp-1"
-                    >
-                      Visit Website
-                    </a>
-                  </div>
-                )}
+          {/* Home Care Services */}
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <Home className="w-6 h-6 text-green-600" />
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  Home Care Services
+                </h3>
+                <Badge className="bg-green-100 text-green-800 border-green-200">
+                  {analytics?.homeCareServices || 143} Available
+                </Badge>
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <div className="flex gap-6 pb-4" style={{ width: 'max-content' }}>
+                {filteredServices
+                  .filter(service => service.serviceCategory === 'Home Care Services')
+                  .slice(0, 15)
+                  .map((service) => (
+                    <Card key={service.id} className="flex-shrink-0 w-80 h-64 overflow-hidden border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                      <div className="relative">
+                        <div className="h-20 bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
+                          <Home className="w-8 h-8 text-white" />
+                          <div className="absolute top-2 right-2 bg-white/90 px-2 py-1 rounded-full text-xs font-semibold text-gray-800">
+                            ⭐ 4.7
+                          </div>
+                        </div>
+                      </div>
+                      <CardContent className="p-4 flex flex-col h-44">
+                        <div className="mb-2">
+                          <div className="text-xs text-green-600 dark:text-green-400 font-medium mb-1">Home Care</div>
+                          <h4 className="font-bold text-gray-900 dark:text-gray-100 text-sm leading-tight line-clamp-2">{service.name}</h4>
+                        </div>
+                        
+                        <div className="mb-3">
+                          <div className="text-sm text-gray-600 dark:text-gray-400">{service.city}, {service.state}</div>
+                        </div>
+                        
+                        <div className="space-y-2 mt-auto">
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              className="flex-1 bg-green-500 hover:bg-green-600 text-white py-1 text-xs"
+                              onClick={() => window.open(`tel:${service.phone}`, '_self')}
+                            >
+                              <Phone className="w-3 h-3 mr-1" />
+                              {service.phone}
+                            </Button>
+                          </div>
+                          {service.website && (
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="w-full text-xs"
+                              onClick={() => window.open(service.website, '_blank')}
+                            >
+                              <ExternalLink className="w-3 h-3 mr-1" />
+                              Visit Website
+                            </Button>
+                          )}
+                          <div className="text-xs text-center text-gray-500 dark:text-gray-400">
+                            ✓ Government Verified
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+              </div>
+            </div>
+          </div>
 
-                <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
-                  <div className="flex gap-2">
-                    <Button 
-                      size="sm" 
-                      className="flex-1"
-                      onClick={() => window.open(`tel:${service.phone}`, '_self')}
-                    >
-                      <Phone className="w-4 h-4 mr-1" />
-                      Call
-                    </Button>
-                    {service.website && (
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="flex-1"
-                        onClick={() => window.open(service.website, '_blank')}
-                      >
-                        <ExternalLink className="w-4 h-4 mr-1" />
-                        Visit
-                      </Button>
-                    )}
-                  </div>
-                </div>
+          {/* Adult Day Care */}
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <Users className="w-6 h-6 text-purple-600" />
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  Adult Day Care Programs
+                </h3>
+                <Badge className="bg-purple-100 text-purple-800 border-purple-200">
+                  {analytics?.adultDayServices || 1627} Available
+                </Badge>
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <div className="flex gap-6 pb-4" style={{ width: 'max-content' }}>
+                {filteredServices
+                  .filter(service => service.serviceCategory === 'Adult Day Care')
+                  .slice(0, 20)
+                  .map((service) => (
+                    <Card key={service.id} className="flex-shrink-0 w-80 h-64 overflow-hidden border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                      <div className="relative">
+                        <div className="h-20 bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                          <Users className="w-8 h-8 text-white" />
+                          <div className="absolute top-2 right-2 bg-white/90 px-2 py-1 rounded-full text-xs font-semibold text-gray-800">
+                            ⭐ 4.6
+                          </div>
+                        </div>
+                      </div>
+                      <CardContent className="p-4 flex flex-col h-44">
+                        <div className="mb-2">
+                          <div className="text-xs text-purple-600 dark:text-purple-400 font-medium mb-1">Adult Day Care</div>
+                          <h4 className="font-bold text-gray-900 dark:text-gray-100 text-sm leading-tight line-clamp-2">{service.name}</h4>
+                        </div>
+                        
+                        <div className="mb-3">
+                          <div className="text-sm text-gray-600 dark:text-gray-400">{service.city}, {service.state}</div>
+                        </div>
+                        
+                        <div className="space-y-2 mt-auto">
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              className="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-1 text-xs"
+                              onClick={() => window.open(`tel:${service.phone}`, '_self')}
+                            >
+                              <Phone className="w-3 h-3 mr-1" />
+                              {service.phone}
+                            </Button>
+                          </div>
+                          {service.website && (
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="w-full text-xs"
+                              onClick={() => window.open(service.website, '_blank')}
+                            >
+                              <ExternalLink className="w-3 h-3 mr-1" />
+                              Visit Website
+                            </Button>
+                          )}
+                          <div className="text-xs text-center text-gray-500 dark:text-gray-400">
+                            ✓ Government Verified
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+              </div>
+            </div>
+          </div>
 
-                <div className="text-xs text-gray-500 bg-gray-50 dark:bg-gray-800 p-2 rounded">
-                  <div className="flex items-center gap-1">
-                    <Shield className="w-3 h-3" />
-                    Verified government database
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+          {/* Therapy Services */}
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <Activity className="w-6 h-6 text-orange-600" />
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  Therapy Services
+                </h3>
+                <Badge className="bg-orange-100 text-orange-800 border-orange-200">
+                  {analytics?.therapyServices || 398} Available
+                </Badge>
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <div className="flex gap-6 pb-4" style={{ width: 'max-content' }}>
+                {filteredServices
+                  .filter(service => service.serviceCategory === 'Therapy Services')
+                  .slice(0, 15)
+                  .map((service) => (
+                    <Card key={service.id} className="flex-shrink-0 w-80 h-64 overflow-hidden border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                      <div className="relative">
+                        <div className="h-20 bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+                          <Activity className="w-8 h-8 text-white" />
+                          <div className="absolute top-2 right-2 bg-white/90 px-2 py-1 rounded-full text-xs font-semibold text-gray-800">
+                            ⭐ 4.9
+                          </div>
+                        </div>
+                      </div>
+                      <CardContent className="p-4 flex flex-col h-44">
+                        <div className="mb-2">
+                          <div className="text-xs text-orange-600 dark:text-orange-400 font-medium mb-1">Therapy Services</div>
+                          <h4 className="font-bold text-gray-900 dark:text-gray-100 text-sm leading-tight line-clamp-2">{service.name}</h4>
+                        </div>
+                        
+                        <div className="mb-3">
+                          <div className="text-sm text-gray-600 dark:text-gray-400">{service.city}, {service.state}</div>
+                        </div>
+                        
+                        <div className="space-y-2 mt-auto">
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-1 text-xs"
+                              onClick={() => window.open(`tel:${service.phone}`, '_self')}
+                            >
+                              <Phone className="w-3 h-3 mr-1" />
+                              {service.phone}
+                            </Button>
+                          </div>
+                          {service.website && (
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="w-full text-xs"
+                              onClick={() => window.open(service.website, '_blank')}
+                            >
+                              <ExternalLink className="w-3 h-3 mr-1" />
+                              Visit Website
+                            </Button>
+                          )}
+                          <div className="text-xs text-center text-gray-500 dark:text-gray-400">
+                            ✓ Government Verified
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Hospice Care */}
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <Heart className="w-6 h-6 text-pink-600" />
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  Hospice Care Services
+                </h3>
+                <Badge className="bg-pink-100 text-pink-800 border-pink-200">
+                  {analytics?.hospiceServices || 567} Available
+                </Badge>
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <div className="flex gap-6 pb-4" style={{ width: 'max-content' }}>
+                {filteredServices
+                  .filter(service => service.serviceCategory === 'Hospice Care')
+                  .slice(0, 15)
+                  .map((service) => (
+                    <Card key={service.id} className="flex-shrink-0 w-80 h-64 overflow-hidden border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                      <div className="relative">
+                        <div className="h-20 bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
+                          <Heart className="w-8 h-8 text-white" />
+                          <div className="absolute top-2 right-2 bg-white/90 px-2 py-1 rounded-full text-xs font-semibold text-gray-800">
+                            ⭐ 4.8
+                          </div>
+                        </div>
+                      </div>
+                      <CardContent className="p-4 flex flex-col h-44">
+                        <div className="mb-2">
+                          <div className="text-xs text-pink-600 dark:text-pink-400 font-medium mb-1">Hospice Care</div>
+                          <h4 className="font-bold text-gray-900 dark:text-gray-100 text-sm leading-tight line-clamp-2">{service.name}</h4>
+                        </div>
+                        
+                        <div className="mb-3">
+                          <div className="text-sm text-gray-600 dark:text-gray-400">{service.city}, {service.state}</div>
+                        </div>
+                        
+                        <div className="space-y-2 mt-auto">
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              className="flex-1 bg-pink-500 hover:bg-pink-600 text-white py-1 text-xs"
+                              onClick={() => window.open(`tel:${service.phone}`, '_self')}
+                            >
+                              <Phone className="w-3 h-3 mr-1" />
+                              {service.phone}
+                            </Button>
+                          </div>
+                          {service.website && (
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="w-full text-xs"
+                              onClick={() => window.open(service.website, '_blank')}
+                            >
+                              <ExternalLink className="w-3 h-3 mr-1" />
+                              Visit Website
+                            </Button>
+                          )}
+                          <div className="text-xs text-center text-gray-500 dark:text-gray-400">
+                            ✓ Government Verified
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+              </div>
+            </div>
+          </div>
         </div>
 
         {filteredServices.length === 0 && (
