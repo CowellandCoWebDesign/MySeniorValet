@@ -80,6 +80,7 @@ import AIMapShowcase from "@/pages/ai-map-showcase";
 import VendorSignup from "@/pages/vendor-signup";
 import VendorDashboard from "@/pages/vendor-dashboard";
 import ServicesManagementDashboard from "@/pages/ServicesManagementDashboard";
+import TestTierAccess from "@/pages/test-tier-access";
 import { useAuth } from "@/hooks/useAuth";
 
 function Router() {
@@ -165,6 +166,7 @@ function Router() {
       <Route path="/ai-map-showcase" component={AIMapShowcase} />
       <Route path="/vendor/signup" component={VendorSignup} />
       <Route path="/vendor/dashboard" component={VendorDashboard} />
+      <Route path="/test-tier-access" component={TestTierAccess} />
       <Route component={NotFound} />
     </Switch>
   );
