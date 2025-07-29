@@ -29,6 +29,8 @@ import {
   Home
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function CommunityPortal() {
   const [currentStep, setCurrentStep] = useState('landing');
@@ -51,33 +53,38 @@ export default function CommunityPortal() {
     window.location.href = "/api/login";
   };
 
-  const plans = [
+  // Replace hardcoded plans with live Stripe data
+  const { data: subscriptionProducts } = useQuery({
+    queryKey: ['/api/subscriptions/products'],
+  });
+
+  const plans = subscriptionProducts?.products?.map((product: any) => ({
+    id: product.id,
+    name: product.name,
+    price: product.price === 0 ? 'Free' : `$${(product.price / 100).toFixed(0)}/month`,
+    priceValue: product.price / 100,
+    tier: product.name,
+    color: product.id === 'basic-listing' ? 'gray' : 
+           product.id === 'featured-spotlight' ? 'blue' :
+           product.id === 'premium-tools' ? 'purple' : 'gold',
+    description: product.description,
+    features: product.features || [],
+    popular: product.id === 'featured-spotlight'
+  })) || [
+    // Fallback plans if Stripe data isn't loaded
     {
-      id: 'basic',
+      id: 'basic-listing',
       name: 'Basic Listing',
       price: 'Free',
       priceValue: 0,
       tier: 'Basic',
       color: 'gray',
-      description: 'All licensed communities (default listing scraped by MSV)',
-      features: [
-        'Profile Ownership & Claim',
-        'Basic contact information display',
-        'Single auto-generated photo',
-        'Basic amenity tags',
-        'Lowest search visibility',
-        'No reporting dashboard'
-      ],
-      limitations: [
-        'No editable contact info',
-        'No Google/Yelp reviews integration',
-        'Limited photo gallery (1 photo max)',
-        'No video uploads',
-        'No direct messaging'
-      ]
+      description: 'Default community listing',
+      features: ['Basic listing', 'Contact information'],
+      popular: false
     },
     {
-      id: 'verified',
+      id: 'featured-spotlight',
       name: 'Verified Standard',
       price: '$149/month',
       priceValue: 149,
