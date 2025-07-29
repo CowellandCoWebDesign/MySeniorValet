@@ -15,7 +15,7 @@ const router = Router();
 let amazonService: AmazonAssociatesService | null = null;
 
 // Initialize Amazon Associates service if API key is provided
-router.post('/api/services/amazon/init', async (req, res) => {
+router.post('/amazon/init', async (req, res) => {
   const { associateTag, accessKey, secretKey } = req.body;
   
   if (!associateTag) {
@@ -32,7 +32,7 @@ router.post('/api/services/amazon/init', async (req, res) => {
 });
 
 // Discover local services near a location
-router.get('/api/services/discover', async (req, res) => {
+router.get('/discover', async (req, res) => {
   const { lat, lng, radius = 5, category } = req.query;
   
   if (!lat || !lng) {
@@ -67,7 +67,7 @@ router.get('/api/services/discover', async (req, res) => {
 });
 
 // Get Amazon product recommendations
-router.get('/api/services/amazon/products', async (req, res) => {
+router.get('/amazon/products', async (req, res) => {
   const { category, careTypes } = req.query;
   
   if (!amazonService) {
@@ -105,7 +105,7 @@ router.get('/api/services/amazon/products', async (req, res) => {
 });
 
 // Match services to community type
-router.post('/api/services/match', async (req, res) => {
+router.post('/match', async (req, res) => {
   const { lat, lng, communityTypes } = req.body;
   
   if (!lat || !lng || !communityTypes) {

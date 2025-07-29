@@ -100,7 +100,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/quiz', quizRouter);
   app.use('/api/reservations', reservationRoutes);
   app.use('/api/financial', financialRoutes);
-  app.use('/api/senior-services', seniorServicesRoutes);
+  app.use('/api/services', seniorServicesRoutes);
   app.use('/api/real-data', realDataRoutes);
 
   return httpServer;
