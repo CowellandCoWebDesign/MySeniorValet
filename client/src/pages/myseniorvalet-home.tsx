@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { PricingBreakdown } from "@/components/pricing-breakdown";
@@ -365,6 +365,152 @@ export default function MySeniorValetHome() {
             <p className="text-sm text-green-600 dark:text-green-400 font-medium bg-green-50 dark:bg-green-900/20 rounded-full px-6 py-2 inline-block">
               ✓ Services are live and available now - no longer coming soon!
             </p>
+          </div>
+
+          {/* Amazon Featured Vendor Horizontal Slider */}
+          <div className="mb-12">
+            <Card className="bg-gradient-to-r from-orange-50 via-amber-50 to-yellow-50 dark:from-orange-900/20 dark:via-amber-900/20 dark:to-yellow-900/20 border-2 border-orange-200 dark:border-orange-600 shadow-xl">
+              <CardContent className="p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg">
+                      <Package className="w-8 h-8 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3">
+                        Amazon Move-In Essentials
+                        <Badge className="bg-green-500 text-white px-3 py-1 text-sm font-semibold">FEATURED VENDOR</Badge>
+                      </h3>
+                      <p className="text-lg text-gray-600 dark:text-gray-300">Professional moving supplies delivered to your door</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1">
+                      <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                      <span className="text-lg font-bold text-gray-900 dark:text-gray-100">4.8</span>
+                    </div>
+                    <Badge className="bg-orange-500 text-white px-4 py-2 text-sm font-semibold">PRIME ELIGIBLE</Badge>
+                  </div>
+                </div>
+
+                {/* Horizontal Scrolling Amazon Services */}
+                <div className="overflow-x-auto">
+                  <div className="flex gap-6 pb-4" style={{ minWidth: 'max-content' }}>
+                    {/* Professional Moving Box Sets */}
+                    <Link href="/amazon-supplies">
+                      <Card className="flex-shrink-0 w-80 h-64 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer border-2 border-orange-200 dark:border-orange-600 bg-white dark:bg-gray-800">
+                        <CardContent className="p-6 h-full flex flex-col">
+                          <div className="flex items-center justify-between mb-4">
+                            <Package className="w-10 h-10 text-orange-500" />
+                            <Badge className="bg-green-500 text-white text-xs px-2 py-1">ACTIVE</Badge>
+                          </div>
+                          <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Professional Moving Box Sets</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 flex-grow">Complete moving kits with boxes, tape, and bubble wrap for senior relocations</p>
+                          <div className="space-y-2">
+                            <div className="text-xl font-bold text-orange-600">$45.99</div>
+                            <div className="text-xs text-green-600 font-medium">✓ Prime 2-Day Shipping</div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+
+                    {/* U-Haul Small Moving Box Kit */}
+                    <Link href="/amazon-supplies">
+                      <Card className="flex-shrink-0 w-80 h-64 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer border-2 border-orange-200 dark:border-orange-600 bg-white dark:bg-gray-800">
+                        <CardContent className="p-6 h-full flex flex-col">
+                          <div className="flex items-center justify-between mb-4">
+                            <Truck className="w-10 h-10 text-blue-500" />
+                            <Badge className="bg-green-500 text-white text-xs px-2 py-1">ACTIVE</Badge>
+                          </div>
+                          <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">U-Haul Small Moving Box Kit</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 flex-grow">Compact moving solution perfect for downsizing seniors</p>
+                          <div className="space-y-2">
+                            <div className="text-xl font-bold text-orange-600">$32.99</div>
+                            <div className="text-xs text-green-600 font-medium">✓ Prime 2-Day Shipping</div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+
+                    {/* Complete Packing Supplies Kit */}
+                    <Link href="/amazon-supplies">
+                      <Card className="flex-shrink-0 w-80 h-64 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer border-2 border-orange-200 dark:border-orange-600 bg-white dark:bg-gray-800">
+                        <CardContent className="p-6 h-full flex flex-col">
+                          <div className="flex items-center justify-between mb-4">
+                            <Package className="w-10 h-10 text-purple-500" />
+                            <Badge className="bg-green-500 text-white text-xs px-2 py-1">ACTIVE</Badge>
+                          </div>
+                          <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Complete Packing Supplies Kit</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 flex-grow">Everything needed for safe packing: tape, labels, markers, bubble wrap</p>
+                          <div className="space-y-2">
+                            <div className="text-xl font-bold text-orange-600">$28.99</div>
+                            <div className="text-xs text-green-600 font-medium">✓ Prime 2-Day Shipping</div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+
+                    {/* Wardrobe Moving Boxes */}
+                    <Link href="/amazon-supplies">
+                      <Card className="flex-shrink-0 w-80 h-64 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer border-2 border-orange-200 dark:border-orange-600 bg-white dark:bg-gray-800">
+                        <CardContent className="p-6 h-full flex flex-col">
+                          <div className="flex items-center justify-between mb-4">
+                            <ShirtIcon className="w-10 h-10 text-teal-500" />
+                            <Badge className="bg-green-500 text-white text-xs px-2 py-1">ACTIVE</Badge>
+                          </div>
+                          <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Wardrobe Moving Boxes</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 flex-grow">Keep clothes wrinkle-free during moves with hanging wardrobe boxes</p>
+                          <div className="space-y-2">
+                            <div className="text-xl font-bold text-orange-600">$39.99</div>
+                            <div className="text-xs text-green-600 font-medium">✓ Prime 2-Day Shipping</div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+
+                    {/* Furniture Moving Blankets */}
+                    <Link href="/amazon-supplies">
+                      <Card className="flex-shrink-0 w-80 h-64 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer border-2 border-orange-200 dark:border-orange-600 bg-white dark:bg-gray-800">
+                        <CardContent className="p-6 h-full flex flex-col">
+                          <div className="flex items-center justify-between mb-4">
+                            <Sofa className="w-10 h-10 text-indigo-500" />
+                            <Badge className="bg-green-500 text-white text-xs px-2 py-1">ACTIVE</Badge>
+                          </div>
+                          <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Furniture Moving Blankets</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 flex-grow">Protect valuable furniture and antiques during senior relocations</p>
+                          <div className="space-y-2">
+                            <div className="text-xl font-bold text-orange-600">$24.99</div>
+                            <div className="text-xs text-green-600 font-medium">✓ Prime 2-Day Shipping</div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex items-center justify-between bg-orange-100 dark:bg-orange-900/30 rounded-lg p-4">
+                  <div className="flex items-center gap-6 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Truck className="w-4 h-4 text-orange-600" />
+                      <span className="text-gray-700 dark:text-gray-300 font-medium">Free Prime Delivery</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Shield className="w-4 h-4 text-green-600" />
+                      <span className="text-gray-700 dark:text-gray-300 font-medium">Senior-Tested Products</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <RefreshCw className="w-4 h-4 text-blue-600" />
+                      <span className="text-gray-700 dark:text-gray-300 font-medium">Easy Returns</span>
+                    </div>
+                  </div>
+                  <Link href="/amazon-supplies">
+                    <Button className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 font-semibold">
+                      Shop All Amazon Supplies →
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
