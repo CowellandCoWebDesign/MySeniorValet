@@ -82,11 +82,11 @@ router.get("/images", async (req, res) => {
         }
       }
 
-      // Ensure affiliate tracking is included in the URL
+      // Use the external URL directly - Amazon short links already include affiliate tracking
       let affiliateUrl = service.externalUrl || '';
       
-      // Add affiliate tag if not already present
-      if (affiliateUrl && service.affiliateCode && !affiliateUrl.includes('tag=')) {
+      // Only add affiliate tag to non-shortened URLs (for backward compatibility)
+      if (affiliateUrl && service.affiliateCode && !affiliateUrl.includes('amzn.to') && !affiliateUrl.includes('tag=')) {
         const separator = affiliateUrl.includes('?') ? '&' : '?';
         affiliateUrl = `${affiliateUrl}${separator}tag=${service.affiliateCode}`;
       }
