@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake } from "lucide-react";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -1539,6 +1539,69 @@ export default function MySeniorValetHome() {
                               categoryLabel="Hospice Care"
                               buttonColor="bg-gradient-to-r from-indigo-500 to-indigo-600"
                               buttonHoverColor="hover:from-indigo-600 hover:to-indigo-700"
+                            />
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </section>
+                );
+              }
+              return null;
+            })()}
+
+            {/* Respite Care Section */}
+            {(() => {
+              const services = (careServicesData as any)?.services || [];
+              const respiteCare = services.filter((s: any) => s.serviceCategory === 'Respite Care');
+              
+              if (respiteCare.length > 0) {
+                return (
+                  <section className="px-4 py-8 relative overflow-hidden mb-8">
+                    {/* Background with premium gradient styling */}
+                    <div className="absolute inset-0 z-0">
+                      <div className="w-full h-full bg-gradient-to-br from-rose-50 via-pink-50 to-red-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-rose-100/30 via-pink-100/20 to-red-100/30 dark:from-gray-700/30 dark:via-gray-800/20 dark:to-gray-700/30"></div>
+                    </div>
+                    
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                          Respite Care Services
+                        </h2>
+                        <div className="text-right">
+                          <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{respiteCare.length} Providers</div>
+                          <div className="text-xs text-rose-600 dark:text-rose-400">Temporary relief for caregivers</div>
+                        </div>
+                      </div>
+                      
+                      <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Short-term care & caregiver relief • Flexible scheduling • Peace of mind</p>
+                    
+                      <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                        {respiteCare.slice(0, 20).map((service: any, index: number) => {
+                          const badges = [
+                            commonBadges.governmentVerified,
+                            ...(service.careTypes?.includes('Medicare') ? [commonBadges.medicareAccepted] : []),
+                            ...(service.careTypes?.includes('Medicaid') ? [commonBadges.medicaidAccepted] : []),
+                            commonBadges.stateLicensed,
+                            ...(service.website ? [{ type: 'verified' as const, label: 'Website Verified' }] : [])
+                          ].slice(0, 4);
+                          
+                          return (
+                            <CareServiceCard
+                              key={service.id || index}
+                              service={service}
+                              index={index}
+                              borderColor="border-rose-200 dark:border-gray-700"
+                              hoverBorderColor="hover:border-rose-300 dark:hover:border-gray-600"
+                              iconBgColor="bg-gradient-to-br from-rose-500 to-rose-600"
+                              iconRingColor="ring-rose-100 dark:ring-rose-900"
+                              icon={<HeartHandshake className="w-8 h-8 text-white" />}
+                              categoryBadgeColor="bg-gradient-to-r from-rose-50 to-rose-100 dark:from-rose-900 dark:to-rose-800"
+                              categoryBadgeBorder="border-rose-300 dark:border-rose-600"
+                              categoryLabel="Respite Care"
+                              buttonColor="bg-gradient-to-r from-rose-500 to-rose-600"
+                              buttonHoverColor="hover:from-rose-600 hover:to-rose-700"
                             />
                           );
                         })}
