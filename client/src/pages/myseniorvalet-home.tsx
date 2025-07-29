@@ -498,23 +498,28 @@ export default function MySeniorValetHome() {
       <section className="px-4 py-16 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">Complete Senior Services Directory</h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 mb-6">Beyond communities - everything seniors need for independent living</p>
+            <div className="mb-6">
+              <h2 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600 dark:from-orange-400 dark:to-red-400 mb-2">
+                Senior Services Directory
+              </h2>
+              <div className="h-1 w-32 bg-gradient-to-r from-orange-500 to-red-500 mx-auto rounded-full"></div>
+            </div>
+            <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-200 font-semibold mb-8">Beyond communities - everything seniors need for independent living</p>
             
-            {/* Status Pills with Enhanced Styling */}
-            <div className="flex items-center justify-center gap-4 mb-4">
+            {/* Status Pills - Smaller on mobile */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
               <div className="relative">
-                <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 text-base font-bold flex items-center gap-3 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-bold flex items-center gap-2 sm:gap-3 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                   <div className="relative">
-                    <div className="absolute inset-0 w-3 h-3 bg-white rounded-full animate-ping"></div>
-                    <div className="relative w-3 h-3 bg-white rounded-full animate-pulse"></div>
+                    <div className="absolute inset-0 w-2 sm:w-3 h-2 sm:h-3 bg-white rounded-full animate-ping"></div>
+                    <div className="relative w-2 sm:w-3 h-2 sm:h-3 bg-white rounded-full animate-pulse"></div>
                   </div>
-                  <span className="tracking-wide">LIVE ONLINE STATUS</span>
+                  <span className="tracking-wide">LIVE ONLINE</span>
                 </Badge>
               </div>
               
               <div className="relative">
-                <Badge className="bg-gradient-to-r from-orange-500 to-amber-600 text-white px-6 py-3 text-base font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                <Badge className="bg-gradient-to-r from-orange-500 to-amber-600 text-white px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                   <span className="relative">
                     <span className="absolute inset-0 animate-pulse">✨</span>
                     <span className="relative">NEW ECOSYSTEM</span>
@@ -1302,71 +1307,109 @@ export default function MySeniorValetHome() {
                   </div>
                 </div>
                 
-                {/* Care Service Categories with Counts */}
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+                {/* Care Service Categories - Full Width Rows */}
+                <div className="space-y-4 mb-8">
                   {(() => {
                     const services = (careServicesData as any)?.services || [];
-                    const categoryCounts = {
-                      'Senior Placement Agency': services.filter((s: any) => s.serviceCategory === 'Senior Placement Agency').length,
-                      'Home Care Services': services.filter((s: any) => s.serviceCategory === 'Home Care Services').length,
-                      'Therapy Services': services.filter((s: any) => s.serviceCategory === 'Therapy Services').length,
-                      'Adult Day Care': services.filter((s: any) => s.serviceCategory === 'Adult Day Care').length,
-                      'Personal Care Services': services.filter((s: any) => s.serviceCategory === 'Personal Care Services').length,
-                      'Hospice Care': services.filter((s: any) => s.serviceCategory === 'Hospice Care').length
-                    };
+                    const categories = [
+                      {
+                        name: 'Home Care Services',
+                        icon: Home,
+                        count: services.filter((s: any) => s.serviceCategory === 'Home Care Services').length,
+                        description: 'Professional in-home support and care',
+                        features: ['24/7 availability', 'Licensed caregivers', 'Personal care assistance', 'Medication management'],
+                        bgGradient: 'from-green-500 to-green-600',
+                        bgLight: 'bg-green-50 dark:bg-green-900/20',
+                        borderColor: 'border-green-200 dark:border-green-800',
+                        textColor: 'text-green-700 dark:text-green-300'
+                      },
+                      {
+                        name: 'Therapy Services',
+                        icon: Activity,
+                        count: services.filter((s: any) => s.serviceCategory === 'Therapy Services').length,
+                        description: 'Physical, occupational, and speech therapy',
+                        features: ['Physical therapy', 'Occupational therapy', 'Speech therapy', 'In-home sessions available'],
+                        bgGradient: 'from-purple-500 to-purple-600',
+                        bgLight: 'bg-purple-50 dark:bg-purple-900/20',
+                        borderColor: 'border-purple-200 dark:border-purple-800',
+                        textColor: 'text-purple-700 dark:text-purple-300'
+                      },
+                      {
+                        name: 'Adult Day Care',
+                        icon: Users,
+                        count: services.filter((s: any) => s.serviceCategory === 'Adult Day Care').length,
+                        description: 'Daytime programs for social engagement and activities',
+                        features: ['Social activities', 'Meals provided', 'Transportation available', 'Memory care programs'],
+                        bgGradient: 'from-teal-500 to-teal-600',
+                        bgLight: 'bg-teal-50 dark:bg-teal-900/20',
+                        borderColor: 'border-teal-200 dark:border-teal-800',
+                        textColor: 'text-teal-700 dark:text-teal-300'
+                      },
+                      {
+                        name: 'Personal Care Services',
+                        icon: Users2,
+                        count: services.filter((s: any) => s.serviceCategory === 'Personal Care Services').length,
+                        description: 'Daily living assistance and personal hygiene support',
+                        features: ['Bathing assistance', 'Dressing help', 'Grooming support', 'Mobility assistance'],
+                        bgGradient: 'from-orange-500 to-orange-600',
+                        bgLight: 'bg-orange-50 dark:bg-orange-900/20',
+                        borderColor: 'border-orange-200 dark:border-orange-800',
+                        textColor: 'text-orange-700 dark:text-orange-300'
+                      },
+                      {
+                        name: 'Hospice Care',
+                        icon: Heart,
+                        count: services.filter((s: any) => s.serviceCategory === 'Hospice Care').length,
+                        description: 'Compassionate end-of-life care and family support',
+                        features: ['Pain management', 'Emotional support', 'Family counseling', '24/7 on-call team'],
+                        bgGradient: 'from-indigo-500 to-indigo-600',
+                        bgLight: 'bg-indigo-50 dark:bg-indigo-900/20',
+                        borderColor: 'border-indigo-200 dark:border-indigo-800',
+                        textColor: 'text-indigo-700 dark:text-indigo-300'
+                      }
+                    ];
                     
-                    return (
-                      <>
-                        <div className="text-center cursor-pointer hover:scale-105 transition-transform" onClick={() => setSelectedCategory('Senior Placement Agency')}>
-                          <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                            <Building2 className="w-7 h-7 text-white" />
+                    return categories.map((category) => (
+                      <div
+                        key={category.name}
+                        className={`${category.bgLight} ${category.borderColor} border-2 rounded-xl p-6 cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02]`}
+                        onClick={() => setSelectedCategory(category.name)}
+                      >
+                        <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                          {/* Icon and Title Section */}
+                          <div className="flex items-center gap-4 flex-1">
+                            <div className={`w-16 h-16 bg-gradient-to-br ${category.bgGradient} rounded-2xl flex items-center justify-center shadow-lg`}>
+                              <category.icon className="w-8 h-8 text-white" />
+                            </div>
+                            <div>
+                              <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{category.name}</h4>
+                              <p className={`text-sm ${category.textColor} mt-1`}>{category.description}</p>
+                            </div>
                           </div>
-                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 text-sm">Placement Agencies</h4>
-                          <p className="text-xs text-gray-600 dark:text-gray-300">Find the right community</p>
-                          <Badge className="mt-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">{categoryCounts['Senior Placement Agency']} providers</Badge>
-                        </div>
-                        <div className="text-center cursor-pointer hover:scale-105 transition-transform" onClick={() => setSelectedCategory('Home Care Services')}>
-                          <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                            <Home className="w-7 h-7 text-white" />
+                          
+                          {/* Features Section - Hidden on small mobile */}
+                          <div className="hidden sm:block flex-1">
+                            <div className="grid grid-cols-2 gap-2">
+                              {category.features.map((feature, idx) => (
+                                <div key={idx} className="flex items-center gap-2">
+                                  <CheckCircle className={`w-4 h-4 ${category.textColor}`} />
+                                  <span className="text-xs text-gray-600 dark:text-gray-400">{feature}</span>
+                                </div>
+                              ))}
+                            </div>
                           </div>
-                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 text-sm">Home Care</h4>
-                          <p className="text-xs text-gray-600 dark:text-gray-300">In-home support</p>
-                          <Badge className="mt-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">{categoryCounts['Home Care Services']} providers</Badge>
-                        </div>
-                        <div className="text-center cursor-pointer hover:scale-105 transition-transform" onClick={() => setSelectedCategory('Therapy Services')}>
-                          <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                            <Activity className="w-7 h-7 text-white" />
+                          
+                          {/* Count and Action */}
+                          <div className="flex items-center gap-3">
+                            <div className="text-center">
+                              <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{category.count}</div>
+                              <div className="text-xs text-gray-600 dark:text-gray-400">Providers</div>
+                            </div>
+                            <ChevronRight className={`w-6 h-6 ${category.textColor}`} />
                           </div>
-                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 text-sm">Therapy Services</h4>
-                          <p className="text-xs text-gray-600 dark:text-gray-300">Physical & occupational</p>
-                          <Badge className="mt-1 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">{categoryCounts['Therapy Services']} providers</Badge>
                         </div>
-                        <div className="text-center cursor-pointer hover:scale-105 transition-transform" onClick={() => setSelectedCategory('Adult Day Care')}>
-                          <div className="w-14 h-14 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                            <Users className="w-7 h-7 text-white" />
-                          </div>
-                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 text-sm">Adult Day Care</h4>
-                          <p className="text-xs text-gray-600 dark:text-gray-300">Daytime programs</p>
-                          <Badge className="mt-1 bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200">{categoryCounts['Adult Day Care']} providers</Badge>
-                        </div>
-                        <div className="text-center cursor-pointer hover:scale-105 transition-transform" onClick={() => setSelectedCategory('Personal Care Services')}>
-                          <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                            <Users2 className="w-7 h-7 text-white" />
-                          </div>
-                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 text-sm">Personal Care</h4>
-                          <p className="text-xs text-gray-600 dark:text-gray-300">Daily assistance</p>
-                          <Badge className="mt-1 bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">{categoryCounts['Personal Care Services']} providers</Badge>
-                        </div>
-                        <div className="text-center cursor-pointer hover:scale-105 transition-transform" onClick={() => setSelectedCategory('Hospice Care')}>
-                          <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                            <Heart className="w-7 h-7 text-white" />
-                          </div>
-                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 text-sm">Hospice Care</h4>
-                          <p className="text-xs text-gray-600 dark:text-gray-300">Comfort care</p>
-                          <Badge className="mt-1 bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">{categoryCounts['Hospice Care']} providers</Badge>
-                        </div>
-                      </>
-                    );
+                      </div>
+                    ));
                   })()}
                 </div>
               </CardContent>
