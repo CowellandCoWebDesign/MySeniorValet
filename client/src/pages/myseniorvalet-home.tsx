@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe } from "lucide-react";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -1228,155 +1228,611 @@ export default function MySeniorValetHome() {
 
 
 
-            {/* Filtered Care Services Display */}
-            {selectedCategory && (
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                    {selectedCategory} Providers
-                  </h4>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setSelectedCategory(null)}
-                    className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
-                  >
-                    ✕ Clear Filter
-                  </Button>
-                </div>
-                <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-                  {(() => {
-                    const services = (careServicesData as any)?.services || [];
-                    const filteredServices = services.filter((s: any) => s.serviceCategory === selectedCategory);
+            {/* Senior Placement Agencies Section */}
+            {(() => {
+              const services = (careServicesData as any)?.services || [];
+              const placementAgencies = services.filter((s: any) => s.serviceCategory === 'Senior Placement Agency');
+              
+              if (placementAgencies.length > 0) {
+                return (
+                  <section className="px-4 py-8 relative overflow-hidden mb-8">
+                    <div className="absolute inset-0 z-0">
+                      <div className="w-full h-full bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+                    </div>
                     
-                    if (filteredServices.length === 0) {
-                      return (
-                        <div className="text-center w-full py-8">
-                          <p className="text-gray-600 dark:text-gray-400">No {selectedCategory} providers found in your area.</p>
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                          Senior Placement Agencies
+                        </h2>
+                        <div className="text-right">
+                          <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{placementAgencies.length} Providers</div>
+                          <div className="text-xs text-blue-600 dark:text-blue-400">Expert matching services</div>
                         </div>
-                      );
-                    }
+                      </div>
+                      
+                      <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Find the perfect community with expert guidance • Government verified agencies</p>
                     
-                    return filteredServices.slice(0, 20).map((service: any, index: number) => {
-                      const categoryConfig: any = {
-                        'Senior Placement Agency': { color: 'from-blue-500 to-blue-600', icon: <Building2 className="w-8 h-8 text-white" /> },
-                        'Home Care Services': { color: 'from-green-500 to-green-600', icon: <Home className="w-8 h-8 text-white" /> },
-                        'Therapy Services': { color: 'from-purple-500 to-purple-600', icon: <Activity className="w-8 h-8 text-white" /> },
-                        'Adult Day Care': { color: 'from-teal-500 to-teal-600', icon: <Users className="w-8 h-8 text-white" /> },
-                        'Personal Care Services': { color: 'from-orange-500 to-orange-600', icon: <Users2 className="w-8 h-8 text-white" /> },
-                        'Hospice Care': { color: 'from-indigo-500 to-indigo-600', icon: <Heart className="w-8 h-8 text-white" /> }
-                      };
-                      
-                      const config = categoryConfig[service.serviceCategory] || categoryConfig['Home Care Services'];
-                      
-                      const badges = [
-                        commonBadges.governmentVerified,
-                        ...(service.careTypes?.includes('Medicare') ? [commonBadges.medicareAccepted] : []),
-                        ...(service.careTypes?.includes('Medicaid') ? [commonBadges.medicaidAccepted] : []),
-                        ...(service.serviceCategory === 'Senior Placement Agency' ? [commonBadges.available247] : []),
-                        ...(service.website ? [{ type: 'verified' as const, label: 'Website Verified' }] : [])
-                      ].slice(0, 4);
-                      
-                      return (
-                        <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-96 h-80 border-2 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800">
-                          <CardContent className="p-6 flex flex-col h-full">
-                            <div className="flex items-start gap-4 mb-4">
-                              <div className={`w-12 h-12 bg-gradient-to-br ${config.color} rounded-xl flex items-center justify-center flex-shrink-0 shadow-md`}>
-                                {config.icon}
-                              </div>
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <Badge variant="outline" className="text-xs px-2 py-0.5 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 border-gray-300 dark:border-gray-600">
-                                    {service.serviceCategory}
-                                  </Badge>
-                                  {service.rating && (
-                                    <div className="flex items-center gap-1">
-                                      <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                                      <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">{service.rating}</span>
+                      <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                        {placementAgencies.slice(0, 20).map((service: any, index: number) => {
+                          const badges = [
+                            commonBadges.governmentVerified,
+                            ...(service.careTypes?.includes('Medicare') ? [commonBadges.medicareAccepted] : []),
+                            ...(service.careTypes?.includes('Medicaid') ? [commonBadges.medicaidAccepted] : []),
+                            commonBadges.available247,
+                            ...(service.website ? [{ type: 'verified' as const, label: 'Website Verified' }] : [])
+                          ].slice(0, 4);
+                          
+                          return (
+                            <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-96 h-80 border-2 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800 animate-float" style={{animationDelay: `${index * 0.1}s`}}>
+                              <CardContent className="p-6 flex flex-col h-full">
+                                <div className="flex items-start gap-4 mb-4">
+                                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                                    <Building2 className="w-8 h-8 text-white" />
+                                  </div>
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <Badge variant="outline" className="text-xs px-2 py-0.5 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 border-blue-300 dark:border-blue-600">
+                                        Placement Agency
+                                      </Badge>
+                                      {service.rating && (
+                                        <div className="flex items-center gap-1">
+                                          <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{service.rating}</span>
+                                        </div>
+                                      )}
                                     </div>
+                                    <h3 className="font-bold text-gray-900 dark:text-gray-100 text-base mb-1 line-clamp-2">{service.name}</h3>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-1">
+                                      {service.address}, {service.city}, {service.state} {service.zipCode}
+                                    </p>
+                                  </div>
+                                </div>
+                                
+                                <div className="flex flex-wrap gap-1.5 mb-3">
+                                  {badges.map((badge, idx) => (
+                                    <Badge key={idx} variant={badge.type === 'verified' ? 'default' : 'secondary'} className="text-[10px] px-2 py-0.5">
+                                      {badge.label}
+                                    </Badge>
+                                  ))}
+                                </div>
+                                
+                                {service.phone && (
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <Phone className="w-4 h-4 text-gray-500" />
+                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{service.phone}</span>
+                                  </div>
+                                )}
+                                
+                                <div className="mt-auto space-y-2">
+                                  <Button className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 text-sm font-semibold">
+                                    Contact Agency
+                                  </Button>
+                                  {service.website && (
+                                    <a href={service.website} target="_blank" rel="noopener noreferrer" className="block">
+                                      <Button variant="outline" className="w-full text-sm">
+                                        <Globe className="w-3 h-3 mr-2" />
+                                        Visit Website
+                                      </Button>
+                                    </a>
                                   )}
                                 </div>
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 line-clamp-1">{service.name}</h3>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">{service.city}, {service.state}</p>
-                              </div>
-                            </div>
-                            
-                            <ServiceBadges badges={badges} className="mb-3" size="sm" />
-                            
-                            <div className="flex items-center justify-between mb-3">
-                              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Contact</span>
-                              <span className="text-base font-bold text-blue-600 dark:text-blue-400">{service.phone}</span>
-                            </div>
-                            
-                            <div className="space-y-1.5 mb-4 flex-grow">
-                              {service.careTypes && service.careTypes.length > 0 ? (
-                                service.careTypes.slice(0, 3).map((feature: string, idx: number) => (
-                                  <div key={idx} className="flex items-center text-xs text-gray-600 dark:text-gray-300">
-                                    <CheckCircle className="w-3 h-3 text-green-500 mr-2 flex-shrink-0" />
-                                    <span className="line-clamp-1">{feature}</span>
-                                  </div>
-                                ))
-                              ) : (
-                                <div className="flex items-center text-xs text-gray-600 dark:text-gray-300">
-                                  <CheckCircle className="w-3 h-3 text-green-500 mr-2 flex-shrink-0" />
-                                  <span>Professional care services</span>
-                                </div>
-                              )}
-                            </div>
-                            
-                            <div className="space-y-2 mt-auto">
-                              <div className="grid grid-cols-2 gap-2">
-                                <Button 
-                                  size="sm"
-                                  className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300"
-                                  onClick={() => window.open(`tel:${service.phone}`, '_self')}
-                                >
-                                  <Phone className="w-3 h-3 mr-1" />
-                                  Call Now
-                                </Button>
-                                {service.website && (
-                                  <Button 
-                                    size="sm"
-                                    variant="outline" 
-                                    className="border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 font-semibold"
-                                    onClick={() => window.open(service.website, '_blank')}
-                                  >
-                                    <ExternalLink className="w-3 h-3 mr-1" />
-                                    Website
-                                  </Button>
-                                )}
-                              </div>
-                              <div className="text-xs text-center text-green-600 dark:text-green-400 font-medium">
-                                ✓ Government Database Verified
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      );
-                    });
-                  })()}
-                </div>
-                {(() => {
-                  const services = (careServicesData as any)?.services || [];
-                  const filteredServices = services.filter((s: any) => s.serviceCategory === selectedCategory);
-                  if (filteredServices.length > 20) {
-                    return (
-                      <div className="text-center mt-4">
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                          Showing 20 of {filteredServices.length} {selectedCategory} providers
-                        </p>
-                        <Link href={`/care-services?category=${encodeURIComponent(selectedCategory)}`}>
-                          <Button variant="outline" size="sm">
-                            View All {filteredServices.length} Providers →
-                          </Button>
-                        </Link>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
                       </div>
-                    );
-                  }
-                  return null;
-                })()}
-              </div>
-            )}
+                    </div>
+                  </section>
+                );
+              }
+              return null;
+            })()}
+
+            {/* Home Care Services Section */}
+            {(() => {
+              const services = (careServicesData as any)?.services || [];
+              const homeCareServices = services.filter((s: any) => s.serviceCategory === 'Home Care Services');
+              
+              if (homeCareServices.length > 0) {
+                return (
+                  <section className="px-4 py-8 relative overflow-hidden mb-8">
+                    <div className="absolute inset-0 z-0">
+                      <div className="w-full h-full bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+                    </div>
+                    
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                          Home Care Services
+                        </h2>
+                        <div className="text-right">
+                          <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{homeCareServices.length} Providers</div>
+                          <div className="text-xs text-green-600 dark:text-green-400">In-home support & care</div>
+                        </div>
+                      </div>
+                      
+                      <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Professional care in the comfort of your home • Licensed & insured providers</p>
+                    
+                      <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                        {homeCareServices.slice(0, 20).map((service: any, index: number) => {
+                          const badges = [
+                            commonBadges.governmentVerified,
+                            ...(service.careTypes?.includes('Medicare') ? [commonBadges.medicareAccepted] : []),
+                            ...(service.careTypes?.includes('Medicaid') ? [commonBadges.medicaidAccepted] : []),
+                            commonBadges.stateLicensed,
+                            ...(service.website ? [{ type: 'verified' as const, label: 'Website Verified' }] : [])
+                          ].slice(0, 4);
+                          
+                          return (
+                            <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-96 h-80 border-2 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800 animate-float" style={{animationDelay: `${index * 0.1}s`}}>
+                              <CardContent className="p-6 flex flex-col h-full">
+                                <div className="flex items-start gap-4 mb-4">
+                                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                                    <Home className="w-8 h-8 text-white" />
+                                  </div>
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <Badge variant="outline" className="text-xs px-2 py-0.5 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 border-green-300 dark:border-green-600">
+                                        Home Care
+                                      </Badge>
+                                      {service.rating && (
+                                        <div className="flex items-center gap-1">
+                                          <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{service.rating}</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                    <h3 className="font-bold text-gray-900 dark:text-gray-100 text-base mb-1 line-clamp-2">{service.name}</h3>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-1">
+                                      {service.address}, {service.city}, {service.state} {service.zipCode}
+                                    </p>
+                                  </div>
+                                </div>
+                                
+                                <div className="flex flex-wrap gap-1.5 mb-3">
+                                  {badges.map((badge, idx) => (
+                                    <Badge key={idx} variant={badge.type === 'verified' ? 'default' : 'secondary'} className="text-[10px] px-2 py-0.5">
+                                      {badge.label}
+                                    </Badge>
+                                  ))}
+                                </div>
+                                
+                                {service.phone && (
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <Phone className="w-4 h-4 text-gray-500" />
+                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{service.phone}</span>
+                                  </div>
+                                )}
+                                
+                                <div className="mt-auto space-y-2">
+                                  <Button className="w-full bg-green-500 hover:bg-green-600 text-white py-2 text-sm font-semibold">
+                                    Contact Provider
+                                  </Button>
+                                  {service.website && (
+                                    <a href={service.website} target="_blank" rel="noopener noreferrer" className="block">
+                                      <Button variant="outline" className="w-full text-sm">
+                                        <Globe className="w-3 h-3 mr-2" />
+                                        Visit Website
+                                      </Button>
+                                    </a>
+                                  )}
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </section>
+                );
+              }
+              return null;
+            })()}
+
+            {/* Therapy Services Section */}
+            {(() => {
+              const services = (careServicesData as any)?.services || [];
+              const therapyServices = services.filter((s: any) => s.serviceCategory === 'Therapy Services');
+              
+              if (therapyServices.length > 0) {
+                return (
+                  <section className="px-4 py-8 relative overflow-hidden mb-8">
+                    <div className="absolute inset-0 z-0">
+                      <div className="w-full h-full bg-gradient-to-br from-purple-50 via-pink-50 to-fuchsia-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+                    </div>
+                    
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                          Therapy Services
+                        </h2>
+                        <div className="text-right">
+                          <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{therapyServices.length} Providers</div>
+                          <div className="text-xs text-purple-600 dark:text-purple-400">Physical & occupational therapy</div>
+                        </div>
+                      </div>
+                      
+                      <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Specialized therapy services to improve mobility & independence • Medicare certified</p>
+                    
+                      <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                        {therapyServices.slice(0, 20).map((service: any, index: number) => {
+                          const badges = [
+                            commonBadges.governmentVerified,
+                            ...(service.careTypes?.includes('Medicare') ? [commonBadges.medicareAccepted] : []),
+                            ...(service.careTypes?.includes('Medicaid') ? [commonBadges.medicaidAccepted] : []),
+                            commonBadges.stateLicensed,
+                            ...(service.website ? [{ type: 'verified' as const, label: 'Website Verified' }] : [])
+                          ].slice(0, 4);
+                          
+                          return (
+                            <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-96 h-80 border-2 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800 animate-float" style={{animationDelay: `${index * 0.1}s`}}>
+                              <CardContent className="p-6 flex flex-col h-full">
+                                <div className="flex items-start gap-4 mb-4">
+                                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                                    <Activity className="w-8 h-8 text-white" />
+                                  </div>
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <Badge variant="outline" className="text-xs px-2 py-0.5 bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800 border-purple-300 dark:border-purple-600">
+                                        Therapy Services
+                                      </Badge>
+                                      {service.rating && (
+                                        <div className="flex items-center gap-1">
+                                          <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{service.rating}</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                    <h3 className="font-bold text-gray-900 dark:text-gray-100 text-base mb-1 line-clamp-2">{service.name}</h3>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-1">
+                                      {service.address}, {service.city}, {service.state} {service.zipCode}
+                                    </p>
+                                  </div>
+                                </div>
+                                
+                                <div className="flex flex-wrap gap-1.5 mb-3">
+                                  {badges.map((badge, idx) => (
+                                    <Badge key={idx} variant={badge.type === 'verified' ? 'default' : 'secondary'} className="text-[10px] px-2 py-0.5">
+                                      {badge.label}
+                                    </Badge>
+                                  ))}
+                                </div>
+                                
+                                {service.phone && (
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <Phone className="w-4 h-4 text-gray-500" />
+                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{service.phone}</span>
+                                  </div>
+                                )}
+                                
+                                <div className="mt-auto space-y-2">
+                                  <Button className="w-full bg-purple-500 hover:bg-purple-600 text-white py-2 text-sm font-semibold">
+                                    Contact Provider
+                                  </Button>
+                                  {service.website && (
+                                    <a href={service.website} target="_blank" rel="noopener noreferrer" className="block">
+                                      <Button variant="outline" className="w-full text-sm">
+                                        <Globe className="w-3 h-3 mr-2" />
+                                        Visit Website
+                                      </Button>
+                                    </a>
+                                  )}
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </section>
+                );
+              }
+              return null;
+            })()}
+
+            {/* Adult Day Care Section */}
+            {(() => {
+              const services = (careServicesData as any)?.services || [];
+              const adultDayCare = services.filter((s: any) => s.serviceCategory === 'Adult Day Care');
+              
+              if (adultDayCare.length > 0) {
+                return (
+                  <section className="px-4 py-8 relative overflow-hidden mb-8">
+                    <div className="absolute inset-0 z-0">
+                      <div className="w-full h-full bg-gradient-to-br from-teal-50 via-cyan-50 to-sky-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+                    </div>
+                    
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                          Adult Day Care Centers
+                        </h2>
+                        <div className="text-right">
+                          <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{adultDayCare.length} Providers</div>
+                          <div className="text-xs text-teal-600 dark:text-teal-400">Daytime programs & activities</div>
+                        </div>
+                      </div>
+                      
+                      <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Social engagement & supervised care during the day • Transportation available</p>
+                    
+                      <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                        {adultDayCare.slice(0, 20).map((service: any, index: number) => {
+                          const badges = [
+                            commonBadges.governmentVerified,
+                            ...(service.careTypes?.includes('Medicare') ? [commonBadges.medicareAccepted] : []),
+                            ...(service.careTypes?.includes('Medicaid') ? [commonBadges.medicaidAccepted] : []),
+                            { type: 'feature' as const, label: 'Activities & Meals' },
+                            ...(service.website ? [{ type: 'verified' as const, label: 'Website Verified' }] : [])
+                          ].slice(0, 4);
+                          
+                          return (
+                            <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-96 h-80 border-2 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800 animate-float" style={{animationDelay: `${index * 0.1}s`}}>
+                              <CardContent className="p-6 flex flex-col h-full">
+                                <div className="flex items-start gap-4 mb-4">
+                                  <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                                    <Users className="w-8 h-8 text-white" />
+                                  </div>
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <Badge variant="outline" className="text-xs px-2 py-0.5 bg-gradient-to-r from-teal-50 to-teal-100 dark:from-teal-900 dark:to-teal-800 border-teal-300 dark:border-teal-600">
+                                        Adult Day Care
+                                      </Badge>
+                                      {service.rating && (
+                                        <div className="flex items-center gap-1">
+                                          <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{service.rating}</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                    <h3 className="font-bold text-gray-900 dark:text-gray-100 text-base mb-1 line-clamp-2">{service.name}</h3>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-1">
+                                      {service.address}, {service.city}, {service.state} {service.zipCode}
+                                    </p>
+                                  </div>
+                                </div>
+                                
+                                <div className="flex flex-wrap gap-1.5 mb-3">
+                                  {badges.map((badge, idx) => (
+                                    <Badge key={idx} variant={badge.type === 'verified' ? 'default' : 'secondary'} className="text-[10px] px-2 py-0.5">
+                                      {badge.label}
+                                    </Badge>
+                                  ))}
+                                </div>
+                                
+                                {service.phone && (
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <Phone className="w-4 h-4 text-gray-500" />
+                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{service.phone}</span>
+                                  </div>
+                                )}
+                                
+                                <div className="mt-auto space-y-2">
+                                  <Button className="w-full bg-teal-500 hover:bg-teal-600 text-white py-2 text-sm font-semibold">
+                                    Contact Center
+                                  </Button>
+                                  {service.website && (
+                                    <a href={service.website} target="_blank" rel="noopener noreferrer" className="block">
+                                      <Button variant="outline" className="w-full text-sm">
+                                        <Globe className="w-3 h-3 mr-2" />
+                                        Visit Website
+                                      </Button>
+                                    </a>
+                                  )}
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </section>
+                );
+              }
+              return null;
+            })()}
+
+            {/* Personal Care Services Section */}
+            {(() => {
+              const services = (careServicesData as any)?.services || [];
+              const personalCare = services.filter((s: any) => s.serviceCategory === 'Personal Care Services');
+              
+              if (personalCare.length > 0) {
+                return (
+                  <section className="px-4 py-8 relative overflow-hidden mb-8">
+                    <div className="absolute inset-0 z-0">
+                      <div className="w-full h-full bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+                    </div>
+                    
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                          Personal Care Services
+                        </h2>
+                        <div className="text-right">
+                          <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{personalCare.length} Providers</div>
+                          <div className="text-xs text-orange-600 dark:text-orange-400">Daily living assistance</div>
+                        </div>
+                      </div>
+                      
+                      <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Help with bathing, dressing & personal hygiene • Compassionate caregivers</p>
+                    
+                      <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                        {personalCare.slice(0, 20).map((service: any, index: number) => {
+                          const badges = [
+                            commonBadges.governmentVerified,
+                            ...(service.careTypes?.includes('Medicare') ? [commonBadges.medicareAccepted] : []),
+                            ...(service.careTypes?.includes('Medicaid') ? [commonBadges.medicaidAccepted] : []),
+                            commonBadges.stateLicensed,
+                            ...(service.website ? [{ type: 'verified' as const, label: 'Website Verified' }] : [])
+                          ].slice(0, 4);
+                          
+                          return (
+                            <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-96 h-80 border-2 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800 animate-float" style={{animationDelay: `${index * 0.1}s`}}>
+                              <CardContent className="p-6 flex flex-col h-full">
+                                <div className="flex items-start gap-4 mb-4">
+                                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                                    <Users2 className="w-8 h-8 text-white" />
+                                  </div>
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <Badge variant="outline" className="text-xs px-2 py-0.5 bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900 dark:to-orange-800 border-orange-300 dark:border-orange-600">
+                                        Personal Care
+                                      </Badge>
+                                      {service.rating && (
+                                        <div className="flex items-center gap-1">
+                                          <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{service.rating}</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                    <h3 className="font-bold text-gray-900 dark:text-gray-100 text-base mb-1 line-clamp-2">{service.name}</h3>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-1">
+                                      {service.address}, {service.city}, {service.state} {service.zipCode}
+                                    </p>
+                                  </div>
+                                </div>
+                                
+                                <div className="flex flex-wrap gap-1.5 mb-3">
+                                  {badges.map((badge, idx) => (
+                                    <Badge key={idx} variant={badge.type === 'verified' ? 'default' : 'secondary'} className="text-[10px] px-2 py-0.5">
+                                      {badge.label}
+                                    </Badge>
+                                  ))}
+                                </div>
+                                
+                                {service.phone && (
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <Phone className="w-4 h-4 text-gray-500" />
+                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{service.phone}</span>
+                                  </div>
+                                )}
+                                
+                                <div className="mt-auto space-y-2">
+                                  <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 text-sm font-semibold">
+                                    Contact Provider
+                                  </Button>
+                                  {service.website && (
+                                    <a href={service.website} target="_blank" rel="noopener noreferrer" className="block">
+                                      <Button variant="outline" className="w-full text-sm">
+                                        <Globe className="w-3 h-3 mr-2" />
+                                        Visit Website
+                                      </Button>
+                                    </a>
+                                  )}
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </section>
+                );
+              }
+              return null;
+            })()}
+
+            {/* Hospice Care Section */}
+            {(() => {
+              const services = (careServicesData as any)?.services || [];
+              const hospiceCare = services.filter((s: any) => s.serviceCategory === 'Hospice Care');
+              
+              if (hospiceCare.length > 0) {
+                return (
+                  <section className="px-4 py-8 relative overflow-hidden mb-8">
+                    <div className="absolute inset-0 z-0">
+                      <div className="w-full h-full bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+                    </div>
+                    
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                          Hospice Care Services
+                        </h2>
+                        <div className="text-right">
+                          <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{hospiceCare.length} Providers</div>
+                          <div className="text-xs text-indigo-600 dark:text-indigo-400">Comfort & dignity care</div>
+                        </div>
+                      </div>
+                      
+                      <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Compassionate end-of-life care & family support • 24/7 availability</p>
+                    
+                      <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                        {hospiceCare.slice(0, 20).map((service: any, index: number) => {
+                          const badges = [
+                            commonBadges.governmentVerified,
+                            ...(service.careTypes?.includes('Medicare') ? [commonBadges.medicareAccepted] : []),
+                            ...(service.careTypes?.includes('Medicaid') ? [commonBadges.medicaidAccepted] : []),
+                            commonBadges.available247,
+                            ...(service.website ? [{ type: 'verified' as const, label: 'Website Verified' }] : [])
+                          ].slice(0, 4);
+                          
+                          return (
+                            <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-96 h-80 border-2 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800 animate-float" style={{animationDelay: `${index * 0.1}s`}}>
+                              <CardContent className="p-6 flex flex-col h-full">
+                                <div className="flex items-start gap-4 mb-4">
+                                  <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                                    <Heart className="w-8 h-8 text-white" />
+                                  </div>
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <Badge variant="outline" className="text-xs px-2 py-0.5 bg-gradient-to-r from-indigo-50 to-indigo-100 dark:from-indigo-900 dark:to-indigo-800 border-indigo-300 dark:border-indigo-600">
+                                        Hospice Care
+                                      </Badge>
+                                      {service.rating && (
+                                        <div className="flex items-center gap-1">
+                                          <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{service.rating}</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                    <h3 className="font-bold text-gray-900 dark:text-gray-100 text-base mb-1 line-clamp-2">{service.name}</h3>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-1">
+                                      {service.address}, {service.city}, {service.state} {service.zipCode}
+                                    </p>
+                                  </div>
+                                </div>
+                                
+                                <div className="flex flex-wrap gap-1.5 mb-3">
+                                  {badges.map((badge, idx) => (
+                                    <Badge key={idx} variant={badge.type === 'verified' ? 'default' : 'secondary'} className="text-[10px] px-2 py-0.5">
+                                      {badge.label}
+                                    </Badge>
+                                  ))}
+                                </div>
+                                
+                                {service.phone && (
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <Phone className="w-4 h-4 text-gray-500" />
+                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{service.phone}</span>
+                                  </div>
+                                )}
+                                
+                                <div className="mt-auto space-y-2">
+                                  <Button className="w-full bg-indigo-500 hover:bg-indigo-600 text-white py-2 text-sm font-semibold">
+                                    Contact Provider
+                                  </Button>
+                                  {service.website && (
+                                    <a href={service.website} target="_blank" rel="noopener noreferrer" className="block">
+                                      <Button variant="outline" className="w-full text-sm">
+                                        <Globe className="w-3 h-3 mr-2" />
+                                        Visit Website
+                                      </Button>
+                                    </a>
+                                  )}
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </section>
+                );
+              }
+              return null;
+            })()}
 
             {/* All Care Services - Default View */}
             {!selectedCategory && (
