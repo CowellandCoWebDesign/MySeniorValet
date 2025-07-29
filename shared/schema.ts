@@ -3377,3 +3377,155 @@ export const insertFamilyTaskSchema = createInsertSchema(familyTasks).omit({
 });
 export type InsertFamilyTask = z.infer<typeof insertFamilyTaskSchema>;
 export type FamilyTask = typeof familyTasks.$inferSelect;
+
+// ========== SERVICES MANAGEMENT SYSTEM ==========
+// Service Categories and Products Management
+export const serviceCategories = pgTable("service_categories", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  icon: text("icon"),
+  color: text("color"),
+  isActive: boolean("is_active").default(true),
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const serviceProviders = pgTable("service_providers", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  logo: text("logo"),
+  website: text("website"),
+  contactEmail: text("contact_email"),
+  contactPhone: text("contact_phone"),
+  isPartner: boolean("is_partner").default(false),
+  isActive: boolean("is_active").default(true),
+  rating: numeric("rating", { precision: 3, scale: 2 }),
+  totalReviews: integer("total_reviews").default(0),
+  partnershipLevel: text("partnership_level", {
+    enum: ["featured", "premium", "standard", "affiliate"]
+  }).default("standard"),
+  commissionRate: numeric("commission_rate", { precision: 5, scale: 2 }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const services = pgTable("services", {
+  id: serial("id").primaryKey(),
+  categoryId: integer("category_id").references(() => serviceCategories.id),
+  providerId: integer("provider_id").references(() => serviceProviders.id),
+  name: text("name").notNull(),
+  description: text("description"),
+  shortDescription: text("short_description"),
+  features: text("features").array().default([]),
+  pricing: json("pricing").$type<{
+    type: 'fixed' | 'range' | 'variable' | 'quote';
+    amount?: number;
+    min?: number;
+    max?: number;
+    currency: string;
+    unit?: string;
+    description?: string;
+  }>(),
+  serviceType: text("service_type", {
+    enum: ["product", "service", "consultation", "subscription", "one-time"]
+  }).notNull(),
+  deliveryMethod: text("delivery_method", {
+    enum: ["in-person", "online", "phone", "mail", "pickup", "delivery"]
+  }).array().default([]),
+  availability: json("availability").$type<{
+    schedule?: string;
+    regions?: string[];
+    restrictions?: string[];
+  }>(),
+  externalUrl: text("external_url"),
+  affiliateCode: text("affiliate_code"),
+  productId: text("product_id"), // For tracking Amazon or other external products
+  imageUrl: text("image_url"),
+  isActive: boolean("is_active").default(true),
+  isFeatured: boolean("is_featured").default(false),
+  sortOrder: integer("sort_order").default(0),
+  metadata: json("metadata").$type<{
+    aiGenerated?: boolean;
+    source?: string;
+    lastUpdated?: string;
+    tags?: string[];
+  }>(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const serviceAnalytics = pgTable("service_analytics", {
+  id: serial("id").primaryKey(),
+  serviceId: integer("service_id").references(() => services.id),
+  providerId: integer("provider_id").references(() => serviceProviders.id),
+  date: date("date").notNull(),
+  views: integer("views").default(0),
+  clicks: integer("clicks").default(0),
+  conversions: integer("conversions").default(0),
+  revenue: numeric("revenue", { precision: 10, scale: 2 }).default('0'),
+  impressions: integer("impressions").default(0),
+  engagementRate: numeric("engagement_rate", { precision: 5, scale: 2 }),
+  conversionRate: numeric("conversion_rate", { precision: 5, scale: 2 }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const serviceClicks = pgTable("service_clicks", {
+  id: serial("id").primaryKey(),
+  serviceId: integer("service_id").references(() => services.id),
+  userId: varchar("user_id").references(() => users.id),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  referrer: text("referrer"),
+  clickedAt: timestamp("clicked_at").defaultNow(),
+});
+
+// Service Relations
+export const serviceCategoriesRelations = relations(serviceCategories, ({ many }) => ({
+  services: many(services),
+}));
+
+export const serviceProvidersRelations = relations(serviceProviders, ({ many }) => ({
+  services: many(services),
+  analytics: many(serviceAnalytics),
+}));
+
+export const servicesRelations = relations(services, ({ one, many }) => ({
+  category: one(serviceCategories, {
+    fields: [services.categoryId],
+    references: [serviceCategories.id],
+  }),
+  provider: one(serviceProviders, {
+    fields: [services.providerId],
+    references: [serviceProviders.id],
+  }),
+  analytics: many(serviceAnalytics),
+  clicks: many(serviceClicks),
+}));
+
+// Insert schemas for services management
+export const insertServiceCategorySchema = createInsertSchema(serviceCategories).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertServiceCategory = z.infer<typeof insertServiceCategorySchema>;
+export type ServiceCategory = typeof serviceCategories.$inferSelect;
+
+export const insertServiceProviderSchema = createInsertSchema(serviceProviders).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertServiceProvider = z.infer<typeof insertServiceProviderSchema>;
+export type ServiceProvider = typeof serviceProviders.$inferSelect;
+
+export const insertServiceSchema = createInsertSchema(services).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertService = z.infer<typeof insertServiceSchema>;
+export type Service = typeof services.$inferSelect;

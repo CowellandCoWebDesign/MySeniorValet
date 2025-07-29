@@ -77,6 +77,7 @@ import AIDemoPage from "@/pages/ai-demo";
 import AIMapShowcase from "@/pages/ai-map-showcase";
 import VendorSignup from "@/pages/vendor-signup";
 import VendorDashboard from "@/pages/vendor-dashboard";
+import ServicesManagementDashboard from "@/pages/ServicesManagementDashboard";
 import { useAuth } from "@/hooks/useAuth";
 
 function Router() {
@@ -101,6 +102,7 @@ function Router() {
       <Route path="/admin-creative" component={AdminCreative} />
       <Route path="/admin-unified" component={AdminUnified} />
       <Route path="/admin/service-listings" component={ServiceListingsAdmin} />
+      <Route path="/admin/services-management" component={ServicesManagementDashboard} />
       <Route path="/expansion-monitor" component={ExpansionMonitor} />
       <Route path="/api-costs" component={ApiCostDashboard} />
       <Route path="/dashboard" component={Dashboard} />
