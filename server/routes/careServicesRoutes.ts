@@ -8,7 +8,7 @@ const router = Router();
 // Get all care services from the database
 router.get('/care-services', async (req, res) => {
   try {
-    const { category, location, limit = 50 } = req.query;
+    const { category, location, limit } = req.query;
     
     // Build dynamic query conditions
     let whereConditions = and(
@@ -37,7 +37,7 @@ router.get('/care-services', async (req, res) => {
       );
     }
 
-    const careServices = await db
+    let careServicesQuery = db
       .select({
         id: communities.id,
         name: communities.name,
@@ -77,13 +77,19 @@ router.get('/care-services', async (req, res) => {
           WHEN LOWER(${communities.careTypes}::text) LIKE '%personal care%' THEN 'Personal Care Services'
           ELSE 'Care Services'
         END
-      `, communities.name)
-      .limit(Number(limit));
+      `, communities.name);
+    
+    // Apply limit only if specified
+    if (limit) {
+      careServicesQuery = careServicesQuery.limit(Number(limit));
+    }
+      
+    const queryResult = await careServicesQuery;
 
     // Add category filter if specified
-    let filteredServices = careServices;
+    let filteredServices = queryResult;
     if (category) {
-      filteredServices = careServices.filter(service => 
+      filteredServices = queryResult.filter(service => 
         service.serviceCategory.toLowerCase().includes(String(category).toLowerCase())
       );
     }
