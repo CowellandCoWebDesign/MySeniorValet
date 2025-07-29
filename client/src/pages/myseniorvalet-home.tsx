@@ -1518,7 +1518,7 @@ export default function MySeniorValetHome() {
                     location: "Alameda, CA", 
                     website: "https://www.aimplusseniors.com",
                     color: "from-teal-500 to-teal-600",
-                    icon: <User className="w-8 h-8 text-white" />,
+                    icon: <Users className="w-8 h-8 text-white" />,
                     features: ["Personal assistance", "Transportation", "Companion care"],
                     rating: "4.5"
                   },
