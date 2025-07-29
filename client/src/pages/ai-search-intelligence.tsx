@@ -63,6 +63,7 @@ export default function AISearchIntelligence() {
   const [mapCenter, setMapCenter] = useState<[number, number]>([37.7749, -122.4194]);
   const [mapZoom, setMapZoom] = useState(10);
   const [activeTab, setActiveTab] = useState('search');
+  const [searchType, setSearchType] = useState<'housing' | 'services' | 'marketplace' | 'resources'>('housing');
   
   // Perfect Match Profile State
   const [matchProfile, setMatchProfile] = useState<PerfectMatchProfile>({
@@ -75,11 +76,15 @@ export default function AISearchIntelligence() {
 
   // AI Search Mutation
   const aiSearchMutation = useMutation({
-    mutationFn: async (query: string) => {
+    mutationFn: async ({ query, type }: { query: string; type: string }) => {
       const response = await fetch('/api/ai/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query, context: { userLocation: matchProfile.location } })
+        body: JSON.stringify({ 
+          query, 
+          searchType: type,
+          context: { userLocation: matchProfile.location } 
+        })
       });
       if (!response.ok) throw new Error('AI search failed');
       return response.json();
@@ -127,11 +132,11 @@ export default function AISearchIntelligence() {
     
     setIsAnalyzing(true);
     try {
-      await aiSearchMutation.mutateAsync(searchQuery);
+      await aiSearchMutation.mutateAsync({ query: searchQuery, type: searchType });
     } finally {
       setIsAnalyzing(false);
     }
-  }, [searchQuery]);
+  }, [searchQuery, searchType]);
 
   // Handle Perfect Match analysis
   const handlePerfectMatch = useCallback(async () => {
@@ -152,7 +157,15 @@ export default function AISearchIntelligence() {
     await aiComparisonMutation.mutateAsync(communityIds);
   }, [selectedCommunities]);
 
-  const searchResults = useQuery({
+  const searchResults = useQuery<{
+    communities?: any[];
+    services?: any[];
+    vendors?: any[];
+    resources?: any[];
+    searchInterpretation?: string;
+    appliedFilters?: any;
+    aiInsights?: any;
+  }>({
     queryKey: ['ai-search-results'],
     enabled: false
   });
@@ -196,18 +209,66 @@ export default function AISearchIntelligence() {
 
           {/* Smart Search Tab */}
           <TabsContent value="search" className="space-y-6">
+            {/* Search Type Filter */}
+            <div className="flex flex-wrap gap-2 justify-center">
+              <Button
+                variant={searchType === 'housing' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setSearchType('housing')}
+                className="flex items-center gap-2"
+              >
+                <Building2 className="w-4 h-4" />
+                Housing Communities
+              </Button>
+              <Button
+                variant={searchType === 'services' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setSearchType('services')}
+                className="flex items-center gap-2"
+              >
+                <Heart className="w-4 h-4" />
+                Care Services
+              </Button>
+              <Button
+                variant={searchType === 'marketplace' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setSearchType('marketplace')}
+                className="flex items-center gap-2"
+              >
+                <Users className="w-4 h-4" />
+                Marketplace Vendors
+              </Button>
+              <Button
+                variant={searchType === 'resources' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setSearchType('resources')}
+                className="flex items-center gap-2"
+              >
+                <Activity className="w-4 h-4" />
+                VA Resources
+              </Button>
+            </div>
+
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Brain className="w-6 h-6 text-purple-600" />
-                  AI-Powered Natural Language Search
+                  {searchType === 'housing' && 'AI-Powered Housing Search'}
+                  {searchType === 'services' && 'Find Care Services Near You'}
+                  {searchType === 'marketplace' && 'Discover Marketplace Solutions'}
+                  {searchType === 'resources' && 'Explore VA Resources'}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="relative">
                     <Input
-                      placeholder="Ask me anything: 'Memory care near Sacramento under $4000 with good reviews'"
+                      placeholder={
+                        searchType === 'housing' ? "Ask me anything: 'Memory care near Sacramento under $4000 with good reviews'" :
+                        searchType === 'services' ? "Search for: 'Home care agencies in San Francisco'" :
+                        searchType === 'marketplace' ? "Find: 'Medical equipment rental near me'" :
+                        "Explore: 'VA medical centers in California'"
+                      }
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && handleAISearch()}
@@ -273,43 +334,49 @@ export default function AISearchIntelligence() {
               </CardContent>
             </Card>
 
-            {/* Map and Results Split View */}
-            {searchResults.data?.communities && (
+            {/* Dynamic Results Display */}
+            {(searchResults.data?.communities || searchResults.data?.services || searchResults.data?.vendors || searchResults.data?.resources) && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Interactive Map */}
-                <Card className="h-[600px]">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <MapPin className="w-5 h-5" />
-                      AI Map Intelligence
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="h-[calc(100%-5rem)] p-0">
-                    <Map
-                      communities={searchResults.data.communities}
-                      center={mapCenter}
-                      zoom={mapZoom}
-                      onLocationAnalysis={(analysis) => {
-                        console.log('AI Location Analysis:', analysis);
-                      }}
-                    />
-                  </CardContent>
-                </Card>
+                {/* Interactive Map - Only show for housing */}
+                {searchType === 'housing' && searchResults.data?.communities && (
+                  <Card className="h-[600px]">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <MapPin className="w-5 h-5" />
+                        AI Map Intelligence
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="h-[calc(100%-5rem)] p-0">
+                      <Map
+                        communities={searchResults.data.communities}
+                        center={mapCenter}
+                        zoom={mapZoom}
+                        onLocationAnalysis={(analysis) => {
+                          console.log('AI Location Analysis:', analysis);
+                        }}
+                      />
+                    </CardContent>
+                  </Card>
+                )}
 
                 {/* Search Results */}
-                <div className="space-y-4 max-h-[600px] overflow-y-auto">
+                <div className={`space-y-4 max-h-[600px] overflow-y-auto ${searchType !== 'housing' ? 'col-span-2' : ''}`}>
                   <div className="sticky top-0 bg-white dark:bg-gray-900 z-10 pb-2">
                     <h3 className="text-lg font-semibold flex items-center gap-2">
                       <Shield className="w-5 h-5 text-green-600" />
-                      {searchResults.data.communities.length} AI-Verified Matches
+                      {searchType === 'housing' && `${searchResults.data.communities?.length || 0} AI-Verified Communities`}
+                      {searchType === 'services' && `${searchResults.data.services?.length || 0} Care Services Found`}
+                      {searchType === 'marketplace' && `${searchResults.data.vendors?.length || 0} Marketplace Vendors`}
+                      {searchType === 'resources' && `VA Resources Available`}
                     </h3>
                   </div>
                   
-                  {searchResults.data.communities.map((community: any) => (
+                  {/* Housing Results */}
+                  {searchType === 'housing' && searchResults.data.communities?.map((community: any) => (
                     <div key={community.id} className="relative">
                       <EnhancedCommunityCard
                         community={community}
-                        variant="search"
+                        variant="standard"
                         index={0}
                       />
                       <Button
@@ -336,6 +403,41 @@ export default function AISearchIntelligence() {
                         )}
                       </Button>
                     </div>
+                  ))}
+
+                  {/* Care Services Results */}
+                  {searchType === 'services' && searchResults.data.services?.map((service: any) => (
+                    <Card key={service.id} className="p-4">
+                      <h4 className="font-semibold text-lg">{service.name}</h4>
+                      <p className="text-gray-600 dark:text-gray-400">{service.serviceType}</p>
+                      <p className="text-sm">{service.address}, {service.city}, {service.state}</p>
+                      {service.phone && <p className="text-sm mt-2">📞 {service.phone}</p>}
+                      {service.rating && (
+                        <div className="flex items-center gap-1 mt-2">
+                          <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                          <span className="text-sm">{service.rating}</span>
+                        </div>
+                      )}
+                    </Card>
+                  ))}
+
+                  {/* Marketplace Vendors Results */}
+                  {searchType === 'marketplace' && searchResults.data.vendors?.map((vendor: any) => (
+                    <Card key={vendor.id} className="p-4">
+                      <h4 className="font-semibold text-lg">{vendor.name}</h4>
+                      <p className="text-gray-600 dark:text-gray-400">{vendor.category}</p>
+                      <p className="text-sm mt-2">{vendor.description}</p>
+                      {vendor.price && <p className="font-semibold mt-2">${vendor.price}</p>}
+                    </Card>
+                  ))}
+
+                  {/* VA Resources Results */}
+                  {searchType === 'resources' && searchResults.data.resources?.map((resource: any, idx: number) => (
+                    <Card key={idx} className="p-4">
+                      <h4 className="font-semibold text-lg">{resource.name}</h4>
+                      <p className="text-gray-600 dark:text-gray-400">Type: {resource.type}</p>
+                      <p className="text-sm mt-2">{resource.count} locations available</p>
+                    </Card>
                   ))}
                 </div>
               </div>

@@ -1,7 +1,7 @@
 import { type Express } from "express";
 import { db } from "../db";
-import { communities } from "@shared/schema";
-import { eq, sql, and, or } from "drizzle-orm";
+import { communities, services } from "@shared/schema";
+import { eq, sql, and, or, like } from "drizzle-orm";
 import { aiRecommendationEngine, RecommendationRequest } from "../ai-recommendations";
 import { MultiAIOrchestrator } from "../multi-ai-intelligence";
 import { AnthropicAIService, GeminiAIService, AIOrchestrator } from "../ai-services";
@@ -15,7 +15,7 @@ export function registerAIRoutes(app: Express) {
   // AI-powered search
   app.post('/api/ai/search', async (req, res) => {
     try {
-      const { query, context } = req.body;
+      const { query, searchType = 'housing', context } = req.body;
       
       if (!query) {
         return res.status(400).json({ error: 'Query is required' });
@@ -60,33 +60,129 @@ export function registerAIRoutes(app: Express) {
         dbQuery = dbQuery.where(and(...conditions));
       }
 
-      const results = await dbQuery.limit(20);
+      // Handle different search types
+      if (searchType === 'housing') {
+        const results = await dbQuery.limit(20);
 
-      // Filter by price in JavaScript if needed (to avoid SQL issues)
-      let filteredResults = results;
-      if (priceMax) {
-        filteredResults = results.filter(community => {
-          if (!community.priceRange) return true; // Include if no price data
-          const minPrice = community.priceRange.min || 0;
-          return minPrice <= priceMax;
+        // Filter by price in JavaScript if needed (to avoid SQL issues)
+        let filteredResults = results;
+        if (priceMax) {
+          filteredResults = results.filter(community => {
+            if (!community.priceRange) return true; // Include if no price data
+            const minPrice = community.priceRange.min || 0;
+            return minPrice <= priceMax;
+          });
+        }
+
+        res.json({
+          communities: filteredResults,
+          searchInterpretation: query,
+          appliedFilters: {
+            location,
+            careTypes,
+            priceMax
+          },
+          aiInsights: {
+            topRecommendations: filteredResults.slice(0, 3),
+            priceAnalysis: `${filteredResults.length} communities found matching your criteria`,
+            locationInsights: location ? `Showing communities in ${location} area` : 'Showing communities from all locations',
+            careTypeMatch: careTypes.length > 0 ? `Filtered by: ${careTypes.join(', ')}` : 'All care types included'
+          }
+        });
+      } else if (searchType === 'services') {
+        // Search care services from communities table
+        let whereConditions = [];
+        
+        // Filter for care service types
+        whereConditions.push(
+          or(
+            sql`LOWER(${communities.name}) LIKE '%home care%'`,
+            sql`LOWER(${communities.name}) LIKE '%caregiving%'`,
+            sql`LOWER(${communities.name}) LIKE '%visiting%'`,
+            sql`LOWER(${communities.name}) LIKE '%home health%'`,
+            sql`LOWER(${communities.careTypes}::text) LIKE '%adult day%'`,
+            sql`LOWER(${communities.name}) LIKE '%adult day%'`,
+            sql`LOWER(${communities.careTypes}::text) LIKE '%therapy%'`,
+            sql`LOWER(${communities.name}) LIKE '%therapy%'`,
+            sql`LOWER(${communities.careTypes}::text) LIKE '%hospice%'`,
+            sql`LOWER(${communities.name}) LIKE '%hospice%'`
+          )
+        );
+        
+        if (location) {
+          whereConditions.push(
+            or(
+              sql`LOWER(${communities.city}) LIKE LOWER(${'%' + location + '%'})`,
+              sql`LOWER(${communities.state}) LIKE LOWER(${'%' + location + '%'})`
+            )
+          );
+        }
+        
+        const servicesQuery = db
+          .select({
+            id: communities.id,
+            name: communities.name,
+            serviceType: sql<string>`
+              CASE 
+                WHEN LOWER(${communities.name}) LIKE '%home care%' THEN 'Home Care Services'
+                WHEN LOWER(${communities.careTypes}::text) LIKE '%adult day%' THEN 'Adult Day Care'
+                WHEN LOWER(${communities.careTypes}::text) LIKE '%therapy%' THEN 'Therapy Services'
+                WHEN LOWER(${communities.careTypes}::text) LIKE '%hospice%' THEN 'Hospice Care'
+                ELSE 'Care Services'
+              END
+            `.as('serviceType'),
+            phone: communities.phone,
+            address: communities.address,
+            city: communities.city,
+            state: communities.state,
+            rating: communities.rating
+          })
+          .from(communities)
+          .where(and(...whereConditions))
+          .limit(20);
+        
+        const serviceResults = await servicesQuery;
+        
+        res.json({
+          services: serviceResults,
+          searchInterpretation: query,
+          appliedFilters: { location },
+          aiInsights: {
+            topRecommendations: serviceResults.slice(0, 3),
+            serviceAnalysis: `${serviceResults.length} care services found`,
+            locationInsights: location ? `Showing services in ${location} area` : 'Showing services from all locations'
+          }
+        });
+      } else if (searchType === 'marketplace') {
+        // Search marketplace vendors
+        let marketQuery = db.select().from(services);
+        
+        const marketResults = await marketQuery.limit(20);
+        
+        res.json({
+          vendors: marketResults,
+          searchInterpretation: query,
+          appliedFilters: {},
+          aiInsights: {
+            topRecommendations: marketResults.slice(0, 3),
+            vendorAnalysis: `${marketResults.length} marketplace vendors found`
+          }
+        });
+      } else if (searchType === 'resources') {
+        // Return VA resources (static data for now)
+        res.json({
+          resources: [
+            { name: 'VA Medical Centers', count: 10, type: 'medical' },
+            { name: 'VA Clinics', count: 23, type: 'clinic' },
+            { name: 'Vet Centers', count: 15, type: 'support' }
+          ],
+          searchInterpretation: query,
+          appliedFilters: { location },
+          aiInsights: {
+            resourceAnalysis: 'VA resources available in your area'
+          }
         });
       }
-
-      res.json({
-        communities: filteredResults,
-        searchInterpretation: query,
-        appliedFilters: {
-          location,
-          careTypes,
-          priceMax
-        },
-        aiInsights: {
-          topRecommendations: filteredResults.slice(0, 3),
-          priceAnalysis: `${filteredResults.length} communities found matching your criteria`,
-          locationInsights: location ? `Showing communities in ${location} area` : 'Showing communities from all locations',
-          careTypeMatch: careTypes.length > 0 ? `Filtered by: ${careTypes.join(', ')}` : 'All care types included'
-        }
-      });
     } catch (error) {
       console.error('AI search error:', error);
       res.status(500).json({ error: 'AI search failed', details: error.message });

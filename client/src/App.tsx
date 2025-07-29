@@ -101,6 +101,7 @@ function Router() {
       <Route path="/map-search" component={MapSearch} />
       <Route path="/ai-search" component={AISearchIntelligence} />
       <Route path="/ai-intelligence" component={AISearchIntelligence} />
+      <Route path="/ai-search-intelligence" component={AISearchIntelligence} />
       <Route path="/community/:id" component={CommunityDetail} />
       <Route path="/communities/:id" component={CommunityDetail} />
       <Route path="/claim/:communityId" component={Claim} />
