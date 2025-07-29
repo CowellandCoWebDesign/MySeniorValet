@@ -45,7 +45,7 @@ import Testimonials from "@/pages/testimonials";
 import Help from "@/pages/help";
 import CareGuide from "@/pages/care-guide";
 import CommunityPortal from "@/pages/community-portal-integrated";
-import CommunityDashboard from "@/pages/community-dashboard-with-subscriptions";
+import CommunityDashboard from "@/pages/community-dashboard-enhanced";
 import CommunityLeasing from "@/pages/community-leasing";
 import TenantPortal from "@/pages/tenant-portal";
 import MyCommunities from "@/pages/my-communities";

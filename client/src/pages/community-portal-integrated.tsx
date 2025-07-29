@@ -60,27 +60,94 @@ export default function CommunityPortal() {
     queryKey: ['/api/subscriptions/products'],
   });
 
-  // Transform Stripe products to community portal format
-  const plans = (subscriptionProducts as any)?.products?.map((product: any) => ({
-    id: product.id,
-    name: product.name,
-    price: product.price === 0 ? 'Free' : `$${(product.price / 100).toFixed(0)}/month`,
-    priceValue: product.price / 100,
-    tier: product.name,
-    color: product.id === 'basic-listing' ? 'gray' : 
-           product.id === 'featured-spotlight' ? 'blue' :
-           product.id === 'premium-tools' ? 'purple' : 'gold',
-    description: product.description,
-    features: product.features || [
-      product.id === 'basic-listing' ? 'Basic community listing' : 
-      product.id === 'featured-spotlight' ? 'Featured placement and profile editing' :
-      product.id === 'premium-tools' ? 'Advanced tools and exposure' : 
-      'Full marketing suite'
-    ],
-    popular: product.id === 'featured-spotlight',
-    stripeProductId: product.stripeProductId,
-    stripePriceId: product.stripePriceId
-  })) || [];
+  // Transform Stripe products to community portal format with detailed features
+  const plans = (subscriptionProducts as any)?.products?.map((product: any) => {
+    let features: string[] = [];
+    let detailedFeatures: { name: string; icon: any }[] = [];
+    
+    switch (product.id) {
+      case 'basic-listing':
+        features = [
+          'Basic community listing',
+          'Contact information display',
+          'Search visibility',
+          'Basic map placement'
+        ];
+        detailedFeatures = [];
+        break;
+      case 'featured-spotlight':
+        features = [
+          'Everything in Free, plus:',
+          'Profile editing & customization',
+          'Featured placement in search',
+          'Red tag special promotions',
+          'Photo gallery (up to 10 photos)',
+          'Custom intake forms',
+          'Basic analytics dashboard'
+        ];
+        detailedFeatures = [
+          { name: 'Profile Editing', icon: Edit },
+          { name: 'Featured Placement', icon: Star },
+          { name: 'Photo Gallery', icon: Camera },
+          { name: 'Analytics', icon: Eye }
+        ];
+        break;
+      case 'premium-tools':
+        features = [
+          'Everything in Featured, plus:',
+          'Branded intake questionnaires',
+          'Availability management system',
+          'Tour scheduler & tracking',
+          'Unlimited photo uploads',
+          'Advanced analytics & insights',
+          'Family messaging platform',
+          'Priority support'
+        ];
+        detailedFeatures = [
+          { name: 'Tour Scheduler', icon: Calendar },
+          { name: 'Advanced Analytics', icon: Eye },
+          { name: 'Family Messaging', icon: Users },
+          { name: 'Priority Support', icon: Shield }
+        ];
+        break;
+      case 'platinum-partner':
+        features = [
+          'Everything in Premium, plus:',
+          'Homepage featured placement',
+          'Concierge referral service',
+          'Sponsored blog content',
+          'AI-powered matching priority',
+          'API access & integration',
+          'White-label options',
+          'Custom reporting suite',
+          'Dedicated success manager'
+        ];
+        detailedFeatures = [
+          { name: 'Homepage Featured', icon: Home },
+          { name: 'Concierge Service', icon: Star },
+          { name: 'AI Priority', icon: Shield },
+          { name: 'API Access', icon: Globe }
+        ];
+        break;
+    }
+    
+    return {
+      id: product.id,
+      name: product.name,
+      price: product.price === 0 ? 'Free' : `$${(product.price / 100).toFixed(0)}/month`,
+      priceValue: product.price / 100,
+      tier: product.name,
+      color: product.id === 'basic-listing' ? 'gray' : 
+             product.id === 'featured-spotlight' ? 'blue' :
+             product.id === 'premium-tools' ? 'purple' : 'gold',
+      description: product.description,
+      features: features,
+      detailedFeatures: detailedFeatures,
+      popular: product.id === 'featured-spotlight',
+      stripeProductId: product.stripeProductId,
+      stripePriceId: product.stripePriceId
+    };
+  }) || [];
 
   // Create Stripe checkout session
   const createCheckoutMutation = useMutation({

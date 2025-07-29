@@ -30,6 +30,8 @@ import transportationRoutes from "./transportationRoutes";
 import familyConnectRoutes from "./familyConnectRoutes";
 import amazonProductRoutes from "./amazonProductRoutes";
 import servicesManagementRoutes from "./servicesManagementRoutes";
+import { featureAccessRouter } from "./featureAccessRoutes";
+import { registerAnalyticsRoutes } from "./analyticsRoutes";
 
 // Import existing routers
 import { quizRouter } from "./quiz";
@@ -72,6 +74,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerEmailRoutes(app);
   registerFloralRoutes(app);
   registerMoveInServicesRoutes(app);
+  registerAnalyticsRoutes(app);
   
   // Register moving services routes
   movingRoutes(app);
@@ -87,6 +90,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register services management routes
   app.use('/api/services-management', servicesManagementRoutes);
+  
+  // Register feature access routes
+  app.use('/api/features', featureAccessRouter);
 
   // Register existing specialized routers
   app.use('/api/quiz', quizRouter);
