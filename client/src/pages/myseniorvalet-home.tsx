@@ -289,7 +289,72 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Featured & Coastal Communities Section - Position 2 */}
+      {/* HUD Communities Showcase - Position 2 (Moved from Position 3) */}
+      <section className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
+        {/* Background Government Building Image */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+            alt="Government building background"
+            className="w-full h-full object-cover opacity-75"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-green-50/40 to-emerald-50/40 dark:from-gray-900/60 dark:to-gray-800/60"></div>
+        </div>
+        
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                HUD Communities & Government Verified
+              </h2>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-sm text-green-700 dark:text-green-300 font-medium">Government verified pricing</span>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">Income-based affordable</span>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-lg font-bold text-gray-900 dark:text-gray-100">$57 - $800</div>
+              <div className="text-sm text-green-600 dark:text-green-300 font-medium">HUD verified</div>
+            </div>
+          </div>
+          
+          <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
+            {(hudProperties as any[])?.length || 8} affordable communities • 
+            Government transparency and income-based options
+          </p>
+        
+          <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+            {/* Show HUD communities */}
+            {(!hudProperties || (hudProperties as any[]).length === 0) ? (
+              // Loading skeleton cards
+              Array.from({ length: 4 }).map((_, index) => (
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border border-gray-200 animate-pulse">
+                  <div className="aspect-[4/3] bg-gray-200"></div>
+                  <CardContent className="p-3">
+                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-1"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded"></div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              (hudProperties as any[]).slice(0, 8).map((community: any, index) => (
+                <EnhancedCommunityCard
+                  key={`hud-${community.id}-${index}`}
+                  community={community}
+                  index={index}
+                  variant='hud'
+                />
+              ))
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Featured & Coastal Communities Section - Position 3 (Moved from Position 2) */}
       <section className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
         {/* Background Ocean Wave Image */}
         <div className="absolute inset-0 z-0">
@@ -2025,71 +2090,6 @@ export default function MySeniorValetHome() {
                 </div>
               </CardContent>
             </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* HUD Communities Showcase - Position 3 */}
-      <section className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
-        {/* Background Government Building Image */}
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-            alt="Government building background"
-            className="w-full h-full object-cover opacity-75"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-green-50/40 to-emerald-50/40 dark:from-gray-900/60 dark:to-gray-800/60"></div>
-        </div>
-        
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                HUD Communities & Government Verified
-              </h2>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-green-700 dark:text-green-300 font-medium">Government verified pricing</span>
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">Income-based affordable</span>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-lg font-bold text-gray-900 dark:text-gray-100">$57 - $800</div>
-              <div className="text-sm text-green-600 dark:text-green-300 font-medium">HUD verified</div>
-            </div>
-          </div>
-          
-          <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
-            {(hudProperties as any[])?.length || 8} affordable communities • 
-            Government transparency and income-based options
-          </p>
-        
-          <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-            {/* Show HUD communities */}
-            {(!hudProperties || (hudProperties as any[]).length === 0) ? (
-              // Loading skeleton cards
-              Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border border-gray-200 animate-pulse">
-                  <div className="aspect-[4/3] bg-gray-200"></div>
-                  <CardContent className="p-3">
-                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-1"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded"></div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              (hudProperties as any[]).slice(0, 8).map((community: any, index) => (
-                <EnhancedCommunityCard
-                  key={`hud-${community.id}-${index}`}
-                  community={community}
-                  index={index}
-                  variant='hud'
-                />
-              ))
-            )}
           </div>
         </div>
       </section>
