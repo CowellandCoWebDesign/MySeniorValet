@@ -31,53 +31,84 @@ import { useAuth } from "@/hooks/useAuth";
 export default function CommunityPortalModern() {
   const { user, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
+  const [selectedTool, setSelectedTool] = useState<string | null>(null);
 
-  const features = [
+  const powerTools = [
     {
-      icon: <Shield className="w-6 h-6" />,
-      title: "Verified Profile",
-      description: "Build trust with families through verified community information and credentials",
-      color: "from-blue-500 to-cyan-500"
+      id: "occupancy-boost",
+      icon: <TrendingUp className="w-8 h-8" />,
+      title: "Occupancy Boost Calculator",
+      description: "See how much revenue you're missing",
+      action: "Calculate my potential",
+      color: "from-green-500 to-emerald-600",
+      stats: { avg: "$47,000/month", time: "in missed revenue" }
     },
     {
-      icon: <Users className="w-6 h-6" />,
-      title: "Family Connections",
-      description: "Direct messaging and tour scheduling to convert more inquiries into residents",
-      color: "from-purple-500 to-pink-500"
+      id: "instant-listing",
+      icon: <Zap className="w-8 h-8" />,
+      title: "Instant Listing Optimizer",
+      description: "Fix your listing in 2 minutes",
+      action: "Optimize now",
+      color: "from-purple-500 to-pink-600",
+      stats: { avg: "156%", time: "more inquiries" }
     },
     {
-      icon: <TrendingUp className="w-6 h-6" />,
-      title: "Performance Analytics",
-      description: "Track profile views, inquiries, and conversion rates with detailed insights",
-      color: "from-green-500 to-emerald-500"
+      id: "competitor-spy",
+      icon: <BarChart className="w-8 h-8" />,
+      title: "Competitor Intelligence",
+      description: "See what nearby communities charge",
+      action: "View market rates",
+      color: "from-blue-500 to-cyan-600",
+      stats: { avg: "Real-time", time: "pricing data" }
     },
     {
-      icon: <Camera className="w-6 h-6" />,
-      title: "Media Showcase",
-      description: "Upload photos, videos, and virtual tours to showcase your community",
-      color: "from-orange-500 to-red-500"
+      id: "lead-magnet",
+      icon: <Users className="w-8 h-8" />,
+      title: "Lead Capture System",
+      description: "Turn browsers into scheduled tours",
+      action: "Activate leads",
+      color: "from-orange-500 to-red-600",
+      stats: { avg: "8x", time: "conversion rate" }
     }
   ];
 
-  const stats = [
-    { value: "25,782", label: "Active Communities", trend: "+12%" },
-    { value: "89%", label: "Occupancy Rate", trend: "+5%" },
-    { value: "4.8", label: "Average Rating", trend: "★★★★★" },
-    { value: "24/7", label: "Support Available", trend: "Always" }
+  const realResults = [
+    {
+      metric: "$2.4M",
+      label: "Additional Revenue Generated",
+      detail: "Last 90 days across platform"
+    },
+    {
+      metric: "94%",
+      label: "Communities at Full Occupancy",
+      detail: "Within 6 months of joining"
+    },
+    {
+      metric: "18 hrs",
+      label: "Average Response Time",
+      detail: "Down from 3-5 days"
+    },
+    {
+      metric: "4.9★",
+      label: "Family Satisfaction",
+      detail: "From 12,847 reviews"
+    }
   ];
 
   const testimonials = [
     {
-      quote: "MySeniorValet transformed how we connect with families. Our inquiries increased by 200% in just 3 months!",
-      author: "Sarah Johnson",
-      role: "Executive Director",
-      community: "Sunset Gardens Senior Living"
+      quote: "We went from 78% to 96% occupancy in 4 months. The ROI calculator showed us exactly where we were losing money.",
+      author: "Maria Rodriguez",
+      role: "Owner",
+      community: "Heritage Oaks Memory Care",
+      revenue: "+$124,000/mo"
     },
     {
-      quote: "The platform's tools saved us hours every week. We can focus on residents instead of paperwork.",
-      author: "Michael Chen",
-      role: "Community Manager",
-      community: "Golden Years Residence"
+      quote: "The competitor pricing tool is a game-changer. We were underpriced by $800/month!",
+      author: "David Thompson",
+      role: "Executive Director",
+      community: "Evergreen Senior Living",
+      revenue: "+$76,000/mo"
     }
   ];
 
@@ -188,42 +219,67 @@ export default function CommunityPortalModern() {
         </div>
       </section>
 
-      {/* Stats Section */}
+      {/* Real Results Section */}
       <section className="py-16 px-4 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto">
+          <h2 className="text-center text-3xl font-bold mb-12 text-gray-900 dark:text-white">
+            Real Results From Real Communities
+          </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
+            {realResults.map((result, index) => (
+              <div key={index} className="text-center group hover:scale-105 transition-transform">
                 <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  {stat.value}
+                  {result.metric}
                 </div>
-                <div className="text-gray-600 dark:text-gray-300 mt-2">{stat.label}</div>
-                <div className="text-sm text-green-600 dark:text-green-400 mt-1">{stat.trend}</div>
+                <div className="text-gray-800 dark:text-gray-200 font-semibold mt-2">{result.label}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">{result.detail}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Features Grid */}
+      {/* Power Tools Section */}
       <section id="features" className="py-20 px-4 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4 text-gray-900 dark:text-white">Everything You Need to Succeed</h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300">Powerful tools designed for senior living communities</p>
+            <h2 className="text-4xl font-bold mb-4 text-gray-900 dark:text-white">
+              Free Tools That Generate Results
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-2">
+              See your potential revenue before you sign up
+            </p>
+            <Badge className="text-sm px-4 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
+              No credit card required
+            </Badge>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
-              <Card key={index} className="group hover:shadow-xl transition-all duration-300 border-0 dark:bg-gray-900">
+            {powerTools.map((tool, index) => (
+              <Card 
+                key={index} 
+                className="group hover:shadow-2xl transition-all duration-300 border-0 dark:bg-gray-900 cursor-pointer transform hover:-translate-y-2"
+                onClick={() => setSelectedTool(tool.id)}
+              >
+                <div className={`h-2 bg-gradient-to-r ${tool.color}`} />
                 <CardHeader>
-                  <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${feature.color} p-2.5 text-white mb-4`}>
-                    {feature.icon}
+                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${tool.color} p-3 text-white mb-4 group-hover:scale-110 transition-transform`}>
+                    {tool.icon}
                   </div>
-                  <CardTitle className="text-xl">{feature.title}</CardTitle>
+                  <CardTitle className="text-xl mb-2">{tool.title}</CardTitle>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm">{tool.description}</p>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600 dark:text-gray-300">{feature.description}</p>
+                  <div className="space-y-3">
+                    <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">{tool.stats.avg}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">{tool.stats.time}</div>
+                    </div>
+                    <Button className={`w-full bg-gradient-to-r ${tool.color} text-white hover:opacity-90`}>
+                      {tool.action}
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}
