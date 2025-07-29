@@ -153,47 +153,32 @@ export default function Costs() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
-      {/* Header */}
-      <header className="bg-white shadow-lg border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => window.history.back()}
-                className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 font-medium"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span>Back</span>
-              </Button>
-              <div className="h-5 w-px bg-gray-200" />
-              <Link href="/">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 font-semibold px-3 py-1.5"
-                >
-                  <Home className="w-4 h-4" />
-                  <span>MySeniorValet</span>
-                </Button>
-              </Link>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      {/* Hero Section with Navbar Space */}
+      <div className="relative">
+        <div className="h-16"></div>
+        <div className="bg-gradient-to-br from-emerald-600 to-teal-600 dark:from-emerald-700 dark:to-teal-700 px-6 py-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-white mb-2">Cost Explorer</h1>
+                <p className="text-white/90">Move-in Costs & Affordability Calculator</p>
+              </div>
+              <div className="hidden md:flex items-center space-x-4">
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
+                  <Calculator className="w-10 h-10 text-white" />
+                </div>
+              </div>
             </div>
-            <div className="text-center">
-              <h1 className="text-xl font-bold text-gray-900">Cost Explorer</h1>
-              <p className="text-xs text-gray-600">Move-in Costs & Affordability Calculator</p>
-            </div>
-            <div className="w-32"></div>
           </div>
         </div>
-      </header>
+      </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Featured Cost Comparison Table - Always Visible */}
         <div className="mb-8">
-          <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm">
-            <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-t-xl">
+          <Card className="shadow-xl border-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-500 dark:from-blue-600 dark:to-purple-600 text-white rounded-t-xl">
               <CardTitle className="flex items-center text-2xl font-bold">
                 <MapPin className="w-8 h-8 mr-3" />
                 Monthly Living Expenses: Your Home vs Senior Living
@@ -202,18 +187,18 @@ export default function Costs() {
             </CardHeader>
             <CardContent className="p-6">
               {/* Header Row */}
-              <div className="grid grid-cols-3 gap-4 mb-4 pb-3 border-b-2 border-gray-300">
-                <div className="font-bold text-gray-800 text-lg">Monthly Expense Category</div>
-                <div className="font-bold text-center text-gray-800 text-lg">Your Home</div>
-                <div className="font-bold text-center text-gray-800 text-lg">Senior Living Residences</div>
+              <div className="grid grid-cols-3 gap-4 mb-4 pb-3 border-b-2 border-gray-300 dark:border-gray-600">
+                <div className="font-bold text-gray-800 dark:text-gray-200 text-lg">Monthly Expense Category</div>
+                <div className="font-bold text-center text-gray-800 dark:text-gray-200 text-lg">Your Home</div>
+                <div className="font-bold text-center text-gray-800 dark:text-gray-200 text-lg">Senior Living Residences</div>
               </div>
               
               {/* Expense List */}
               <div className="space-y-0">
                 {/* Monthly Housing Payment */}
-                <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                  <div className="text-base text-gray-800 font-medium">Monthly Mortgage + Property Tax / Rent Payment</div>
-                  <div className="text-center text-base font-medium text-red-600">
+                <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                  <div className="text-base text-gray-800 dark:text-gray-200 font-medium">Monthly Mortgage + Property Tax / Rent Payment</div>
+                  <div className="text-center text-base font-medium text-red-600 dark:text-red-400">
                     {isCustomizing ? (
                       <Input
                         type="number"
@@ -226,13 +211,13 @@ export default function Costs() {
                       formatCurrency(customHomeCosts.rent)
                     )}
                   </div>
-                  <div className="text-center text-base font-medium text-blue-600">$2,500 - $8,000</div>
+                  <div className="text-center text-base font-medium text-blue-600 dark:text-blue-400">$2,500 - $8,000</div>
                 </div>
                 
                 {/* Utilities */}
-                <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                  <div className="text-base text-gray-800 font-medium">Utilities (Electric, Gas, Water, Sewer, A/C)</div>
-                  <div className="text-center text-base font-medium text-red-600">
+                <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                  <div className="text-base text-gray-800 dark:text-gray-200 font-medium">Utilities (Electric, Gas, Water, Sewer, A/C)</div>
+                  <div className="text-center text-base font-medium text-red-600 dark:text-red-400">
                     {isCustomizing ? (
                       <Input
                         type="number"
@@ -244,13 +229,13 @@ export default function Costs() {
                       formatCurrency(customHomeCosts.utilities)
                     )}
                   </div>
-                  <div className="text-center text-base font-medium text-green-600 font-bold">Included</div>
+                  <div className="text-center text-base font-medium text-green-600 dark:text-green-400 font-bold">Included</div>
                 </div>
                 
                 {/* Exterior Maintenance */}
-                <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                  <div className="text-base text-gray-800 font-medium">Exterior Maintenance (Lawn, Trash, Plow, Paint)</div>
-                  <div className="text-center text-base font-medium text-red-600">
+                <div className="grid grid-cols-3 gap-4 py-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                  <div className="text-base text-gray-800 dark:text-gray-200 font-medium">Exterior Maintenance (Lawn, Trash, Plow, Paint)</div>
+                  <div className="text-center text-base font-medium text-red-600 dark:text-red-400">
                     {isCustomizing ? (
                       <Input
                         type="number"
@@ -540,12 +525,12 @@ export default function Costs() {
               </div>
               
               {/* Summary Note */}
-              <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <p className="text-sm text-blue-800">
+              <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-600">
+                <p className="text-sm text-blue-800 dark:text-blue-200">
                   <strong>*Personal Care Services:</strong> Varies by care level - Independent Living ($1,500), Assisted Living ($2,500), Memory Care ($3,500), Skilled Nursing ($4,500)
                 </p>
                 {isCustomizing && (
-                  <p className="text-sm text-blue-700 mt-2">
+                  <p className="text-sm text-blue-700 dark:text-blue-300 mt-2">
                     <strong>Tip:</strong> Click in the "Your Home" column to adjust any cost to match your personal situation.
                   </p>
                 )}
@@ -558,8 +543,8 @@ export default function Costs() {
           {/* Move-in Cost Estimate */}
           <div className="lg:col-span-2 space-y-8">
             {/* Overview */}
-            <Card className="border-0 shadow-lg bg-white rounded-2xl">
-              <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-2xl p-6">
+            <Card className="border-0 shadow-lg bg-white dark:bg-gray-800 rounded-2xl">
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-700 dark:to-purple-700 text-white rounded-t-2xl p-6">
                 <CardTitle className="flex items-center space-x-3">
                   <Calculator className="w-6 h-6" />
                   <span className="text-lg font-bold">Move-in Cost Estimate</span>
@@ -567,34 +552,34 @@ export default function Costs() {
               </CardHeader>
               <CardContent className="p-6">
                 <div className="space-y-6">
-                  <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                  <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-xl border border-blue-200 dark:border-blue-600">
                     <div className="flex items-center mb-3">
-                      <Info className="w-5 h-5 text-blue-600 mr-2" />
-                      <span className="font-semibold text-blue-800">Typical Move-in Costs</span>
+                      <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" />
+                      <span className="font-semibold text-blue-800 dark:text-blue-200">Typical Move-in Costs</span>
                     </div>
-                    <p className="text-sm text-blue-700">
+                    <p className="text-sm text-blue-700 dark:text-blue-300">
                       Most families should budget $5,000 - $15,000 for initial move-in costs, depending on location and care level.
                     </p>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {moveInCosts.map((cost, index) => (
-                      <div key={index} className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl p-4">
+                      <div key={index} className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-700 dark:to-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl p-4">
                         <div className="flex justify-between items-start mb-2">
-                          <h4 className="font-semibold text-gray-900">{cost.item}</h4>
+                          <h4 className="font-semibold text-gray-900 dark:text-gray-100">{cost.item}</h4>
                           <Badge variant="outline" className="text-xs">{cost.range}</Badge>
                         </div>
-                        <p className="text-sm text-gray-600">{cost.description}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{cost.description}</p>
                       </div>
                     ))}
                   </div>
 
-                  <div className="bg-green-50 p-4 rounded-xl border border-green-200">
+                  <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-xl border border-green-200 dark:border-green-600">
                     <div className="flex items-center mb-2">
-                      <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
-                      <span className="font-semibold text-green-800">MySeniorValet Advantage</span>
+                      <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mr-2" />
+                      <span className="font-semibold text-green-800 dark:text-green-200">MySeniorValet Advantage</span>
                     </div>
-                    <p className="text-sm text-green-700">
+                    <p className="text-sm text-green-700 dark:text-green-300">
                       No referral fees means transparent pricing. We help you understand all costs upfront.
                     </p>
                   </div>
@@ -603,8 +588,8 @@ export default function Costs() {
             </Card>
 
             {/* Market Price Intelligence */}
-            <Card className="border-0 shadow-lg bg-white rounded-2xl">
-              <CardHeader className="bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-t-2xl p-6">
+            <Card className="border-0 shadow-lg bg-white dark:bg-gray-800 rounded-2xl">
+              <CardHeader className="bg-gradient-to-r from-green-600 to-blue-600 dark:from-green-700 dark:to-blue-700 text-white rounded-t-2xl p-6">
                 <CardTitle className="flex items-center space-x-3">
                   <TrendingUp className="w-6 h-6" />
                   <span className="text-lg font-bold">Market Price Intelligence</span>
@@ -612,24 +597,24 @@ export default function Costs() {
               </CardHeader>
               <CardContent className="p-6">
                 <div className="space-y-6">
-                  <div className="bg-yellow-50 p-4 rounded-xl border border-yellow-200">
+                  <div className="bg-yellow-50 dark:bg-yellow-900/30 p-4 rounded-xl border border-yellow-200 dark:border-yellow-600">
                     <div className="flex items-center mb-3">
-                      <MapPin className="w-5 h-5 text-yellow-600 mr-2" />
-                      <span className="font-semibold text-yellow-800">Regional Pricing Overview</span>
+                      <MapPin className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mr-2" />
+                      <span className="font-semibold text-yellow-800 dark:text-yellow-200">Regional Pricing Overview</span>
                     </div>
-                    <p className="text-sm text-yellow-700">
+                    <p className="text-sm text-yellow-700 dark:text-yellow-300">
                       Pricing varies significantly by state, care level, and local market conditions. Use our data to make informed decisions.
                     </p>
                   </div>
 
                   <PricingIntelligenceSelector />
                   
-                  <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                  <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-xl border border-blue-200 dark:border-blue-600">
                     <div className="flex items-center mb-2">
-                      <Info className="w-5 h-5 text-blue-600 mr-2" />
-                      <span className="font-semibold text-blue-800">Pricing Transparency Promise</span>
+                      <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" />
+                      <span className="font-semibold text-blue-800 dark:text-blue-200">Pricing Transparency Promise</span>
                     </div>
-                    <p className="text-sm text-blue-700">
+                    <p className="text-sm text-blue-700 dark:text-blue-300">
                       Featured communities provide live pricing • All estimates based on authentic market data • No hidden fees or surprises
                     </p>
                   </div>
@@ -641,8 +626,8 @@ export default function Costs() {
           {/* Monthly Affordability Calculator */}
           <div className="lg:col-span-1">
             <div className="sticky top-6">
-              <Card className="border-0 shadow-xl bg-white rounded-2xl">
-                <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-t-2xl p-6">
+              <Card className="border-0 shadow-xl bg-white dark:bg-gray-800 rounded-2xl">
+                <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-700 dark:to-pink-700 text-white rounded-t-2xl p-6">
                   <CardTitle className="flex items-center space-x-3">
                     <DollarSign className="w-6 h-6" />
                     <span className="text-lg font-bold">Affordability Calculator</span>
@@ -652,7 +637,7 @@ export default function Costs() {
                   <div className="space-y-6">
                     <div className="space-y-4">
                       <div>
-                        <Label htmlFor="income" className="text-sm font-medium text-gray-700 mb-2 block">
+                        <Label htmlFor="income" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                           Monthly Income
                         </Label>
                         <Input
@@ -666,7 +651,7 @@ export default function Costs() {
                       </div>
 
                       <div>
-                        <Label htmlFor="state" className="text-sm font-medium text-gray-700 mb-2 block">
+                        <Label htmlFor="state" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                           State
                         </Label>
                         <Select value={selectedState} onValueChange={setSelectedState}>
@@ -682,7 +667,7 @@ export default function Costs() {
                       </div>
 
                       <div>
-                        <Label htmlFor="care" className="text-sm font-medium text-gray-700 mb-2 block">
+                        <Label htmlFor="care" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                           Care Level
                         </Label>
                         <Select value={careLevel} onValueChange={setCareLevel}>
@@ -711,10 +696,10 @@ export default function Costs() {
                         
                         <div className={`p-4 rounded-xl border ${
                           affordabilityResult.affordable 
-                            ? 'bg-green-50 border-green-200' 
+                            ? 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-600' 
                             : affordabilityResult.stretchAffordable 
-                            ? 'bg-yellow-50 border-yellow-200' 
-                            : 'bg-red-50 border-red-200'
+                            ? 'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-200 dark:border-yellow-600' 
+                            : 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-600'
                         }`}>
                           <div className="flex items-center mb-3">
                             {affordabilityResult.affordable ? (
@@ -752,8 +737,8 @@ export default function Costs() {
 
                         {/* At-Home vs Senior Living Comparison */}
                         {affordabilityResult && (
-                          <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-                            <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white p-4 rounded-t-xl">
+                          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 shadow-sm">
+                            <div className="bg-gradient-to-r from-blue-500 to-purple-500 dark:from-blue-600 dark:to-purple-600 text-white p-4 rounded-t-xl">
                               <div className="flex items-center">
                                 <MapPin className="w-5 h-5 mr-2" />
                                 <span className="font-semibold">Current Monthly Expenses - Updated</span>
@@ -762,26 +747,26 @@ export default function Costs() {
                             
                             <div className="p-4">
                               {/* Header Row */}
-                              <div className="grid grid-cols-3 gap-4 mb-4 pb-2 border-b border-gray-200">
-                                <div className="font-semibold text-gray-700 text-sm">Category</div>
-                                <div className="font-semibold text-center text-gray-700 text-sm">Your Home</div>
-                                <div className="font-semibold text-center text-gray-700 text-sm">Senior Living Residences</div>
+                              <div className="grid grid-cols-3 gap-4 mb-4 pb-2 border-b border-gray-200 dark:border-gray-600">
+                                <div className="font-semibold text-gray-700 dark:text-gray-300 text-sm">Category</div>
+                                <div className="font-semibold text-center text-gray-700 dark:text-gray-300 text-sm">Your Home</div>
+                                <div className="font-semibold text-center text-gray-700 dark:text-gray-300 text-sm">Senior Living Residences</div>
                               </div>
                               
                               {/* Expense List */}
                               <div className="space-y-0">
                                 {/* Monthly Mortgage + Property Tax / Rent Payment */}
-                                <div className="grid grid-cols-3 gap-4 py-3 border-b border-gray-100">
-                                  <div className="text-sm text-gray-800 font-medium">Monthly Mortgage + Property Tax / Rent Payment</div>
-                                  <div className="text-center text-sm font-medium">{formatCurrency(affordabilityResult.atHomeCosts.rent)}</div>
-                                  <div className="text-center text-sm font-medium">{formatCurrency(affordabilityResult.seniorLivingAverage)}</div>
+                                <div className="grid grid-cols-3 gap-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                                  <div className="text-sm text-gray-800 dark:text-gray-200 font-medium">Monthly Mortgage + Property Tax / Rent Payment</div>
+                                  <div className="text-center text-sm font-medium dark:text-gray-200">{formatCurrency(affordabilityResult.atHomeCosts.rent)}</div>
+                                  <div className="text-center text-sm font-medium dark:text-gray-200">{formatCurrency(affordabilityResult.seniorLivingAverage)}</div>
                                 </div>
                                 
                                 {/* Utilities */}
-                                <div className="grid grid-cols-3 gap-4 py-3 border-b border-gray-100">
-                                  <div className="text-sm text-gray-800 font-medium">Utilities (Electric, Gas, Water, Sewer, A/C)</div>
-                                  <div className="text-center text-sm font-medium">{formatCurrency(affordabilityResult.atHomeCosts.utilities)}</div>
-                                  <div className="text-center text-sm font-medium text-green-600">Included</div>
+                                <div className="grid grid-cols-3 gap-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                                  <div className="text-sm text-gray-800 dark:text-gray-200 font-medium">Utilities (Electric, Gas, Water, Sewer, A/C)</div>
+                                  <div className="text-center text-sm font-medium dark:text-gray-200">{formatCurrency(affordabilityResult.atHomeCosts.utilities)}</div>
+                                  <div className="text-center text-sm font-medium text-green-600 dark:text-green-400">Included</div>
                                 </div>
                                 
                                 {/* Exterior Maintenance */}
@@ -841,10 +826,10 @@ export default function Costs() {
                                 </div>
                                 
                                 {/* Entertainment */}
-                                <div className="grid grid-cols-3 gap-4 py-3 border-b border-gray-100">
-                                  <div className="text-sm text-gray-800 font-medium">Entertainment, Social & Cultural Programs</div>
-                                  <div className="text-center text-sm font-medium">{formatCurrency(100)}</div>
-                                  <div className="text-center text-sm font-medium text-green-600">Included</div>
+                                <div className="grid grid-cols-3 gap-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                                  <div className="text-sm text-gray-800 dark:text-gray-200 font-medium">Entertainment, Social & Cultural Programs</div>
+                                  <div className="text-center text-sm font-medium dark:text-gray-200">{formatCurrency(100)}</div>
+                                  <div className="text-center text-sm font-medium text-green-600 dark:text-green-400">Included</div>
                                 </div>
                                 
                                 {/* EnrichedLIFE */}
@@ -869,23 +854,23 @@ export default function Costs() {
                                 </div>
                                 
                                 {/* Peace of Mind */}
-                                <div className="grid grid-cols-3 gap-4 py-3 border-b border-gray-100">
-                                  <div className="text-sm text-gray-800 font-medium">Peace of Mind</div>
-                                  <div className="text-center text-sm font-medium">{formatCurrency(0)}</div>
-                                  <div className="text-center text-sm font-medium text-blue-600">Priceless!</div>
+                                <div className="grid grid-cols-3 gap-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                                  <div className="text-sm text-gray-800 dark:text-gray-200 font-medium">Peace of Mind</div>
+                                  <div className="text-center text-sm font-medium dark:text-gray-200">{formatCurrency(0)}</div>
+                                  <div className="text-center text-sm font-medium text-blue-600 dark:text-blue-400">Priceless!</div>
                                 </div>
                                 
                                 {/* Community */}
-                                <div className="grid grid-cols-3 gap-4 py-3 border-b border-gray-100">
-                                  <div className="text-sm text-gray-800 font-medium">A Caring Community & New Friends</div>
-                                  <div className="text-center text-sm font-medium">{formatCurrency(0)}</div>
-                                  <div className="text-center text-sm font-medium text-blue-600">Priceless!</div>
+                                <div className="grid grid-cols-3 gap-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                                  <div className="text-sm text-gray-800 dark:text-gray-200 font-medium">A Caring Community & New Friends</div>
+                                  <div className="text-center text-sm font-medium dark:text-gray-200">{formatCurrency(0)}</div>
+                                  <div className="text-center text-sm font-medium text-blue-600 dark:text-blue-400">Priceless!</div>
                                 </div>
                               </div>
                               
                               {/* Calculate Total Button */}
                               <div className="mt-4 text-center">
-                                <button className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                                <button className="bg-blue-600 dark:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors">
                                   Calculate Total Monthly Expenses
                                 </button>
                               </div>
@@ -894,8 +879,8 @@ export default function Costs() {
                               <div className="mt-4 text-center">
                                 <div className={`inline-flex items-center px-4 py-2 rounded-lg font-semibold text-sm ${
                                   affordabilityResult.monthlySavings > 0 
-                                    ? 'bg-red-100 text-red-800' 
-                                    : 'bg-green-100 text-green-800'
+                                    ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200' 
+                                    : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200'
                                 }`}>
                                   {affordabilityResult.monthlySavings > 0 ? (
                                     <AlertCircle className="w-4 h-4 mr-2" />
@@ -910,12 +895,12 @@ export default function Costs() {
                           </div>
                         )}
 
-                        <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                        <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-xl border border-blue-200 dark:border-blue-600">
                           <div className="flex items-center mb-2">
-                            <Info className="w-4 h-4 text-blue-600 mr-2" />
-                            <span className="font-semibold text-blue-800 text-sm">Financial Planning Tip</span>
+                            <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2" />
+                            <span className="font-semibold text-blue-800 dark:text-blue-200 text-sm">Financial Planning Tip</span>
                           </div>
-                          <p className="text-xs text-blue-700">
+                          <p className="text-xs text-blue-700 dark:text-blue-300">
                             Financial experts recommend spending no more than 30% of income on senior living costs. 
                             Consider additional care needs and inflation when budgeting.
                           </p>

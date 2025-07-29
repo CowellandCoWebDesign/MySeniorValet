@@ -565,8 +565,11 @@ export default function MySeniorValetHome() {
                           {community.name}
                         </div>
                         
+                        <div className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
+                          📍 {community.city}, {community.state}
+                        </div>
                         <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1 mb-2">
-                          {community.address || 'Premium Community'}, {community.city}, {community.state} {community.zipCode}
+                          {community.address || 'Premium Community'} {community.zipCode}
                         </div>
                         
                         {/* Special Features */}
@@ -2968,8 +2971,10 @@ export default function MySeniorValetHome() {
         </div>
         
         <Link href="/costs">
-          <Button className="w-full gradient-primary hover:opacity-90 text-white py-3 border-0 dark:border-gray-600">
-            Get move-in cost estimate
+          <Button className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center gap-2 group">
+            <Calculator className="w-5 h-5 group-hover:rotate-6 transition-transform" />
+            Get Move-In Cost Estimate
+            <DollarSign className="w-5 h-5 group-hover:rotate-[-6deg] transition-transform" />
           </Button>
         </Link>
       </section>
