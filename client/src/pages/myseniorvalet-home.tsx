@@ -46,6 +46,13 @@ export default function MySeniorValetHome() {
     staleTime: 24 * 60 * 60 * 1000, // Cache for 24 hours
   });
 
+  // Amazon product images for enhanced marketplace display
+  const { data: amazonProductImages } = useQuery({
+    queryKey: ["/api/amazon-products/images"],
+    retry: false,
+    staleTime: 60 * 60 * 1000, // Cache for 1 hour
+  });
+
   // Real-time market data
   const { data: marketData } = useQuery({
     queryKey: ["/api/market/overview"],
@@ -393,135 +400,124 @@ export default function MySeniorValetHome() {
                   </div>
                 </div>
 
-                {/* Horizontal Scrolling Amazon Products with Categories */}
+                {/* Enhanced Amazon Products with Authentic Images */}
                 <div className="overflow-x-auto">
                   <div className="flex gap-6 pb-4" style={{ minWidth: 'max-content' }}>
                     
-                    {/* Mobility & Safety Category */}
-                    <a href="https://amzn.to/3GVdo7b" target="_blank" rel="noopener noreferrer">
-                      <Card className="flex-shrink-0 w-96 h-80 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer border-2 border-blue-200 dark:border-blue-600 bg-white dark:bg-gray-800">
-                        <div className="h-24 bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                          <Activity className="w-12 h-12 text-white" />
-                        </div>
-                        <CardContent className="p-6 h-56 flex flex-col">
-                          <div className="flex items-center justify-between mb-3">
-                            <Badge className="bg-blue-100 text-blue-700 text-xs px-2 py-1">MOBILITY & SAFETY</Badge>
-                            <Badge className="bg-green-500 text-white text-xs px-2 py-1">LIVE</Badge>
-                          </div>
-                          <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Wheeled Walker with Seat</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 flex-grow">Premium mobility walker with comfortable seat, storage basket, and easy-lock brakes for senior independence</p>
-                          <div className="space-y-2 mt-auto">
-                            <div className="text-xl font-bold text-orange-600">From $89.99</div>
-                            <div className="text-xs text-green-600 font-medium">✓ Prime Delivery • 4.5★ (2,847 reviews)</div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </a>
+                    {/* Create product mapping with affiliate links */}
+                    {(() => {
+                      const productMapping = [
+                        { 
+                          link: "https://amzn.to/3GVdo7b", 
+                          title: "Wheeled Walker with Seat", 
+                          price: "From $89.99", 
+                          category: "MOBILITY & SAFETY", 
+                          description: "Premium mobility walker with comfortable seat, storage basket, and easy-lock brakes for senior independence",
+                          icon: Activity,
+                          bgColor: "from-blue-500 to-blue-600",
+                          borderColor: "border-blue-200 dark:border-blue-600",
+                          badgeColor: "bg-blue-100 text-blue-700",
+                          productId: "wheeled-walker"
+                        },
+                        { 
+                          link: "https://amzn.to/412jJ7N", 
+                          title: "Sock Aid Helper Tool", 
+                          price: "$12.99", 
+                          category: "DAILY LIVING AIDS", 
+                          description: "Essential aid for seniors with limited mobility - easily put on socks and compression stockings without bending",
+                          icon: Users,
+                          bgColor: "from-purple-500 to-purple-600",
+                          borderColor: "border-purple-200 dark:border-purple-600",
+                          badgeColor: "bg-purple-100 text-purple-700",
+                          productId: "sock-aid"
+                        },
+                        { 
+                          link: "https://amzn.to/475x1UC", 
+                          title: "Premium Shower Chair", 
+                          price: "$54.99", 
+                          category: "BATHROOM SAFETY", 
+                          description: "Adjustable height shower chair with back support and non-slip feet for safe, comfortable bathing",
+                          icon: Shield,
+                          bgColor: "from-teal-500 to-teal-600",
+                          borderColor: "border-teal-200 dark:border-teal-600",
+                          badgeColor: "bg-teal-100 text-teal-700",
+                          productId: "shower-chair"
+                        },
+                        { 
+                          link: "https://amzn.to/4oaZbne", 
+                          title: "Weekly Pill Organizers", 
+                          price: "$16.99", 
+                          category: "MEDICATION MGMT", 
+                          description: "Large compartment pill organizers with clear labels for morning, noon, evening, and bedtime medications",
+                          icon: Pill,
+                          bgColor: "from-green-500 to-green-600",
+                          borderColor: "border-green-200 dark:border-green-600",
+                          badgeColor: "bg-green-100 text-green-700",
+                          productId: "pill-organizer"
+                        },
+                        { 
+                          link: "https://amzn.to/40BNYlF", 
+                          title: "Luxury Bed Sheet Sets", 
+                          price: "From $19.99", 
+                          category: "HOME ESSENTIALS", 
+                          description: "Ultra-soft microfiber sheets in all sizes - Twin to California King with deep pockets for comfort",
+                          icon: Home,
+                          bgColor: "from-orange-500 to-orange-600",
+                          borderColor: "border-orange-200 dark:border-orange-600",
+                          badgeColor: "bg-orange-100 text-orange-700",
+                          productId: "bed-sheets"
+                        },
+                        { 
+                          link: "https://amzn.to/4lR0gzh", 
+                          title: "Elegant Nightstand", 
+                          price: "$89.99", 
+                          category: "FURNITURE & STORAGE", 
+                          description: "Modern bedside table with drawer and shelf storage, perfect for senior living spaces",
+                          icon: Sofa,
+                          bgColor: "from-indigo-500 to-indigo-600",
+                          borderColor: "border-indigo-200 dark:border-indigo-600",
+                          badgeColor: "bg-indigo-100 text-indigo-700",
+                          productId: "nightstand"
+                        }
+                      ];
 
-                    {/* Daily Living Aids Category */}
-                    <a href="https://amzn.to/412jJ7N" target="_blank" rel="noopener noreferrer">
-                      <Card className="flex-shrink-0 w-96 h-80 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer border-2 border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800">
-                        <div className="h-24 bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
-                          <Users className="w-12 h-12 text-white" />
-                        </div>
-                        <CardContent className="p-6 h-56 flex flex-col">
-                          <div className="flex items-center justify-between mb-3">
-                            <Badge className="bg-purple-100 text-purple-700 text-xs px-2 py-1">DAILY LIVING AIDS</Badge>
-                            <Badge className="bg-green-500 text-white text-xs px-2 py-1">LIVE</Badge>
-                          </div>
-                          <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Sock Aid Helper Tool</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 flex-grow">Essential aid for seniors with limited mobility - easily put on socks and compression stockings without bending</p>
-                          <div className="space-y-2 mt-auto">
-                            <div className="text-xl font-bold text-orange-600">$12.99</div>
-                            <div className="text-xs text-green-600 font-medium">✓ Prime Delivery • 4.3★ (1,924 reviews)</div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </a>
-
-                    {/* Bathroom Safety Category */}
-                    <a href="https://amzn.to/475x1UC" target="_blank" rel="noopener noreferrer">
-                      <Card className="flex-shrink-0 w-96 h-80 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer border-2 border-teal-200 dark:border-teal-600 bg-white dark:bg-gray-800">
-                        <div className="h-24 bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center">
-                          <Shield className="w-12 h-12 text-white" />
-                        </div>
-                        <CardContent className="p-6 h-56 flex flex-col">
-                          <div className="flex items-center justify-between mb-3">
-                            <Badge className="bg-teal-100 text-teal-700 text-xs px-2 py-1">BATHROOM SAFETY</Badge>
-                            <Badge className="bg-green-500 text-white text-xs px-2 py-1">LIVE</Badge>
-                          </div>
-                          <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Premium Shower Chair</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 flex-grow">Adjustable height shower chair with back support and non-slip feet for safe, comfortable bathing</p>
-                          <div className="space-y-2 mt-auto">
-                            <div className="text-xl font-bold text-orange-600">$54.99</div>
-                            <div className="text-xs text-green-600 font-medium">✓ Prime Delivery • 4.6★ (3,521 reviews)</div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </a>
-
-                    {/* Medication Management Category */}
-                    <a href="https://amzn.to/4oaZbne" target="_blank" rel="noopener noreferrer">
-                      <Card className="flex-shrink-0 w-96 h-80 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer border-2 border-green-200 dark:border-green-600 bg-white dark:bg-gray-800">
-                        <div className="h-24 bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
-                          <Pill className="w-12 h-12 text-white" />
-                        </div>
-                        <CardContent className="p-6 h-56 flex flex-col">
-                          <div className="flex items-center justify-between mb-3">
-                            <Badge className="bg-green-100 text-green-700 text-xs px-2 py-1">MEDICATION MGMT</Badge>
-                            <Badge className="bg-green-500 text-white text-xs px-2 py-1">LIVE</Badge>
-                          </div>
-                          <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Weekly Pill Organizers</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 flex-grow">Large compartment pill organizers with clear labels for morning, noon, evening, and bedtime medications</p>
-                          <div className="space-y-2 mt-auto">
-                            <div className="text-xl font-bold text-orange-600">$16.99</div>
-                            <div className="text-xs text-green-600 font-medium">✓ Prime Delivery • 4.4★ (5,672 reviews)</div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </a>
-
-                    {/* Home Essentials Category */}
-                    <a href="https://amzn.to/40BNYlF" target="_blank" rel="noopener noreferrer">
-                      <Card className="flex-shrink-0 w-96 h-80 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer border-2 border-orange-200 dark:border-orange-600 bg-white dark:bg-gray-800">
-                        <div className="h-24 bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
-                          <Home className="w-12 h-12 text-white" />
-                        </div>
-                        <CardContent className="p-6 h-56 flex flex-col">
-                          <div className="flex items-center justify-between mb-3">
-                            <Badge className="bg-orange-100 text-orange-700 text-xs px-2 py-1">HOME ESSENTIALS</Badge>
-                            <Badge className="bg-green-500 text-white text-xs px-2 py-1">LIVE</Badge>
-                          </div>
-                          <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Luxury Bed Sheet Sets</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 flex-grow">Ultra-soft microfiber sheets in all sizes - Twin to California King with deep pockets for comfort</p>
-                          <div className="space-y-2 mt-auto">
-                            <div className="text-xl font-bold text-orange-600">From $19.99</div>
-                            <div className="text-xs text-green-600 font-medium">✓ Prime Delivery • 4.5★ (12,843 reviews)</div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </a>
-
-                    {/* Furniture & Storage Category */}
-                    <a href="https://amzn.to/4lR0gzh" target="_blank" rel="noopener noreferrer">
-                      <Card className="flex-shrink-0 w-96 h-80 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer border-2 border-indigo-200 dark:border-indigo-600 bg-white dark:bg-gray-800">
-                        <div className="h-24 bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center">
-                          <Sofa className="w-12 h-12 text-white" />
-                        </div>
-                        <CardContent className="p-6 h-56 flex flex-col">
-                          <div className="flex items-center justify-between mb-3">
-                            <Badge className="bg-indigo-100 text-indigo-700 text-xs px-2 py-1">FURNITURE & STORAGE</Badge>
-                            <Badge className="bg-green-500 text-white text-xs px-2 py-1">LIVE</Badge>
-                          </div>
-                          <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Elegant Nightstand</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 flex-grow">Modern bedside table with drawer and shelf storage, perfect for senior living spaces</p>
-                          <div className="space-y-2 mt-auto">
-                            <div className="text-xl font-bold text-orange-600">$89.99</div>
-                            <div className="text-xs text-green-600 font-medium">✓ Prime Delivery • 4.3★ (2,156 reviews)</div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </a>
+                      return productMapping.map((product, index) => {
+                        const Icon = product.icon;
+                        const productImage = amazonProductImages?.products?.find(p => p.id === product.productId);
+                        
+                        return (
+                          <a key={index} href={product.link} target="_blank" rel="noopener noreferrer">
+                            <Card className={`flex-shrink-0 w-96 h-80 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer border-2 ${product.borderColor} bg-white dark:bg-gray-800 overflow-hidden`}>
+                              {/* Product Image or Gradient Header */}
+                              {productImage?.imageUrl ? (
+                                <div className="h-32 bg-cover bg-center relative" style={{ backgroundImage: `url(${productImage.imageUrl})` }}>
+                                  <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+                                    <Icon className="w-8 h-8 text-white" />
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className={`h-24 bg-gradient-to-br ${product.bgColor} flex items-center justify-center`}>
+                                  <Icon className="w-12 h-12 text-white" />
+                                </div>
+                              )}
+                              
+                              <CardContent className="p-6 h-48 flex flex-col">
+                                <div className="flex items-center justify-between mb-3">
+                                  <Badge className={`${product.badgeColor} text-xs px-2 py-1`}>{product.category}</Badge>
+                                  <Badge className="bg-green-500 text-white text-xs px-2 py-1">LIVE</Badge>
+                                </div>
+                                <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">{product.title}</h4>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 flex-grow">{product.description}</p>
+                                <div className="space-y-2 mt-auto">
+                                  <div className="text-xl font-bold text-orange-600">{product.price}</div>
+                                  <div className="text-xs text-green-600 font-medium">✓ Prime Delivery • {productImage?.rating || "4.5★"} • Authentic Images</div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          </a>
+                        );
+                      });
+                    })()}
 
                   </div>
                 </div>

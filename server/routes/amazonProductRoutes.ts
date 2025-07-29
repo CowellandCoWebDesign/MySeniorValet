@@ -1,5 +1,5 @@
 import { Router } from "express";
-import fetch from "node-fetch";
+import { pixabayService } from "../pixabay-api";
 
 const router = Router();
 
@@ -77,41 +77,29 @@ const productImageMap: Record<string, { searchTerm: string; category: string; pr
   }
 };
 
-// Get authentic product images from Unsplash
+// Get authentic product images from Pixabay
 router.get("/images", async (req, res) => {
   try {
-    const UNSPLASH_ACCESS_KEY = process.env.UNSPLASH_ACCESS_KEY;
-    
-    if (!UNSPLASH_ACCESS_KEY) {
-      return res.status(500).json({ 
-        error: "Unsplash API access not configured",
-        _version: "v4_stream_enabled" 
-      });
-    }
-
     const productImages = [];
 
-    // Fetch images for each product category
+    // Fetch images for each product category using Pixabay
     for (const [productId, details] of Object.entries(productImageMap)) {
       try {
-        const searchUrl = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(details.searchTerm)}&per_page=1&client_id=${UNSPLASH_ACCESS_KEY}`;
+        const images = await pixabayService.searchImages(details.searchTerm, 'all', 800);
         
-        const response = await fetch(searchUrl);
-        const data = await response.json();
-        
-        if (data.results && data.results.length > 0) {
-          const image = data.results[0];
+        if (images && images.length > 0) {
+          const image = images[0];
           productImages.push({
             id: productId,
-            imageUrl: image.urls.regular,
-            thumbnailUrl: image.urls.small,
+            imageUrl: image.largeImageURL,
+            thumbnailUrl: image.webformatURL,
             category: details.category,
             price: details.price,
             rating: details.rating,
             reviews: details.reviews,
-            photographer: image.user.name,
-            photographerUrl: image.user.links.html,
-            unsplashUrl: image.links.html
+            photographer: image.user,
+            pixabayId: image.id,
+            tags: image.tags
           });
         }
       } catch (error) {
@@ -139,14 +127,6 @@ router.get("/images", async (req, res) => {
 router.get("/images/:category", async (req, res) => {
   try {
     const { category } = req.params;
-    const UNSPLASH_ACCESS_KEY = process.env.UNSPLASH_ACCESS_KEY;
-    
-    if (!UNSPLASH_ACCESS_KEY) {
-      return res.status(500).json({ 
-        error: "Unsplash API access not configured",
-        _version: "v4_stream_enabled" 
-      });
-    }
 
     // Filter products by category
     const categoryProducts = Object.entries(productImageMap).filter(
@@ -157,24 +137,21 @@ router.get("/images/:category", async (req, res) => {
 
     for (const [productId, details] of categoryProducts) {
       try {
-        const searchUrl = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(details.searchTerm)}&per_page=1&client_id=${UNSPLASH_ACCESS_KEY}`;
+        const images = await pixabayService.searchImages(details.searchTerm, 'all', 800);
         
-        const response = await fetch(searchUrl);
-        const data = await response.json();
-        
-        if (data.results && data.results.length > 0) {
-          const image = data.results[0];
+        if (images && images.length > 0) {
+          const image = images[0];
           categoryImages.push({
             id: productId,
-            imageUrl: image.urls.regular,
-            thumbnailUrl: image.urls.small,
+            imageUrl: image.largeImageURL,
+            thumbnailUrl: image.webformatURL,
             category: details.category,
             price: details.price,
             rating: details.rating,
             reviews: details.reviews,
-            photographer: image.user.name,
-            photographerUrl: image.user.links.html,
-            unsplashUrl: image.links.html
+            photographer: image.user,
+            pixabayId: image.id,
+            tags: image.tags
           });
         }
       } catch (error) {

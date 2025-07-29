@@ -28,6 +28,7 @@ import { registerMoveInServicesRoutes } from "./moveInServicesRoutes";
 import movingRoutes from "./movingRoutes";
 import transportationRoutes from "./transportationRoutes";
 import familyConnectRoutes from "./familyConnectRoutes";
+import amazonProductRoutes from "./amazonProductRoutes";
 
 // Import existing routers
 import { quizRouter } from "./quiz";
@@ -79,6 +80,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register family connect routes
   app.use('/api/family-connect', familyConnectRoutes);
+  
+  // Register Amazon product routes
+  app.use('/api/amazon-products', amazonProductRoutes);
 
   // Register existing specialized routers
   app.use('/api/quiz', quizRouter);
