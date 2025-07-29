@@ -87,6 +87,8 @@ MySeniorValet is a comprehensive senior living transparency platform featuring m
 
 ## Recent Major Achievements (July 29, 2025)
 
+**HOME PAGE SECTION NAMING UPDATES**: Renamed two major sections on the home page per user requirements: "Senior Services Directory" is now "Senior Vendor Marketplace" and "Care Marketplace" is now "Senior Care Services Directory". These updated names better reflect the purpose and content of each section.
+
 **GOVERNMENT-VERIFIED CARE SERVICES INTEGRATED INTO HOME PAGE**: Successfully discovered and integrated 4,210+ care services hidden in government database directly into main homepage marketplace. Features placement agencies (Nestvy Senior Placement), home care services (Visiting Angels), adult day care, therapy services, and more - all with real contact information, ratings, and government verification badges. Services integrated using same horizontal slider format as existing vendor services for consistent user experience.
 
 **AMAZON SLIDER DATABASE INTEGRATION COMPLETED**: Fixed critical bug where Amazon slider only displayed 6 hardcoded products instead of all 33 services in database. Completely rewrote amazonProductRoutes.ts to pull directly from services management database, removing all hardcoded product data. Amazon slider now dynamically displays all 33+ products across 6 categories with proper database integration, dynamic pricing, and category-specific SVG placeholders.

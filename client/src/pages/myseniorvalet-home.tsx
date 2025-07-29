@@ -601,7 +601,7 @@ export default function MySeniorValetHome() {
           <div className="text-center mb-12">
             <div className="mb-6">
               <h2 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600 dark:from-orange-400 dark:to-red-400 mb-2">
-                Senior Services Directory
+                Senior Vendor Marketplace
               </h2>
               <div className="h-1 w-32 bg-gradient-to-r from-orange-500 to-red-500 mx-auto rounded-full"></div>
             </div>
@@ -1398,7 +1398,7 @@ export default function MySeniorValetHome() {
                     <span className="mr-2">🚀</span>
                     Now Available!
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">Care Marketplace</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">Senior Care Services Directory</h3>
                   <p className="text-gray-600 dark:text-gray-300 text-lg max-w-3xl mx-auto mb-4">
                     Connect with {(careServicesAnalytics as any)?.totalServices?.toLocaleString() || '4,210'}+ verified healthcare and caregiving services in your area
                   </p>
