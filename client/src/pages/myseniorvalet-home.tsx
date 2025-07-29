@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink } from "lucide-react";
+import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { PricingBreakdown } from "@/components/pricing-breakdown";
@@ -1343,7 +1344,13 @@ export default function MySeniorValetHome() {
                   website: "https://nestvy-senior-placement-and-home-care.zoca.ai",
                   features: ["Free placement service", "Senior care experts", "24/7 support"],
                   color: "from-blue-500 to-blue-600",
-                  icon: <Building2 className="w-8 h-8 text-white" />
+                  icon: <Building2 className="w-8 h-8 text-white" />,
+                  badges: [
+                    commonBadges.governmentVerified,
+                    commonBadges.available247,
+                    commonBadges.stateLicensed,
+                    { type: 'response' as const, label: 'Same Day' }
+                  ]
                 },
                 { 
                   name: "Visiting Angels Senior Home Care", 
@@ -1354,7 +1361,13 @@ export default function MySeniorValetHome() {
                   website: "https://www.visitingangels.com/redding/home",
                   features: ["RN-supervised care", "Medication management", "Personal care"],
                   color: "from-green-500 to-green-600",
-                  icon: <Home className="w-8 h-8 text-white" />
+                  icon: <Home className="w-8 h-8 text-white" />,
+                  badges: [
+                    commonBadges.medicareAccepted,
+                    commonBadges.medicaidAccepted,
+                    commonBadges.stateLicensed,
+                    commonBadges.privateInsurance
+                  ]
                 },
                 { 
                   name: "Maxwell's Physical Therapy", 
@@ -1364,7 +1377,13 @@ export default function MySeniorValetHome() {
                   location: "Foster City, CA",
                   features: ["Home safety assessments", "Adaptive equipment", "Fall prevention"],
                   color: "from-purple-500 to-purple-600",
-                  icon: <Activity className="w-8 h-8 text-white" />
+                  icon: <Activity className="w-8 h-8 text-white" />,
+                  badges: [
+                    commonBadges.medicareAccepted,
+                    commonBadges.stateLicensed,
+                    { type: 'accredited' as const, label: 'APTA Certified' },
+                    commonBadges.veteranFriendly
+                  ]
                 },
                 { 
                   name: "Heart of the Valley Services", 
@@ -1375,7 +1394,13 @@ export default function MySeniorValetHome() {
                   website: "https://servicesforseniors.org",
                   features: ["Day programs", "Social activities", "Health monitoring"],
                   color: "from-teal-500 to-teal-600",
-                  icon: <Users className="w-8 h-8 text-white" />
+                  icon: <Users className="w-8 h-8 text-white" />,
+                  badges: [
+                    commonBadges.medicaidAccepted,
+                    commonBadges.multiLanguage,
+                    { type: 'accredited' as const, label: 'NADSA Member' },
+                    commonBadges.governmentVerified
+                  ]
                 },
                 { 
                   name: "Senior Safekeeping Home Care", 
@@ -1385,7 +1410,13 @@ export default function MySeniorValetHome() {
                   location: "Santa Clara, CA",
                   features: ["Certified caregivers", "Companion care", "Safety monitoring"],
                   color: "from-orange-500 to-orange-600",
-                  icon: <Users className="w-8 h-8 text-white" />
+                  icon: <Users className="w-8 h-8 text-white" />,
+                  badges: [
+                    commonBadges.stateLicensed,
+                    commonBadges.privateInsurance,
+                    commonBadges.fastResponse,
+                    { type: 'language' as const, label: 'Spanish/English' }
+                  ]
                 },
                 { 
                   name: "Grace Hospice Care", 
@@ -1395,10 +1426,16 @@ export default function MySeniorValetHome() {
                   location: "Sacramento, CA",
                   features: ["24/7 on-call support", "Pain management", "Family support"],
                   color: "from-indigo-500 to-indigo-600",
-                  icon: <Heart className="w-8 h-8 text-white" />
+                  icon: <Heart className="w-8 h-8 text-white" />,
+                  badges: [
+                    commonBadges.medicareAccepted,
+                    commonBadges.available247,
+                    commonBadges.jointCommission,
+                    { type: 'accredited' as const, label: 'NHPCO Certified' }
+                  ]
                 }
               ].map((service, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-80 h-[28rem] border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-80 h-[30rem] border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                     <div className="relative">
                       <div className={`h-32 bg-gradient-to-br ${service.color} flex items-center justify-center`}>
                         {service.icon}
@@ -1407,7 +1444,7 @@ export default function MySeniorValetHome() {
                         </div>
                       </div>
                     </div>
-                    <CardContent className="p-4 flex flex-col h-[calc(28rem-8rem)]">
+                    <CardContent className="p-4 flex flex-col h-[calc(30rem-8rem)]">
                       <div className="mb-2">
                         <div className="text-xs text-gray-600 dark:text-gray-400 font-medium mb-1">{service.category}</div>
                         <h4 className="font-bold text-gray-900 dark:text-gray-100 text-sm leading-tight">{service.name}</h4>
@@ -1417,6 +1454,10 @@ export default function MySeniorValetHome() {
                         <div className="text-sm text-gray-600 dark:text-gray-400">{service.location}</div>
                         <div className="text-lg font-bold text-gray-900 dark:text-gray-100">{service.phone}</div>
                       </div>
+                      
+                      {service.badges && (
+                        <ServiceBadges badges={service.badges} className="mb-3" size="sm" />
+                      )}
                       
                       <div className="space-y-1 mb-4 flex-grow">
                         {service.features.map((feature, idx) => (
