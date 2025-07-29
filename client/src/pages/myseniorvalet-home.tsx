@@ -367,6 +367,15 @@ export default function MySeniorValetHome() {
             </p>
           </div>
 
+          {/* Day 1 Launch Services Badge */}
+          <div className="flex items-center justify-center mb-6">
+            <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 text-lg font-bold shadow-xl flex items-center gap-3">
+              <span className="text-2xl">🚀</span>
+              <span>DAY 1 LAUNCH SERVICES - 4 VERIFIED PROVIDERS IN THE CARE MARKETPLACE</span>
+              <span className="text-2xl">🚀</span>
+            </Badge>
+          </div>
+
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
             <Link href="/moving">
               <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 relative overflow-hidden h-44">
