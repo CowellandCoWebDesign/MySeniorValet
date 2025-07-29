@@ -239,7 +239,12 @@ export class StripeSubscriptionService {
   }
 
   private async handlePaymentSucceeded(invoice: Stripe.Invoice) {
-    const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id;
+    // Cast invoice to any to access subscription property
+    const invoiceData = invoice as any;
+    const subscriptionId = typeof invoiceData.subscription === 'string' 
+      ? invoiceData.subscription 
+      : invoiceData.subscription?.id;
+      
     if (subscriptionId) {
       await db.update(subscriptions)
         .set({
