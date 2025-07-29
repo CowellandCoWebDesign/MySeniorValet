@@ -1218,13 +1218,13 @@ export default function MySeniorValetHome() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                    Featured Care Providers by Category
+                    Featured Care Providers - Diverse Services
                   </h3>
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm text-green-700 dark:text-green-300 font-medium">Real providers with contact info</span>
+                    <span className="text-sm text-green-700 dark:text-green-300 font-medium">Wide variety of care options</span>
                     <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm text-purple-700 dark:text-purple-300 font-medium">Call directly from site</span>
+                    <span className="text-sm text-purple-700 dark:text-purple-300 font-medium">Real verified providers</span>
                   </div>
                 </div>
                 <div className="text-right">
@@ -1237,13 +1237,13 @@ export default function MySeniorValetHome() {
                 <div className="flex items-center">
                   <Shield className="w-5 h-5 text-green-600 dark:text-green-400 mr-2" />
                   <p className="text-sm text-green-800 dark:text-green-200 font-medium">
-                    <strong>Categories shown:</strong> Senior Placement • Home Healthcare • Physical Therapy • Adult Day Care • Personal Care • Hospice
+                    <strong>Diverse service mix:</strong> Showing different types of care providers to give you a complete overview of available options
                   </p>
                 </div>
               </div>
               
               <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
-                6 healthcare service categories • Specialized care for Independent Living and below
+                Mixed service types • Government verified providers • Real contact information
               </p>
             </div>
 
@@ -1254,7 +1254,28 @@ export default function MySeniorValetHome() {
                   <p className="text-gray-600 dark:text-gray-400">Loading verified care services...</p>
                 </div>
               ) : careServicesData && (careServicesData as any[]).length > 0 ? (
-                (careServicesData as any[]).map((service: any, index: number) => {
+                (() => {
+                  // Create a diverse mix of services from different categories
+                  const services = careServicesData as any[];
+                  const categories = ['Senior Placement Agency', 'Home Care Services', 'Therapy Services', 'Adult Day Care', 'Personal Care Services', 'Hospice Care'];
+                  const diverseServices: any[] = [];
+                  
+                  // Get one service from each category to ensure diversity
+                  categories.forEach(category => {
+                    const serviceFromCategory = services.find(s => s.serviceCategory === category);
+                    if (serviceFromCategory && diverseServices.length < 8) {
+                      diverseServices.push(serviceFromCategory);
+                    }
+                  });
+                  
+                  // Fill remaining slots with other high-quality services
+                  const remainingServices = services
+                    .filter(s => !diverseServices.includes(s))
+                    .slice(0, 8 - diverseServices.length);
+                  
+                  diverseServices.push(...remainingServices);
+                  
+                  return diverseServices.slice(0, 8).map((service: any, index: number) => {
                   // Map service categories to colors and icons
                   const categoryConfig: any = {
                     'Senior Placement Agency': { color: 'from-blue-500 to-blue-600', icon: <Building2 className="w-8 h-8 text-white" /> },
@@ -1352,7 +1373,8 @@ export default function MySeniorValetHome() {
                       </CardContent>
                     </Card>
                   );
-                })
+                  })
+                })()
               ) : (
                 // No care services found
                 <div className="text-center w-full py-8">
