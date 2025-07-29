@@ -82,6 +82,15 @@ router.get("/images", async (req, res) => {
         }
       }
 
+      // Ensure affiliate tracking is included in the URL
+      let affiliateUrl = service.externalUrl || '';
+      
+      // Add affiliate tag if not already present
+      if (affiliateUrl && service.affiliateCode && !affiliateUrl.includes('tag=')) {
+        const separator = affiliateUrl.includes('?') ? '&' : '?';
+        affiliateUrl = `${affiliateUrl}${separator}tag=${service.affiliateCode}`;
+      }
+      
       productImages.push({
         id: service.productId || `amazon-${service.id}`,
         name: service.name,
@@ -93,7 +102,7 @@ router.get("/images", async (req, res) => {
         reviews: "Prime delivery available",
         description: service.shortDescription || service.description,
         features: service.features || [],
-        externalUrl: service.externalUrl,
+        externalUrl: affiliateUrl,
         affiliateCode: service.affiliateCode,
         isFeatured: service.isFeatured,
         aiGenerated: true,
