@@ -104,6 +104,13 @@ export default function MySeniorValetHome() {
     retry: false,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
+  
+  // Fetch real care services from database
+  const { data: careServicesData, isLoading: careServicesLoading } = useQuery({
+    queryKey: ["/api/care-services", { limit: 6 }],
+    retry: false,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
 
   const featuredCommunities = (trendingCommunities as any[])?.slice(0, 8) || [];
   
@@ -1334,165 +1341,106 @@ export default function MySeniorValetHome() {
 
             <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
               {/* Real Government-Verified Healthcare Service Cards */}
-              {[
-                { 
-                  name: "Nestvy Senior Placement", 
-                  category: "Senior Placement Agency", 
-                  rating: "4.8", 
-                  phone: "(800) 570-7874", 
-                  location: "Oakland, CA",
-                  website: "https://nestvy-senior-placement-and-home-care.zoca.ai",
-                  features: ["Free placement service", "Senior care experts", "24/7 support"],
-                  color: "from-blue-500 to-blue-600",
-                  icon: <Building2 className="w-8 h-8 text-white" />,
-                  badges: [
+              {careServicesLoading ? (
+                <div className="text-center w-full py-8">
+                  <p className="text-gray-600 dark:text-gray-400">Loading verified care services...</p>
+                </div>
+              ) : careServicesData && (careServicesData as any[]).length > 0 ? (
+                (careServicesData as any[]).map((service: any, index: number) => {
+                  // Map service categories to colors and icons
+                  const categoryConfig: any = {
+                    'Senior Placement Agency': { color: 'from-blue-500 to-blue-600', icon: <Building2 className="w-8 h-8 text-white" /> },
+                    'Home Care Services': { color: 'from-green-500 to-green-600', icon: <Home className="w-8 h-8 text-white" /> },
+                    'Therapy Services': { color: 'from-purple-500 to-purple-600', icon: <Activity className="w-8 h-8 text-white" /> },
+                    'Adult Day Care': { color: 'from-teal-500 to-teal-600', icon: <Users className="w-8 h-8 text-white" /> },
+                    'Personal Care Services': { color: 'from-orange-500 to-orange-600', icon: <Users className="w-8 h-8 text-white" /> },
+                    'Hospice Care': { color: 'from-indigo-500 to-indigo-600', icon: <Heart className="w-8 h-8 text-white" /> }
+                  };
+                  
+                  const config = categoryConfig[service.serviceCategory] || categoryConfig['Home Care Services'];
+                  
+                  // Dynamic badge assignment based on service features
+                  const badges = [
                     commonBadges.governmentVerified,
-                    commonBadges.available247,
-                    commonBadges.stateLicensed,
-                    { type: 'response' as const, label: 'Same Day' }
-                  ]
-                },
-                { 
-                  name: "Visiting Angels Senior Home Care", 
-                  category: "Home Healthcare", 
-                  rating: "4.7", 
-                  phone: "(530) 223-2400", 
-                  location: "Redding, CA",
-                  website: "https://www.visitingangels.com/redding/home",
-                  features: ["RN-supervised care", "Medication management", "Personal care"],
-                  color: "from-green-500 to-green-600",
-                  icon: <Home className="w-8 h-8 text-white" />,
-                  badges: [
-                    commonBadges.medicareAccepted,
-                    commonBadges.medicaidAccepted,
-                    commonBadges.stateLicensed,
-                    commonBadges.privateInsurance
-                  ]
-                },
-                { 
-                  name: "Maxwell's Physical Therapy", 
-                  category: "Occupational Therapy", 
-                  rating: "4.9", 
-                  phone: "(650) 555-0123", 
-                  location: "Foster City, CA",
-                  features: ["Home safety assessments", "Adaptive equipment", "Fall prevention"],
-                  color: "from-purple-500 to-purple-600",
-                  icon: <Activity className="w-8 h-8 text-white" />,
-                  badges: [
-                    commonBadges.medicareAccepted,
-                    commonBadges.stateLicensed,
-                    { type: 'accredited' as const, label: 'APTA Certified' },
-                    commonBadges.veteranFriendly
-                  ]
-                },
-                { 
-                  name: "Heart of the Valley Services", 
-                  category: "Adult Day Care", 
-                  rating: "4.8", 
-                  phone: "(408) 241-1571", 
-                  location: "Santa Clara, CA",
-                  website: "https://servicesforseniors.org",
-                  features: ["Day programs", "Social activities", "Health monitoring"],
-                  color: "from-teal-500 to-teal-600",
-                  icon: <Users className="w-8 h-8 text-white" />,
-                  badges: [
-                    commonBadges.medicaidAccepted,
-                    commonBadges.multiLanguage,
-                    { type: 'accredited' as const, label: 'NADSA Member' },
-                    commonBadges.governmentVerified
-                  ]
-                },
-                { 
-                  name: "Senior Safekeeping Home Care", 
-                  category: "Personal Care Services", 
-                  rating: "4.6", 
-                  phone: "(408) 763-5850", 
-                  location: "Santa Clara, CA",
-                  features: ["Certified caregivers", "Companion care", "Safety monitoring"],
-                  color: "from-orange-500 to-orange-600",
-                  icon: <Users className="w-8 h-8 text-white" />,
-                  badges: [
-                    commonBadges.stateLicensed,
-                    commonBadges.privateInsurance,
-                    commonBadges.fastResponse,
-                    { type: 'language' as const, label: 'Spanish/English' }
-                  ]
-                },
-                { 
-                  name: "Grace Hospice Care", 
-                  category: "Hospice Care", 
-                  rating: "4.9", 
-                  phone: "(916) 555-0199", 
-                  location: "Sacramento, CA",
-                  features: ["24/7 on-call support", "Pain management", "Family support"],
-                  color: "from-indigo-500 to-indigo-600",
-                  icon: <Heart className="w-8 h-8 text-white" />,
-                  badges: [
-                    commonBadges.medicareAccepted,
-                    commonBadges.available247,
-                    commonBadges.jointCommission,
-                    { type: 'accredited' as const, label: 'NHPCO Certified' }
-                  ]
-                }
-              ].map((service, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-80 h-[30rem] border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                    <div className="relative">
-                      <div className={`h-32 bg-gradient-to-br ${service.color} flex items-center justify-center`}>
-                        {service.icon}
-                        <div className="absolute top-3 right-3 bg-white/90 px-2 py-1 rounded-full text-xs font-semibold text-gray-800">
-                          ⭐ {service.rating}
+                    ...(service.careTypes?.includes('Medicare') ? [commonBadges.medicareAccepted] : []),
+                    ...(service.careTypes?.includes('Medicaid') ? [commonBadges.medicaidAccepted] : []),
+                    ...(service.serviceCategory === 'Senior Placement Agency' ? [commonBadges.available247] : []),
+                    ...(service.website ? [{ type: 'verified' as const, label: 'Website Verified' }] : [])
+                  ].slice(0, 4); // Limit to 4 badges for space
+                  
+                  return (
+                    <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-80 h-[30rem] border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                      <div className="relative">
+                        <div className={`h-32 bg-gradient-to-br ${config.color} flex items-center justify-center`}>
+                          {config.icon}
+                          {service.rating && (
+                            <div className="absolute top-3 right-3 bg-white/90 px-2 py-1 rounded-full text-xs font-semibold text-gray-800">
+                              ⭐ {service.rating}
+                            </div>
+                          )}
                         </div>
                       </div>
-                    </div>
-                    <CardContent className="p-4 flex flex-col h-[calc(30rem-8rem)]">
-                      <div className="mb-2">
-                        <div className="text-xs text-gray-600 dark:text-gray-400 font-medium mb-1">{service.category}</div>
-                        <h4 className="font-bold text-gray-900 dark:text-gray-100 text-sm leading-tight">{service.name}</h4>
-                      </div>
-                      
-                      <div className="mb-3">
-                        <div className="text-sm text-gray-600 dark:text-gray-400">{service.location}</div>
-                        <div className="text-lg font-bold text-gray-900 dark:text-gray-100">{service.phone}</div>
-                      </div>
-                      
-                      {service.badges && (
-                        <ServiceBadges badges={service.badges} className="mb-3" size="sm" />
-                      )}
-                      
-                      <div className="space-y-1 mb-4 flex-grow">
-                        {service.features.map((feature, idx) => (
-                          <div key={idx} className="flex items-center text-xs text-gray-600 dark:text-gray-300">
-                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
-                            {feature}
-                          </div>
-                        ))}
-                      </div>
-                      
-                      <div className="space-y-2 mt-auto">
-                        <Button 
-                          className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-2 text-xs font-semibold"
-                          onClick={() => window.open(`tel:${service.phone}`, '_self')}
-                        >
-                          <Phone className="w-4 h-4 mr-1" />
-                          Call Now
-                        </Button>
-                        {service.website && (
+                      <CardContent className="p-4 flex flex-col h-[calc(30rem-8rem)]">
+                        <div className="mb-2">
+                          <div className="text-xs text-gray-600 dark:text-gray-400 font-medium mb-1">{service.serviceCategory}</div>
+                          <h4 className="font-bold text-gray-900 dark:text-gray-100 text-sm leading-tight">{service.name}</h4>
+                        </div>
+                        
+                        <div className="mb-3">
+                          <div className="text-sm text-gray-600 dark:text-gray-400">{service.city}, {service.state}</div>
+                          <div className="text-lg font-bold text-gray-900 dark:text-gray-100">{service.phone}</div>
+                        </div>
+                        
+                        <ServiceBadges badges={badges} className="mb-3" size="sm" />
+                        
+                        <div className="space-y-1 mb-4 flex-grow">
+                          {service.careTypes && service.careTypes.length > 0 ? (
+                            service.careTypes.slice(0, 3).map((feature: string, idx: number) => (
+                              <div key={idx} className="flex items-center text-xs text-gray-600 dark:text-gray-300">
+                                <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
+                                {feature}
+                              </div>
+                            ))
+                          ) : (
+                            <div className="flex items-center text-xs text-gray-600 dark:text-gray-300">
+                              <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
+                              Professional care services
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="space-y-2 mt-auto">
                           <Button 
-                            variant="outline" 
-                            className="w-full text-xs"
-                            onClick={() => window.open(service.website, '_blank')}
+                            className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-2 text-xs font-semibold"
+                            onClick={() => window.open(`tel:${service.phone}`, '_self')}
                           >
-                            <ExternalLink className="w-4 h-4 mr-1" />
-                            Visit Website
+                            <Phone className="w-4 h-4 mr-1" />
+                            Call Now
                           </Button>
-                        )}
-                        <div className="text-xs text-center text-green-600 dark:text-green-400 font-medium">
-                          ✓ Government Database Verified
+                          {service.website && (
+                            <Button 
+                              variant="outline" 
+                              className="w-full text-xs"
+                              onClick={() => window.open(service.website, '_blank')}
+                            >
+                              <ExternalLink className="w-4 h-4 mr-1" />
+                              Visit Website
+                            </Button>
+                          )}
+                          <div className="text-xs text-center text-green-600 dark:text-green-400 font-medium">
+                            ✓ Government Database Verified
+                          </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  );
+                })
+              ) : (
+                // No care services found
+                <div className="text-center w-full py-8">
+                  <p className="text-gray-600 dark:text-gray-400">No care services available at this time.</p>
+                </div>
+              )}
             </div>
           </div>
 
