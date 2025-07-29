@@ -193,11 +193,11 @@ export default function MySeniorValetHome() {
           {/* Centered Headlines - Optimized for Desktop */}
           <div className="text-center mb-6 md:mb-8 max-w-7xl">
             <div className="space-y-6 mb-6">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white dark:text-gray-100 leading-tight drop-shadow-2xl animate-fade-in-up tracking-tight">
-                <span className="block mb-3">Everything Senior Living Needs</span>
-                <span className="block text-gradient text-gradient-animated bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-300 bg-clip-text text-transparent drop-shadow-none">in one place</span>
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white dark:text-gray-100 leading-tight drop-shadow-2xl tracking-tight">
+                <span className="block mb-3 hero-text-main animate-space-entry animate-cosmic-glow">Everything Senior Living Needs</span>
+                <span className="block text-gradient text-gradient-animated bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-300 bg-clip-text text-transparent drop-shadow-none hero-text-main animate-space-entry animate-cosmic-glow" style={{ animationDelay: '0.3s' }}>in one place</span>
               </h1>
-              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl text-white dark:text-gray-200 opacity-95 drop-shadow-lg px-4 animate-fade-in-up animation-delay-300 max-w-5xl mx-auto font-medium leading-relaxed">
+              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl text-white dark:text-gray-200 opacity-95 drop-shadow-lg px-4 animate-space-warp max-w-5xl mx-auto font-medium leading-relaxed" style={{ animationDelay: '0.8s' }}>
                 From live pricing and unit availability to move coordination, furniture setup, and prescription delivery, MySeniorValet is your white-glove partner.
               </h2>
             </div>

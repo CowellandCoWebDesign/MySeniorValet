@@ -373,6 +373,79 @@ body {
   }
 }
 
+/* Space Warp Text Animation */
+@keyframes spaceWarpIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.1) translateZ(-1000px) rotateX(90deg);
+    filter: blur(10px);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.5) translateZ(-500px) rotateX(45deg);
+    filter: blur(5px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateZ(0) rotateX(0);
+    filter: blur(0);
+  }
+}
+
+/* Cosmic Glow Animation */
+@keyframes cosmicGlow {
+  0%, 100% {
+    text-shadow: 
+      0 0 10px rgba(255, 255, 255, 0.8),
+      0 0 20px rgba(255, 255, 255, 0.6),
+      0 0 30px rgba(255, 220, 100, 0.4),
+      0 0 40px rgba(255, 220, 100, 0.3);
+  }
+  50% {
+    text-shadow: 
+      0 0 20px rgba(255, 255, 255, 1),
+      0 0 30px rgba(255, 255, 255, 0.8),
+      0 0 40px rgba(255, 220, 100, 0.6),
+      0 0 50px rgba(255, 220, 100, 0.5);
+  }
+}
+
+/* Staggered Letter Animation */
+@keyframes letterAppear {
+  0% {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.3) rotateY(180deg);
+    filter: blur(5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotateY(0);
+    filter: blur(0);
+  }
+}
+
+/* Breathing Float Animation */
+@keyframes breathingFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-10px) scale(1.02);
+  }
+}
+
+/* Sparkle Animation */
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(180deg);
+  }
+}
+
 @keyframes fadeInScale {
   from {
     opacity: 0;
@@ -1004,6 +1077,45 @@ body {
 .animation-delay-600 {
   animation-delay: 600ms;
   opacity: 0;
+}
+
+/* Space Warp Animation Classes */
+.animate-space-warp {
+  animation: spaceWarpIn 2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  animation-fill-mode: both;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+.animate-cosmic-glow {
+  animation: cosmicGlow 3s ease-in-out infinite;
+}
+
+.animate-letter-appear {
+  animation: letterAppear 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  animation-fill-mode: both;
+}
+
+/* Staggered delays for letters */
+.letter-delay-1 { animation-delay: 0.1s; }
+.letter-delay-2 { animation-delay: 0.2s; }
+.letter-delay-3 { animation-delay: 0.3s; }
+.letter-delay-4 { animation-delay: 0.4s; }
+.letter-delay-5 { animation-delay: 0.5s; }
+.letter-delay-6 { animation-delay: 0.6s; }
+.letter-delay-7 { animation-delay: 0.7s; }
+.letter-delay-8 { animation-delay: 0.8s; }
+
+/* Combined Animations */
+.animate-space-entry {
+  animation: 
+    spaceWarpIn 2s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards,
+    breathingFloat 4s ease-in-out 2s infinite;
+}
+
+.hero-text-main {
+  position: relative;
+  display: inline-block;
 }
 
 .animation-delay-900 {
