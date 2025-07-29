@@ -1,0 +1,164 @@
+Hell yes — live reservability is one of the ultimate flexes that turns MySeniorValet from a search site into a transaction-ready platform. Let’s bake it directly into the tier structure.
+
+
+---
+
+Here’s the revised and upgraded pricing tier breakdown — now including:
+
+✅ Live reservability of open units (aka: real-time unit claims by families)
+⚠️ Flagged as “Coming Soon” if not live at launch
+
+
+---
+
+🧾 MySeniorValet: Community Pricing Tiers (Launch Edition + Live Reservability)
+
+
+---
+
+🏷️ Tier 1: Basic Listing – FREE
+
+> “Be visible, not invisible.”
+
+
+
+✅ Verified listing and basic visibility
+
+✅ Searchable by families
+
+✅ Can respond to reviews
+
+❌ No profile control or editing
+
+❌ No tools, forms, media, or promotions
+
+❌ No live unit tracking or reservability
+
+
+
+---
+
+💡 Tier 2: Featured Spotlight – $149/mo
+
+> “Control your listing. Post specials. Get noticed.”
+
+
+
+✅ Everything in Tier 1
+
+✅ Edit your profile, upload photos, add tour links
+
+✅ Highlight unit pricing, incentives, and floorplans
+
+✅ Red Tag promotional listing
+
+✅ Upload custom intake or pre-leasing forms
+
+✅ Manual status updates (vacant, leased, pending)
+
+❌ No real-time reservability
+
+❌ No branded portal or automation
+
+
+
+---
+
+🚀 Tier 3: Premium Tools + Exposure – $249/mo
+
+> “Streamline move-ins with smart tools and automation.”
+
+
+
+✅ Everything in Tier 2
+
+✅ Branded intake experience (logo, forms, welcome flow)
+
+✅ Publicly post current vacancies by unit type
+
+✅ In-app availability tracker (auto-updated by your team)
+
+✅ Schedule live/virtual tours through platform
+
+✅ Share detailed move-in cost breakdowns
+
+✅ Enable live unit reservability by families (⚠️ Coming Soon)
+
+✅ Waitlist functionality for full floorplans
+
+⚠️ DocuSign lease execution (Coming Soon)
+
+❌ No concierge support or homepage feature
+
+
+
+---
+
+👑 Tier 4: Platinum Marketing Partner – $399/mo
+
+> “Full control. Top visibility. Next-gen family experience.”
+
+
+
+✅ Everything in Tier 3
+
+✅ Homepage + regional featured placement
+
+✅ Sponsored blog features and AI-powered content spotlight
+
+✅ Early access to:
+
+✅ Live unit reservability system (Coming Soon)
+
+✅ Resident bill payment module (Coming Soon)
+
+✅ Family service directory (transport, moving, etc.)
+
+✅ AI-guided tour assistant
+
+
+✅ Monthly concierge performance review
+
+✅ API-based syncing option for PMS integration (Coming Soon)
+
+
+
+---
+
+➕ Optional Add-Ons
+
+Add-On	Price	Status
+
+Add extra locations	$49/site	✅ Live
+In-app family messaging/chat	$29/mo	✅ Live
+AI tour assistant	$59/mo	⚠️ Coming Soon
+Resident bill payment tools	$79/mo	⚠️ Coming Soon
+Live Unit Reservability Engine	Included in Tier 3+	⚠️ Coming Soon
+
+
+
+---
+
+💳 Stripe/Billing Terms:
+
+Month-to-month, cancel anytime
+
+30-day refund guarantee for first-time upgrades
+
+No commissions or referral fees — just flat monthly rates
+
+
+
+---
+
+Want this:
+
+Formatted for your Stripe product catalog?
+
+Converted into a comparison table for your site?
+
+Or prepped as a community onboarding deck with visuals?
+
+
+Say the word — I’ll drop it all 🔥
+
