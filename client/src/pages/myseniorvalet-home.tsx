@@ -710,7 +710,7 @@ export default function MySeniorValetHome() {
                     <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                   </div>
                   <Package className="w-10 h-10 text-orange-500 mx-auto mb-2" />
-                  <h4 className="font-semibold text-sm">Amazon Senior Solutions</h4>
+                  <h4 className="font-semibold text-sm">Amazon Senior Essentials</h4>
                   <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">33+ essential products</p>
                   <div className="flex gap-1 justify-center mt-1">
                     <Badge className="bg-green-500 text-white text-xs px-2 py-0.5">LIVE</Badge>
