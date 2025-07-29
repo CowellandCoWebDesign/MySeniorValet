@@ -1,13 +1,13 @@
 import React from 'react';
 
 export const ShootingStars: React.FC = () => {
-  // Generate random positions for stars
-  const stars = Array.from({ length: 8 }, (_, i) => ({
+  // Generate random positions for stars with better distribution
+  const stars = Array.from({ length: 5 }, (_, i) => ({
     id: i,
-    top: Math.random() * 50,
-    left: Math.random() * 100,
-    delay: Math.random() * 5,
-    duration: 2 + Math.random() * 3
+    top: 10 + Math.random() * 30, // Keep them in upper portion
+    left: Math.random() * 80 + 10, // Avoid edges
+    delay: i * 1.5 + Math.random() * 2, // Stagger them more
+    duration: 3 + Math.random() * 2 // Slower, more graceful
   }));
 
   return (
