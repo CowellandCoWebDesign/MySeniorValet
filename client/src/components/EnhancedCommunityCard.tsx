@@ -481,9 +481,9 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
             
             {/* View Details Button */}
             <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
-              <div className="w-full text-center py-2 text-xs text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors">
+              <button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-2 px-3 rounded-lg font-semibold text-xs transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
                 View Full Details →
-              </div>
+              </button>
             </div>
           </CardContent>
         </Card>
