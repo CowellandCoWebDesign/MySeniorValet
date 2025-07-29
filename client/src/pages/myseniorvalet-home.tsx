@@ -18,6 +18,7 @@ export default function MySeniorValetHome() {
   console.log("MYSENIORVALET HOME PAGE LOADED - VERSION 3 WITH CONCIERGE SERVICES PRIORITIZED - 26,306 COMMUNITIES");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedAmazonCategory, setSelectedAmazonCategory] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const [showIntegrationSpotlight, setShowIntegrationSpotlight] = useState(true);
   
@@ -1134,7 +1135,7 @@ export default function MySeniorValetHome() {
             </div>
           </div>
 
-          {/* Care Marketplace - Coming Soon */}
+          {/* Care Marketplace - Full Integration */}
           <div className="mb-8">
             <Card className="group bg-white dark:bg-gray-800 border-2 border-orange-200 dark:border-orange-400 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden relative">
               <div className="absolute inset-0 bg-gradient-to-br from-orange-50/50 to-red-50/50 dark:from-orange-900/20 dark:to-red-900/20"></div>
@@ -1145,65 +1146,81 @@ export default function MySeniorValetHome() {
                     Now Available!
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">Care Marketplace</h3>
-                  <p className="text-gray-600 dark:text-gray-300 text-lg max-w-3xl mx-auto">
-                    For Independent Living and below, connect with local healthcare and caregiving services in your area
+                  <p className="text-gray-600 dark:text-gray-300 text-lg max-w-3xl mx-auto mb-4">
+                    Connect with {(careServicesAnalytics as any)?.totalServices?.toLocaleString() || '4,210'}+ verified healthcare and caregiving services in your area
                   </p>
-                </div>
-                
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-                  <div className="text-center">
-                    <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                      <Heart className="w-7 h-7 text-white" />
-                    </div>
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 text-sm">IHSS & SLS Services</h4>
-                    <p className="text-xs text-gray-600 dark:text-gray-300">In-home support services</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                      <Stethoscope className="w-7 h-7 text-white" />
-                    </div>
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 text-sm">Home Healthcare</h4>
-                    <p className="text-xs text-gray-600 dark:text-gray-300">Nursing & medical care</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                      <Activity className="w-7 h-7 text-white" />
-                    </div>
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 text-sm">Occupational Therapy</h4>
-                    <p className="text-xs text-gray-600 dark:text-gray-300">Daily living skills</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-14 h-14 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                      <Home className="w-7 h-7 text-white" />
-                    </div>
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 text-sm">In-home Care Programs</h4>
-                    <p className="text-xs text-gray-600 dark:text-gray-300">Comprehensive care plans</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                      <Users2 className="w-7 h-7 text-white" />
-                    </div>
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 text-sm">Caregivers & Home Care</h4>
-                    <p className="text-xs text-gray-600 dark:text-gray-300">Personal care providers</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                      <Flower className="w-7 h-7 text-white" />
-                    </div>
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 text-sm">Hospice Care</h4>
-                    <p className="text-xs text-gray-600 dark:text-gray-300">End-of-life comfort care</p>
-                  </div>
-                </div>
-                
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-2 mb-4">
+                  <div className="flex items-center justify-center gap-2">
                     <Shield className="w-5 h-5 text-green-600" />
-                    <span className="text-2xl font-bold text-green-600">{(careServicesAnalytics as any)?.totalServices?.toLocaleString() || '4,210'}</span>
-                    <span className="text-sm font-medium text-green-600">Government Verified Providers</span>
+                    <span className="text-lg font-bold text-green-600">All Government Database Verified</span>
                   </div>
-                  <Button className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200">
-                    Browse Care Services Below
-                  </Button>
+                </div>
+                
+                {/* Care Service Categories with Counts */}
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+                  {(() => {
+                    const services = (careServicesData as any)?.services || [];
+                    const categoryCounts = {
+                      'Senior Placement Agency': services.filter((s: any) => s.serviceCategory === 'Senior Placement Agency').length,
+                      'Home Care Services': services.filter((s: any) => s.serviceCategory === 'Home Care Services').length,
+                      'Therapy Services': services.filter((s: any) => s.serviceCategory === 'Therapy Services').length,
+                      'Adult Day Care': services.filter((s: any) => s.serviceCategory === 'Adult Day Care').length,
+                      'Personal Care Services': services.filter((s: any) => s.serviceCategory === 'Personal Care Services').length,
+                      'Hospice Care': services.filter((s: any) => s.serviceCategory === 'Hospice Care').length
+                    };
+                    
+                    return (
+                      <>
+                        <div className="text-center cursor-pointer hover:scale-105 transition-transform" onClick={() => setSelectedCategory('Senior Placement Agency')}>
+                          <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                            <Building2 className="w-7 h-7 text-white" />
+                          </div>
+                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 text-sm">Placement Agencies</h4>
+                          <p className="text-xs text-gray-600 dark:text-gray-300">Find the right community</p>
+                          <Badge className="mt-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">{categoryCounts['Senior Placement Agency']} providers</Badge>
+                        </div>
+                        <div className="text-center cursor-pointer hover:scale-105 transition-transform" onClick={() => setSelectedCategory('Home Care Services')}>
+                          <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                            <Home className="w-7 h-7 text-white" />
+                          </div>
+                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 text-sm">Home Care</h4>
+                          <p className="text-xs text-gray-600 dark:text-gray-300">In-home support</p>
+                          <Badge className="mt-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">{categoryCounts['Home Care Services']} providers</Badge>
+                        </div>
+                        <div className="text-center cursor-pointer hover:scale-105 transition-transform" onClick={() => setSelectedCategory('Therapy Services')}>
+                          <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                            <Activity className="w-7 h-7 text-white" />
+                          </div>
+                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 text-sm">Therapy Services</h4>
+                          <p className="text-xs text-gray-600 dark:text-gray-300">Physical & occupational</p>
+                          <Badge className="mt-1 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">{categoryCounts['Therapy Services']} providers</Badge>
+                        </div>
+                        <div className="text-center cursor-pointer hover:scale-105 transition-transform" onClick={() => setSelectedCategory('Adult Day Care')}>
+                          <div className="w-14 h-14 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                            <Users className="w-7 h-7 text-white" />
+                          </div>
+                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 text-sm">Adult Day Care</h4>
+                          <p className="text-xs text-gray-600 dark:text-gray-300">Daytime programs</p>
+                          <Badge className="mt-1 bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200">{categoryCounts['Adult Day Care']} providers</Badge>
+                        </div>
+                        <div className="text-center cursor-pointer hover:scale-105 transition-transform" onClick={() => setSelectedCategory('Personal Care Services')}>
+                          <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                            <Users2 className="w-7 h-7 text-white" />
+                          </div>
+                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 text-sm">Personal Care</h4>
+                          <p className="text-xs text-gray-600 dark:text-gray-300">Daily assistance</p>
+                          <Badge className="mt-1 bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">{categoryCounts['Personal Care Services']} providers</Badge>
+                        </div>
+                        <div className="text-center cursor-pointer hover:scale-105 transition-transform" onClick={() => setSelectedCategory('Hospice Care')}>
+                          <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                            <Heart className="w-7 h-7 text-white" />
+                          </div>
+                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 text-sm">Hospice Care</h4>
+                          <p className="text-xs text-gray-600 dark:text-gray-300">Comfort care</p>
+                          <Badge className="mt-1 bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">{categoryCounts['Hospice Care']} providers</Badge>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
               </CardContent>
             </Card>
@@ -1211,35 +1228,177 @@ export default function MySeniorValetHome() {
 
 
 
-            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-              {/* Real Government-Verified Healthcare Service Cards */}
-              {careServicesLoading ? (
-                <div className="text-center w-full py-8">
-                  <p className="text-gray-600 dark:text-gray-400">Loading verified care services...</p>
+            {/* Filtered Care Services Display */}
+            {selectedCategory && (
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                    {selectedCategory} Providers
+                  </h4>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSelectedCategory(null)}
+                    className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+                  >
+                    ✕ Clear Filter
+                  </Button>
                 </div>
-              ) : careServicesData && (careServicesData as any).services && ((careServicesData as any).services as any[]).length > 0 ? (
-                (() => {
-                  // Create a diverse mix of services from different categories
-                  const services = (careServicesData as any).services as any[];
-                  const categories = ['Senior Placement Agency', 'Home Care Services', 'Therapy Services', 'Adult Day Care', 'Personal Care Services', 'Hospice Care'];
-                  const diverseServices: any[] = [];
-                  
-                  // Get one service from each category to ensure diversity
-                  categories.forEach(category => {
-                    const serviceFromCategory = services.find(s => s.serviceCategory === category);
-                    if (serviceFromCategory && diverseServices.length < 8) {
-                      diverseServices.push(serviceFromCategory);
+                <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                  {(() => {
+                    const services = (careServicesData as any)?.services || [];
+                    const filteredServices = services.filter((s: any) => s.serviceCategory === selectedCategory);
+                    
+                    if (filteredServices.length === 0) {
+                      return (
+                        <div className="text-center w-full py-8">
+                          <p className="text-gray-600 dark:text-gray-400">No {selectedCategory} providers found in your area.</p>
+                        </div>
+                      );
                     }
-                  });
-                  
-                  // Fill remaining slots with other high-quality services
-                  const remainingServices = services
-                    .filter(s => !diverseServices.includes(s))
-                    .slice(0, 8 - diverseServices.length);
-                  
-                  diverseServices.push(...remainingServices);
-                  
-                  return diverseServices.slice(0, 8).map((service: any, index: number) => {
+                    
+                    return filteredServices.slice(0, 20).map((service: any, index: number) => {
+                      const categoryConfig: any = {
+                        'Senior Placement Agency': { color: 'from-blue-500 to-blue-600', icon: <Building2 className="w-8 h-8 text-white" /> },
+                        'Home Care Services': { color: 'from-green-500 to-green-600', icon: <Home className="w-8 h-8 text-white" /> },
+                        'Therapy Services': { color: 'from-purple-500 to-purple-600', icon: <Activity className="w-8 h-8 text-white" /> },
+                        'Adult Day Care': { color: 'from-teal-500 to-teal-600', icon: <Users className="w-8 h-8 text-white" /> },
+                        'Personal Care Services': { color: 'from-orange-500 to-orange-600', icon: <Users2 className="w-8 h-8 text-white" /> },
+                        'Hospice Care': { color: 'from-indigo-500 to-indigo-600', icon: <Heart className="w-8 h-8 text-white" /> }
+                      };
+                      
+                      const config = categoryConfig[service.serviceCategory] || categoryConfig['Home Care Services'];
+                      
+                      const badges = [
+                        commonBadges.governmentVerified,
+                        ...(service.careTypes?.includes('Medicare') ? [commonBadges.medicareAccepted] : []),
+                        ...(service.careTypes?.includes('Medicaid') ? [commonBadges.medicaidAccepted] : []),
+                        ...(service.serviceCategory === 'Senior Placement Agency' ? [commonBadges.available247] : []),
+                        ...(service.website ? [{ type: 'verified' as const, label: 'Website Verified' }] : [])
+                      ].slice(0, 4);
+                      
+                      return (
+                        <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-96 h-80 border-2 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800">
+                          <CardContent className="p-6 flex flex-col h-full">
+                            <div className="flex items-start gap-4 mb-4">
+                              <div className={`w-12 h-12 bg-gradient-to-br ${config.color} rounded-xl flex items-center justify-center flex-shrink-0 shadow-md`}>
+                                {config.icon}
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <Badge variant="outline" className="text-xs px-2 py-0.5 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 border-gray-300 dark:border-gray-600">
+                                    {service.serviceCategory}
+                                  </Badge>
+                                  {service.rating && (
+                                    <div className="flex items-center gap-1">
+                                      <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                                      <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">{service.rating}</span>
+                                    </div>
+                                  )}
+                                </div>
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 line-clamp-1">{service.name}</h3>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">{service.city}, {service.state}</p>
+                              </div>
+                            </div>
+                            
+                            <ServiceBadges badges={badges} className="mb-3" size="sm" />
+                            
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Contact</span>
+                              <span className="text-base font-bold text-blue-600 dark:text-blue-400">{service.phone}</span>
+                            </div>
+                            
+                            <div className="space-y-1.5 mb-4 flex-grow">
+                              {service.careTypes && service.careTypes.length > 0 ? (
+                                service.careTypes.slice(0, 3).map((feature: string, idx: number) => (
+                                  <div key={idx} className="flex items-center text-xs text-gray-600 dark:text-gray-300">
+                                    <CheckCircle className="w-3 h-3 text-green-500 mr-2 flex-shrink-0" />
+                                    <span className="line-clamp-1">{feature}</span>
+                                  </div>
+                                ))
+                              ) : (
+                                <div className="flex items-center text-xs text-gray-600 dark:text-gray-300">
+                                  <CheckCircle className="w-3 h-3 text-green-500 mr-2 flex-shrink-0" />
+                                  <span>Professional care services</span>
+                                </div>
+                              )}
+                            </div>
+                            
+                            <div className="space-y-2 mt-auto">
+                              <div className="grid grid-cols-2 gap-2">
+                                <Button 
+                                  size="sm"
+                                  className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300"
+                                  onClick={() => window.open(`tel:${service.phone}`, '_self')}
+                                >
+                                  <Phone className="w-3 h-3 mr-1" />
+                                  Call Now
+                                </Button>
+                                {service.website && (
+                                  <Button 
+                                    size="sm"
+                                    variant="outline" 
+                                    className="border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 font-semibold"
+                                    onClick={() => window.open(service.website, '_blank')}
+                                  >
+                                    <ExternalLink className="w-3 h-3 mr-1" />
+                                    Website
+                                  </Button>
+                                )}
+                              </div>
+                              <div className="text-xs text-center text-green-600 dark:text-green-400 font-medium">
+                                ✓ Government Database Verified
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    });
+                  })()}
+                </div>
+                {(() => {
+                  const services = (careServicesData as any)?.services || [];
+                  const filteredServices = services.filter((s: any) => s.serviceCategory === selectedCategory);
+                  if (filteredServices.length > 20) {
+                    return (
+                      <div className="text-center mt-4">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                          Showing 20 of {filteredServices.length} {selectedCategory} providers
+                        </p>
+                        <Link href={`/care-services?category=${encodeURIComponent(selectedCategory)}`}>
+                          <Button variant="outline" size="sm">
+                            View All {filteredServices.length} Providers →
+                          </Button>
+                        </Link>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+              </div>
+            )}
+
+            {/* All Care Services - Default View */}
+            {!selectedCategory && (
+              <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                {careServicesLoading ? (
+                  <div className="text-center w-full py-8">
+                    <p className="text-gray-600 dark:text-gray-400">Loading verified care services...</p>
+                  </div>
+                ) : careServicesData && (careServicesData as any).services && ((careServicesData as any).services as any[]).length > 0 ? (
+                  (() => {
+                    // Create a diverse mix of services from different categories
+                    const services = (careServicesData as any).services as any[];
+                    const categories = ['Senior Placement Agency', 'Home Care Services', 'Therapy Services', 'Adult Day Care', 'Personal Care Services', 'Hospice Care'];
+                    const diverseServices: any[] = [];
+                    
+                    // Get two services from each category to ensure diversity
+                    categories.forEach(category => {
+                      const servicesFromCategory = services.filter(s => s.serviceCategory === category).slice(0, 2);
+                      diverseServices.push(...servicesFromCategory);
+                    });
+                    
+                    return diverseServices.slice(0, 12).map((service: any, index: number) => {
                   // Map service categories to colors and icons
                   const categoryConfig: any = {
                     'Senior Placement Agency': { color: 'from-blue-500 to-blue-600', icon: <Building2 className="w-8 h-8 text-white" /> },
@@ -1346,6 +1505,7 @@ export default function MySeniorValetHome() {
                 </div>
               )}
             </div>
+            )}
           </div>
       </section>
 
