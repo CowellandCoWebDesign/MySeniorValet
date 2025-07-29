@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight } from "lucide-react";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -65,6 +65,13 @@ export default function MySeniorValetHome() {
   // HUD properties with live pricing
   const { data: hudProperties, isLoading: hudLoading } = useQuery({
     queryKey: ["/api/communities/hud-featured"],
+    retry: false,
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+  });
+
+  // HUD count query
+  const { data: hudCount } = useQuery({
+    queryKey: ["/api/communities/hud-count"],
     retry: false,
     staleTime: 10 * 60 * 1000, // Cache for 10 minutes
   });
@@ -321,7 +328,7 @@ export default function MySeniorValetHome() {
           </div>
           
           <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
-            {(hudProperties as any[])?.length || 8} affordable communities • 
+            {(hudCount as any)?.total || '6,078+'} affordable communities • 
             Government transparency and income-based options
           </p>
         
@@ -341,14 +348,73 @@ export default function MySeniorValetHome() {
                 </Card>
               ))
             ) : (
-              (hudProperties as any[]).slice(0, 8).map((community: any, index) => (
-                <EnhancedCommunityCard
-                  key={`hud-${community.id}-${index}`}
-                  community={community}
-                  index={index}
-                  variant='hud'
-                />
-              ))
+              <>
+                {(hudProperties as any[]).slice(0, 25).map((community: any, index) => (
+                  <EnhancedCommunityCard
+                    key={`hud-${community.id}-${index}`}
+                    community={community}
+                    index={index}
+                    variant='hud'
+                  />
+                ))}
+                
+                {/* View All HUD Communities Card */}
+                <Card 
+                  className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border-2 border-green-500 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 hover:shadow-2xl transition-all cursor-pointer group"
+                  onClick={() => setLocation('searchPage')}
+                >
+                  <div className="aspect-[4/3] bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+                    <div className="text-center text-white">
+                      <Building2 className="h-16 w-16 mx-auto mb-3" />
+                      <h3 className="text-xl font-bold mb-2">View All HUD</h3>
+                      <p className="text-lg">Communities</p>
+                    </div>
+                  </div>
+                  
+                  <CardContent className="p-4">
+                    <div className="text-center">
+                      <h4 className="text-4xl font-bold text-green-600 dark:text-green-400 mb-2">
+                        {(hudCount as any)?.total || '6,078+'}
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Total HUD Communities
+                      </p>
+                      
+                      <div className="space-y-2 text-left mb-4">
+                        <div className="flex items-center text-sm">
+                          <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                          <span className="text-gray-700 dark:text-gray-300">Government verified pricing</span>
+                        </div>
+                        <div className="flex items-center text-sm">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                          <span className="text-gray-700 dark:text-gray-300">Income-based rates</span>
+                        </div>
+                        <div className="flex items-center text-sm">
+                          <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+                          <span className="text-gray-700 dark:text-gray-300">Nationwide coverage</span>
+                        </div>
+                        <div className="flex items-center text-sm">
+                          <div className="w-2 h-2 bg-orange-500 rounded-full mr-2"></div>
+                          <span className="text-gray-700 dark:text-gray-300">Live occupancy data</span>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-green-100 dark:bg-green-900/30 rounded-lg p-3 mb-4">
+                        <p className="text-xs text-green-800 dark:text-green-200 font-medium">
+                          Search by income level, location, or specific needs
+                        </p>
+                      </div>
+                      
+                      <Button 
+                        className="w-full bg-green-600 hover:bg-green-700 text-white group-hover:scale-105 transition-transform"
+                      >
+                        Search All HUD Communities
+                        <ChevronRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
             )}
           </div>
         </div>

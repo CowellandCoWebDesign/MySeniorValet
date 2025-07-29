@@ -247,6 +247,34 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
 
+  // Get total count of HUD communities
+  app.get("/api/communities/hud-count", async (req, res) => {
+    try {
+      const hudCount = await db
+        .select({ count: sql`COUNT(*)` })
+        .from(communities)
+        .where(isNotNull(communities.hudPropertyId));
+
+      const hudWithPricing = await db
+        .select({ count: sql`COUNT(*)` })
+        .from(communities)
+        .where(
+          and(
+            isNotNull(communities.hudPropertyId),
+            isNotNull(communities.rentPerMonth)
+          )
+        );
+
+      res.json({ 
+        total: parseInt(hudCount[0].count),
+        withPricing: parseInt(hudWithPricing[0].count)
+      });
+    } catch (error) {
+      console.error("Error fetching HUD count:", error);
+      res.status(500).json({ error: "Failed to fetch HUD count" });
+    }
+  });
+
   // Get single community by ID - MUST BE LAST
   app.get("/api/communities/:id", async (req, res) => {
     try {
@@ -355,17 +383,18 @@ export function registerCommunityRoutes(app: Express) {
     try {
       const startTime = Date.now();
       
+      // Get 26 communities (25 + 1 for "View All" card)
       const hudFeatured = await db
         .select()
         .from(communities)
         .where(
           and(
             isNotNull(communities.hudPropertyId),
-            sql`${communities.rentPerMonth} IS NOT NULL AND CAST(${communities.rentPerMonth} AS DECIMAL) < 150`
+            sql`${communities.rentPerMonth} IS NOT NULL AND CAST(${communities.rentPerMonth} AS DECIMAL) < 1000`
           )
         )
         .orderBy(sql`CAST(${communities.rentPerMonth} AS DECIMAL) ASC`)
-        .limit(8);
+        .limit(26);
 
       console.log(`HUD featured communities loaded in ${Date.now() - startTime}ms - Found ${hudFeatured.length} communities`);
       res.json(hudFeatured);
