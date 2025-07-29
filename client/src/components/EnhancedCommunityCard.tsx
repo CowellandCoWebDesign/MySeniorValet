@@ -335,14 +335,15 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
                 ✅ Verified
               </Badge>
             )}
-            {variant === 'hud' && (
-              <Badge className="absolute bottom-3 right-3 bg-green-600 text-white text-xs px-2 py-1 font-medium">
-                🏛️ HUD Official
-              </Badge>
-            )}
           </div>
           
           <CardContent className="p-3">
+            {/* HUD Badge - Moved to top of text area */}
+            {variant === 'hud' && (
+              <Badge className="bg-green-600 text-white text-xs px-2 py-1 font-medium mb-2">
+                🏛️ HUD Official
+              </Badge>
+            )}
             {/* Availability Status */}
             {community.displayAvailability?.availabilityStatus && (
               <div className={`flex items-center text-xs text-${availabilityColor}-600 dark:text-${availabilityColor}-400 font-medium mb-2`}>
