@@ -498,8 +498,26 @@ export class MemStorage implements IStorage {
 
 export class DatabaseStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user || undefined;
+    // Use raw SQL to avoid schema mismatch issues with date_of_birth
+    const result = await db.execute(
+      sql`SELECT id, email, username, password, role, first_name, last_name, phone, profile_image_url 
+          FROM users WHERE id = ${id}`
+    );
+    const userRow = result.rows[0];
+    if (userRow) {
+      return {
+        id: userRow.id as string,
+        email: userRow.email as string,
+        username: userRow.username as string,
+        password: userRow.password as string,
+        role: userRow.role as string,
+        firstName: userRow.first_name as string,
+        lastName: userRow.last_name as string,
+        phone: userRow.phone as string,
+        profileImageUrl: userRow.profile_image_url as string
+      } as User;
+    }
+    return undefined;
   }
 
   async getCommunityByName(name: string): Promise<Community | undefined> {
@@ -531,17 +549,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(insertUser: any): Promise<User> {
-    // Use raw SQL to match current database structure
+    // Handle Replit auth user creation with proper fields
     const result = await db.execute(
-      sql`INSERT INTO users (username, password, role) VALUES (${insertUser.username}, ${insertUser.password}, ${insertUser.role || 'user'}) RETURNING id, username, password, role`
+      sql`INSERT INTO users (id, username, email, password, role, first_name, last_name) 
+          VALUES (${insertUser.id}, ${insertUser.username}, ${insertUser.email}, ${insertUser.password || 'replit_auth'}, ${insertUser.role || 'user'}, ${insertUser.firstName || null}, ${insertUser.lastName || null}) 
+          RETURNING id, username, email, password, role, first_name, last_name`
     );
     
     const userRow = result.rows[0];
     return {
-      id: userRow.id as number,
+      id: userRow.id as string,
       username: userRow.username as string,
+      email: userRow.email as string,
       password: userRow.password as string,
-      role: userRow.role as string
+      role: userRow.role as string,
+      firstName: userRow.first_name as string,
+      lastName: userRow.last_name as string
     } as User;
   }
 
@@ -557,7 +580,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async updateUser(id: string, updates: Partial<InsertUser>): Promise<User | undefined> {
+  async updateUser(id: string, updates: Partial<any>): Promise<User | undefined> {
     // Build dynamic SET clause for updates
     const setFields: string[] = [];
     const values: any[] = [];
@@ -565,6 +588,18 @@ export class DatabaseStorage implements IStorage {
     if (updates.username) {
       setFields.push('username = $' + (values.length + 1));
       values.push(updates.username);
+    }
+    if (updates.email) {
+      setFields.push('email = $' + (values.length + 1));
+      values.push(updates.email);
+    }
+    if (updates.firstName !== undefined) {
+      setFields.push('first_name = $' + (values.length + 1));
+      values.push(updates.firstName);
+    }
+    if (updates.lastName !== undefined) {
+      setFields.push('last_name = $' + (values.length + 1));
+      values.push(updates.lastName);
     }
     if (updates.password) {
       setFields.push('password = $' + (values.length + 1));
@@ -584,16 +619,19 @@ export class DatabaseStorage implements IStorage {
     values.push(id);
     
     const result = await db.execute(
-      sql`UPDATE users SET ${sql.raw(setFields.join(', '))} WHERE id = $${values.length} RETURNING id, username, password, role`
+      sql`UPDATE users SET ${sql.raw(setFields.join(', '))} WHERE id = $${values.length} RETURNING id, username, email, password, role, first_name, last_name`
     );
     
     const userRow = result.rows[0];
     if (userRow) {
       return {
-        id: userRow.id as number,
+        id: userRow.id as string,
         username: userRow.username as string,
+        email: userRow.email as string,
         password: userRow.password as string,
-        role: userRow.role as string
+        role: userRow.role as string,
+        firstName: userRow.first_name as string,
+        lastName: userRow.last_name as string
       } as User;
     }
     return undefined;
