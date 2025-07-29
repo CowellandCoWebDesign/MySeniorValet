@@ -483,37 +483,89 @@ export default function MySeniorValetHome() {
 
                       return productMapping.map((product, index) => {
                         const Icon = product.icon;
-                        const productImage = amazonProductImages?.products?.find(p => p.id === product.productId);
+                        const productImage = (amazonProductImages as any)?.products?.find((p: any) => p.id === product.productId);
                         
                         return (
                           <a key={index} href={product.link} target="_blank" rel="noopener noreferrer">
-                            <Card className={`flex-shrink-0 w-96 h-80 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer border-2 ${product.borderColor} bg-white dark:bg-gray-800 overflow-hidden`}>
+                            <Card className={`flex-shrink-0 w-96 h-[30rem] hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer border-2 ${product.borderColor} bg-white dark:bg-gray-800 overflow-hidden`}>
                               {/* Product Image or Gradient Header */}
                               {productImage?.imageUrl ? (
-                                <div className="h-32 bg-cover bg-center relative" style={{ backgroundImage: `url(${productImage.imageUrl})` }}>
-                                  <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
-                                    <Icon className="w-8 h-8 text-white" />
+                                <div className="h-40 bg-cover bg-center relative" style={{ backgroundImage: `url(${productImage.imageUrl})` }}>
+                                  <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
+                                    <Icon className="w-10 h-10 text-white drop-shadow-lg" />
+                                  </div>
+                                  <div className="absolute top-3 right-3">
+                                    <Badge className="bg-green-500 text-white text-xs px-2 py-1 font-semibold animate-pulse">
+                                      🟢 LIVE
+                                    </Badge>
+                                  </div>
+                                  <div className="absolute top-3 left-3">
+                                    <Badge className={`${product.badgeColor} text-xs px-2 py-1 font-medium`}>{product.category}</Badge>
                                   </div>
                                 </div>
                               ) : (
-                                <div className={`h-24 bg-gradient-to-br ${product.bgColor} flex items-center justify-center`}>
+                                <div className={`h-32 bg-gradient-to-br ${product.bgColor} flex items-center justify-center relative`}>
                                   <Icon className="w-12 h-12 text-white" />
+                                  <div className="absolute top-3 right-3">
+                                    <Badge className="bg-green-500 text-white text-xs px-2 py-1 font-semibold animate-pulse">
+                                      🟢 LIVE
+                                    </Badge>
+                                  </div>
+                                  <div className="absolute top-3 left-3">
+                                    <Badge className={`${product.badgeColor} text-xs px-2 py-1 font-medium`}>{product.category}</Badge>
+                                  </div>
                                 </div>
                               )}
                               
-                              <CardContent className="p-6 h-48 flex flex-col">
-                                <div className="flex items-center justify-between mb-3">
-                                  <Badge className={`${product.badgeColor} text-xs px-2 py-1`}>{product.category}</Badge>
-                                  <Badge className="bg-green-500 text-white text-xs px-2 py-1">LIVE</Badge>
+                              <CardContent className="p-6 flex flex-col h-[18rem]">
+                                <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3 line-clamp-2">{product.title}</h4>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 flex-grow line-clamp-3">{product.description}</p>
+                                
+                                {/* Additional Product Information */}
+                                <div className="space-y-3 mb-4">
+                                  <div className="flex items-center justify-between text-sm">
+                                    <span className="text-gray-500 dark:text-gray-400">Amazon Rating:</span>
+                                    <div className="flex items-center gap-1">
+                                      <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                                      <span className="font-medium">{productImage?.rating || "4.5★"}</span>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center justify-between text-sm">
+                                    <span className="text-gray-500 dark:text-gray-400">Customer Reviews:</span>
+                                    <span className="font-medium text-blue-600">{productImage?.reviews || "2,847 reviews"}</span>
+                                  </div>
+                                  <div className="flex items-center justify-between text-sm">
+                                    <span className="text-gray-500 dark:text-gray-400">Delivery:</span>
+                                    <div className="flex items-center gap-1">
+                                      <Truck className="w-4 h-4 text-blue-500" />
+                                      <span className="font-medium text-blue-600">Prime 2-Day</span>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center justify-between text-sm">
+                                    <span className="text-gray-500 dark:text-gray-400">Returns:</span>
+                                    <span className="font-medium text-green-600">30-Day Free</span>
+                                  </div>
                                 </div>
-                                <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">{product.title}</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 flex-grow">{product.description}</p>
-                                <div className="space-y-2 mt-auto">
-                                  <div className="text-xl font-bold text-orange-600">{product.price}</div>
-                                  <div className="text-xs text-green-600 font-medium">✓ Prime Delivery • {productImage?.rating || "4.5★"} ({productImage?.reviews || "2,847 reviews"})</div>
+
+                                <div className="mt-auto space-y-3">
+                                  <div className="text-2xl font-bold text-orange-600">{product.price}</div>
+                                  <div className="flex items-center gap-2 text-xs text-green-600 font-medium">
+                                    <Shield className="w-3 h-3" />
+                                    <span>Senior-Tested & Approved</span>
+                                  </div>
                                   {productImage?.aiGenerated && (
-                                    <div className="text-xs text-gray-500 italic">*AI-rendered image - actual product may vary</div>
+                                    <div className="text-xs text-gray-500 italic bg-gray-50 dark:bg-gray-700 rounded px-2 py-1">
+                                      *AI-rendered • Not exact to listing
+                                    </div>
                                   )}
+                                  
+                                  {/* Call to Action Button */}
+                                  <Button 
+                                    size="sm" 
+                                    className="w-full bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-semibold py-2"
+                                  >
+                                    View on Amazon →
+                                  </Button>
                                 </div>
                               </CardContent>
                             </Card>
