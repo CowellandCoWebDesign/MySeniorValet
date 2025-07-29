@@ -3,6 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { 
   Truck, 
   Heart, 
@@ -311,20 +313,68 @@ export default function Services() {
           </div>
         </div>
 
-        {/* Category Navigation */}
+        {/* Category Navigation - Enhanced Style */}
         <div className="mb-8 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
-          <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-            <TabsList className="flex flex-wrap justify-center gap-1 w-full max-w-6xl mx-auto h-auto p-2 dark:bg-gray-800">
-              {categories.map((category) => (
-                <TabsTrigger key={category.id} value={category.id} className="text-xs px-3 py-2 whitespace-nowrap dark:text-gray-300 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white">
-                  {category.name}
-                  <Badge variant="secondary" className="ml-1 text-xs dark:bg-gray-700 dark:text-gray-300">
-                    {category.count}
-                  </Badge>
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 max-w-6xl mx-auto">
+            {categories.map((category, index) => {
+              const categoryIcons: Record<string, any> = {
+                "all": Package,
+                "moving": Truck,
+                "healthcare": Heart,
+                "insurance": Shield,
+                "transportation": Car,
+                "professional": Briefcase,
+                "technology": Zap
+              };
+              
+              const categoryColors: Record<string, string> = {
+                "all": "from-gray-500 to-gray-600",
+                "moving": "from-blue-500 to-blue-600",
+                "healthcare": "from-red-500 to-red-600",
+                "insurance": "from-green-500 to-green-600",
+                "transportation": "from-purple-500 to-purple-600",
+                "professional": "from-orange-500 to-orange-600",
+                "technology": "from-indigo-500 to-indigo-600"
+              };
+              
+              const Icon = categoryIcons[category.id] || Package;
+              const gradientColor = categoryColors[category.id] || "from-gray-500 to-gray-600";
+              
+              return (
+                <button
+                  key={category.id}
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={`
+                    relative overflow-hidden rounded-xl p-4 transition-all duration-300 transform hover:scale-105
+                    ${selectedCategory === category.id 
+                      ? 'ring-2 ring-offset-2 ring-blue-500 shadow-lg' 
+                      : 'hover:shadow-md'}
+                  `}
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <div className={`absolute inset-0 bg-gradient-to-br ${gradientColor} opacity-10`}></div>
+                  <div className="relative z-10 flex flex-col items-center space-y-2">
+                    <div className={`p-3 rounded-full bg-gradient-to-br ${gradientColor}`}>
+                      <Icon className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      {category.name}
+                    </span>
+                    <Badge 
+                      className={`
+                        text-xs
+                        ${selectedCategory === category.id 
+                          ? 'bg-blue-600 text-white' 
+                          : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}
+                      `}
+                    >
+                      {category.count}
+                    </Badge>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Services Grid */}
@@ -402,6 +452,54 @@ export default function Services() {
             </Card>
           ))}
         </div>
+
+        {/* Browse All Services Button */}
+        <div className="text-center mt-8 mb-12">
+          <Button 
+            variant="outline" 
+            size="lg" 
+            className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-2 border-blue-200 dark:border-blue-700 hover:border-blue-300 dark:hover:border-blue-600"
+            onClick={() => setSelectedCategory("all")}
+          >
+            <Package className="w-5 h-5 mr-2" />
+            Browse All Services
+            <Badge className="ml-2 bg-blue-600 text-white">{services.length}</Badge>
+          </Button>
+        </div>
+
+        {/* Amazon Senior Living Essentials Section */}
+        <section className="mb-16 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500">
+          <div className="relative overflow-hidden rounded-2xl">
+            <div className="absolute inset-0 z-0">
+              <div className="w-full h-full bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-orange-100/30 via-amber-100/20 to-yellow-100/30 dark:from-gray-700/30 dark:via-gray-800/20 dark:to-gray-700/30"></div>
+            </div>
+            
+            <div className="relative z-10 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                    Amazon Senior Living Essentials
+                  </h2>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm text-orange-700 dark:text-orange-300 font-medium">Essential products</span>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">Prime eligible</span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">$12.99 - $89.99</div>
+                  <div className="text-xs text-orange-600 dark:text-orange-400">Amazon partner</div>
+                </div>
+              </div>
+              
+              <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">33+ products across 6 categories • Scroll to explore all essentials with Prime delivery</p>
+            
+              <AmazonProductsSlider />
+            </div>
+          </div>
+        </section>
 
         {/* Revenue Summary */}
         <div className="mt-16 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-600">
