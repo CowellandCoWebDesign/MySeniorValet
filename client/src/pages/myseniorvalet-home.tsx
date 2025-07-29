@@ -1624,7 +1624,7 @@ export default function MySeniorValetHome() {
                   (() => {
                     // Create a diverse mix of services from different categories
                     const services = (careServicesData as any).services as any[];
-                    const categories = ['Home Care Services', 'Therapy Services', 'Adult Day Care', 'Personal Care Services', 'Hospice Care', 'Respite Care'];
+                    const categories = ['Home Care Services', 'Therapy Services', 'Adult Day Care', 'Personal Care Services', 'Hospice Care'];
                     const diverseServices: any[] = [];
                     
                     // Get two services from each category to ensure diversity
@@ -1636,7 +1636,6 @@ export default function MySeniorValetHome() {
                     return diverseServices.slice(0, 12).map((service: any, index: number) => {
                   // Map service categories to colors and icons
                   const categoryConfig: any = {
-                    'Respite Care': { color: 'from-rose-500 to-rose-600', icon: <RefreshCw className="w-8 h-8 text-white" /> },
                     'Home Care Services': { color: 'from-green-500 to-green-600', icon: <Home className="w-8 h-8 text-white" /> },
                     'Therapy Services': { color: 'from-purple-500 to-purple-600', icon: <Activity className="w-8 h-8 text-white" /> },
                     'Adult Day Care': { color: 'from-teal-500 to-teal-600', icon: <Users className="w-8 h-8 text-white" /> },
