@@ -1373,7 +1373,7 @@ export default function MySeniorValetHome() {
                       </CardContent>
                     </Card>
                   );
-                  })
+                  });
                 })()
               ) : (
                 // No care services found
