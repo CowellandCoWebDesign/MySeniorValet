@@ -16,6 +16,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 export default function MySeniorValetHome() {
   console.log("MYSENIORVALET HOME PAGE LOADED - VERSION 3 WITH CONCIERGE SERVICES PRIORITIZED - 26,306 COMMUNITIES");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedAmazonCategory, setSelectedAmazonCategory] = useState("all");
 
   const [showIntegrationSpotlight, setShowIntegrationSpotlight] = useState(true);
   
@@ -397,86 +398,100 @@ export default function MySeniorValetHome() {
                   </div>
                 </div>
                 
-                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">6 product categories • Mobility aids, daily living, bathroom safety with Prime delivery</p>
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">33+ products across 6 categories • Individual listings with Prime delivery</p>
+                
+                {/* Category Filter Buttons */}
+                <div className="flex flex-wrap gap-2 mb-6">
+                  <Button 
+                    size="sm" 
+                    variant={selectedAmazonCategory === "all" ? "default" : "outline"}
+                    onClick={() => setSelectedAmazonCategory("all")}
+                    className="text-xs"
+                  >
+                    All Products (33+)
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant={selectedAmazonCategory === "Mobility & Safety" ? "default" : "outline"}
+                    onClick={() => setSelectedAmazonCategory("Mobility & Safety")}
+                    className="text-xs"
+                  >
+                    Mobility & Safety
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant={selectedAmazonCategory === "Daily Living Aids" ? "default" : "outline"}
+                    onClick={() => setSelectedAmazonCategory("Daily Living Aids")}
+                    className="text-xs"
+                  >
+                    Daily Living Aids
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant={selectedAmazonCategory === "Bathroom Safety" ? "default" : "outline"}
+                    onClick={() => setSelectedAmazonCategory("Bathroom Safety")}
+                    className="text-xs"
+                  >
+                    Bathroom Safety
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant={selectedAmazonCategory === "Medication Management" ? "default" : "outline"}
+                    onClick={() => setSelectedAmazonCategory("Medication Management")}
+                    className="text-xs"
+                  >
+                    Medication Management
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant={selectedAmazonCategory === "Home Essentials" ? "default" : "outline"}
+                    onClick={() => setSelectedAmazonCategory("Home Essentials")}
+                    className="text-xs"
+                  >
+                    Home Essentials
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant={selectedAmazonCategory === "Furniture & Storage" ? "default" : "outline"}
+                    onClick={() => setSelectedAmazonCategory("Furniture & Storage")}
+                    className="text-xs"
+                  >
+                    Furniture & Storage
+                  </Button>
+                </div>
               
-                <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                   {/* Amazon Products using California Communities Card Style */}
                   {(() => {
-                    const productMapping = [
-                      { 
-                        link: "https://amzn.to/3GVdo7b", 
-                        title: "Wheeled Walker with Seat", 
-                        price: "From $89.99", 
-                        category: "MOBILITY & SAFETY", 
-                        description: "Premium mobility walker with seat, storage basket, and easy-lock brakes",
-                        rating: "4.5★",
-                        reviews: "2,847",
-                        productId: "wheeled-walker"
-                      },
-                      { 
-                        link: "https://amzn.to/412jJ7N", 
-                        title: "Sock Aid Helper Tool", 
-                        price: "$12.99", 
-                        category: "DAILY LIVING AIDS", 
-                        description: "Essential aid for seniors - put on socks without bending",
-                        rating: "4.6★",
-                        reviews: "1,932",
-                        productId: "sock-aid"
-                      },
-                      { 
-                        link: "https://amzn.to/475x1UC", 
-                        title: "Premium Shower Chair", 
-                        price: "$54.99", 
-                        category: "BATHROOM SAFETY", 
-                        description: "Adjustable height shower chair with back support and non-slip feet",
-                        rating: "4.4★",
-                        reviews: "1,265",
-                        productId: "shower-chair"
-                      },
-                      { 
-                        link: "https://amzn.to/4oaZbne", 
-                        title: "Weekly Pill Organizers", 
-                        price: "$16.99", 
-                        category: "MEDICATION MGMT", 
-                        description: "Large compartment organizers with morning, noon, evening labels",
-                        rating: "4.7★",
-                        reviews: "3,421",
-                        productId: "pill-organizer"
-                      },
-                      { 
-                        link: "https://amzn.to/40BNYlF", 
-                        title: "Luxury Bed Sheet Sets", 
-                        price: "From $19.99", 
-                        category: "HOME ESSENTIALS", 
-                        description: "Ultra-soft microfiber sheets - Twin to California King sizes",
-                        rating: "4.3★",
-                        reviews: "891",
-                        productId: "bed-sheets"
-                      },
-                      { 
-                        link: "https://amzn.to/4lR0gzh", 
-                        title: "Elegant Nightstand", 
-                        price: "$89.99", 
-                        category: "FURNITURE & STORAGE", 
-                        description: "Modern bedside table with drawer and shelf storage",
-                        rating: "4.2★",
-                        reviews: "567",
-                        productId: "nightstand"
-                      }
-                    ];
-
-                    return productMapping.map((product, index) => {
-                      const productImage = (amazonProductImages as any)?.products?.find((p: any) => p.id === product.productId);
-                      
+                    // Filter products based on selected category
+                    const allProducts = (amazonProductImages as any)?.products || [];
+                    const filteredProducts = selectedAmazonCategory === "all" 
+                      ? allProducts 
+                      : allProducts.filter((product: any) => product.category === selectedAmazonCategory);
+                    
+                    if (filteredProducts.length === 0) {
                       return (
-                        <a key={index} href={product.link} target="_blank" rel="noopener noreferrer">
-                          <Card className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer">
+                        <div className="col-span-full text-center py-8">
+                          <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                          <p className="text-gray-600 dark:text-gray-400">
+                            {selectedAmazonCategory === "all" 
+                              ? "Loading Amazon products..." 
+                              : "No products in this category"}
+                          </p>
+                        </div>
+                      );
+                    }
+
+                    return filteredProducts.map((product: any, index: number) => {
+                      return (
+                        <a key={product.id || index} href={product.externalUrl} target="_blank" rel="noopener noreferrer">
+                          <Card className="overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer h-full">
                             {/* Product Image - Same style as community cards */}
                             <div className="aspect-[4/3] bg-gray-100 relative">
-                              {productImage?.imageUrl ? (
+                              {product.imageUrl ? (
                                 <img 
-                                  src={productImage.imageUrl} 
-                                  alt={product.title}
+                                  src={product.imageUrl} 
+                                  alt={product.name}
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
@@ -491,6 +506,15 @@ export default function MySeniorValetHome() {
                                   LIVE
                                 </Badge>
                               </div>
+                              
+                              {/* Featured Badge if applicable */}
+                              {product.isFeatured && (
+                                <div className="absolute top-2 left-2">
+                                  <Badge className="bg-orange-500 text-white text-xs px-2 py-1 font-medium">
+                                    FEATURED
+                                  </Badge>
+                                </div>
+                              )}
                             </div>
                             
                             <CardContent className="p-3">
@@ -501,12 +525,12 @@ export default function MySeniorValetHome() {
                               
                               {/* Product Title - Same as community name */}
                               <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2 line-clamp-1">
-                                {product.title}
+                                {product.name}
                               </div>
                               
                               {/* Description - Same as community address */}
                               <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1 mb-2">
-                                {product.description}
+                                {product.description || product.shortDescription}
                               </div>
                               
                               {/* Price - Similar to community pricing */}
@@ -518,9 +542,9 @@ export default function MySeniorValetHome() {
                               <div className="flex items-center justify-between text-xs mb-2">
                                 <div className="flex items-center gap-1">
                                   <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                                  <span className="font-medium">{product.rating}</span>
+                                  <span className="font-medium">{product.rating || "4.5★"}</span>
                                 </div>
-                                <span className="text-gray-500">{product.reviews} reviews</span>
+                                <span className="text-gray-500">{product.reviews || "Prime eligible"}</span>
                               </div>
                               
                               {/* Prime Delivery Info */}
@@ -564,7 +588,7 @@ export default function MySeniorValetHome() {
                               </div>
                               
                               {/* AI Disclaimer if applicable */}
-                              {productImage?.aiGenerated && (
+                              {product.aiGenerated && (
                                 <div className="text-xs text-gray-500 italic mb-1">
                                   *AI-rendered • Not exact to listing
                                 </div>
@@ -787,14 +811,14 @@ export default function MySeniorValetHome() {
 
       {/* Amazon Featured Vendor Section */}
       <section className="px-4 py-8">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-xl p-8 border-2 border-orange-200 dark:border-orange-600">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-4">
                 <Package className="w-10 h-10 text-orange-500" />
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Amazon Senior Living Solutions</h3>
-                  <p className="text-base text-gray-600 dark:text-gray-300">Growing partnership - more services coming soon</p>
+                  <p className="text-base text-gray-600 dark:text-gray-300">Complete catalog - 33+ essential products</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
