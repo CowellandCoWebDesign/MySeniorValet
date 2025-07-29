@@ -21,8 +21,8 @@ router.post('/sync-status/:subscription_id', async (req: Request, res: Response)
       .update(subscriptions)
       .set({
         status: stripeSubscription.status as any,
-        currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
-        currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
+        currentPeriodStart: new Date((stripeSubscription as any).current_period_start * 1000),
+        currentPeriodEnd: new Date((stripeSubscription as any).current_period_end * 1000),
         updatedAt: new Date()
       })
       .where(eq(subscriptions.stripeSubscriptionId, subscriptionId));
@@ -55,7 +55,7 @@ router.post('/sync-all', async (req: Request, res: Response) => {
     for (const subscription of localSubscriptions) {
       try {
         const stripeSubscription = await stripe.subscriptions.retrieve(
-          subscription.stripeSubscriptionId
+          subscription.stripeSubscriptionId!
         );
         
         // Update if status differs
@@ -64,8 +64,8 @@ router.post('/sync-all', async (req: Request, res: Response) => {
             .update(subscriptions)
             .set({
               status: stripeSubscription.status as any,
-              currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
-              currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
+              currentPeriodStart: new Date((stripeSubscription as any).current_period_start * 1000),
+              currentPeriodEnd: new Date((stripeSubscription as any).current_period_end * 1000),
               updatedAt: new Date()
             })
             .where(eq(subscriptions.id, subscription.id));
