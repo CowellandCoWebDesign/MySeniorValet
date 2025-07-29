@@ -264,6 +264,92 @@ body {
   --gradient-hero: linear-gradient(135deg, hsl(215, 28%, 17%) 0%, hsl(45, 100%, 51%) 50%, hsl(85, 20%, 45%) 100%);
 }
 
+/* Shooting Stars Animation */
+@keyframes shoot {
+  0% {
+    transform: translateX(0) translateY(0) rotate(45deg);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-500px) translateY(500px) rotate(45deg);
+    opacity: 0;
+  }
+}
+
+.shooting-star {
+  width: 2px;
+  height: 2px;
+  background: linear-gradient(45deg, transparent, #fff, transparent);
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.8));
+  animation: shoot linear infinite;
+}
+
+.shooting-star-tail {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.8), transparent);
+}
+
+/* Hero Text Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 1s ease-out forwards;
+}
+
+.animate-fade-in-scale {
+  animation: fadeInScale 1s ease-out forwards;
+}
+
+.animation-delay-300 {
+  animation-delay: 300ms;
+}
+
+.animation-delay-600 {
+  animation-delay: 600ms;
+}
+
+/* Gradient text animation */
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.text-gradient-animated {
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+}
+
 .dark {
   --background: hsl(222, 84%, 4.9%);
   --foreground: hsl(210, 40%, 98%);
