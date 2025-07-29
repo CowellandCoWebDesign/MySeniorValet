@@ -119,6 +119,15 @@ export default function MySeniorValetHome() {
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
+  // Fetch VA resources data
+  const { data: vaResourcesData, isLoading: vaResourcesLoading } = useQuery({
+    queryKey: ["/api/va-resources/facilities"],
+    retry: false,
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+  });
+
+  const vaFacilities = vaResourcesData?.facilities || {};
+
   const featuredCommunities = (trendingCommunities as any[])?.slice(0, 8) || [];
   
   // Combine coastal and featured communities for the top section
@@ -2421,6 +2430,307 @@ export default function MySeniorValetHome() {
           <a href="https://www.va.gov/housing-assistance/" target="_blank" rel="noopener noreferrer" className="text-xs text-green-600 hover:text-green-700 underline font-medium">
             Learn about Veterans Housing →
           </a>
+        </div>
+      </section>
+
+      {/* VA Resources Section */}
+      <section className="px-4 py-8 gradient-card mb-6">
+        <div className="mb-6">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-2">
+            <span className="text-2xl">🇺🇸</span>
+            VA Resources & Facilities
+          </h2>
+          <p className="text-gray-600 dark:text-gray-300 text-sm">
+            Comprehensive VA medical centers, clinics, and benefits offices for veterans
+          </p>
+        </div>
+
+        {/* VA Facilities Grid */}
+        <div className="grid grid-cols-1 gap-6">
+          {/* VA Medical Centers */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center">
+                  <span className="text-blue-600 dark:text-blue-400">🏥</span>
+                </div>
+                VA Medical Centers
+              </h3>
+              <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                24/7 Emergency Care
+              </Badge>
+            </div>
+            
+            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+              {vaResourcesLoading ? (
+                // Loading skeleton
+                Array.from({ length: 3 }).map((_, index) => (
+                  <Card key={`skeleton-medical-${index}`} className="overflow-hidden flex-shrink-0 w-72 border border-gray-200 animate-pulse">
+                    <CardContent className="p-4">
+                      <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                      <div className="h-4 bg-gray-200 rounded mb-1"></div>
+                      <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                ((vaFacilities as any)?.medicalCenters || []).slice(0, 7).map((facility: any, index: number) => (
+                  <Card key={`medical-${facility.id}-${index}`} className="overflow-hidden flex-shrink-0 w-72 border border-blue-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 line-clamp-2">
+                          {facility.name}
+                        </h4>
+                        {facility.hudVashAvailable && (
+                          <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 text-xs">
+                            HUD-VASH
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      <div className="space-y-2 text-xs text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-3 h-3" />
+                          <span>{facility.city}, {facility.state} {facility.zipCode}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-3 h-3" />
+                          <a href={`tel:${facility.phone}`} className="text-blue-600 dark:text-blue-400 hover:underline">
+                            {facility.phone}
+                          </a>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-3 h-3" />
+                          <span className="text-xs">24/7 Emergency</span>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Services:</p>
+                        <div className="flex flex-wrap gap-1">
+                          {(facility.services || []).slice(0, 3).map((service: string, idx: number) => (
+                            <Badge key={idx} className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 text-xs">
+                              {service}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3 flex gap-2">
+                        <a
+                          href={facility.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 text-center bg-blue-600 text-white text-xs py-2 px-3 rounded-md hover:bg-blue-700 transition-colors"
+                        >
+                          Visit Website
+                        </a>
+                        <a
+                          href={`tel:${facility.phone}`}
+                          className="flex-1 text-center border border-blue-600 text-blue-600 dark:text-blue-400 text-xs py-2 px-3 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                        >
+                          Call Now
+                        </a>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* VA Outpatient Clinics */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                <div className="w-8 h-8 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center">
+                  <span className="text-green-600 dark:text-green-400">🏢</span>
+                </div>
+                VA Outpatient Clinics
+              </h3>
+              <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+                Primary Care & Specialty
+              </Badge>
+            </div>
+            
+            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+              {vaResourcesLoading ? (
+                // Loading skeleton
+                Array.from({ length: 3 }).map((_, index) => (
+                  <Card key={`skeleton-clinic-${index}`} className="overflow-hidden flex-shrink-0 w-72 border border-gray-200 animate-pulse">
+                    <CardContent className="p-4">
+                      <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                      <div className="h-4 bg-gray-200 rounded mb-1"></div>
+                      <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                ((vaFacilities as any)?.outpatientClinics || []).slice(0, 5).map((facility: any, index: number) => (
+                  <Card key={`clinic-${facility.id}-${index}`} className="overflow-hidden flex-shrink-0 w-72 border border-green-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 line-clamp-2">
+                          {facility.name}
+                        </h4>
+                        {facility.hudVashAvailable && (
+                          <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 text-xs">
+                            HUD-VASH
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      <div className="space-y-2 text-xs text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-3 h-3" />
+                          <span>{facility.city}, {facility.state}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-3 h-3" />
+                          <a href={`tel:${facility.phone}`} className="text-green-600 dark:text-green-400 hover:underline">
+                            {facility.phone}
+                          </a>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-3 h-3" />
+                          <span className="text-xs">{facility.hours}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Services:</p>
+                        <div className="flex flex-wrap gap-1">
+                          {(facility.services || []).slice(0, 3).map((service: string, idx: number) => (
+                            <Badge key={idx} className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 text-xs">
+                              {service}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3">
+                        <a
+                          href={`tel:${facility.phone}`}
+                          className="w-full block text-center bg-green-600 text-white text-xs py-2 px-3 rounded-md hover:bg-green-700 transition-colors"
+                        >
+                          Schedule Appointment
+                        </a>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* VA Benefits Information */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Benefits Programs */}
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
+                <span className="text-lg">💰</span>
+                VA Benefits & Programs
+              </h3>
+              
+              <div className="space-y-3">
+                <div className="bg-white dark:bg-gray-800 rounded-md p-3">
+                  <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                    VA Aid & Attendance
+                  </h4>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                    Up to $2,846/month for veterans needing daily assistance
+                  </p>
+                  <a href="https://www.va.gov/pension/aid-attendance-housebound/" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 dark:text-blue-400 hover:underline">
+                    Learn More →
+                  </a>
+                </div>
+                
+                <div className="bg-white dark:bg-gray-800 rounded-md p-3">
+                  <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                    HUD-VASH Program
+                  </h4>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                    Rental assistance + VA supportive services
+                  </p>
+                  <a href="https://www.va.gov/homeless/hud-vash.asp" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 dark:text-blue-400 hover:underline">
+                    Apply Now →
+                  </a>
+                </div>
+                
+                <div className="bg-white dark:bg-gray-800 rounded-md p-3">
+                  <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                    VA Community Living Centers
+                  </h4>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                    Nursing home care for eligible veterans
+                  </p>
+                  <a href="https://www.va.gov/geriatrics/pages/VA_Community_Living_Centers.asp" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 dark:text-blue-400 hover:underline">
+                    Find Centers →
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* VA Helplines */}
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-green-900 dark:text-green-100 mb-3 flex items-center gap-2">
+                <span className="text-lg">📞</span>
+                VA Helplines & Support
+              </h3>
+              
+              <div className="space-y-3">
+                <div className="bg-white dark:bg-gray-800 rounded-md p-3">
+                  <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                    VA Benefits Hotline
+                  </h4>
+                  <a href="tel:1-800-827-1000" className="text-sm font-medium text-green-600 dark:text-green-400 hover:underline">
+                    1-800-827-1000
+                  </a>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    Mon-Fri 8AM-9PM ET
+                  </p>
+                </div>
+                
+                <div className="bg-white dark:bg-gray-800 rounded-md p-3">
+                  <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                    Veterans Crisis Line
+                  </h4>
+                  <a href="tel:988" className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline">
+                    988, Press 1
+                  </a>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    24/7 Confidential Support
+                  </p>
+                </div>
+                
+                <div className="bg-white dark:bg-gray-800 rounded-md p-3">
+                  <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                    Homeless Veterans
+                  </h4>
+                  <a href="tel:1-877-424-3838" className="text-sm font-medium text-green-600 dark:text-green-400 hover:underline">
+                    1-877-424-3838
+                  </a>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    24/7 Housing Assistance
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* View All VA Resources Button */}
+          <div className="mt-6 text-center">
+            <a 
+              href="https://www.va.gov/find-locations/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 gradient-primary text-white px-6 py-3 rounded-md hover:opacity-90 transition-opacity"
+            >
+              <MapPin className="w-4 h-4" />
+              Find All VA Locations Near You
+              <ExternalLink className="w-4 h-4" />
+            </a>
+          </div>
         </div>
       </section>
 

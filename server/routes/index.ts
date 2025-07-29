@@ -32,6 +32,7 @@ import amazonProductRoutes from "./amazonProductRoutes";
 import servicesManagementRoutes from "./servicesManagementRoutes";
 import { featureAccessRouter } from "./featureAccessRoutes";
 import { registerAnalyticsRoutes } from "./analyticsRoutes";
+import { setupVAResourcesRoutes } from "./vaResourcesRoutes";
 
 // Import existing routers
 import { quizRouter } from "./quiz";
@@ -75,6 +76,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerFloralRoutes(app);
   registerMoveInServicesRoutes(app);
   registerAnalyticsRoutes(app);
+  setupVAResourcesRoutes(app);
   
   // Register moving services routes
   movingRoutes(app);
