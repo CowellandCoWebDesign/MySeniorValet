@@ -264,41 +264,99 @@ body {
   --gradient-hero: linear-gradient(135deg, hsl(215, 28%, 17%) 0%, hsl(45, 100%, 51%) 50%, hsl(85, 20%, 45%) 100%);
 }
 
-/* Shooting Stars Animation */
-@keyframes shoot {
+/* Shooting Stars Animation - Multiple variations */
+@keyframes shootSteep {
   0% {
-    transform: translateX(300px) translateY(-300px) rotate(-45deg);
+    transform: translateX(100px) translateY(-100px);
     opacity: 0;
   }
-  10% {
+  5% {
     opacity: 1;
   }
-  90% {
+  95% {
     opacity: 1;
   }
   100% {
-    transform: translateX(-300px) translateY(300px) rotate(-45deg);
+    transform: translateX(-50px) translateY(600px);
+    opacity: 0;
+  }
+}
+
+@keyframes shootModerate {
+  0% {
+    transform: translateX(150px) translateY(-100px);
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-150px) translateY(500px);
+    opacity: 0;
+  }
+}
+
+@keyframes shootGentle {
+  0% {
+    transform: translateX(200px) translateY(-100px);
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-250px) translateY(400px);
     opacity: 0;
   }
 }
 
 .shooting-star {
-  width: 3px;
-  height: 3px;
-  background: radial-gradient(circle, #fff 0%, transparent 70%);
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.9));
-  animation: shoot linear infinite;
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #fff;
+  box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.8);
 }
 
 .shooting-star-tail {
   position: absolute;
-  top: 50%;
-  left: 3px;
-  transform: translateY(-50%) rotate(45deg);
-  width: 60px;
-  height: 1px;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.4), transparent);
-  filter: blur(1px);
+  top: -1px;
+  left: -1px;
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(to left, transparent, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6), transparent);
+  transform-origin: right center;
+  filter: blur(0.5px);
+}
+
+.shooting-star-steep {
+  animation: shootSteep 4s linear infinite;
+}
+
+.shooting-star-steep .shooting-star-tail {
+  transform: rotate(-75deg);
+}
+
+.shooting-star-moderate {
+  animation: shootModerate 5s linear infinite;
+}
+
+.shooting-star-moderate .shooting-star-tail {
+  transform: rotate(-60deg);
+}
+
+.shooting-star-gentle {
+  animation: shootGentle 6s linear infinite;
+}
+
+.shooting-star-gentle .shooting-star-tail {
+  transform: rotate(-45deg);
 }
 
 /* Hero Text Animations */
