@@ -351,17 +351,16 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
               </div>
             )}
             
+            {/* Name - Enhanced for HUD variant, moved before price */}
+            <div className={`${variant === 'hud' ? 'text-base font-bold bg-green-50 dark:bg-green-900/20 rounded px-2 py-1' : 'text-sm font-medium'} text-gray-900 dark:text-gray-100 mb-2 ${variant === 'hud' ? 'line-clamp-2' : 'line-clamp-1'}`}>
+              {community.name}
+            </div>
+            
             {/* Price */}
             <div className="text-xl font-bold text-gray-900 dark:text-white mb-2">
               {variant === 'hud' ? (
                 <>
-                  <div className="text-sm text-green-600 dark:text-green-400 font-medium">HUD Official Rate</div>
-                  <div className="text-lg">{displayPrice}</div>
-                  {community.hudPropertyId && (
-                    <div className="text-xs text-gray-600 dark:text-gray-400 font-normal">
-                      Property ID: {community.hudPropertyId}
-                    </div>
-                  )}
+                  <div className="text-sm text-green-600 dark:text-green-400 font-medium">HUD Rate: {displayPrice}</div>
                 </>
               ) : (
                 <>
@@ -384,14 +383,12 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
                    variant === 'hud' ? 'HUD Official' : 'Premium Care'}
             </div>
             
-            {/* Name */}
-            <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2 line-clamp-1">
-              {community.name}
-            </div>
-            
-            {/* Address */}
+            {/* Address - Simplified for HUD cards */}
             <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1 mb-2">
-              {community.address || `${community.city}`}, {community.state} {community.zipCode}
+              {variant === 'hud' ? 
+                `${community.city}, ${community.state}` :
+                `${community.address || community.city}, ${community.state} ${community.zipCode || ''}`
+              }
             </div>
             
             {/* Regional Badge */}
