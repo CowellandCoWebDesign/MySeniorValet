@@ -1236,8 +1236,10 @@ export default function MySeniorValetHome() {
               if (placementAgencies.length > 0) {
                 return (
                   <section className="px-4 py-8 relative overflow-hidden mb-8">
+                    {/* Background with premium gradient styling */}
                     <div className="absolute inset-0 z-0">
                       <div className="w-full h-full bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-100/30 via-sky-100/20 to-cyan-100/30 dark:from-gray-700/30 dark:via-gray-800/20 dark:to-gray-700/30"></div>
                     </div>
                     
                     <div className="relative z-10">
@@ -1264,10 +1266,10 @@ export default function MySeniorValetHome() {
                           ].slice(0, 4);
                           
                           return (
-                            <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-96 h-80 border-2 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800 animate-float" style={{animationDelay: `${index * 0.1}s`}}>
+                            <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-64 h-[32rem] border-2 border-blue-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-gray-600 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800 hover:-translate-y-1" style={{animationDelay: `${index * 0.05}s`}}>
                               <CardContent className="p-6 flex flex-col h-full">
                                 <div className="flex items-start gap-4 mb-4">
-                                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg ring-4 ring-blue-100 dark:ring-blue-900">
                                     <Building2 className="w-8 h-8 text-white" />
                                   </div>
                                   <div className="flex-1">
@@ -1305,7 +1307,7 @@ export default function MySeniorValetHome() {
                                 )}
                                 
                                 <div className="mt-auto space-y-2">
-                                  <Button className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 text-sm font-semibold">
+                                  <Button className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 text-sm font-semibold shadow-lg transform transition-all hover:scale-[1.02]">
                                     Contact Agency
                                   </Button>
                                   {service.website && (
@@ -1337,8 +1339,10 @@ export default function MySeniorValetHome() {
               if (homeCareServices.length > 0) {
                 return (
                   <section className="px-4 py-8 relative overflow-hidden mb-8">
+                    {/* Background with premium gradient styling */}
                     <div className="absolute inset-0 z-0">
                       <div className="w-full h-full bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-green-100/30 via-emerald-100/20 to-teal-100/30 dark:from-gray-700/30 dark:via-gray-800/20 dark:to-gray-700/30"></div>
                     </div>
                     
                     <div className="relative z-10">
@@ -1365,10 +1369,10 @@ export default function MySeniorValetHome() {
                           ].slice(0, 4);
                           
                           return (
-                            <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-96 h-80 border-2 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800 animate-float" style={{animationDelay: `${index * 0.1}s`}}>
+                            <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-64 h-[32rem] border-2 border-green-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-gray-600 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800 hover:-translate-y-1" style={{animationDelay: `${index * 0.05}s`}}>
                               <CardContent className="p-6 flex flex-col h-full">
                                 <div className="flex items-start gap-4 mb-4">
-                                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                                  <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg ring-4 ring-green-100 dark:ring-green-900">
                                     <Home className="w-8 h-8 text-white" />
                                   </div>
                                   <div className="flex-1">
@@ -1406,7 +1410,7 @@ export default function MySeniorValetHome() {
                                 )}
                                 
                                 <div className="mt-auto space-y-2">
-                                  <Button className="w-full bg-green-500 hover:bg-green-600 text-white py-2 text-sm font-semibold">
+                                  <Button className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 text-sm font-semibold shadow-lg transform transition-all hover:scale-[1.02]">
                                     Contact Provider
                                   </Button>
                                   {service.website && (
@@ -1438,8 +1442,10 @@ export default function MySeniorValetHome() {
               if (therapyServices.length > 0) {
                 return (
                   <section className="px-4 py-8 relative overflow-hidden mb-8">
+                    {/* Background with premium gradient styling */}
                     <div className="absolute inset-0 z-0">
                       <div className="w-full h-full bg-gradient-to-br from-purple-50 via-pink-50 to-fuchsia-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-purple-100/30 via-pink-100/20 to-fuchsia-100/30 dark:from-gray-700/30 dark:via-gray-800/20 dark:to-gray-700/30"></div>
                     </div>
                     
                     <div className="relative z-10">
@@ -1466,10 +1472,10 @@ export default function MySeniorValetHome() {
                           ].slice(0, 4);
                           
                           return (
-                            <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-96 h-80 border-2 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800 animate-float" style={{animationDelay: `${index * 0.1}s`}}>
+                            <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-64 h-[32rem] border-2 border-purple-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-gray-600 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800 hover:-translate-y-1" style={{animationDelay: `${index * 0.05}s`}}>
                               <CardContent className="p-6 flex flex-col h-full">
                                 <div className="flex items-start gap-4 mb-4">
-                                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                                  <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg ring-4 ring-purple-100 dark:ring-purple-900">
                                     <Activity className="w-8 h-8 text-white" />
                                   </div>
                                   <div className="flex-1">
@@ -1507,7 +1513,7 @@ export default function MySeniorValetHome() {
                                 )}
                                 
                                 <div className="mt-auto space-y-2">
-                                  <Button className="w-full bg-purple-500 hover:bg-purple-600 text-white py-2 text-sm font-semibold">
+                                  <Button className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-3 text-sm font-semibold shadow-lg transform transition-all hover:scale-[1.02]">
                                     Contact Provider
                                   </Button>
                                   {service.website && (
@@ -1539,8 +1545,10 @@ export default function MySeniorValetHome() {
               if (adultDayCare.length > 0) {
                 return (
                   <section className="px-4 py-8 relative overflow-hidden mb-8">
+                    {/* Background with premium gradient styling */}
                     <div className="absolute inset-0 z-0">
                       <div className="w-full h-full bg-gradient-to-br from-teal-50 via-cyan-50 to-sky-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-teal-100/30 via-cyan-100/20 to-sky-100/30 dark:from-gray-700/30 dark:via-gray-800/20 dark:to-gray-700/30"></div>
                     </div>
                     
                     <div className="relative z-10">
@@ -1567,10 +1575,10 @@ export default function MySeniorValetHome() {
                           ].slice(0, 4);
                           
                           return (
-                            <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-96 h-80 border-2 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800 animate-float" style={{animationDelay: `${index * 0.1}s`}}>
+                            <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-64 h-[32rem] border-2 border-teal-200 dark:border-gray-700 hover:border-teal-300 dark:hover:border-gray-600 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800 hover:-translate-y-1" style={{animationDelay: `${index * 0.05}s`}}>
                               <CardContent className="p-6 flex flex-col h-full">
                                 <div className="flex items-start gap-4 mb-4">
-                                  <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                                  <div className="w-14 h-14 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg ring-4 ring-teal-100 dark:ring-teal-900">
                                     <Users className="w-8 h-8 text-white" />
                                   </div>
                                   <div className="flex-1">
@@ -1608,7 +1616,7 @@ export default function MySeniorValetHome() {
                                 )}
                                 
                                 <div className="mt-auto space-y-2">
-                                  <Button className="w-full bg-teal-500 hover:bg-teal-600 text-white py-2 text-sm font-semibold">
+                                  <Button className="w-full bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white py-3 text-sm font-semibold shadow-lg transform transition-all hover:scale-[1.02]">
                                     Contact Center
                                   </Button>
                                   {service.website && (
@@ -1640,8 +1648,10 @@ export default function MySeniorValetHome() {
               if (personalCare.length > 0) {
                 return (
                   <section className="px-4 py-8 relative overflow-hidden mb-8">
+                    {/* Background with premium gradient styling */}
                     <div className="absolute inset-0 z-0">
                       <div className="w-full h-full bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-orange-100/30 via-amber-100/20 to-yellow-100/30 dark:from-gray-700/30 dark:via-gray-800/20 dark:to-gray-700/30"></div>
                     </div>
                     
                     <div className="relative z-10">
@@ -1668,10 +1678,10 @@ export default function MySeniorValetHome() {
                           ].slice(0, 4);
                           
                           return (
-                            <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-96 h-80 border-2 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800 animate-float" style={{animationDelay: `${index * 0.1}s`}}>
+                            <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-64 h-[32rem] border-2 border-orange-200 dark:border-gray-700 hover:border-orange-300 dark:hover:border-gray-600 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800 hover:-translate-y-1" style={{animationDelay: `${index * 0.05}s`}}>
                               <CardContent className="p-6 flex flex-col h-full">
                                 <div className="flex items-start gap-4 mb-4">
-                                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                                  <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg ring-4 ring-orange-100 dark:ring-orange-900">
                                     <Users2 className="w-8 h-8 text-white" />
                                   </div>
                                   <div className="flex-1">
@@ -1709,7 +1719,7 @@ export default function MySeniorValetHome() {
                                 )}
                                 
                                 <div className="mt-auto space-y-2">
-                                  <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 text-sm font-semibold">
+                                  <Button className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-3 text-sm font-semibold shadow-lg transform transition-all hover:scale-[1.02]">
                                     Contact Provider
                                   </Button>
                                   {service.website && (
@@ -1741,8 +1751,10 @@ export default function MySeniorValetHome() {
               if (hospiceCare.length > 0) {
                 return (
                   <section className="px-4 py-8 relative overflow-hidden mb-8">
+                    {/* Background with premium gradient styling */}
                     <div className="absolute inset-0 z-0">
                       <div className="w-full h-full bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-indigo-100/30 via-purple-100/20 to-pink-100/30 dark:from-gray-700/30 dark:via-gray-800/20 dark:to-gray-700/30"></div>
                     </div>
                     
                     <div className="relative z-10">
@@ -1769,10 +1781,10 @@ export default function MySeniorValetHome() {
                           ].slice(0, 4);
                           
                           return (
-                            <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-96 h-80 border-2 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800 animate-float" style={{animationDelay: `${index * 0.1}s`}}>
+                            <Card key={service.id || index} className="overflow-hidden flex-shrink-0 w-64 h-[32rem] border-2 border-indigo-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-gray-600 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] bg-white dark:bg-gray-800 hover:-translate-y-1" style={{animationDelay: `${index * 0.05}s`}}>
                               <CardContent className="p-6 flex flex-col h-full">
                                 <div className="flex items-start gap-4 mb-4">
-                                  <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                                  <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg ring-4 ring-indigo-100 dark:ring-indigo-900">
                                     <Heart className="w-8 h-8 text-white" />
                                   </div>
                                   <div className="flex-1">
@@ -1810,7 +1822,7 @@ export default function MySeniorValetHome() {
                                 )}
                                 
                                 <div className="mt-auto space-y-2">
-                                  <Button className="w-full bg-indigo-500 hover:bg-indigo-600 text-white py-2 text-sm font-semibold">
+                                  <Button className="w-full bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white py-3 text-sm font-semibold shadow-lg transform transition-all hover:scale-[1.02]">
                                     Contact Provider
                                   </Button>
                                   {service.website && (
