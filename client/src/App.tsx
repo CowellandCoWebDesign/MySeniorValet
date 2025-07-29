@@ -73,6 +73,7 @@ import AuthDebug from "@/pages/auth-debug";
 import DatabaseTest from "@/pages/database-test";
 import IntegrationDashboard from "@/pages/integration-dashboard";
 import IntegrationsPage from "@/pages/integrations";
+import SubscriptionManagement from "@/pages/SubscriptionManagement";
 import AIDemoPage from "@/pages/ai-demo";
 import AIMapShowcase from "@/pages/ai-map-showcase";
 import VendorSignup from "@/pages/vendor-signup";
@@ -157,6 +158,7 @@ function Router() {
       <Route path="/database-test" component={DatabaseTest} />
       <Route path="/integrations" component={IntegrationsPage} />
       <Route path="/integration-dashboard" component={IntegrationDashboard} />
+      <Route path="/subscriptions" component={SubscriptionManagement} />
       <Route path="/ai-demo" component={AIDemoPage} />
       <Route path="/ai-map-showcase" component={AIMapShowcase} />
       <Route path="/vendor/signup" component={VendorSignup} />

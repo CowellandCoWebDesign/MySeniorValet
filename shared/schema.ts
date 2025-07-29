@@ -1046,6 +1046,44 @@ export const paymentTransactions = pgTable("payment_transactions", {
   index("payment_transactions_created_idx").on(table.createdAt),
 ]);
 
+// Subscriptions - Community subscription management
+export const subscriptions = pgTable("subscriptions", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  
+  // Stripe Integration
+  stripeSubscriptionId: text("stripe_subscription_id").unique(),
+  stripeCustomerId: text("stripe_customer_id"),
+  stripePriceId: text("stripe_price_id"),
+  
+  // Subscription Details
+  productId: text("product_id").notNull(), // 'basic-listing', 'featured-spotlight', etc.
+  status: text("status", {
+    enum: ["active", "canceled", "incomplete", "incomplete_expired", "past_due", "trialing", "unpaid"]
+  }).default("active"),
+  
+  // Billing
+  currentPeriodStart: timestamp("current_period_start"),
+  currentPeriodEnd: timestamp("current_period_end"),
+  cancelAtPeriodEnd: boolean("cancel_at_period_end").default(false),
+  canceledAt: timestamp("canceled_at"),
+  
+  // Metadata
+  metadata: jsonb("metadata").$type<{
+    communityName?: string;
+    managerEmail?: string;
+    features?: string[];
+    addOns?: string[];
+  }>().default({}),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("subscriptions_community_idx").on(table.communityId),
+  index("subscriptions_stripe_idx").on(table.stripeSubscriptionId),
+  index("subscriptions_status_idx").on(table.status),
+]);
+
 // Community Claims - Operator verification system
 export const communityClaims = pgTable("community_claims", {
   id: serial("id").primaryKey(),

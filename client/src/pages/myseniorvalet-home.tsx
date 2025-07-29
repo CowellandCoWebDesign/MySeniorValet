@@ -3021,6 +3021,11 @@ export default function MySeniorValetHome() {
                     Contact Support
                   </a>
                 </li>
+                <li>
+                  <a href="/subscriptions" className="hover:text-blue-400 transition-colors">
+                    Community Subscriptions
+                  </a>
+                </li>
               </ul>
             </div>
 

@@ -14,6 +14,7 @@ import { setupAuth } from "./replitAuth";
 import { communityStatsCache } from "./community-stats-cache";
 import reservationRoutes from "./routes/reservations";
 import { quizRouter } from "./routes/quiz";
+import subscriptionRoutes from "./routes/subscriptionRoutes";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import cookieParser from "cookie-parser";
@@ -33,6 +34,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerModularRoutes(app);
 
   // Register remaining special routes
+  app.use('/api/subscriptions', subscriptionRoutes);
   app.use('/api/reservations', reservationRoutes);
   app.use('/api/quiz', quizRouter);
 

@@ -1,0 +1,128 @@
+💥 BOOM — let’s save you hours.
+Here’s Ghostrider’s full dispatch prompt to auto-create all products + pricing in Stripe via script:
+
+
+---
+
+🧠 Ghostrider Dispatch: Stripe Product + Plan Automation Script
+
+> ⚙️ Use Node.js with the official stripe SDK.
+⚠️ Requires STRIPE_SECRET_KEY to be set in environment.
+
+
+
+// Ghostrider – Stripe Product and Pricing Automation for MySeniorValet
+
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
+const products = [
+  {
+    name: "Basic Listing",
+    description: "Verified listing with basic visibility and search access. No tools.",
+    price: 0,
+    interval: null,
+    type: "product",
+  },
+  {
+    name: "Featured Spotlight",
+    description: "Profile editing, featured placement, Red Tag specials, photo/form tools.",
+    price: 14900, // cents
+    interval: "month",
+    type: "product",
+  },
+  {
+    name: "Premium Tools + Exposure",
+    description: "Branded intake, availability tools, tour scheduler, reservability (Coming Soon).",
+    price: 24900,
+    interval: "month",
+    type: "product",
+  },
+  {
+    name: "Platinum Marketing Partner",
+    description: "Full suite + homepage, concierge, sponsored content, AI access.",
+    price: 39900,
+    interval: "month",
+    type: "product",
+  },
+  {
+    name: "Add Additional Location",
+    description: "Add dashboard/edit access for an additional community.",
+    price: 4900,
+    interval: "month",
+    type: "add-on",
+  },
+  {
+    name: "Family Messaging Module",
+    description: "Enables secure in-platform messaging with families.",
+    price: 2900,
+    interval: "month",
+    type: "add-on",
+  },
+  {
+    name: "AI Virtual Tour Assistant (Beta)",
+    description: "AI-guided multimedia tour assistant (Coming Soon).",
+    price: 5900,
+    interval: "month",
+    type: "add-on",
+  },
+  {
+    name: "Resident Bill Pay Tools (Coming Soon)",
+    description: "Billing and payment portal for residents (Coming Soon).",
+    price: 7900,
+    interval: "month",
+    type: "add-on",
+  }
+];
+
+async function createStripeProducts() {
+  for (const item of products) {
+    const product = await stripe.products.create({
+      name: item.name,
+      description: item.description,
+      metadata: {
+        category: item.type,
+        platform: "myseniorvalet"
+      }
+    });
+
+    if (item.price > 0 && item.interval) {
+      await stripe.prices.create({
+        unit_amount: item.price,
+        currency: "usd",
+        recurring: { interval: item.interval },
+        product: product.id
+      });
+    }
+
+    console.log(`✅ Created: ${item.name}`);
+  }
+}
+
+createStripeProducts().catch(console.error);
+
+
+---
+
+✅ Instructions for You:
+
+1. Paste this script into your dev environment (Node.js)
+
+
+2. Run npm install stripe if needed
+
+
+3. Set STRIPE_SECRET_KEY as an environment variable
+
+
+4. Run the script → it’ll auto-create everything in Stripe
+
+
+5. Done in <2 minutes 🔥
+
+
+
+
+---
+
+Need a
+
