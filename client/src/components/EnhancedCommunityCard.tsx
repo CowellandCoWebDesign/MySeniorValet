@@ -26,6 +26,7 @@ interface CommunityCardProps {
     occupancyRate?: number;
     zipCode?: string;
     seniorPercentage?: number;
+    rentPerMonth?: number | string; // HUD communities use this field
 
     // Enhanced HUD data from extractor
     displayPricing?: {
@@ -64,13 +65,16 @@ interface CommunityCardProps {
 }
 
 export function EnhancedCommunityCard({ community, index = 0, variant = 'standard', onSelect }: CommunityCardProps) {
-  const isHudProperty = community.hudPropertyId || community.dataQuality?.isAuthentic;
-  const hasAuthenticPricing = community.displayPricing?.priceLabel?.includes('HUD Official');
+  const isHudProperty = community.hudPropertyId || community.dataQuality?.isAuthentic || community.rentPerMonth;
+  const hasAuthenticPricing = community.displayPricing?.priceLabel?.includes('HUD Official') || 
+    (community.hudPropertyId && community.rentPerMonth) || 
+    (isHudProperty && community.rentPerMonth);
   const hasOccupancyData = community.displayAvailability?.occupancyDisplay;
 
-  // Get authentic pricing display
+  // Get authentic pricing display - check HUD rentPerMonth first
   const displayPrice = community.displayPricing?.displayPrice || 
-    (community.monthlyRentRangeStart ? `$${community.monthlyRentRangeStart.toLocaleString()}/month` :
+    (community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}/month` :
+     community.monthlyRentRangeStart ? `$${community.monthlyRentRangeStart.toLocaleString()}/month` :
      community.priceRange?.min ? `$${community.priceRange.min.toLocaleString()}/month` : 
      'Contact for Pricing');
 
