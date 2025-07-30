@@ -31,6 +31,7 @@ import {
   type AmenityStatus
 } from "@/lib/amenities-checklists";
 import { NavigationHeader } from "@/components/NavigationHeader";
+import { AuthenticPricingDisplay } from "@/components/AuthenticPricingDisplay";
 
 // Determine if community has verified pricing data
 const hasVerifiedPricing = (community: Community): boolean => {
@@ -786,6 +787,11 @@ export default function CommunityDetail() {
                           "HUD verified monthly rent" : 
                           "Pricing available upon request"}
                       </div>
+                    </div>
+
+                    {/* Authentic Pricing Sources Display */}
+                    <div className="mt-4">
+                      <AuthenticPricingDisplay communityId={community.id} />
                     </div>
 
                     {/* Availability Status */}

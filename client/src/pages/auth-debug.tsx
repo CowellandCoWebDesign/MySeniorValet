@@ -105,6 +105,7 @@ export default function AuthDebug() {
           </CardContent>
         </Card>
       </div>
+      </div>
     </div>
   );
 }

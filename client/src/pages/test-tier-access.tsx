@@ -368,5 +368,6 @@ export default function TestTierAccess() {
         </Card>
       </div>
     </div>
+    </div>
   );
 }

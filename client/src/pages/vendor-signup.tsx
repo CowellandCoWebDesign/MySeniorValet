@@ -457,5 +457,6 @@ export default function VendorSignup() {
         </Card>
       </div>
     </div>
+    </div>
   );
 }

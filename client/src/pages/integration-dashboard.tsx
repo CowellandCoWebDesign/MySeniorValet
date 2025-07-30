@@ -413,7 +413,6 @@ export default function IntegrationDashboard() {
               </CardContent>
             </Card>
           </div>
-        </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-5">
