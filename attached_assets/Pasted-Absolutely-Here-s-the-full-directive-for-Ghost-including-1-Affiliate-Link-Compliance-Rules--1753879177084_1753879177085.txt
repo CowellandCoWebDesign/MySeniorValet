@@ -1,0 +1,119 @@
+Absolutely! Here's the full directive for Ghost — including:
+
+1. ✅ Affiliate Link Compliance Rules
+
+
+2. 🧪 Link Health Checker Logic
+
+
+3. 🧠 AI Summary Instructions (Senior-optimized, compliant, and value-adding)
+
+
+
+This is your all-in-one compliance + enrichment guide for Amazon affiliate integration inside your platform.
+
+
+---
+
+📦 GHOST DIRECTIVE: Amazon Affiliate Compliance + Health + Summarization (Final Version)
+
+🧠 AMAZON AFFILIATE DIRECTIVE – COMPLIANCE + ENRICHMENT
+
+=== PART 1: AFFILIATE LINK RULES ===
+
+1. ✅ All Amazon affiliate links must use the full, stable format:
+   https://www.amazon.com/dp/ASIN?tag=myseniorvalet-20
+
+2. ❌ Never use:
+   - Shortened links (e.g., amzn.to/xyz) without first expanding
+   - Any link without ?tag=myseniorvalet-20
+   - Links to category pages, search results, or the Amazon homepage
+
+3. ✅ The affiliate tag (?tag=myseniorvalet-20) must always be present and unaltered.
+   - Do not strip, reorder, or modify the URL once verified.
+
+4. ❌ Do not show or store:
+   - Product prices or availability (unless pulled via Amazon PA-API)
+   - Customer reviews or review counts
+   - Full product descriptions (verbatim from Amazon)
+   - Amazon-hosted images or media (unless embedded using approved tools)
+
+5. ✅ Display of affiliate links is only allowed on public web pages.
+   - Do NOT include Amazon affiliate links in emails, PDFs, or push notifications.
+
+---
+
+=== PART 2: LINK HEALTH CHECKER LOGIC ===
+
+Function: checkAmazonAffiliateLinkHealth(url)
+Purpose: Ensure all Amazon links are stable, safe, and revenue-generating.
+
+Rules:
+- ✅ Must include: 'amazon.com/dp/'
+- ✅ Must include: '?tag=myseniorvalet-20'
+- ❌ Must NOT include: 'amzn.to/'
+- ❌ Must NOT redirect to: 'amazon.com/' (homepage fallback)
+
+Example return values:
+- ✅ Link is healthy
+- ❌ Missing tag
+- ❌ Not a product link
+- ⚠️ Shortened link – expand before use
+- ❌ Redirects to homepage – link is broken
+
+---
+
+=== PART 3: AI-GENERATED PRODUCT SUMMARIES ===
+
+Every Amazon product must include an **original, human-style summary**, generated using the product title and public description.
+
+Instructions for AI:
+- ✅ Write a helpful, clear, and concise summary aimed at **seniors and their caregivers**
+- ✅ Highlight:
+   - Accessibility
+   - Simplicity
+   - Ease of use
+   - Comfort or safety
+   - Any relevant age-related value
+- ✅ Use friendly, supportive language
+
+- ❌ Do NOT copy text directly from Amazon
+- ❌ Do NOT include customer quotes, star ratings, or specific pricing
+- ❌ Do NOT say “as seen on Amazon” or “best seller”
+
+Example summary (✅ valid):
+> “This voice-activated pill organizer is ideal for seniors with limited dexterity. It reminds users to take medications and lights up to guide the correct dosage.”
+
+Summary Validator Rules:
+- Flag any summary that includes:
+  - “5 stars”
+  - “customer reviews”
+  - “price is”
+  - “available now”
+  - “as seen on Amazon”
+  - Dollar symbols ($)
+
+---
+
+✅ END OF DIRECTIVE
+
+Ghost must follow these rules consistently to ensure:
+- Amazon compliance
+- Revenue protection
+- Searchability and user trust
+- AI-enriched, original value on every product listing
+
+
+---
+
+Let me know if you want this:
+
+Embedded in Ghost’s environment
+
+Built into a markdown or config file
+
+Wrapped with logic functions for Replit automation
+
+
+This is now a complete, safe, scalable system for affiliate enrichment — ready to scale with zero compliance risk.
+
