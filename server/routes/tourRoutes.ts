@@ -106,24 +106,24 @@ router.post('/api/tours/schedule', async (req: Request, res: Response) => {
       }
     );
 
-    // Send notification to community if they have email configured
-    if (community.communityManagerEmail) {
-      await EmailService.sendEmail({
-        to: community.communityManagerEmail,
-        subject: `New Tour Scheduled - ${contactName}`,
-        html: `
-          <h2>New Tour Scheduled</h2>
-          <p><strong>Community:</strong> ${community.name}</p>
-          <p><strong>Date/Time:</strong> ${format(tourDateTime, 'EEEE, MMMM d, yyyy at h:mm a')}</p>
-          <p><strong>Guest:</strong> ${contactName}</p>
-          <p><strong>Email:</strong> ${contactEmail}</p>
-          <p><strong>Phone:</strong> ${contactPhone || 'Not provided'}</p>
-          <p><strong>Tour Type:</strong> ${tourType.replace('_', ' ')}</p>
-          <p><strong>Attendees:</strong> ${attendeeCount}</p>
-          ${specialRequests ? `<p><strong>Special Requests:</strong> ${specialRequests}</p>` : ''}
-        `
-      });
-    }
+    // DISABLED FOR RELAUNCH: Not sending notifications to communities yet
+    // if (community.communityManagerEmail) {
+    //   await EmailService.sendEmail({
+    //     to: community.communityManagerEmail,
+    //     subject: `New Tour Scheduled - ${contactName}`,
+    //     html: `
+    //       <h2>New Tour Scheduled</h2>
+    //       <p><strong>Community:</strong> ${community.name}</p>
+    //       <p><strong>Date/Time:</strong> ${format(tourDateTime, 'EEEE, MMMM d, yyyy at h:mm a')}</p>
+    //       <p><strong>Guest:</strong> ${contactName}</p>
+    //       <p><strong>Email:</strong> ${contactEmail}</p>
+    //       <p><strong>Phone:</strong> ${contactPhone || 'Not provided'}</p>
+    //       <p><strong>Tour Type:</strong> ${tourType.replace('_', ' ')}</p>
+    //       <p><strong>Attendees:</strong> ${attendeeCount}</p>
+    //       ${specialRequests ? `<p><strong>Special Requests:</strong> ${specialRequests}</p>` : ''}
+    //     `
+    //   });
+    // }
 
     res.json({
       success: true,
