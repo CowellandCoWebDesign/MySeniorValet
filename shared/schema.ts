@@ -3170,76 +3170,25 @@ export const reservations = pgTable("reservations", {
 
 // Feature access control utility types
 export const subscriptionTiers = {
-  basic: {
-    name: "Basic",
+  free: {
+    name: "Free Listing",
     price: 0,
-    features: [
-      "profile_ownership",
-      "basic_listing",
-      "1_photo_upload",
-      "basic_amenity_tags",
-      "basic_search_visibility"
-    ],
-    available: true
+    features: ["basic_listing", "photo_upload", "license_verified"]
   },
-  verified_standard: {
-    name: "Verified Standard",
+  standard: {
+    name: "Standard",
+    price: 79,
+    features: ["pricing_display", "availability_display", "incentive_display", "5_photos", "basic_insights"]
+  },
+  featured: {
+    name: "Featured",
     price: 149,
-    features: [
-      "editable_contact_info",
-      "5_photos",
-      "google_reviews",
-      "standard_amenities",
-      "verified_badge",
-      "basic_analytics",
-      "ai_lease_template",
-      "esignature_docusign",
-      "move_in_forms",
-      "help_docs_support"
-    ],
-    available: true
+    features: ["priority_placement", "featured_badge", "tour_tools", "unlimited_photos", "analytics_dashboard", "staff_profiles", "responsive_badge", "smart_lead_routing"]
   },
-  enhanced_showcase: {
-    name: "Enhanced Showcase",
+  platinum: {
+    name: "Platinum",
     price: 249,
-    features: [
-      "20_photos_1_video",
-      "google_yelp_reviews",
-      "full_amenities",
-      "featured_placement",
-      "featured_card",
-      "full_analytics",
-      "rent_collection_stripe",
-      "deposit_tracking",
-      "resident_onboarding",
-      "family_document_uploads",
-      "cosigner_tools",
-      "payment_portal",
-      "automated_late_fees",
-      "lease_management",
-      "recurring_charges",
-      "lease_expiration_alerts",
-      "assisted_support"
-    ],
-    available: true
-  },
-  platinum_spotlight: {
-    name: "Platinum Spotlight",
-    price: 399,
-    features: [
-      "unlimited_photos_3_videos",
-      "custom_feature_tags",
-      "top_carousel_placement",
-      "gold_spotlight_card",
-      "analytics_insights_benchmarks",
-      "custom_branded_packets",
-      "white_glove_setup",
-      "concierge_leasing_support",
-      "move_out_automation",
-      "multi_resident_support",
-      "fully_managed_support"
-    ],
-    available: true
+    features: ["branding_customization", "api_sync", "admin_portal", "homepage_priority", "featured_badge", "priority_placement", "hipaa_intake"]
   }
 } as const;
 

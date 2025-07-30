@@ -52,141 +52,133 @@ interface PaymentTier {
 
 const paymentTiers: PaymentTier[] = [
   {
-    id: "basic",
-    name: "Basic",
+    id: "basic-listing",
+    name: "Basic Listing",
     monthlyFee: 0,
     setupFee: 0,
-    description: "Get discovered by families searching for senior care",
+    description: "Free listing with basic information and market-based pricing estimates",
     features: [
-      "✅ Profile ownership & claim",
-      "✅ Basic community listing",
-      "✅ 1 photo upload",
-      "✅ Basic amenity tags",
-      "✅ Basic search visibility",
-      "✅ Location on map"
+      "Basic community information",
+      "Market-based pricing estimates",
+      "Standard search visibility",
+      "Basic contact information",
+      "Community photos (up to 5)"
     ],
     priority: 4,
-    badge: "FREE",
-    color: "bg-green-100 border-green-200",
+    badge: "Free",
+    color: "bg-gray-100 border-gray-200",
     icon: Building,
     revenueShare: "0%",
     benefits: [
-      "✅ No credit card required",
-      "✅ List immediately",
-      "✅ Full platform access"
+      "No cost to list",
+      "Included in search results",
+      "Basic community profile"
     ],
     limitations: [
-      "No editable contact info",
-      "No reviews integration",
-      "Standard search ranking",
-      "No analytics dashboard",
-      "No operational tools"
+      "Limited visibility",
+      "No priority placement",
+      "No direct booking features",
+      "Basic analytics only"
     ]
   },
   {
-    id: "verified-standard",
-    name: "Verified Standard",
-    monthlyFee: 149,
-    setupFee: 0,
-    description: "Professional tools for established communities",
+    id: "enhanced-listing",
+    name: "Enhanced Listing",
+    monthlyFee: 299,
+    setupFee: 99,
+    description: "Enhanced visibility with verified information and premium features",
     features: [
-      "✅ Everything in Basic, plus:",
-      "✅ Editable contact info & description",
-      "✅ 5 photo gallery",
-      "✅ Google reviews integration",
-      "✅ Standard amenity set",
-      "✅ Verified badge on listing",
-      "✅ Basic analytics dashboard",
-      "✅ AI-generated lease template",
-      "✅ eSignature via DocuSign",
-      "✅ Move-in intake forms",
-      "✅ Help documentation support"
-    ],
-    priority: 1,
-    badge: "MOST POPULAR",
-    color: "bg-blue-50 border-blue-200",
-    icon: Star,
-    revenueShare: "0%",
-    benefits: [
-      "✅ Professional credibility",
-      "✅ Operational tools included",
-      "✅ Email support"
-    ],
-    limitations: [
-      "No payment collection",
-      "No family collaboration tools",
-      "Limited to 5 photos"
-    ]
-  },
-  {
-    id: "enhanced-showcase",
-    name: "Enhanced Showcase",
-    monthlyFee: 249,
-    setupFee: 0,
-    description: "Full operational suite with payment & family tools",
-    features: [
-      "✅ Everything in Verified, plus:",
-      "✅ 20 photos + 1 video",
-      "✅ Google + Yelp reviews",
-      "✅ Featured placement in search",
-      "✅ 'Featured' visual card",
-      "✅ Full analytics dashboard",
-      "✅ Rent collection (Stripe/ACH)",
-      "✅ Deposit & fee tracking",
-      "✅ Resident onboarding workflow",
-      "✅ Family document uploads",
-      "✅ Co-signer collaboration tools",
-      "✅ Secure payment portal",
-      "✅ Automated late fees",
-      "✅ Lease management & archiving",
-      "✅ Recurring charges setup",
-      "✅ Lease expiration alerts",
-      "✅ Assisted support"
-    ],
-    priority: 2,
-    badge: "PREMIUM",
-    color: "bg-purple-50 border-purple-200",
-    icon: Crown,
-    revenueShare: "0%",
-    benefits: [
-      "✅ Complete business automation",
-      "✅ Payment processing included",
-      "✅ Priority support"
-    ],
-    limitations: []
-  },
-  {
-    id: "platinum-spotlight",
-    name: "Platinum Spotlight",
-    monthlyFee: 399,
-    setupFee: 0,
-    description: "White-glove service with concierge support",
-    features: [
-      "✅ Everything in Enhanced, plus:",
-      "✅ Unlimited photos + 3 videos",
-      "✅ Custom feature tags",
-      "✅ Top carousel & spotlight placement",
-      "✅ Gold spotlight card design",
-      "✅ Analytics insights & benchmarks",
-      "✅ Custom branded lease packets",
-      "✅ White-glove account setup",
-      "✅ Concierge leasing support",
-      "✅ Move-out checklist automation",
-      "✅ Multi-resident/unit support",
-      "✅ Fully managed support",
-      "✅ Dedicated success manager"
+      "Verified community information",
+      "Premium search placement",
+      "Enhanced photo gallery (up to 15)",
+      "Virtual tour integration",
+      "Priority customer support",
+      "Basic analytics dashboard"
     ],
     priority: 3,
-    badge: "EXCLUSIVE",
-    color: "bg-yellow-50 border-yellow-200",
-    icon: Target,
-    revenueShare: "0%",
+    badge: "Popular",
+    color: "bg-blue-50 border-blue-200",
+    icon: Star,
+    revenueShare: "5%",
     benefits: [
-      "✅ VIP treatment",
-      "✅ Concierge service",
-      "✅ Maximum visibility"
+      "Higher search visibility",
+      "Verified badge display",
+      "Enhanced photo gallery",
+      "Priority support"
     ],
-    limitations: []
+    limitations: [
+      "Limited direct booking",
+      "Basic lead management",
+      "Standard analytics"
+    ]
+  },
+  {
+    id: "premium-plus",
+    name: "Premium Plus",
+    monthlyFee: 599,
+    setupFee: 199,
+    description: "Full-featured listing with direct booking and comprehensive lead management",
+    features: [
+      "Everything in Enhanced Listing",
+      "Direct booking system",
+      "Lead management CRM",
+      "Advanced analytics",
+      "Social media integration",
+      "Email marketing tools",
+      "Priority phone support",
+      "Custom branded profile"
+    ],
+    priority: 2,
+    badge: "Professional",
+    color: "bg-purple-50 border-purple-200",
+    icon: Crown,
+    revenueShare: "8%",
+    benefits: [
+      "Direct booking capabilities",
+      "Full CRM integration",
+      "Advanced analytics",
+      "Social media promotion"
+    ],
+    limitations: [
+      "Standard ad placement",
+      "Basic concierge services"
+    ]
+  },
+  {
+    id: "enterprise-monopoly",
+    name: "Enterprise Monopoly",
+    monthlyFee: 1299,
+    setupFee: 499,
+    description: "Complete market domination with exclusive features and maximum revenue generation",
+    features: [
+      "Everything in Premium Plus",
+      "Exclusive market area rights",
+      "AI-powered lead generation",
+      "White-label booking platform",
+      "Dedicated account manager",
+      "Custom API integration",
+      "Unlimited photo/video content",
+      "24/7 concierge services",
+      "Advanced SEO optimization",
+      "Social media management",
+      "Review management system",
+      "Competitive suppression tools"
+    ],
+    priority: 1,
+    badge: "Monopoly",
+    color: "bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200",
+    icon: Target,
+    revenueShare: "15%",
+    benefits: [
+      "Market monopolization",
+      "Exclusive territory rights",
+      "Maximum lead generation",
+      "Complete competitive advantage"
+    ],
+    limitations: [
+      "Premium investment required",
+      "Annual contract commitment"
+    ]
   }
 ];
 
@@ -297,13 +289,8 @@ export default function CommunityPaymentProgram() {
                   <CardTitle className="text-xl mb-2">{tier.name}</CardTitle>
                   <div className="text-center">
                     <div className="text-3xl font-bold text-gray-900">
-                      {tier.monthlyFee === 0 ? 'FREE' : 
-                       tier.priority <= 2 ? (
-                        <span className="text-gray-500">
-                          <span className="text-lg">Future:</span> ${tier.monthlyFee}
-                        </span>
-                       ) : `$${tier.monthlyFee}`}
-                      {tier.monthlyFee > 0 && <span className="text-sm font-normal text-gray-600">/month</span>}
+                      ${tier.monthlyFee}
+                      <span className="text-sm font-normal text-gray-600">/month</span>
                     </div>
                     {tier.setupFee > 0 && (
                       <div className="text-sm text-gray-600">
@@ -473,26 +460,21 @@ export default function CommunityPaymentProgram() {
                 </div>
               </div>
               <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                Join MySeniorValet - Free During Beta
+                Ready to Monopolize the Market?
               </h2>
               <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-                List your community for FREE while we build advanced features together. 
-                Early adopters will get special pricing when premium features launch.
+                Launch your community payment program and start generating revenue from day one. 
+                Complete system ready for immediate implementation.
               </p>
-              <div className="space-y-4">
-                <p className="text-sm text-gray-500">
-                  ✅ Free listing available now | 🚧 Premium features coming Q1-Q2 2025
-                </p>
-                <div className="flex justify-center space-x-4">
-                  <Button size="lg" className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white">
-                    List Your Community FREE
-                    <ArrowRight className="h-5 w-5 ml-2" />
-                  </Button>
-                  <Button size="lg" variant="outline">
-                    View Feature Roadmap
-                    <Eye className="h-5 w-5 ml-2" />
-                  </Button>
-                </div>
+              <div className="flex justify-center space-x-4">
+                <Button size="lg" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white">
+                  Launch Payment Program
+                  <ArrowRight className="h-5 w-5 ml-2" />
+                </Button>
+                <Button size="lg" variant="outline">
+                  Schedule Strategy Call
+                  <Phone className="h-5 w-5 ml-2" />
+                </Button>
               </div>
             </CardContent>
           </Card>

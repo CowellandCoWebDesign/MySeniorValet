@@ -22,17 +22,6 @@ export function registerPaymentRoutes(app: Express) {
         return res.status(400).json({ message: 'Price ID is required' });
       }
 
-      // Allow all new tiers as they're operational with the leasing/payment tools
-      const allowedTiers = ['basic', 'verified-standard', 'enhanced-showcase', 'platinum-spotlight'];
-      const tierFound = allowedTiers.some(tier => priceId.toLowerCase().includes(tier.replace('-', '_')));
-      
-      if (!tierFound && priceId !== 'free') {
-        return res.status(400).json({ 
-          message: 'Invalid pricing tier selected. Please choose from available tiers.',
-          availableTiers: ['basic', 'verified-standard', 'enhanced-showcase', 'platinum-spotlight']
-        });
-      }
-
       const session = await stripePaymentService.createCheckoutSession({
         userId,
         priceId,
