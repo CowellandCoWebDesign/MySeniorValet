@@ -3455,6 +3455,7 @@ export const services = pgTable("services", {
   categoryId: integer("category_id").references(() => serviceCategories.id),
   providerId: integer("provider_id").references(() => serviceProviders.id),
   name: text("name").notNull(),
+  slug: varchar("slug", { length: 100 }).unique(),
   description: text("description"),
   shortDescription: text("short_description"),
   features: text("features").array().default([]),
@@ -3490,6 +3491,7 @@ export const services = pgTable("services", {
     source?: string;
     lastUpdated?: string;
     tags?: string[];
+    asin?: string; // Store Amazon ASIN for rebuilding links
   }>(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

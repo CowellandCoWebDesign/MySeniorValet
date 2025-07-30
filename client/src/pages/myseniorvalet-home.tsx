@@ -1266,7 +1266,7 @@ export default function MySeniorValetHome() {
 
                     return allProducts.map((product: any, index: number) => {
                       return (
-                        <a key={product.id || index} href={product.externalUrl} target="_blank" rel="noopener noreferrer">
+                        <a key={product.id || index} href={`/go/amazon/${product.id}`} target="_blank" rel="noopener noreferrer">
                           <Card className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer">
                             {/* Product Image - Same style as community cards */}
                             <div className="aspect-[4/3] bg-gray-100 relative">

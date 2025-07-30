@@ -44,11 +44,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const subscriptionStatusRoutes = await import('./routes/subscriptionStatusRoutes');
   const subscriptionIntegrationRoutes = await import('./routes/subscriptionIntegrationRoutes');
   const careServicesRoutes = await import('./routes/careServicesRoutes');
+  const amazonRedirectRoutes = await import('./routes/amazonRedirectRoutes');
   app.use('/api/webhooks', webhookRoutes.default);
   app.use('/api/webhook-dev', webhookDevelopment.default);
   app.use('/api/subscription-status', subscriptionStatusRoutes.default);
   app.use('/api', subscriptionIntegrationRoutes.default);
   app.use('/api', careServicesRoutes.default);
+  app.use('/go/amazon', amazonRedirectRoutes.default);
 
   // Debug endpoint to check authentication status
   app.get('/api/auth/debug', (req: any, res) => {
