@@ -73,8 +73,8 @@ export default function AISearchComparison() {
     {
       name: "Multi-AI Intelligence Network",
       path: "/admin/multi-ai-test",
-      description: "Advanced 3-AI system with Claude, Gemini, ChatGPT + Perplexity intelligence",
-      status: "alpha",
+      description: "Advanced 3-AI system with Claude, OpenAI (ChatGPT), and Perplexity working together",
+      status: "production",
       features: {
         database: true,
         ai: true,
@@ -87,8 +87,8 @@ export default function AISearchComparison() {
       stats: {
         communities: "26,306",
         responseTime: "2-4s",
-        accuracy: "Cross-verified 4 AIs",
-        pricingCoverage: "90%+ (Web + AI)"
+        accuracy: "Cross-verified by 3 AIs",
+        pricingCoverage: "85%+ (Perplexity web search + AI estimates)"
       }
     }
   ];

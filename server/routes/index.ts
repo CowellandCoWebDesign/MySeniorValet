@@ -14,6 +14,7 @@ import { registerVendorRoutes } from "./vendorRoutes";
 import { registerSearchRoutes } from "./searchRoutes";
 import { registerMappingRoutes } from "./mappingRoutes";
 import { registerMappingFixRoutes } from "./mappingFixRoutes";
+import { registerMultiAITestRoutes } from "./multiAiTestRoutes";
 import { registerAuthRoutes } from "./authRoutes";
 import { registerTourRoutes } from "./tourRoutes";
 import { registerClaimRoutes } from "./claimRoutes";
@@ -63,6 +64,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // CRITICAL: Register mapping routes BEFORE community routes to prevent /:id interception
   registerMappingRoutes(app);
   registerMappingFixRoutes(app);
+  registerMultiAITestRoutes(app);
   registerCommunityRoutes(app);
   registerUserRoutes(app);
   registerSearchRoutes(app);

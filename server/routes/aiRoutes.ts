@@ -1,7 +1,7 @@
 import { type Express } from "express";
 import { db } from "../db";
 import { communities, services } from "@shared/schema";
-import { eq, sql, and, or, like } from "drizzle-orm";
+import { eq, sql, and, or, like, inArray } from "drizzle-orm";
 import { aiRecommendationEngine, RecommendationRequest } from "../ai-recommendations";
 import { MultiAIOrchestrator } from "../multi-ai-intelligence";
 import { AnthropicAIService, GeminiAIService, AIOrchestrator } from "../ai-services";
@@ -358,16 +358,11 @@ export function registerAIRoutes(app: Express) {
         return res.status(400).json({ error: 'At least 2 community IDs required' });
       }
 
-      // Fetch all communities
+      // Fetch all communities using IN clause instead of union
       const communitiesToCompare = await db
         .select()
         .from(communities)
-        .where(eq(communities.id, communityIds[0]))
-        .union(
-          ...communityIds.slice(1).map(id => 
-            db.select().from(communities).where(eq(communities.id, id))
-          )
-        );
+        .where(inArray(communities.id, communityIds));
 
       if (communitiesToCompare.length < 2) {
         return res.status(404).json({ error: 'Some communities not found' });
@@ -391,7 +386,7 @@ export function registerAIRoutes(app: Express) {
                   metric: 'Value Rating',
                   values: communitiesToCompare.map(c => ({
                     value: `${c.rating || 0} stars`,
-                    best: c.rating === Math.max(...communitiesToCompare.map(comm => comm.rating || 0))
+                    best: (c.rating || 0) === Math.max(...communitiesToCompare.map(comm => parseFloat(String(comm.rating || 0))))
                   }))
                 }
               ]
@@ -407,10 +402,10 @@ export function registerAIRoutes(app: Express) {
                   }))
                 },
                 {
-                  metric: 'Staff Ratio',
+                  metric: 'Review Count',
                   values: communitiesToCompare.map(c => ({
-                    value: c.staffRatio || 'Not available',
-                    best: false
+                    value: c.reviewCount ? `${c.reviewCount} reviews` : 'No reviews',
+                    best: c.reviewCount === Math.max(...communitiesToCompare.map(comm => comm.reviewCount || 0))
                   }))
                 }
               ]
@@ -426,10 +421,10 @@ export function registerAIRoutes(app: Express) {
                   }))
                 },
                 {
-                  metric: 'Transportation',
+                  metric: 'Website',
                   values: communitiesToCompare.map(c => ({
-                    value: c.hasTransportation ? 'Available' : 'Not available',
-                    best: c.hasTransportation
+                    value: c.website ? 'Available' : 'Not available',
+                    best: !!c.website
                   }))
                 }
               ]
