@@ -1390,6 +1390,14 @@ export default function MySeniorValetHome() {
                     });
                   })()}
                 </div>
+                
+                {/* Amazon Associate Disclosure - FTC Compliance */}
+                <div className="mt-4 text-center">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 italic">
+                    As an Amazon Associate, MySeniorValet earns from qualifying purchases. 
+                    Product prices and availability are accurate as of the date/time indicated and are subject to change.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
