@@ -19,6 +19,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 export default function MyCommunities() {
   const { user, isLoading: authLoading } = useAuth();
@@ -49,27 +50,10 @@ export default function MyCommunities() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-3">
-              <Link href="/" className="flex items-center space-x-2">
-                <Building className="w-6 h-6 text-blue-600" />
-                <span className="text-xl font-bold">MySeniorValet</span>
-              </Link>
-              <ChevronRight className="w-4 h-4 text-gray-400" />
-              <span className="text-lg font-semibold">My Communities</span>
-            </div>
-            <Link href="/claim">
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                <Plus className="w-4 h-4 mr-2" />
-                Claim a Community
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
+      <NavigationHeader 
+        title="My Communities" 
+        subtitle="Manage your senior living communities"
+      />
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

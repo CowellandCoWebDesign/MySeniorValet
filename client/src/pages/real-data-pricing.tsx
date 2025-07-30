@@ -17,6 +17,7 @@ import {
   Award
 } from 'lucide-react';
 import { Link } from 'wouter';
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 export default function RealDataPricing() {
   // Get pricing statistics
@@ -47,6 +48,10 @@ export default function RealDataPricing() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <NavigationHeader 
+        title="Real Data Pricing" 
+        subtitle="Transparent pricing from verified sources"
+      />
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

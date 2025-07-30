@@ -9,6 +9,7 @@ import {
   CheckCircle, FileText, Heart, ExternalLink, ChevronRight,
   Building, HandHeart, Briefcase
 } from "lucide-react";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 export default function VeteransHousing() {
   const { data: hudVashFacilities, isLoading } = useQuery({
@@ -46,6 +47,10 @@ export default function VeteransHousing() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <NavigationHeader 
+        title="Veterans Housing" 
+        subtitle="HUD-VASH affordable housing options for veterans"
+      />
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-800 to-blue-900 text-white">
         <div className="container mx-auto px-4 py-12">

@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Search, Heart, MapPin, Filter, Star, Home, ArrowLeft, Settings, Map, List } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { PricingTransparencyBadgeList, TransparencyScore } from "@/components/PricingTransparencyBadge";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 interface Community {
   id: number;
@@ -93,36 +94,10 @@ export default function MySeniorValetSearch() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-      {/* Header */}
-      <header className="glass border-b border-white/20 sticky top-0 z-50 particles">
-        <div className="px-4 py-3">
-          <div className="flex items-center space-x-4">
-            <Link href="/">
-              <Button variant="ghost" size="sm" className="p-1 glass hover:bg-white/20 animate-sparkle">
-                <ArrowLeft className="w-5 h-5 text-gray-700" />
-              </Button>
-            </Link>
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                type="text"
-                placeholder="Care type, location, community name"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 rounded-lg border border-white/30 bg-white/80 backdrop-blur-sm"
-              />
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowFilters(!showFilters)}
-              className="p-2 glass hover:bg-white/20 animate-float"
-            >
-              <Filter className="w-5 h-5 text-gray-700" />
-            </Button>
-          </div>
-        </div>
-      </header>
+      <NavigationHeader 
+        title="Community Search" 
+        subtitle="Find your perfect senior living community"
+      />
 
       {/* Filter Pills */}
       <div className="px-4 py-3 gradient-card border-b border-white/20">

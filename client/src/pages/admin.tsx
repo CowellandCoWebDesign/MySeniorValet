@@ -24,6 +24,7 @@ import {
   TabsList, 
   TabsTrigger 
 } from "@/components/ui/tabs";
+import { NavigationHeader } from "@/components/NavigationHeader";
 import { 
   Select,
   SelectContent,
@@ -200,36 +201,10 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Enhanced Admin Header */}
-      <div className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Shield className="text-white h-5 w-5" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-display font-bold text-gray-900">MySeniorValet Admin</h1>
-                <p className="text-sm text-gray-500 font-medium">Enterprise Control Center</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center space-x-2 px-3 py-1 bg-green-50 border border-green-200 rounded-full">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-sm font-medium text-green-800">System Operational</span>
-              </div>
-              <Button variant="outline" size="sm" className="shadow-sm hover:shadow-md transition-shadow">
-                <Download className="h-4 w-4 mr-2" />
-                Export Data
-              </Button>
-              <Button variant="outline" size="sm" className="shadow-sm hover:shadow-md transition-shadow">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Refresh
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <NavigationHeader 
+        title="MySeniorValet Admin" 
+        subtitle="Enterprise Control Center"
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 

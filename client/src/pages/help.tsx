@@ -19,6 +19,7 @@ import {
   Mail
 } from "lucide-react";
 import { Link } from "wouter";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 export default function Help() {
   const [openSection, setOpenSection] = useState<string | null>(null);
@@ -205,6 +206,10 @@ export default function Help() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+      <NavigationHeader 
+        title="Help Center" 
+        subtitle="Everything you need to know about MySeniorValet"
+      />
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
         <div className="max-w-4xl mx-auto px-4">

@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useLocation } from "wouter";
 import { Eye, EyeOff, Heart, Shield, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { NavigationHeader } from "@/components/NavigationHeader";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -51,19 +52,13 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <Link href="/">
-            <div className="inline-flex items-center space-x-2 text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
-              <Heart className="h-8 w-8" />
-              <span>MySeniorValet</span>
-            </div>
-          </Link>
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">Welcome back</h1>
-          <p className="text-gray-600 dark:text-gray-300">Sign in to your account to continue your search</p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <NavigationHeader 
+        title="Welcome back" 
+        subtitle="Sign in to your account to continue your search"
+      />
+      <div className="flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
 
         <Card className="border-0 shadow-lg bg-white dark:bg-gray-900 dark:border dark:border-gray-700">
           <CardHeader className="text-center">

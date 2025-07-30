@@ -34,6 +34,7 @@ import {
   DollarSign
 } from "lucide-react";
 import { Link } from "wouter";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 export default function AISupport() {
   const [activeTab, setActiveTab] = useState('ai-chat');
@@ -354,21 +355,10 @@ export default function AISupport() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center">
-            <div className="flex items-center justify-center space-x-2 mb-4">
-              <Bot className="w-12 h-12" />
-              <Sparkles className="w-8 h-8" />
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">AI-Powered Support Center</h1>
-            <p className="text-xl text-blue-100">
-              Get instant help with AI assistance, comprehensive guides, and human support
-            </p>
-          </div>
-        </div>
-      </div>
+      <NavigationHeader 
+        title="AI-Powered Support Center" 
+        subtitle="Get instant help with AI assistance and comprehensive guides"
+      />
 
       <div className="max-w-6xl mx-auto px-4 py-12">
         {/* Quick Actions */}

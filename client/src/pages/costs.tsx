@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 import { PricingIntelligenceSelector } from "@/components/pricing-intelligence-selector";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 export default function Costs() {
   const [monthlyIncome, setMonthlyIncome] = useState<string>("");
@@ -154,25 +155,10 @@ export default function Costs() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      {/* Hero Section with Navbar Space */}
-      <div className="relative">
-        <div className="h-16"></div>
-        <div className="bg-gradient-to-br from-emerald-600 to-teal-600 dark:from-emerald-700 dark:to-teal-700 px-6 py-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-white mb-2">Cost Explorer</h1>
-                <p className="text-white/90">Move-in Costs & Affordability Calculator</p>
-              </div>
-              <div className="hidden md:flex items-center space-x-4">
-                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
-                  <Calculator className="w-10 h-10 text-white" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <NavigationHeader 
+        title="Cost Explorer" 
+        subtitle="Move-in Costs & Affordability Calculator"
+      />
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Featured Cost Comparison Table - Always Visible */}

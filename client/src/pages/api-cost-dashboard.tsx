@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, DollarSign, Activity, TrendingUp, RefreshCw } from "lucide-react";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 interface ApiCostBreakdown {
   action: string;
@@ -84,14 +85,18 @@ export default function ApiCostDashboard() {
   }
 
   return (
-    <div className="p-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">API Cost Analysis</h1>
-        <Button onClick={() => refetch()}>
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
-        </Button>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <NavigationHeader 
+        title="API Cost Analysis" 
+        subtitle="Monitor and analyze API usage costs"
+      />
+      <div className="p-8 space-y-6">
+        <div className="flex items-center justify-end">
+          <Button onClick={() => refetch()}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
 
       {analysis && (
         <div className="grid gap-6">

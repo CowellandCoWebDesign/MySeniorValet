@@ -2,21 +2,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { User, MapPin, Mail, Globe, Heart, Code, Database } from "lucide-react";
 import { Link } from "wouter";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 export default function Team() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Meet the Team</h1>
-            <p className="text-xl text-blue-100">
-              The person behind MySeniorValet's mission
-            </p>
-          </div>
-        </div>
-      </div>
+      <NavigationHeader 
+        title="Meet the Team" 
+        subtitle="The person behind MySeniorValet's mission"
+      />
 
       <div className="max-w-4xl mx-auto px-4 py-12">
         {/* Founder Profile */}

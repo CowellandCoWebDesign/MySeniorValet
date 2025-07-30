@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 type Community = {
   id: number;
@@ -89,19 +90,12 @@ export default function DatabaseTest() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-3xl font-bold text-center">
-              MySeniorValet Database & Authentication Test
-            </CardTitle>
-            <CardDescription className="text-center text-lg">
-              Test all database functionality and social login integrations
-            </CardDescription>
-          </CardHeader>
-        </Card>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <NavigationHeader 
+        title="Database & Authentication Test" 
+        subtitle="Test all database functionality and social login integrations"
+      />
+      <div className="max-w-6xl mx-auto space-y-6 p-6">
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Authentication Status */}

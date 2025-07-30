@@ -13,6 +13,7 @@ import {
   Filter, ChevronRight, Info, Clock, CheckCircle, XCircle
 } from 'lucide-react';
 import { Link } from 'wouter';
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 const categoryIcons: Record<string, React.ReactNode> = {
   moving: <Truck className="w-5 h-5" />,
@@ -209,26 +210,10 @@ export default function SeniorServicesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                Senior Services Directory
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
-                Find trusted services to support your senior living journey
-              </p>
-            </div>
-            <Link href="/">
-              <Button variant="outline">
-                Back to Communities
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
+      <NavigationHeader 
+        title="Senior Services Directory" 
+        subtitle="Find trusted services to support your senior living journey"
+      />
 
       {/* Location Alert */}
       {locationError && (

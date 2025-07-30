@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Shield, Eye, UserX, Download, Mail } from "lucide-react";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 export default function Privacy() {
   const [doNotSell, setDoNotSell] = useState(false);
@@ -40,7 +41,10 @@ export default function Privacy() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <NavigationHeader 
+        title="Privacy Policy" 
+        subtitle="Your privacy is important to us"
+      />
       
       {/* Skip to main content link */}
       <a 

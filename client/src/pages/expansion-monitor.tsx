@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { apiRequest } from '@/lib/queryClient';
 import { Search, MapPin, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { NavigationHeader } from '@/components/NavigationHeader';
 
 interface ExpansionProgress {
   currentCounty: string;
@@ -102,14 +103,14 @@ export default function ExpansionMonitor() {
     : 0;
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Regional Expansion Monitor</h1>
-          <p className="text-gray-600 mt-2">
-            Real-time monitoring of Northern California expansion progress
-          </p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <NavigationHeader 
+        title="Regional Expansion Monitor" 
+        subtitle="Real-time monitoring of Northern California expansion progress"
+      />
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
         <Button
           onClick={() => startExpansion.mutate()}
           disabled={expansionActive || startExpansion.isPending}

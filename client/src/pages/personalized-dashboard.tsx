@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
+import { NavigationHeader } from "@/components/NavigationHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -168,7 +167,10 @@ export default function PersonalizedDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
-      <Header />
+      <NavigationHeader 
+        title="Personalized Dashboard" 
+        subtitle="Your curated senior living journey"
+      />
 
       <div className="container mx-auto px-4 py-8">
         {/* Dashboard Header */}

@@ -2,11 +2,15 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, Scale, AlertTriangle, Users, Shield } from "lucide-react";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 export default function Terms() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <NavigationHeader 
+        title="Terms of Service" 
+        subtitle="Our platform usage terms and conditions"
+      />
       
       {/* Skip to main content link */}
       <a 

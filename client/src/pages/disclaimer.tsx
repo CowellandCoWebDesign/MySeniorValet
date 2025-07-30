@@ -2,11 +2,15 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, Shield, Info, FileText } from "lucide-react";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 export default function Disclaimer() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <NavigationHeader 
+        title="Disclaimer" 
+        subtitle="Important information about our services"
+      />
       
       {/* Skip to main content link */}
       <a 

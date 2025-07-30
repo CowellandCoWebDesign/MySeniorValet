@@ -2,10 +2,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Heart, Shield, Users, Target, Star, CheckCircle } from "lucide-react";
 import { Link } from "wouter";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 export default function Mission() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+      <NavigationHeader 
+        title="Our Mission" 
+        subtitle="Empowering families with transparent senior living guidance"
+      />
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
         <div className="max-w-4xl mx-auto px-4">

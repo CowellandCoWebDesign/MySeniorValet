@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { MapPin, Camera, Star, Users, Clock, Smartphone, CheckCircle, AlertCircle } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Link } from "wouter";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 interface Community {
   id: number;
@@ -302,14 +303,13 @@ export default function TourTracker() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Tour Tracker</h1>
-          <p className="text-gray-600">
-            Document your community visits, share experiences with family, and help other families make informed decisions.
-          </p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+      <NavigationHeader 
+        title="Tour Tracker" 
+        subtitle="Document your community visits and share experiences"
+      />
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-6xl mx-auto">
 
         <Tabs defaultValue="new-review" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2">

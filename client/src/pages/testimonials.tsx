@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Star, Quote, User, MapPin, Clock, MessageSquare, Heart } from "lucide-react";
 import { Link } from "wouter";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 export default function Testimonials() {
   const [showSubmissionForm, setShowSubmissionForm] = useState(false);
@@ -40,17 +41,10 @@ export default function Testimonials() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Success Stories</h1>
-            <p className="text-xl text-blue-100">
-              Real families sharing their MySeniorValet experience
-            </p>
-          </div>
-        </div>
-      </div>
+      <NavigationHeader 
+        title="Success Stories" 
+        subtitle="Real families sharing their MySeniorValet experience"
+      />
 
       <div className="max-w-4xl mx-auto px-4 py-12">
         {/* Call to Action */}

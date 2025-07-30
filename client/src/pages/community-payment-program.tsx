@@ -32,8 +32,7 @@ import {
   Globe,
   Sparkles
 } from "lucide-react";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 interface PaymentTier {
   id: string;
@@ -234,8 +233,11 @@ export default function CommunityPaymentProgram() {
   const totalPotentialRevenue = "$3.5M - $15M annually";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 isolate">
-      <Header />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <NavigationHeader 
+        title="Community Payment Program" 
+        subtitle="Premium monetization for senior living communities"
+      />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Hero Section */}

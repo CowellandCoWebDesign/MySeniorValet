@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 interface Service {
   id: string;
@@ -287,7 +288,10 @@ export default function Services() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-blue-900 dark:to-purple-900 isolate">
-      <Header />
+      <NavigationHeader 
+        title="Senior Living Services" 
+        subtitle="Complete services for every aspect of senior transitions"
+      />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}

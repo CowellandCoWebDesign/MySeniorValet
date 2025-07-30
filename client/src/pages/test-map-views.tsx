@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { NavigationHeader } from '@/components/NavigationHeader';
 
 export default function TestMapViews() {
   const [results, setResults] = useState<any[]>([]);
@@ -62,8 +63,12 @@ export default function TestMapViews() {
   }, []);
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Map View Test - Community Counts by Area</h1>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <NavigationHeader 
+        title="Map View Test" 
+        subtitle="Community counts by area"
+      />
+      <div className="p-6 max-w-6xl mx-auto">
       
       <div className="mb-6 bg-blue-50 p-4 rounded-lg">
         <p className="text-sm text-blue-900">

@@ -30,6 +30,7 @@ import {
   getStatusStyling,
   type AmenityStatus
 } from "@/lib/amenities-checklists";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 // Determine if community has verified pricing data
 const hasVerifiedPricing = (community: Community): boolean => {
@@ -547,31 +548,10 @@ export default function CommunityDetail() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Navigation Bar */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
-        <div className="flex space-x-3">
-          <Button 
-            variant="ghost" 
-            onClick={() => {
-              // Try to go back in history, fallback to search page
-              if (window.history.length > 1) {
-                window.history.back();
-              } else {
-                setLocation('/search');
-              }
-            }}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Search
-          </Button>
-          <Button 
-            variant="ghost" 
-            onClick={() => setLocation('/')}
-            className="flex items-center space-x-2"
-          >
-            <div className="w-6 h-6 gradient-primary rounded-sm flex items-center justify-center">
-              <Home className="w-3 h-3 text-white" />
-            </div>
+      <NavigationHeader 
+        title={community?.name || "Community Details"} 
+        subtitle={`${community?.city || ""}, ${community?.state || ""}`}
+      />
             <span className="font-semibold text-gradient">MySeniorValet</span>
           </Button>
         </div>

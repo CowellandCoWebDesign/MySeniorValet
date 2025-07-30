@@ -16,6 +16,7 @@ import "leaflet/dist/leaflet.css";
 import L, { Icon } from "leaflet";
 import Map from "@/components/Map";
 import { useDebounce } from "@/hooks/useDebounce";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 // Care type icons and colors mapping
 const careTypeConfig = {
@@ -711,25 +712,14 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pb-16">
+      <NavigationHeader 
+        title="Community Search" 
+        subtitle="Find the perfect senior living community"
+      />
       {/* Enhanced Navigation Bar */}
       <div className="sticky top-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b-2 border-gray-200 dark:border-gray-700 shadow-lg z-40">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Link href="/">
-                <Button variant="ghost" size="lg" className="p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700">
-                  <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-gray-300" />
-                </Button>
-              </Link>
-              <Link href="/" className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-                  <Home className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">MySeniorValet</h1>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Community Search</p>
-                </div>
-              </Link>
             </div>
             <div className="bg-white dark:bg-gray-800 rounded-full px-4 py-2 shadow-md border border-gray-200 dark:border-gray-600">
               <div className="text-sm font-semibold text-gray-900 dark:text-white">

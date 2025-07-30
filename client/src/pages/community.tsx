@@ -4,6 +4,7 @@ import { useRoute } from "wouter";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
+import { NavigationHeader } from "@/components/NavigationHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Star, MapPin, Phone, Globe, CheckCircle, Users, Calendar, DollarSign, Camera, Video, Home, UserCheck, Stethoscope, Activity, Wifi, Car, Utensils, ChevronLeft, ChevronRight, ExternalLink, Heart, Share, Clock, AlertTriangle, Heart as HeartIcon, Dumbbell, UtensilsCrossed, Bus, HandHeart, Waves, Scissors, AlertCircle, ShieldCheck, Mail as MailIcon, Shield, Database, Info } from "lucide-react";
@@ -371,7 +372,10 @@ export default function CommunityPage() {
       </div>
       
       <div className="relative z-10">
-        <Header />
+        <NavigationHeader 
+          title={community?.name || "Community Details"} 
+          subtitle={`${community?.city || ""}, ${community?.state || ""}`}
+        />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
         {/* Back Navigation */}

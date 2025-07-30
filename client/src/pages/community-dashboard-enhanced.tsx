@@ -39,6 +39,7 @@ import { useParams, Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 interface FeatureAccess {
   // Basic Features

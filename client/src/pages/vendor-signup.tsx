@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Building2, MapPin, Phone, Mail, Globe, DollarSign, Info } from "lucide-react";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 const vendorSignupSchema = z.object({
   businessName: z.string().min(2, "Business name must be at least 2 characters"),
@@ -131,14 +132,13 @@ export default function VendorSignup() {
   }
 
   return (
-    <div className="container mx-auto py-12 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-4">Become a MySeniorValet Vendor Partner</h1>
-          <p className="text-xl text-gray-600">
-            Join our network of trusted service providers helping seniors and their families
-          </p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <NavigationHeader 
+        title="Become a Vendor Partner" 
+        subtitle="Join our network of trusted service providers"
+      />
+      <div className="container mx-auto py-12 px-4">
+        <div className="max-w-4xl mx-auto">
 
         <Card>
           <CardHeader>

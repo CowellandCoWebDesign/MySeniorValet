@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 export default function AffordableHousing() {
   const [selectedState, setSelectedState] = useState<string>("all");
@@ -53,6 +54,10 @@ export default function AffordableHousing() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <NavigationHeader 
+        title="Affordable Housing" 
+        subtitle="HUD Section 202 and affordable senior housing options"
+      />
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -48,6 +48,7 @@ import {
   AlertCircle,
   Globe
 } from "lucide-react";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 export default function AdminCleanFull() {
   const [selectedCommunity, setSelectedCommunity] = useState<number | null>(null);
@@ -163,15 +164,13 @@ export default function AdminCleanFull() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <NavigationHeader 
+        title="Admin Dashboard" 
+        subtitle="Enterprise administration for senior living platform management"
+      />
       <div className="container mx-auto p-6">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            MySeniorValet Admin Dashboard
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Enterprise administration for senior living platform management
-          </p>
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">

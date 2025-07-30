@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Heart, Shield, Users, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { NavigationHeader } from "@/components/NavigationHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -30,19 +31,13 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <Link href="/">
-            <div className="inline-flex items-center space-x-2 text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
-              <Heart className="h-8 w-8" />
-              <span>MySeniorValet</span>
-            </div>
-          </Link>
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">Join MySeniorValet</h1>
-          <p className="text-gray-600 dark:text-gray-300">Create your account to start finding the perfect senior living community</p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <NavigationHeader 
+        title="Join MySeniorValet" 
+        subtitle="Create your account to start finding the perfect senior living community"
+      />
+      <div className="flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
 
         <Card className="border-0 shadow-lg bg-white dark:bg-gray-900 dark:border dark:border-gray-700">
           <CardHeader className="text-center">

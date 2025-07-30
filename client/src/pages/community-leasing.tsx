@@ -51,6 +51,7 @@ import {
   Building,
   Briefcase,
 } from "lucide-react";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 // Application status colors
 const statusColors = {

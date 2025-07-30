@@ -23,6 +23,7 @@ import {
   Download
 } from 'lucide-react';
 import { Link } from 'wouter';
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 interface SupportResourceCategory {
   id: number;
@@ -223,22 +224,10 @@ export default function SupportResources() {
 
   return (
     <div className="min-h-screen gradient-hero">
-      {/* Header */}
-      <div className="glass border-b border-white/20 sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-white">Support Center</h1>
-              <p className="text-white/80">Emotional support and guidance for your senior living journey</p>
-            </div>
-            <Link href="/">
-              <Button variant="ghost" className="text-white hover:bg-white/10">
-                Back to Home
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
+      <NavigationHeader 
+        title="Support Center" 
+        subtitle="Emotional support and guidance for your senior living journey"
+      />
 
       <div className="container mx-auto px-4 py-8">
         {/* Search Section */}

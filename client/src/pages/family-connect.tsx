@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
+import { NavigationHeader } from '@/components/NavigationHeader';
 
 interface FamilyGroup {
   id: number;
@@ -236,15 +237,12 @@ export default function FamilyConnect() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-          Family Connect
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Stay connected and coordinate senior care with your family
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <NavigationHeader 
+        title="Family Connect" 
+        subtitle="Stay connected and coordinate senior care with your family"
+      />
+      <div className="container mx-auto px-4 py-8">
 
       {/* No groups state */}
       {(!groups || groups.length === 0) && (

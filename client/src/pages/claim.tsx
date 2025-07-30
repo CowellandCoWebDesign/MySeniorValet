@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { Building, CheckCircle, AlertCircle, Clock, ArrowLeft } from 'lucide-react';
 import { Link } from 'wouter';
+import { NavigationHeader } from '@/components/NavigationHeader';
 
 const claimFormSchema = z.object({
   claimerName: z.string().min(2, 'Name must be at least 2 characters'),
@@ -268,18 +269,14 @@ export default function ClaimCommunity() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-2xl mx-auto px-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Building className="h-5 w-5 text-blue-600" />
-              Claim Community Ownership
-            </CardTitle>
-            <CardDescription>
-              Claim ownership of {claimCheck?.community?.name} to manage your community profile and respond to inquiries.
-            </CardDescription>
-          </CardHeader>
+    <div className="min-h-screen bg-gray-50">
+      <NavigationHeader 
+        title="Claim Community Ownership" 
+        subtitle={`Claim ownership of ${claimCheck?.community?.name || 'this community'}`}
+      />
+      <div className="py-12">
+        <div className="max-w-2xl mx-auto px-4">
+          <Card>
           <CardContent>
             {claimCheck?.community && (
               <div className="mb-6 p-4 bg-blue-50 rounded-lg">

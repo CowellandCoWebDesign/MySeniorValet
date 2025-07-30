@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check, X, AlertCircle } from 'lucide-react';
+import { NavigationHeader } from '@/components/NavigationHeader';
 
 export default function TestDebug() {
   const [tests, setTests] = useState({
@@ -103,12 +104,14 @@ export default function TestDebug() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
-      <div className="max-w-4xl mx-auto">
-        <Card>
-          <CardHeader>
-            <CardTitle>Map Search Debug Panel</CardTitle>
-          </CardHeader>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <NavigationHeader 
+        title="Map Search Debug Panel" 
+        subtitle="Test and debug map search functionality"
+      />
+      <div className="p-8">
+        <div className="max-w-4xl mx-auto">
+          <Card>
           <CardContent>
             <div className="space-y-4">
               {Object.entries(tests).map(([testName, result]) => (

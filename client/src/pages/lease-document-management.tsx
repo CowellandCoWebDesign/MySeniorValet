@@ -25,6 +25,7 @@ import {
   User,
   MapPin
 } from "lucide-react";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 interface LeaseDocument {
   id: number;
@@ -228,9 +229,12 @@ export default function LeaseDocumentManagement() {
   };
 
   return (
-    <div className="container mx-auto max-w-6xl py-8 px-4">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Lease Document Management</h1>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <NavigationHeader 
+        title="Lease Document Management" 
+        subtitle="AI-powered lease processing and DocuSign integration"
+      />
+      <div className="container mx-auto max-w-6xl py-8 px-4">
         <p className="text-muted-foreground mt-2">
           Upload, analyze, and prepare lease documents with AI assistance
         </p>

@@ -33,6 +33,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 interface VendorProfile {
   id: number;
@@ -212,35 +213,10 @@ export default function VendorDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Building2 className="h-8 w-8 text-primary" />
-              <div>
-                <h1 className="text-2xl font-bold">{vendorProfile.businessName}</h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Vendor Dashboard</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Badge variant={vendorProfile.verificationStatus === 'verified' ? 'default' : 'secondary'}>
-                {vendorProfile.verificationStatus}
-              </Badge>
-              <Badge variant="outline">{vendorProfile.subscriptionTier} Plan</Badge>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => updateMetricsMutation.mutate()}
-                disabled={updateMetricsMutation.isPending}
-              >
-                <RefreshCw className={`h-4 w-4 mr-2 ${updateMetricsMutation.isPending ? 'animate-spin' : ''}`} />
-                Refresh Metrics
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <NavigationHeader 
+        title={vendorProfile.businessName} 
+        subtitle="Vendor Dashboard"
+      />
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">

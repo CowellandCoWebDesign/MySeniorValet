@@ -3,6 +3,7 @@ import { Users, Share2, Mail, MessageSquare, Heart, Star, Calendar, Clock, Check
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { NavigationHeader } from "@/components/NavigationHeader";
 import { FamilyShareButton } from '@/components/family-share-button';
 import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
 import { useAuth } from '@/hooks/useAuth';
@@ -84,35 +85,10 @@ export default function FamilyCollaborationPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      {/* Navigation Bar */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
-        <div className="flex space-x-3">
-          <Button 
-            variant="ghost" 
-            onClick={() => {
-              // Try to go back in history, fallback to search page
-              if (window.history.length > 1) {
-                window.history.back();
-              } else {
-                setLocation('/search');
-              }
-            }}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-          <Button 
-            variant="ghost" 
-            onClick={() => setLocation('/')}
-            className="flex items-center space-x-2"
-          >
-            <div className="w-6 h-6 gradient-primary rounded-sm flex items-center justify-center">
-              <Home className="w-3 h-3 text-white" />
-            </div>
-            <span className="font-semibold text-gradient">MySeniorValet</span>
-          </Button>
-        </div>
-      </div>
+      <NavigationHeader 
+        title="Family Collaboration" 
+        subtitle="Share and collaborate on senior living decisions"
+      />
 
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">

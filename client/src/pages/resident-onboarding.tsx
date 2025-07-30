@@ -15,6 +15,7 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useMutation } from "@tanstack/react-query";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 // Form validation schema
 const onboardingSchema = z.object({
@@ -116,15 +117,14 @@ export default function ResidentOnboarding() {
   const progressPercentage = (currentStep / steps.length) * 100;
 
   return (
-    <div className="container mx-auto max-w-4xl py-8 px-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">Resident Onboarding</CardTitle>
-          <CardDescription>
-            Complete the onboarding process to prepare for move-in
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <NavigationHeader 
+        title="Resident Onboarding" 
+        subtitle="Complete the onboarding process to prepare for move-in"
+      />
+      <div className="container mx-auto max-w-4xl py-8 px-4">
+        <Card>
+          <CardContent>
           {/* Progress Bar */}
           <div className="mb-8">
             <Progress value={progressPercentage} className="mb-4" />

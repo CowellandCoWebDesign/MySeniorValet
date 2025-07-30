@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Star, MapPin, Phone, Globe, CheckCircle, Clock, ArrowLeft } from 'lucide-react';
+import { NavigationHeader } from '@/components/NavigationHeader';
 
 interface VendorProfileProps {}
 
@@ -75,24 +76,11 @@ export default function VendorProfile({}: VendorProfileProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Link href="/">
-              <Button variant="outline" size="sm">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Services
-              </Button>
-            </Link>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-sm font-semibold text-green-600 dark:text-green-400">Verified Vendor</span>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <NavigationHeader 
+        title={vendor.name} 
+        subtitle="Verified vendor service provider"
+      />
 
       {/* Immediate Call to Action Banner */}
       <div className="bg-gradient-to-r from-pink-500 to-rose-500 py-6">

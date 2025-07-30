@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Star, MapPin, Phone, ExternalLink, Heart, ArrowLeft, Sparkles } from 'lucide-react';
+import { NavigationHeader } from '@/components/NavigationHeader';
 
 interface QuizAnswers {
   [key: string]: string | string[] | number;
@@ -241,7 +242,12 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
+      <NavigationHeader 
+        title="Community Matching Quiz" 
+        subtitle="Find your perfect senior living match"
+      />
+      <div className="py-8">
       <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-8">

@@ -16,6 +16,7 @@ import {
   Info
 } from "lucide-react";
 import { Link } from "wouter";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 export default function CareGuide() {
   const careTypes = [
@@ -170,17 +171,10 @@ export default function CareGuide() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Senior Care Types & Pricing Guide</h1>
-            <p className="text-xl text-blue-100">
-              Based on real data from 25,782 verified communities across North America
-            </p>
-          </div>
-        </div>
-      </div>
+      <NavigationHeader 
+        title="Senior Care Guide" 
+        subtitle="Understanding care types and pricing across 25,782 communities"
+      />
 
       <div className="max-w-6xl mx-auto px-4 py-12">
         {/* Care Types Overview */}
