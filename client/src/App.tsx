@@ -84,6 +84,7 @@ import ServicesManagementDashboard from "@/pages/ServicesManagementDashboard";
 import TestTierAccess from "@/pages/test-tier-access";
 import AmazonProductAdmin from "@/pages/AmazonProductAdmin";
 import PerplexityTest from "@/pages/PerplexityTest";
+import MultiAITest from "@/pages/MultiAITest";
 import { useAuth } from "@/hooks/useAuth";
 
 function Router() {
@@ -114,6 +115,7 @@ function Router() {
       <Route path="/admin/services-management" component={ServicesManagementDashboard} />
       <Route path="/admin/amazon-products" component={AmazonProductAdmin} />
       <Route path="/admin/perplexity-test" component={PerplexityTest} />
+      <Route path="/admin/multi-ai-test" component={MultiAITest} />
       <Route path="/expansion-monitor" component={ExpansionMonitor} />
       <Route path="/api-costs" component={ApiCostDashboard} />
       <Route path="/dashboard" component={Dashboard} />
