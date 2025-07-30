@@ -105,6 +105,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Data quality analysis endpoint
+  app.get('/api/data-quality/report', async (req, res) => {
+    try {
+      const { generateDataQualityReport } = await import("./data-quality-report");
+      const report = await generateDataQualityReport();
+      res.json(report);
+    } catch (error) {
+      console.error("Data quality report error:", error);
+      res.status(500).json({ error: "Failed to generate data quality report" });
+    }
+  });
+
   // In development, Vite handles static files
   // In production, serve static files
   if (process.env.NODE_ENV === 'production') {
