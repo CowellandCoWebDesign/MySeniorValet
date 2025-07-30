@@ -31,7 +31,6 @@ export const users = pgTable("users", {
   username: text("username").unique(),
   password: text("password"),
   phone: text("phone"),
-  dateOfBirth: date("date_of_birth"),
   relationshipToCare: text("relationship_to_care", {
     enum: ["Seeking for Self", "Seeking for Parent", "Seeking for Spouse", "Seeking for Other Family", "Healthcare Professional"]
   }),

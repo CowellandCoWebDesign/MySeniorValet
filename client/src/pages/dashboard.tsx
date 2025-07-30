@@ -1,9 +1,12 @@
 
 import { useState, useEffect } from "react";
 import { NavigationHeader } from "@/components/NavigationHeader";
+import { TourScheduler } from "@/components/TourScheduler";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Heart, 
@@ -36,6 +39,8 @@ import {
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useQuery } from "@tanstack/react-query";
+import { Footer } from "@/components/footer";
 
 interface SavedCommunity {
   id: number;
@@ -76,29 +81,12 @@ export default function Dashboard() {
   const [tourRequests, setTourRequests] = useState<TourRequest[]>([]);
   const [activeTab, setActiveTab] = useState("overview");
   const [showIntegrationTools, setShowIntegrationTools] = useState(true);
+  const [showCommunitySearch, setShowCommunitySearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCommunity, setSelectedCommunity] = useState<any>(null);
 
   // Load real data from API
   useEffect(() => {
-    const loadUserData = async () => {
-      if (!user?.id) return;
-      
-      try {
-        const response = await fetch(`/api/users/${user.id}/dashboard-data`);
-        if (response.ok) {
-          const data = await response.json();
-          setSavedCommunities(data.favorites || []);
-          setRecentSearches(data.searchHistory || []);
-          setTourRequests(data.tourRequests || []);
-        }
-      } catch (error) {
-        console.error('Error loading user dashboard data:', error);
-        // Fallback to empty arrays for clean state
-        setSavedCommunities([]);
-        setRecentSearches([]);
-        setTourRequests([]);
-      }
-    };
-    
     loadUserData();
   }, [user?.id]);
 
@@ -127,21 +115,48 @@ export default function Dashboard() {
     }
   };
 
-  const handleScheduleTour = (communityId: number, communityName: string) => {
-    const newTour: TourRequest = {
-      id: Date.now().toString(),
-      communityName,
-      requestedDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      status: 'pending',
-      contactPerson: "Tour Coordinator",
-      phone: "Contact via platform"
-    };
+  const { data: searchResults } = useQuery({
+    queryKey: ['/api/communities/search', searchQuery],
+    queryFn: async () => {
+      if (!searchQuery || searchQuery.length < 2) return { communities: [] };
+      const response = await fetch(`/api/communities/search?q=${encodeURIComponent(searchQuery)}&limit=10`);
+      if (!response.ok) throw new Error('Search failed');
+      return response.json();
+    },
+    enabled: searchQuery.length >= 2
+  });
 
-    setTourRequests(prev => [...prev, newTour]);
+  const handleScheduleTour = (communityId: number, communityName: string, communityAddress?: string) => {
+    setSelectedCommunity({ id: communityId, name: communityName, address: communityAddress });
+  };
+
+  const handleTourScheduled = () => {
+    // Reload tour requests after scheduling
+    loadUserData();
+    setSelectedCommunity(null);
     toast({
-      title: "Tour Request Submitted",
-      description: `Tour request for ${communityName} has been submitted.`,
+      title: "Tour Scheduled!",
+      description: "Your tour has been scheduled and the community has been added to your favorites.",
     });
+  };
+
+  const loadUserData = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const response = await fetch(`/api/users/${user.id}/dashboard-data`);
+      if (response.ok) {
+        const data = await response.json();
+        setSavedCommunities(data.favorites || []);
+        setRecentSearches(data.searchHistory || []);
+        setTourRequests(data.tourRequests || []);
+      }
+    } catch (error) {
+      console.error('Error loading user dashboard data:', error);
+      setSavedCommunities([]);
+      setRecentSearches([]);
+      setTourRequests([]);
+    }
   };
 
   const handleRepeatSearch = (search: RecentSearch) => {
@@ -582,12 +597,21 @@ export default function Dashboard() {
               <h2 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
                 Tour Requests
               </h2>
-              <Link href="/tour-tracker">
-                <Button className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl px-6 py-3">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Tour Tracker
+              <div className="flex gap-2">
+                <Button 
+                  onClick={() => setShowCommunitySearch(true)}
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl px-6 py-3"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Schedule New Tour
                 </Button>
-              </Link>
+                <Link href="/tour-tracker">
+                  <Button className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl px-6 py-3">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Tour Tracker
+                  </Button>
+                </Link>
+              </div>
             </div>
 
             <div className="space-y-4">
@@ -699,6 +723,81 @@ export default function Dashboard() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Community Search Dialog */}
+      <Dialog open={showCommunitySearch} onOpenChange={setShowCommunitySearch}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Schedule a Tour</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              <Input
+                placeholder="Search for a community by name or location..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-4 py-2 text-lg"
+              />
+            </div>
+
+            {searchResults?.communities && searchResults.communities.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm text-gray-600">Found {searchResults.communities.length} communities</p>
+                <div className="grid gap-3">
+                  {searchResults.communities.map((community: any) => (
+                    <Card 
+                      key={community.id} 
+                      className="hover:shadow-lg transition-shadow cursor-pointer"
+                      onClick={() => handleScheduleTour(community.id, community.name, `${community.address}, ${community.city}, ${community.state}`)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-semibold text-lg">{community.name}</h3>
+                            <p className="text-gray-600 flex items-center mt-1">
+                              <MapPin className="h-4 w-4 mr-1" />
+                              {community.address}, {community.city}, {community.state}
+                            </p>
+                            {community.careTypes && (
+                              <div className="flex gap-2 mt-2">
+                                {community.careTypes.map((type: string, idx: number) => (
+                                  <Badge key={idx} variant="secondary" className="text-xs">
+                                    {type}
+                                  </Badge>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          <Button size="sm" className="ml-4">
+                            Schedule Tour
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {searchQuery.length >= 2 && searchResults?.communities?.length === 0 && (
+              <p className="text-center text-gray-500 py-8">No communities found matching your search.</p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Tour Scheduler Dialog */}
+      {selectedCommunity && (
+        <TourScheduler
+          communityId={selectedCommunity.id}
+          communityName={selectedCommunity.name}
+          communityAddress={selectedCommunity.address}
+          buttonText="Schedule Tour"
+          onSuccess={handleTourScheduled}
+        />
+      )}
 
       <Footer />
     </div>

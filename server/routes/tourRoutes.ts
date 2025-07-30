@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { db } from '../db';
-import { tours, communities, users } from '@shared/schema';
+import { tours, communities, users, favorites } from '@shared/schema';
 import { eq, and, gte, lte, desc } from 'drizzle-orm';
 import { EmailService } from '../services/email';
 import { format } from 'date-fns';
@@ -60,10 +60,12 @@ router.post('/api/tours/schedule', async (req: Request, res: Response) => {
       if (existingUser) {
         userId = existingUser.id;
       } else {
-        // Create guest user - let database auto-generate ID
+        // Create guest user with generated ID
+        const newUserId = `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         const [newUser] = await db
           .insert(users)
           .values({
+            id: newUserId,
             email: contactEmail,
             firstName: contactName.split(' ')[0],
             lastName: contactName.split(' ').slice(1).join(' ') || '',
@@ -89,6 +91,34 @@ router.post('/api/tours/schedule', async (req: Request, res: Response) => {
         status: 'scheduled'
       })
       .returning();
+
+    // Auto-favorite the community when scheduling a tour
+    try {
+      // Check if already favorited
+      const existingFavorite = await db
+        .select()
+        .from(favorites)
+        .where(
+          and(
+            eq(favorites.userId, userId),
+            eq(favorites.communityId, communityId)
+          )
+        );
+
+      if (existingFavorite.length === 0) {
+        // Add to favorites
+        await db
+          .insert(favorites)
+          .values({
+            userId,
+            communityId,
+            notes: 'Auto-added when tour was scheduled'
+          });
+      }
+    } catch (favoriteError) {
+      console.error('Error auto-favoriting community:', favoriteError);
+      // Don't fail the tour scheduling if favoriting fails
+    }
 
     // Send confirmation email
     const emailSent = await EmailService.sendTourConfirmation(
