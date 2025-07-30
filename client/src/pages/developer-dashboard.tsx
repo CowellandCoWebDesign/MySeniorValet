@@ -769,21 +769,8 @@ export function DeveloperDashboard() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-slate-900">15</div>
-                  <Progress value={30} className="mt-2 h-2" />
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white border">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm flex items-center gap-2 text-slate-900 font-semibold">
-                    <AlertTriangle className="h-4 w-4 text-amber-600" />
-                    Broken
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-slate-900">12</div>
-                  <Progress value={24} className="mt-2 h-2" />
+                  <div className="text-2xl font-bold text-slate-900">19</div>
+                  <Progress value={32} className="mt-2 h-2" />
                 </CardContent>
               </Card>
 
@@ -791,12 +778,12 @@ export function DeveloperDashboard() {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2 text-slate-900 font-semibold">
                     <XCircle className="h-4 w-4 text-red-600" />
-                    Missing
+                    Broken
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-slate-900">23</div>
-                  <Progress value={46} className="mt-2 h-2" />
+                  <div className="text-2xl font-bold text-slate-900">26</div>
+                  <Progress value={44} className="mt-2 h-2" />
                 </CardContent>
               </Card>
 
@@ -804,11 +791,24 @@ export function DeveloperDashboard() {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2 text-slate-900 font-semibold">
                     <Clock className="h-4 w-4 text-blue-600" />
+                    Unknown
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-slate-900">14</div>
+                  <Progress value={24} className="mt-2 h-2" />
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white border">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm flex items-center gap-2 text-slate-900 font-semibold">
+                    <AlertTriangle className="h-4 w-4 text-amber-600" />
                     Total
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-slate-900">50</div>
+                  <div className="text-2xl font-bold text-slate-900">59</div>
                   <Progress value={100} className="mt-2 h-2" />
                 </CardContent>
               </Card>
@@ -909,60 +909,70 @@ export function DeveloperDashboard() {
                   <CardTitle className="flex items-center gap-2 text-slate-900 font-semibold">
                     <Brain className="h-5 w-5 text-blue-600" />
                     AI Multi-Provider System
-                    <Badge variant="secondary" className="ml-auto text-slate-700">3/3 Active</Badge>
+                    <Badge variant="secondary" className="ml-auto">1/7 Working</Badge>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {[
-                    { item: 'Claude (Anthropic)', desc: 'Primary AI for empathy, policy analysis, long-form content', status: 'complete' },
-                    { item: 'Perplexity AI', desc: 'Real-time web search, live data integration', status: 'complete' },
-                    { item: 'OpenAI (ChatGPT)', desc: 'Content formatting, image generation, orchestration', status: 'complete' },
-                    { item: 'AI-powered search', desc: 'Natural language community search with context', status: 'complete' },
-                    { item: 'Amazon product summaries', desc: 'AI-generated product descriptions for 33+ items', status: 'complete' },
-                    { item: 'Photo analysis', desc: 'Community photo analysis and descriptions', status: 'pending', note: 'Ready to implement' },
-                    { item: 'AI tour assistant', desc: 'Virtual tour guidance and Q&A', status: 'planned', note: 'Q2 2025 rollout' }
+                    { item: 'AI-powered search', desc: 'Natural language search working with Claude', status: 'working' },
+                    { item: 'Claude test endpoint', desc: 'API test endpoint returns 404', status: 'broken' },
+                    { item: 'Perplexity test endpoint', desc: 'API test endpoint returns 404', status: 'broken' },
+                    { item: 'OpenAI test endpoint', desc: 'API test endpoint returns 404', status: 'broken' },
+                    { item: 'AI status check', desc: 'Status endpoint returns 404', status: 'broken' },
+                    { item: 'Multi-AI orchestration', desc: 'Cannot verify without working test endpoints', status: 'unknown' },
+                    { item: 'Amazon product summaries', desc: 'May exist but cannot verify generation', status: 'unknown' }
                   ].map((item, i) => (
                     <div key={i} className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded border">
-                      {item.status === 'complete' ? (
+                      {item.status === 'working' ? (
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      ) : item.status === 'pending' ? (
-                        <Clock className="h-4 w-4 text-amber-500 flex-shrink-0" />
+                      ) : item.status === 'broken' ? (
+                        <XCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
                       ) : (
-                        <AlertTriangle className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                        <Clock className="h-4 w-4 text-blue-500 flex-shrink-0" />
                       )}
                       <div className="flex-1">
                         <p className="text-sm font-medium text-slate-900">{item.item}</p>
                         <p className="text-xs text-slate-600">{item.desc}</p>
-                        {item.note && <p className="text-xs text-slate-500 italic">{item.note}</p>}
                       </div>
                     </div>
                   ))}
                 </CardContent>
               </Card>
 
-              {/* Data Ingestion */}
-              <Card>
+              {/* Data & AI Systems */}
+              <Card className="bg-white border">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-gray-900">
+                  <CardTitle className="flex items-center gap-2 text-slate-900 font-semibold">
                     <Database className="h-5 w-5 text-indigo-600" />
-                    Data Ingestion & Listings
-                    <Badge variant="outline" className="ml-auto">6/6 Complete</Badge>
+                    Data & AI Systems
+                    <Badge variant="secondary" className="ml-auto">8/13 Working</Badge>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {[
-                    { item: 'Database seeded', desc: '26,306 verified communities', status: 'complete' },
-                    { item: 'Public data pipeline', desc: 'Perplexity/scraper/gov feed', status: 'complete' },
-                    { item: 'Claimed vs unclaimed', desc: 'Listing logic working', status: 'complete' },
-                    { item: 'Pricing estimates', desc: 'Public-sourced pricing flagged as Estimated', status: 'complete' },
-                    { item: 'Media uploads', desc: 'Tour photos, video, uploads allowed', status: 'complete' },
-                    { item: 'AI summaries', desc: 'Photos and descriptions processed', status: 'complete' }
+                    { item: 'Community database', desc: '26,306 communities loaded and queryable', status: 'working' },
+                    { item: 'AI search endpoint', desc: 'Claude natural language search functional', status: 'working' },
+                    { item: 'Care services data', desc: '1,779 services with contact info', status: 'working' },
+                    { item: 'HUD properties', desc: '5,936 communities with pricing', status: 'working' },
+                    { item: 'VA resources', desc: '7 medical centers with full details', status: 'working' },
+                    { item: 'Amazon products', desc: '33 products with images/links', status: 'working' },
+                    { item: 'Community search-fixed', desc: 'Works with bounds parameter', status: 'working' },
+                    { item: 'Concierge images API', desc: 'Returns stock images for services', status: 'working' },
+                    { item: 'Community stats', desc: 'API endpoints returning errors', status: 'broken' },
+                    { item: 'Analytics endpoints', desc: 'Return HTML errors not JSON', status: 'broken' },
+                    { item: 'Platform stats', desc: 'Endpoint fails with errors', status: 'broken' },
+                    { item: 'Reviews system', desc: 'Endpoints exist but no data', status: 'broken' },
+                    { item: 'Map clustering', desc: 'Returns 0 clusters', status: 'broken' }
                   ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                    <div key={i} className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded border">
+                      {item.status === 'working' ? (
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      ) : (
+                        <XCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
+                      )}
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">{item.item}</p>
-                        <p className="text-xs text-gray-600">{item.desc}</p>
+                        <p className="text-sm font-medium text-slate-900">{item.item}</p>
+                        <p className="text-xs text-slate-600">{item.desc}</p>
                       </div>
                     </div>
                   ))}
@@ -975,23 +985,29 @@ export function DeveloperDashboard() {
                   <CardTitle className="flex items-center gap-2 text-slate-900 font-semibold">
                     <Package className="h-5 w-5 text-indigo-600" />
                     Vendor Marketplace & Services
-                    <Badge variant="outline" className="ml-auto text-slate-700 border-slate-300">9/9 Complete</Badge>
+                    <Badge variant="secondary" className="ml-auto">5/9 Working</Badge>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {[
-                    { item: 'Care services directory', desc: '4,354 care services with government verification', status: 'complete' },
-                    { item: 'Vendor partnerships', desc: '1-800-FLORALS, TWO MEN AND A TRUCK, GoGoGrandparent', status: 'complete' },
-                    { item: 'Amazon integration', desc: '33+ senior living essentials with affiliate tracking', status: 'complete' },
-                    { item: 'Service categories', desc: 'Moving, floral, transportation, home care, supplies', status: 'complete' },
-                    { item: 'Click tracking', desc: 'Revenue analytics and partner performance monitoring', status: 'complete' },
-                    { item: 'Admin management', desc: 'Services dashboard with full CRUD operations', status: 'complete' },
-                    { item: 'HUD resources', desc: 'Government housing resources and VA facilities', status: 'complete' },
-                    { item: 'Email integration', desc: 'SendGrid for service notifications and confirmations', status: 'complete' },
-                    { item: 'Mobile optimization', desc: 'Responsive design for all service pages', status: 'complete' }
+                    { item: 'Care services directory', desc: '1,779 services loaded and accessible', status: 'working' },
+                    { item: 'Amazon products API', desc: '33 products with images working', status: 'working' },
+                    { item: 'VA resources', desc: '7 medical centers with details', status: 'working' },
+                    { item: 'Vendor pages render', desc: 'Service pages display on homepage', status: 'working' },
+                    { item: 'Care services analytics', desc: 'Basic stats endpoint works', status: 'working' },
+                    { item: 'Market overview', desc: 'API returns 404 errors', status: 'broken' },
+                    { item: 'Click tracking', desc: 'Cannot verify without working analytics', status: 'unknown' },
+                    { item: 'SendGrid integration', desc: 'Test endpoint returns 404', status: 'broken' },
+                    { item: 'Admin management', desc: 'Requires authentication we cannot test', status: 'unknown' }
                   ].map((item, i) => (
                     <div key={i} className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded border">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      {item.status === 'working' ? (
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      ) : item.status === 'broken' ? (
+                        <XCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
+                      ) : (
+                        <Clock className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                      )}
                       <div className="flex-1">
                         <p className="text-sm font-medium text-slate-900">{item.item}</p>
                         <p className="text-xs text-slate-600">{item.desc}</p>
@@ -1001,42 +1017,40 @@ export function DeveloperDashboard() {
                 </CardContent>
               </Card>
 
-              {/* Critical Issues Summary */}
+              {/* Comprehensive Functionality Audit Summary */}
               <Card className="border-red-200 bg-red-50 border-2">
                 <CardHeader>
-                  <CardTitle className="text-red-800 font-semibold">🚨 Critical Blockers for Launch</CardTitle>
+                  <CardTitle className="text-red-800 font-semibold">🚨 Platform Functionality Audit Results</CardTitle>
                 </CardHeader>
                 <CardContent className="text-red-700">
-                  <p className="mb-3 font-medium">MySeniorValet has major functionality gaps that prevent launch:</p>
-                  <ul className="space-y-2 text-sm">
-                    <li className="flex items-center gap-2">
-                      <XCircle className="h-4 w-4 text-red-600" />
-                      <span><strong>Stripe Payment System Broken:</strong> Checkout sessions return HTML error pages</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <XCircle className="h-4 w-4 text-red-600" />
-                      <span><strong>Community Pages Missing:</strong> Individual community profiles return 404 errors</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <XCircle className="h-4 w-4 text-red-600" />
-                      <span><strong>Search Limitations:</strong> Basic location search fails without bounds parameter</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <AlertTriangle className="h-4 w-4 text-amber-600" />
-                      <span><strong>Authentication Issues:</strong> Strict validation blocks simple user registration</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                      <span>Database with 26,306 communities works</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                      <span>AI search with Claude integration works</span>
-                    </li>
-                  </ul>
+                  <p className="mb-3 font-medium">ACTUAL STATUS: 19 Working / 26 Broken / 14 Unknown Features</p>
+                  
+                  <div className="mb-4">
+                    <p className="font-semibold text-green-700 mb-2">✅ What Actually Works:</p>
+                    <ul className="space-y-1 text-sm text-green-600">
+                      <li>• Database: 26,306 communities, 1,779 care services, 5,936 HUD properties</li>
+                      <li>• AI Search: Natural language search with Claude integration</li>
+                      <li>• APIs: VA resources, Amazon products, care services, concierge images</li>
+                      <li>• Auth: Quick signup/login (but with strict validation)</li>
+                      <li>• Homepage: Renders correctly with vendor marketplace</li>
+                    </ul>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <p className="font-semibold text-red-700 mb-2">❌ Critical Failures:</p>
+                    <ul className="space-y-1 text-sm">
+                      <li>• <strong>Stripe:</strong> All payment endpoints return HTML errors</li>
+                      <li>• <strong>Community Pages:</strong> Individual profiles working but search limited</li>
+                      <li>• <strong>Admin Features:</strong> Unauthorized/broken endpoints</li>
+                      <li>• <strong>Documents/Tours:</strong> All return HTML error pages</li>
+                      <li>• <strong>Analytics:</strong> Stats, platform metrics all broken</li>
+                      <li>• <strong>Email/Messaging:</strong> SendGrid test fails, no messaging system</li>
+                    </ul>
+                  </div>
+                  
                   <div className="mt-4 p-3 bg-white rounded border">
-                    <p className="text-sm text-slate-700 mb-2">
-                      <strong>Required Actions:</strong> Fix Stripe integration, implement community detail pages, fix basic search, streamline authentication
+                    <p className="text-sm text-slate-700">
+                      <strong>Launch Status:</strong> NOT READY - Payment system completely broken, many core features returning HTML errors instead of JSON. Platform can display data but cannot process payments or handle user interactions.
                     </p>
                   </div>
                 </CardContent>
