@@ -15,12 +15,37 @@ neonConfig.webSocketConstructor = ws;
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 async function loadModules() {
-  // Dynamic imports for ES modules
-  const healthChecker = await import('./server/amazon-link-health-checker.js');
-  const summaryGenerator = await import('./server/amazon-ai-summary-generator.js');
+  // Dynamic imports for TypeScript modules - using tsx
+  const { execSync } = require('child_process');
   
-  checkAmazonAffiliateLinkHealth = healthChecker.checkAmazonAffiliateLinkHealth;
-  generateSeniorProductSummary = summaryGenerator.generateSeniorProductSummary;
+  // Create a temporary script to handle TypeScript imports
+  const script = `
+const { checkLinkHealth } = require('./server/amazon-link-health-checker.ts');
+const { generateAISummary } = require('./server/amazon-ai-summary-generator.ts');
+
+module.exports = { checkLinkHealth, generateAISummary };
+`;
+  
+  // Write temporary script and execute it with tsx
+  const fs = require('fs');
+  fs.writeFileSync('temp-loader.js', script);
+  
+  try {
+    // Use tsx to compile and load TypeScript modules
+    const result = execSync('tsx -e "const m = require(\'./temp-loader.js\'); console.log(JSON.stringify({ hasCheck: !!m.checkLinkHealth, hasGen: !!m.generateAISummary }))"', { encoding: 'utf8' });
+    
+    // Directly require the modules using tsx loader
+    const { checkLinkHealth } = require('./server/amazon-link-health-checker.ts');
+    const { generateAISummary } = require('./server/amazon-ai-summary-generator.ts');
+    
+    checkAmazonAffiliateLinkHealth = checkLinkHealth;
+    generateSeniorProductSummary = generateAISummary;
+  } finally {
+    // Clean up
+    if (fs.existsSync('temp-loader.js')) {
+      fs.unlinkSync('temp-loader.js');
+    }
+  }
 }
 
 async function enrichAmazonProducts() {
