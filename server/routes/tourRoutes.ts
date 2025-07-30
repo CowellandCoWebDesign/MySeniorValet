@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
 import { db } from '../db';
 import { tours, communities, users, favorites } from '@shared/schema';
-import { eq, and, gte, lte, desc } from 'drizzle-orm';
+import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
 import { EmailService } from '../services/email';
 import { format } from 'date-fns';
 
@@ -61,8 +61,11 @@ router.post('/api/tours/schedule', async (req: Request, res: Response) => {
         userId = existingUser.id;
       } else {
         // Create guest user using raw SQL to avoid schema mismatch issues
-        const newUserId = Date.now() + Math.floor(Math.random() * 1000);
-        const username = `guest_${contactEmail.split('@')[0]}_${Date.now()}`;
+        // Get the next available user ID
+        const maxIdResult = await db.execute(sql`SELECT MAX(id) as max_id FROM users`);
+        const maxId = maxIdResult.rows[0]?.max_id || 39096632; // Start after current super admin
+        const newUserId = maxId + 1;
+        const username = `guest_${contactEmail.split('@')[0]}_${Math.floor(Math.random() * 10000)}`;
         
         const result = await db.execute(sql`
           INSERT INTO users (id, username, password, email, first_name, last_name, phone, role)

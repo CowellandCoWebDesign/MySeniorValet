@@ -35,63 +35,63 @@ export const users = pgTable("users", {
   //   enum: ["Seeking for Self", "Seeking for Parent", "Seeking for Spouse", "Seeking for Other Family", "Healthcare Professional"]
   // }), // Field doesn't exist in database
   // careNeeds: text("care_needs").array().default([]), // ['Independent Living', 'Assisted Living', 'Memory Care'] - Field doesn't exist in database
-  searchPreferences: json("search_preferences").$type<{
-    preferredLocation?: string;
-    budgetRange?: { min: number; max: number };
-    preferredAmenities?: string[];
-    mustHaveFeatures?: string[];
-    dealBreakers?: string[];
-  }>().default({}),
+  // searchPreferences: json("search_preferences").$type<{
+  //   preferredLocation?: string;
+  //   budgetRange?: { min: number; max: number };
+  //   preferredAmenities?: string[];
+  //   mustHaveFeatures?: string[];
+  //   dealBreakers?: string[];
+  // }>().default({}), // Field doesn't exist in database
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
-  notifications: json("notifications").$type<{
-    emailNotifications: boolean;
-    smsNotifications: boolean;
-    newListings: boolean;
-    priceAlerts: boolean;
-    messageAlerts: boolean;
-    reviewReminders: boolean;
-  }>().default({
-    emailNotifications: true,
-    smsNotifications: false,
-    newListings: false,
-    priceAlerts: false,
-    messageAlerts: true,
-    reviewReminders: false,
-  }),
-  dashboardPreferences: json("dashboard_preferences").$type<{
-    layoutType: 'simple' | 'detailed' | 'visual';
-    fontSize: 'small' | 'medium' | 'large' | 'extra-large';
-    highContrast: boolean;
-    reducedMotion: boolean;
-    cardSize: 'compact' | 'comfortable' | 'spacious';
-    showHelpTips: boolean;
-    quickActions: string[];
-    dashboardSections: {
-      favorites: { visible: boolean; order: number };
-      recentSearches: { visible: boolean; order: number };
-      recommendations: { visible: boolean; order: number };
-      savedCommunities: { visible: boolean; order: number };
-      tourSchedule: { visible: boolean; order: number };
-      familyNotes: { visible: boolean; order: number };
-    };
-  }>().default({
-    layoutType: 'detailed',
-    fontSize: 'medium',
-    highContrast: false,
-    reducedMotion: false,
-    cardSize: 'comfortable',
-    showHelpTips: true,
-    quickActions: ['search', 'favorites', 'schedule-tour', 'family-share'],
-    dashboardSections: {
-      favorites: { visible: true, order: 1 },
-      recentSearches: { visible: true, order: 2 },
-      recommendations: { visible: true, order: 3 },
-      savedCommunities: { visible: true, order: 4 },
-      tourSchedule: { visible: true, order: 5 },
-      familyNotes: { visible: true, order: 6 }
-    }
-  }),
+  // notifications: json("notifications").$type<{
+  //   emailNotifications: boolean;
+  //   smsNotifications: boolean;
+  //   newListings: boolean;
+  //   priceAlerts: boolean;
+  //   messageAlerts: boolean;
+  //   reviewReminders: boolean;
+  // }>().default({
+  //   emailNotifications: true,
+  //   smsNotifications: false,
+  //   newListings: false,
+  //   priceAlerts: false,
+  //   messageAlerts: true,
+  //   reviewReminders: false,
+  // }), // Field doesn't exist in database
+  // dashboardPreferences: json("dashboard_preferences").$type<{
+  //   layoutType: 'simple' | 'detailed' | 'visual';
+  //   fontSize: 'small' | 'medium' | 'large' | 'extra-large';
+  //   highContrast: boolean;
+  //   reducedMotion: boolean;
+  //   cardSize: 'compact' | 'comfortable' | 'spacious';
+  //   showHelpTips: boolean;
+  //   quickActions: string[];
+  //   dashboardSections: {
+  //     favorites: { visible: boolean; order: number };
+  //     recentSearches: { visible: boolean; order: number };
+  //     recommendations: { visible: boolean; order: number };
+  //     savedCommunities: { visible: boolean; order: number };
+  //     tourSchedule: { visible: boolean; order: number };
+  //     familyNotes: { visible: boolean; order: number };
+  //   };
+  // }>().default({
+  //   layoutType: 'detailed',
+  //   fontSize: 'medium',
+  //   highContrast: false,
+  //   reducedMotion: false,
+  //   cardSize: 'comfortable',
+  //   showHelpTips: true,
+  //   quickActions: ['search', 'favorites', 'schedule-tour', 'family-share'],
+  //   dashboardSections: {
+  //     favorites: { visible: true, order: 1 },
+  //     recentSearches: { visible: true, order: 2 },
+  //     recommendations: { visible: true, order: 3 },
+  //     savedCommunities: { visible: true, order: 4 },
+  //     tourSchedule: { visible: true, order: 5 },
+  //     familyNotes: { visible: true, order: 6 }
+  //   }
+  // }), // Field doesn't exist in database
   emailVerified: boolean("email_verified").default(false),
   emailVerificationToken: text("email_verification_token"),
   passwordResetToken: text("password_reset_token"),
@@ -739,7 +739,7 @@ export const messageTemplates = pgTable("message_templates", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// Tours/Visits Scheduling and Tracking
+// Tours/Visits Scheduling and Tracking - Minimal schema matching actual database
 export const tours = pgTable("tours", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id).notNull(),
@@ -748,137 +748,16 @@ export const tours = pgTable("tours", {
   tourType: text("tour_type", { 
     enum: ["in_person", "virtual", "group", "private"] 
   }).default("in_person"),
-  tourExperienceType: text("tour_experience_type", {
-    enum: ["standard", "meal_tour", "event_tour", "unit_focused", "open_house", "activity_focused"]
-  }).default("standard"),
-  mealType: text("meal_type", {
-    enum: ["breakfast", "lunch", "dinner", "snack_time", "happy_hour"]
-  }),
-  eventType: text("event_type", {
-    enum: ["live_entertainment", "happy_hour", "bingo", "fundraiser", "holiday_celebration", "exercise_class", "art_activity", "music_therapy", "social_hour", "educational_seminar", "other"]
-  }),
   status: text("status", {
     enum: ["scheduled", "confirmed", "completed", "cancelled", "rescheduled", "no_show"]
   }).default("scheduled"),
-  activityLevel: text("activity_level", {
-    enum: ["high", "medium", "low"]
-  }), // Based on community calendar activity
   attendeeCount: integer("attendee_count").default(1),
   specialRequests: text("special_requests"),
   contactPreference: text("contact_preference", { enum: ["email", "phone", "text"] }).default("email"),
   reminderSent: boolean("reminder_sent").default(false),
   feedbackSubmitted: boolean("feedback_submitted").default(false),
-  
-  // Tour Notes and Experience
-  tourNotes: text("tour_notes"), // Personal notes taken during the tour
-  staffNotes: text("staff_notes"), // Internal notes for community staff
-  overallImpression: text("overall_impression", {
-    enum: ["very_positive", "positive", "neutral", "negative", "very_negative"]
-  }),
-  
-  // Pricing Information Collected During Tour
-  pricingInfo: json("pricing_info").$type<{
-    quotedPrice?: {
-      min: number;
-      max: number;
-      unit: string;
-      careLevel?: string;
-      includedServices?: string[];
-    };
-    moveInCosts?: {
-      securityDeposit?: number;
-      firstMonthRent?: number;
-      lastMonthRent?: number;
-      applicationFee?: number;
-      adminFee?: number;
-      petDeposit?: number;
-      other?: Array<{
-        name: string;
-        amount: number;
-        required: boolean;
-      }>;
-      totalEstimate?: number;
-    };
-    specialDeals?: Array<{
-      title: string;
-      description: string;
-      value: number;
-      type: "discount" | "waived_fee" | "free_months" | "other";
-      conditions?: string;
-      validUntil?: string;
-    }>;
-    rentIncrease?: {
-      frequency: "annual" | "biannual" | "as_needed";
-      averagePercentage?: number;
-      nextPlannedIncrease?: string;
-      historicalIncreases?: Array<{
-        date: string;
-        percentage: number;
-        amount: number;
-      }>;
-    };
-  }>(),
-  
-  // Units and Availability
-  unitsViewed: json("units_viewed").$type<Array<{
-    unitNumber?: string;
-    unitType: string;
-    floorPlan?: string;
-    squareFootage?: number;
-    price: number;
-    availability: string;
-    impressions: string;
-    photos?: string[];
-    features?: string[];
-    condition?: "excellent" | "good" | "fair" | "needs_improvement";
-  }>>().default([]),
-  
-  // Highlights and Key Observations
-  highlights: json("highlights").$type<{
-    positives?: string[];
-    concerns?: string[];
-    standoutFeatures?: string[];
-    comparisonNotes?: string;
-  }>(),
-  
-  // Staff and Service Quality
-  staffInteraction: json("staff_interaction").$type<{
-    tourGuide?: string;
-    professionalism?: number; // 1-5 scale
-    knowledgeLevel?: number; // 1-5 scale
-    responsiveness?: number; // 1-5 scale
-    followUpCommitment?: string;
-    additionalContacts?: Array<{
-      name: string;
-      role: string;
-      contact: string;
-    }>;
-  }>(),
-  
-  // Photos from Tour
-  tourPhotos: json("tour_photos").$type<Array<{
-    url: string;
-    caption?: string;
-    category: "unit" | "common_area" | "amenity" | "exterior" | "dining" | "activity" | "staff" | "document" | "other";
-    timestamp: string;
-    notes?: string;
-  }>>().default([]),
-  
-  // Follow-up and Next Steps
-  followUpActions: json("follow_up_actions").$type<Array<{
-    action: string;
-    dueDate?: string;
-    completed: boolean;
-    notes?: string;
-  }>>().default([]),
-  
-  // Overall Rating and Recommendation
-  overallRating: integer("overall_rating"), // 1-5 scale
-  wouldRecommend: boolean("would_recommend"),
-  likelihood: integer("likelihood_to_move_in"), // 1-10 scale
-  
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
 });
 
 // User favorites for communities

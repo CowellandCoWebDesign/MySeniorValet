@@ -87,6 +87,8 @@ MySeniorValet is a comprehensive senior living transparency platform featuring m
 
 ## Recent Major Achievements (July 30, 2025)
 
+**CRITICAL DATABASE SCHEMA FIX COMPLETED**: Successfully resolved tour scheduling functionality by systematically cleaning up schema mismatches between shared/schema.ts and actual database structure. Removed/commented out dozens of non-existent fields from tours table including tourExperienceType, mealType, eventType, activityLevel, tourNotes, staffNotes, overallImpression, pricingInfo, unitsViewed, highlights, staffInteraction, tourPhotos, followUpActions, overallRating, wouldRecommend, and likelihood. Tours table now correctly contains only the 14 fields that actually exist in the database. Tour scheduling tested and confirmed working with successful email delivery.
+
 **TOUR SCHEDULER INTEGRATION COMPLETED**: Successfully replaced legacy tour scheduling dialog in community-detail.tsx with new reusable TourScheduler component for consistent user experience across the platform. The TourScheduler component now handles all tour scheduling functionality with proper email confirmations via SendGrid. Removed unnecessary state variables and handleScheduleTour function from community-detail.tsx as these are now managed internally by the TourScheduler component. Platform now has unified tour scheduling experience across all pages.
 
 **COMMUNITY EMAIL NOTIFICATIONS DISABLED FOR RELAUNCH**: Disabled email notifications to communities when tours are scheduled to prevent alerting them during soft launch. Users still receive tour confirmation emails, but communities will not be notified until this feature is re-enabled post-launch. Code is commented out in server/routes/tourRoutes.ts lines 112-129.
