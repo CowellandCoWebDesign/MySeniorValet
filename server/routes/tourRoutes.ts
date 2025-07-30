@@ -1,300 +1,307 @@
-import { type Express } from "express";
-import { db } from "../db";
-import { tours, communities } from "@shared/schema";
-import { eq, and, desc } from "drizzle-orm";
-import { isAuthenticated as requireAuth } from "../replitAuth";
-import { createTourSchema } from "@shared/schema";
-import { storage } from "../storage";
-import { z } from "zod";
+import { Request, Response, Router } from 'express';
+import { db } from '../db';
+import { tours, communities, users } from '@shared/schema';
+import { eq, and, gte, lte, desc } from 'drizzle-orm';
+import { EmailService } from '../services/email';
+import { format } from 'date-fns';
 
-export function registerTourRoutes(app: Express) {
-  // Get user's tours
-  app.get("/api/tours", requireAuth, async (req: any, res) => {
-    try {
-      const userId = req.user?.id;
-      if (!userId) {
-        return res.status(401).json({ message: 'User not authenticated' });
-      }
+const router = Router();
 
-      const userTours = await storage.getToursByUser(userId);
-      res.json(userTours);
-    } catch (error) {
-      console.error("Error fetching tours:", error);
-      res.status(500).json({ message: "Failed to fetch tours" });
+// Schedule a new tour
+router.post('/api/tours/schedule', async (req: Request, res: Response) => {
+  try {
+    const {
+      communityId,
+      tourDate,
+      tourTime,
+      tourType = 'in_person',
+      attendeeCount = 1,
+      contactName,
+      contactEmail,
+      contactPhone,
+      specialRequests,
+      contactPreference = 'email'
+    } = req.body;
+
+    // Validate required fields
+    if (!communityId || !tourDate || !tourTime || !contactName || !contactEmail) {
+      return res.status(400).json({ 
+        error: 'Missing required fields', 
+        required: ['communityId', 'tourDate', 'tourTime', 'contactName', 'contactEmail'] 
+      });
     }
-  });
 
-  // Create a new tour
-  app.post("/api/tours", requireAuth, async (req: any, res) => {
-    try {
-      const userId = req.user?.id;
-      if (!userId) {
-        return res.status(401).json({ message: 'User not authenticated' });
-      }
+    // Get community details
+    const [community] = await db
+      .select()
+      .from(communities)
+      .where(eq(communities.id, communityId));
 
-      const validatedData = createTourSchema.parse(req.body);
-      
-      const tourData = {
-        ...validatedData,
-        userId,
-        status: 'scheduled' as const,
-        notes: validatedData.notes || '',
-      };
-
-      const newTour = await storage.createTour(tourData);
-      res.status(201).json(newTour);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid tour data", errors: error.errors });
-      }
-      console.error("Error creating tour:", error);
-      res.status(500).json({ message: "Failed to create tour" });
+    if (!community) {
+      return res.status(404).json({ error: 'Community not found' });
     }
-  });
 
-  // Get single tour
-  app.get("/api/tours/:tourId", requireAuth, async (req: any, res) => {
-    try {
-      const userId = req.user?.id;
-      if (!userId) {
-        return res.status(401).json({ message: 'User not authenticated' });
-      }
+    // Combine date and time
+    const tourDateTime = new Date(`${tourDate}T${tourTime}`);
+    
+    // Create user if not authenticated (guest booking)
+    let userId = req.user?.id;
+    
+    if (!userId) {
+      // Check if user exists by email
+      const [existingUser] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, contactEmail));
       
-      const tourId = parseInt(req.params.tourId);
-      
-      // Get tour and verify it belongs to user
-      const userTours = await storage.getToursByUser(userId);
-      const tour = userTours.find(t => t.id === tourId);
-      
-      if (!tour) {
-        return res.status(404).json({ message: "Tour not found" });
-      }
-
-      res.json(tour);
-    } catch (error) {
-      console.error("Error fetching tour:", error);
-      res.status(500).json({ message: "Failed to fetch tour" });
-    }
-  });
-
-  // Update tour
-  app.put("/api/tours/:tourId", requireAuth, async (req: any, res) => {
-    try {
-      const userId = req.user?.id;
-      if (!userId) {
-        return res.status(401).json({ message: 'User not authenticated' });
-      }
-      
-      const tourId = parseInt(req.params.tourId);
-      const updates = req.body;
-      
-      // Verify tour belongs to user
-      const existingTours = await storage.getToursByUser(userId);
-      const tour = existingTours.find(t => t.id === tourId);
-      
-      if (!tour) {
-        return res.status(404).json({ message: "Tour not found" });
-      }
-
-      const updatedTour = await storage.updateTour(tourId, updates);
-      res.json(updatedTour);
-    } catch (error) {
-      console.error("Error updating tour:", error);
-      res.status(500).json({ message: "Failed to update tour" });
-    }
-  });
-
-  // Cancel tour
-  app.delete("/api/tours/:tourId", requireAuth, async (req: any, res) => {
-    try {
-      const userId = req.user?.id;
-      if (!userId) {
-        return res.status(401).json({ message: 'User not authenticated' });
-      }
-      
-      const tourId = parseInt(req.params.tourId);
-      
-      // Verify tour belongs to user
-      const existingTours = await storage.getToursByUser(userId);
-      const tour = existingTours.find(t => t.id === tourId);
-      
-      if (!tour) {
-        return res.status(404).json({ message: "Tour not found" });
-      }
-
-      const cancelled = await storage.cancelTour(tourId);
-      
-      if (cancelled) {
-        res.json({ success: true });
+      if (existingUser) {
+        userId = existingUser.id;
       } else {
-        res.status(500).json({ message: "Failed to cancel tour" });
+        // Create guest user
+        const [newUser] = await db
+          .insert(users)
+          .values({
+            id: `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            email: contactEmail,
+            firstName: contactName.split(' ')[0],
+            lastName: contactName.split(' ').slice(1).join(' ') || '',
+            phone: contactPhone,
+            role: 'user'
+          })
+          .returning();
+        userId = newUser.id;
       }
-    } catch (error) {
-      console.error("Error cancelling tour:", error);
-      res.status(500).json({ message: "Failed to cancel tour" });
     }
-  });
 
-  // Reschedule tour
-  app.patch("/api/tours/:tourId/reschedule", requireAuth, async (req: any, res) => {
-    try {
-      const userId = req.user?.id;
-      if (!userId) {
-        return res.status(401).json({ message: 'User not authenticated' });
-      }
-      
-      const tourId = parseInt(req.params.tourId);
-      const { tourDate, tourTime } = req.body;
-      
-      if (!tourDate || !tourTime) {
-        return res.status(400).json({ message: "Tour date and time are required" });
-      }
-      
-      // Verify tour belongs to user
-      const existingTours = await storage.getToursByUser(userId);
-      const tour = existingTours.find(t => t.id === tourId);
-      
-      if (!tour) {
-        return res.status(404).json({ message: "Tour not found" });
-      }
-
-      const updatedTour = await storage.updateTour(tourId, { 
-        tourDate, 
-        tourTime,
+    // Create the tour
+    const [tour] = await db
+      .insert(tours)
+      .values({
+        userId,
+        communityId,
+        tourDate: tourDateTime,
+        tourType,
+        attendeeCount,
+        specialRequests,
+        contactPreference,
         status: 'scheduled'
+      })
+      .returning();
+
+    // Send confirmation email
+    const emailSent = await EmailService.sendTourConfirmation(
+      contactEmail,
+      community.name,
+      tourDateTime,
+      {
+        tourType,
+        attendeeCount,
+        specialRequests,
+        communityAddress: `${community.address}, ${community.city}, ${community.state} ${community.zipCode}`,
+        communityPhone: community.phone || 'Not available',
+        contactName
+      }
+    );
+
+    // Send notification to community if they have email configured
+    if (community.communityManagerEmail) {
+      await EmailService.sendEmail({
+        to: community.communityManagerEmail,
+        subject: `New Tour Scheduled - ${contactName}`,
+        html: `
+          <h2>New Tour Scheduled</h2>
+          <p><strong>Community:</strong> ${community.name}</p>
+          <p><strong>Date/Time:</strong> ${format(tourDateTime, 'EEEE, MMMM d, yyyy at h:mm a')}</p>
+          <p><strong>Guest:</strong> ${contactName}</p>
+          <p><strong>Email:</strong> ${contactEmail}</p>
+          <p><strong>Phone:</strong> ${contactPhone || 'Not provided'}</p>
+          <p><strong>Tour Type:</strong> ${tourType.replace('_', ' ')}</p>
+          <p><strong>Attendees:</strong> ${attendeeCount}</p>
+          ${specialRequests ? `<p><strong>Special Requests:</strong> ${specialRequests}</p>` : ''}
+        `
       });
-      
-      res.json(updatedTour);
-    } catch (error) {
-      console.error("Error rescheduling tour:", error);
-      res.status(500).json({ message: "Failed to reschedule tour" });
     }
-  });
 
-  // Complete tour
-  app.patch("/api/tours/:tourId/complete", requireAuth, async (req: any, res) => {
-    try {
-      const userId = req.user?.id;
-      if (!userId) {
-        return res.status(401).json({ message: 'User not authenticated' });
-      }
-      
-      const tourId = parseInt(req.params.tourId);
-      const { feedback, rating, wouldRecommend } = req.body;
-      
-      // Verify tour belongs to user
-      const existingTours = await storage.getToursByUser(userId);
-      const tour = existingTours.find(t => t.id === tourId);
-      
-      if (!tour) {
-        return res.status(404).json({ message: "Tour not found" });
-      }
+    res.json({
+      success: true,
+      tour: {
+        id: tour.id,
+        communityName: community.name,
+        tourDate: tour.tourDate,
+        status: tour.status,
+        confirmationEmailSent: emailSent
+      },
+      message: emailSent 
+        ? 'Tour scheduled successfully! A confirmation email has been sent.'
+        : 'Tour scheduled successfully! Please check your email for confirmation.'
+    });
 
-      const updatedTour = await storage.updateTour(tourId, { 
-        status: 'completed',
-        feedback,
-        rating,
+  } catch (error) {
+    console.error('Error scheduling tour:', error);
+    res.status(500).json({ error: 'Failed to schedule tour' });
+  }
+});
+
+// Get user's tours
+router.get('/api/tours/my-tours', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const userTours = await db
+      .select({
+        tour: tours,
+        community: communities
+      })
+      .from(tours)
+      .leftJoin(communities, eq(tours.communityId, communities.id))
+      .where(eq(tours.userId, userId))
+      .orderBy(desc(tours.tourDate));
+
+    res.json({ tours: userTours });
+  } catch (error) {
+    console.error('Error fetching tours:', error);
+    res.status(500).json({ error: 'Failed to fetch tours' });
+  }
+});
+
+// Get community's scheduled tours (for operators)
+router.get('/api/tours/community/:communityId', async (req: Request, res: Response) => {
+  try {
+    const communityId = parseInt(req.params.communityId);
+    
+    // TODO: Add authorization check for community operators
+    
+    const communityTours = await db
+      .select({
+        tour: tours,
+        user: users
+      })
+      .from(tours)
+      .leftJoin(users, eq(tours.userId, users.id))
+      .where(eq(tours.communityId, communityId))
+      .orderBy(desc(tours.tourDate));
+
+    res.json({ tours: communityTours });
+  } catch (error) {
+    console.error('Error fetching community tours:', error);
+    res.status(500).json({ error: 'Failed to fetch community tours' });
+  }
+});
+
+// Cancel a tour
+router.post('/api/tours/:tourId/cancel', async (req: Request, res: Response) => {
+  try {
+    const tourId = parseInt(req.params.tourId);
+    const { reason } = req.body;
+    
+    // Get tour details
+    const [tour] = await db
+      .select({
+        tour: tours,
+        community: communities,
+        user: users
+      })
+      .from(tours)
+      .leftJoin(communities, eq(tours.communityId, communities.id))
+      .leftJoin(users, eq(tours.userId, users.id))
+      .where(eq(tours.id, tourId));
+
+    if (!tour) {
+      return res.status(404).json({ error: 'Tour not found' });
+    }
+
+    // Check authorization
+    if (req.user?.id !== tour.tour.userId && req.user?.role !== 'admin') {
+      return res.status(403).json({ error: 'Not authorized to cancel this tour' });
+    }
+
+    // Update tour status
+    await db
+      .update(tours)
+      .set({ 
+        status: 'cancelled',
+        staffNotes: reason 
+      })
+      .where(eq(tours.id, tourId));
+
+    // Send cancellation email
+    if (tour.user?.email) {
+      await EmailService.sendEmail({
+        to: tour.user.email,
+        subject: `Tour Cancelled - ${tour.community?.name}`,
+        html: `
+          <h2>Tour Cancellation Confirmation</h2>
+          <p>Your tour at <strong>${tour.community?.name}</strong> scheduled for 
+          ${format(tour.tour.tourDate, 'EEEE, MMMM d, yyyy at h:mm a')} has been cancelled.</p>
+          ${reason ? `<p><strong>Reason:</strong> ${reason}</p>` : ''}
+          <p>If you'd like to reschedule, please contact us or book a new tour through our platform.</p>
+        `
+      });
+    }
+
+    res.json({ success: true, message: 'Tour cancelled successfully' });
+  } catch (error) {
+    console.error('Error cancelling tour:', error);
+    res.status(500).json({ error: 'Failed to cancel tour' });
+  }
+});
+
+// Update tour feedback
+router.post('/api/tours/:tourId/feedback', async (req: Request, res: Response) => {
+  try {
+    const tourId = parseInt(req.params.tourId);
+    const {
+      overallImpression,
+      tourNotes,
+      pricingInfo,
+      overallRating,
+      wouldRecommend,
+      likelihood
+    } = req.body;
+
+    // Verify tour ownership
+    const [tour] = await db
+      .select()
+      .from(tours)
+      .where(eq(tours.id, tourId));
+
+    if (!tour) {
+      return res.status(404).json({ error: 'Tour not found' });
+    }
+
+    if (req.user?.id !== tour.userId && req.user?.role !== 'admin') {
+      return res.status(403).json({ error: 'Not authorized to update this tour' });
+    }
+
+    // Update tour with feedback
+    await db
+      .update(tours)
+      .set({
+        overallImpression,
+        tourNotes,
+        pricingInfo,
+        overallRating,
         wouldRecommend,
-        completedAt: new Date()
-      });
-      
-      res.json(updatedTour);
-    } catch (error) {
-      console.error("Error completing tour:", error);
-      res.status(500).json({ message: "Failed to complete tour" });
-    }
-  });
+        likelihood,
+        feedbackSubmitted: true,
+        status: 'completed'
+      })
+      .where(eq(tours.id, tourId));
 
-  // Get tour statistics
-  app.get("/api/tours/stats", requireAuth, async (req: any, res) => {
-    try {
-      const userId = req.user?.id;
-      if (!userId) {
-        return res.status(401).json({ message: 'User not authenticated' });
-      }
+    res.json({ success: true, message: 'Tour feedback submitted successfully' });
+  } catch (error) {
+    console.error('Error submitting tour feedback:', error);
+    res.status(500).json({ error: 'Failed to submit tour feedback' });
+  }
+});
 
-      const userTours = await storage.getToursByUser(userId);
-      
-      const stats = {
-        total: userTours.length,
-        scheduled: userTours.filter(t => t.status === 'scheduled').length,
-        completed: userTours.filter(t => t.status === 'completed').length,
-        cancelled: userTours.filter(t => t.status === 'cancelled').length,
-        upcoming: userTours.filter(t => 
-          t.status === 'scheduled' && 
-          new Date(t.tourDate) >= new Date()
-        ).length,
-        past: userTours.filter(t => 
-          t.status === 'scheduled' && 
-          new Date(t.tourDate) < new Date()
-        ).length
-      };
+export { router as tourRouter };
 
-      res.json(stats);
-    } catch (error) {
-      console.error("Error fetching tour stats:", error);
-      res.status(500).json({ message: "Failed to fetch tour statistics" });
-    }
-  });
-
-  // Get upcoming tours
-  app.get("/api/tours/upcoming", requireAuth, async (req: any, res) => {
-    try {
-      const userId = req.user?.id;
-      if (!userId) {
-        return res.status(401).json({ message: 'User not authenticated' });
-      }
-
-      const userTours = await storage.getToursByUser(userId);
-      
-      const upcomingTours = userTours
-        .filter(t => 
-          t.status === 'scheduled' && 
-          new Date(t.tourDate) >= new Date()
-        )
-        .sort((a, b) => 
-          new Date(a.tourDate).getTime() - new Date(b.tourDate).getTime()
-        );
-
-      res.json(upcomingTours);
-    } catch (error) {
-      console.error("Error fetching upcoming tours:", error);
-      res.status(500).json({ message: "Failed to fetch upcoming tours" });
-    }
-  });
-
-  // Share tour with family member
-  app.post("/api/tours/:tourId/share", requireAuth, async (req: any, res) => {
-    try {
-      const userId = req.user?.id;
-      if (!userId) {
-        return res.status(401).json({ message: 'User not authenticated' });
-      }
-      
-      const tourId = parseInt(req.params.tourId);
-      const { email, message } = req.body;
-      
-      if (!email) {
-        return res.status(400).json({ message: "Email is required" });
-      }
-      
-      // Verify tour belongs to user
-      const existingTours = await storage.getToursByUser(userId);
-      const tour = existingTours.find(t => t.id === tourId);
-      
-      if (!tour) {
-        return res.status(404).json({ message: "Tour not found" });
-      }
-
-      // TODO: Implement actual email sending
-      // For now, just return success
-      res.json({ 
-        success: true, 
-        message: `Tour details shared with ${email}` 
-      });
-    } catch (error) {
-      console.error("Error sharing tour:", error);
-      res.status(500).json({ message: "Failed to share tour" });
-    }
-  });
+// Export registration function for the route index
+export function registerTourRoutes(app: any) {
+  app.use(router);
 }

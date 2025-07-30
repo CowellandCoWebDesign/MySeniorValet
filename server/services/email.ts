@@ -90,56 +90,7 @@ export class EmailService {
     });
   }
 
-  // Send tour confirmation email
-  static async sendTourConfirmation(email: string, communityName: string, tourDate: Date): Promise<boolean> {
-    const formattedDate = tourDate.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric'
-    });
 
-    return this.sendEmail({
-      to: email,
-      subject: `Tour Confirmed: ${communityName}`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #1e40af;">Your Tour is Confirmed!</h1>
-          
-          <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h2 style="margin-top: 0;">${communityName}</h2>
-            <p><strong>Date & Time:</strong> ${formattedDate}</p>
-          </div>
-          
-          <h3>What to expect:</h3>
-          <ul>
-            <li>Meet with community staff and tour the facilities</li>
-            <li>View available rooms and common areas</li>
-            <li>Learn about services, amenities, and activities</li>
-            <li>Discuss pricing and availability</li>
-            <li>Ask any questions you have</li>
-          </ul>
-          
-          <h3>Before your visit:</h3>
-          <ul>
-            <li>Prepare a list of questions</li>
-            <li>Bring any necessary documentation</li>
-            <li>Consider bringing family members</li>
-          </ul>
-          
-          <div style="margin: 30px 0;">
-            <a href="https://myseniorvalet.com/tours" style="background-color: #1e40af; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">View Your Tours</a>
-          </div>
-          
-          <p style="color: #666; font-size: 14px;">
-            Need to reschedule? Contact us at support@myseniorvalet.com
-          </p>
-        </div>
-      `
-    });
-  }
 
   // Send review request after tour
   static async sendReviewRequest(email: string, communityName: string, communityId: number): Promise<boolean> {
@@ -194,6 +145,133 @@ export class EmailService {
             This is an automated notification from MySeniorValet. 
             If you have questions, contact us at support@myseniorvalet.com
           </p>
+        </div>
+      `
+    });
+  }
+
+  // Send tour confirmation email
+  static async sendTourConfirmation(
+    email: string, 
+    communityName: string, 
+    tourDate: Date,
+    details: {
+      tourType: string;
+      attendeeCount: number;
+      specialRequests?: string;
+      communityAddress: string;
+      communityPhone: string;
+      contactName: string;
+    }
+  ): Promise<boolean> {
+    const formattedDate = tourDate.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    const formattedTime = tourDate.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+
+    return this.sendEmail({
+      to: email,
+      subject: `Tour Confirmed - ${communityName} - ${formattedDate}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: #1e40af; color: white; padding: 30px; text-align: center;">
+            <h1 style="margin: 0;">Tour Confirmation</h1>
+          </div>
+          
+          <div style="padding: 30px;">
+            <p>Dear ${details.contactName},</p>
+            
+            <p>Your tour has been successfully scheduled! We look forward to meeting you.</p>
+            
+            <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h2 style="color: #1e40af; margin-top: 0;">Tour Details</h2>
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 8px 0;"><strong>Community:</strong></td>
+                  <td>${communityName}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0;"><strong>Date:</strong></td>
+                  <td>${formattedDate}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0;"><strong>Time:</strong></td>
+                  <td>${formattedTime}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0;"><strong>Tour Type:</strong></td>
+                  <td>${details.tourType.replace('_', ' ').charAt(0).toUpperCase() + details.tourType.slice(1).replace('_', ' ')}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0;"><strong>Number of Attendees:</strong></td>
+                  <td>${details.attendeeCount}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0;"><strong>Address:</strong></td>
+                  <td>${details.communityAddress}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0;"><strong>Phone:</strong></td>
+                  <td>${details.communityPhone}</td>
+                </tr>
+                ${details.specialRequests ? `
+                <tr>
+                  <td style="padding: 8px 0; vertical-align: top;"><strong>Special Requests:</strong></td>
+                  <td>${details.specialRequests}</td>
+                </tr>
+                ` : ''}
+              </table>
+            </div>
+            
+            <div style="background-color: #fef3c7; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #92400e; margin-top: 0;">What to Bring & Ask</h3>
+              <ul style="margin: 10px 0; padding-left: 20px;">
+                <li>List of questions about care services and pricing</li>
+                <li>Insurance information (if applicable)</li>
+                <li>List of current medications</li>
+                <li>Any specific care needs or preferences</li>
+              </ul>
+              
+              <h4 style="color: #92400e;">Suggested Questions:</h4>
+              <ul style="margin: 10px 0; padding-left: 20px;">
+                <li>What is included in the base monthly rate?</li>
+                <li>What additional services are available and at what cost?</li>
+                <li>What is the staff-to-resident ratio?</li>
+                <li>Can I see a sample menu and activity calendar?</li>
+                <li>What is the move-in process and timeline?</li>
+              </ul>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.FRONTEND_URL || 'https://myseniorvalet.com'}/communities/${communityName.toLowerCase().replace(/\s+/g, '-')}" 
+                 style="background-color: #1e40af; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                View Community Profile
+              </a>
+            </div>
+            
+            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+            
+            <p style="color: #666; font-size: 14px;">
+              <strong>Need to reschedule or cancel?</strong><br>
+              Please contact the community directly at ${details.communityPhone} or reply to this email.
+            </p>
+            
+            <p style="color: #666; font-size: 14px;">
+              We'll send you a reminder 24 hours before your tour.
+            </p>
+          </div>
+          
+          <div style="background-color: #f3f4f6; padding: 20px; text-align: center; font-size: 14px; color: #666;">
+            <p style="margin: 5px 0;">MySeniorValet - Clarity in Senior Living</p>
+            <p style="margin: 5px 0;">Questions? Email us at support@myseniorvalet.com</p>
+          </div>
         </div>
       `
     });
