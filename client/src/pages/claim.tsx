@@ -30,6 +30,20 @@ const claimFormSchema = z.object({
 
 type ClaimFormData = z.infer<typeof claimFormSchema>;
 
+interface ClaimCheckResponse {
+  canClaim: boolean;
+  isClaimed: boolean;
+  hasPendingClaim: boolean;
+  userHasClaim: boolean;
+  community: {
+    id: number;
+    name: string;
+    address: string;
+    city: string;
+    state: string;
+  };
+}
+
 export default function ClaimCommunity() {
   const [, params] = useRoute('/claim/:communityId');
   const communityId = params?.communityId ? parseInt(params.communityId) : null;
@@ -53,7 +67,7 @@ export default function ClaimCommunity() {
   });
 
   // Check if community can be claimed
-  const { data: claimCheck, isLoading: checkLoading } = useQuery({
+  const { data: claimCheck, isLoading: checkLoading } = useQuery<ClaimCheckResponse>({
     queryKey: ['/api/claims/check', communityId],
     enabled: !!communityId,
     retry: false
@@ -70,7 +84,7 @@ export default function ClaimCommunity() {
       });
       return response;
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       setIsSubmitted(true);
       setClaimId(data.claimId);
       toast({
@@ -469,5 +483,6 @@ export default function ClaimCommunity() {
         </Card>
       </div>
     </div>
+  </div>
   );
 }
