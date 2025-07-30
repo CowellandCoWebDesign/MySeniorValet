@@ -582,27 +582,67 @@ export class DatabaseStorage implements IStorage {
 
   async updateUser(id: string, updates: Partial<any>): Promise<User | undefined> {
     try {
-      const updateData: any = {};
+      // Build update fields dynamically
+      const updateFields: string[] = [];
+      const values: any[] = [];
+      let paramIndex = 1;
       
-      if (updates.username) updateData.username = updates.username;
-      if (updates.email) updateData.email = updates.email;
-      if (updates.firstName !== undefined) updateData.firstName = updates.firstName;
-      if (updates.lastName !== undefined) updateData.lastName = updates.lastName;
-      if (updates.password) updateData.password = updates.password;
-      if (updates.role) updateData.role = updates.role;
+      if (updates.username) {
+        updateFields.push(`username = $${paramIndex++}`);
+        values.push(updates.username);
+      }
+      if (updates.email) {
+        updateFields.push(`email = $${paramIndex++}`);
+        values.push(updates.email);
+      }
+      if (updates.firstName !== undefined) {
+        updateFields.push(`first_name = $${paramIndex++}`);
+        values.push(updates.firstName);
+      }
+      if (updates.lastName !== undefined) {
+        updateFields.push(`last_name = $${paramIndex++}`);
+        values.push(updates.lastName);
+      }
+      if (updates.password) {
+        updateFields.push(`password = $${paramIndex++}`);
+        values.push(updates.password);
+      }
+      if (updates.role) {
+        updateFields.push(`role = $${paramIndex++}`);
+        values.push(updates.role);
+      }
       
-      if (Object.keys(updateData).length === 0) {
+      if (updateFields.length === 0) {
         // No updates provided
         return this.getUser(id);
       }
       
-      const [updatedUser] = await db
-        .update(users)
-        .set(updateData)
-        .where(eq(users.id, id))
-        .returning();
+      // Add the ID parameter
+      values.push(id);
       
-      return updatedUser || undefined;
+      const query = `
+        UPDATE users 
+        SET ${updateFields.join(', ')}
+        WHERE id = $${paramIndex}
+        RETURNING id, username, email, password, role, first_name, last_name
+      `;
+      
+      const result = await db.execute(sql.raw(query, values));
+      
+      if (result.rows[0]) {
+        const row = result.rows[0];
+        return {
+          id: row.id as string,
+          username: row.username as string,
+          email: row.email as string,
+          password: row.password as string,
+          role: row.role as string,
+          firstName: row.first_name as string,
+          lastName: row.last_name as string
+        } as User;
+      }
+      
+      return undefined;
     } catch (error) {
       console.error("Error updating user:", error);
       return undefined;
