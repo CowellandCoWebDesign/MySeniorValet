@@ -269,6 +269,12 @@ export default function MySeniorValetHome() {
                   AI Map Intelligence
                 </Button>
               </Link>
+              <Link href="/ai-search-comparison">
+                <Button variant="outline" className="border-2 border-purple-300 text-purple-200 hover:bg-purple-300 hover:text-gray-900 px-8 py-4 rounded-2xl font-semibold text-base md:text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-purple-400/10 backdrop-blur-sm">
+                  <Sparkles className="mr-2 h-5 w-5" />
+                  Compare AI Search
+                </Button>
+              </Link>
             </div>
           </div>
           
