@@ -787,6 +787,57 @@ export default function CommunityDetail() {
                           "HUD verified monthly rent" : 
                           "Pricing available upon request"}
                       </div>
+                      
+                      {/* Pricing Attribution for Estimates */}
+                      {!hasLiveData && community.priceRange && community.priceRange.min > 0 && (
+                        <div className="mt-2 p-3 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                          <div className="flex items-start gap-2 mb-1">
+                            <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                            <div>
+                              <p className="text-xs font-semibold text-blue-900 dark:text-blue-200 mb-1">
+                                How we calculated this estimate:
+                              </p>
+                              <p className="text-xs text-blue-800 dark:text-blue-300 mb-2">
+                                MySeniorValet combines data from 8 authentic sources to provide transparent pricing estimates:
+                              </p>
+                              <div className="grid grid-cols-1 gap-1">
+                                <div className="text-xs text-blue-800 dark:text-blue-300">
+                                  <span className="font-medium">Government Sources:</span>
+                                  <ul className="ml-2 space-y-0.5">
+                                    <li>• HUD Database (affordable housing)</li>
+                                    <li>• Medicare/CMS Nursing Home Compare</li>
+                                    <li>• Veterans Affairs pricing data</li>
+                                    <li>• State Medicaid reimbursement rates</li>
+                                  </ul>
+                                </div>
+                                <div className="text-xs text-blue-800 dark:text-blue-300 mt-1">
+                                  <span className="font-medium">Regional Sources:</span>
+                                  <ul className="ml-2 space-y-0.5">
+                                    <li>• State licensing board reports</li>
+                                    <li>• County assessor property data</li>
+                                    <li>• State transparency portals</li>
+                                    <li>• Direct community websites</li>
+                                  </ul>
+                                </div>
+                                <div className="text-xs text-blue-800 dark:text-blue-300 mt-1">
+                                  <span className="font-medium">Market Analysis:</span>
+                                  <ul className="ml-2 space-y-0.5">
+                                    <li>• Genworth 2024 Cost of Care Survey</li>
+                                    <li>• Regional cost of living adjustments</li>
+                                    <li>• Care type & amenity factors</li>
+                                  </ul>
+                                </div>
+                              </div>
+                              <div className="mt-2 p-2 bg-green-100 dark:bg-green-900/30 rounded flex items-center gap-1">
+                                <Shield className="h-3 w-3 text-green-700 dark:text-green-400" />
+                                <p className="text-xs text-green-800 dark:text-green-200 font-semibold">
+                                  NO aggregator sites used (A Place for Mom, Caring.com, etc.)
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Authentic Pricing Sources Display */}
