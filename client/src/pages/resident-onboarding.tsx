@@ -780,6 +780,7 @@ export default function ResidentOnboarding() {
           </Form>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
