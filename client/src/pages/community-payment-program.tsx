@@ -52,123 +52,141 @@ interface PaymentTier {
 
 const paymentTiers: PaymentTier[] = [
   {
-    id: "basic-listing",
-    name: "Free Listing",
+    id: "basic",
+    name: "Basic",
     monthlyFee: 0,
     setupFee: 0,
-    description: "Free listing with full search visibility - Currently available for all communities",
+    description: "Get discovered by families searching for senior care",
     features: [
-      "✅ Full community profile",
-      "✅ Contact information display",
-      "✅ Up to 5 photos",
-      "✅ Standard search visibility",
-      "✅ Basic inquiries tracking"
+      "✅ Profile ownership & claim",
+      "✅ Basic community listing",
+      "✅ 1 photo upload",
+      "✅ Basic amenity tags",
+      "✅ Basic search visibility",
+      "✅ Location on map"
     ],
     priority: 4,
-    badge: "FREE FOREVER",
+    badge: "FREE",
     color: "bg-green-100 border-green-200",
     icon: Building,
     revenueShare: "0%",
     benefits: [
-      "✅ Currently available",
       "✅ No credit card required",
+      "✅ List immediately",
       "✅ Full platform access"
     ],
     limitations: [
-      "Standard placement",
-      "Basic analytics",
-      "5 photo limit"
+      "No editable contact info",
+      "No reviews integration",
+      "Standard search ranking",
+      "No analytics dashboard",
+      "No operational tools"
     ]
   },
   {
-    id: "featured-listing",
-    name: "Featured Listing",
+    id: "verified-standard",
+    name: "Verified Standard",
     monthlyFee: 149,
     setupFee: 0,
-    description: "Priority placement with enhanced visibility - Available Now",
+    description: "Professional tools for established communities",
     features: [
-      "✅ Everything in Free tier",
-      "✅ Featured badge",
-      "✅ Priority search placement",
-      "✅ Unlimited photos",
+      "✅ Everything in Basic, plus:",
+      "✅ Editable contact info & description",
+      "✅ 5 photo gallery",
+      "✅ Google reviews integration",
+      "✅ Standard amenity set",
+      "✅ Verified badge on listing",
       "✅ Basic analytics dashboard",
-      "⏳ Tour scheduler (Coming Q1 2025)",
-      "⏳ Lead notifications (Coming Q1 2025)"
+      "✅ AI-generated lease template",
+      "✅ eSignature via DocuSign",
+      "✅ Move-in intake forms",
+      "✅ Help documentation support"
     ],
-    priority: 3,
-    badge: "AVAILABLE NOW",
+    priority: 1,
+    badge: "MOST POPULAR",
     color: "bg-blue-50 border-blue-200",
     icon: Star,
     revenueShare: "0%",
     benefits: [
-      "✅ Working features available",
-      "✅ Real priority placement",
-      "✅ Proven traffic increase"
+      "✅ Professional credibility",
+      "✅ Operational tools included",
+      "✅ Email support"
     ],
     limitations: [
-      "Some features in development",
-      "Email support only"
+      "No payment collection",
+      "No family collaboration tools",
+      "Limited to 5 photos"
     ]
   },
   {
-    id: "premium-future",
-    name: "Premium Tools",
+    id: "enhanced-showcase",
+    name: "Enhanced Showcase",
     monthlyFee: 249,
     setupFee: 0,
-    description: "Advanced features for serious operators - Coming Q2 2025",
+    description: "Full operational suite with payment & family tools",
     features: [
-      "✅ Everything in Featured tier",
-      "🚧 Tour scheduling system",
-      "🚧 Availability management",
-      "🚧 Family messaging portal",
-      "🚧 Advanced analytics",
-      "🚧 CRM integration",
-      "🚧 Priority phone support"
+      "✅ Everything in Verified, plus:",
+      "✅ 20 photos + 1 video",
+      "✅ Google + Yelp reviews",
+      "✅ Featured placement in search",
+      "✅ 'Featured' visual card",
+      "✅ Full analytics dashboard",
+      "✅ Rent collection (Stripe/ACH)",
+      "✅ Deposit & fee tracking",
+      "✅ Resident onboarding workflow",
+      "✅ Family document uploads",
+      "✅ Co-signer collaboration tools",
+      "✅ Secure payment portal",
+      "✅ Automated late fees",
+      "✅ Lease management & archiving",
+      "✅ Recurring charges setup",
+      "✅ Lease expiration alerts",
+      "✅ Assisted support"
     ],
     priority: 2,
-    badge: "COMING SOON",
-    color: "bg-gray-50 border-gray-200",
+    badge: "PREMIUM",
+    color: "bg-purple-50 border-purple-200",
     icon: Crown,
     revenueShare: "0%",
     benefits: [
-      "Early bird pricing available",
-      "Be first when features launch",
-      "Shape product development"
+      "✅ Complete business automation",
+      "✅ Payment processing included",
+      "✅ Priority support"
     ],
-    limitations: [
-      "Features under development",
-      "Expected Q2 2025 launch"
-    ]
+    limitations: []
   },
   {
-    id: "enterprise-future",
-    name: "Enterprise",
-    monthlyFee: 999,
+    id: "platinum-spotlight",
+    name: "Platinum Spotlight",
+    monthlyFee: 399,
     setupFee: 0,
-    description: "White-label platform for multi-community operators - Planned for 2025",
+    description: "White-glove service with concierge support",
     features: [
-      "🚧 Custom branding",
-      "🚧 API integration",
-      "🚧 Multi-location management",
-      "🚧 Dedicated success manager",
-      "🚧 Custom reporting",
-      "🚧 HIPAA compliance tools",
-      "🚧 White-label booking platform"
+      "✅ Everything in Enhanced, plus:",
+      "✅ Unlimited photos + 3 videos",
+      "✅ Custom feature tags",
+      "✅ Top carousel & spotlight placement",
+      "✅ Gold spotlight card design",
+      "✅ Analytics insights & benchmarks",
+      "✅ Custom branded lease packets",
+      "✅ White-glove account setup",
+      "✅ Concierge leasing support",
+      "✅ Move-out checklist automation",
+      "✅ Multi-resident/unit support",
+      "✅ Fully managed support",
+      "✅ Dedicated success manager"
     ],
-    priority: 1,
-    badge: "2025 ROADMAP",
-    color: "bg-gray-50 border-gray-200",
+    priority: 3,
+    badge: "EXCLUSIVE",
+    color: "bg-yellow-50 border-yellow-200",
     icon: Target,
     revenueShare: "0%",
     benefits: [
-      "Reserve your spot",
-      "Influence development",
-      "Lock in launch pricing"
+      "✅ VIP treatment",
+      "✅ Concierge service",
+      "✅ Maximum visibility"
     ],
-    limitations: [
-      "In planning phase",
-      "2025 target launch"
-    ]
+    limitations: []
   }
 ];
 

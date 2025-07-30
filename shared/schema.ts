@@ -3170,31 +3170,76 @@ export const reservations = pgTable("reservations", {
 
 // Feature access control utility types
 export const subscriptionTiers = {
-  free: {
-    name: "Free Listing",
+  basic: {
+    name: "Basic",
     price: 0,
-    features: ["basic_listing", "photo_upload", "contact_display", "search_visibility"],
+    features: [
+      "profile_ownership",
+      "basic_listing",
+      "1_photo_upload",
+      "basic_amenity_tags",
+      "basic_search_visibility"
+    ],
     available: true
   },
-  featured: {
-    name: "Featured Listing",
+  verified_standard: {
+    name: "Verified Standard",
     price: 149,
-    features: ["priority_placement", "featured_badge", "unlimited_photos", "basic_analytics", "profile_editing"],
+    features: [
+      "editable_contact_info",
+      "5_photos",
+      "google_reviews",
+      "standard_amenities",
+      "verified_badge",
+      "basic_analytics",
+      "ai_lease_template",
+      "esignature_docusign",
+      "move_in_forms",
+      "help_docs_support"
+    ],
     available: true
   },
-  premium: {
-    name: "Premium Tools (Coming Q2 2025)",
+  enhanced_showcase: {
+    name: "Enhanced Showcase",
     price: 249,
-    features: ["tour_scheduler", "availability_management", "family_messaging", "advanced_analytics", "crm_integration"],
-    available: false,
-    launchDate: "Q2 2025"
+    features: [
+      "20_photos_1_video",
+      "google_yelp_reviews",
+      "full_amenities",
+      "featured_placement",
+      "featured_card",
+      "full_analytics",
+      "rent_collection_stripe",
+      "deposit_tracking",
+      "resident_onboarding",
+      "family_document_uploads",
+      "cosigner_tools",
+      "payment_portal",
+      "automated_late_fees",
+      "lease_management",
+      "recurring_charges",
+      "lease_expiration_alerts",
+      "assisted_support"
+    ],
+    available: true
   },
-  enterprise: {
-    name: "Enterprise (2025 Roadmap)",
-    price: 999,
-    features: ["api_integration", "white_labeling", "dedicated_success", "hipaa_forms", "custom_reporting"],
-    available: false,
-    launchDate: "2025"
+  platinum_spotlight: {
+    name: "Platinum Spotlight",
+    price: 399,
+    features: [
+      "unlimited_photos_3_videos",
+      "custom_feature_tags",
+      "top_carousel_placement",
+      "gold_spotlight_card",
+      "analytics_insights_benchmarks",
+      "custom_branded_packets",
+      "white_glove_setup",
+      "concierge_leasing_support",
+      "move_out_automation",
+      "multi_resident_support",
+      "fully_managed_support"
+    ],
+    available: true
   }
 } as const;
 

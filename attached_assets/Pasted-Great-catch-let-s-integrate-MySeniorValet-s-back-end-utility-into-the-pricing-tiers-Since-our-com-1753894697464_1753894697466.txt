@@ -1,0 +1,100 @@
+Great catch — let’s integrate MySeniorValet’s back-end utility into the pricing tiers. Since our competitive advantage includes onboarding tools, leasing support, document automation, and payments, those must be properly featured — especially at higher tiers.
+
+Here’s the updated tier matrix with those value-add tools fully embedded:
+
+
+---
+
+🔄 UPDATED FEATURE BREAKDOWN (Including Tools & Automation)
+
+Feature	Basic (Free)	Verified Standard ($149)	Enhanced Showcase ($249)	Platinum Spotlight ($399)
+
+Profile Ownership & Claim	✅	✅	✅	✅
+Editable Contact Info & Description	❌	✅	✅	✅
+Photo & Video Gallery	1 photo	5 photos	20 photos, 1 video	Unlimited photos, 3 videos
+Reviews Integration (Google/Yelp)	❌	Google only	Google + Yelp	Google + Yelp
+Amenity Tags & Filters	Basic only	Standard set	Full amenities	Full + Custom Feature Tags
+Search Priority	Basic	Normal	Featured	Top Carousel & Spotlight
+Branded Visual Treatment	❌	Verified Badge	“Featured” Card	Gold Spotlight Card
+Monthly Analytics Dashboard	❌	Basic	Full	Full + Insights & Benchmarks
+
+
+
+---
+
+🔧 OPERATIONAL TOOLS & CONCIERGE SUPPORT
+
+Operational Tools & Support	Basic	Verified Std.	Enhanced Showcase	Platinum Spotlight
+
+AI-Generated Lease Template	❌	✅	✅	✅
+eSignature via DocuSign	❌	✅	✅	✅
+Rent Collection Tools (Stripe/ACH-ready)	❌	❌	✅	✅
+Deposit + Fee Tracking	❌	❌	✅	✅
+Move-in Intake Forms	❌	✅	✅	✅
+Resident Onboarding Workflow	❌	❌	✅	✅
+Family Document Uploads	❌	❌	✅	✅
+Co-signer Collaboration Tools	❌	❌	✅	✅
+Custom Branded Lease Packets	❌	❌	❌	✅
+White-Glove Account Setup	❌	Help Docs	Assisted	Fully Managed
+Concierge Leasing Support (via MySeniorValet)	❌	❌	❌	✅ (w/ dedicated support)
+
+
+
+---
+
+💰 RECURRING PAYMENTS & MONETIZATION TOOLS
+
+Business Tools	Basic	Verified Std.	Enhanced Showcase	Platinum Spotlight
+
+Secure Payment Portal for Families	❌	❌	✅	✅
+Automated Late Fee Settings	❌	❌	✅	✅
+Lease Archiving & Management	❌	❌	✅	✅
+Recurring Charges Setup (e.g., Pet Fees)	❌	❌	✅	✅
+Internal Notes & Reminders	❌	❌	✅	✅
+Lease Expiration Alerts	❌	❌	✅	✅
+Move-Out Checklist Automation	❌	❌	❌	✅
+Multi-resident / multi-unit support	❌	❌	❌	✅
+
+
+
+---
+
+🔁 SUMMARY OF WHO GETS WHAT
+
+Tool Category	Tier Access
+
+Leasing & Payment Tools	Full in Enhanced & Platinum
+Document Automation	From Verified up, full power at Platinum
+Family Collaboration	Starts at Enhanced, ideal at Platinum
+Lead Generation & Visibility	Boosts steadily each tier — peaks at Spotlight
+
+
+
+---
+
+🔜 Optional Add-ons (All Tiers, Coming Soon)
+
+Add-On	Price	Notes
+
+Additional Video Uploads	$25/video	Above tier limits
+Lease Packet Branding	$99 one-time	For Enhanced tier users
+Concierge Lease Completion	$299 one-time	MSV staff finishes lease setup
+Featured Zip Code Lock	$100/mo	Locks competitor ads in your zip
+Automated Waitlist Tool	$49/mo	Collects and sorts interested leads
+
+
+
+---
+
+✅ Next Step?
+
+Would you like me to now:
+
+a. Build visual mockups showing these tiers in a pricing grid
+b. Design the upgrade dashboard flow for communities
+c. Draft the Stripe product plan & backend logic for Ghostrider’s Dispatch
+d. Create a sample email campaign for unclaimed listings
+e. All of the above
+
+(Answer format: a, b, c, d, e, or all of the above)
+

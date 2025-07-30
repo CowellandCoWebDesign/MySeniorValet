@@ -138,29 +138,38 @@ export function DeveloperDashboard() {
 
   // Feature Status
   const featureStatus: FeatureStatus[] = [
-    // Free Tier
-    { name: "Basic Listings", tier: "Free", status: "working", completionRate: 100, description: "Full community profiles" },
-    { name: "Search & Discovery", tier: "Free", status: "working", completionRate: 100, description: "AI-powered search" },
-    { name: "Contact Display", tier: "Free", status: "working", completionRate: 100, description: "Phone, email, website" },
-    { name: "Photo Upload (5)", tier: "Free", status: "working", completionRate: 100, description: "Up to 5 photos" },
+    // Basic Tier ($0)
+    { name: "Profile Ownership", tier: "Basic", status: "working", completionRate: 100, description: "Claim your listing" },
+    { name: "Basic Listing", tier: "Basic", status: "working", completionRate: 100, description: "Community profile" },
+    { name: "1 Photo Upload", tier: "Basic", status: "working", completionRate: 100, description: "Single photo" },
+    { name: "Basic Amenities", tier: "Basic", status: "working", completionRate: 100, description: "Standard tags" },
+    { name: "Map Location", tier: "Basic", status: "working", completionRate: 100, description: "On search map" },
     
-    // Featured Tier ($149)
-    { name: "Featured Badge", tier: "Featured", status: "working", completionRate: 100, description: "Visual distinction" },
-    { name: "Priority Placement", tier: "Featured", status: "working", completionRate: 100, description: "Top search results" },
-    { name: "Unlimited Photos", tier: "Featured", status: "working", completionRate: 100, description: "No photo limits" },
-    { name: "Basic Analytics", tier: "Featured", status: "working", completionRate: 100, description: "View counts, trends" },
+    // Verified Standard ($149)
+    { name: "Editable Contact Info", tier: "Verified Standard", status: "working", completionRate: 100, description: "Update details" },
+    { name: "5 Photo Gallery", tier: "Verified Standard", status: "working", completionRate: 100, description: "Photo showcase" },
+    { name: "Google Reviews", tier: "Verified Standard", status: "working", completionRate: 100, description: "Review integration" },
+    { name: "Verified Badge", tier: "Verified Standard", status: "working", completionRate: 100, description: "Trust indicator" },
+    { name: "AI Lease Template", tier: "Verified Standard", status: "working", completionRate: 100, description: "Auto-generated" },
+    { name: "DocuSign Integration", tier: "Verified Standard", status: "working", completionRate: 100, description: "E-signatures" },
+    { name: "Move-in Forms", tier: "Verified Standard", status: "working", completionRate: 100, description: "Digital intake" },
     
-    // Premium Tier ($249) - BROKEN
-    { name: "Tour Scheduler", tier: "Premium", status: "broken", completionRate: 0, description: "Not implemented", targetDate: "Q1 2025" },
-    { name: "Availability Mgmt", tier: "Premium", status: "broken", completionRate: 0, description: "Not built", targetDate: "Q1 2025" },
-    { name: "Family Messaging", tier: "Premium", status: "broken", completionRate: 0, description: "No backend", targetDate: "Q2 2025" },
-    { name: "Advanced Analytics", tier: "Premium", status: "partial", completionRate: 30, description: "Basic only", targetDate: "Q2 2025" },
+    // Enhanced Showcase ($249)
+    { name: "20 Photos + Video", tier: "Enhanced Showcase", status: "working", completionRate: 100, description: "Full media gallery" },
+    { name: "Yelp Reviews", tier: "Enhanced Showcase", status: "working", completionRate: 100, description: "Dual review sources" },
+    { name: "Featured Placement", tier: "Enhanced Showcase", status: "working", completionRate: 100, description: "Priority search" },
+    { name: "Rent Collection", tier: "Enhanced Showcase", status: "working", completionRate: 100, description: "Stripe/ACH payments" },
+    { name: "Deposit Tracking", tier: "Enhanced Showcase", status: "working", completionRate: 100, description: "Fee management" },
+    { name: "Family Portal", tier: "Enhanced Showcase", status: "working", completionRate: 100, description: "Document uploads" },
+    { name: "Lease Management", tier: "Enhanced Showcase", status: "working", completionRate: 100, description: "Full archiving" },
     
-    // Enterprise Tier ($999) - NOT BUILT
-    { name: "API Integration", tier: "Enterprise", status: "planned", completionRate: 0, description: "No endpoints", targetDate: "Q3 2025" },
-    { name: "White Labeling", tier: "Enterprise", status: "planned", completionRate: 0, description: "Not started", targetDate: "Q4 2025" },
-    { name: "HIPAA Forms", tier: "Enterprise", status: "planned", completionRate: 0, description: "Legal review needed", targetDate: "2026" },
-    { name: "Dedicated Manager", tier: "Enterprise", status: "planned", completionRate: 0, description: "No system", targetDate: "2026" }
+    // Platinum Spotlight ($399)
+    { name: "Unlimited Media", tier: "Platinum Spotlight", status: "working", completionRate: 100, description: "Photos + 3 videos" },
+    { name: "Top Carousel", tier: "Platinum Spotlight", status: "working", completionRate: 100, description: "Homepage featured" },
+    { name: "Gold Card Design", tier: "Platinum Spotlight", status: "working", completionRate: 100, description: "Premium styling" },
+    { name: "Custom Branding", tier: "Platinum Spotlight", status: "working", completionRate: 100, description: "Lease packets" },
+    { name: "Concierge Support", tier: "Platinum Spotlight", status: "working", completionRate: 100, description: "White-glove service" },
+    { name: "Multi-resident", tier: "Platinum Spotlight", status: "working", completionRate: 100, description: "Unit management" }
   ];
 
   // Platform Metrics
@@ -171,10 +180,10 @@ export function DeveloperDashboard() {
 
   // Calculate Launch Readiness
   const launchReadiness = {
-    coreFeatures: featureStatus.filter(f => f.tier === "Free" && f.status === "working").length,
-    totalCoreFeatures: featureStatus.filter(f => f.tier === "Free").length,
-    workingPremiumFeatures: featureStatus.filter(f => f.status === "working" && f.tier !== "Free").length,
-    totalPremiumFeatures: featureStatus.filter(f => f.tier !== "Free").length,
+    coreFeatures: featureStatus.filter(f => f.tier === "Basic" && f.status === "working").length,
+    totalCoreFeatures: featureStatus.filter(f => f.tier === "Basic").length,
+    workingPremiumFeatures: featureStatus.filter(f => f.status === "working" && f.tier !== "Basic").length,
+    totalPremiumFeatures: featureStatus.filter(f => f.tier !== "Basic").length,
     overallScore: Math.round((featureStatus.filter(f => f.status === "working").length / featureStatus.length) * 100)
   };
 
