@@ -2589,7 +2589,7 @@ export default function CommunityDetail() {
                 <div className="space-y-6">
                   <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg border border-blue-200 dark:border-blue-700">
                     <p className="text-base text-blue-900 dark:text-blue-200 mb-4">
-                      MySeniorValet provides pricing estimates to help families budget and plan. Since many communities don't publish pricing online, we use data from 8 authentic sources to calculate fair market estimates.
+                      MySeniorValet provides pricing estimates to help families budget and plan. Since many communities don't publish pricing online, we use data from 8 authentic sources to calculate fair market estimates. <strong>All our data comes from publicly available sources only - we never access information behind logins, paywalls, or private databases.</strong>
                     </p>
                     
                     <div className="grid md:grid-cols-2 gap-6">
@@ -2653,7 +2653,7 @@ export default function CommunityDetail() {
                           <li className="flex items-start text-base text-blue-800 dark:text-blue-300">
                             <div className="w-3 h-3 bg-purple-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
                             <div>
-                              <strong>Direct Community Websites</strong> - When available from official sources
+                              <strong>Direct Community Websites</strong> - Publicly available information only
                             </div>
                           </li>
                         </ul>
@@ -2692,11 +2692,14 @@ export default function CommunityDetail() {
                     <div className="flex items-center mb-3">
                       <Shield className="w-6 h-6 text-green-700 dark:text-green-400 mr-2" />
                       <h4 className="text-xl font-bold text-green-900 dark:text-green-200">
-                        Our Commitment: NO Aggregator Sites
+                        Our Commitment: 100% Public Data & NO Aggregator Sites
                       </h4>
                     </div>
-                    <p className="text-base text-green-800 dark:text-green-300">
+                    <p className="text-base text-green-800 dark:text-green-300 mb-4">
                       We <strong>NEVER</strong> use pricing from aggregator websites like A Place for Mom, Caring.com, Seniorly, or Senior Advisor. These sites often inflate prices and don't reflect actual community rates. MySeniorValet only uses authentic, verifiable sources to ensure families get honest pricing information.
+                    </p>
+                    <p className="text-base text-green-800 dark:text-green-300">
+                      <strong>Public Data Only:</strong> All community information and pricing estimates come from publicly available sources. We do not scrape data behind logins, access private databases, or use any information that isn't freely available to the public. This ensures complete transparency and legal compliance in our data collection methods.
                     </p>
                   </div>
                   
