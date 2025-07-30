@@ -48,9 +48,12 @@ router.post('/api/tours/schedule', async (req: Request, res: Response) => {
     let userId = req.user?.id;
     
     if (!userId) {
-      // Check if user exists by email
+      // Check if user exists by email - select only necessary columns
       const [existingUser] = await db
-        .select()
+        .select({
+          id: users.id,
+          email: users.email
+        })
         .from(users)
         .where(eq(users.email, contactEmail));
       
