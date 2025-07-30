@@ -66,8 +66,8 @@ export default function ExpansionMonitor() {
   // Update real-time progress
   useEffect(() => {
     if (progressData) {
-      setRealTimeProgress(progressData);
-      if (!progressData.isActive) {
+      setRealTimeProgress(progressData as ExpansionProgress);
+      if (!(progressData as ExpansionProgress).isActive) {
         setExpansionActive(false);
       }
     }
@@ -75,8 +75,8 @@ export default function ExpansionMonitor() {
 
   // Update county results
   useEffect(() => {
-    if (resultsData?.detailedResults) {
-      setCountyResults(resultsData.detailedResults);
+    if ((resultsData as any)?.detailedResults) {
+      setCountyResults((resultsData as any).detailedResults);
     }
   }, [resultsData]);
 
@@ -111,15 +111,16 @@ export default function ExpansionMonitor() {
       <div className="container mx-auto p-6 space-y-6">
         <div className="flex items-center justify-between">
           <div>
-        <Button
-          onClick={() => startExpansion.mutate()}
-          disabled={expansionActive || startExpansion.isPending}
-          className="flex items-center gap-2"
-        >
-          <Search className="h-4 w-4" />
-          {expansionActive ? 'Expansion Running...' : 'Start Expansion'}
-        </Button>
-      </div>
+            <Button
+              onClick={() => startExpansion.mutate()}
+              disabled={expansionActive || startExpansion.isPending}
+              className="flex items-center gap-2"
+            >
+              <Search className="h-4 w-4" />
+              {expansionActive ? 'Expansion Running...' : 'Start Expansion'}
+            </Button>
+          </div>
+        </div>
 
       {/* Real-time Progress */}
       {realTimeProgress && (

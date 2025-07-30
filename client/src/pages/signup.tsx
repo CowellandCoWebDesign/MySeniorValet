@@ -131,6 +131,7 @@ export default function SignupPage() {
               <span className="text-xs">Expert Support</span>
             </div>
           </div>
+          </div>
         </div>
       </div>
     </div>
