@@ -60,11 +60,10 @@ router.post('/api/tours/schedule', async (req: Request, res: Response) => {
       if (existingUser) {
         userId = existingUser.id;
       } else {
-        // Create guest user
+        // Create guest user - let database auto-generate ID
         const [newUser] = await db
           .insert(users)
           .values({
-            id: `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             email: contactEmail,
             firstName: contactName.split(' ')[0],
             lastName: contactName.split(' ').slice(1).join(' ') || '',
