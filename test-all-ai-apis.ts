@@ -58,7 +58,7 @@ async function testOpenAIAPI() {
       messages: [
         {
           role: 'user',
-          content: 'Reply with exactly: "OpenAI API is working perfectly"'
+          content: 'Say: OpenAI API test successful'
         }
       ],
       max_tokens: 50,
