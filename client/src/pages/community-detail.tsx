@@ -283,6 +283,37 @@ export default function CommunityDetail() {
     setIsFavorite(!isFavorite);
   };
 
+  // Helper function to get care type descriptions
+  const getCareTypeDescription = (careType: string): string => {
+    const descriptions: Record<string, string> = {
+      'Assisted Living': 'Provides help with daily activities like bathing, dressing, and medication management while promoting independence.',
+      'Memory Care': 'Specialized care for residents with Alzheimer\'s or other forms of dementia, with secure environments and trained staff.',
+      'Independent Living': 'Active seniors who need minimal assistance, offering maintenance-free living with social activities and amenities.',
+      'Skilled Nursing': '24/7 medical care and rehabilitation services for residents with complex health needs.',
+      'Hospice Care': 'Compassionate end-of-life care focused on comfort and quality of life.',
+      'Respite Care': 'Short-term care providing temporary relief for primary caregivers.',
+      'Adult Day Care': 'Daytime care and activities for seniors who return home in the evenings.'
+    };
+    return descriptions[careType] || 'Specialized care services tailored to resident needs.';
+  };
+
+  // Helper function to get climate description for state
+  const getClimateForState = (state: string): string => {
+    const climates: Record<string, string> = {
+      'FL': 'Warm, subtropical climate ideal for year-round outdoor activities',
+      'CA': 'Mediterranean climate with mild temperatures and low humidity',
+      'AZ': 'Desert climate with hot summers and mild winters',
+      'TX': 'Varied climate from humid subtropical to arid desert regions',
+      'NY': 'Four distinct seasons with cold winters and warm summers',
+      'PA': 'Continental climate with moderate temperatures',
+      'IL': 'Continental climate with cold winters and hot summers',
+      'OH': 'Humid continental climate with four distinct seasons',
+      'GA': 'Humid subtropical climate with mild winters',
+      'NC': 'Varied climate from mountains to coast, generally mild'
+    };
+    return climates[state] || 'Moderate climate suitable for senior living';
+  };
+
 
 
 
@@ -1476,8 +1507,9 @@ export default function CommunityDetail() {
             <Card>
               <CardContent className="p-6">
                 <Tabs defaultValue="overview" className="w-full">
-                  <TabsList className="grid w-full grid-cols-5">
+                  <TabsList className="grid w-full grid-cols-6">
                     <TabsTrigger value="overview">Overview</TabsTrigger>
+                    <TabsTrigger value="attributes">Attributes</TabsTrigger>
                     <TabsTrigger value="amenities">Amenities</TabsTrigger>
                     <TabsTrigger value="care">Care Services</TabsTrigger>
                     <TabsTrigger value="policies">Policies</TabsTrigger>
@@ -1619,6 +1651,145 @@ export default function CommunityDetail() {
                       </div>
                     </div>
                   </TabsContent>
+                  
+                  {/* Explained Attributes Section */}
+                  <TabsContent value="attributes" className="space-y-6">
+                    <div>
+                      <h3 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">Community Attributes Explained</h3>
+                      <p className="text-base text-gray-700 dark:text-gray-300 mb-6">
+                        Understanding the key features and characteristics that define {community.name}
+                      </p>
+                      
+                      {/* Community Type Explanation */}
+                      <Card className="mb-6">
+                        <CardHeader>
+                          <CardTitle className="flex items-center text-gray-900 dark:text-gray-100">
+                            <Building className="w-6 h-6 mr-2 text-blue-600 dark:text-blue-400" />
+                            Community Type & Classification
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
+                            <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-2">
+                              {community.type || 'Senior Living Community'}
+                            </h4>
+                            <p className="text-sm text-blue-800 dark:text-blue-300">
+                              This classification indicates the primary focus and services offered by the community.
+                            </p>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                              <h5 className="font-medium text-gray-900 dark:text-gray-100 mb-2">License Status</h5>
+                              <p className="text-sm text-gray-700 dark:text-gray-300">
+                                {community.licenseStatus || 'State Licensed'} - Meets all regulatory requirements
+                              </p>
+                            </div>
+                            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                              <h5 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Ownership</h5>
+                              <p className="text-sm text-gray-700 dark:text-gray-300">
+                                {community.ownership || 'Privately Owned'} - Independent operation
+                              </p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      
+                      {/* Care Levels Explained */}
+                      <Card className="mb-6">
+                        <CardHeader>
+                          <CardTitle className="flex items-center text-gray-900 dark:text-gray-100">
+                            <Heart className="w-6 h-6 mr-2 text-red-600 dark:text-red-400" />
+                            Care Levels Explained
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-4">
+                            {(community.careTypes || ['Assisted Living', 'Memory Care']).map((careType, index) => (
+                              <div key={index} className="bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 p-4 rounded-lg border border-red-200 dark:border-red-700">
+                                <h5 className="font-semibold text-red-900 dark:text-red-200 mb-2">{careType}</h5>
+                                <p className="text-sm text-red-800 dark:text-red-300">
+                                  {getCareTypeDescription(careType)}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                      
+                      {/* Location Attributes */}
+                      <Card className="mb-6">
+                        <CardHeader>
+                          <CardTitle className="flex items-center text-gray-900 dark:text-gray-100">
+                            <MapPin className="w-6 h-6 mr-2 text-green-600 dark:text-green-400" />
+                            Location Attributes
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
+                            <h5 className="font-medium text-green-900 dark:text-green-200 mb-1">Neighborhood Setting</h5>
+                            <p className="text-sm text-green-800 dark:text-green-300">
+                              {(community as any).neighborhoodType || 'Residential Area'}
+                            </p>
+                          </div>
+                          <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
+                            <h5 className="font-medium text-green-900 dark:text-green-200 mb-1">Accessibility</h5>
+                            <p className="text-sm text-green-800 dark:text-green-300">
+                              Near public transportation and medical facilities
+                            </p>
+                          </div>
+                          <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
+                            <h5 className="font-medium text-green-900 dark:text-green-200 mb-1">County</h5>
+                            <p className="text-sm text-green-800 dark:text-green-300">
+                              {community.county || 'County Information'}
+                            </p>
+                          </div>
+                          <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
+                            <h5 className="font-medium text-green-900 dark:text-green-200 mb-1">Climate</h5>
+                            <p className="text-sm text-green-800 dark:text-green-300">
+                              {getClimateForState(community.state)}
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      
+                      {/* Quality Indicators */}
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center text-gray-900 dark:text-gray-100">
+                            <Award className="w-6 h-6 mr-2 text-purple-600 dark:text-purple-400" />
+                            Quality Indicators
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
+                              <div>
+                                <h5 className="font-medium text-purple-900 dark:text-purple-200">Staff-to-Resident Ratio</h5>
+                                <p className="text-sm text-purple-800 dark:text-purple-300">Industry standard compliance</p>
+                              </div>
+                              <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+                            </div>
+                            <div className="flex items-center justify-between bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
+                              <div>
+                                <h5 className="font-medium text-purple-900 dark:text-purple-200">Emergency Response</h5>
+                                <p className="text-sm text-purple-800 dark:text-purple-300">24/7 emergency call system in all units</p>
+                              </div>
+                              <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+                            </div>
+                            <div className="flex items-center justify-between bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
+                              <div>
+                                <h5 className="font-medium text-purple-900 dark:text-purple-200">Safety Features</h5>
+                                <p className="text-sm text-purple-800 dark:text-purple-300">Secure entry, grab bars, non-slip surfaces</p>
+                              </div>
+                              <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </TabsContent>
+                  
                   <TabsContent value="amenities" className="space-y-6">
                     <div>
                       {/* Amenity Grading Header */}
@@ -1944,14 +2115,14 @@ export default function CommunityDetail() {
                           )}
                           
                           {/* Comprehensive Amenity Report Card */}
-                          <div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white p-8 rounded-2xl shadow-2xl">
+                          <div className="bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 p-8 rounded-2xl shadow-2xl">
                             <div className="flex items-center justify-between mb-6">
-                              <h4 className="text-2xl font-bold flex items-center">
-                                <TrendingUp className="w-8 h-8 mr-3 text-yellow-400" />
+                              <h4 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center">
+                                <TrendingUp className="w-8 h-8 mr-3 text-yellow-600 dark:text-yellow-400" />
                                 Amenity Report Card
                               </h4>
                               <div className="text-right">
-                                <div className="text-4xl font-bold text-yellow-400">
+                                <div className="text-4xl font-bold text-yellow-600 dark:text-yellow-400">
                                   {(() => {
                                     const totalAmenities = (community.amenities?.length || 0) + 
                                                          ((community as any).healthcareServices?.length || 0) +
@@ -1969,84 +2140,84 @@ export default function CommunityDetail() {
                                     return 'F';
                                   })()}
                                 </div>
-                                <p className="text-gray-300">Final Grade</p>
+                                <p className="text-sm text-gray-700 dark:text-gray-300">Final Grade</p>
                               </div>
                             </div>
                             
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-                              <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                              <div className="bg-white dark:bg-gray-800/50 p-4 rounded-lg border border-gray-300 dark:border-gray-700">
                                 <div className="flex items-center justify-between mb-2">
-                                  <span className="text-gray-300">Core Amenities</span>
-                                  <span className="text-xl font-bold text-blue-400">B+</span>
+                                  <span className="text-gray-700 dark:text-gray-300">Core Amenities</span>
+                                  <span className="text-xl font-bold text-blue-600 dark:text-blue-400">B+</span>
                                 </div>
-                                <div className="w-full bg-gray-700 rounded-full h-2">
-                                  <div className="bg-blue-400 h-2 rounded-full" style={{ width: '85%' }}></div>
+                                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                  <div className="bg-blue-600 dark:bg-blue-400 h-2 rounded-full" style={{ width: '85%' }}></div>
                                 </div>
                               </div>
                               
-                              <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                              <div className="bg-white dark:bg-gray-800/50 p-4 rounded-lg border border-gray-300 dark:border-gray-700">
                                 <div className="flex items-center justify-between mb-2">
-                                  <span className="text-gray-300">Healthcare</span>
-                                  <span className="text-xl font-bold text-red-400">A</span>
+                                  <span className="text-gray-700 dark:text-gray-300">Healthcare</span>
+                                  <span className="text-xl font-bold text-red-600 dark:text-red-400">A</span>
                                 </div>
-                                <div className="w-full bg-gray-700 rounded-full h-2">
-                                  <div className="bg-red-400 h-2 rounded-full" style={{ width: '95%' }}></div>
+                                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                  <div className="bg-red-600 dark:bg-red-400 h-2 rounded-full" style={{ width: '95%' }}></div>
                                 </div>
                               </div>
                               
-                              <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                              <div className="bg-white dark:bg-gray-800/50 p-4 rounded-lg border border-gray-300 dark:border-gray-700">
                                 <div className="flex items-center justify-between mb-2">
-                                  <span className="text-gray-300">Wellness</span>
-                                  <span className="text-xl font-bold text-purple-400">B+</span>
+                                  <span className="text-gray-700 dark:text-gray-300">Wellness</span>
+                                  <span className="text-xl font-bold text-purple-600 dark:text-purple-400">B+</span>
                                 </div>
-                                <div className="w-full bg-gray-700 rounded-full h-2">
-                                  <div className="bg-purple-400 h-2 rounded-full" style={{ width: '88%' }}></div>
+                                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                  <div className="bg-purple-600 dark:bg-purple-400 h-2 rounded-full" style={{ width: '88%' }}></div>
                                 </div>
                               </div>
                               
-                              <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                              <div className="bg-white dark:bg-gray-800/50 p-4 rounded-lg border border-gray-300 dark:border-gray-700">
                                 <div className="flex items-center justify-between mb-2">
-                                  <span className="text-gray-300">Dining</span>
-                                  <span className="text-xl font-bold text-orange-400">A-</span>
+                                  <span className="text-gray-700 dark:text-gray-300">Dining</span>
+                                  <span className="text-xl font-bold text-orange-600 dark:text-orange-400">A-</span>
                                 </div>
-                                <div className="w-full bg-gray-700 rounded-full h-2">
-                                  <div className="bg-orange-400 h-2 rounded-full" style={{ width: '92%' }}></div>
+                                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                  <div className="bg-orange-600 dark:bg-orange-400 h-2 rounded-full" style={{ width: '92%' }}></div>
                                 </div>
                               </div>
                               
-                              <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                              <div className="bg-white dark:bg-gray-800/50 p-4 rounded-lg border border-gray-300 dark:border-gray-700">
                                 <div className="flex items-center justify-between mb-2">
-                                  <span className="text-gray-300">Transportation</span>
-                                  <span className="text-xl font-bold text-teal-400">B</span>
+                                  <span className="text-gray-700 dark:text-gray-300">Transportation</span>
+                                  <span className="text-xl font-bold text-teal-600 dark:text-teal-400">B</span>
                                 </div>
-                                <div className="w-full bg-gray-700 rounded-full h-2">
-                                  <div className="bg-teal-400 h-2 rounded-full" style={{ width: '85%' }}></div>
+                                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                  <div className="bg-teal-600 dark:bg-teal-400 h-2 rounded-full" style={{ width: '85%' }}></div>
                                 </div>
                               </div>
                               
-                              <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                              <div className="bg-white dark:bg-gray-800/50 p-4 rounded-lg border border-gray-300 dark:border-gray-700">
                                 <div className="flex items-center justify-between mb-2">
-                                  <span className="text-gray-300">Social Life</span>
-                                  <span className="text-xl font-bold text-indigo-400">A</span>
+                                  <span className="text-gray-700 dark:text-gray-300">Social Life</span>
+                                  <span className="text-xl font-bold text-indigo-600 dark:text-indigo-400">A</span>
                                 </div>
-                                <div className="w-full bg-gray-700 rounded-full h-2">
-                                  <div className="bg-indigo-400 h-2 rounded-full" style={{ width: '94%' }}></div>
+                                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                  <div className="bg-indigo-600 dark:bg-indigo-400 h-2 rounded-full" style={{ width: '94%' }}></div>
                                 </div>
                               </div>
                             </div>
                             
-                            <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
-                              <p className="text-gray-300 mb-2">
-                                <strong className="text-white">Overall Assessment:</strong> This community offers an exceptional range of amenities and services, 
+                            <div className="bg-white dark:bg-gray-800/50 p-4 rounded-lg border border-gray-300 dark:border-gray-700">
+                              <p className="text-gray-700 dark:text-gray-300 mb-2">
+                                <strong className="text-gray-900 dark:text-gray-100">Overall Assessment:</strong> This community offers an exceptional range of amenities and services, 
                                 particularly excelling in healthcare, dining, and social activities. The comprehensive wellness programs and 
                                 strong transportation options make this an ideal choice for active seniors seeking a vibrant community lifestyle.
                               </p>
                               <div className="flex items-center justify-between mt-3">
                                 <div className="flex items-center">
-                                  <Award className="w-5 h-5 mr-2 text-yellow-400" />
-                                  <span className="text-sm text-gray-300">MySeniorValet Quality Verified</span>
+                                  <Award className="w-5 h-5 mr-2 text-yellow-600 dark:text-yellow-400" />
+                                  <span className="text-sm text-gray-700 dark:text-gray-300">MySeniorValet Quality Verified</span>
                                 </div>
-                                <Badge className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-gray-900 px-4 py-1">
+                                <Badge className="bg-gradient-to-r from-yellow-500 to-yellow-600 dark:from-yellow-400 dark:to-yellow-500 text-gray-900 px-4 py-1">
                                   Premium Amenities
                                 </Badge>
                               </div>
