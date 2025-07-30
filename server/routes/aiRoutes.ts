@@ -7,6 +7,7 @@ import { MultiAIOrchestrator } from "../multi-ai-intelligence";
 import { AnthropicAIService, GeminiAIService, AIOrchestrator } from "../ai-services";
 import { aiSearchService } from "../ai-search-service";
 import { googleReviewsAI } from "../google-reviews-ai";
+import { perplexityService } from "../perplexity-ai-service";
 import { isAuthenticated as requireAuth } from "../replitAuth";
 
 const multiAIOrchestrator = new MultiAIOrchestrator();

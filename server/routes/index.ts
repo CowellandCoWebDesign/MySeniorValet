@@ -7,6 +7,7 @@ import { communityStatsCache } from "../community-stats-cache";
 import { registerCommunityRoutes } from "./communityRoutes";
 import { registerUserRoutes } from "./userRoutes";
 import { registerAIRoutes } from "./aiRoutes";
+import { registerPerplexityRoutes } from "./perplexityRoutes";
 import { registerAdminRoutes } from "./adminRoutes";
 import { registerVendorRoutes } from "./vendorRoutes";
 import { registerSearchRoutes } from "./searchRoutes";
@@ -59,6 +60,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerUserRoutes(app);
   registerSearchRoutes(app);
   registerAIRoutes(app);
+  registerPerplexityRoutes(app);
   registerAdminRoutes(app);
   registerVendorRoutes(app);
   registerTourRoutes(app);
