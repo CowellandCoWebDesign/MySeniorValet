@@ -126,7 +126,7 @@ export default function MySeniorValetHome() {
     staleTime: 10 * 60 * 1000, // Cache for 10 minutes
   });
 
-  const vaFacilities = vaResourcesData?.facilities || {};
+  const vaFacilities = (vaResourcesData as any)?.facilities || {};
 
   const featuredCommunities = (trendingCommunities as any[])?.slice(0, 8) || [];
   
