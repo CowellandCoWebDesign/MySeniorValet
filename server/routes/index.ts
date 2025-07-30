@@ -12,6 +12,8 @@ import { registerPerplexityRoutes } from "./perplexityRoutes";
 import { registerAdminRoutes } from "./adminRoutes";
 import { registerVendorRoutes } from "./vendorRoutes";
 import { registerSearchRoutes } from "./searchRoutes";
+import { registerMappingRoutes } from "./mappingRoutes";
+import { registerMappingFixRoutes } from "./mappingFixRoutes";
 import { registerAuthRoutes } from "./authRoutes";
 import { registerTourRoutes } from "./tourRoutes";
 import { registerClaimRoutes } from "./claimRoutes";
@@ -56,8 +58,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create HTTP server
   const httpServer = createServer(app);
 
-  // Register all route modules
+  // Register all route modules - ORDER MATTERS!
   registerAuthRoutes(app);
+  // CRITICAL: Register mapping routes BEFORE community routes to prevent /:id interception
+  registerMappingRoutes(app);
+  registerMappingFixRoutes(app);
   registerCommunityRoutes(app);
   registerUserRoutes(app);
   registerSearchRoutes(app);
