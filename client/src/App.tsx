@@ -82,6 +82,7 @@ import VendorSignup from "@/pages/vendor-signup";
 import VendorDashboard from "@/pages/vendor-dashboard";
 import ServicesManagementDashboard from "@/pages/ServicesManagementDashboard";
 import TestTierAccess from "@/pages/test-tier-access";
+import AmazonProductAdmin from "@/pages/AmazonProductAdmin";
 import { useAuth } from "@/hooks/useAuth";
 
 function Router() {
@@ -110,6 +111,7 @@ function Router() {
       <Route path="/admin-unified" component={AdminUnified} />
       <Route path="/admin/service-listings" component={ServiceListingsAdmin} />
       <Route path="/admin/services-management" component={ServicesManagementDashboard} />
+      <Route path="/admin/amazon-products" component={AmazonProductAdmin} />
       <Route path="/expansion-monitor" component={ExpansionMonitor} />
       <Route path="/api-costs" component={ApiCostDashboard} />
       <Route path="/dashboard" component={Dashboard} />

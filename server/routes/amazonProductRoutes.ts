@@ -2,6 +2,7 @@ import { Router } from "express";
 import { db } from "../db";
 import { services, serviceCategories } from "@shared/schema";
 import { eq } from "drizzle-orm";
+import { amazonProductAPI } from "../amazon-product-api";
 
 const router = Router();
 
@@ -82,14 +83,8 @@ router.get("/images", async (req, res) => {
         }
       }
 
-      // Use the external URL directly - Amazon short links already include affiliate tracking
-      let affiliateUrl = service.externalUrl || '';
-      
-      // Only add affiliate tag to non-shortened URLs (for backward compatibility)
-      if (affiliateUrl && service.affiliateCode && !affiliateUrl.includes('amzn.to') && !affiliateUrl.includes('tag=')) {
-        const separator = affiliateUrl.includes('?') ? '&' : '?';
-        affiliateUrl = `${affiliateUrl}${separator}tag=${service.affiliateCode}`;
-      }
+      // Ensure affiliate links are properly formatted
+      let affiliateUrl = amazonProductAPI.getAffiliateLink(service.externalUrl || '');
       
       productImages.push({
         id: service.productId || `amazon-${service.id}`,
@@ -122,6 +117,122 @@ router.get("/images", async (req, res) => {
     res.status(500).json({ 
       error: "Failed to load Amazon products",
       _version: "v5_database_integrated" 
+    });
+  }
+});
+
+// Phase 2 Enhancement: Sync product data with real Amazon API
+router.post("/sync", async (req, res) => {
+  try {
+    // Check if API is configured
+    if (!amazonProductAPI.isConfigured()) {
+      return res.status(400).json({
+        error: "Amazon Product API not configured",
+        message: "Please set AMAZON_ACCESS_KEY and AMAZON_SECRET_KEY environment variables",
+        help: "You need Amazon Product Advertising API credentials from https://affiliate-program.amazon.com/pa-api-access"
+      });
+    }
+
+    // Run the sync
+    const updatedCount = await amazonProductAPI.syncProductData();
+    
+    res.json({
+      success: true,
+      message: `Synced ${updatedCount} products with real-time Amazon data`,
+      updatedCount,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error: any) {
+    console.error("Error syncing Amazon products:", error);
+    res.status(500).json({ 
+      error: "Failed to sync Amazon products",
+      message: error?.message || "Unknown error occurred" 
+    });
+  }
+});
+
+// Phase 2 Enhancement: Validate affiliate links
+router.get("/validate-links", async (req, res) => {
+  try {
+    const validation = await amazonProductAPI.validateAffiliateLinks();
+    
+    res.json({
+      success: true,
+      summary: {
+        total: validation.valid + validation.invalid,
+        valid: validation.valid,
+        invalid: validation.invalid,
+        percentageValid: ((validation.valid / (validation.valid + validation.invalid)) * 100).toFixed(1) + '%'
+      },
+      results: validation.results,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error: any) {
+    console.error("Error validating affiliate links:", error);
+    res.status(500).json({ 
+      error: "Failed to validate affiliate links",
+      message: error?.message || "Unknown error occurred" 
+    });
+  }
+});
+
+// Phase 2 Enhancement: Get real-time price for a specific product
+router.get("/real-time-price/:productId", async (req, res) => {
+  try {
+    const { productId } = req.params;
+    
+    if (!amazonProductAPI.isConfigured()) {
+      return res.status(400).json({
+        error: "Amazon Product API not configured",
+        fallback: "Using database pricing"
+      });
+    }
+    
+    // Get product from database
+    const service = await db
+      .select()
+      .from(services)
+      .where(eq(services.productId, productId))
+      .limit(1);
+    
+    if (!service[0]) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+    
+    // Try to get real-time data
+    const realTimeData = await amazonProductAPI.getProductByASIN(productId);
+    
+    if (realTimeData) {
+      res.json({
+        success: true,
+        productId,
+        name: service[0].name,
+        realTimePrice: realTimeData.price,
+        availability: realTimeData.availability,
+        affiliateUrl: amazonProductAPI.getAffiliateLink(realTimeData.detailPageURL),
+        lastUpdated: new Date().toISOString(),
+        source: "Amazon API"
+      });
+    } else {
+      // Fallback to database pricing
+      res.json({
+        success: true,
+        productId,
+        name: service[0].name,
+        price: service[0].pricing,
+        affiliateUrl: amazonProductAPI.getAffiliateLink(service[0].externalUrl || ''),
+        lastUpdated: service[0].updatedAt,
+        source: "Database"
+      });
+    }
+    
+  } catch (error: any) {
+    console.error("Error fetching real-time price:", error);
+    res.status(500).json({ 
+      error: "Failed to fetch real-time price",
+      message: error?.message || "Unknown error occurred" 
     });
   }
 });
