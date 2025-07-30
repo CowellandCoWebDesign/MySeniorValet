@@ -262,6 +262,7 @@ export default function ApiCostDashboard() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

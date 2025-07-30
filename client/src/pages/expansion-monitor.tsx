@@ -316,6 +316,7 @@ export default function ExpansionMonitor() {
           </Card>
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 }
