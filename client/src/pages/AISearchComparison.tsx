@@ -73,7 +73,7 @@ export default function AISearchComparison() {
     {
       name: "Multi-AI Intelligence Network",
       path: "/admin/multi-ai-test",
-      description: "Latest 4-AI system with Claude, Gemini, ChatGPT, DeepSeek + Perplexity",
+      description: "Advanced 3-AI system with Claude, Gemini, ChatGPT + Perplexity intelligence",
       status: "alpha",
       features: {
         database: true,

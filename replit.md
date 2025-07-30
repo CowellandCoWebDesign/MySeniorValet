@@ -91,7 +91,7 @@ MySeniorValet is a comprehensive senior living transparency platform featuring m
 
 **PERPLEXITY AI INTEGRATION CONFIRMED OPERATIONAL**: Verified Perplexity AI (sonar model) has working credits and successfully generated 33 high-quality product summaries. Perplexity serves as backup AI provider when other services (OpenAI, Claude, DeepSeek) have quota/credit issues. Successfully tested with 3-sentence cost-controlled summaries, providing real-time web intelligence capabilities for MySeniorValet's AI orchestra.
 
-**AI ORCHESTRA STATUS VERIFIED**: Current active AI services include Perplexity (working), OpenAI (quota exceeded), Claude (credit issues), and DeepSeek (insufficient balance). MySeniorValet maintains world's most comprehensive senior living AI system with multi-AI cross-verification capabilities ready for activation when credits are available.
+**AI ORCHESTRA STATUS VERIFIED**: Current active AI services include Perplexity (working), OpenAI (quota exceeded), and Claude (credit issues). DeepSeek has been removed due to payment processing issues. MySeniorValet maintains world's most comprehensive senior living AI system with multi-AI cross-verification capabilities ready for activation when credits are available.
 
 ## Previous Major Achievements (July 29, 2025)
 
@@ -149,8 +149,7 @@ MySeniorValet is a comprehensive senior living transparency platform featuring m
 - **@anthropic-ai/sdk**: Claude AI integration
 - **@google/genai**: Gemini AI integration
 - **openai**: ChatGPT integration
-- **DeepSeek API**: DeepSeek AI integration
-- **Perplexity API**: Real-time web intelligence integration
+- **Perplexity API**: Real-time web intelligence integration (active)
 - **XAI integration**: Grok infrastructure ready
 
 ## Development Environment

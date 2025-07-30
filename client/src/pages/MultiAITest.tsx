@@ -41,34 +41,20 @@ export default function MultiAITest() {
     }
   });
 
-  const { data: deepseekResults, isLoading: deepseekLoading } = useQuery({
-    queryKey: ['/api/deepseek/enhanced-search', searchQuery, location, searchTrigger],
-    enabled: searchTrigger > 0,
-    queryFn: async () => {
-      const response = await fetch('/api/deepseek/enhanced-search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: searchQuery, location })
-      });
-      if (!response.ok) throw new Error('DeepSeek search failed');
-      return response.json();
-    }
-  });
+  // DeepSeek removed due to payment processing issues
 
   // Health checks
   const { data: healthStatus } = useQuery({
     queryKey: ['/api/health-checks'],
     queryFn: async () => {
-      const [claude, perplexity, deepseek] = await Promise.allSettled([
+      const [claude, perplexity] = await Promise.allSettled([
         fetch('/api/ai/health').then(r => r.json()),
-        fetch('/api/perplexity/health').then(r => r.json()),
-        fetch('/api/deepseek/health').then(r => r.json())
+        fetch('/api/perplexity/health').then(r => r.json())
       ]);
       
       return {
         claude: claude.status === 'fulfilled' ? claude.value : { status: 'error' },
-        perplexity: perplexity.status === 'fulfilled' ? perplexity.value : { status: 'error' },
-        deepseek: deepseek.status === 'fulfilled' ? deepseek.value : { status: 'error' }
+        perplexity: perplexity.status === 'fulfilled' ? perplexity.value : { status: 'error' }
       };
     }
   });
@@ -79,7 +65,7 @@ export default function MultiAITest() {
     }
   };
 
-  const isAnyLoading = claudeLoading || perplexityLoading || deepseekLoading;
+  const isAnyLoading = claudeLoading || perplexityLoading;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -99,8 +85,8 @@ export default function MultiAITest() {
               <Badge variant={healthStatus?.perplexity?.status === 'healthy' ? 'default' : 'destructive'}>
                 Perplexity {healthStatus?.perplexity?.status === 'healthy' ? '✅' : '❌'}
               </Badge>
-              <Badge variant={healthStatus?.deepseek?.status === 'healthy' ? 'default' : 'destructive'}>
-                DeepSeek {healthStatus?.deepseek?.status === 'healthy' ? '✅' : '❌'}
+              <Badge variant="secondary">
+                DeepSeek ⏸️ (Disabled)
               </Badge>
             </div>
           </CardTitle>
@@ -129,13 +115,12 @@ export default function MultiAITest() {
         </CardContent>
       </Card>
 
-      {(claudeResults || perplexityResults || deepseekResults) && (
+      {(claudeResults || perplexityResults) && (
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="claude">Claude AI</TabsTrigger>
             <TabsTrigger value="perplexity">Perplexity</TabsTrigger>
-            <TabsTrigger value="deepseek">DeepSeek</TabsTrigger>
             <TabsTrigger value="consensus">Consensus</TabsTrigger>
           </TabsList>
 
@@ -145,7 +130,7 @@ export default function MultiAITest() {
                 <CardTitle>Search Results Comparison</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-4 border rounded-lg">
                     <div className="text-2xl font-bold text-blue-600">
                       {claudeResults?.databaseResults || 0}
@@ -164,22 +149,13 @@ export default function MultiAITest() {
                       {perplexityResults?.enhanced ? 'Enhanced' : 'Database Only'}
                     </Badge>
                   </div>
-                  <div className="text-center p-4 border rounded-lg">
-                    <div className="text-2xl font-bold text-purple-600">
-                      {deepseekResults?.databaseResults || 0}
-                    </div>
-                    <div className="text-sm text-muted-foreground">DeepSeek Results</div>
-                    <Badge variant={deepseekResults?.enhanced ? 'default' : 'secondary'}>
-                      {deepseekResults?.enhanced ? 'Enhanced' : 'Database Only'}
-                    </Badge>
-                  </div>
                 </div>
 
-                {(claudeResults?.communities || perplexityResults?.communities || deepseekResults?.communities) && (
+                {(claudeResults?.communities || perplexityResults?.communities) && (
                   <div className="mt-6">
                     <h3 className="font-semibold mb-4">Sample Communities Found</h3>
                     <div className="grid gap-3">
-                      {(claudeResults?.communities || perplexityResults?.communities || deepseekResults?.communities)?.slice(0, 3).map((community: any) => (
+                      {(claudeResults?.communities || perplexityResults?.communities)?.slice(0, 3).map((community: any) => (
                         <div key={community.id} className="p-4 border rounded-lg">
                           <div className="flex justify-between items-start">
                             <div>
@@ -261,27 +237,20 @@ export default function MultiAITest() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="deepseek">
+          <TabsContent value="disabled">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  🔍 DeepSeek Analysis
-                  <Badge variant={deepseekLoading ? 'secondary' : 'default'}>
-                    {deepseekLoading ? 'Loading...' : 'Complete'}
-                  </Badge>
+                  ⏸️ DeepSeek Disabled
+                  <Badge variant="secondary">Payment Issues</Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {deepseekResults?.deepSeekInsights && (
-                  <div className="p-4 bg-purple-50 dark:bg-purple-950 rounded-lg">
-                    <pre className="text-sm whitespace-pre-wrap">
-                      {deepseekResults.deepSeekInsights}
-                    </pre>
-                  </div>
-                )}
-                {!deepseekResults?.deepSeekInsights && deepseekResults && (
-                  <p className="text-muted-foreground">Database search completed, DeepSeek analysis not available</p>
-                )}
+                <div className="p-4 bg-gray-50 dark:bg-gray-950 rounded-lg text-center">
+                  <p className="text-muted-foreground">
+                    DeepSeek AI has been disabled due to payment processing issues with their API service.
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
