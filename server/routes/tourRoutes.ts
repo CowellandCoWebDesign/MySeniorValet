@@ -45,7 +45,7 @@ router.post('/api/tours/schedule', async (req: Request, res: Response) => {
     const tourDateTime = new Date(`${tourDate}T${tourTime}`);
     
     // Create user if not authenticated (guest booking)
-    let userId = req.user?.id;
+    let userId = req.user?.id ? parseInt(req.user.id) : null;
     
     if (!userId) {
       // Check if user exists by email - select only necessary columns
@@ -60,19 +60,19 @@ router.post('/api/tours/schedule', async (req: Request, res: Response) => {
       if (existingUser) {
         userId = existingUser.id;
       } else {
-        // Create guest user with generated ID
-        const newUserId = `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        const [newUser] = await db
-          .insert(users)
-          .values({
-            id: newUserId,
-            email: contactEmail,
-            firstName: contactName.split(' ')[0],
-            lastName: contactName.split(' ').slice(1).join(' ') || '',
-            phone: contactPhone,
-            role: 'user'
-          })
-          .returning();
+        // Create guest user using raw SQL to avoid schema mismatch issues
+        const newUserId = Date.now() + Math.floor(Math.random() * 1000);
+        const username = `guest_${contactEmail.split('@')[0]}_${Date.now()}`;
+        
+        const result = await db.execute(sql`
+          INSERT INTO users (id, username, password, email, first_name, last_name, phone, role)
+          VALUES (${newUserId}, ${username}, ${'guest_account'}, ${contactEmail}, 
+                  ${contactName.split(' ')[0]}, ${contactName.split(' ').slice(1).join(' ') || ''}, 
+                  ${contactPhone}, ${'user'})
+          RETURNING *
+        `);
+        
+        const newUser = result.rows[0] as any;
         userId = newUser.id;
       }
     }

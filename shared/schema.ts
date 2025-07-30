@@ -31,10 +31,10 @@ export const users = pgTable("users", {
   username: text("username").unique(),
   password: text("password"),
   phone: text("phone"),
-  relationshipToCare: text("relationship_to_care", {
-    enum: ["Seeking for Self", "Seeking for Parent", "Seeking for Spouse", "Seeking for Other Family", "Healthcare Professional"]
-  }),
-  careNeeds: text("care_needs").array().default([]), // ['Independent Living', 'Assisted Living', 'Memory Care']
+  // relationshipToCare: text("relationship_to_care", {
+  //   enum: ["Seeking for Self", "Seeking for Parent", "Seeking for Spouse", "Seeking for Other Family", "Healthcare Professional"]
+  // }), // Field doesn't exist in database
+  // careNeeds: text("care_needs").array().default([]), // ['Independent Living', 'Assisted Living', 'Memory Care'] - Field doesn't exist in database
   searchPreferences: json("search_preferences").$type<{
     preferredLocation?: string;
     budgetRange?: { min: number; max: number };
