@@ -2448,8 +2448,8 @@ export const insertUserSchema = createInsertSchema(users).pick({
   firstName: true,
   lastName: true,
   phone: true,
-  dateOfBirth: true,
-  relationshipToCare: true,
+  // dateOfBirth: true, // Field doesn't exist in database
+  // relationshipToCare: true, // Field doesn't exist in database
   careNeeds: true,
   searchPreferences: true,
   notifications: true,
