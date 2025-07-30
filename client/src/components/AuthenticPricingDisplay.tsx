@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle, Shield, TrendingUp, DollarSign, Building, FileText, Users, Flag } from "lucide-react";
+import { CheckCircle, Shield, TrendingUp, DollarSign, Building, FileText, Users, Flag, AlertTriangle, Home } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -124,11 +124,51 @@ export function AuthenticPricingDisplay({ communityId }: { communityId: number }
           
           <TabsContent value="sources" className="space-y-3 mt-4">
             {data.sources.length === 0 ? (
-              <Alert>
-                <AlertDescription>
-                  No pricing data available yet. We're actively collecting from authentic sources.
-                </AlertDescription>
-              </Alert>
+              <div className="space-y-3">
+                <Alert className="border-orange-200 bg-orange-50 dark:bg-orange-900/20">
+                  <AlertTriangle className="h-4 w-4 text-orange-600" />
+                  <AlertDescription className="text-orange-800 dark:text-orange-200">
+                    Live pricing temporarily unavailable. External APIs experiencing issues.
+                  </AlertDescription>
+                </Alert>
+                
+                <div className="space-y-2 opacity-60">
+                  <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Available Authentic Sources:</p>
+                  <div className="grid gap-2">
+                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                      <Building className="h-4 w-4" />
+                      <span>HUD Database - Government verified affordable housing</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                      <Shield className="h-4 w-4" />
+                      <span>Medicare/CMS Nursing Home Compare</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                      <FileText className="h-4 w-4" />
+                      <span>State Licensing Board APIs</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                      <Flag className="h-4 w-4" />
+                      <span>Veterans Affairs Pricing</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                      <DollarSign className="h-4 w-4" />
+                      <span>State Medicaid Rates</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                      <Home className="h-4 w-4" />
+                      <span>Direct Community Websites</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <Alert className="border-green-200 bg-green-50 dark:bg-green-900/20">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <AlertDescription className="text-green-800 dark:text-green-200">
+                    <strong>NO aggregator sites used</strong> - We never use A Place for Mom, Caring.com, Seniorly, or similar aggregators
+                  </AlertDescription>
+                </Alert>
+              </div>
             ) : (
               data.sources.map((source, index) => (
                 <div key={index} className="border rounded-lg p-4 space-y-2">
