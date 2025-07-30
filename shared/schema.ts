@@ -3173,22 +3173,28 @@ export const subscriptionTiers = {
   free: {
     name: "Free Listing",
     price: 0,
-    features: ["basic_listing", "photo_upload", "license_verified"]
-  },
-  standard: {
-    name: "Standard",
-    price: 79,
-    features: ["pricing_display", "availability_display", "incentive_display", "5_photos", "basic_insights"]
+    features: ["basic_listing", "photo_upload", "contact_display", "search_visibility"],
+    available: true
   },
   featured: {
-    name: "Featured",
+    name: "Featured Listing",
     price: 149,
-    features: ["priority_placement", "featured_badge", "tour_tools", "unlimited_photos", "analytics_dashboard", "staff_profiles", "responsive_badge", "smart_lead_routing"]
+    features: ["priority_placement", "featured_badge", "unlimited_photos", "basic_analytics", "profile_editing"],
+    available: true
   },
-  platinum: {
-    name: "Platinum",
+  premium: {
+    name: "Premium Tools (Coming Q2 2025)",
     price: 249,
-    features: ["branding_customization", "api_sync", "admin_portal", "homepage_priority", "featured_badge", "priority_placement", "hipaa_intake"]
+    features: ["tour_scheduler", "availability_management", "family_messaging", "advanced_analytics", "crm_integration"],
+    available: false,
+    launchDate: "Q2 2025"
+  },
+  enterprise: {
+    name: "Enterprise (2025 Roadmap)",
+    price: 999,
+    features: ["api_integration", "white_labeling", "dedicated_success", "hipaa_forms", "custom_reporting"],
+    available: false,
+    launchDate: "2025"
   }
 } as const;
 

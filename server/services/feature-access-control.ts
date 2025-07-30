@@ -55,9 +55,12 @@ export class FeatureAccessControl {
   private static readonly tierHierarchy = {
     free: 0,
     featured: 1,
-    premium: 2,
-    platinum: 3
+    premium: 2,  // Coming Q2 2025
+    platinum: 3  // 2025 Roadmap
   };
+
+  // Currently available tiers (others are under development)
+  private static readonly availableTiers = ['free', 'featured'];
 
   // Feature mapping by tier
   private static readonly tierFeatures = {

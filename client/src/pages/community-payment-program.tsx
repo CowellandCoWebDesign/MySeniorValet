@@ -53,131 +53,121 @@ interface PaymentTier {
 const paymentTiers: PaymentTier[] = [
   {
     id: "basic-listing",
-    name: "Basic Listing",
+    name: "Free Listing",
     monthlyFee: 0,
     setupFee: 0,
-    description: "Free listing with basic information and market-based pricing estimates",
+    description: "Free listing with full search visibility - Currently available for all communities",
     features: [
-      "Basic community information",
-      "Market-based pricing estimates",
-      "Standard search visibility",
-      "Basic contact information",
-      "Community photos (up to 5)"
+      "✅ Full community profile",
+      "✅ Contact information display",
+      "✅ Up to 5 photos",
+      "✅ Standard search visibility",
+      "✅ Basic inquiries tracking"
     ],
     priority: 4,
-    badge: "Free",
-    color: "bg-gray-100 border-gray-200",
+    badge: "FREE FOREVER",
+    color: "bg-green-100 border-green-200",
     icon: Building,
     revenueShare: "0%",
     benefits: [
-      "No cost to list",
-      "Included in search results",
-      "Basic community profile"
+      "✅ Currently available",
+      "✅ No credit card required",
+      "✅ Full platform access"
     ],
     limitations: [
-      "Limited visibility",
-      "No priority placement",
-      "No direct booking features",
-      "Basic analytics only"
+      "Standard placement",
+      "Basic analytics",
+      "5 photo limit"
     ]
   },
   {
-    id: "enhanced-listing",
-    name: "Enhanced Listing",
-    monthlyFee: 299,
-    setupFee: 99,
-    description: "Enhanced visibility with verified information and premium features",
+    id: "featured-listing",
+    name: "Featured Listing",
+    monthlyFee: 149,
+    setupFee: 0,
+    description: "Priority placement with enhanced visibility - Available Now",
     features: [
-      "Verified community information",
-      "Premium search placement",
-      "Enhanced photo gallery (up to 15)",
-      "Virtual tour integration",
-      "Priority customer support",
-      "Basic analytics dashboard"
+      "✅ Everything in Free tier",
+      "✅ Featured badge",
+      "✅ Priority search placement",
+      "✅ Unlimited photos",
+      "✅ Basic analytics dashboard",
+      "⏳ Tour scheduler (Coming Q1 2025)",
+      "⏳ Lead notifications (Coming Q1 2025)"
     ],
     priority: 3,
-    badge: "Popular",
+    badge: "AVAILABLE NOW",
     color: "bg-blue-50 border-blue-200",
     icon: Star,
-    revenueShare: "5%",
+    revenueShare: "0%",
     benefits: [
-      "Higher search visibility",
-      "Verified badge display",
-      "Enhanced photo gallery",
-      "Priority support"
+      "✅ Working features available",
+      "✅ Real priority placement",
+      "✅ Proven traffic increase"
     ],
     limitations: [
-      "Limited direct booking",
-      "Basic lead management",
-      "Standard analytics"
+      "Some features in development",
+      "Email support only"
     ]
   },
   {
-    id: "premium-plus",
-    name: "Premium Plus",
-    monthlyFee: 599,
-    setupFee: 199,
-    description: "Full-featured listing with direct booking and comprehensive lead management",
+    id: "premium-future",
+    name: "Premium Tools",
+    monthlyFee: 249,
+    setupFee: 0,
+    description: "Advanced features for serious operators - Coming Q2 2025",
     features: [
-      "Everything in Enhanced Listing",
-      "Direct booking system",
-      "Lead management CRM",
-      "Advanced analytics",
-      "Social media integration",
-      "Email marketing tools",
-      "Priority phone support",
-      "Custom branded profile"
+      "✅ Everything in Featured tier",
+      "🚧 Tour scheduling system",
+      "🚧 Availability management",
+      "🚧 Family messaging portal",
+      "🚧 Advanced analytics",
+      "🚧 CRM integration",
+      "🚧 Priority phone support"
     ],
     priority: 2,
-    badge: "Professional",
-    color: "bg-purple-50 border-purple-200",
+    badge: "COMING SOON",
+    color: "bg-gray-50 border-gray-200",
     icon: Crown,
-    revenueShare: "8%",
+    revenueShare: "0%",
     benefits: [
-      "Direct booking capabilities",
-      "Full CRM integration",
-      "Advanced analytics",
-      "Social media promotion"
+      "Early bird pricing available",
+      "Be first when features launch",
+      "Shape product development"
     ],
     limitations: [
-      "Standard ad placement",
-      "Basic concierge services"
+      "Features under development",
+      "Expected Q2 2025 launch"
     ]
   },
   {
-    id: "enterprise-monopoly",
-    name: "Enterprise Monopoly",
-    monthlyFee: 1299,
-    setupFee: 499,
-    description: "Complete market domination with exclusive features and maximum revenue generation",
+    id: "enterprise-future",
+    name: "Enterprise",
+    monthlyFee: 999,
+    setupFee: 0,
+    description: "White-label platform for multi-community operators - Planned for 2025",
     features: [
-      "Everything in Premium Plus",
-      "Exclusive market area rights",
-      "AI-powered lead generation",
-      "White-label booking platform",
-      "Dedicated account manager",
-      "Custom API integration",
-      "Unlimited photo/video content",
-      "24/7 concierge services",
-      "Advanced SEO optimization",
-      "Social media management",
-      "Review management system",
-      "Competitive suppression tools"
+      "🚧 Custom branding",
+      "🚧 API integration",
+      "🚧 Multi-location management",
+      "🚧 Dedicated success manager",
+      "🚧 Custom reporting",
+      "🚧 HIPAA compliance tools",
+      "🚧 White-label booking platform"
     ],
     priority: 1,
-    badge: "Monopoly",
-    color: "bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200",
+    badge: "2025 ROADMAP",
+    color: "bg-gray-50 border-gray-200",
     icon: Target,
-    revenueShare: "15%",
+    revenueShare: "0%",
     benefits: [
-      "Market monopolization",
-      "Exclusive territory rights",
-      "Maximum lead generation",
-      "Complete competitive advantage"
+      "Reserve your spot",
+      "Influence development",
+      "Lock in launch pricing"
     ],
     limitations: [
-      "Premium investment required",
-      "Annual contract commitment"
+      "In planning phase",
+      "2025 target launch"
     ]
   }
 ];
@@ -289,8 +279,13 @@ export default function CommunityPaymentProgram() {
                   <CardTitle className="text-xl mb-2">{tier.name}</CardTitle>
                   <div className="text-center">
                     <div className="text-3xl font-bold text-gray-900">
-                      ${tier.monthlyFee}
-                      <span className="text-sm font-normal text-gray-600">/month</span>
+                      {tier.monthlyFee === 0 ? 'FREE' : 
+                       tier.priority <= 2 ? (
+                        <span className="text-gray-500">
+                          <span className="text-lg">Future:</span> ${tier.monthlyFee}
+                        </span>
+                       ) : `$${tier.monthlyFee}`}
+                      {tier.monthlyFee > 0 && <span className="text-sm font-normal text-gray-600">/month</span>}
                     </div>
                     {tier.setupFee > 0 && (
                       <div className="text-sm text-gray-600">
@@ -460,21 +455,26 @@ export default function CommunityPaymentProgram() {
                 </div>
               </div>
               <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                Ready to Monopolize the Market?
+                Join MySeniorValet - Free During Beta
               </h2>
               <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-                Launch your community payment program and start generating revenue from day one. 
-                Complete system ready for immediate implementation.
+                List your community for FREE while we build advanced features together. 
+                Early adopters will get special pricing when premium features launch.
               </p>
-              <div className="flex justify-center space-x-4">
-                <Button size="lg" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white">
-                  Launch Payment Program
-                  <ArrowRight className="h-5 w-5 ml-2" />
-                </Button>
-                <Button size="lg" variant="outline">
-                  Schedule Strategy Call
-                  <Phone className="h-5 w-5 ml-2" />
-                </Button>
+              <div className="space-y-4">
+                <p className="text-sm text-gray-500">
+                  ✅ Free listing available now | 🚧 Premium features coming Q1-Q2 2025
+                </p>
+                <div className="flex justify-center space-x-4">
+                  <Button size="lg" className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white">
+                    List Your Community FREE
+                    <ArrowRight className="h-5 w-5 ml-2" />
+                  </Button>
+                  <Button size="lg" variant="outline">
+                    View Feature Roadmap
+                    <Eye className="h-5 w-5 ml-2" />
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

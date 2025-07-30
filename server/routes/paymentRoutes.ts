@@ -22,6 +22,15 @@ export function registerPaymentRoutes(app: Express) {
         return res.status(400).json({ message: 'Price ID is required' });
       }
 
+      // Block premium/enterprise tiers until features are built
+      const blockedTiers = ['premium_tier', 'premium_tools', 'enterprise_tier', 'platinum_partner'];
+      if (blockedTiers.some(tier => priceId.toLowerCase().includes(tier))) {
+        return res.status(400).json({ 
+          message: 'This tier is coming soon! Premium features are under development and will launch in Q2 2025. Please choose the Featured tier for available features.',
+          availableTiers: ['free', 'featured']
+        });
+      }
+
       const session = await stripePaymentService.createCheckoutSession({
         userId,
         priceId,
