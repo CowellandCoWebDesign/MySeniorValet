@@ -689,6 +689,7 @@ export default function FamilyConnect() {
           </Card>
         </div>
       )}
+      </div>
     </div>
   );
 }

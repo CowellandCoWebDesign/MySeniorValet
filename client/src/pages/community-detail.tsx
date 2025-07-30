@@ -1985,7 +1985,7 @@ export default function CommunityDetail() {
       {showAdvancedReservation && (
         <AdvancedReservationFlow
           community={community}
-          selectedUnit={selectedReservationUnit}
+          selectedUnit={selectedReservationUnit || undefined}
           onClose={() => {
             setShowAdvancedReservation(false);
             setSelectedReservationUnit(null);

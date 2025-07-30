@@ -276,6 +276,7 @@ export default function QuizPage() {
         {/* Quiz Component */}
         <CommunityMatchingQuiz onComplete={handleQuizComplete} />
       </div>
+      </div>
     </div>
   );
 }

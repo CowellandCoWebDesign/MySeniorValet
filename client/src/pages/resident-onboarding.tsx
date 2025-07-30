@@ -115,6 +115,22 @@ export default function ResidentOnboarding() {
   ];
 
   const progressPercentage = (currentStep / steps.length) * 100;
+  
+  // Helper function to get fields for validation per step
+  const getFieldsForStep = (step: number): (keyof OnboardingFormData)[] => {
+    switch (step) {
+      case 1:
+        return ["firstName", "lastName", "email", "phone", "dateOfBirth", "ssn", "currentAddress"];
+      case 2:
+        return ["emergencyContactName", "emergencyContactRelationship", "emergencyContactPhone", "emergencyContactAddress"];
+      case 3:
+        return ["backgroundCheckConsent"];
+      case 4:
+        return [];
+      default:
+        return [];
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -125,8 +141,8 @@ export default function ResidentOnboarding() {
       <div className="container mx-auto max-w-4xl py-8 px-4">
         <Card>
           <CardContent>
-          {/* Progress Bar */}
-          <div className="mb-8">
+            {/* Progress Bar */}
+            <div className="mb-8">
             <Progress value={progressPercentage} className="mb-4" />
             <div className="flex justify-between">
               {steps.map((step) => {
@@ -766,20 +782,4 @@ export default function ResidentOnboarding() {
       </Card>
     </div>
   );
-}
-
-// Helper function to get fields for validation per step
-function getFieldsForStep(step: number): (keyof OnboardingFormData)[] {
-  switch (step) {
-    case 1:
-      return ["firstName", "lastName", "email", "phone", "dateOfBirth", "ssn", "currentAddress"];
-    case 2:
-      return ["emergencyContactName", "emergencyContactRelationship", "emergencyContactPhone", "emergencyContactAddress"];
-    case 3:
-      return ["backgroundCheckConsent"];
-    case 4:
-      return [];
-    default:
-      return [];
-  }
 }
