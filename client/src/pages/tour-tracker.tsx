@@ -720,6 +720,7 @@ export default function TourTracker() {
             </div>
           </TabsContent>
         </Tabs>
+        </div>
       </div>
     </div>
   );

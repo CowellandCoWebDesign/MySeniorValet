@@ -135,14 +135,14 @@ export class RealTimePricingIntegrator {
 
   // Store pricing history for transparency
   async storePricingHistory(communityId: number, pricing: any) {
-    await db.insert(pricingHistory).values({
+    // TODO: Implement pricing history table and storage
+    // For now, log to console for transparency
+    console.log('Pricing data collected:', {
       communityId,
       source: pricing.source,
-      priceMin: pricing.priceRange?.min,
-      priceMax: pricing.priceRange?.max,
-      price: pricing.price,
-      verifiedBy: pricing.verified ? 'System' : null,
-      recordedAt: new Date()
+      pricing: pricing.priceRange || pricing.price,
+      verified: pricing.verified,
+      timestamp: new Date()
     });
   }
 }

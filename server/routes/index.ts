@@ -35,6 +35,7 @@ import servicesManagementRoutes from "./servicesManagementRoutes";
 import { featureAccessRouter } from "./featureAccessRoutes";
 import { registerAnalyticsRoutes } from "./analyticsRoutes";
 import { setupVAResourcesRoutes } from "./vaResourcesRoutes";
+import authenticPricingRoutes from "./authentic-pricing-routes";
 
 // Import existing routers
 import { quizRouter } from "./quiz";
@@ -99,6 +100,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register feature access routes
   app.use('/api/features', featureAccessRouter);
+  
+  // Register authentic pricing routes
+  app.use('/api/authentic-pricing', authenticPricingRoutes);
 
   // Register existing specialized routers
   app.use('/api/quiz', quizRouter);

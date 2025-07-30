@@ -134,6 +134,7 @@ export default function LoginPage() {
               <span className="text-xs">Family First</span>
             </div>
           </div>
+          </div>
         </div>
       </div>
     </div>
