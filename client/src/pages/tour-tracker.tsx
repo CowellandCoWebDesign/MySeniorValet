@@ -11,10 +11,11 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Camera, Star, Users, Clock, Smartphone, CheckCircle, AlertCircle } from "lucide-react";
+import { MapPin, Camera, Star, Users, Clock, Smartphone, CheckCircle, AlertCircle, Calendar } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { NavigationHeader } from "@/components/NavigationHeader";
+import { TourScheduler } from "@/components/TourScheduler";
 
 interface Community {
   id: number;
@@ -143,6 +144,7 @@ const PhotoUpload = ({
 export default function TourTracker() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
+  const [location] = useLocation();
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
   const [tourForm, setTourForm] = useState({
     tourType: "",
@@ -160,6 +162,10 @@ export default function TourTracker() {
   });
   const [photos, setPhotos] = useState<Array<{ url: string; caption: string; category: string; timestamp: string }>>([]);
   const [gpsLocation, setGpsLocation] = useState<{ latitude: number; longitude: number; accuracy: number } | null>(null);
+  
+  // Get communityId from URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const communityIdFromUrl = urlParams.get('communityId');
 
   // Fetch user communities (favorites/recently viewed)
   const { data: communities = [] } = useQuery({
@@ -172,6 +178,19 @@ export default function TourTracker() {
     queryKey: ['/api/tour-reviews'],
     enabled: isAuthenticated,
   });
+
+  // Fetch specific community if communityId is in URL
+  const { data: communityFromUrl } = useQuery({
+    queryKey: [`/api/communities/${communityIdFromUrl}`],
+    enabled: !!communityIdFromUrl,
+  });
+
+  // Set selected community when URL community is loaded
+  useEffect(() => {
+    if (communityFromUrl && !selectedCommunity) {
+      setSelectedCommunity(communityFromUrl);
+    }
+  }, [communityFromUrl]);
 
   const createTourReviewMutation = useMutation({
     mutationFn: async (reviewData: any) => {
@@ -311,6 +330,41 @@ export default function TourTracker() {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
 
+        {/* Show TourScheduler if navigated from a community detail page */}
+        {communityFromUrl && selectedCommunity && (
+          <Card className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-blue-200 dark:border-blue-600">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-blue-600" />
+                {selectedCommunity.name}
+              </CardTitle>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {selectedCommunity.address}, {selectedCommunity.city}, {selectedCommunity.state}
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <TourScheduler
+                  communityId={selectedCommunity.id}
+                  communityName={selectedCommunity.name}
+                  communityAddress={`${selectedCommunity.city}, ${selectedCommunity.state}`}
+                  buttonText="Schedule Tour"
+                  buttonVariant="default"
+                  onSuccess={() => {
+                    toast({
+                      title: "Tour Scheduled Successfully!",
+                      description: "Check your email for confirmation details.",
+                    });
+                  }}
+                />
+                <p className="text-sm text-gray-600 dark:text-gray-400 flex-1">
+                  Ready to visit? Schedule your tour now or continue below to document your visit experience.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <Tabs defaultValue="new-review" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="new-review">New Tour Review</TabsTrigger>
@@ -330,10 +384,13 @@ export default function TourTracker() {
                   {/* Community Selection */}
                   <div className="space-y-2">
                     <Label>Community Visited *</Label>
-                    <Select onValueChange={(value) => {
-                      const community = communities.find((c: Community) => c.id.toString() === value);
-                      setSelectedCommunity(community || null);
-                    }}>
+                    <Select 
+                      value={selectedCommunity?.id.toString() || ""}
+                      onValueChange={(value) => {
+                        const community = communities.find((c: Community) => c.id.toString() === value);
+                        setSelectedCommunity(community || null);
+                      }}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select a community..." />
                       </SelectTrigger>
