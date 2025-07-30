@@ -54,6 +54,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/go/amazon', amazonRedirectRoutes.default);
   app.use('/api/amazon-compliance', amazonComplianceRoutes.default);
 
+  // AI Status checking endpoint
+  app.get('/api/ai/status', async (req, res) => {
+    try {
+      const { checkAllAIStatus } = await import('./ai-status-checker');
+      const status = await checkAllAIStatus();
+      res.json(status);
+    } catch (error) {
+      console.error('AI status check failed:', error);
+      res.status(500).json({ error: 'Failed to check AI status' });
+    }
+  });
+
   // Debug endpoint to check authentication status
   app.get('/api/auth/debug', (req: any, res) => {
     res.json({

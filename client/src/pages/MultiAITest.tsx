@@ -43,20 +43,15 @@ export default function MultiAITest() {
 
   // DeepSeek removed due to payment processing issues
 
-  // Health checks
-  const { data: healthStatus } = useQuery({
-    queryKey: ['/api/health-checks'],
+  // Real-time AI API status checks
+  const { data: aiStatus, refetch: refetchStatus } = useQuery({
+    queryKey: ['/api/ai/status'],
     queryFn: async () => {
-      const [claude, perplexity] = await Promise.allSettled([
-        fetch('/api/ai/health').then(r => r.json()),
-        fetch('/api/perplexity/health').then(r => r.json())
-      ]);
-      
-      return {
-        claude: claude.status === 'fulfilled' ? claude.value : { status: 'error' },
-        perplexity: perplexity.status === 'fulfilled' ? perplexity.value : { status: 'error' }
-      };
-    }
+      const response = await fetch('/api/ai/status');
+      if (!response.ok) throw new Error('Failed to check AI status');
+      return response.json();
+    },
+    refetchInterval: 30000, // Check every 30 seconds
   });
 
   const handleSearch = () => {
@@ -79,15 +74,23 @@ export default function MultiAITest() {
           <CardTitle className="flex items-center gap-2">
             🤖 Multi-AI Intelligence Network
             <div className="flex gap-2 ml-auto">
-              <Badge variant={healthStatus?.claude?.status === 'healthy' ? 'default' : 'destructive'}>
-                Claude {healthStatus?.claude?.status === 'healthy' ? '✅' : '❌'}
+              <Badge variant={aiStatus?.claude?.working ? 'default' : 'destructive'}>
+                Claude {aiStatus?.claude?.working ? '✅' : `❌ ${aiStatus?.claude?.message || ''}`}
               </Badge>
-              <Badge variant={healthStatus?.perplexity?.status === 'healthy' ? 'default' : 'destructive'}>
-                Perplexity {healthStatus?.perplexity?.status === 'healthy' ? '✅' : '❌'}
+              <Badge variant={aiStatus?.openai?.working ? 'default' : 'destructive'}>
+                OpenAI {aiStatus?.openai?.working ? '✅' : `❌ ${aiStatus?.openai?.message || ''}`}
               </Badge>
-              <Badge variant="secondary">
-                DeepSeek ⏸️ (Disabled)
+              <Badge variant={aiStatus?.perplexity?.working ? 'default' : 'destructive'}>
+                Perplexity {aiStatus?.perplexity?.working ? '✅' : `❌ ${aiStatus?.perplexity?.message || ''}`}
               </Badge>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => refetchStatus()}
+                className="ml-2 h-6 px-2 text-xs"
+              >
+                Refresh
+              </Button>
             </div>
           </CardTitle>
           <p className="text-muted-foreground">
