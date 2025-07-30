@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 export default function MultiAITest() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -81,7 +82,12 @@ export default function MultiAITest() {
   const isAnyLoading = claudeLoading || perplexityLoading || deepseekLoading;
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <NavigationHeader 
+        title="Multi-AI Intelligence Network" 
+        subtitle="Test all 4 AI engines together"
+      />
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -297,6 +303,7 @@ export default function MultiAITest() {
           </TabsContent>
         </Tabs>
       )}
+      </div>
     </div>
   );
 }

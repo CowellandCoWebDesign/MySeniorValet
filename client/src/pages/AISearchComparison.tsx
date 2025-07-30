@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Link } from "wouter";
+import { NavigationHeader } from "@/components/NavigationHeader";
 import { 
   Search,
   Brain,
@@ -114,7 +115,12 @@ export default function AISearchComparison() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <NavigationHeader 
+        title="AI Search Comparison" 
+        subtitle="Compare all search implementations"
+      />
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
       {/* Header */}
       <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-blue-50">
         <CardHeader>
@@ -365,6 +371,7 @@ export default function AISearchComparison() {
           </Card>
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 export default function PerplexityTest() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -31,7 +32,12 @@ export default function PerplexityTest() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <NavigationHeader 
+        title="Perplexity AI Test" 
+        subtitle="Real-time web intelligence search"
+      />
+      <div className="max-w-4xl mx-auto p-6 space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>🌐 Enhanced AI Search with Perplexity</CardTitle>
@@ -113,6 +119,7 @@ export default function PerplexityTest() {
           </Card>
         </div>
       )}
+      </div>
     </div>
   );
 }
