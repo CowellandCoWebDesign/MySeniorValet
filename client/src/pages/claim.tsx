@@ -64,12 +64,9 @@ export default function ClaimCommunity() {
     mutationFn: async (data: ClaimFormData) => {
       if (!communityId) throw new Error('Community ID is required');
       
-      const response = await apiRequest(`/api/claims/submit`, {
-        method: 'POST',
-        body: JSON.stringify({
-          ...data,
-          communityId
-        })
+      const response = await apiRequest('/api/claims/submit', 'POST', {
+        ...data,
+        communityId
       });
       return response;
     },
@@ -277,8 +274,11 @@ export default function ClaimCommunity() {
       <div className="py-12">
         <div className="max-w-2xl mx-auto px-4">
           <Card>
-          <CardContent>
-            {claimCheck?.community && (
+            <CardHeader>
+              <CardTitle>Community Ownership Claim</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {claimCheck?.community && (
               <div className="mb-6 p-4 bg-blue-50 rounded-lg">
                 <h3 className="font-semibold text-blue-900 mb-1">
                   {claimCheck.community.name}

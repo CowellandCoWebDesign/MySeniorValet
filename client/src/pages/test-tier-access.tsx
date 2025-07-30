@@ -21,6 +21,7 @@ import {
   AlertTriangle
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 // Type definitions
 interface FeatureAccess {
@@ -155,14 +156,13 @@ export default function TestTierAccess() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
-      <div className="max-w-6xl mx-auto space-y-8">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Tier Access Control Testing</h1>
-          <p className="text-gray-600 dark:text-gray-300">
-            Test how different subscription tiers affect feature access
-          </p>
-        </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <NavigationHeader 
+        title="Tier Access Control Testing" 
+        subtitle="Test how different subscription tiers affect feature access"
+      />
+      <div className="p-8">
+        <div className="max-w-6xl mx-auto space-y-8">
 
         {/* Community Selector */}
         <Card>

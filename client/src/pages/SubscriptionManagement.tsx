@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Star, Crown, Zap } from 'lucide-react';
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 interface SubscriptionProduct {
   id: string;
@@ -100,15 +101,12 @@ const SubscriptionManagement = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          MySeniorValet Subscription Plans
-        </h1>
-        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          Choose the perfect plan to showcase your senior living community and connect with families
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <NavigationHeader 
+        title="MySeniorValet Subscription Plans" 
+        subtitle="Choose the perfect plan to showcase your senior living community"
+      />
+      <div className="container mx-auto px-4 py-8">
 
       {/* Main Products */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">

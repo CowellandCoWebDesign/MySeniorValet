@@ -14,6 +14,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
+import { NavigationHeader } from "@/components/NavigationHeader";
 import { 
   BarChart3, 
   Settings, 
@@ -290,16 +291,11 @@ export default function ServicesManagementDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <NavigationHeader 
+        title="Services Management Dashboard" 
+        subtitle="Manage all services, providers, and track performance analytics"
+      />
       <div className="max-w-7xl mx-auto p-6">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Services Management Dashboard
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Manage all services, providers, and track performance analytics
-          </p>
-        </div>
 
         {/* Overview Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

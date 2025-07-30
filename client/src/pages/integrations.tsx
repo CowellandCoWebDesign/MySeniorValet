@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { NavigationHeader } from "@/components/NavigationHeader";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
@@ -300,6 +301,10 @@ export default function IntegrationsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900">
       <Header />
+      <NavigationHeader 
+        title="Advanced Tools & Integrations" 
+        subtitle="Fortune 500-level infrastructure powering MySeniorValet"
+      />
       
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Hero Section */}

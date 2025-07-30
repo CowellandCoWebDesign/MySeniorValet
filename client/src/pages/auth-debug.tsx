@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useState } from "react";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
 export default function AuthDebug() {
   const { user, isAuthenticated, isLoading, error } = useAuth();
@@ -49,10 +50,15 @@ export default function AuthDebug() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
-      <div className="max-w-4xl mx-auto space-y-6">
-        <Card>
-          <CardHeader>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <NavigationHeader 
+        title="Auth Debug" 
+        subtitle="Authentication testing and debugging"
+      />
+      <div className="p-8">
+        <div className="max-w-4xl mx-auto space-y-6">
+          <Card>
+            <CardHeader>
             <CardTitle>Authentication Debug</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
