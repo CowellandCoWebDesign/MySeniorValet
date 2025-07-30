@@ -1,25 +1,19 @@
 import { db } from './db';
-import { communities, services, serviceProviders } from '@shared/schema';
-import { sql, like, and, or, gte, lte } from 'drizzle-orm';
-import { Pinecone } from '@pinecone-database/pinecone';
+import { communities } from '@shared/schema';
+import { sql, and, or } from 'drizzle-orm';
 import OpenAI from 'openai';
 
-// Initialize vector database for semantic search
-const pinecone = new Pinecone({
-  apiKey: process.env.PINECONE_API_KEY || '',
-});
-
+// Initialize OpenAI for embeddings (optional - only if vector search is needed)
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
 export class AIDatabaseConnector {
-  private index: any;
+  private vectorEnabled: boolean = false;
 
   async initialize() {
-    if (process.env.PINECONE_API_KEY) {
-      this.index = pinecone.Index('senior-communities');
-    }
+    // Vector search is optional - we primarily use SQL search on YOUR database
+    this.vectorEnabled = !!process.env.PINECONE_API_KEY;
   }
 
   // Train AI on actual database content

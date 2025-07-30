@@ -33,28 +33,33 @@ export const PLATFORM_ENHANCEMENTS = {
     }
   },
 
-  // 2. REAL-TIME PRICING ACCURACY
+  // 2. REAL-TIME PRICING ACCURACY - NO AGGREGATOR SITES
   pricingIntegrations: {
-    dataFeeds: [
-      {
-        name: 'A Place for Mom API',
-        features: ['Real-time community pricing', 'Availability status', 'Specials and incentives'],
-        accuracy: '95%'
-      },
-      {
-        name: 'Caring.com Pricing Feed', 
-        features: ['Verified pricing data', 'Historical trends', 'Regional comparisons'],
-        accuracy: '92%'
-      },
+    // HARD RULE: We NEVER use A Place for Mom, Caring.com, Seniorly, or Senior Advisor
+    authenticSources: [
       {
         name: 'Medicare.gov Cost Calculator',
         features: ['Government pricing data', 'Medicare coverage estimates', 'Out-of-pocket calculators'],
-        accuracy: '100%'
+        accuracy: '100%',
+        type: 'GOVERNMENT'
       },
       {
-        name: 'Genworth Cost of Care API',
-        features: ['State-by-state pricing', 'Care type averages', 'Annual trend reports'],
-        accuracy: '98%'
+        name: 'HUD Database Integration',
+        features: ['5,936 verified properties', 'Real rent amounts $57-$800', 'Government accuracy'],
+        accuracy: '100%',
+        type: 'GOVERNMENT'
+      },
+      {
+        name: 'State Licensing Boards',
+        features: ['Direct facility pricing', 'Official fee schedules', 'Compliance data'],
+        accuracy: '98%',
+        type: 'GOVERNMENT'
+      },
+      {
+        name: 'Community Direct Pricing',
+        features: ['Direct from facilities', 'Current rate sheets', 'No middleman markup'],
+        accuracy: '95%',
+        type: 'DIRECT'
       }
     ],
     

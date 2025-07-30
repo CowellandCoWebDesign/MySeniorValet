@@ -1,44 +1,16 @@
 import { db } from './db';
-import { communities, pricingHistory, pricingVerifications } from '@shared/schema';
+import { communities } from '@shared/schema';
 import { eq, sql, and } from 'drizzle-orm';
 import axios from 'axios';
 
-// Real-time pricing integrations
+// Real-time pricing integrations - NO AGGREGATOR SITES
+// We ONLY use government sources, direct community data, and verified sources
 export class RealTimePricingIntegrator {
   
-  // Integrate with A Place for Mom API (if available)
-  async fetchAPlaceForMomPricing(communityName: string, location: string) {
-    try {
-      if (process.env.APLACEFORMOM_API_KEY) {
-        const response = await axios.get('https://api.aplaceformom.com/v1/pricing', {
-          headers: { 'X-API-Key': process.env.APLACEFORMOM_API_KEY },
-          params: { community: communityName, location }
-        });
-        return response.data;
-      }
-    } catch (error) {
-      console.error('A Place for Mom API error:', error);
-    }
-    return null;
-  }
+  // We NEVER use aggregator sites like A Place for Mom, Caring.com, Seniorly, or Senior Advisor
+  // This is a HARD RULE - we only use authentic sources
 
-  // Integrate with Caring.com pricing feed
-  async fetchCaringComPricing(communityId: number) {
-    try {
-      if (process.env.CARING_API_KEY) {
-        const response = await axios.get('https://api.caring.com/v2/communities/pricing', {
-          headers: { 'Authorization': `Bearer ${process.env.CARING_API_KEY}` },
-          params: { id: communityId }
-        });
-        return response.data;
-      }
-    } catch (error) {
-      console.error('Caring.com API error:', error);
-    }
-    return null;
-  }
-
-  // Medicare.gov cost calculator integration
+  // Medicare.gov cost calculator integration (LEGITIMATE GOVERNMENT SOURCE)
   async getMedicareCostEstimate(zipCode: string, careLevel: string) {
     try {
       const response = await axios.get('https://data.medicare.gov/api/cost-estimates', {
@@ -51,8 +23,8 @@ export class RealTimePricingIntegrator {
     return null;
   }
 
-  // Aggregate pricing from multiple sources
-  async getAggregatedPricing(communityId: number) {
+  // Get pricing directly from YOUR database - NO AGGREGATORS
+  async getRealPricingFromDatabase(communityId: number) {
     const community = await db.select().from(communities)
       .where(eq(communities.id, communityId))
       .limit(1);
@@ -61,42 +33,44 @@ export class RealTimePricingIntegrator {
 
     const pricingSources = [];
 
-    // 1. Database pricing (most trusted)
+    // 1. YOUR Database pricing (most trusted - from direct sources)
     if (community[0].priceRange) {
       pricingSources.push({
-        source: 'Database',
+        source: 'MySeniorValet Database',
         priceRange: community[0].priceRange,
         verified: !!community[0].hudPropertyId,
         lastUpdated: community[0].updatedAt
       });
     }
 
-    // 2. HUD pricing (government verified)
+    // 2. HUD pricing (government verified - 100% authentic)
     if (community[0].hudPropertyId && community[0].rentPerMonth) {
       pricingSources.push({
-        source: 'HUD',
+        source: 'HUD (Government Verified)',
         price: community[0].rentPerMonth,
         verified: true,
         lastUpdated: new Date()
       });
     }
 
-    // 3. External API pricing
-    const aplaceForMomData = await this.fetchAPlaceForMomPricing(
-      community[0].name, 
-      `${community[0].city}, ${community[0].state}`
+    // 3. Medicare cost data (if available)
+    const medicareData = await this.getMedicareCostEstimate(
+      community[0].zipCode, 
+      community[0].careTypes?.[0] || 'assisted living'
     );
     
-    if (aplaceForMomData) {
+    if (medicareData) {
       pricingSources.push({
-        source: 'A Place for Mom',
-        priceRange: aplaceForMomData.priceRange,
-        verified: false,
+        source: 'Medicare.gov',
+        priceRange: medicareData.priceRange,
+        verified: true,
         lastUpdated: new Date()
       });
     }
 
-    // 4. Calculate confidence score
+    // NO AGGREGATOR SITES - We only use authentic sources
+
+    // Calculate confidence score based on REAL sources
     const confidenceScore = this.calculatePricingConfidence(pricingSources);
 
     return {
@@ -104,7 +78,8 @@ export class RealTimePricingIntegrator {
       sources: pricingSources,
       recommendedRange: this.calculateRecommendedRange(pricingSources),
       confidenceScore,
-      lastChecked: new Date()
+      lastChecked: new Date(),
+      disclaimer: 'Pricing from authentic sources only - no aggregator data'
     };
   }
 

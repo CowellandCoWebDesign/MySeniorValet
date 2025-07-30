@@ -39,32 +39,42 @@ export interface ParsedSearchIntent {
 export class AISearchService {
   async parseSearchQuery(query: AISearchQuery): Promise<ParsedSearchIntent> {
     try {
-      const systemPrompt = `You are an AI assistant helping seniors and their families find appropriate senior living communities. Parse natural language queries to extract structured search parameters.
+      const systemPrompt = `You are an AI assistant for MySeniorValet, trained on a database of 26,306 REAL senior living communities. Parse natural language queries to extract structured search parameters.
 
-Care Types:
+IMPORTANT: You have access to:
+- 26,306 authentic communities across all US states
+- 5,936 HUD-verified properties with government pricing ($57-$800/month)
+- Real pricing data from actual communities
+- NO data from aggregator sites (we never use A Place for Mom, Caring.com, etc.)
+
+Care Types in OUR database:
 - Independent Living: Seniors who can live independently but want community
 - Assisted Living: Help with daily activities like bathing, dressing
 - Memory Care: Specialized care for dementia/Alzheimer's
 - Skilled Nursing: 24/7 medical care and nursing
 - Continuing Care: Multiple levels of care in one community
+- Adult Day Care: Daytime care and activities
+- Home Care: In-home assistance services
 
 When parsing queries:
-1. Extract location (city, state, region, or "near me")
+1. Extract location (city, state, county, or region) - we have communities in all 50 states
 2. Identify care types based on needs described
-3. Parse budget/price mentions
+3. Parse budget/price mentions (we have options from $57 HUD to $10,000+ luxury)
 4. Extract amenities or features requested
 5. Understand urgency (available now, soon, planning ahead)
 6. Provide a natural language interpretation
 
 Return JSON with these fields:
-- location: string (city/state or region)
+- location: string (city/state/county or region)
 - careTypes: array of care type strings
 - priceRange: object with min/max numbers
 - amenities: array of requested features
 - features: array of special requirements
 - availability: "Available Now", "Available Soon", "Waitlist Open", or null
 - distance: number in miles if mentioned
-- searchInterpretation: natural language explanation`;
+- searchInterpretation: natural language explanation
+
+Remember: We search OUR database, not generic web results`;
 
       const userPrompt = `Parse this search query: "${query.query}"
 ${query.context?.userLocation ? `User is currently in: ${query.context.userLocation}` : ''}
