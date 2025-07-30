@@ -581,60 +581,32 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUser(id: string, updates: Partial<any>): Promise<User | undefined> {
-    // Build dynamic SET clause for updates
-    const setFields: string[] = [];
-    const values: any[] = [];
-    
-    if (updates.username) {
-      setFields.push('username = $' + (values.length + 1));
-      values.push(updates.username);
+    try {
+      const updateData: any = {};
+      
+      if (updates.username) updateData.username = updates.username;
+      if (updates.email) updateData.email = updates.email;
+      if (updates.firstName !== undefined) updateData.firstName = updates.firstName;
+      if (updates.lastName !== undefined) updateData.lastName = updates.lastName;
+      if (updates.password) updateData.password = updates.password;
+      if (updates.role) updateData.role = updates.role;
+      
+      if (Object.keys(updateData).length === 0) {
+        // No updates provided
+        return this.getUser(id);
+      }
+      
+      const [updatedUser] = await db
+        .update(users)
+        .set(updateData)
+        .where(eq(users.id, id))
+        .returning();
+      
+      return updatedUser || undefined;
+    } catch (error) {
+      console.error("Error updating user:", error);
+      return undefined;
     }
-    if (updates.email) {
-      setFields.push('email = $' + (values.length + 1));
-      values.push(updates.email);
-    }
-    if (updates.firstName !== undefined) {
-      setFields.push('first_name = $' + (values.length + 1));
-      values.push(updates.firstName);
-    }
-    if (updates.lastName !== undefined) {
-      setFields.push('last_name = $' + (values.length + 1));
-      values.push(updates.lastName);
-    }
-    if (updates.password) {
-      setFields.push('password = $' + (values.length + 1));
-      values.push(updates.password);
-    }
-    if (updates.role) {
-      setFields.push('role = $' + (values.length + 1));
-      values.push(updates.role);
-    }
-    
-    if (setFields.length === 0) {
-      // No updates provided
-      return this.getUser(id);
-    }
-    
-    // Add the id as the last parameter
-    values.push(id);
-    
-    const result = await db.execute(
-      sql`UPDATE users SET ${sql.raw(setFields.join(', '))} WHERE id = $${values.length} RETURNING id, username, email, password, role, first_name, last_name`
-    );
-    
-    const userRow = result.rows[0];
-    if (userRow) {
-      return {
-        id: userRow.id as string,
-        username: userRow.username as string,
-        email: userRow.email as string,
-        password: userRow.password as string,
-        role: userRow.role as string,
-        firstName: userRow.first_name as string,
-        lastName: userRow.last_name as string
-      } as User;
-    }
-    return undefined;
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
