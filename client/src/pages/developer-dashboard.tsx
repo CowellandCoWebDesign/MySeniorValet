@@ -446,15 +446,15 @@ export function DeveloperDashboard() {
 
             {/* Feature List */}
             <div className="space-y-4">
-              {['Free', 'Featured', 'Premium', 'Enterprise'].map(tier => (
+              {['Basic', 'Verified Standard', 'Enhanced Showcase', 'Platinum Spotlight'].map(tier => (
                 <Card key={tier}>
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
-                      {tier} Tier
+                      {tier}
                       <Badge variant="outline">
-                        {tier === 'Free' ? '$0' : 
-                         tier === 'Featured' ? '$149/mo' :
-                         tier === 'Premium' ? '$249/mo' : '$999/mo'}
+                        {tier === 'Basic' ? '$0' : 
+                         tier === 'Verified Standard' ? '$149/mo' :
+                         tier === 'Enhanced Showcase' ? '$249/mo' : '$399/mo'}
                       </Badge>
                     </CardTitle>
                   </CardHeader>
