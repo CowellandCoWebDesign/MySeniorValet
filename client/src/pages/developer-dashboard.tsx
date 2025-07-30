@@ -29,7 +29,8 @@ import {
   Terminal,
   Layers,
   GitBranch,
-  Settings
+  Settings,
+  Rocket
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { NavigationHeader } from "@/components/NavigationHeader";
@@ -214,6 +215,14 @@ export function DeveloperDashboard() {
               </p>
             </div>
             <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.location.href = '/dev/launch-checklist'}
+              >
+                <Rocket className="h-4 w-4 mr-2" />
+                Launch Checklist
+              </Button>
               <Button
                 variant={autoRefresh ? "default" : "outline"}
                 size="sm"

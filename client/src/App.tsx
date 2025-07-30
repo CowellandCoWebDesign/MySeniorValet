@@ -74,6 +74,7 @@ import AuthDebug from "@/pages/auth-debug";
 import DatabaseTest from "@/pages/database-test";
 import IntegrationDashboard from "@/pages/integration-dashboard";
 import { DeveloperDashboard } from "@/pages/developer-dashboard";
+import { LaunchChecklist } from "@/pages/launch-checklist";
 import IntegrationsPage from "@/pages/integrations";
 import SubscriptionManagement from "@/pages/SubscriptionManagement";
 import AIDemoPage from "@/pages/ai-demo";
@@ -181,6 +182,7 @@ function Router() {
       <Route path="/vendor/dashboard" component={VendorDashboard} />
       <Route path="/test-tier-access" component={TestTierAccess} />
       <Route path="/dev" component={DeveloperDashboard} />
+      <Route path="/dev/launch-checklist" component={LaunchChecklist} />
       <Route component={NotFound} />
     </Switch>
   );
