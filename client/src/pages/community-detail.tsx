@@ -1306,42 +1306,42 @@ export default function CommunityDetail() {
                     {/* Expanded Unit Details */}
                     {expandedUnits.has(unit.id) && (
                       <div className="mt-4 pt-4 border-t border-gray-200">
-                        <h5 className="font-semibold text-gray-900 mb-3">Unit Details</h5>
+                        <h5 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Unit Details</h5>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <div className="flex items-center">
                               <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-900 dark:text-gray-100">
+                              <span className="text-sm text-gray-700 dark:text-gray-300">
                                 <strong>View:</strong> {unit.details.view}
                               </span>
                             </div>
                             <div className="flex items-center">
                               <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-900 dark:text-gray-100">
+                              <span className="text-sm text-gray-700 dark:text-gray-300">
                                 <strong>Outdoor Space:</strong> {unit.details.outdoor}
                               </span>
                             </div>
                             <div className="flex items-center">
                               <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-900 dark:text-gray-100">
+                              <span className="text-sm text-gray-700 dark:text-gray-300">
                                 <strong>Kitchen:</strong> {unit.details.kitchen}
                               </span>
                             </div>
                             <div className="flex items-center">
                               <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-900 dark:text-gray-100">
+                              <span className="text-sm text-gray-700 dark:text-gray-300">
                                 <strong>Bathroom:</strong> {unit.details.bathroom}
                               </span>
                             </div>
                             <div className="flex items-center">
                               <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-900 dark:text-gray-100">
+                              <span className="text-sm text-gray-700 dark:text-gray-300">
                                 <strong>Refrigerator:</strong> {unit.details.appliances}
                               </span>
                             </div>
                             <div className="flex items-center">
                               <span className="w-2 h-2 bg-amber-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-900 dark:text-gray-100">
+                              <span className="text-sm text-gray-700 dark:text-gray-300">
                                 <strong>Stove/Cooktop:</strong> {unit.details.stove}
                               </span>
                             </div>
@@ -1349,31 +1349,31 @@ export default function CommunityDetail() {
                           <div className="space-y-2">
                             <div className="flex items-center">
                               <span className="w-2 h-2 bg-indigo-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-900 dark:text-gray-100">
+                              <span className="text-sm text-gray-700 dark:text-gray-300">
                                 <strong>Countertops:</strong> {unit.details.counters}
                               </span>
                             </div>
                             <div className="flex items-center">
                               <span className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-900 dark:text-gray-100">
+                              <span className="text-sm text-gray-700 dark:text-gray-300">
                                 <strong>Flooring:</strong> {unit.details.flooring}
                               </span>
                             </div>
                             <div className="flex items-center">
                               <span className="w-2 h-2 bg-teal-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-900 dark:text-gray-100">
+                              <span className="text-sm text-gray-700 dark:text-gray-300">
                                 <strong>Storage:</strong> {unit.details.storage}
                               </span>
                             </div>
                             <div className="flex items-center">
                               <span className="w-2 h-2 bg-pink-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-900 dark:text-gray-100">
+                              <span className="text-sm text-gray-700 dark:text-gray-300">
                                 <strong>Lighting:</strong> {unit.details.lighting}
                               </span>
                             </div>
                             <div className="flex items-center">
                               <span className="w-2 h-2 bg-cyan-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-900 dark:text-gray-100">
+                              <span className="text-sm text-gray-700 dark:text-gray-300">
                                 <strong>Accessibility:</strong> {unit.details.accessibility}
                               </span>
                             </div>
@@ -1547,10 +1547,19 @@ export default function CommunityDetail() {
                         </div>
                       </div>
 
-                      {/* Amenities & Services Summary */}
-                      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mt-6">
-                        <h4 className="font-medium text-blue-900 mb-3">Amenities & Services Summary</h4>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Enhanced Services & Amenities Summary */}
+                      <div className="bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50 dark:from-indigo-900/20 dark:via-blue-900/20 dark:to-purple-900/20 p-6 rounded-xl border border-indigo-200 dark:border-indigo-700 shadow-lg mt-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center">
+                            <Home className="w-5 h-5 mr-2 text-indigo-600 dark:text-indigo-400" />
+                            Services & Amenities Overview
+                          </h4>
+                          <Badge className="bg-indigo-100 dark:bg-indigo-800/30 text-indigo-700 dark:text-indigo-300 px-3 py-1">
+                            Quick Summary
+                          </Badge>
+                        </div>
+                        
+                        <div className="space-y-4">
                           {(() => {
                             const amenitiesData = Object.values(getAmenitiesByCategory()).flat();
                             const servicesData = Object.values(getCareServicesByCategory()).flat();
@@ -1570,84 +1579,156 @@ export default function CommunityDetail() {
                               pending: servicesData.filter(service => getCareServiceStatus(community, service.id) === 'pending').length
                             };
 
+                            // Calculate percentages for visual impact
+                            const amenityConfirmedPercent = Math.round((amenityStats.confirmed / amenitiesData.length) * 100);
+                            const serviceConfirmedPercent = Math.round((serviceStats.confirmed / servicesData.length) * 100);
+
                             return (
-                              <>
-                                <div className="bg-white p-3 rounded-lg">
-                                  <div className="flex items-center justify-between mb-2">
-                                    <span className="text-sm text-gray-900 dark:text-gray-100">Amenities Status</span>
-                                    <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                                      {amenityStats.confirmed + amenityStats.reported} of {amenitiesData.length}
-                                    </span>
-                                  </div>
-                                  <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-                                    <div className="h-2 rounded-full flex">
-                                      <div 
-                                        className="bg-green-600 h-2 rounded-l-full transition-all duration-300"
-                                        style={{ width: `${(amenityStats.confirmed / amenitiesData.length) * 100}%` }}
-                                      ></div>
-                                      <div 
-                                        className="bg-yellow-500 h-2 transition-all duration-300"
-                                        style={{ width: `${(amenityStats.reported / amenitiesData.length) * 100}%` }}
-                                      ></div>
-                                      <div 
-                                        className="bg-red-500 h-2 transition-all duration-300"
-                                        style={{ width: `${(amenityStats.notOffered / amenitiesData.length) * 100}%` }}
-                                      ></div>
-                                      <div 
-                                        className="bg-gray-400 h-2 rounded-r-full transition-all duration-300"
-                                        style={{ width: `${(amenityStats.pending / amenitiesData.length) * 100}%` }}
-                                      ></div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Amenities Card */}
+                                <div className="bg-white dark:bg-gray-800/50 p-4 rounded-lg shadow-md">
+                                  <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center">
+                                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-3">
+                                        <Star className="w-6 h-6 text-white" />
+                                      </div>
+                                      <div>
+                                        <h5 className="text-base font-semibold text-gray-900 dark:text-gray-100">Community Amenities</h5>
+                                        <p className="text-xs text-gray-600 dark:text-gray-400">{amenitiesData.length} features analyzed</p>
+                                      </div>
+                                    </div>
+                                    <div className="text-right">
+                                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{amenityConfirmedPercent}%</div>
+                                      <p className="text-xs text-gray-600 dark:text-gray-400">Confirmed</p>
                                     </div>
                                   </div>
-                                  <div className="flex justify-between text-xs text-gray-900 dark:text-gray-100">
-                                    <span>✓ {amenityStats.confirmed}</span>
-                                    <span>⏰ {amenityStats.reported}</span>
-                                    <span>✗ {amenityStats.notOffered}</span>
-                                    <span>❓ {amenityStats.pending}</span>
+                                  
+                                  <div className="space-y-3">
+                                    <div className="relative h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                      <div 
+                                        className="absolute top-0 left-0 h-full bg-gradient-to-r from-green-500 to-green-600 transition-all duration-700"
+                                        style={{ width: `${(amenityStats.confirmed / amenitiesData.length) * 100}%` }}
+                                      />
+                                      <div 
+                                        className="absolute top-0 h-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-700"
+                                        style={{ left: `${(amenityStats.confirmed / amenitiesData.length) * 100}%`, width: `${(amenityStats.reported / amenitiesData.length) * 100}%` }}
+                                      />
+                                      <div 
+                                        className="absolute top-0 h-full bg-gradient-to-r from-red-400 to-red-500 transition-all duration-700"
+                                        style={{ left: `${((amenityStats.confirmed + amenityStats.reported) / amenitiesData.length) * 100}%`, width: `${(amenityStats.notOffered / amenitiesData.length) * 100}%` }}
+                                      />
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-4 gap-2 text-center">
+                                      <div>
+                                        <div className="flex items-center justify-center mb-1">
+                                          <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                                        </div>
+                                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Confirmed</p>
+                                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{amenityStats.confirmed}</p>
+                                      </div>
+                                      <div>
+                                        <div className="flex items-center justify-center mb-1">
+                                          <div className="w-2 h-2 bg-amber-500 rounded-full mr-1"></div>
+                                        </div>
+                                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Reported</p>
+                                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{amenityStats.reported}</p>
+                                      </div>
+                                      <div>
+                                        <div className="flex items-center justify-center mb-1">
+                                          <div className="w-2 h-2 bg-red-500 rounded-full mr-1"></div>
+                                        </div>
+                                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Not Offered</p>
+                                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{amenityStats.notOffered}</p>
+                                      </div>
+                                      <div>
+                                        <div className="flex items-center justify-center mb-1">
+                                          <div className="w-2 h-2 bg-gray-400 rounded-full mr-1"></div>
+                                        </div>
+                                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Pending</p>
+                                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{amenityStats.pending}</p>
+                                      </div>
+                                    </div>
                                   </div>
                                 </div>
 
-                                <div className="bg-white p-3 rounded-lg">
-                                  <div className="flex items-center justify-between mb-2">
-                                    <span className="text-sm text-gray-900 dark:text-gray-100">Care Services Status</span>
-                                    <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                                      {serviceStats.confirmed + serviceStats.reported} of {servicesData.length}
-                                    </span>
-                                  </div>
-                                  <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-                                    <div className="h-2 rounded-full flex">
-                                      <div 
-                                        className="bg-green-600 h-2 rounded-l-full transition-all duration-300"
-                                        style={{ width: `${(serviceStats.confirmed / servicesData.length) * 100}%` }}
-                                      ></div>
-                                      <div 
-                                        className="bg-yellow-500 h-2 transition-all duration-300"
-                                        style={{ width: `${(serviceStats.reported / servicesData.length) * 100}%` }}
-                                      ></div>
-                                      <div 
-                                        className="bg-red-500 h-2 transition-all duration-300"
-                                        style={{ width: `${(serviceStats.notOffered / servicesData.length) * 100}%` }}
-                                      ></div>
-                                      <div 
-                                        className="bg-gray-400 h-2 rounded-r-full transition-all duration-300"
-                                        style={{ width: `${(serviceStats.pending / servicesData.length) * 100}%` }}
-                                      ></div>
+                                {/* Care Services Card */}
+                                <div className="bg-white dark:bg-gray-800/50 p-4 rounded-lg shadow-md">
+                                  <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center">
+                                      <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mr-3">
+                                        <Heart className="w-6 h-6 text-white" />
+                                      </div>
+                                      <div>
+                                        <h5 className="text-base font-semibold text-gray-900 dark:text-gray-100">Care Services</h5>
+                                        <p className="text-xs text-gray-600 dark:text-gray-400">{servicesData.length} services evaluated</p>
+                                      </div>
+                                    </div>
+                                    <div className="text-right">
+                                      <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{serviceConfirmedPercent}%</div>
+                                      <p className="text-xs text-gray-600 dark:text-gray-400">Confirmed</p>
                                     </div>
                                   </div>
-                                  <div className="flex justify-between text-xs text-gray-900 dark:text-gray-100">
-                                    <span>✓ {serviceStats.confirmed}</span>
-                                    <span>⏰ {serviceStats.reported}</span>
-                                    <span>✗ {serviceStats.notOffered}</span>
-                                    <span>❓ {serviceStats.pending}</span>
+                                  
+                                  <div className="space-y-3">
+                                    <div className="relative h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                      <div 
+                                        className="absolute top-0 left-0 h-full bg-gradient-to-r from-green-500 to-green-600 transition-all duration-700"
+                                        style={{ width: `${(serviceStats.confirmed / servicesData.length) * 100}%` }}
+                                      />
+                                      <div 
+                                        className="absolute top-0 h-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-700"
+                                        style={{ left: `${(serviceStats.confirmed / servicesData.length) * 100}%`, width: `${(serviceStats.reported / servicesData.length) * 100}%` }}
+                                      />
+                                      <div 
+                                        className="absolute top-0 h-full bg-gradient-to-r from-red-400 to-red-500 transition-all duration-700"
+                                        style={{ left: `${((serviceStats.confirmed + serviceStats.reported) / servicesData.length) * 100}%`, width: `${(serviceStats.notOffered / servicesData.length) * 100}%` }}
+                                      />
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-4 gap-2 text-center">
+                                      <div>
+                                        <div className="flex items-center justify-center mb-1">
+                                          <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                                        </div>
+                                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Confirmed</p>
+                                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{serviceStats.confirmed}</p>
+                                      </div>
+                                      <div>
+                                        <div className="flex items-center justify-center mb-1">
+                                          <div className="w-2 h-2 bg-amber-500 rounded-full mr-1"></div>
+                                        </div>
+                                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Reported</p>
+                                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{serviceStats.reported}</p>
+                                      </div>
+                                      <div>
+                                        <div className="flex items-center justify-center mb-1">
+                                          <div className="w-2 h-2 bg-red-500 rounded-full mr-1"></div>
+                                        </div>
+                                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Not Offered</p>
+                                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{serviceStats.notOffered}</p>
+                                      </div>
+                                      <div>
+                                        <div className="flex items-center justify-center mb-1">
+                                          <div className="w-2 h-2 bg-gray-400 rounded-full mr-1"></div>
+                                        </div>
+                                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Pending</p>
+                                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{serviceStats.pending}</p>
+                                      </div>
+                                    </div>
                                   </div>
                                 </div>
-                              </>
+                              </div>
                             );
                           })()}
                         </div>
-                        <p className="text-xs text-blue-700 dark:text-blue-300 mt-3">
-                          Check the Amenities and Care Services tabs for detailed status information
-                        </p>
+                        
+                        <div className="mt-4 p-3 bg-indigo-100 dark:bg-indigo-800/20 rounded-lg">
+                          <p className="text-sm text-indigo-700 dark:text-indigo-300 flex items-center">
+                            <Info className="w-4 h-4 mr-2" />
+                            View detailed information in the Amenities and Care Services tabs
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </TabsContent>
