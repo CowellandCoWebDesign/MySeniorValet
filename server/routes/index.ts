@@ -16,6 +16,7 @@ import { registerMappingRoutes } from "./mappingRoutes";
 import { registerMappingFixRoutes } from "./mappingFixRoutes";
 import { registerMultiAITestRoutes } from "./multiAiTestRoutes";
 import { registerAuthRoutes } from "./authRoutes";
+import { registerQuickAuthRoutes } from "./quickAuthRoutes";
 import { registerTourRoutes } from "./tourRoutes";
 import { registerClaimRoutes } from "./claimRoutes";
 import { registerReviewRoutes } from "./reviewRoutes";
@@ -61,6 +62,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register all route modules - ORDER MATTERS!
   registerAuthRoutes(app);
+  registerQuickAuthRoutes(app);
   // CRITICAL: Register mapping routes BEFORE community routes to prevent /:id interception
   registerMappingRoutes(app);
   registerMappingFixRoutes(app);
