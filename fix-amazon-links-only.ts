@@ -47,6 +47,13 @@ async function fixAmazonLinksOnly() {
       console.log(`\n📦 Processing: ${product.name}`);
       console.log(`   Current URL: ${product.external_url}`);
       
+      // Skip if URL is null or empty
+      if (!product.external_url) {
+        console.log('   ❌ No URL found - skipping');
+        failedCount++;
+        continue;
+      }
+      
       // Check link health
       const linkHealth = checkAmazonAffiliateLinkHealth(product.external_url);
       console.log(`   Status: ${linkHealth.status} - ${linkHealth.message}`);
