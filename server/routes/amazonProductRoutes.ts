@@ -83,8 +83,8 @@ router.get("/images", async (req, res) => {
         }
       }
 
-      // Ensure affiliate links are properly formatted
-      let affiliateUrl = amazonProductAPI.getAffiliateLink(service.externalUrl || '');
+      // CRITICAL: DO NOT MODIFY EXISTING AFFILIATE LINKS - they are already properly formatted
+      let affiliateUrl = service.externalUrl || '';
       
       productImages.push({
         id: service.productId || `amazon-${service.id}`,

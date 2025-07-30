@@ -204,16 +204,9 @@ export class AmazonProductAPI {
 
   // Get affiliate link with proper tracking
   getAffiliateLink(productUrl: string): string {
-    if (!productUrl) return '';
-    
-    // If it's already a short link with affiliate tag, return as is
-    if (productUrl.includes('amzn.to') || productUrl.includes('tag=')) {
-      return productUrl;
-    }
-    
-    // Add affiliate tag to regular Amazon URLs
-    const separator = productUrl.includes('?') ? '&' : '?';
-    return `${productUrl}${separator}tag=${this.associateTag}`;
+    // CRITICAL: NEVER MODIFY EXISTING AFFILIATE LINKS
+    // User has pre-formatted links with myseniorvalet-20 tag that must not be changed
+    return productUrl || '';
   }
 
   // Validate that affiliate links are working correctly
