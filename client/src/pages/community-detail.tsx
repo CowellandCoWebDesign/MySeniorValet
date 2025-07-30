@@ -821,7 +821,7 @@ export default function CommunityDetail() {
                       
                       {/* Compact Pricing Attribution for Estimates */}
                       {!hasLiveData && community.priceRange && community.priceRange.min > 0 && (
-                        <div className="mt-2 flex items-center gap-2 text-xs">
+                        <div className="mt-2 flex items-center justify-end gap-2 text-xs">
                           <Info className="h-3 w-3 text-blue-600 dark:text-blue-400" />
                           <a 
                             href="#pricing-methodology" 
