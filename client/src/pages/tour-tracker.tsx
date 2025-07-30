@@ -173,11 +173,28 @@ export default function TourTracker() {
     enabled: isAuthenticated,
   });
 
-  // Fetch existing tour reviews
+  // Fetch existing tour reviews (only for authenticated users)
   const { data: tourReviews = [], isLoading: reviewsLoading } = useQuery({
     queryKey: ['/api/tour-reviews'],
     enabled: isAuthenticated,
   });
+
+  // Load anonymous tour data from localStorage
+  useEffect(() => {
+    if (!isAuthenticated) {
+      const savedTourData = localStorage.getItem('myseniorvalet_tour_draft');
+      if (savedTourData) {
+        try {
+          const data = JSON.parse(savedTourData);
+          setTourForm(data.tourForm || tourForm);
+          setPhotos(data.photos || []);
+          setSelectedCommunity(data.selectedCommunity || null);
+        } catch (error) {
+          console.error('Error loading saved tour data:', error);
+        }
+      }
+    }
+  }, []);
 
   // Fetch specific community if communityId is in URL
   const { data: communityFromUrl } = useQuery({
@@ -278,6 +295,35 @@ export default function TourTracker() {
     }));
   };
 
+  // Save tour data to localStorage for anonymous users
+  const saveDraftToLocalStorage = () => {
+    const draftData = {
+      tourForm,
+      photos,
+      selectedCommunity,
+      lastSaved: new Date().toISOString()
+    };
+    localStorage.setItem('myseniorvalet_tour_draft', JSON.stringify(draftData));
+  };
+
+  // Auto-save for anonymous users
+  useEffect(() => {
+    if (!isAuthenticated && (selectedCommunity || tourForm.visitDate || photos.length > 0)) {
+      const saveTimer = setTimeout(() => {
+        saveDraftToLocalStorage();
+        toast({
+          title: "Draft Saved",
+          description: "Your tour progress has been saved locally.",
+        });
+      }, 5000); // Auto-save after 5 seconds of changes
+      
+      return () => clearTimeout(saveTimer);
+    }
+  }, [tourForm, photos, selectedCommunity, isAuthenticated]);
+
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [loginPromptAction, setLoginPromptAction] = useState<'save' | 'share' | 'upload'>('save');
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedCommunity) {
@@ -286,6 +332,14 @@ export default function TourTracker() {
         description: "Please select a community for your tour review.",
         variant: "destructive",
       });
+      return;
+    }
+
+    // If not authenticated, prompt to login
+    if (!isAuthenticated) {
+      setLoginPromptAction('save');
+      setShowLoginDialog(true);
+      saveDraftToLocalStorage(); // Save their work before prompting
       return;
     }
 
@@ -303,26 +357,81 @@ export default function TourTracker() {
     createTourReviewMutation.mutate(reviewData);
   };
 
-  if (!isAuthenticated) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <Card>
-          <CardContent className="text-center py-12">
-            <h2 className="text-2xl font-bold mb-4">Sign In Required</h2>
-            <p className="text-gray-600 mb-6">
-              Please sign in to track your community tours and share your experiences.
-            </p>
-            <Link href="/login">
-              <Button>Sign In</Button>
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  // Share tour functionality
+  const handleShare = () => {
+    if (!isAuthenticated) {
+      setLoginPromptAction('share');
+      setShowLoginDialog(true);
+      saveDraftToLocalStorage();
+      return;
+    }
+    
+    // Share functionality for authenticated users
+    toast({
+      title: "Share Tour",
+      description: "Share functionality coming soon!",
+    });
+  };
+
+  // Upload review functionality  
+  const handleUploadReview = () => {
+    if (!isAuthenticated) {
+      setLoginPromptAction('upload');
+      setShowLoginDialog(true);
+      saveDraftToLocalStorage();
+      return;
+    }
+    
+    // Set form to public for review upload
+    setTourForm(prev => ({ ...prev, isPublic: true }));
+    handleSubmit(new Event('submit') as any);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+      {/* Login Prompt Dialog */}
+      <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">
+              {loginPromptAction === 'save' && 'Save Your Tour Progress'}
+              {loginPromptAction === 'share' && 'Share with Family Members'}
+              {loginPromptAction === 'upload' && 'Upload Your Review'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <p className="text-center text-gray-600">
+              {loginPromptAction === 'save' && 
+                'Sign in to save your tour reviews and access them anytime from any device.'}
+              {loginPromptAction === 'share' && 
+                'Sign in to share your tour experiences with family members and collaborate on the decision.'}
+              {loginPromptAction === 'upload' && 
+                'Sign in to upload your review and help other families in their senior living search.'}
+            </p>
+            <div className="bg-blue-50 p-3 rounded-lg text-sm">
+              <p className="font-medium text-blue-900 mb-1">Your progress is safe!</p>
+              <p className="text-blue-700">
+                We've saved your tour data locally. Sign in to sync it to your account.
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowLoginDialog(false)}
+              className="flex-1"
+            >
+              Continue Anonymously
+            </Button>
+            <Link href="/login" className="flex-1">
+              <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                Sign In
+              </Button>
+            </Link>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <NavigationHeader 
         title="Tour Tracker" 
         subtitle="Document your community visits and share experiences"
@@ -668,17 +777,29 @@ export default function TourTracker() {
                     </Card>
                   </div>
 
-                  <div className="flex justify-end gap-3">
-                    <Button type="button" variant="outline" onClick={resetForm}>
-                      Reset Form
-                    </Button>
-                    <Button 
-                      type="submit" 
-                      disabled={createTourReviewMutation.isPending}
-                      className="bg-blue-600 hover:bg-blue-700"
-                    >
-                      {createTourReviewMutation.isPending ? "Saving..." : "Save Tour Review"}
-                    </Button>
+                  <div className="flex justify-between">
+                    <div className="flex gap-2">
+                      <Button type="button" variant="outline" onClick={handleShare}>
+                        <Users className="h-4 w-4 mr-2" />
+                        Share with Family
+                      </Button>
+                      <Button type="button" variant="outline" onClick={handleUploadReview}>
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Upload as Review
+                      </Button>
+                    </div>
+                    <div className="flex gap-3">
+                      <Button type="button" variant="outline" onClick={resetForm}>
+                        Reset Form
+                      </Button>
+                      <Button 
+                        type="submit" 
+                        disabled={createTourReviewMutation.isPending}
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        {createTourReviewMutation.isPending ? "Saving..." : isAuthenticated ? "Save Tour Review" : "Save Tour"}
+                      </Button>
+                    </div>
                   </div>
                 </form>
               </CardContent>
@@ -687,7 +808,24 @@ export default function TourTracker() {
 
           <TabsContent value="my-reviews">
             <div className="space-y-4">
-              {reviewsLoading ? (
+              {!isAuthenticated ? (
+                <Card>
+                  <CardContent className="py-8 text-center">
+                    <h3 className="text-lg font-semibold mb-2">Sign In to View Your Reviews</h3>
+                    <p className="text-gray-600 mb-4">
+                      Create an account to save and access your tour reviews from any device.
+                    </p>
+                    <p className="text-sm text-gray-500 mb-6">
+                      Your current tour progress is saved locally and will sync when you sign in.
+                    </p>
+                    <Link href="/login">
+                      <Button className="bg-blue-600 hover:bg-blue-700">
+                        Sign In to View Reviews
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              ) : reviewsLoading ? (
                 <Card>
                   <CardContent className="py-8 text-center">
                     <p>Loading your tour reviews...</p>
