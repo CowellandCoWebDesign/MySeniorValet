@@ -765,38 +765,25 @@ export function DeveloperDashboard() {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2 text-slate-900 font-semibold">
                     <CheckCircle className="h-4 w-4 text-green-600" />
-                    Complete
+                    Working
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-slate-900">47</div>
-                  <Progress value={85} className="mt-2 h-2" />
+                  <div className="text-2xl font-bold text-slate-900">15</div>
+                  <Progress value={30} className="mt-2 h-2" />
                 </CardContent>
               </Card>
 
               <Card className="bg-white border">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2 text-slate-900 font-semibold">
-                    <Clock className="h-4 w-4 text-amber-600" />
-                    In Progress
+                    <AlertTriangle className="h-4 w-4 text-amber-600" />
+                    Broken
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-slate-900">5</div>
-                  <Progress value={9} className="mt-2 h-2" />
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white border">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm flex items-center gap-2 text-slate-900 font-semibold">
-                    <AlertTriangle className="h-4 w-4 text-yellow-600" />
-                    Review Needed
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-slate-900">2</div>
-                  <Progress value={4} className="mt-2 h-2" />
+                  <div className="text-2xl font-bold text-slate-900">12</div>
+                  <Progress value={24} className="mt-2 h-2" />
                 </CardContent>
               </Card>
 
@@ -804,24 +791,37 @@ export function DeveloperDashboard() {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2 text-slate-900 font-semibold">
                     <XCircle className="h-4 w-4 text-red-600" />
-                    Blocked
+                    Missing
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-slate-900">0</div>
-                  <Progress value={0} className="mt-2 h-2" />
+                  <div className="text-2xl font-bold text-slate-900">23</div>
+                  <Progress value={46} className="mt-2 h-2" />
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white border">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm flex items-center gap-2 text-slate-900 font-semibold">
+                    <Clock className="h-4 w-4 text-blue-600" />
+                    Total
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-slate-900">50</div>
+                  <Progress value={100} className="mt-2 h-2" />
                 </CardContent>
               </Card>
             </div>
 
             {/* Launch Readiness Alert */}
-            <Alert className="border-green-200 bg-green-50 border-2">
-              <Rocket className="h-4 w-4 text-green-600" />
-              <AlertDescription className="text-green-800 font-medium">
-                <strong className="text-green-900">Launch Status: 87% READY FOR SOFT LAUNCH</strong>
+            <Alert className="border-amber-200 bg-amber-50 border-2">
+              <AlertTriangle className="h-4 w-4 text-amber-600" />
+              <AlertDescription className="text-amber-800 font-medium">
+                <strong className="text-amber-900">Launch Status: NOT READY - Critical Issues Found</strong>
                 <br />
-                <span className="text-sm text-green-700">
-                  Core platform operational | Payment processing active | 26,306 communities loaded | Ready for initial users
+                <span className="text-sm text-amber-700">
+                  Functionality audit reveals broken core features | Stripe integration failing | Community pages missing
                 </span>
               </AlertDescription>
             </Alert>
@@ -834,22 +834,30 @@ export function DeveloperDashboard() {
                   <CardTitle className="flex items-center gap-2 text-slate-900 font-semibold">
                     <Rocket className="h-5 w-5 text-purple-600" />
                     Core Platform & Functionality
-                    <Badge variant="outline" className="ml-auto text-slate-700 border-slate-300">8/8 Complete</Badge>
+                    <Badge variant="destructive" className="ml-auto">3/8 Working</Badge>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {[
-                    { item: 'Interactive map system', desc: 'Leaflet map with clustering, 26,306 communities', status: 'complete' },
-                    { item: 'Community listing display', desc: 'Cards with name, address, care level, pricing, photos', status: 'complete' },
-                    { item: 'Search and filtering', desc: 'Location search, care type filters, price ranges', status: 'complete' },
-                    { item: 'User authentication', desc: 'Quick login system, role-based access control', status: 'complete' },
-                    { item: 'Community profiles', desc: 'Detailed community pages with all information', status: 'complete' },
-                    { item: 'Family dashboard', desc: 'Saved communities, notes, tour tracking', status: 'complete' },
-                    { item: 'Admin dashboard', desc: 'Platform management, analytics, user control', status: 'complete' },
-                    { item: 'Responsive design', desc: 'Mobile-first, works on all devices', status: 'complete' }
+                    { item: 'Database & community loading', desc: '26,306 communities successfully loaded', status: 'working' },
+                    { item: 'AI search system', desc: 'Claude integration working with natural language search', status: 'working' },
+                    { item: 'Home page display', desc: 'Main landing page renders correctly with data', status: 'working' },
+                    { item: 'Community detail pages', desc: 'Individual community profiles - returning 404 errors', status: 'broken' },
+                    { item: 'Basic search functionality', desc: 'Requires bounds parameter - fails on simple location search', status: 'broken' },
+                    { item: 'User authentication flow', desc: 'Signup/login working but has strict validation requirements', status: 'partial' },
+                    { item: 'Interactive map system', desc: 'Map components present but integration needs verification', status: 'unknown' },
+                    { item: 'Responsive design', desc: 'Layout responsive but many pages return errors', status: 'partial' }
                   ].map((item, i) => (
                     <div key={i} className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded border">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      {item.status === 'working' ? (
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      ) : item.status === 'broken' ? (
+                        <XCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
+                      ) : item.status === 'partial' ? (
+                        <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0" />
+                      ) : (
+                        <Clock className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                      )}
                       <div className="flex-1">
                         <p className="text-sm font-medium text-slate-900">{item.item}</p>
                         <p className="text-xs text-slate-600">{item.desc}</p>
@@ -859,27 +867,33 @@ export function DeveloperDashboard() {
                 </CardContent>
               </Card>
 
-              {/* Stripe Billing */}
+              {/* Payment System */}
               <Card className="bg-white border">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-slate-900 font-semibold">
-                    <CreditCard className="h-5 w-5 text-green-600" />
+                    <CreditCard className="h-5 w-5 text-red-600" />
                     Payment & Subscription System
-                    <Badge variant="outline" className="ml-auto text-slate-700 border-slate-300">7/7 Complete</Badge>
+                    <Badge variant="destructive" className="ml-auto">1/7 Working</Badge>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {[
-                    { item: 'Stripe integration active', desc: 'Payment processing, checkout sessions, webhooks', status: 'complete' },
-                    { item: '4-tier pricing structure', desc: 'Basic ($0), Verified Standard ($149), Enhanced Showcase ($249), Platinum Spotlight ($399)', status: 'complete' },
-                    { item: 'Subscription management', desc: 'Create, update, cancel subscriptions', status: 'complete' },
-                    { item: 'Webhook processing', desc: 'Real-time subscription status updates', status: 'complete' },
-                    { item: 'Community claim flow', desc: 'Stripe checkout integrated with listing claims', status: 'complete' },
-                    { item: 'Admin billing dashboard', desc: 'Revenue tracking, subscription management', status: 'complete' },
-                    { item: 'Feature gating', desc: 'Tier-based access control for premium features', status: 'complete' }
+                    { item: 'Pricing structure defined', desc: 'Basic ($0), Verified Standard ($149), Enhanced Showcase ($249), Platinum Spotlight ($399)', status: 'working' },
+                    { item: 'Stripe checkout sessions', desc: 'API endpoint returns HTML error pages instead of JSON', status: 'broken' },
+                    { item: 'Payment processing', desc: 'Unable to test due to checkout session failures', status: 'broken' },
+                    { item: 'Webhook processing', desc: 'Cannot verify without working payment flow', status: 'unknown' },
+                    { item: 'Subscription management', desc: 'Backend logic may exist but frontend integration broken', status: 'broken' },
+                    { item: 'Community claim flow', desc: 'Cannot complete without working payment system', status: 'broken' },
+                    { item: 'Admin billing dashboard', desc: 'May exist but cannot process real transactions', status: 'broken' }
                   ].map((item, i) => (
                     <div key={i} className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded border">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      {item.status === 'working' ? (
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      ) : item.status === 'broken' ? (
+                        <XCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
+                      ) : (
+                        <Clock className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                      )}
                       <div className="flex-1">
                         <p className="text-sm font-medium text-slate-900">{item.item}</p>
                         <p className="text-xs text-slate-600">{item.desc}</p>
@@ -987,42 +1001,42 @@ export function DeveloperDashboard() {
                 </CardContent>
               </Card>
 
-              {/* Launch Summary */}
-              <Card className="border-green-200 bg-green-50 border-2">
+              {/* Critical Issues Summary */}
+              <Card className="border-red-200 bg-red-50 border-2">
                 <CardHeader>
-                  <CardTitle className="text-green-800 font-semibold">🚀 Soft Launch Status</CardTitle>
+                  <CardTitle className="text-red-800 font-semibold">🚨 Critical Blockers for Launch</CardTitle>
                 </CardHeader>
-                <CardContent className="text-green-700">
-                  <p className="mb-3 font-medium">MySeniorValet is ready for soft launch with paying customers:</p>
+                <CardContent className="text-red-700">
+                  <p className="mb-3 font-medium">MySeniorValet has major functionality gaps that prevent launch:</p>
                   <ul className="space-y-2 text-sm">
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                      <span>Core platform fully operational</span>
+                      <XCircle className="h-4 w-4 text-red-600" />
+                      <span><strong>Stripe Payment System Broken:</strong> Checkout sessions return HTML error pages</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <XCircle className="h-4 w-4 text-red-600" />
+                      <span><strong>Community Pages Missing:</strong> Individual community profiles return 404 errors</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <XCircle className="h-4 w-4 text-red-600" />
+                      <span><strong>Search Limitations:</strong> Basic location search fails without bounds parameter</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4 text-amber-600" />
+                      <span><strong>Authentication Issues:</strong> Strict validation blocks simple user registration</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-green-600" />
-                      <span>26,306 authentic communities loaded</span>
+                      <span>Database with 26,306 communities works</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-green-600" />
-                      <span>Stripe payment processing active</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                      <span>Multi-AI intelligence system working</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                      <span>Vendor marketplace generating revenue</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-amber-600" />
-                      <span>Advanced features planned for Q2 2025</span>
+                      <span>AI search with Claude integration works</span>
                     </li>
                   </ul>
                   <div className="mt-4 p-3 bg-white rounded border">
                     <p className="text-sm text-slate-700 mb-2">
-                      <strong>Next Steps:</strong> Launch marketing campaigns, onboard first communities, collect user feedback
+                      <strong>Required Actions:</strong> Fix Stripe integration, implement community detail pages, fix basic search, streamline authentication
                     </p>
                   </div>
                 </CardContent>
