@@ -248,30 +248,30 @@ export default function MySeniorValetHome() {
           </div>
 
           {/* Streamlined Primary Actions - Clean Flow */}
-          <div className="flex flex-col items-center space-y-4 mb-6 animate-fade-in-up animation-delay-700">
+          <div className="flex flex-col items-center space-y-4 mb-6 animate-fade-in-up animation-delay-700 w-full px-4">
             {/* Top Priority: Perfect Match */}
             <Link href="/quiz">
-              <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 text-lg md:text-xl px-10 py-5 rounded-2xl transform hover:scale-105">
+              <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 text-base md:text-xl px-8 md:px-10 py-4 md:py-5 rounded-2xl transform hover:scale-105">
                 ✨ Find My Perfect Match
               </Button>
             </Link>
             
-            {/* Secondary Actions Row */}
-            <div className="flex flex-col sm:flex-row gap-4">
+            {/* Secondary Actions - Responsive Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 w-full max-w-4xl">
               <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}>
-                <Button variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 rounded-2xl font-semibold text-base md:text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-white/10 backdrop-blur-sm">
+                <Button variant="outline" className="w-full border-2 border-white text-white hover:bg-white hover:text-gray-900 px-6 py-3.5 rounded-2xl font-semibold text-sm md:text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-white/10 backdrop-blur-sm">
                   Explore Communities
                 </Button>
               </Link>
               <Link href="/ai-map-showcase">
-                <Button variant="outline" className="border-2 border-amber-300 text-amber-200 hover:bg-amber-300 hover:text-gray-900 px-8 py-4 rounded-2xl font-semibold text-base md:text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-amber-400/10 backdrop-blur-sm">
-                  <Brain className="mr-2 h-5 w-5" />
+                <Button variant="outline" className="w-full border-2 border-amber-300 text-amber-200 hover:bg-amber-300 hover:text-gray-900 px-6 py-3.5 rounded-2xl font-semibold text-sm md:text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-amber-400/10 backdrop-blur-sm">
+                  <Brain className="mr-1.5 h-4 w-4" />
                   AI Map Intelligence
                 </Button>
               </Link>
-              <Link href="/ai-search-comparison">
-                <Button variant="outline" className="border-2 border-purple-300 text-purple-200 hover:bg-purple-300 hover:text-gray-900 px-8 py-4 rounded-2xl font-semibold text-base md:text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-purple-400/10 backdrop-blur-sm">
-                  <Sparkles className="mr-2 h-5 w-5" />
+              <Link href="/ai-search-comparison" className="sm:col-span-2 lg:col-span-1">
+                <Button variant="outline" className="w-full border-2 border-purple-300 text-purple-200 hover:bg-purple-300 hover:text-gray-900 px-6 py-3.5 rounded-2xl font-semibold text-sm md:text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-purple-400/10 backdrop-blur-sm">
+                  <Sparkles className="mr-1.5 h-4 w-4" />
                   Compare AI Search
                 </Button>
               </Link>
