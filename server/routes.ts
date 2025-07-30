@@ -54,6 +54,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/go/amazon', amazonRedirectRoutes.default);
   app.use('/api/amazon-compliance', amazonComplianceRoutes.default);
 
+  // Developer dashboard routes
+  const { registerDeveloperRoutes } = await import('./routes/developerRoutes');
+  registerDeveloperRoutes(app);
+
   // AI Status checking endpoint
   app.get('/api/ai/status', async (req, res) => {
     try {

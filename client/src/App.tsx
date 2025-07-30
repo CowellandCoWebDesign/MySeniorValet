@@ -73,6 +73,7 @@ import TestMapViews from "@/pages/test-map-views";
 import AuthDebug from "@/pages/auth-debug";
 import DatabaseTest from "@/pages/database-test";
 import IntegrationDashboard from "@/pages/integration-dashboard";
+import { DeveloperDashboard } from "@/pages/developer-dashboard";
 import IntegrationsPage from "@/pages/integrations";
 import SubscriptionManagement from "@/pages/SubscriptionManagement";
 import AIDemoPage from "@/pages/ai-demo";
@@ -179,6 +180,7 @@ function Router() {
       <Route path="/vendor/signup" component={VendorSignup} />
       <Route path="/vendor/dashboard" component={VendorDashboard} />
       <Route path="/test-tier-access" component={TestTierAccess} />
+      <Route path="/dev" component={DeveloperDashboard} />
       <Route component={NotFound} />
     </Switch>
   );
