@@ -5,10 +5,10 @@ import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSig
          Mail, Globe, Users, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
          Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X, 
          Clock, HelpCircle, ChevronLeft, ChevronRight, Activity, UtensilsCrossed, Car, 
-         ChevronDown, ChevronUp } from 'lucide-react';
+         ChevronDown, ChevronUp, Building, FileText, AlertTriangle } from 'lucide-react';
 import type { Community } from '@shared/schema';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
@@ -788,54 +788,16 @@ export default function CommunityDetail() {
                           "Pricing available upon request"}
                       </div>
                       
-                      {/* Pricing Attribution for Estimates */}
+                      {/* Compact Pricing Attribution for Estimates */}
                       {!hasLiveData && community.priceRange && community.priceRange.min > 0 && (
-                        <div className="mt-2 p-3 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
-                          <div className="flex items-start gap-2 mb-1">
-                            <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-                            <div>
-                              <p className="text-xs font-semibold text-blue-900 dark:text-blue-200 mb-1">
-                                How we calculated this estimate:
-                              </p>
-                              <p className="text-xs text-blue-800 dark:text-blue-300 mb-2">
-                                MySeniorValet combines data from 8 authentic sources to provide transparent pricing estimates:
-                              </p>
-                              <div className="grid grid-cols-1 gap-1">
-                                <div className="text-xs text-blue-800 dark:text-blue-300">
-                                  <span className="font-medium">Government Sources:</span>
-                                  <ul className="ml-2 space-y-0.5">
-                                    <li>• HUD Database (affordable housing)</li>
-                                    <li>• Medicare/CMS Nursing Home Compare</li>
-                                    <li>• Veterans Affairs pricing data</li>
-                                    <li>• State Medicaid reimbursement rates</li>
-                                  </ul>
-                                </div>
-                                <div className="text-xs text-blue-800 dark:text-blue-300 mt-1">
-                                  <span className="font-medium">Regional Sources:</span>
-                                  <ul className="ml-2 space-y-0.5">
-                                    <li>• State licensing board reports</li>
-                                    <li>• County assessor property data</li>
-                                    <li>• State transparency portals</li>
-                                    <li>• Direct community websites</li>
-                                  </ul>
-                                </div>
-                                <div className="text-xs text-blue-800 dark:text-blue-300 mt-1">
-                                  <span className="font-medium">Market Analysis:</span>
-                                  <ul className="ml-2 space-y-0.5">
-                                    <li>• Genworth 2024 Cost of Care Survey</li>
-                                    <li>• Regional cost of living adjustments</li>
-                                    <li>• Care type & amenity factors</li>
-                                  </ul>
-                                </div>
-                              </div>
-                              <div className="mt-2 p-2 bg-green-100 dark:bg-green-900/30 rounded flex items-center gap-1">
-                                <Shield className="h-3 w-3 text-green-700 dark:text-green-400" />
-                                <p className="text-xs text-green-800 dark:text-green-200 font-semibold">
-                                  NO aggregator sites used (A Place for Mom, Caring.com, etc.)
-                                </p>
-                              </div>
-                            </div>
-                          </div>
+                        <div className="mt-2 flex items-center gap-2 text-xs">
+                          <Info className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                          <a 
+                            href="#pricing-methodology" 
+                            className="text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-300"
+                          >
+                            How we calculate this estimate
+                          </a>
                         </div>
                       )}
                     </div>
@@ -861,22 +823,22 @@ export default function CommunityDetail() {
                         </span>
                       </div>
 
-                      {/* Unit Vacancy Information */}
-                      <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-700">
-                        <div className="text-sm text-blue-900 dark:text-blue-200 font-medium mb-1">
+                      {/* Unit Vacancy Information - Improved Readability */}
+                      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
+                        <div className="text-base text-blue-900 dark:text-blue-200 font-semibold mb-1">
                           {community.id % 3 === 0 ? `${2 + (community.id % 4)} units available` : 
                            community.id % 3 === 1 ? `${1 + (community.id % 2)} units available` : 
                            <Button 
                              variant="outline" 
                              size="sm" 
                              onClick={() => setIsWaitlistOpen(true)}
-                             className="text-xs py-1 px-2 h-6 border-blue-300 dark:border-blue-600 text-blue-800 dark:text-blue-200 hover:bg-blue-100 dark:hover:bg-blue-800/30"
+                             className="text-sm py-2 px-3 h-8 border-blue-300 dark:border-blue-600 text-blue-800 dark:text-blue-200 hover:bg-blue-100 dark:hover:bg-blue-800/30"
                            >
                              Join waitlist
                            </Button>
                           }
                         </div>
-                        <div className="text-xs text-blue-800 dark:text-blue-200">
+                        <div className="text-sm text-blue-800 dark:text-blue-200">
                           Updated {community.id % 2 === 0 ? 'today' : 'yesterday'}
                         </div>
                       </div>
@@ -1286,11 +1248,11 @@ export default function CommunityDetail() {
                   <div key={unit.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex-1">
-                        <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{unit.type}</h4>
-                        <p className="text-sm text-gray-900 dark:text-gray-100">{unit.sqft} sq ft</p>
-                        <div className="mt-2 flex flex-wrap gap-1">
+                        <h4 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{unit.type}</h4>
+                        <p className="text-base text-gray-700 dark:text-gray-300">{unit.sqft} sq ft</p>
+                        <div className="mt-2 flex flex-wrap gap-2">
                           {unit.features.map((feature, featureIndex) => (
-                            <Badge key={featureIndex} variant="secondary" className="text-xs">
+                            <Badge key={featureIndex} variant="secondary" className="text-sm px-3 py-1">
                               {feature}
                             </Badge>
                           ))}
@@ -1717,8 +1679,8 @@ export default function CommunityDetail() {
                                   </h5>
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                     {(community as any).healthcareServices.map((service: string, index: number) => (
-                                      <div key={index} className="flex items-center text-sm text-red-800 dark:text-red-300">
-                                        <div className="w-2 h-2 bg-red-500 rounded-full mr-2 flex-shrink-0"></div>
+                                      <div key={index} className="flex items-center text-base text-red-800 dark:text-red-300">
+                                        <div className="w-3 h-3 bg-red-500 rounded-full mr-2 flex-shrink-0"></div>
                                         {service}
                                       </div>
                                     ))}
@@ -1734,8 +1696,8 @@ export default function CommunityDetail() {
                                   </h5>
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                     {(community as any).fitnessServices.map((service: string, index: number) => (
-                                      <div key={index} className="flex items-center text-sm text-purple-800 dark:text-purple-300">
-                                        <div className="w-2 h-2 bg-purple-500 rounded-full mr-2 flex-shrink-0"></div>
+                                      <div key={index} className="flex items-center text-base text-purple-800 dark:text-purple-300">
+                                        <div className="w-3 h-3 bg-purple-500 rounded-full mr-2 flex-shrink-0"></div>
                                         {service}
                                       </div>
                                     ))}
@@ -1751,8 +1713,8 @@ export default function CommunityDetail() {
                                   </h5>
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                     {(community as any).diningServices.map((service: string, index: number) => (
-                                      <div key={index} className="flex items-center text-sm text-orange-800 dark:text-orange-300">
-                                        <div className="w-2 h-2 bg-orange-500 rounded-full mr-2 flex-shrink-0"></div>
+                                      <div key={index} className="flex items-center text-base text-orange-800 dark:text-orange-300">
+                                        <div className="w-3 h-3 bg-orange-500 rounded-full mr-2 flex-shrink-0"></div>
                                         {service}
                                       </div>
                                     ))}
@@ -1768,8 +1730,8 @@ export default function CommunityDetail() {
                                   </h5>
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                     {(community as any).transportationServices.map((service: string, index: number) => (
-                                      <div key={index} className="flex items-center text-sm text-teal-800 dark:text-teal-300">
-                                        <div className="w-2 h-2 bg-teal-500 rounded-full mr-2 flex-shrink-0"></div>
+                                      <div key={index} className="flex items-center text-base text-teal-800 dark:text-teal-300">
+                                        <div className="w-3 h-3 bg-teal-500 rounded-full mr-2 flex-shrink-0"></div>
                                         {service}
                                       </div>
                                     ))}
@@ -1785,8 +1747,8 @@ export default function CommunityDetail() {
                                   </h5>
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                     {(community as any).socialServices.map((service: string, index: number) => (
-                                      <div key={index} className="flex items-center text-sm text-indigo-800 dark:text-indigo-300">
-                                        <div className="w-2 h-2 bg-indigo-500 rounded-full mr-2 flex-shrink-0"></div>
+                                      <div key={index} className="flex items-center text-base text-indigo-800 dark:text-indigo-300">
+                                        <div className="w-3 h-3 bg-indigo-500 rounded-full mr-2 flex-shrink-0"></div>
                                         {service}
                                       </div>
                                     ))}
@@ -2036,6 +1998,150 @@ export default function CommunityDetail() {
 
           </div>
         </div>
+        
+        {/* Detailed Pricing Methodology Section */}
+        {!hasLiveData && community.priceRange && community.priceRange.min > 0 && (
+          <div id="pricing-methodology" className="mt-12 mb-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold flex items-center">
+                  <Info className="w-6 h-6 mr-2 text-blue-600" />
+                  How We Calculate Pricing Estimates
+                </CardTitle>
+                <CardDescription className="text-base">
+                  Transparent pricing methodology using 8 authentic sources
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg border border-blue-200 dark:border-blue-700">
+                    <p className="text-base text-blue-900 dark:text-blue-200 mb-4">
+                      MySeniorValet provides pricing estimates to help families budget and plan. Since many communities don't publish pricing online, we use data from 8 authentic sources to calculate fair market estimates.
+                    </p>
+                    
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <h4 className="font-semibold text-lg text-blue-900 dark:text-blue-200 mb-3 flex items-center">
+                          <Building className="w-5 h-5 mr-2" />
+                          Government Sources
+                        </h4>
+                        <ul className="space-y-2">
+                          <li className="flex items-start text-base text-blue-800 dark:text-blue-300">
+                            <div className="w-3 h-3 bg-blue-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                            <div>
+                              <strong>HUD Database</strong> - Government verified affordable housing rates for seniors
+                            </div>
+                          </li>
+                          <li className="flex items-start text-base text-blue-800 dark:text-blue-300">
+                            <div className="w-3 h-3 bg-blue-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                            <div>
+                              <strong>Medicare/CMS Nursing Home Compare</strong> - Federal pricing data for skilled nursing
+                            </div>
+                          </li>
+                          <li className="flex items-start text-base text-blue-800 dark:text-blue-300">
+                            <div className="w-3 h-3 bg-blue-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                            <div>
+                              <strong>Veterans Affairs</strong> - VA community living center rates
+                            </div>
+                          </li>
+                          <li className="flex items-start text-base text-blue-800 dark:text-blue-300">
+                            <div className="w-3 h-3 bg-blue-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                            <div>
+                              <strong>State Medicaid Rates</strong> - Published reimbursement schedules
+                            </div>
+                          </li>
+                        </ul>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-semibold text-lg text-blue-900 dark:text-blue-200 mb-3 flex items-center">
+                          <FileText className="w-5 h-5 mr-2" />
+                          Regional & Direct Sources
+                        </h4>
+                        <ul className="space-y-2">
+                          <li className="flex items-start text-base text-blue-800 dark:text-blue-300">
+                            <div className="w-3 h-3 bg-purple-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                            <div>
+                              <strong>State Licensing Boards</strong> - Annual facility reports and surveys
+                            </div>
+                          </li>
+                          <li className="flex items-start text-base text-blue-800 dark:text-blue-300">
+                            <div className="w-3 h-3 bg-purple-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                            <div>
+                              <strong>County Property Records</strong> - Assessor data for facility valuations
+                            </div>
+                          </li>
+                          <li className="flex items-start text-base text-blue-800 dark:text-blue-300">
+                            <div className="w-3 h-3 bg-purple-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                            <div>
+                              <strong>State Transparency Portals</strong> - Public health department data
+                            </div>
+                          </li>
+                          <li className="flex items-start text-base text-blue-800 dark:text-blue-300">
+                            <div className="w-3 h-3 bg-purple-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                            <div>
+                              <strong>Direct Community Websites</strong> - When available from official sources
+                            </div>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-6">
+                      <h4 className="font-semibold text-lg text-blue-900 dark:text-blue-200 mb-3 flex items-center">
+                        <DollarSign className="w-5 h-5 mr-2" />
+                        Market Analysis Factors
+                      </h4>
+                      <ul className="space-y-2">
+                        <li className="flex items-start text-base text-blue-800 dark:text-blue-300">
+                          <div className="w-3 h-3 bg-green-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                          <div>
+                            <strong>Genworth 2024 Cost of Care Survey</strong> - National benchmark for senior care costs by region and care type
+                          </div>
+                        </li>
+                        <li className="flex items-start text-base text-blue-800 dark:text-blue-300">
+                          <div className="w-3 h-3 bg-green-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                          <div>
+                            <strong>Regional Cost Adjustments</strong> - Local market conditions, cost of living index, and metropolitan area factors
+                          </div>
+                        </li>
+                        <li className="flex items-start text-base text-blue-800 dark:text-blue-300">
+                          <div className="w-3 h-3 bg-green-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                          <div>
+                            <strong>Care Level & Amenities</strong> - Adjustments based on services offered, facility ratings, and available features
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg border border-green-200 dark:border-green-700">
+                    <div className="flex items-center mb-3">
+                      <Shield className="w-6 h-6 text-green-700 dark:text-green-400 mr-2" />
+                      <h4 className="text-xl font-bold text-green-900 dark:text-green-200">
+                        Our Commitment: NO Aggregator Sites
+                      </h4>
+                    </div>
+                    <p className="text-base text-green-800 dark:text-green-300">
+                      We <strong>NEVER</strong> use pricing from aggregator websites like A Place for Mom, Caring.com, Seniorly, or Senior Advisor. These sites often inflate prices and don't reflect actual community rates. MySeniorValet only uses authentic, verifiable sources to ensure families get honest pricing information.
+                    </p>
+                  </div>
+                  
+                  <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-700">
+                    <div className="flex items-start">
+                      <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mr-2 mt-0.5" />
+                      <div>
+                        <p className="text-base text-yellow-800 dark:text-yellow-300">
+                          <strong>Important:</strong> These are estimates based on available data. Actual pricing may vary based on room type, care needs, and current availability. Always contact the community directly for current pricing and tour the facility before making decisions.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
       
       {/* Advanced Reservation Flow Modal */}
