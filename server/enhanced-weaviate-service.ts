@@ -302,10 +302,35 @@ class EnhancedWeaviateService {
       },
       properties: [
         { name: 'userId', dataType: ['string'], description: 'User identifier' },
-        { name: 'preferences', dataType: ['object'], description: 'User preferences and requirements' },
+        { 
+          name: 'preferences', 
+          dataType: ['object'], 
+          description: 'User preferences and requirements',
+          nestedProperties: {
+            careTypes: { dataType: ['text[]'] },
+            priceRange: { dataType: ['object'] },
+            location: { dataType: ['object'] },
+            mustHave: { dataType: ['text[]'] },
+            dealBreakers: { dataType: ['text[]'] },
+            specialNeeds: { dataType: ['text[]'] },
+            lifestyle: { dataType: ['text[]'] }
+          }
+        },
         { name: 'searchHistory', dataType: ['object[]'], description: 'Historical search patterns' },
         { name: 'interactions', dataType: ['object[]'], description: 'Community interactions' },
-        { name: 'familyContext', dataType: ['object'], description: 'Family decision context' },
+        { 
+          name: 'familyContext', 
+          dataType: ['object'], 
+          description: 'Family decision context',
+          nestedProperties: {
+            relationshipToCare: { dataType: ['text'] },
+            timeframe: { dataType: ['text'] },
+            currentSituation: { dataType: ['text'] },
+            decisionMakers: { dataType: ['text[]'] },
+            concerns: { dataType: ['text[]'] },
+            priorities: { dataType: ['text[]'] }
+          }
+        },
         { name: 'preferenceVector', dataType: ['text'], description: 'Vectorized preferences for similarity matching' }
       ]
     };
@@ -1073,7 +1098,7 @@ User Context:
       };
 
     } catch (error) {
-      details.error = error.message;
+      details.error = error instanceof Error ? error.message : String(error);
       return { status: 'unhealthy', details };
     }
   }
