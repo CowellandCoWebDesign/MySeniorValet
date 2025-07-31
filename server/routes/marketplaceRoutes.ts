@@ -52,8 +52,10 @@ router.get("/vendors/:slug", async (req: Request, res: Response) => {
 router.get("/out/:vendorId", async (req: Request, res: Response) => {
   try {
     const vendorId = parseInt(req.params.vendorId);
-    const vendor = await storage.getMarketplaceVendorBySlug(req.params.vendorId) || 
-                   await storage.getMarketplaceVendors({ categoryId: vendorId }).then(vendors => vendors.find(v => v.id === vendorId));
+    
+    // Get vendor by ID
+    const vendors = await storage.getMarketplaceVendors();
+    const vendor = vendors.find(v => v.id === vendorId);
     
     if (!vendor) {
       return res.status(404).send("Vendor not found");

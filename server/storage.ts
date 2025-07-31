@@ -1989,6 +1989,142 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return updated || undefined;
   }
+
+  // Marketplace vendor methods implementation
+  async getMarketplaceCategories(): Promise<MarketplaceCategory[]> {
+    return db.select().from(marketplaceCategories).orderBy(marketplaceCategories.displayOrder);
+  }
+
+  async getMarketplaceCategoryBySlug(slug: string): Promise<MarketplaceCategory | undefined> {
+    const [category] = await db.select().from(marketplaceCategories).where(eq(marketplaceCategories.slug, slug));
+    return category || undefined;
+  }
+
+  async createMarketplaceCategory(category: InsertMarketplaceCategory): Promise<MarketplaceCategory> {
+    const [created] = await db.insert(marketplaceCategories).values(category).returning();
+    return created;
+  }
+
+  async updateMarketplaceCategory(id: number, updates: Partial<InsertMarketplaceCategory>): Promise<MarketplaceCategory | undefined> {
+    const [updated] = await db.update(marketplaceCategories).set(updates).where(eq(marketplaceCategories.id, id)).returning();
+    return updated || undefined;
+  }
+
+  async getMarketplaceVendors(params?: { categoryId?: number; featured?: boolean; hidden?: boolean }): Promise<MarketplaceVendor[]> {
+    let query = db.select().from(marketplaceVendors);
+    const conditions: any[] = [];
+    
+    if (params?.categoryId) {
+      conditions.push(eq(marketplaceVendors.categoryId, params.categoryId));
+    }
+    if (params?.featured !== undefined) {
+      conditions.push(eq(marketplaceVendors.isFeatured, params.featured));
+    }
+    if (params?.hidden !== undefined) {
+      conditions.push(eq(marketplaceVendors.isHidden, params.hidden));
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    return query.orderBy(marketplaceVendors.displayOrder);
+  }
+
+  async getMarketplaceVendorBySlug(slug: string): Promise<MarketplaceVendor | undefined> {
+    const [vendor] = await db.select().from(marketplaceVendors).where(eq(marketplaceVendors.slug, slug));
+    return vendor || undefined;
+  }
+
+  async createMarketplaceVendor(vendor: InsertMarketplaceVendor): Promise<MarketplaceVendor> {
+    const [created] = await db.insert(marketplaceVendors).values(vendor).returning();
+    return created;
+  }
+
+  async updateMarketplaceVendor(id: number, updates: Partial<InsertMarketplaceVendor>): Promise<MarketplaceVendor | undefined> {
+    const [updated] = await db.update(marketplaceVendors).set(updates).where(eq(marketplaceVendors.id, id)).returning();
+    return updated || undefined;
+  }
+
+  async deleteMarketplaceVendor(id: number): Promise<boolean> {
+    const result = await db.delete(marketplaceVendors).where(eq(marketplaceVendors.id, id));
+    return (result as any).rowCount > 0;
+  }
+
+  async trackMarketplaceVendorClick(click: InsertMarketplaceVendorClick): Promise<MarketplaceVendorClick> {
+    const [created] = await db.insert(marketplaceVendorClicks).values(click).returning();
+    return created;
+  }
+
+  async getMarketplaceVendorClicks(vendorId: number, days?: number): Promise<MarketplaceVendorClick[]> {
+    let query = db.select().from(marketplaceVendorClicks).where(eq(marketplaceVendorClicks.vendorId, vendorId));
+    
+    if (days) {
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - days);
+      query = query.where(gte(marketplaceVendorClicks.createdAt, cutoffDate));
+    }
+    
+    return query.orderBy(desc(marketplaceVendorClicks.createdAt));
+  }
+
+  async getMarketplaceAnalytics(): Promise<{
+    totalVendors: number;
+    totalClicks: number;
+    topVendors: Array<{ vendor: MarketplaceVendor; clicks: number }>;
+    categoryBreakdown: Array<{ category: MarketplaceCategory; vendorCount: number; totalClicks: number }>;
+  }> {
+    // Get total vendors
+    const [vendorCountResult] = await db.select({ count: sql<number>`count(*)` }).from(marketplaceVendors);
+    const totalVendors = Number(vendorCountResult.count);
+
+    // Get total clicks
+    const [clickCountResult] = await db.select({ count: sql<number>`count(*)` }).from(marketplaceVendorClicks);
+    const totalClicks = Number(clickCountResult.count);
+
+    // Get top vendors by clicks
+    const topVendorsData = await db
+      .select({
+        vendor: marketplaceVendors,
+        clicks: sql<number>`count(${marketplaceVendorClicks.id})::int`
+      })
+      .from(marketplaceVendors)
+      .leftJoin(marketplaceVendorClicks, eq(marketplaceVendors.id, marketplaceVendorClicks.vendorId))
+      .groupBy(marketplaceVendors.id)
+      .orderBy(desc(sql`count(${marketplaceVendorClicks.id})`))
+      .limit(10);
+
+    const topVendors = topVendorsData.map(row => ({
+      vendor: row.vendor,
+      clicks: Number(row.clicks)
+    }));
+
+    // Get category breakdown
+    const categoryData = await db
+      .select({
+        category: marketplaceCategories,
+        vendorCount: sql<number>`count(distinct ${marketplaceVendors.id})::int`,
+        totalClicks: sql<number>`count(${marketplaceVendorClicks.id})::int`
+      })
+      .from(marketplaceCategories)
+      .leftJoin(marketplaceVendors, eq(marketplaceCategories.id, marketplaceVendors.categoryId))
+      .leftJoin(marketplaceVendorClicks, eq(marketplaceVendors.id, marketplaceVendorClicks.vendorId))
+      .groupBy(marketplaceCategories.id)
+      .orderBy(marketplaceCategories.displayOrder);
+
+    const categoryBreakdown = categoryData.map(row => ({
+      category: row.category,
+      vendorCount: Number(row.vendorCount),
+      totalClicks: Number(row.totalClicks)
+    }));
+
+    return {
+      totalVendors,
+      totalClicks,
+      topVendors,
+      categoryBreakdown
+    };
+  }
 }
 
 export const storage = new DatabaseStorage();
