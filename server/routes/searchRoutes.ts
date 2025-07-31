@@ -66,14 +66,17 @@ export function registerSearchRoutes(app: Express) {
       // Try to geocode the location if provided
       if (searchParams.location) {
         try {
-          const geocoded = await geocodeLocation(searchParams.location);
+          const geocoded = geocodeLocation(searchParams.location);
           if (geocoded) {
-            const zoomLevel = await getZoomLevel(geocoded.type);
-            result.geocoded = {
-              coordinates: geocoded.coordinates,
-              displayName: geocoded.displayName,
-              type: geocoded.type,
-              zoomLevel
+            const zoomLevel = getZoomLevel(searchParams.location);
+            
+            // Add searchMetadata with coordinates for the frontend
+            result.searchMetadata = {
+              coordinates: geocoded,
+              searchLocation: searchParams.location,
+              searchType: 'city',
+              totalResults: result.communities.length,
+              originalQuery: searchParams.location
             };
           }
         } catch (error) {

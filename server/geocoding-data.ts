@@ -417,6 +417,9 @@ export function geocodeLocationInternational(location: string): { lat: number; l
 
 // Get zoom level based on location type
 export function getZoomLevel(location: string): number {
+  if (!location) {
+    return 12; // Default city level zoom
+  }
   const normalized = location.toLowerCase().trim();
   
   // Country level
