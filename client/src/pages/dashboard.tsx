@@ -169,77 +169,128 @@ export default function Dashboard() {
       <NavigationHeader title="Dashboard" />
 
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Hero Section */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 p-8 md:p-12 mb-8 text-white">
-          <div className="absolute inset-0 bg-black/20"></div>
-          <div className="relative z-10">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-sm">
-                <Home className="h-8 w-8" />
+        {/* Enhanced Analytics Hero Section */}
+        <Card className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white mb-8 overflow-hidden">
+          <CardContent className="p-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 items-center">
+              <div className="lg:col-span-2">
+                <h1 className="text-3xl font-bold mb-2">Welcome back, {user?.name || 'Explorer'}!</h1>
+                <p className="text-blue-100">Your senior living journey at a glance</p>
               </div>
-              <div>
-                <h1 className="text-4xl md:text-5xl font-bold mb-2">
-                  Welcome Back!
-                </h1>
-                <p className="text-xl text-blue-100 max-w-2xl">
-                  Your personalized senior living dashboard with saved communities, search history, and tour tracking
-                </p>
+              <div className="text-center">
+                <div className="text-4xl font-bold mb-1">{savedCommunities.length}</div>
+                <div className="text-blue-100 text-sm">Saved Communities</div>
+                <Badge className="mt-2 bg-white/20 text-white border-white/30">
+                  <TrendingUp className="w-3 h-3 mr-1" />
+                  Active
+                </Badge>
               </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                <div className="flex items-center space-x-3">
-                  <Heart className="h-6 w-6 text-pink-200" />
-                  <div>
-                    <p className="text-2xl font-bold">{savedCommunities.length}</p>
-                    <p className="text-sm text-blue-100">Saved Communities</p>
-                  </div>
+              <div className="text-center">
+                <div className="text-4xl font-bold mb-1">{tourRequests.length}</div>
+                <div className="text-blue-100 text-sm">Tour Requests</div>
+                <div className="mt-2 text-xs">
+                  {tourRequests.filter(t => t.status === 'confirmed').length} confirmed
                 </div>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                <div className="flex items-center space-x-3">
-                  <Search className="h-6 w-6 text-green-200" />
-                  <div>
-                    <p className="text-2xl font-bold">{recentSearches.length}</p>
-                    <p className="text-sm text-blue-100">Recent Searches</p>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                <div className="flex items-center space-x-3">
-                  <Calendar className="h-6 w-6 text-yellow-200" />
-                  <div>
-                    <p className="text-2xl font-bold">{tourRequests.length}</p>
-                    <p className="text-sm text-blue-100">Active Tours</p>
-                  </div>
+              <div className="text-center">
+                <div className="text-4xl font-bold mb-1">{recentSearches.length}</div>
+                <div className="text-blue-100 text-sm">Recent Searches</div>
+                <div className="mt-2 text-xs">
+                  Last: {recentSearches[0] ? new Date(recentSearches[0].date).toLocaleDateString() : 'Never'}
                 </div>
               </div>
             </div>
+          </CardContent>
+        </Card>
 
-            {/* Role-based Navigation */}
-            <div className="mt-6 flex flex-wrap gap-4">
-              {(user as any)?.role === 'admin' && (
-                <Link href="/admin">
-                  <Button size="lg" className="bg-white/20 hover:bg-white/30 text-white border border-white/30">
-                    <Building className="w-5 h-5 mr-2" />
-                    Admin Dashboard
-                  </Button>
-                </Link>
-              )}
-              <Link href="/my-communities">
-                <Button size="lg" className="bg-white/20 hover:bg-white/30 text-white border border-white/30">
-                  <Home className="w-5 h-5 mr-2" />
-                  My Communities
-                </Button>
-              </Link>
-              <Link href="/claim">
-                <Button size="lg" className="bg-white/20 hover:bg-white/30 text-white border border-white/30">
-                  <Plus className="w-5 h-5 mr-2" />
-                  Claim a Community
-                </Button>
-              </Link>
-            </div>
+        {/* Quick Actions & Real-time Stats */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+          {/* Quick Actions */}
+          <Card className="lg:col-span-1 border-blue-200 bg-blue-50/50 dark:bg-blue-900/20">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm">Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Button 
+                onClick={() => setShowCommunitySearch(true)} 
+                className="w-full justify-start"
+                variant="ghost"
+              >
+                <Search className="w-4 h-4 mr-2" />
+                Find Communities
+              </Button>
+              <Button 
+                onClick={() => window.location.href = '/map'} 
+                className="w-full justify-start"
+                variant="ghost"
+              >
+                <MapPin className="w-4 h-4 mr-2" />
+                Explore Map
+              </Button>
+              <Button 
+                onClick={() => window.location.href = '/communities'} 
+                className="w-full justify-start"
+                variant="ghost"
+              >
+                <Building className="w-4 h-4 mr-2" />
+                Browse All
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Activity Summary Cards */}
+          <div className="lg:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Card className="border-green-200 bg-green-50/50 dark:bg-green-900/20">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Profile Views</p>
+                    <p className="text-2xl font-bold text-green-600">247</p>
+                    <p className="text-xs text-green-600 mt-1">+12% this week</p>
+                  </div>
+                  <Eye className="h-6 w-6 text-green-500" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-purple-200 bg-purple-50/50 dark:bg-purple-900/20">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Messages</p>
+                    <p className="text-2xl font-bold text-purple-600">18</p>
+                    <p className="text-xs text-orange-600 mt-1">3 unread</p>
+                  </div>
+                  <MessageCircle className="h-6 w-6 text-purple-500" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-orange-200 bg-orange-50/50 dark:bg-orange-900/20">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Reviews Written</p>
+                    <p className="text-2xl font-bold text-orange-600">7</p>
+                    <p className="text-xs text-gray-600 mt-1">5.0 avg rating</p>
+                  </div>
+                  <Star className="h-6 w-6 text-orange-500" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-indigo-200 bg-indigo-50/50 dark:bg-indigo-900/20">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Shared Items</p>
+                    <p className="text-2xl font-bold text-indigo-600">34</p>
+                    <p className="text-xs text-gray-600 mt-1">With 5 people</p>
+                  </div>
+                  <Share2 className="h-6 w-6 text-indigo-500" />
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
 

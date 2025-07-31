@@ -296,31 +296,110 @@ export default function ServicesManagementDashboard() {
         subtitle="Manage all services, providers, and track performance analytics"
       />
       <div className="max-w-7xl mx-auto p-6">
+        {/* Performance Hero Section */}
+        <Card className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white mb-8">
+          <CardContent className="p-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 items-center">
+              <div className="lg:col-span-2">
+                <h2 className="text-2xl font-bold mb-2">Services Analytics</h2>
+                <p className="text-indigo-100">Real-time performance metrics</p>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold">{analytics?.summary?.totalViews?.toLocaleString() || "0"}</div>
+                <div className="text-indigo-100 text-sm">Total Views</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold">{analytics?.summary?.totalClicks?.toLocaleString() || "0"}</div>
+                <div className="text-indigo-100 text-sm">Total Clicks</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold">${analytics?.summary?.totalRevenue?.toLocaleString() || "0"}</div>
+                <div className="text-indigo-100 text-sm">Revenue</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold">{analytics?.summary?.avgConversionRate?.toFixed(1) || "0"}%</div>
+                <div className="text-indigo-100 text-sm">Conversion</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Services</p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.totalServices}</p>
-                  <p className="text-sm text-green-600">{stats.activeServices} active</p>
-                </div>
-                <Settings className="h-8 w-8 text-blue-500" />
+        {/* Real-time Activity & Performance Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* Live Activity Feed */}
+          <Card className="border-green-200 bg-green-50/50 dark:bg-green-900/20">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
+                Live Activity
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {topServices?.slice(0, 5).map((service, index) => (
+                  <div key={index} className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground truncate mr-2">{service.name}</span>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary" className="text-xs">
+                        {service.clicks} clicks
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Service Providers</p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.totalProviders}</p>
-                  <p className="text-sm text-blue-600">{stats.partnerProviders} partners</p>
-                </div>
-                <Users className="h-8 w-8 text-green-500" />
+          {/* Service Distribution */}
+          <Card className="lg:col-span-2">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm">Service Performance by Category</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {categories.slice(0, 4).map((category) => {
+                  const categoryServices = services.filter(s => s.categoryId === category.id);
+                  const percentage = (categoryServices.length / services.length) * 100;
+                  return (
+                    <div key={category.id}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium">{category.name}</span>
+                        <span className="text-sm text-muted-foreground">
+                          {categoryServices.length} services
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full transition-all"
+                          style={{ width: `${percentage}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Compact Stats Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+          <Card className="border-blue-200 bg-blue-50/50 dark:bg-blue-900/20">
+            <CardContent className="p-4">
+              <div className="flex flex-col">
+                <p className="text-xs text-gray-600 dark:text-gray-400">Total Services</p>
+                <p className="text-2xl font-bold text-blue-600">{stats.totalServices}</p>
+                <p className="text-xs text-green-600">{stats.activeServices} active</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-green-200 bg-green-50/50 dark:bg-green-900/20">
+            <CardContent className="p-4">
+              <div className="flex flex-col">
+                <p className="text-xs text-gray-600 dark:text-gray-400">Providers</p>
+                <p className="text-2xl font-bold text-green-600">{stats.totalProviders}</p>
+                <p className="text-xs text-blue-600">{stats.partnerProviders} partners</p>
               </div>
             </CardContent>
           </Card>

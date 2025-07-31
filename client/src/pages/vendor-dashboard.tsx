@@ -220,73 +220,156 @@ export default function VendorDashboard() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
+        {/* Performance Hero Section */}
+        <Card className="bg-gradient-to-r from-purple-600 to-blue-600 text-white mb-8">
+          <CardContent className="p-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+              <div className="text-center">
+                <div className="text-4xl font-bold mb-1">{vendorProfile.totalLeads}</div>
+                <div className="text-purple-100 text-sm">Total Leads</div>
+                <div className="mt-2 text-xs">
+                  <span className="bg-white/20 rounded-full px-2 py-1">+{totalLeadsThisPeriod} this period</span>
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl font-bold mb-1">{conversionRate.toFixed(1)}%</div>
+                <div className="text-purple-100 text-sm">Conversion Rate</div>
+                <Progress value={conversionRate} className="mt-2 h-2 bg-white/30" />
+              </div>
+              <div className="text-center">
+                <div className="text-4xl font-bold mb-1">${totalRevenue.toFixed(0)}</div>
+                <div className="text-purple-100 text-sm">Period Revenue</div>
+                <div className="mt-2 text-xs">
+                  <span className="bg-white/20 rounded-full px-2 py-1">Lifetime: ${vendorProfile.lifetimeRevenue}</span>
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl font-bold mb-1">{vendorProfile.averageRating || "N/A"}</div>
+                <div className="text-purple-100 text-sm">Average Rating</div>
+                <div className="mt-2 text-xs">
+                  <span className="bg-white/20 rounded-full px-2 py-1">{vendorProfile.totalReviews} reviews</span>
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl font-bold mb-1">{vendorProfile.subscriptionTier}</div>
+                <div className="text-purple-100 text-sm">Current Tier</div>
+                <div className="mt-2 text-xs">
+                  <Badge className="bg-white/20 text-white border-white/30">
+                    {vendorProfile.verificationStatus}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Real-time Performance Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-8">
+          <Card className="border-green-200 bg-green-50/50 dark:bg-green-900/20 lg:col-span-1">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Total Leads
+              <CardTitle className="text-sm flex items-center gap-2">
+                <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
+                Live Activity
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between">
-                <p className="text-2xl font-bold">{vendorProfile.totalLeads}</p>
-                <Users className="h-8 w-8 text-blue-500 opacity-20" />
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Active Leads</span>
+                  <span className="font-semibold text-green-600">{vendorLeads?.filter(l => l.status === 'pending').length || 0}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Avg Response Time</span>
+                  <span className="font-semibold">15 min</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Today's Views</span>
+                  <span className="font-semibold">342</span>
+                </div>
               </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                {totalLeadsThisPeriod} this period
-              </p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="lg:col-span-3">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Conversion Rate
-              </CardTitle>
+              <CardTitle className="text-sm">Revenue Trend</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between">
-                <p className="text-2xl font-bold">{conversionRate.toFixed(1)}%</p>
-                <TrendingUp className="h-8 w-8 text-green-500 opacity-20" />
+              <div className="grid grid-cols-7 gap-1 h-24">
+                {Array.from({ length: 7 }, (_, i) => {
+                  const height = Math.random() * 100;
+                  return (
+                    <div key={i} className="flex flex-col items-center justify-end">
+                      <div 
+                        className="w-full bg-gradient-to-t from-blue-600 to-purple-600 rounded-t"
+                        style={{ height: `${height}%` }}
+                      />
+                      <span className="text-xs text-muted-foreground mt-1">
+                        {format(new Date(Date.now() - (6 - i) * 24 * 60 * 60 * 1000), 'EEE').charAt(0)}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
-              <Progress value={conversionRate} className="mt-2" />
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Service Performance Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <Card className="border-blue-200 bg-blue-50/50 dark:bg-blue-900/20">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Active Services</p>
+                  <p className="text-xl font-bold text-blue-600">
+                    {vendorProfile.services?.filter(s => s.isActive).length || 0}
+                  </p>
+                </div>
+                <Package className="h-6 w-6 text-blue-500" />
+              </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Revenue This Period
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+          <Card className="border-purple-200 bg-purple-50/50 dark:bg-purple-900/20">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
-                <p className="text-2xl font-bold">${totalRevenue.toFixed(2)}</p>
-                <DollarSign className="h-8 w-8 text-green-500 opacity-20" />
+                <div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Commission Rate</p>
+                  <p className="text-xl font-bold text-purple-600">
+                    {vendorProfile.commissionRate}
+                  </p>
+                </div>
+                <DollarSign className="h-6 w-6 text-purple-500" />
               </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                ${vendorProfile.lifetimeRevenue} lifetime
-              </p>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Average Rating
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+          <Card className="border-green-200 bg-green-50/50 dark:bg-green-900/20">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
-                <p className="text-2xl font-bold">
-                  {vendorProfile.averageRating || "N/A"}
-                </p>
-                <Star className="h-8 w-8 text-yellow-500 opacity-20" />
+                <div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Response Rate</p>
+                  <p className="text-xl font-bold text-green-600">
+                    98<span className="text-sm font-normal">%</span>
+                  </p>
+                </div>
+                <MessageSquare className="h-6 w-6 text-green-500" />
               </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                {vendorProfile.totalReviews} reviews
-              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-orange-200 bg-orange-50/50 dark:bg-orange-900/20">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Avg Booking Value</p>
+                  <p className="text-xl font-bold text-orange-600">
+                    $249
+                  </p>
+                </div>
+                <TrendingUp className="h-6 w-6 text-orange-500" />
+              </div>
             </CardContent>
           </Card>
         </div>

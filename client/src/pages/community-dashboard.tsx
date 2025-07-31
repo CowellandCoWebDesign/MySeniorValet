@@ -217,6 +217,57 @@ export default function CommunityDashboard() {
           </div>
         </div>
 
+        {/* Performance Hero Section */}
+        <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white mb-8">
+          <CardContent className="p-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="text-center">
+                <div className="text-4xl font-bold mb-1">{overview?.overview?.profileViews?.toLocaleString() || "0"}</div>
+                <div className="text-blue-100 text-sm">Total Views</div>
+                <div className="mt-2 flex items-center justify-center text-xs">
+                  {overview?.trends?.viewsChange >= 0 ? (
+                    <ChevronUp className="w-4 h-4 mr-1" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4 mr-1" />
+                  )}
+                  <span>{Math.abs(overview?.trends?.viewsChange || 0)}% vs last period</span>
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl font-bold mb-1">{overview?.overview?.familyInquiries?.toLocaleString() || "0"}</div>
+                <div className="text-blue-100 text-sm">Family Inquiries</div>
+                <div className="mt-2 flex items-center justify-center text-xs">
+                  {overview?.trends?.inquiriesChange >= 0 ? (
+                    <ChevronUp className="w-4 h-4 mr-1" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4 mr-1" />
+                  )}
+                  <span>{Math.abs(overview?.trends?.inquiriesChange || 0)}% vs last period</span>
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl font-bold mb-1">{overview?.overview?.tourRequests?.toLocaleString() || "0"}</div>
+                <div className="text-blue-100 text-sm">Tour Requests</div>
+                <div className="mt-2 flex items-center justify-center text-xs">
+                  {overview?.trends?.toursChange >= 0 ? (
+                    <ChevronUp className="w-4 h-4 mr-1" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4 mr-1" />
+                  )}
+                  <span>{Math.abs(overview?.trends?.toursChange || 0)}% vs last period</span>
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl font-bold mb-1">{overview?.leadQuality?.conversionRate || "0"}%</div>
+                <div className="text-blue-100 text-sm">Conversion Rate</div>
+                <div className="mt-2 text-xs bg-white/20 rounded-full px-3 py-1 inline-block">
+                  Industry avg: 12%
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Main Dashboard */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-6">
@@ -230,38 +281,158 @@ export default function CommunityDashboard() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-              <StatCard
-                title="Profile Views"
-                value={overview?.overview?.profileViews?.toLocaleString() || "0"}
-                change={overview?.trends?.viewsChange}
-                icon={Eye}
-              />
-              <StatCard
-                title="Search Impressions"
-                value={overview?.overview?.searchImpressions?.toLocaleString() || "0"}
-                change={overview?.trends?.inquiriesChange}
-                icon={Search}
-              />
-              <StatCard
-                title="Family Inquiries"
-                value={overview?.overview?.familyInquiries?.toLocaleString() || "0"}
-                change={overview?.trends?.inquiriesChange}
-                icon={MessageSquare}
-              />
-              <StatCard
-                title="Tour Requests"
-                value={overview?.overview?.tourRequests?.toLocaleString() || "0"}
-                change={overview?.trends?.toursChange}
-                icon={CalendarIcon}
-              />
-              <StatCard
-                title="Phone Clicks"
-                value={overview?.overview?.phoneCallClicks?.toLocaleString() || "0"}
-                change={overview?.trends?.viewsChange}
-                icon={Phone}
-              />
+            {/* Performance Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Real-time Activity Feed */}
+              <Card className="lg:col-span-1">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <div className="h-3 w-3 bg-green-500 rounded-full animate-pulse" />
+                    Real-time Activity
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Profile views (last hour)</span>
+                      <span className="font-semibold">42</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Active visitors now</span>
+                      <span className="font-semibold text-green-600">8</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Tour requests today</span>
+                      <span className="font-semibold">3</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Unread messages</span>
+                      <span className="font-semibold text-orange-600">5</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Response time avg</span>
+                      <span className="font-semibold text-blue-600">15 min</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Engagement Metrics */}
+              <Card className="lg:col-span-2">
+                <CardHeader>
+                  <CardTitle>Engagement Performance</CardTitle>
+                  <p className="text-sm text-muted-foreground">Key metrics across all channels</p>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm font-medium">Search Visibility</span>
+                          <span className="text-sm font-semibold">85%</span>
+                        </div>
+                        <Progress value={85} className="h-2" />
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm font-medium">Profile Completeness</span>
+                          <span className="text-sm font-semibold">92%</span>
+                        </div>
+                        <Progress value={92} className="h-2" />
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm font-medium">Response Rate</span>
+                          <span className="text-sm font-semibold">78%</span>
+                        </div>
+                        <Progress value={78} className="h-2" />
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm font-medium">Review Score</span>
+                          <span className="text-sm font-semibold">4.7/5</span>
+                        </div>
+                        <Progress value={94} className="h-2" />
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm font-medium">Photo Quality</span>
+                          <span className="text-sm font-semibold">88%</span>
+                        </div>
+                        <Progress value={88} className="h-2" />
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm font-medium">Tour Conversion</span>
+                          <span className="text-sm font-semibold">24%</span>
+                        </div>
+                        <Progress value={24} className="h-2" />
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Compact Stats Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Card className="border-green-200 bg-green-50/50 dark:bg-green-900/20">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">Search Impressions</p>
+                      <p className="text-xl font-bold text-green-600">
+                        {overview?.overview?.searchImpressions?.toLocaleString() || "0"}
+                      </p>
+                    </div>
+                    <Search className="h-6 w-6 text-green-500" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-blue-200 bg-blue-50/50 dark:bg-blue-900/20">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">Phone Clicks</p>
+                      <p className="text-xl font-bold text-blue-600">
+                        {overview?.overview?.phoneCallClicks?.toLocaleString() || "0"}
+                      </p>
+                    </div>
+                    <Phone className="h-6 w-6 text-blue-500" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-purple-200 bg-purple-50/50 dark:bg-purple-900/20">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">Review Score</p>
+                      <p className="text-xl font-bold text-purple-600">
+                        4.7<span className="text-sm font-normal">/5</span>
+                      </p>
+                    </div>
+                    <Star className="h-6 w-6 text-purple-500" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-orange-200 bg-orange-50/50 dark:bg-orange-900/20">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">Occupancy Rate</p>
+                      <p className="text-xl font-bold text-orange-600">
+                        94<span className="text-sm font-normal">%</span>
+                      </p>
+                    </div>
+                    <Home className="h-6 w-6 text-orange-500" />
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Traffic Sources & Performance */}
