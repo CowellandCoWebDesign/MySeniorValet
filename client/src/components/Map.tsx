@@ -517,15 +517,19 @@ export default function Map({
   }, [onBoundsChange]);
 
   // Handle zoom change - can be called with or without parameter
-  const handleZoomChange = useCallback((zoomLevel?: number) => {
-    if (zoomLevel !== undefined) {
-      console.log('🔍 Setting zoom level:', zoomLevel);
-      setCurrentZoom(zoomLevel);
-    }
-  }, []);
-
   // Track current zoom level for supercluster
   const [currentZoom, setCurrentZoom] = useState(zoom);
+  
+  const handleZoomChange = useCallback((zoomLevel?: number) => {
+    if (zoomLevel !== undefined) {
+      console.log('🔍 ZOOM CHANGED:', {
+        oldZoom: currentZoom,
+        newZoom: zoomLevel,
+        rounded: Math.floor(zoomLevel)
+      });
+      setCurrentZoom(zoomLevel);
+    }
+  }, [currentZoom]);
 
   // Remove this - let React Query handle refetching based on key changes
 
@@ -769,11 +773,13 @@ export default function Map({
       const data = await response.json();
       const renderTime = performance.now() - renderStart;
 
-      console.log('Cluster data received:', {
+      console.log('🎯 CLUSTER API RESPONSE:', {
         featureCount: data.clusters?.length || 0,
         bounds: bounds,
-        zoom: Math.round(currentZoom),
-        features: data.clusters?.slice(0, 3) // Log first 3 features
+        requestedZoom: Math.round(currentZoom),
+        clusters: data.clusters?.filter((f: any) => f.properties?.cluster).length || 0,
+        markers: data.clusters?.filter((f: any) => !f.properties?.cluster).length || 0,
+        firstFeature: data.clusters?.[0]
       });
 
       // Update performance metrics
@@ -1017,16 +1023,18 @@ export default function Map({
         )}
 
         {/* Supercluster-powered markers and clusters */}
-        {!isLoading && !error && clusterData?.clusters?.map((feature: any, index: number) => {
-          // Log first few items to debug rendering
-          if (index < 3) {
-            console.log(`Rendering feature ${index}:`, {
-              isCluster: feature.properties.cluster,
-              pointCount: feature.properties.point_count,
-              coordinates: feature.geometry.coordinates,
-              zoom: currentZoom
-            });
-          }
+        {!isLoading && !error && clusterData?.clusters && (() => {
+          console.log('🎨 RENDERING MAP FEATURES:', {
+            totalFeatures: clusterData.clusters.length,
+            currentZoom: currentZoom,
+            roundedZoom: Math.floor(currentZoom),
+            isLoading,
+            error,
+            clusters: clusterData.clusters.filter((f: any) => f.properties?.cluster).length,
+            markers: clusterData.clusters.filter((f: any) => !f.properties?.cluster).length
+          });
+          return true;
+        })() && clusterData.clusters.map((feature: any, index: number) => {
           const [lng, lat] = feature.geometry.coordinates;
           const { properties } = feature;
 
