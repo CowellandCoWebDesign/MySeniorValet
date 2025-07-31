@@ -208,7 +208,7 @@ async function testSearchAndMapping() {
       east: -118.1437,
       west: -118.3437
     };
-    const result = await makeRequest('GET', `/communities/search-fixed?north=${bounds.north}&south=${bounds.south}&east=${bounds.east}&west=${bounds.west}&limit=50`);
+    const result = await makeRequest('GET', `/communities/search?bounds=${bounds.west},${bounds.south},${bounds.east},${bounds.north}&limit=50`);
     return {
       success: result.success && result.data && result.data.communities && Array.isArray(result.data.communities),
       details: result.data ? `Found ${result.data.communities?.length || 0} communities in bounds` : 'No data',

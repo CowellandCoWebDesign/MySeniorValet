@@ -1,10 +1,10 @@
 {
-  "timestamp": "2025-07-31T18:13:27.735Z",
+  "timestamp": "2025-07-31T18:36:17.181Z",
   "summary": {
     "total": 37,
-    "passed": 35,
-    "failed": 2,
-    "passRate": "94.6%"
+    "passed": 36,
+    "failed": 1,
+    "passRate": "97.3%"
   },
   "results": [
     {
@@ -12,13 +12,13 @@
       "status": "PASSED",
       "details": {
         "totalCommunities": 25326,
-        "totalUsers": 23,
+        "totalUsers": 25,
         "totalTours": 3,
         "totalReviews": 0,
         "platformStatus": "operational",
-        "lastUpdated": "2025-07-31T18:13:24.354Z",
-        "_version": "v4_streamlined_hero_1753985549137",
-        "_timestamp": 1753985604354
+        "lastUpdated": "2025-07-31T18:36:11.943Z",
+        "_version": "v4_streamlined_hero_1753986959531",
+        "_timestamp": 1753986971943
       }
     },
     {
@@ -26,8 +26,8 @@
       "status": "PASSED",
       "details": {
         "count": "25326",
-        "_version": "v4_streamlined_hero_1753985549137",
-        "_timestamp": 1753985604444
+        "_version": "v4_streamlined_hero_1753986959531",
+        "_timestamp": 1753986972353
       }
     },
     {
@@ -83,9 +83,9 @@
           "Florida and Texas lead in new community openings",
           "Average monthly cost rose 4.8% nationally"
         ],
-        "lastUpdated": "2025-07-31T18:13:24.457Z",
-        "_version": "v4_streamlined_hero_1753985549137",
-        "_timestamp": 1753985604457
+        "lastUpdated": "2025-07-31T18:36:12.389Z",
+        "_version": "v4_streamlined_hero_1753986959531",
+        "_timestamp": 1753986972389
       }
     },
     {
@@ -527,9 +527,9 @@
           "benefitsOffices": 3,
           "totalFacilities": 18
         },
-        "lastUpdated": "2025-07-31T18:13:25.828Z",
-        "_version": "v4_streamlined_hero_1753985549137",
-        "_timestamp": 1753985605828
+        "lastUpdated": "2025-07-31T18:36:14.277Z",
+        "_version": "v4_streamlined_hero_1753986959531",
+        "_timestamp": 1753986974277
       }
     },
     {
@@ -545,20 +545,14 @@
         "aiAnalysis": null,
         "total": 0,
         "status": "success",
-        "_version": "v4_streamlined_hero_1753985549137",
-        "_timestamp": 1753985605837
+        "_version": "v4_streamlined_hero_1753986959531",
+        "_timestamp": 1753986974645
       }
     },
     {
       "test": "Map Bounds Search",
-      "status": "FAILED",
-      "error": {
-        "error": "Bounds parameter required",
-        "format": "bounds=west,south,east,north",
-        "example": "bounds=-122.5,37.7,-122.3,37.8",
-        "_version": "v4_streamlined_hero_1753985549137",
-        "_timestamp": 1753985605840
-      }
+      "status": "PASSED",
+      "details": "Found 50 communities in bounds"
     },
     {
       "test": "Map Clustering",
@@ -572,11 +566,11 @@
         "status": "healthy",
         "provider": "Claude (Anthropic)",
         "responseTime": 142,
-        "lastChecked": "2025-07-31T18:13:25.848Z",
+        "lastChecked": "2025-07-31T18:36:15.094Z",
         "credits": "active",
         "apiVersion": "2024-10-01",
-        "_version": "v4_streamlined_hero_1753985549137",
-        "_timestamp": 1753985605848
+        "_version": "v4_streamlined_hero_1753986959531",
+        "_timestamp": 1753986975094
       }
     },
     {
@@ -586,11 +580,11 @@
         "status": "healthy",
         "provider": "OpenAI (ChatGPT)",
         "responseTime": 98,
-        "lastChecked": "2025-07-31T18:13:25.851Z",
+        "lastChecked": "2025-07-31T18:36:15.098Z",
         "credits": "active",
         "apiVersion": "v1",
-        "_version": "v4_streamlined_hero_1753985549137",
-        "_timestamp": 1753985605851
+        "_version": "v4_streamlined_hero_1753986959531",
+        "_timestamp": 1753986975098
       }
     },
     {
@@ -600,11 +594,11 @@
         "status": "healthy",
         "provider": "Perplexity AI",
         "responseTime": 156,
-        "lastChecked": "2025-07-31T18:13:25.857Z",
+        "lastChecked": "2025-07-31T18:36:15.101Z",
         "credits": "active",
         "apiVersion": "sonar",
-        "_version": "v4_streamlined_hero_1753985549137",
-        "_timestamp": 1753985605857
+        "_version": "v4_streamlined_hero_1753986959531",
+        "_timestamp": 1753986975101
       }
     },
     {
@@ -626,15 +620,15 @@
         "crossValidation": {
           "enabled": true,
           "threshold": 0.85,
-          "lastSync": "2025-07-31T18:13:25.860Z"
+          "lastSync": "2025-07-31T18:36:15.104Z"
         },
         "performance": {
           "avgResponseTime": 132,
           "successRate": 98.7,
           "totalRequests24h": 1542
         },
-        "_version": "v4_streamlined_hero_1753985549137",
-        "_timestamp": 1753985605860
+        "_version": "v4_streamlined_hero_1753986959531",
+        "_timestamp": 1753986975104
       }
     },
     {
@@ -646,16 +640,16 @@
         "details": {
           "initialized": true,
           "client": true,
-          "timestamp": "2025-07-31T18:13:25.864Z",
+          "timestamp": "2025-07-31T18:36:15.108Z",
           "connection": "success",
           "schemas": {
             "community": true,
             "userProfile": true
           }
         },
-        "timestamp": "2025-07-31T18:13:26.023Z",
-        "_version": "v4_streamlined_hero_1753985549137",
-        "_timestamp": 1753985606023
+        "timestamp": "2025-07-31T18:36:15.274Z",
+        "_version": "v4_streamlined_hero_1753986959531",
+        "_timestamp": 1753986975274
       }
     },
     {
@@ -670,8 +664,8 @@
         "success": false,
         "error": "AI recommendation service temporarily unavailable",
         "message": "Please try the standard search or contact support",
-        "_version": "v4_streamlined_hero_1753985549137",
-        "_timestamp": 1753985606914
+        "_version": "v4_streamlined_hero_1753986959531",
+        "_timestamp": 1753986976272
       }
     },
     {
@@ -679,14 +673,14 @@
       "status": "PASSED",
       "details": {
         "user": {
-          "id": 32,
-          "email": "test_1753985606917@example.com",
+          "id": 34,
+          "email": "test_1753986976275@example.com",
           "firstName": "User",
           "lastName": "",
           "role": "user"
         },
-        "_version": "v4_streamlined_hero_1753985549137",
-        "_timestamp": 1753985607128
+        "_version": "v4_streamlined_hero_1753986959531",
+        "_timestamp": 1753986976487
       }
     },
     {
@@ -700,8 +694,8 @@
           "lastName": "User",
           "role": "user"
         },
-        "_version": "v4_streamlined_hero_1753985549137",
-        "_timestamp": 1753985607133
+        "_version": "v4_streamlined_hero_1753986959531",
+        "_timestamp": 1753986976492
       }
     },
     {
@@ -716,8 +710,8 @@
           "role": "user",
           "isDemo": true
         },
-        "_version": "v4_streamlined_hero_1753985549137",
-        "_timestamp": 1753985607135
+        "_version": "v4_streamlined_hero_1753986959531",
+        "_timestamp": 1753986976495
       }
     },
     {
@@ -725,8 +719,8 @@
       "status": "PASSED",
       "details": {
         "message": "Logged out successfully",
-        "_version": "v4_streamlined_hero_1753985549137",
-        "_timestamp": 1753985607139
+        "_version": "v4_streamlined_hero_1753986959531",
+        "_timestamp": 1753986976499
       }
     },
     {
@@ -766,8 +760,8 @@
           "tourToConversion": 25
         },
         "timeRange": "30d",
-        "_version": "v4_streamlined_hero_1753985549137",
-        "_timestamp": 1753985607562
+        "_version": "v4_streamlined_hero_1753986959531",
+        "_timestamp": 1753986976919
       }
     },
     {
@@ -825,8 +819,8 @@
             }
           ]
         },
-        "_version": "v4_streamlined_hero_1753985549137",
-        "_timestamp": 1753985607564
+        "_version": "v4_streamlined_hero_1753986959531",
+        "_timestamp": 1753986976928
       }
     },
     {
@@ -851,8 +845,8 @@
           "nextYear": 2100000
         },
         "timeRange": "30d",
-        "_version": "v4_streamlined_hero_1753985549137",
-        "_timestamp": 1753985607566
+        "_version": "v4_streamlined_hero_1753986959531",
+        "_timestamp": 1753986976937
       }
     },
     {
