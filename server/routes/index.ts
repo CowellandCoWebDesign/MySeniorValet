@@ -43,6 +43,7 @@ import { setupVAResourcesRoutes } from "./vaResourcesRoutes";
 import authenticPricingRoutes from "./authentic-pricing-routes";
 import weaviateRoutes from "./weaviate-routes";
 import enhancedWeaviateRoutes from "./enhanced-weaviate-routes";
+import { registerPlatformRoutes } from "./platformRoutes";
 
 // Import existing routers
 import { quizRouter } from "./quiz";
@@ -66,6 +67,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register all route modules - ORDER MATTERS!
   registerAuthRoutes(app);
   registerQuickAuthRoutes(app);
+  registerPlatformRoutes(app);
   // CRITICAL: Register mapping routes BEFORE community routes to prevent /:id interception
   registerMappingRoutes(app);
   registerMappingFixRoutes(app);
