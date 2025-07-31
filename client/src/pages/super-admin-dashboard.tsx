@@ -15,7 +15,7 @@ import {
   Brain, Package, Truck, Phone, Heart, UserCheck,
   CreditCard, Store, Wrench, TestTube, LineChart,
   Layers, Palette, Lock, AlertTriangle, CheckCircle,
-  TrendingUp, FileSearch, Sparkles, Bot, Gauge
+  TrendingUp, FileSearch, Sparkles, Bot, Gauge, X
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -36,11 +36,31 @@ export default function SuperAdminDashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Platform stats
   const { data: stats } = useQuery({
     queryKey: ["/api/platform/stats"],
   });
+
+  // Filter tools based on search query
+  const filterTools = (links: any[]) => {
+    if (!searchQuery) return links;
+    const query = searchQuery.toLowerCase();
+    return links.filter(link => 
+      link.name.toLowerCase().includes(query) || 
+      link.description.toLowerCase().includes(query)
+    );
+  };
+
+  // Get filtered sections
+  const getFilteredSections = () => {
+    if (!searchQuery) return dashboardSections;
+    return dashboardSections.map(section => ({
+      ...section,
+      links: filterTools(section.links)
+    })).filter(section => section.links.length > 0);
+  };
 
   // Define all dashboard sections
   const dashboardSections: DashboardSection[] = [
@@ -140,17 +160,31 @@ export default function SuperAdminDashboard() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                <Shield className="h-8 w-8 text-gray-700" />
+                <div className="p-3 bg-gradient-to-br from-gray-200 to-gray-300 rounded-xl shadow-md">
+                  <Shield className="h-8 w-8 text-gray-700" />
+                </div>
                 Super Admin Dashboard
               </h1>
               <p className="text-gray-600 mt-2">Complete platform control and monitoring</p>
             </div>
-            <Badge className="bg-gradient-to-r from-gray-300 to-gray-100 text-gray-900 border-gray-400 px-4 py-2">
-              {user?.email || 'William.cowell01@gmail.com'}
-            </Badge>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search tools..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 pr-4 py-2 w-64 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <Badge className="bg-gradient-to-r from-gray-300 to-gray-100 text-gray-900 border-gray-400 px-4 py-2 whitespace-nowrap">
+                {user?.email || 'William.cowell01@gmail.com'}
+              </Badge>
+            </div>
           </div>
         </div>
 
@@ -172,50 +206,107 @@ export default function SuperAdminDashboard() {
         </div>
 
         {/* Main Dashboard Sections */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-4 lg:grid-cols-8 mb-6">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="admin">Admin</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="ai">AI Tools</TabsTrigger>
-            <TabsTrigger value="community">Community</TabsTrigger>
-            <TabsTrigger value="vendor">Vendor</TabsTrigger>
-            <TabsTrigger value="testing">Testing</TabsTrigger>
-            <TabsTrigger value="infra">Infrastructure</TabsTrigger>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="flex flex-wrap gap-2 h-auto p-2 bg-gray-100">
+            <TabsTrigger value="overview" className="px-4 py-2">
+              <LayoutDashboard className="h-4 w-4 mr-2" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="admin" className="px-4 py-2">
+              <Shield className="h-4 w-4 mr-2" />
+              Admin
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="px-4 py-2">
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Analytics
+            </TabsTrigger>
+            <TabsTrigger value="ai" className="px-4 py-2">
+              <Brain className="h-4 w-4 mr-2" />
+              AI Tools
+            </TabsTrigger>
+            <TabsTrigger value="community" className="px-4 py-2">
+              <Building2 className="h-4 w-4 mr-2" />
+              Community
+            </TabsTrigger>
+            <TabsTrigger value="vendor" className="px-4 py-2">
+              <Store className="h-4 w-4 mr-2" />
+              Vendor
+            </TabsTrigger>
+            <TabsTrigger value="testing" className="px-4 py-2">
+              <TestTube className="h-4 w-4 mr-2" />
+              Testing
+            </TabsTrigger>
+            <TabsTrigger value="infra" className="px-4 py-2">
+              <Server className="h-4 w-4 mr-2" />
+              Infrastructure
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview">
-            <div className="grid gap-6">
-              {dashboardSections.map((section) => (
-                <Card key={section.title} className="border-gray-200">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <section.icon className="h-5 w-5 text-gray-600" />
+          <TabsContent value="overview" className="space-y-6">
+            {searchQuery && (
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Search className="h-4 w-4" />
+                Showing results for "{searchQuery}"
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSearchQuery("")}
+                  className="ml-2 h-6 px-2"
+                >
+                  <X className="h-3 w-3" />
+                  Clear
+                </Button>
+              </div>
+            )}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {getFilteredSections().map((section) => (
+                <Card key={section.title} className="border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="flex items-center gap-3 text-lg">
+                      <div className="p-2 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg">
+                        <section.icon className="h-5 w-5 text-gray-700" />
+                      </div>
                       {section.title}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {section.links.map((link) => (
+                  <CardContent className="pt-0">
+                    <div className="space-y-2">
+                      {filterTools(section.links).slice(0, 3).map((link) => (
                         <Link key={link.href} href={link.href}>
-                          <Button
-                            variant="outline"
-                            className="w-full h-auto p-4 justify-start hover:bg-gray-50 border-gray-200"
-                          >
-                            <div className="flex items-start gap-3">
-                              <link.icon className="h-5 w-5 text-gray-600 mt-0.5" />
-                              <div className="text-left">
-                                <div className="font-medium flex items-center gap-2">
-                                  {link.name}
-                                  {link.status === "beta" && <Badge variant="secondary" className="text-xs">Beta</Badge>}
-                                  {link.status === "coming-soon" && <Badge variant="outline" className="text-xs">Soon</Badge>}
+                          <div className="group p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <link.icon className="h-4 w-4 text-gray-500 group-hover:text-blue-600 transition-colors" />
+                                <div>
+                                  <p className="font-medium text-sm group-hover:text-blue-600 transition-colors">
+                                    {link.name}
+                                  </p>
+                                  <p className="text-xs text-gray-500">{link.description}</p>
                                 </div>
-                                <p className="text-xs text-gray-600 mt-1">{link.description}</p>
                               </div>
+                              {link.status === "active" && (
+                                <CheckCircle className="h-4 w-4 text-green-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                              )}
                             </div>
-                          </Button>
+                          </div>
                         </Link>
                       ))}
+                      {filterTools(section.links).length > 3 && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="w-full mt-2 text-blue-600 hover:text-blue-700"
+                          onClick={() => {
+                            const tabValues = ["admin", "analytics", "ai", "community", "vendor", "testing", "infra"];
+                            const sectionIndex = dashboardSections.findIndex(s => s.title === section.title);
+                            if (sectionIndex !== -1 && tabValues[sectionIndex]) {
+                              setActiveTab(tabValues[sectionIndex]);
+                            }
+                          }}
+                        >
+                          View all {filterTools(section.links).length} tools →
+                        </Button>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -227,44 +318,51 @@ export default function SuperAdminDashboard() {
           {dashboardSections.map((section, index) => {
             const tabValues = ["admin", "analytics", "ai", "community", "vendor", "testing", "infra"];
             return (
-              <TabsContent key={index} value={tabValues[index]}>
-                <Card className="border-gray-200">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <section.icon className="h-5 w-5 text-gray-600" />
-                      {section.title}
-                    </CardTitle>
-                    <CardDescription>Access all {section.title.toLowerCase()} tools and dashboards</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {section.links.map((link) => (
-                        <Link key={link.href} href={link.href}>
-                          <Card className="hover:shadow-md transition-shadow cursor-pointer border-gray-200">
-                            <CardContent className="p-6">
-                              <div className="flex items-start gap-4">
-                                <div className="p-3 bg-gray-100 rounded-lg">
-                                  <link.icon className="h-6 w-6 text-gray-700" />
-                                </div>
-                                <div className="flex-1">
-                                  <h3 className="font-semibold text-lg flex items-center gap-2">
-                                    {link.name}
-                                    {link.status === "active" && <CheckCircle className="h-4 w-4 text-green-600" />}
-                                    {link.status === "beta" && <Badge variant="secondary">Beta</Badge>}
-                                  </h3>
-                                  <p className="text-sm text-gray-600 mt-1">{link.description}</p>
-                                  <Button variant="link" className="p-0 h-auto mt-2 text-blue-600">
-                                    Open Dashboard →
-                                  </Button>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </Link>
-                      ))}
+              <TabsContent key={index} value={tabValues[index]} className="space-y-6">
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="p-3 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl">
+                      <section.icon className="h-6 w-6 text-gray-700" />
                     </div>
-                  </CardContent>
-                </Card>
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-900">{section.title}</h2>
+                      <p className="text-gray-600">Access all {section.title.toLowerCase()} tools and dashboards</p>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {filterTools(section.links).map((link) => (
+                      <Link key={link.href} href={link.href}>
+                        <div className="group relative bg-gray-50 hover:bg-white border border-gray-200 hover:border-blue-300 rounded-lg p-5 transition-all hover:shadow-md cursor-pointer">
+                          <div className="flex items-start gap-4">
+                            <div className="p-2.5 bg-white rounded-lg shadow-sm group-hover:shadow-md transition-shadow">
+                              <link.icon className="h-5 w-5 text-gray-600 group-hover:text-blue-600 transition-colors" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                                  {link.name}
+                                </h3>
+                                {link.status === "active" && (
+                                  <CheckCircle className="h-4 w-4 text-green-500" />
+                                )}
+                                {link.status === "beta" && (
+                                  <Badge variant="secondary" className="text-xs">Beta</Badge>
+                                )}
+                              </div>
+                              <p className="text-sm text-gray-600 line-clamp-2">{link.description}</p>
+                            </div>
+                            <div className="absolute top-5 right-5 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <svg className="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                              </svg>
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
               </TabsContent>
             );
           })}
