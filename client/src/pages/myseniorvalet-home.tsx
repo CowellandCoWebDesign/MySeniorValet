@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, BarChart } from "lucide-react";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -1456,7 +1456,7 @@ export default function MySeniorValetHome() {
 
                     return allProducts.map((product: any, index: number) => {
                       return (
-                        <a key={product.id || index} href={`/go/amazon/${product.id}`} target="_blank" rel="noopener noreferrer">
+                        <a key={product.id || index} href={product.externalUrl || '#'} target="_blank" rel="noopener noreferrer">
                           <Card className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer">
                             {/* Product Image - Same style as community cards */}
                             <div className="aspect-[4/3] bg-gray-100 relative">
@@ -3590,100 +3590,58 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Community Portal CTA - Engaging Version */}
-      <section className="px-4 py-16 bg-gradient-to-r from-purple-900 to-blue-900 text-white relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-10 w-64 h-64 bg-purple-600 rounded-full filter blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-600 rounded-full filter blur-3xl animate-pulse animation-delay-700"></div>
+      {/* Community Portal CTA - Streamlined Version */}
+      <section className="px-4 py-12 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white relative overflow-hidden">
+        {/* Subtle background gradient */}
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-indigo-600/30 to-purple-600/30"></div>
         </div>
         
-        <div className="max-w-6xl mx-auto relative z-10">
-          {/* Urgency Badge */}
-          <div className="flex justify-center mb-6">
-            <Badge className="bg-green-500 text-white px-6 py-2 text-sm font-bold animate-pulse">
-              🔥 87 communities joined this week
+        <div className="max-w-4xl mx-auto relative z-10">
+          {/* Main Header */}
+          <div className="text-center mb-8">
+            <Badge className="bg-emerald-500 text-white px-4 py-1 text-sm font-semibold mb-4">
+              Join 2,847+ Communities Already Listed
             </Badge>
-          </div>
-          
-          <div className="text-center mb-10">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Your Community is Losing $47,000/Month
+            <h2 className="text-3xl md:text-4xl font-bold mb-3">
+              List Your Community on MySeniorValet
             </h2>
-            <p className="text-xl text-purple-100 mb-2">
-              The average community on our platform fills 3.2 more units per month
-            </p>
-            <p className="text-lg text-purple-200">
-              See exactly how much revenue you're missing in 60 seconds
+            <p className="text-lg text-purple-100 max-w-2xl mx-auto">
+              Get discovered by qualified families actively searching for senior living. 
+              Control your listing, track inquiries, and showcase what makes your community special.
             </p>
           </div>
           
-          {/* Interactive Revenue Calculator Preview */}
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 mb-10 max-w-3xl mx-auto">
-            <h3 className="text-2xl font-bold mb-6 text-center">Quick Revenue Calculator</h3>
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium mb-2">Your Current Occupancy Rate</label>
-                <div className="bg-white/20 rounded-lg p-4 text-center">
-                  <span className="text-3xl font-bold">78%</span>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Average Monthly Rent</label>
-                <div className="bg-white/20 rounded-lg p-4 text-center">
-                  <span className="text-3xl font-bold">$4,500</span>
-                </div>
-              </div>
+          {/* Key Benefits Grid */}
+          <div className="grid md:grid-cols-3 gap-4 mb-8">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center">
+              <Eye className="w-8 h-8 mx-auto mb-3 text-emerald-400" />
+              <h3 className="font-semibold text-lg mb-2">Enhanced Visibility</h3>
+              <p className="text-sm text-purple-200">Reach 45,000+ monthly visitors actively searching for senior care</p>
             </div>
-            <div className="mt-6 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl p-6 text-center">
-              <p className="text-sm uppercase tracking-wide mb-2">Potential Monthly Revenue Increase</p>
-              <p className="text-5xl font-bold mb-2">+$47,250</p>
-              <p className="text-sm">By reaching 94% occupancy (platform average)</p>
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center">
+              <Shield className="w-8 h-8 mx-auto mb-3 text-blue-400" />
+              <h3 className="font-semibold text-lg mb-2">Verified Listing</h3>
+              <p className="text-sm text-purple-200">Stand out with a verified badge and complete community profile</p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center">
+              <BarChart className="w-8 h-8 mx-auto mb-3 text-purple-400" />
+              <h3 className="font-semibold text-lg mb-2">Performance Analytics</h3>
+              <p className="text-sm text-purple-200">Track views, inquiries, and conversion rates in real-time</p>
             </div>
           </div>
-          
-          {/* Real Results Grid */}
-          <div className="grid md:grid-cols-4 gap-4 mb-10">
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
-              <div className="text-3xl font-bold text-green-400 mb-1">156%</div>
-              <div className="text-sm">More Inquiries</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
-              <div className="text-3xl font-bold text-yellow-400 mb-1">18 hrs</div>
-              <div className="text-sm">Avg Response Time</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
-              <div className="text-3xl font-bold text-blue-400 mb-1">8.4x</div>
-              <div className="text-sm">ROI in 90 Days</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
-              <div className="text-3xl font-bold text-purple-400 mb-1">94%</div>
-              <div className="text-sm">Reach Full Occupancy</div>
-            </div>
-          </div>
-          
-          {/* Success Story */}
-          <div className="bg-white/5 border border-white/20 rounded-xl p-6 mb-10 max-w-2xl mx-auto">
-            <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
-                  <Star className="w-6 h-6 text-white" />
-                </div>
+
+          {/* Simple Pricing */}
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-8 max-w-2xl mx-auto">
+            <h3 className="text-xl font-semibold text-center mb-4">Simple, Transparent Pricing</h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="text-center">
+                <div className="text-3xl font-bold mb-2">Free</div>
+                <p className="text-sm text-purple-200">Basic listing with contact info</p>
               </div>
-              <div>
-                <p className="text-lg italic mb-3">
-                  "We went from 78% to 96% occupancy in just 4 months. The ROI calculator showed us we were underpriced by $800/month!"
-                </p>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-semibold">Maria Rodriguez</p>
-                    <p className="text-sm text-purple-200">Heritage Oaks Memory Care</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold text-green-400">+$124K/mo</p>
-                    <p className="text-xs text-purple-200">Additional Revenue</p>
-                  </div>
-                </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold mb-2">$299/mo</div>
+                <p className="text-sm text-purple-200">Premium features + analytics</p>
               </div>
             </div>
           </div>
@@ -3691,31 +3649,21 @@ export default function MySeniorValetHome() {
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/community-portal">
-              <Button size="lg" className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-10 py-6 text-lg font-bold shadow-2xl transform hover:scale-105 transition-all">
-                <TrendingUp className="w-6 h-6 mr-2" />
-                Calculate My Revenue Potential
+              <Button size="lg" className="bg-white text-purple-900 hover:bg-gray-100 px-8 py-6 text-lg font-bold shadow-xl">
+                <Building className="w-5 h-5 mr-2" />
+                Claim Your Free Listing
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-purple-900 px-8 py-6 text-lg font-semibold">
-              <MessageCircle className="w-5 h-5 mr-2" />
-              Schedule 15-Min Demo
-            </Button>
+            <Link href="/pricing">
+              <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white/10 px-8 py-6 text-lg font-semibold">
+                View Pricing Plans
+              </Button>
+            </Link>
           </div>
           
-          {/* Trust Indicators */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-purple-200">
-            <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4" />
-              <span>No credit card required</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4" />
-              <span>60-second setup</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              <span>Join 2,847 communities</span>
-            </div>
+          {/* Trust Badge */}
+          <div className="mt-6 text-center text-sm text-purple-200">
+            <p>No credit card required • Set up in 5 minutes • Cancel anytime</p>
           </div>
         </div>
       </section>
@@ -3849,6 +3797,178 @@ export default function MySeniorValetHome() {
           </div>
 
 
+        </div>
+      </section>
+
+      {/* Join MySeniorValet - Bottom Advertising Section */}
+      <section className="px-4 py-16 bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              Are You a Senior Living Community?
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              Join MySeniorValet and connect with families looking for quality senior care. 
+              Get listed today and start receiving qualified inquiries.
+            </p>
+          </div>
+
+          {/* Benefits Cards */}
+          <div className="grid md:grid-cols-4 gap-6 mb-10">
+            <Card className="text-center hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <Users className="w-12 h-12 mx-auto mb-4 text-blue-500" />
+                <h3 className="font-semibold text-lg mb-2">45,000+ Monthly Visitors</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Families actively searching for senior care</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="text-center hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <Star className="w-12 h-12 mx-auto mb-4 text-yellow-500" />
+                <h3 className="font-semibold text-lg mb-2">Verified Listings</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Build trust with official verification</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="text-center hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <TrendingUp className="w-12 h-12 mx-auto mb-4 text-green-500" />
+                <h3 className="font-semibold text-lg mb-2">Increase Occupancy</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Fill beds faster with qualified leads</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="text-center hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <DollarSign className="w-12 h-12 mx-auto mb-4 text-emerald-500" />
+                <h3 className="font-semibold text-lg mb-2">Affordable Plans</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Starting at $0/month for basic listing</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Three Tier Options */}
+          <div className="grid md:grid-cols-3 gap-6 mb-10">
+            {/* Free Tier */}
+            <Card className="border-2 hover:border-blue-300 transition-colors">
+              <CardContent className="p-6">
+                <div className="text-center mb-4">
+                  <h3 className="text-xl font-bold mb-2">Basic Listing</h3>
+                  <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">Free</div>
+                  <p className="text-sm text-gray-500">Forever</p>
+                </div>
+                <ul className="space-y-3 mb-6">
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm">Basic community profile</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm">Contact information display</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm">Appear in search results</span>
+                  </li>
+                </ul>
+                <Link href="/community-portal">
+                  <Button className="w-full">Get Started Free</Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            {/* Premium Tier */}
+            <Card className="border-2 border-blue-500 relative">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                <Badge className="bg-blue-500 text-white px-4 py-1">Most Popular</Badge>
+              </div>
+              <CardContent className="p-6">
+                <div className="text-center mb-4">
+                  <h3 className="text-xl font-bold mb-2">Premium Listing</h3>
+                  <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">$299</div>
+                  <p className="text-sm text-gray-500">per month</p>
+                </div>
+                <ul className="space-y-3 mb-6">
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm">Everything in Free</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm font-semibold">Priority search placement</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm">Photo gallery (20 photos)</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm">Virtual tour integration</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm">Analytics dashboard</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm">Lead management tools</span>
+                  </li>
+                </ul>
+                <Link href="/community-portal">
+                  <Button className="w-full bg-blue-500 hover:bg-blue-600">Upgrade to Premium</Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            {/* Enterprise Tier */}
+            <Card className="border-2 hover:border-purple-300 transition-colors">
+              <CardContent className="p-6">
+                <div className="text-center mb-4">
+                  <h3 className="text-xl font-bold mb-2">Enterprise</h3>
+                  <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">Custom</div>
+                  <p className="text-sm text-gray-500">For large chains</p>
+                </div>
+                <ul className="space-y-3 mb-6">
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm">Everything in Premium</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm">Multiple locations</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm">API integration</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm">Dedicated account manager</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm">Custom reporting</span>
+                  </li>
+                </ul>
+                <Link href="/contact">
+                  <Button className="w-full" variant="outline">Contact Sales</Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* FAQ Link */}
+          <div className="text-center">
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              Have questions about listing your community?
+            </p>
+            <Link href="/community-faq">
+              <Button variant="link" className="text-blue-600 hover:text-blue-700">
+                View Community FAQ →
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
