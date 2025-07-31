@@ -59,9 +59,9 @@ export function registerQuickAuthRoutes(app: Express) {
       // Store session in memory for now (replace with database later)
       global.activeSessions = global.activeSessions || {};
       global.activeSessions[sessionId] = {
-        userId: newUser.id,
-        email: newUser.email,
-        role: newUser.role
+        userId: newUser.id as number,
+        email: newUser.email as string,
+        role: newUser.role as string
       };
       
       res.status(201).json({
@@ -119,9 +119,9 @@ export function registerQuickAuthRoutes(app: Express) {
       // Store session
       global.activeSessions = global.activeSessions || {};
       global.activeSessions[sessionId] = {
-        userId: user.id,
-        email: user.email,
-        role: user.role
+        userId: user.id as number,
+        email: user.email as string,
+        role: user.role as string
       };
       
       res.json({
