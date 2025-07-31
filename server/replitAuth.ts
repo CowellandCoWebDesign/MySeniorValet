@@ -26,7 +26,7 @@ const getOidcConfig = memoize(
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   
-  console.log('✅ Using simplified session configuration for stability');
+  console.log('✅ Using simplified session configuration for development');
   
   return session({
     secret: process.env.SESSION_SECRET || 'development-secret-key-change-in-production',

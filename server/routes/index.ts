@@ -41,6 +41,7 @@ import { registerAnalyticsRoutes } from "./analyticsRoutes";
 import { setupVAResourcesRoutes } from "./vaResourcesRoutes";
 import authenticPricingRoutes from "./authentic-pricing-routes";
 import weaviateRoutes from "./weaviate-routes";
+import enhancedWeaviateRoutes from "./enhanced-weaviate-routes";
 
 // Import existing routers
 import { quizRouter } from "./quiz";
@@ -116,6 +117,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register Weaviate semantic search routes
   app.use('/api/weaviate', weaviateRoutes);
+  
+  // Register Enhanced Weaviate AI-native routes
+  app.use('/api/weaviate-enhanced', enhancedWeaviateRoutes);
 
   // Register existing specialized routers
   app.use('/api/quiz', quizRouter);
