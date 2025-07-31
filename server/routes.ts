@@ -117,6 +117,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Remove duplicate communities endpoint
+  app.post('/api/data-quality/remove-duplicates', async (req, res) => {
+    try {
+      const { removeDuplicateCommunities } = await import("./data-quality-report");
+      const result = await removeDuplicateCommunities();
+      res.json({
+        success: true,
+        message: `Successfully removed ${result.deletedCount} duplicate communities`,
+        ...result
+      });
+    } catch (error) {
+      console.error("Duplicate removal error:", error);
+      res.status(500).json({ error: "Failed to remove duplicates" });
+    }
+  });
+
   // In development, Vite handles static files
   // In production, serve static files
   if (process.env.NODE_ENV === 'production') {
