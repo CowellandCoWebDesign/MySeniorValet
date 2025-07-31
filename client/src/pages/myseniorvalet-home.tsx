@@ -12,6 +12,7 @@ import { PricingBreakdown } from "@/components/pricing-breakdown";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { CareServiceCard } from "@/components/CareServiceCard";
 import { ShootingStars } from "@/components/ShootingStars";
+import { VendorMarketplaceTabs } from "@/components/VendorMarketplaceTabs";
 
 
 
@@ -828,191 +829,17 @@ export default function MySeniorValetHome() {
             <p className="text-sm text-green-600 dark:text-green-400 font-medium bg-green-50 dark:bg-green-900/20 rounded-full px-6 py-2 inline-block mb-4">
               ✓ Services are live and available now - no longer coming soon!
             </p>
-
-            {/* Browse Full Marketplace Button */}
-            <Link href="/vendor-marketplace">
-              <Button className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-bold px-8 py-4 text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                <ShoppingCart className="w-5 h-5 mr-2" />
-                Browse Full Vendor Marketplace
-              </Button>
-            </Link>
           </div>
 
-          {/* Featured Service Providers Horizontal Slider */}
+          {/* Vendor Marketplace Tabs */}
           <div className="mb-12">
-            <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6 text-center">
-              ⭐ Featured Senior Service Providers
-            </h3>
-            <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
-              {/* Walmart */}
-              <a href="/api/marketplace/out/1" target="_blank" rel="noopener noreferrer" 
-                 className="snap-start shrink-0 w-72">
-                <Card className="hover:shadow-xl transition-all transform hover:scale-105 border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-sky-50">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="w-20 h-20 bg-white rounded-lg p-2 shadow-md">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/Walmart_logo.svg" 
-                             alt="Walmart" className="w-full h-full object-contain" />
-                      </div>
-                      <Badge className="bg-green-500 text-white">VERIFIED</Badge>
-                    </div>
-                    <h4 className="font-bold text-lg mb-2">Walmart</h4>
-                    <p className="text-sm text-gray-600 mb-4">One-stop shop for groceries, pharmacy, and household essentials with senior discounts</p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-blue-600 font-semibold">Groceries & Pharmacy</span>
-                      <ExternalLink className="w-4 h-4 text-gray-400" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </a>
-
-              {/* Walgreens */}
-              <a href="/api/marketplace/out/4" target="_blank" rel="noopener noreferrer" 
-                 className="snap-start shrink-0 w-72">
-                <Card className="hover:shadow-xl transition-all transform hover:scale-105 border-2 border-red-200 bg-gradient-to-br from-red-50 to-pink-50">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="w-20 h-20 bg-white rounded-lg p-2 shadow-md">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Walgreens_logo.svg/200px-Walgreens_logo.svg.png" 
-                             alt="Walgreens" className="w-full h-full object-contain" />
-                      </div>
-                      <Badge className="bg-green-500 text-white">VERIFIED</Badge>
-                    </div>
-                    <h4 className="font-bold text-lg mb-2">Walgreens</h4>
-                    <p className="text-sm text-gray-600 mb-4">Trusted pharmacy with medication management and health services</p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-red-600 font-semibold">Pharmacy & Health</span>
-                      <ExternalLink className="w-4 h-4 text-gray-400" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </a>
-
-              {/* Lyft */}
-              <a href="/api/marketplace/out/7" target="_blank" rel="noopener noreferrer" 
-                 className="snap-start shrink-0 w-72">
-                <Card className="hover:shadow-xl transition-all transform hover:scale-105 border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="w-20 h-20 bg-white rounded-lg p-2 shadow-md">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Lyft_logo.svg/200px-Lyft_logo.svg.png" 
-                             alt="Lyft" className="w-full h-full object-contain" />
-                      </div>
-                      <Badge className="bg-green-500 text-white">FEATURED</Badge>
-                    </div>
-                    <h4 className="font-bold text-lg mb-2">Lyft</h4>
-                    <p className="text-sm text-gray-600 mb-4">Safe, reliable rides for medical appointments and daily errands</p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-purple-600 font-semibold">Transportation</span>
-                      <ExternalLink className="w-4 h-4 text-gray-400" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </a>
-
-              {/* TaskRabbit */}
-              <a href="/api/marketplace/out/13" target="_blank" rel="noopener noreferrer" 
-                 className="snap-start shrink-0 w-72">
-                <Card className="hover:shadow-xl transition-all transform hover:scale-105 border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="w-20 h-20 bg-white rounded-lg p-2 shadow-md">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/TaskRabbit_logo.svg/200px-TaskRabbit_logo.svg.png" 
-                             alt="TaskRabbit" className="w-full h-full object-contain" />
-                      </div>
-                      <Badge className="bg-green-500 text-white">TRUSTED</Badge>
-                    </div>
-                    <h4 className="font-bold text-lg mb-2">TaskRabbit</h4>
-                    <p className="text-sm text-gray-600 mb-4">Home help services - cleaning, organizing, and handyman tasks</p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-green-600 font-semibold">Home Services</span>
-                      <ExternalLink className="w-4 h-4 text-gray-400" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </a>
-            </div>
+            <VendorMarketplaceTabs />
           </div>
 
-          {/* Amazon Essentials Horizontal Slider */}
-          <div className="mb-12">
-            <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6 text-center">
-              📦 Amazon Senior Living Essentials
-            </h3>
-            <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
-              <a href="/api/marketplace/out/2" target="_blank" rel="noopener noreferrer" 
-                 className="snap-start shrink-0 w-72">
-                <Card className="hover:shadow-xl transition-all transform hover:scale-105 border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50">
-                  <CardContent className="p-6">
-                    <div className="w-full h-32 bg-white rounded-lg mb-4 overflow-hidden">
-                      <img src="https://m.media-amazon.com/images/I/71nFRyTj6yL._AC_SL1500_.jpg" 
-                           alt="Bedside Caddy" className="w-full h-full object-cover" />
-                    </div>
-                    <h4 className="font-bold text-lg mb-2">Bedside Caddy Organizer</h4>
-                    <p className="text-sm text-gray-600 mb-4">Keep essentials within reach - perfect for senior living</p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-lg font-bold text-orange-600">$19.99</span>
-                      <Badge className="bg-orange-500 text-white">Amazon Choice</Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              </a>
 
-              <a href="/api/marketplace/out/2" target="_blank" rel="noopener noreferrer" 
-                 className="snap-start shrink-0 w-72">
-                <Card className="hover:shadow-xl transition-all transform hover:scale-105 border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50">
-                  <CardContent className="p-6">
-                    <div className="w-full h-32 bg-white rounded-lg mb-4 overflow-hidden">
-                      <img src="https://m.media-amazon.com/images/I/71tgxl7eAGL._AC_SL1500_.jpg" 
-                           alt="Walker Bag" className="w-full h-full object-cover" />
-                    </div>
-                    <h4 className="font-bold text-lg mb-2">Universal Walker Bag</h4>
-                    <p className="text-sm text-gray-600 mb-4">Convenient storage for walker users with multiple pockets</p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-lg font-bold text-orange-600">$24.99</span>
-                      <Badge className="bg-orange-500 text-white">Best Seller</Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              </a>
 
-              <a href="/api/marketplace/out/2" target="_blank" rel="noopener noreferrer" 
-                 className="snap-start shrink-0 w-72">
-                <Card className="hover:shadow-xl transition-all transform hover:scale-105 border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50">
-                  <CardContent className="p-6">
-                    <div className="w-full h-32 bg-white rounded-lg mb-4 overflow-hidden">
-                      <img src="https://m.media-amazon.com/images/I/71w7hQVqgLL._AC_SL1500_.jpg" 
-                           alt="Pill Organizer" className="w-full h-full object-cover" />
-                    </div>
-                    <h4 className="font-bold text-lg mb-2">Weekly Pill Organizer XL</h4>
-                    <p className="text-sm text-gray-600 mb-4">Large compartments with easy-open lids for arthritis</p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-lg font-bold text-orange-600">$15.99</span>
-                      <Badge className="bg-orange-500 text-white">Prime Eligible</Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              </a>
 
-              <a href="/api/marketplace/out/2" target="_blank" rel="noopener noreferrer" 
-                 className="snap-start shrink-0 w-72">
-                <Card className="hover:shadow-xl transition-all transform hover:scale-105 border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50">
-                  <CardContent className="p-6">
-                    <div className="w-full h-32 bg-white rounded-lg mb-4 overflow-hidden">
-                      <img src="https://m.media-amazon.com/images/I/81qRpW8TPKL._AC_SL1500_.jpg" 
-                           alt="Reacher Grabber" className="w-full h-full object-cover" />
-                    </div>
-                    <h4 className="font-bold text-lg mb-2">32" Reacher Grabber Tool</h4>
-                    <p className="text-sm text-gray-600 mb-4">Lightweight foldable reaching aid with rotating head</p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-lg font-bold text-orange-600">$17.99</span>
-                      <Badge className="bg-orange-500 text-white">Top Rated</Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              </a>
-            </div>
-          </div>
+
 
 
 
