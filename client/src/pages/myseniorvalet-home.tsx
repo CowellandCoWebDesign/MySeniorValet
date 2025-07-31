@@ -3971,6 +3971,11 @@ export default function MySeniorValetHome() {
                   </a>
                 </li>
                 <li>
+                  <a href="/super-admin" className="hover:text-amber-400 transition-colors">
+                    Admin Login
+                  </a>
+                </li>
+                <li>
                   <a href="/admin" className="hover:text-amber-400 transition-colors">
                     🔐 Admin Dashboard
                   </a>

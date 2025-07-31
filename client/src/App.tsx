@@ -91,6 +91,8 @@ import AmazonProductAdmin from "@/pages/AmazonProductAdmin";
 import PerplexityTest from "@/pages/PerplexityTest";
 import MultiAITest from "@/pages/MultiAITest";
 import AISearchComparison from "@/pages/AISearchComparison";
+import SuperAdminDashboard from "@/pages/super-admin-dashboard";
+import FinancialDashboard from "@/pages/financial-dashboard";
 import { useAuth } from "@/hooks/useAuth";
 
 function Router() {
@@ -117,6 +119,7 @@ function Router() {
       <Route path="/admin" component={AdminCreative} />
       <Route path="/admin-creative" component={AdminCreative} />
       <Route path="/admin-unified" component={AdminUnified} />
+      <Route path="/super-admin" component={SuperAdminDashboard} />
       <Route path="/admin/service-listings" component={ServiceListingsAdmin} />
       <Route path="/admin/services-management" component={ServicesManagementDashboard} />
       <Route path="/admin/amazon-products" component={AmazonProductAdmin} />
@@ -189,6 +192,7 @@ function Router() {
       <Route path="/vendor/signup" component={VendorSignup} />
       <Route path="/vendor/dashboard" component={VendorDashboard} />
       <Route path="/test-tier-access" component={TestTierAccess} />
+      <Route path="/financial-dashboard" component={FinancialDashboard} />
       <Route component={NotFound} />
     </Switch>
   );

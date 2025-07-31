@@ -129,7 +129,7 @@ export function Footer() {
               <Link href="/terms" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Terms</Link>
               <Link href="/disclaimer" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Disclaimer</Link>
               <Link href="/accessibility" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Accessibility</Link>
-              <Link href="/admin-unified" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Admin Login</Link>
+              <Link href="/super-admin" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Admin Login</Link>
             </div>
           </div>
         </div>
