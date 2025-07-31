@@ -481,37 +481,46 @@ class EnhancedWeaviateService {
 
       const userContext = userProfile ? this.buildUserContext(userProfile) : '';
 
-      // Use Weaviate's generative module for RAG
-      const ragQuery = `
-        Based on the following senior living communities and user context, provide personalized recommendations for: "${query}"
+      let generatedText = '';
+      
+      try {
+        // Try to use Weaviate's generative module for RAG
+        const ragQuery = `
+          Based on the following senior living communities and user context, provide personalized recommendations for: "${query}"
 
-        ${userContext}
+          ${userContext}
 
-        Communities:
-        ${context}
+          Communities:
+          ${context}
 
-        Please provide:
-        1. A comprehensive answer addressing the user's needs
-        2. Specific recommendations with reasoning
-        3. Important considerations for this family
-        4. Suggested next steps
-      `;
+          Please provide:
+          1. A comprehensive answer addressing the user's needs
+          2. Specific recommendations with reasoning
+          3. Important considerations for this family
+          4. Suggested next steps
+        `;
 
-      const ragResult = await this.client.graphql.get()
-        .withClassName(this.className)
-        .withFields('communityId name description')
-        .withNearText({ concepts: [query] })
-        .withLimit(limit)
-        .withGenerate({
-          singlePrompt: ragQuery
-        })
-        .do();
+        const ragResult = await this.client.graphql.get()
+          .withClassName(this.className)
+          .withFields('communityId name description')
+          .withNearText({ concepts: [query] })
+          .withLimit(limit)
+          .withGenerate({
+            singlePrompt: ragQuery
+          })
+          .do();
 
-      const generatedText = ragResult.data.Get[this.className]?.[0]?._additional?.generate?.singleResult || '';
+        generatedText = ragResult.data.Get[this.className]?.[0]?._additional?.generate?.singleResult || '';
+      } catch (genError) {
+        console.log('RAG generation not available, using intelligent summary fallback');
+        
+        // Create an intelligent summary without AI generation
+        generatedText = this.createIntelligentSummary(query, searchResults.slice(0, limit), userContext);
+      }
 
       return {
         answer: generatedText,
-        confidence: 0.85, // Could be calculated based on search scores
+        confidence: generatedText ? 0.85 : 0.75,
         sources: searchResults.slice(0, limit).map(r => ({
           communityId: r.community.id,
           communityName: r.community.name,
@@ -525,6 +534,68 @@ class EnhancedWeaviateService {
       console.error('RAG generation failed:', error);
       throw error;
     }
+  }
+
+  /**
+   * Create intelligent summary without AI generation
+   */
+  private createIntelligentSummary(query: string, results: EnhancedSearchResult[], userContext: string): string {
+    if (results.length === 0) {
+      return `No communities found matching your search for "${query}". Please try broadening your search criteria.`;
+    }
+
+    const queryLower = query.toLowerCase();
+    const isMemoryCare = queryLower.includes('memory') || queryLower.includes('dementia') || queryLower.includes('alzheimer');
+    const isAssisted = queryLower.includes('assisted') || queryLower.includes('help');
+    const isIndependent = queryLower.includes('independent');
+    const isBudget = queryLower.includes('affordable') || queryLower.includes('budget') || queryLower.includes('cheap');
+    const isLuxury = queryLower.includes('luxury') || queryLower.includes('premium') || queryLower.includes('upscale');
+
+    let summary = `Based on your search for "${query}", here are ${results.length} recommended communities:\n\n`;
+
+    // Add care type specific intro
+    if (isMemoryCare) {
+      summary += "These communities specialize in memory care and dementia support:\n\n";
+    } else if (isAssisted) {
+      summary += "These communities provide assisted living services with daily support:\n\n";
+    } else if (isIndependent) {
+      summary += "These independent living communities offer active senior lifestyles:\n\n";
+    }
+
+    // Add community summaries
+    results.forEach((result, index) => {
+      const comm = result.community;
+      summary += `${index + 1}. **${comm.name}** - ${comm.city}, ${comm.state}\n`;
+      summary += `   • Care Types: ${comm.careTypes.join(', ')}\n`;
+      summary += `   • Price Range: $${comm.pricing.min} - $${comm.pricing.max}/month\n`;
+      summary += `   • Rating: ${comm.qualityMetrics.familyRating}/5 stars\n`;
+      summary += `   • ${result.explanation}\n\n`;
+    });
+
+    // Add contextual recommendations
+    summary += "\n**Important Considerations:**\n";
+    
+    if (isMemoryCare) {
+      summary += "• Look for secure environments and specialized staff training\n";
+      summary += "• Ask about staff-to-resident ratios and activity programs\n";
+      summary += "• Verify Medicare/Medicaid acceptance if needed\n";
+    } else if (isBudget) {
+      summary += "• Consider HUD-subsidized properties for income-based pricing\n";
+      summary += "• Ask about financial assistance programs\n";
+      summary += "• Compare what's included in the base price\n";
+    } else if (isLuxury) {
+      summary += "• Tour the facilities to evaluate amenities\n";
+      summary += "• Review the dining programs and social activities\n";
+      summary += "• Check for concierge services and wellness programs\n";
+    }
+
+    summary += "\n**Next Steps:**\n";
+    summary += "1. Schedule tours at your top choices\n";
+    summary += "2. Prepare a list of questions about care and costs\n";
+    summary += "3. Check availability and waitlist status\n";
+    summary += "4. Review contracts carefully before committing\n";
+
+    return summary;
   }
 
   /**
