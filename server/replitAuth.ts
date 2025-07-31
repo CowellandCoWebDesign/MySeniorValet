@@ -6,6 +6,7 @@ import session from "express-session";
 import type { Express, RequestHandler } from "express";
 import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
+import MemoryStore from "memorystore";
 import { storage } from "./storage";
 
 if (!process.env.REPLIT_DOMAINS) {
@@ -24,22 +25,36 @@ const getOidcConfig = memoize(
 
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
-  const pgStore = connectPg(session);
-  const sessionStore = new pgStore({
-    conString: process.env.DATABASE_URL,
-    createTableIfMissing: true, // Changed to true to ensure table exists
-    ttl: sessionTtl,
-    tableName: "sessions",
-  });
+  
+  let sessionStore;
+  
+  // Try PostgreSQL store first, fallback to memory store if it fails
+  try {
+    const pgStore = connectPg(session);
+    sessionStore = new pgStore({
+      conString: process.env.DATABASE_URL,
+      createTableIfMissing: true,
+      ttl: sessionTtl,
+      tableName: "sessions",
+    });
+    console.log('✅ Using PostgreSQL session store');
+  } catch (error) {
+    console.warn('⚠️ PostgreSQL session store failed, using memory store:', error instanceof Error ? error.message : String(error));
+    const MemoryStoreInstance = MemoryStore(session);
+    sessionStore = new MemoryStoreInstance({
+      checkPeriod: 86400000, // prune expired entries every 24h
+    });
+  }
+  
   return session({
     secret: process.env.SESSION_SECRET || 'development-secret-key-change-in-production',
     store: sessionStore,
     resave: false,
-    saveUninitialized: true, // Changed to true to ensure session is created
+    saveUninitialized: false, // Only save sessions when needed
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Only require secure in production
-      sameSite: 'lax', // Added for better compatibility
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       maxAge: sessionTtl,
     },
   });
