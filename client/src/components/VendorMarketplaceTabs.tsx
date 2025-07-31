@@ -69,73 +69,105 @@ export function VendorMarketplaceTabs() {
     );
   }
 
-  const renderVendorCard = (vendor: MarketplaceVendor) => {
+  const renderVendorRow = (vendor: MarketplaceVendor) => {
     const category = categories.find(c => c.id === vendor.categoryId);
     const Icon = iconMap[category?.icon || 'ShoppingCart'];
     
     return (
-      <Card 
+      <div 
         key={vendor.id}
         onClick={() => handleVendorClick(vendor.id)}
-        className="cursor-pointer hover:shadow-xl transition-all transform hover:scale-105 border-2"
+        className="w-full cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
       >
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between mb-3">
-            <div className="w-16 h-16 bg-white rounded-lg p-1 shadow-sm overflow-hidden">
-              {vendor.logoUrl ? (
-                <img 
-                  src={vendor.logoUrl} 
-                  alt={vendor.name} 
-                  className="w-full h-full object-contain"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-400">
-                  <Icon className="w-8 h-8" />
+        <Card className="border-0 shadow-none rounded-none border-b">
+          <CardContent className="p-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              {/* Logo */}
+              <div className="w-full sm:w-24 h-24 bg-white rounded-lg p-2 shadow-sm overflow-hidden flex-shrink-0 border mx-auto sm:mx-0">
+                {vendor.logoUrl ? (
+                  <img 
+                    src={vendor.logoUrl} 
+                    alt={vendor.name} 
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                    <Icon className="w-12 h-12" />
+                  </div>
+                )}
+              </div>
+              
+              {/* Content */}
+              <div className="flex-1">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex flex-wrap items-center gap-3 mb-2">
+                      <h4 className="font-bold text-lg sm:text-xl">{vendor.name}</h4>
+                      {vendor.isFeatured && (
+                        <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white">
+                          FEATURED
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-3">
+                      {vendor.description}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-gray-500">
+                      <span className="flex items-center gap-1">
+                        <Icon className="w-4 h-4" />
+                        {category?.name}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <ExternalLink className="w-4 h-4" />
+                        Visit Website
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {/* Action button */}
+                  <button className="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2 font-medium">
+                    Shop Now
+                    <ExternalLink className="w-4 h-4" />
+                  </button>
                 </div>
-              )}
+              </div>
             </div>
-            <ExternalLink className="w-4 h-4 text-gray-400" />
-          </div>
-          
-          <h4 className="font-bold text-sm mb-1">{vendor.name}</h4>
-          <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 mb-2">
-            {vendor.shortDescription}
-          </p>
-          
-          {vendor.isFeatured && (
-            <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs">
-              FEATURED
-            </Badge>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     );
   };
 
   return (
     <div className="w-full">
       <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 mb-8">
-          <TabsTrigger value="all" className="text-xs lg:text-sm">All</TabsTrigger>
+        <TabsList className="w-full flex justify-start mb-8 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+          <TabsTrigger value="all" className="px-4 py-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 rounded-md transition-all">
+            All Vendors
+          </TabsTrigger>
           {categories.map((category) => (
-            <TabsTrigger key={category.slug} value={category.slug} className="text-xs lg:text-sm">
-              {category.name.split(' ')[0]}
+            <TabsTrigger 
+              key={category.slug} 
+              value={category.slug} 
+              className="px-4 py-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 rounded-md transition-all"
+            >
+              {category.name}
             </TabsTrigger>
           ))}
         </TabsList>
 
         <TabsContent value="all" className="mt-6">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {vendors.map(renderVendorCard)}
+          <div className="flex flex-col space-y-0">
+            {vendors.map(renderVendorRow)}
           </div>
         </TabsContent>
         
         {categories.map((category) => (
           <TabsContent key={category.slug} value={category.slug} className="mt-6">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="flex flex-col space-y-0">
               {vendors
                 .filter(v => v.categoryId === category.id)
-                .map(renderVendorCard)}
+                .map(renderVendorRow)}
             </div>
           </TabsContent>
         ))}
