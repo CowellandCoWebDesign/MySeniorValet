@@ -770,16 +770,16 @@ export default function Map({
       const renderTime = performance.now() - renderStart;
 
       console.log('Cluster data received:', {
-        featureCount: data.features?.length || 0,
+        featureCount: data.clusters?.length || 0,
         bounds: bounds,
         zoom: Math.round(currentZoom),
-        features: data.features?.slice(0, 3) // Log first 3 features
+        features: data.clusters?.slice(0, 3) // Log first 3 features
       });
 
       // Update performance metrics
       setPerformanceMetrics(prev => ({
         renderTime: Math.round(renderTime),
-        markerCount: data.features?.length || 0,
+        markerCount: data.clusters?.length || 0,
         memoryUsage: (performance as any).memory?.usedJSHeapSize || 0,
         lastUpdate: Date.now()
       }));
@@ -1017,7 +1017,7 @@ export default function Map({
         )}
 
         {/* Supercluster-powered markers and clusters */}
-        {!isLoading && !error && clusterData?.features?.map((feature: any, index: number) => {
+        {!isLoading && !error && clusterData?.clusters?.map((feature: any, index: number) => {
           const [lng, lat] = feature.geometry.coordinates;
           const { properties } = feature;
 
