@@ -52,8 +52,8 @@ import seniorServicesRoutes from "./senior-services";
 import realDataRoutes from "./real-data-api";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Use authentication bypass for testing enhanced Weaviate features
-  await setupAuthBypass(app);
+  // Initialize Replit Auth before other routes
+  await setupAuth(app);
 
   // Initialize community stats cache on startup (non-blocking)
   communityStatsCache.initialize().catch(error => {

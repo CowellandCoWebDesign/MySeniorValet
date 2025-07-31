@@ -106,9 +106,13 @@ async function upsertUser(
 
 export async function setupAuth(app: Express) {
   app.set("trust proxy", 1);
-  app.use(getSession());
-  app.use(passport.initialize());
-  app.use(passport.session());
+  
+  // Only initialize passport if not already initialized
+  if (!(app as any)._passport) {
+    app.use(getSession());
+    app.use(passport.initialize());
+    app.use(passport.session());
+  }
 
   const config = await getOidcConfig();
 

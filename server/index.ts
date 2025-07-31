@@ -22,6 +22,7 @@ import { businessIntelligence } from "./infrastructure/business-intelligence";
 import { advancedAnalytics } from "./infrastructure/advanced-analytics";
 import { notificationSystem } from "./infrastructure/notification-system";
 import { integrationManager } from "./infrastructure/integration-manager";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
@@ -63,6 +64,9 @@ app.use('/api', (req, res, next) => {
 // Basic parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
+
+// Add cookie parser middleware early in the chain
+app.use(cookieParser());
 
 // AGGRESSIVE cache busting for development
 app.use(devCacheKiller); // This MUST be first

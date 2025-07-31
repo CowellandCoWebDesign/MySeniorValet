@@ -5,6 +5,7 @@ import { eq, sql } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { z } from "zod";
+import cookieParser from "cookie-parser";
 
 // Simple schemas for quick auth
 const quickSignupSchema = z.object({
@@ -20,6 +21,9 @@ const quickLoginSchema = z.object({
 });
 
 export function registerQuickAuthRoutes(app: Express) {
+  // Ensure cookie parser is available
+  app.use(cookieParser());
+  
   // Quick signup - works with current database
   app.post("/api/auth/quick-signup", async (req, res) => {
     try {

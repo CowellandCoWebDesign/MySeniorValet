@@ -301,35 +301,52 @@ class EnhancedWeaviateService {
         }
       },
       properties: [
-        { name: 'userId', dataType: ['string'], description: 'User identifier' },
+        { name: 'userId', dataType: ['text'], description: 'User identifier' },
         { 
           name: 'preferences', 
           dataType: ['object'], 
           description: 'User preferences and requirements',
-          nestedProperties: {
-            careTypes: { dataType: ['text[]'] },
-            priceRange: { dataType: ['object'] },
-            location: { dataType: ['object'] },
-            mustHave: { dataType: ['text[]'] },
-            dealBreakers: { dataType: ['text[]'] },
-            specialNeeds: { dataType: ['text[]'] },
-            lifestyle: { dataType: ['text[]'] }
-          }
+          nestedProperties: [
+            { name: 'careTypes', dataType: ['text[]'] },
+            { name: 'priceRange', dataType: ['object'], nestedProperties: [
+              { name: 'min', dataType: ['number'] },
+              { name: 'max', dataType: ['number'] }
+            ]},
+            { name: 'location', dataType: ['object'], nestedProperties: [
+              { name: 'city', dataType: ['text'] },
+              { name: 'state', dataType: ['text'] },
+              { name: 'radius', dataType: ['number'] }
+            ]},
+            { name: 'mustHave', dataType: ['text[]'] },
+            { name: 'dealBreakers', dataType: ['text[]'] },
+            { name: 'specialNeeds', dataType: ['text[]'] },
+            { name: 'lifestyle', dataType: ['text[]'] }
+          ]
         },
-        { name: 'searchHistory', dataType: ['object[]'], description: 'Historical search patterns' },
-        { name: 'interactions', dataType: ['object[]'], description: 'Community interactions' },
+        { name: 'searchHistory', dataType: ['object[]'], description: 'Historical search patterns', nestedProperties: [
+          { name: 'query', dataType: ['text'] },
+          { name: 'timestamp', dataType: ['date'] },
+          { name: 'resultsCount', dataType: ['number'] },
+          { name: 'clickedCommunities', dataType: ['text[]'] }
+        ]},
+        { name: 'interactions', dataType: ['object[]'], description: 'Community interactions', nestedProperties: [
+          { name: 'communityId', dataType: ['text'] },
+          { name: 'interactionType', dataType: ['text'] },
+          { name: 'timestamp', dataType: ['date'] },
+          { name: 'notes', dataType: ['text'] }
+        ]},
         { 
           name: 'familyContext', 
           dataType: ['object'], 
           description: 'Family decision context',
-          nestedProperties: {
-            relationshipToCare: { dataType: ['text'] },
-            timeframe: { dataType: ['text'] },
-            currentSituation: { dataType: ['text'] },
-            decisionMakers: { dataType: ['text[]'] },
-            concerns: { dataType: ['text[]'] },
-            priorities: { dataType: ['text[]'] }
-          }
+          nestedProperties: [
+            { name: 'relationshipToCare', dataType: ['text'] },
+            { name: 'timeframe', dataType: ['text'] },
+            { name: 'currentSituation', dataType: ['text'] },
+            { name: 'decisionMakers', dataType: ['text[]'] },
+            { name: 'concerns', dataType: ['text[]'] },
+            { name: 'priorities', dataType: ['text[]'] }
+          ]
         },
         { name: 'preferenceVector', dataType: ['text'], description: 'Vectorized preferences for similarity matching' }
       ]
