@@ -1,7 +1,12 @@
 import OpenAI from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
 
 const openai = new OpenAI({ 
   apiKey: process.env.OPENAI_API_KEY 
+});
+
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY || ''
 });
 
 export interface ThematicImagePrompt {
@@ -69,6 +74,38 @@ const vendorThemes: Record<string, string> = {
   'American Advisors Group': 'happy senior couple reviewing financial documents with advisor, retirement planning'
 };
 
+// Use Claude to generate better prompts
+async function generateClaudeEnhancedPrompt(vendorName: string, baseTheme: string): Promise<string> {
+  try {
+    const message = await anthropic.messages.create({
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 300,
+      messages: [{
+        role: "user",
+        content: `You are helping create image prompts for a senior living services marketplace. Create a detailed, warm, and appropriate image prompt for:
+
+Vendor: ${vendorName}
+Base concept: ${baseTheme}
+
+Requirements:
+1. Must appeal to seniors and their adult children
+2. Should feel warm, trustworthy, and professional
+3. Focus on the service benefit, not the brand
+4. Include specific visual details that make the image feel real and relatable
+5. Avoid any logos, text, or brand identifiers
+6. Make it feel aspirational yet accessible
+
+Generate a single detailed prompt (max 100 words):`
+      }]
+    });
+    
+    return message.content[0].type === 'text' ? message.content[0].text : baseTheme;
+  } catch (error) {
+    console.log('Claude unavailable, using base theme');
+    return baseTheme;
+  }
+}
+
 export async function generateThematicImage(vendorName: string): Promise<string | null> {
   try {
     const theme = vendorThemes[vendorName];
@@ -77,16 +114,20 @@ export async function generateThematicImage(vendorName: string): Promise<string 
       return null;
     }
 
-    const prompt = `Professional product photography style: ${theme}. High quality, clean composition, no text or logos, photorealistic style.`;
+    // Use Claude to enhance the prompt if available
+    const enhancedPrompt = process.env.ANTHROPIC_API_KEY 
+      ? await generateClaudeEnhancedPrompt(vendorName, theme)
+      : `A warm, professional photograph: ${theme}. Senior-friendly, trustworthy atmosphere, excellent lighting, no logos or text.`;
     
-    console.log(`Generating image for ${vendorName} with prompt:`, prompt);
+    console.log(`Generating image for ${vendorName} with AI-enhanced prompt:`, enhancedPrompt);
     
     const response = await openai.images.generate({
       model: "dall-e-3",
-      prompt: prompt,
+      prompt: enhancedPrompt,
       n: 1,
       size: "1024x1024",
       quality: "standard",
+      style: "natural"
     });
 
     return response.data?.[0]?.url || null;
