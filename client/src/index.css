@@ -4,6 +4,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom scrollbar hide utility for vendor marketplace sliders */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* Global responsive container and overflow fixes */
 * {
   box-sizing: border-box;
