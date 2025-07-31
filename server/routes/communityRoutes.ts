@@ -275,6 +275,39 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
 
+  // Get community statistics
+  app.get("/api/communities/stats", async (req, res) => {
+    try {
+      const stats = await db
+        .select({
+          totalCommunities: sql`COUNT(*)`,
+          avgRating: sql`AVG(CAST(${communities.rating} AS FLOAT))`,
+          totalWithPhotos: sql`COUNT(CASE WHEN ${communities.photos}::text[] != '{}' THEN 1 END)`,
+          totalHUD: sql`COUNT(CASE WHEN ${communities.hudPropertyId} IS NOT NULL THEN 1 END)`,
+          stateCount: sql`COUNT(DISTINCT ${communities.state})`
+        })
+        .from(communities);
+
+      const stateDistribution = await db
+        .select({
+          state: communities.state,
+          count: sql`COUNT(*)`
+        })
+        .from(communities)
+        .groupBy(communities.state)
+        .orderBy(desc(sql`COUNT(*)`))
+        .limit(10);
+
+      res.json({
+        ...stats[0],
+        topStates: stateDistribution
+      });
+    } catch (error) {
+      console.error("Error fetching community statistics:", error);
+      res.status(500).json({ error: "Failed to fetch statistics" });
+    }
+  });
+
   // Get single community by ID - MUST BE LAST
   app.get("/api/communities/:id", async (req, res) => {
     try {
@@ -638,36 +671,5 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
 
-  // Get community statistics
-  app.get("/api/communities/stats", async (req, res) => {
-    try {
-      const stats = await db
-        .select({
-          totalCommunities: sql`COUNT(*)`,
-          avgRating: sql`AVG(CAST(${communities.rating} AS FLOAT))`,
-          totalWithPhotos: sql`COUNT(CASE WHEN ${communities.photos}::text[] != '{}' THEN 1 END)`,
-          totalHUD: sql`COUNT(CASE WHEN ${communities.hudPropertyId} IS NOT NULL THEN 1 END)`,
-          stateCount: sql`COUNT(DISTINCT ${communities.state})`
-        })
-        .from(communities);
 
-      const stateDistribution = await db
-        .select({
-          state: communities.state,
-          count: sql`COUNT(*)`
-        })
-        .from(communities)
-        .groupBy(communities.state)
-        .orderBy(desc(sql`COUNT(*)`))
-        .limit(10);
-
-      res.json({
-        ...stats[0],
-        topStates: stateDistribution
-      });
-    } catch (error) {
-      console.error("Error fetching community statistics:", error);
-      res.status(500).json({ error: "Failed to fetch statistics" });
-    }
-  });
 }
