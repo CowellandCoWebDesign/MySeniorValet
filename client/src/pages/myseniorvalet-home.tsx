@@ -928,6 +928,23 @@ export default function MySeniorValetHome() {
               </Card>
             </Link>
 
+            <Link href="/vendor-marketplace">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 relative overflow-hidden">
+                <CardContent className="p-4 text-center">
+                  <div className="absolute top-2 right-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  </div>
+                  <ShoppingCart className="w-10 h-10 text-amber-500 mx-auto mb-2" />
+                  <h4 className="font-semibold text-sm text-amber-700 dark:text-amber-300">Vendor Marketplace</h4>
+                  <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">Trusted senior brands</p>
+                  <div className="flex gap-1 justify-center mt-1">
+                    <Badge className="bg-green-500 text-white text-xs px-2 py-0.5">✓ NEW</Badge>
+                    <Badge className="bg-amber-500 text-white text-xs px-2 py-0.5">CURATED</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
             
             <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
               <CardContent className="p-4 text-center relative">

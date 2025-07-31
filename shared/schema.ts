@@ -3460,6 +3460,47 @@ export const chatMessages = pgTable("chat_messages", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Marketplace vendor tables (renamed to avoid conflict with service vendors)
+export const marketplaceCategories = pgTable("marketplace_categories", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  icon: text("icon"),
+  description: text("description"),
+  displayOrder: integer("display_order").default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const marketplaceVendors = pgTable("marketplace_vendors", {
+  id: serial("id").primaryKey(),
+  categoryId: integer("category_id").references(() => marketplaceCategories.id),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  description: text("description"),
+  shortDescription: text("short_description"),
+  logoUrl: text("logo_url"),
+  externalUrl: text("external_url").notNull(),
+  linkType: text("link_type").default("standard"), // standard, affiliate, paid_placement
+  trackingCode: text("tracking_code"), // For future affiliate tracking
+  isFeatured: boolean("is_featured").default(false),
+  isHidden: boolean("is_hidden").default(false),
+  displayOrder: integer("display_order").default(0),
+  metadata: jsonb("metadata"), // Additional vendor-specific data
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const marketplaceVendorClicks = pgTable("marketplace_vendor_clicks", {
+  id: serial("id").primaryKey(),
+  vendorId: integer("vendor_id").references(() => marketplaceVendors.id),
+  userId: text("user_id"),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  referrer: text("referrer"),
+  clickedAt: timestamp("clicked_at").defaultNow().notNull(),
+});
+
 // Relations for chat messaging
 export const chatConversationsRelations = relations(chatConversations, ({ many, one }) => ({
   participants: many(chatParticipants),
@@ -3481,6 +3522,26 @@ export const chatMessagesRelations = relations(chatMessages, ({ one }) => ({
   conversation: one(chatConversations, {
     fields: [chatMessages.conversationId],
     references: [chatConversations.id],
+  }),
+}));
+
+// Relations for marketplace vendors
+export const marketplaceCategoriesRelations = relations(marketplaceCategories, ({ many }) => ({
+  vendors: many(marketplaceVendors),
+}));
+
+export const marketplaceVendorsRelations = relations(marketplaceVendors, ({ one, many }) => ({
+  category: one(marketplaceCategories, {
+    fields: [marketplaceVendors.categoryId],
+    references: [marketplaceCategories.id],
+  }),
+  clicks: many(marketplaceVendorClicks),
+}));
+
+export const marketplaceVendorClicksRelations = relations(marketplaceVendorClicks, ({ one }) => ({
+  vendor: one(marketplaceVendors, {
+    fields: [marketplaceVendorClicks.vendorId],
+    references: [marketplaceVendors.id],
   }),
 }));
 
@@ -3532,3 +3593,27 @@ export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({
 });
 export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
 export type ChatMessage = typeof chatMessages.$inferSelect;
+
+// Insert schemas for marketplace vendors
+export const insertMarketplaceCategorySchema = createInsertSchema(marketplaceCategories).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertMarketplaceCategory = z.infer<typeof insertMarketplaceCategorySchema>;
+export type MarketplaceCategory = typeof marketplaceCategories.$inferSelect;
+
+export const insertMarketplaceVendorSchema = createInsertSchema(marketplaceVendors).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertMarketplaceVendor = z.infer<typeof insertMarketplaceVendorSchema>;
+export type MarketplaceVendor = typeof marketplaceVendors.$inferSelect;
+
+export const insertMarketplaceVendorClickSchema = createInsertSchema(marketplaceVendorClicks).omit({
+  id: true,
+  clickedAt: true,
+});
+export type InsertMarketplaceVendorClick = z.infer<typeof insertMarketplaceVendorClickSchema>;
+export type MarketplaceVendorClick = typeof marketplaceVendorClicks.$inferSelect;

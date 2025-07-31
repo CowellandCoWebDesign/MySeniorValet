@@ -61,6 +61,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register messaging routes
   const messagingRoutes = await import('./routes/messagingRoutes');
   app.use('/api/messaging', messagingRoutes.default);
+  
+  // Register marketplace routes
+  const marketplaceRoutes = await import('./routes/marketplaceRoutes');
+  app.use('/api/marketplace', marketplaceRoutes.default);
 
   // AI Status checking endpoint
   app.get('/api/ai/status', async (req, res) => {

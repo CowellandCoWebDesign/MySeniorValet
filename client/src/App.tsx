@@ -64,6 +64,7 @@ import { Messaging } from "@/pages/messaging";
 import MoveInServices from "@/pages/MoveInServices";
 import AmazonServices from "@/pages/AmazonServices";
 import VendorProfile from "@/pages/VendorProfile";
+import VendorMarketplace from "@/pages/vendor-marketplace";
 import FamilyConnect from "@/pages/family-connect";
 import CommunityPaymentProgram from "@/pages/community-payment-program";
 import ResidentOnboarding from "@/pages/resident-onboarding";
@@ -167,6 +168,7 @@ function Router() {
       <Route path="/real-data-pricing" component={RealDataPricing} />
       <Route path="/services" component={Services} />
       <Route path="/senior-services" component={SeniorServices} />
+      <Route path="/vendor-marketplace" component={VendorMarketplace} />
       <Route path="/florals" component={FloralServices} />
       <Route path="/moving" component={MovingServices} />
       <Route path="/transportation" component={TransportationServices} />

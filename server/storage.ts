@@ -11,7 +11,11 @@ import {
   chatConversations, chatParticipants, chatMessages,
   type ChatConversation, type InsertChatConversation,
   type ChatParticipant, type InsertChatParticipant,
-  type ChatMessage, type InsertChatMessage
+  type ChatMessage, type InsertChatMessage,
+  marketplaceCategories, marketplaceVendors, marketplaceVendorClicks,
+  type MarketplaceCategory, type InsertMarketplaceCategory,
+  type MarketplaceVendor, type InsertMarketplaceVendor,
+  type MarketplaceVendorClick, type InsertMarketplaceVendorClick
 } from "@shared/schema";
 import { db } from "./db";
 
@@ -149,6 +153,27 @@ export interface IStorage {
   getUnreadCount(userId: string): Promise<number>;
   deleteMessage(messageId: number, userId: string): Promise<void>;
   editMessage(messageId: number, userId: string, newContent: string): Promise<ChatMessage | undefined>;
+
+  // Marketplace vendor methods
+  getMarketplaceCategories(): Promise<MarketplaceCategory[]>;
+  getMarketplaceCategoryBySlug(slug: string): Promise<MarketplaceCategory | undefined>;
+  createMarketplaceCategory(category: InsertMarketplaceCategory): Promise<MarketplaceCategory>;
+  updateMarketplaceCategory(id: number, updates: Partial<InsertMarketplaceCategory>): Promise<MarketplaceCategory | undefined>;
+  
+  getMarketplaceVendors(params?: { categoryId?: number; featured?: boolean; hidden?: boolean }): Promise<MarketplaceVendor[]>;
+  getMarketplaceVendorBySlug(slug: string): Promise<MarketplaceVendor | undefined>;
+  createMarketplaceVendor(vendor: InsertMarketplaceVendor): Promise<MarketplaceVendor>;
+  updateMarketplaceVendor(id: number, updates: Partial<InsertMarketplaceVendor>): Promise<MarketplaceVendor | undefined>;
+  deleteMarketplaceVendor(id: number): Promise<boolean>;
+  
+  trackMarketplaceVendorClick(click: InsertMarketplaceVendorClick): Promise<MarketplaceVendorClick>;
+  getMarketplaceVendorClicks(vendorId: number, days?: number): Promise<MarketplaceVendorClick[]>;
+  getMarketplaceAnalytics(): Promise<{
+    totalVendors: number;
+    totalClicks: number;
+    topVendors: Array<{ vendor: MarketplaceVendor; clicks: number }>;
+    categoryBreakdown: Array<{ category: MarketplaceCategory; vendorCount: number; totalClicks: number }>;
+  }>;
 }
 
 export class MemStorage implements IStorage {
