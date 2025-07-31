@@ -86,10 +86,39 @@ export function registerQuickAuthRoutes(app: Express) {
     }
   });
   
-  // Quick login
+  // Quick login with demo account support
   app.post("/api/auth/quick-login", async (req, res) => {
     try {
       const data = quickLoginSchema.parse(req.body);
+      
+      // Demo account for testing
+      if (data.email === 'demo@example.com' && data.password === 'demo123') {
+        const sessionId = crypto.randomBytes(32).toString('hex');
+        res.cookie('sessionId', sessionId, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+        
+        // Store demo session
+        global.activeSessions = global.activeSessions || {};
+        global.activeSessions[sessionId] = {
+          userId: 9999,
+          email: 'demo@example.com',
+          role: 'user'
+        };
+        
+        return res.json({
+          user: {
+            id: 9999,
+            email: 'demo@example.com',
+            firstName: 'Demo',
+            lastName: 'User',
+            role: 'user'
+          }
+        });
+      }
       
       // Find user
       const result = await db.execute(sql`
@@ -146,9 +175,23 @@ export function registerQuickAuthRoutes(app: Express) {
     }
   });
   
-  // Quick user check
+  // Quick user check with demo account support
   app.get("/api/auth/quick-user", async (req, res) => {
     const sessionId = req.cookies.sessionId;
+    
+    // Demo mode for testing (when no session)
+    if (!sessionId && process.env.NODE_ENV === 'development') {
+      return res.json({
+        success: true,
+        user: {
+          id: 'test-user-123',
+          email: 'demo@example.com',
+          username: 'Demo User',
+          role: 'user',
+          isDemo: true
+        }
+      });
+    }
     
     if (!sessionId || !global.activeSessions?.[sessionId]) {
       return res.status(401).json({ message: "Unauthorized" });
@@ -156,6 +199,7 @@ export function registerQuickAuthRoutes(app: Express) {
     
     const session = global.activeSessions[sessionId];
     res.json({
+      success: true,
       user: {
         id: session.userId,
         email: session.email,
