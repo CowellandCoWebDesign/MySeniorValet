@@ -37,51 +37,7 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
   
-  // Basic search endpoint for communities
-  app.get('/api/communities/search', async (req, res) => {
-    try {
-      const { query, location, limit = 10 } = req.query;
-      
-      let conditions = [];
-      
-      if (query) {
-        conditions.push(
-          or(
-            sql`${communities.name} ILIKE ${`%${query}%`}`,
-            sql`${communities.description} ILIKE ${`%${query}%`}`,
-            sql`${communities.city} ILIKE ${`%${query}%`}`
-          )
-        );
-      }
-      
-      if (location) {
-        conditions.push(
-          or(
-            sql`${communities.city} ILIKE ${`%${location}%`}`,
-            sql`${communities.state} ILIKE ${`%${location}%`}`
-          )
-        );
-      }
-      
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-      
-      const results = await db
-        .select()
-        .from(communities)
-        .where(whereClause)
-        .limit(parseInt(limit as string))
-        .orderBy(desc(communities.rating));
-      
-      res.json({
-        communities: results,
-        total: results.length,
-        query: { query, location, limit }
-      });
-    } catch (error) {
-      console.error('Community search error:', error);
-      res.status(500).json({ error: 'Search failed' });
-    }
-  });
+  // Search endpoint moved to unifiedSearchRoutes.ts for better functionality
   
   // HUD featured communities
   app.get("/api/communities/hud-featured", async (req, res) => {

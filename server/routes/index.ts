@@ -13,6 +13,7 @@ import { registerPerplexityRoutes } from "./perplexityRoutes";
 import { registerAdminRoutes } from "./adminRoutes";
 import { registerVendorRoutes } from "./vendorRoutes";
 import { registerSearchRoutes } from "./searchRoutes";
+import { registerUnifiedSearchRoutes } from "./unifiedSearchRoutes";
 import { registerMappingRoutes } from "./mappingRoutes";
 import { registerMappingFixRoutes } from "./mappingFixRoutes";
 import { registerMultiAITestRoutes } from "./multiAiTestRoutes";
@@ -71,6 +72,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // CRITICAL: Register mapping routes BEFORE community routes to prevent /:id interception
   registerMappingRoutes(app);
   registerMappingFixRoutes(app);
+  registerUnifiedSearchRoutes(app); // Unified search handles both text and map searches
   registerMultiAITestRoutes(app);
   registerCommunityRoutes(app);
   registerUserRoutes(app);

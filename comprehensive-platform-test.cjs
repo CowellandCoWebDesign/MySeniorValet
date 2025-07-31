@@ -184,7 +184,7 @@ async function testSearchAndMapping() {
   console.log(`\n${colors.blue}=== Testing Search & Mapping ===${colors.reset}\n`);
   
   await runTest('Basic Search', async () => {
-    const result = await makeRequest('GET', '/search?location=California&careType=All%20Types&limit=10');
+    const result = await makeRequest('GET', '/communities/search?location=California&careType=All%20Types&limit=10');
     return {
       success: result.success && result.data && result.data.communities && result.data.communities.length > 0,
       details: result.data ? `Found ${result.data.communities.length} communities` : 'No data',
