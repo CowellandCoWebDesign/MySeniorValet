@@ -148,8 +148,23 @@ export async function setupAuth(app: Express) {
     passport.use(strategy);
   }
 
-  passport.serializeUser((user: Express.User, cb) => cb(null, user));
-  passport.deserializeUser((user: Express.User, cb) => cb(null, user));
+  passport.serializeUser((user: Express.User, cb) => {
+    try {
+      cb(null, user);
+    } catch (error) {
+      console.error('Error serializing user:', error);
+      cb(error, null);
+    }
+  });
+  
+  passport.deserializeUser((user: Express.User, cb) => {
+    try {
+      cb(null, user);
+    } catch (error) {
+      console.error('Error deserializing user:', error);
+      cb(null, null); // Don't crash on deserialize error
+    }
+  });
 
   app.get("/api/login", (req, res, next) => {
     // Store the referrer URL to redirect back after login

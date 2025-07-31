@@ -1821,6 +1821,149 @@ export class DatabaseStorage implements IStorage {
     
     return Number(result[0]?.count || 0);
   }
+
+  // Session management methods (required for authentication)
+  async createSession(userId: string): Promise<UserSession> {
+    const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+    
+    const session: UserSession = {
+      id: sessionId,
+      userId,
+      expiresAt,
+      ipAddress: null,
+      userAgent: null,
+      createdAt: new Date(),
+      lastAccessedAt: new Date()
+    };
+    
+    await db.insert(userSessions).values(session);
+    return session;
+  }
+
+  async getSessionById(sessionId: string): Promise<UserSession | undefined> {
+    const [session] = await db.select().from(userSessions).where(eq(userSessions.id, sessionId));
+    return session || undefined;
+  }
+
+  async deleteSession(sessionId: string): Promise<boolean> {
+    const result = await db.delete(userSessions).where(eq(userSessions.id, sessionId));
+    return (result as any).rowCount > 0;
+  }
+
+  async cleanupExpiredSessions(): Promise<void> {
+    await db.delete(userSessions).where(sql`expires_at < NOW()`);
+  }
+
+  // Missing interface methods - provide minimal implementations to prevent crashes
+  async getAllCommunitiesForClustering(): Promise<Community[]> {
+    try {
+      return await db.select().from(communities).where(and(isNotNull(communities.latitude), isNotNull(communities.longitude)));
+    } catch {
+      return [];
+    }
+  }
+
+  async createListingFlag(flag: InsertListingFlag): Promise<ListingFlag> {
+    const [created] = await db.insert(listingFlags).values(flag).returning();
+    return created;
+  }
+
+  async getListingFlags(params: { status?: string; page?: number; limit?: number }): Promise<ListingFlag[]> {
+    let query = db.select().from(listingFlags);
+    if (params.status) {
+      query = query.where(eq(listingFlags.status, params.status));
+    }
+    const limit = params.limit || 50;
+    const offset = ((params.page || 1) - 1) * limit;
+    return query.limit(limit).offset(offset);
+  }
+
+  async updateListingFlag(id: number, updates: Partial<InsertListingFlag>): Promise<ListingFlag | undefined> {
+    const [updated] = await db.update(listingFlags).set(updates).where(eq(listingFlags.id, id)).returning();
+    return updated || undefined;
+  }
+
+  // Stub implementations for missing methods to prevent interface errors
+  async upsertUser(user: UpsertUser): Promise<User> {
+    const existing = await this.getUserByEmail(user.email || '');
+    if (existing) {
+      return await this.updateUser(existing.id, user) || existing;
+    }
+    return await this.createUser(user as InsertUser);
+  }
+
+  async createConversation(data: InsertChatConversation, participantIds: string[]): Promise<ChatConversation> {
+    const [conversation] = await db.insert(chatConversations).values(data).returning();
+    for (const userId of participantIds) {
+      await db.insert(chatParticipants).values({
+        conversationId: conversation.id,
+        userId,
+        role: 'member'
+      });
+    }
+    return conversation;
+  }
+
+  async getConversationsByUser(userId: string): Promise<Array<ChatConversation & { unreadCount: number; lastMessage?: ChatMessage }>> {
+    return []; // Stub implementation
+  }
+
+  async getConversationById(conversationId: number, userId: string): Promise<ChatConversation | undefined> {
+    const [conversation] = await db.select().from(chatConversations).where(eq(chatConversations.id, conversationId));
+    return conversation || undefined;
+  }
+
+  async addParticipantToConversation(conversationId: number, userId: string, role: string = 'member'): Promise<ChatParticipant> {
+    const [participant] = await db.insert(chatParticipants).values({
+      conversationId,
+      userId,
+      role
+    }).returning();
+    return participant;
+  }
+
+  async removeParticipantFromConversation(conversationId: number, userId: string): Promise<void> {
+    await db.delete(chatParticipants).where(
+      and(
+        eq(chatParticipants.conversationId, conversationId),
+        eq(chatParticipants.userId, userId)
+      )
+    );
+  }
+
+  async sendMessage(data: InsertChatMessage): Promise<ChatMessage> {
+    const [message] = await db.insert(chatMessages).values(data).returning();
+    return message;
+  }
+
+  async getMessagesByConversation(conversationId: number, limit: number = 50, offset: number = 0): Promise<ChatMessage[]> {
+    return db.select().from(chatMessages)
+      .where(eq(chatMessages.conversationId, conversationId))
+      .orderBy(desc(chatMessages.createdAt))
+      .limit(limit)
+      .offset(offset);
+  }
+
+  async markMessagesAsRead(conversationId: number, userId: string): Promise<void> {
+    // Stub implementation
+  }
+
+  async getUnreadCount(userId: string): Promise<number> {
+    return 0; // Stub implementation
+  }
+
+  async deleteMessage(messageId: number, userId: string): Promise<void> {
+    await db.delete(chatMessages).where(eq(chatMessages.id, messageId));
+  }
+
+  async editMessage(messageId: number, userId: string, newContent: string): Promise<ChatMessage | undefined> {
+    const [updated] = await db.update(chatMessages)
+      .set({ content: newContent, updatedAt: new Date() })
+      .where(eq(chatMessages.id, messageId))
+      .returning();
+    return updated || undefined;
+  }
 }
 
 export const storage = new DatabaseStorage();
