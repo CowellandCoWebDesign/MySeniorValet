@@ -732,10 +732,10 @@ export default function Map({
       const bounds = getOptimizedBounds(mapBounds);
 
       const params = new URLSearchParams({
-        swLat: bounds.south.toString(),
-        swLng: bounds.west.toString(),
-        neLat: bounds.north.toString(),
-        neLng: bounds.east.toString(),
+        west: bounds.west.toString(),
+        south: bounds.south.toString(),
+        east: bounds.east.toString(),
+        north: bounds.north.toString(),
         zoom: Math.round(currentZoom).toString()
       });
 
