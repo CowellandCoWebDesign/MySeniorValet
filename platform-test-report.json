@@ -1,10 +1,10 @@
 {
-  "timestamp": "2025-07-31T16:42:48.791Z",
+  "timestamp": "2025-07-31T17:46:10.708Z",
   "summary": {
     "total": 37,
-    "passed": 30,
-    "failed": 7,
-    "passRate": "81.1%"
+    "passed": 34,
+    "failed": 3,
+    "passRate": "91.9%"
   },
   "results": [
     {
@@ -12,13 +12,13 @@
       "status": "PASSED",
       "details": {
         "totalCommunities": 25326,
-        "totalUsers": 15,
+        "totalUsers": 20,
         "totalTours": 3,
         "totalReviews": 0,
         "platformStatus": "operational",
-        "lastUpdated": "2025-07-31T16:42:45.338Z",
-        "_version": "v4_streamlined_hero_1753980088142",
-        "_timestamp": 1753980165338
+        "lastUpdated": "2025-07-31T17:46:03.413Z",
+        "_version": "v4_streamlined_hero_1753983864836",
+        "_timestamp": 1753983963413
       }
     },
     {
@@ -26,8 +26,8 @@
       "status": "PASSED",
       "details": {
         "count": "25326",
-        "_version": "v4_streamlined_hero_1753980088142",
-        "_timestamp": 1753980165423
+        "_version": "v4_streamlined_hero_1753983864836",
+        "_timestamp": 1753983963500
       }
     },
     {
@@ -83,9 +83,9 @@
           "Florida and Texas lead in new community openings",
           "Average monthly cost rose 4.8% nationally"
         ],
-        "lastUpdated": "2025-07-31T16:42:45.428Z",
-        "_version": "v4_streamlined_hero_1753980088142",
-        "_timestamp": 1753980165428
+        "lastUpdated": "2025-07-31T17:46:03.505Z",
+        "_version": "v4_streamlined_hero_1753983864836",
+        "_timestamp": 1753983963505
       }
     },
     {
@@ -527,9 +527,9 @@
           "benefitsOffices": 3,
           "totalFacilities": 18
         },
-        "lastUpdated": "2025-07-31T16:42:46.766Z",
-        "_version": "v4_streamlined_hero_1753980088142",
-        "_timestamp": 1753980166766
+        "lastUpdated": "2025-07-31T17:46:04.806Z",
+        "_version": "v4_streamlined_hero_1753983864836",
+        "_timestamp": 1753983964806
       }
     },
     {
@@ -544,24 +544,25 @@
         "aiAnalysis": null,
         "total": 0,
         "status": "success",
-        "_version": "v4_streamlined_hero_1753980088142",
-        "_timestamp": 1753980166949
+        "_version": "v4_streamlined_hero_1753983864836",
+        "_timestamp": 1753983964813
       }
     },
     {
       "test": "Map Bounds Search",
-      "status": "ERROR",
-      "error": "Cannot read properties of undefined (reading 'length')"
+      "status": "FAILED",
+      "error": {
+        "error": "Bounds parameter required",
+        "format": "bounds=west,south,east,north",
+        "example": "bounds=-122.5,37.7,-122.3,37.8",
+        "_version": "v4_streamlined_hero_1753983864836",
+        "_timestamp": 1753983964816
+      }
     },
     {
       "test": "Map Clustering",
-      "status": "FAILED",
-      "error": {
-        "error": "Missing bounding box. Required: west, south, east, north",
-        "example": "?west=-122.5&south=37.7&east=-122.3&north=37.8&zoom=10",
-        "_version": "v4_streamlined_hero_1753980088142",
-        "_timestamp": 1753980166959
-      }
+      "status": "PASSED",
+      "details": "Found 5 clusters"
     },
     {
       "test": "Claude AI Health Check",
@@ -570,11 +571,11 @@
         "status": "healthy",
         "provider": "Claude (Anthropic)",
         "responseTime": 142,
-        "lastChecked": "2025-07-31T16:42:46.963Z",
+        "lastChecked": "2025-07-31T17:46:04.823Z",
         "credits": "active",
         "apiVersion": "2024-10-01",
-        "_version": "v4_streamlined_hero_1753980088142",
-        "_timestamp": 1753980166963
+        "_version": "v4_streamlined_hero_1753983864836",
+        "_timestamp": 1753983964823
       }
     },
     {
@@ -584,11 +585,11 @@
         "status": "healthy",
         "provider": "OpenAI (ChatGPT)",
         "responseTime": 98,
-        "lastChecked": "2025-07-31T16:42:46.966Z",
+        "lastChecked": "2025-07-31T17:46:04.826Z",
         "credits": "active",
         "apiVersion": "v1",
-        "_version": "v4_streamlined_hero_1753980088142",
-        "_timestamp": 1753980166966
+        "_version": "v4_streamlined_hero_1753983864836",
+        "_timestamp": 1753983964826
       }
     },
     {
@@ -598,11 +599,11 @@
         "status": "healthy",
         "provider": "Perplexity AI",
         "responseTime": 156,
-        "lastChecked": "2025-07-31T16:42:46.969Z",
+        "lastChecked": "2025-07-31T17:46:04.829Z",
         "credits": "active",
         "apiVersion": "sonar",
-        "_version": "v4_streamlined_hero_1753980088142",
-        "_timestamp": 1753980166969
+        "_version": "v4_streamlined_hero_1753983864836",
+        "_timestamp": 1753983964829
       }
     },
     {
@@ -624,15 +625,15 @@
         "crossValidation": {
           "enabled": true,
           "threshold": 0.85,
-          "lastSync": "2025-07-31T16:42:46.972Z"
+          "lastSync": "2025-07-31T17:46:04.831Z"
         },
         "performance": {
           "avgResponseTime": 132,
           "successRate": 98.7,
           "totalRequests24h": 1542
         },
-        "_version": "v4_streamlined_hero_1753980088142",
-        "_timestamp": 1753980166972
+        "_version": "v4_streamlined_hero_1753983864836",
+        "_timestamp": 1753983964831
       }
     },
     {
@@ -644,16 +645,16 @@
         "details": {
           "initialized": true,
           "client": true,
-          "timestamp": "2025-07-31T16:42:46.979Z",
+          "timestamp": "2025-07-31T17:46:04.836Z",
           "connection": "success",
           "schemas": {
             "community": true,
             "userProfile": true
           }
         },
-        "timestamp": "2025-07-31T16:42:47.127Z",
-        "_version": "v4_streamlined_hero_1753980088142",
-        "_timestamp": 1753980167127
+        "timestamp": "2025-07-31T17:46:05.063Z",
+        "_version": "v4_streamlined_hero_1753983864836",
+        "_timestamp": 1753983965063
       }
     },
     {
@@ -666,29 +667,41 @@
       "status": "FAILED",
       "error": {
         "success": false,
-        "error": "Invalid query parameters",
-        "details": [
-          {
-            "code": "invalid_type",
-            "expected": "string",
-            "received": "undefined",
-            "path": [
-              "query"
-            ],
-            "message": "Required"
-          }
-        ],
-        "_version": "v4_streamlined_hero_1753980088142",
-        "_timestamp": 1753980167845
+        "error": "AI recommendation service temporarily unavailable",
+        "message": "Please try the standard search or contact support",
+        "_version": "v4_streamlined_hero_1753983864836",
+        "_timestamp": 1753983969744
       }
     },
     {
       "test": "User Registration",
-      "status": "FAILED"
+      "status": "PASSED",
+      "details": {
+        "user": {
+          "id": 29,
+          "email": "test_1753983969746@example.com",
+          "firstName": "User",
+          "lastName": "",
+          "role": "user"
+        },
+        "_version": "v4_streamlined_hero_1753983864836",
+        "_timestamp": 1753983969965
+      }
     },
     {
       "test": "User Login",
-      "status": "FAILED"
+      "status": "PASSED",
+      "details": {
+        "user": {
+          "id": 9999,
+          "email": "demo@example.com",
+          "firstName": "Demo",
+          "lastName": "User",
+          "role": "user"
+        },
+        "_version": "v4_streamlined_hero_1753983864836",
+        "_timestamp": 1753983969970
+      }
     },
     {
       "test": "Get Current User",
@@ -702,8 +715,8 @@
           "role": "user",
           "isDemo": true
         },
-        "_version": "v4_streamlined_hero_1753980088142",
-        "_timestamp": 1753980168072
+        "_version": "v4_streamlined_hero_1753983864836",
+        "_timestamp": 1753983969973
       }
     },
     {
@@ -711,8 +724,8 @@
       "status": "PASSED",
       "details": {
         "message": "Logged out successfully",
-        "_version": "v4_streamlined_hero_1753980088142",
-        "_timestamp": 1753980168076
+        "_version": "v4_streamlined_hero_1753983864836",
+        "_timestamp": 1753983969976
       }
     },
     {
@@ -727,8 +740,8 @@
     },
     {
       "test": "Similar Communities",
-      "status": "ERROR",
-      "error": "Cannot read properties of undefined (reading 'length')"
+      "status": "PASSED",
+      "details": "Found 10 similar communities"
     },
     {
       "test": "Analytics Summary",
@@ -752,8 +765,8 @@
           "tourToConversion": 25
         },
         "timeRange": "30d",
-        "_version": "v4_streamlined_hero_1753980088142",
-        "_timestamp": 1753980168477
+        "_version": "v4_streamlined_hero_1753983864836",
+        "_timestamp": 1753983970458
       }
     },
     {
@@ -811,8 +824,8 @@
             }
           ]
         },
-        "_version": "v4_streamlined_hero_1753980088142",
-        "_timestamp": 1753980168480
+        "_version": "v4_streamlined_hero_1753983864836",
+        "_timestamp": 1753983970460
       }
     },
     {
@@ -837,8 +850,8 @@
           "nextYear": 2100000
         },
         "timeRange": "30d",
-        "_version": "v4_streamlined_hero_1753980088142",
-        "_timestamp": 1753980168485
+        "_version": "v4_streamlined_hero_1753983864836",
+        "_timestamp": 1753983970463
       }
     },
     {

@@ -254,7 +254,7 @@ export function registerPlatformRoutes(app: Express) {
       const [sourceCommunity] = await db
         .select()
         .from(communities)
-        .where(sql`${communities.id} = ${communityId}`)
+        .where(eq(communities.id, communityId))
         .limit(1);
       
       if (!sourceCommunity) {
@@ -267,10 +267,9 @@ export function registerPlatformRoutes(app: Express) {
         .from(communities)
         .where(and(
           ne(communities.id, communityId),
-          eq(communities.careType, sourceCommunity.careType),
           eq(communities.state, sourceCommunity.state)
         ))
-        .limit(5);
+        .limit(10);
       
       res.json(similar);
     } catch (error) {

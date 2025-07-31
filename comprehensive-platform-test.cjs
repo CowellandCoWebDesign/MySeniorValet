@@ -210,17 +210,17 @@ async function testSearchAndMapping() {
     };
     const result = await makeRequest('GET', `/communities/search-fixed?north=${bounds.north}&south=${bounds.south}&east=${bounds.east}&west=${bounds.west}&limit=50`);
     return {
-      success: result.success && Array.isArray(result.data),
-      details: `Found ${result.data.length} communities in bounds`,
+      success: result.success && result.data && result.data.communities && Array.isArray(result.data.communities),
+      details: result.data ? `Found ${result.data.communities?.length || 0} communities in bounds` : 'No data',
       error: result.error
     };
   });
   
   await runTest('Map Clustering', async () => {
-    const result = await makeRequest('GET', '/communities/clusters-fixed?zoom=10&bounds=-118.5,33.8,-118.1,34.2');
+    const result = await makeRequest('GET', '/communities/clusters-fixed?north=34.0522&south=33.9522&east=-118.1437&west=-118.3437&zoom=10');
     return {
-      success: result.success && result.data.clusters,
-      details: result.data,
+      success: result.success && result.data && result.data.features && Array.isArray(result.data.features),
+      details: result.data ? `Found ${result.data.features?.length || 0} clusters` : 'No data',
       error: result.error
     };
   });
@@ -292,11 +292,11 @@ async function testWeaviateEnhanced() {
   
   await runTest('RAG Recommendations', async () => {
     const result = await makeRequest('POST', '/weaviate-enhanced/rag', {
-      context: 'Looking for memory care facility',
-      preferences: { budget: 'medium', location: 'suburban' }
+      query: 'Looking for memory care facility',
+      limit: 5
     });
     return {
-      success: result.success && result.data.recommendations,
+      success: result.success && result.data && result.data.response,
       details: result.data,
       error: result.error
     };
@@ -314,7 +314,7 @@ async function testAuthentication() {
       password: 'testpass123'
     });
     return {
-      success: result.success && result.data.success,
+      success: result.success && result.data && result.data.user,
       details: result.data,
       error: result.error
     };
@@ -327,7 +327,7 @@ async function testAuthentication() {
     });
     authToken = result.data?.token;
     return {
-      success: result.success && result.data.success,
+      success: result.success && result.data && result.data.user,
       details: result.data,
       error: result.error
     };
