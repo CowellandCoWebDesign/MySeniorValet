@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal, json, jsonb, date, varchar, real, numeric, index, customType } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, decimal, json, jsonb, date, varchar, real, numeric, index, customType, unique } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -3423,6 +3423,67 @@ export const servicesRelations = relations(services, ({ one, many }) => ({
   clicks: many(serviceClicks),
 }));
 
+// Chat/Messaging system tables
+export const chatConversations = pgTable("chat_conversations", {
+  id: serial("id").primaryKey(),
+  type: text("type").notNull(), // "direct", "community_inquiry", "group"
+  subject: text("subject"),
+  communityId: integer("community_id").references(() => communities.id),
+  metadata: jsonb("metadata"), // Store additional info like tour dates, etc
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  lastMessageAt: timestamp("last_message_at").defaultNow(),
+});
+
+export const chatParticipants = pgTable("chat_participants", {
+  id: serial("id").primaryKey(),
+  conversationId: integer("conversation_id").notNull().references(() => chatConversations.id, { onDelete: 'cascade' }),
+  userId: text("user_id").notNull(),
+  role: text("role").notNull().default("member"), // "member", "admin", "community_rep"
+  unreadCount: integer("unread_count").default(0),
+  lastReadAt: timestamp("last_read_at"),
+  joinedAt: timestamp("joined_at").defaultNow(),
+  leftAt: timestamp("left_at"),
+}, (table) => ({
+  uniqueParticipant: unique().on(table.conversationId, table.userId),
+}));
+
+export const chatMessages = pgTable("chat_messages", {
+  id: serial("id").primaryKey(),
+  conversationId: integer("conversation_id").notNull().references(() => chatConversations.id, { onDelete: 'cascade' }),
+  senderId: text("sender_id").notNull(),
+  content: text("content").notNull(),
+  type: text("type").notNull().default("text"), // "text", "system", "tour_info", "community_info"
+  metadata: jsonb("metadata"), // Store attachments, links, etc
+  editedAt: timestamp("edited_at"),
+  deletedAt: timestamp("deleted_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Relations for chat messaging
+export const chatConversationsRelations = relations(chatConversations, ({ many, one }) => ({
+  participants: many(chatParticipants),
+  messages: many(chatMessages),
+  community: one(communities, {
+    fields: [chatConversations.communityId],
+    references: [communities.id],
+  }),
+}));
+
+export const chatParticipantsRelations = relations(chatParticipants, ({ one }) => ({
+  conversation: one(chatConversations, {
+    fields: [chatParticipants.conversationId],
+    references: [chatConversations.id],
+  }),
+}));
+
+export const chatMessagesRelations = relations(chatMessages, ({ one }) => ({
+  conversation: one(chatConversations, {
+    fields: [chatMessages.conversationId],
+    references: [chatConversations.id],
+  }),
+}));
+
 // Insert schemas for services management
 export const insertServiceCategorySchema = createInsertSchema(serviceCategories).omit({
   id: true,
@@ -3447,3 +3508,27 @@ export const insertServiceSchema = createInsertSchema(services).omit({
 });
 export type InsertService = z.infer<typeof insertServiceSchema>;
 export type Service = typeof services.$inferSelect;
+
+// Insert schemas for chat messaging
+export const insertChatConversationSchema = createInsertSchema(chatConversations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  lastMessageAt: true,
+});
+export type InsertChatConversation = z.infer<typeof insertChatConversationSchema>;
+export type ChatConversation = typeof chatConversations.$inferSelect;
+
+export const insertChatParticipantSchema = createInsertSchema(chatParticipants).omit({
+  id: true,
+  joinedAt: true,
+});
+export type InsertChatParticipant = z.infer<typeof insertChatParticipantSchema>;
+export type ChatParticipant = typeof chatParticipants.$inferSelect;
+
+export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
+export type ChatMessage = typeof chatMessages.$inferSelect;

@@ -57,6 +57,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api', careServicesRoutes.default);
   app.use('/go/amazon', amazonRedirectRoutes.default);
   app.use('/api/amazon-compliance', amazonComplianceRoutes.default);
+  
+  // Register messaging routes
+  const messagingRoutes = await import('./routes/messagingRoutes');
+  app.use('/api/messaging', messagingRoutes.default);
 
   // AI Status checking endpoint
   app.get('/api/ai/status', async (req, res) => {

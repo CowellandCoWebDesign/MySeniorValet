@@ -33,6 +33,7 @@ import {
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { AuthenticPricingDisplay } from "@/components/AuthenticPricingDisplay";
 import { TourScheduler } from "@/components/TourScheduler";
+import { MessageCommunityButton } from "@/components/message-community-button";
 
 // Determine if community has verified pricing data
 const hasVerifiedPricing = (community: Community): boolean => {
@@ -1018,6 +1019,11 @@ export default function CommunityDetail() {
                           <Phone className="w-5 h-5 mr-2" />
                           Call Now
                         </Button>
+                        
+                        <MessageCommunityButton
+                          communityId={community.id}
+                          communityName={community.name}
+                        />
 
                         <Button 
                           variant="outline" 

@@ -7,7 +7,11 @@ import {
   type SearchHistoryEntry, type InsertSearchHistory, type Message, type InsertMessage,
   type Tour, type InsertTour, type UserSession, type ListingFlag, type InsertListingFlag,
   type AdminUser, type InsertAdminUser, type UserActivity, type InsertUserActivity,
-  type Lead, type InsertLead, type LeadActivity, type InsertLeadActivity
+  type Lead, type InsertLead, type LeadActivity, type InsertLeadActivity,
+  chatConversations, chatParticipants, chatMessages,
+  type ChatConversation, type InsertChatConversation,
+  type ChatParticipant, type InsertChatParticipant,
+  type ChatMessage, type InsertChatMessage
 } from "@shared/schema";
 import { db } from "./db";
 
@@ -131,6 +135,20 @@ export interface IStorage {
 
   // Search suggestions
   getSearchSuggestions(query: string): Promise<string[]>;
+
+  // Messaging operations
+  createConversation(data: InsertChatConversation, participantIds: string[]): Promise<ChatConversation>;
+  getConversationsByUser(userId: string): Promise<Array<ChatConversation & { unreadCount: number; lastMessage?: ChatMessage }>>;
+  getConversationById(conversationId: number, userId: string): Promise<ChatConversation | undefined>;
+  addParticipantToConversation(conversationId: number, userId: string, role?: string): Promise<ChatParticipant>;
+  removeParticipantFromConversation(conversationId: number, userId: string): Promise<void>;
+  
+  sendMessage(data: InsertChatMessage): Promise<ChatMessage>;
+  getMessagesByConversation(conversationId: number, limit?: number, offset?: number): Promise<ChatMessage[]>;
+  markMessagesAsRead(conversationId: number, userId: string): Promise<void>;
+  getUnreadCount(userId: string): Promise<number>;
+  deleteMessage(messageId: number, userId: string): Promise<void>;
+  editMessage(messageId: number, userId: string, newContent: string): Promise<ChatMessage | undefined>;
 }
 
 export class MemStorage implements IStorage {

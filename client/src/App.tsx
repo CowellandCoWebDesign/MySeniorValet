@@ -59,6 +59,7 @@ import FloralServices from "@/pages/FloralServices";
 import MovingServices from "@/pages/MovingServices";
 import TransportationServices from "@/pages/TransportationServices";
 import ToursPage from "@/pages/tours";
+import { Messaging } from "@/pages/messaging";
 
 import MoveInServices from "@/pages/MoveInServices";
 import AmazonServices from "@/pages/AmazonServices";
@@ -127,6 +128,8 @@ function Router() {
       <Route path="/tour-tracker/:communityId" component={TourTracker} />
       <Route path="/edit-tour/:tourId" component={TourTracker} />
       <Route path="/tours" component={ToursPage} />
+      <Route path="/messaging" component={Messaging} />
+      <Route path="/messages" component={Messaging} />
       <Route path="/support" component={SupportResources} />
       <Route path="/veterans" component={VeteransHousing} />
       {/* HudVashMap route removed */}
