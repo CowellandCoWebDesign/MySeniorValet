@@ -4,12 +4,36 @@ import { chatConversations, chatParticipants, chatMessages } from "@shared/schem
 import { eq, and, or, desc, sql, isNull } from "drizzle-orm";
 import type { ChatConversation, ChatParticipant, ChatMessage } from "@shared/schema";
 
+
+
 const router = Router();
+
+// Helper function to get user ID from multiple auth methods
+function getUserId(req: any): string | null {
+  // Check quick auth session first
+  const sessionId = req.cookies?.sessionId;
+  if (sessionId && global.activeSessions?.[sessionId]) {
+    return String(global.activeSessions[sessionId].userId);
+  }
+  
+  // Check Replit auth
+  const replitUserId = req.headers['x-replit-user-id'] as string;
+  if (replitUserId) {
+    return replitUserId;
+  }
+  
+  // Check standard auth user
+  if (req.user?.id) {
+    return String(req.user.id);
+  }
+  
+  return null;
+}
 
 // Get all conversations for a user
 router.get("/conversations", async (req, res) => {
   try {
-    const userId = req.headers['x-replit-user-id'] as string;
+    const userId = getUserId(req);
     
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
@@ -61,7 +85,7 @@ router.get("/conversations", async (req, res) => {
 // Get messages in a conversation
 router.get("/conversations/:conversationId/messages", async (req, res) => {
   try {
-    const userId = req.headers['x-replit-user-id'] as string;
+    const userId = getUserId(req);
     const conversationId = parseInt(req.params.conversationId);
     const limit = parseInt(req.query.limit as string) || 50;
     const offset = parseInt(req.query.offset as string) || 0;
@@ -119,8 +143,8 @@ router.get("/conversations/:conversationId/messages", async (req, res) => {
 // Create a new conversation
 router.post("/conversations", async (req, res) => {
   try {
-    const userId = req.headers['x-replit-user-id'] as string;
-    const { type, subject, communityId, participantIds, metadata } = req.body;
+    const userId = getUserId(req);
+    const { type, subject, communityId, participantIds, metadata, message } = req.body;
 
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
@@ -155,7 +179,30 @@ router.post("/conversations", async (req, res) => {
         }))
       );
 
-    res.json(conversation);
+    // If initial message provided, send it
+    if (message) {
+      const [firstMessage] = await db
+        .insert(chatMessages)
+        .values({
+          conversationId: conversation.id,
+          senderId: userId,
+          content: message,
+          type: 'text',
+          createdAt: new Date()
+        })
+        .returning();
+
+      res.json({ 
+        ...conversation,
+        conversationId: conversation.id,
+        message: firstMessage 
+      });
+    } else {
+      res.json({ 
+        ...conversation,
+        conversationId: conversation.id 
+      });
+    }
   } catch (error) {
     console.error("Error creating conversation:", error);
     res.status(500).json({ message: "Failed to create conversation" });
@@ -165,7 +212,7 @@ router.post("/conversations", async (req, res) => {
 // Send a message
 router.post("/conversations/:conversationId/messages", async (req, res) => {
   try {
-    const userId = req.headers['x-replit-user-id'] as string;
+    const userId = getUserId(req);
     const conversationId = parseInt(req.params.conversationId);
     const { content, type = 'text', metadata } = req.body;
 
@@ -235,7 +282,7 @@ router.post("/conversations/:conversationId/messages", async (req, res) => {
 // Delete a message
 router.delete("/messages/:messageId", async (req, res) => {
   try {
-    const userId = req.headers['x-replit-user-id'] as string;
+    const userId = getUserId(req);
     const messageId = parseInt(req.params.messageId);
 
     if (!userId) {
@@ -273,7 +320,7 @@ router.delete("/messages/:messageId", async (req, res) => {
 // Edit a message
 router.put("/messages/:messageId", async (req, res) => {
   try {
-    const userId = req.headers['x-replit-user-id'] as string;
+    const userId = getUserId(req);
     const messageId = parseInt(req.params.messageId);
     const { content } = req.body;
 
@@ -317,7 +364,35 @@ router.put("/messages/:messageId", async (req, res) => {
 // Get unread count
 router.get("/unread-count", async (req, res) => {
   try {
-    const userId = req.headers['x-replit-user-id'] as string;
+    const userId = getUserId(req);
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const result = await db
+      .select({
+        totalUnread: sql<number>`COALESCE(SUM(${chatParticipants.unreadCount}), 0)`
+      })
+      .from(chatParticipants)
+      .where(
+        and(
+          eq(chatParticipants.userId, userId),
+          isNull(chatParticipants.leftAt)
+        )
+      );
+
+    res.json({ unreadCount: result[0]?.totalUnread || 0 });
+  } catch (error) {
+    console.error("Error getting unread count:", error);
+    res.status(500).json({ message: "Failed to get unread count" });
+  }
+});
+
+// Alias for unread count (for client compatibility)
+router.get("/unread", async (req, res) => {
+  try {
+    const userId = getUserId(req);
 
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
@@ -345,7 +420,7 @@ router.get("/unread-count", async (req, res) => {
 // Leave a conversation
 router.post("/conversations/:conversationId/leave", async (req, res) => {
   try {
-    const userId = req.headers['x-replit-user-id'] as string;
+    const userId = getUserId(req);
     const conversationId = parseInt(req.params.conversationId);
 
     if (!userId) {
