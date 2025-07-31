@@ -1018,6 +1018,15 @@ export default function Map({
 
         {/* Supercluster-powered markers and clusters */}
         {!isLoading && !error && clusterData?.clusters?.map((feature: any, index: number) => {
+          // Log first few items to debug rendering
+          if (index < 3) {
+            console.log(`Rendering feature ${index}:`, {
+              isCluster: feature.properties.cluster,
+              pointCount: feature.properties.point_count,
+              coordinates: feature.geometry.coordinates,
+              zoom: currentZoom
+            });
+          }
           const [lng, lat] = feature.geometry.coordinates;
           const { properties } = feature;
 
