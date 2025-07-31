@@ -34,6 +34,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
 import { NavigationHeader } from "@/components/NavigationHeader";
+import { AdvancedAnalytics } from "@/components/analytics/AdvancedAnalytics";
 
 interface VendorProfile {
   id: number;
@@ -629,10 +630,8 @@ export default function VendorDashboard() {
                   <div className="text-center py-8">Loading analytics...</div>
                 ) : (
                   <div className="space-y-6">
-                    {/* Add charts or detailed analytics here */}
-                    <div className="text-center py-8 text-gray-500">
-                      Detailed analytics charts coming soon!
-                    </div>
+                    {/* Advanced Analytics & Intelligence */}
+                    <AdvancedAnalytics timeRange="30d" showExport={true} autoRefresh={false} />
                   </div>
                 )}
               </CardContent>

@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { NavigationHeader } from "@/components/NavigationHeader";
+import { AdvancedAnalytics } from "@/components/analytics/AdvancedAnalytics";
 import { 
   Brain, 
   Zap, 
@@ -737,6 +738,12 @@ export default function IntegrationDashboard() {
             </TabsContent>
           ))}
         </Tabs>
+
+        {/* Advanced Analytics Section */}
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold mb-6">Platform Analytics & Intelligence</h2>
+          <AdvancedAnalytics timeRange="7d" showExport={true} autoRefresh={false} />
+        </div>
 
         {/* Quick Actions */}
         <Card className="mt-8">

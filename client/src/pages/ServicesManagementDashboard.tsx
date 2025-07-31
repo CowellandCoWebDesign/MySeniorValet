@@ -15,6 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
 import { NavigationHeader } from "@/components/NavigationHeader";
+import { AdvancedAnalytics } from "@/components/analytics/AdvancedAnalytics";
 import { 
   BarChart3, 
   Settings, 
@@ -680,6 +681,12 @@ export default function ServicesManagementDashboard() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Advanced Analytics */}
+            <div className="mt-6">
+              <h3 className="text-xl font-bold mb-4">Advanced Analytics & Intelligence</h3>
+              <AdvancedAnalytics timeRange="30d" showExport={true} autoRefresh={false} />
+            </div>
           </TabsContent>
         </Tabs>
 

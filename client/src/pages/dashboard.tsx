@@ -41,6 +41,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { Footer } from "@/components/footer";
+import { AdvancedAnalytics } from "@/components/analytics/AdvancedAnalytics";
 
 interface SavedCommunity {
   id: number;
@@ -297,7 +298,7 @@ export default function Dashboard() {
         {/* Main Dashboard Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
           <div className="flex justify-center">
-            <TabsList className="grid w-full max-w-2xl grid-cols-4 h-14 bg-white dark:bg-gray-800 shadow-lg rounded-2xl p-2">
+            <TabsList className="grid w-full max-w-3xl grid-cols-5 h-14 bg-white dark:bg-gray-800 shadow-lg rounded-2xl p-2">
               <TabsTrigger value="overview" className="flex items-center space-x-2 h-10 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
                 <TrendingUp className="h-4 w-4" />
                 <span className="hidden md:inline">Overview</span>
@@ -309,6 +310,10 @@ export default function Dashboard() {
               <TabsTrigger value="tours" className="flex items-center space-x-2 h-10 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
                 <Calendar className="h-4 w-4" />
                 <span className="hidden md:inline">Tours</span>
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="flex items-center space-x-2 h-10 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
+                <TrendingUp className="h-4 w-4" />
+                <span className="hidden md:inline">Analytics</span>
               </TabsTrigger>
               <TabsTrigger value="profile" className="flex items-center space-x-2 h-10 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
                 <User className="h-4 w-4" />
@@ -769,6 +774,23 @@ export default function Dashboard() {
                     Notification Settings
                   </Button>
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics" className="space-y-8">
+            <Card className="shadow-xl rounded-3xl overflow-hidden border-0 bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 dark:from-gray-800 dark:via-blue-900/20 dark:to-purple-900/20">
+              <CardHeader className="p-8 pb-6">
+                <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  Your Analytics & Insights
+                </CardTitle>
+                <p className="text-gray-600 dark:text-gray-400 mt-2">
+                  Track your engagement, behavior patterns, and personalized recommendations
+                </p>
+              </CardHeader>
+              <CardContent className="p-8 pt-4">
+                <AdvancedAnalytics timeRange="30d" showExport={true} autoRefresh={false} />
               </CardContent>
             </Card>
           </TabsContent>

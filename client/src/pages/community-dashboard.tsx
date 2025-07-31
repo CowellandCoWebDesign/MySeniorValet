@@ -49,6 +49,7 @@ import { format } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { AdvancedAnalytics } from "@/components/analytics/AdvancedAnalytics";
 
 export default function CommunityDashboard() {
   const { id } = useParams();
@@ -778,6 +779,12 @@ export default function CommunityDashboard() {
                   </div>
                 </CardContent>
               </Card>
+            </div>
+
+            {/* Advanced Analytics */}
+            <div className="mt-8">
+              <h3 className="text-xl font-bold mb-4">Advanced Analytics & Intelligence</h3>
+              <AdvancedAnalytics timeRange="30d" showExport={true} autoRefresh={false} />
             </div>
           </TabsContent>
 
