@@ -73,6 +73,8 @@ import QuizPage from "@/pages/quiz";
 import TestDebug from "@/pages/test-debug";
 import TestMapViews from "@/pages/test-map-views";
 import AuthDebug from "@/pages/auth-debug";
+import AISearch from "@/pages/ai-search";
+import WeaviateTest from "@/pages/weaviate-test";
 import DatabaseTest from "@/pages/database-test";
 import IntegrationDashboard from "@/pages/integration-dashboard";
 import IntegrationsPage from "@/pages/integrations";
@@ -105,9 +107,9 @@ function Router() {
       <Route path="/search" component={MapSearch} />
       <Route path="/map" component={MapSearch} />
       <Route path="/map-search" component={MapSearch} />
-      <Route path="/ai-search" component={AISearchIntelligence} />
-      <Route path="/ai-intelligence" component={AISearchIntelligence} />
-      <Route path="/ai-search-intelligence" component={AISearchIntelligence} />
+      <Route path="/ai-search" component={AISearch} />
+      <Route path="/semantic-search" component={AISearch} />
+      <Route path="/ai-intelligence" component={AISearch} />
       <Route path="/community/:id" component={CommunityDetail} />
       <Route path="/communities/:id" component={CommunityDetail} />
       <Route path="/claim/:communityId" component={Claim} />
@@ -175,6 +177,7 @@ function Router() {
       <Route path="/test-debug" component={TestDebug} />
       <Route path="/test-map-views" component={TestMapViews} />
       <Route path="/auth-debug" component={AuthDebug} />
+      <Route path="/weaviate-test" component={WeaviateTest} />
       <Route path="/database-test" component={DatabaseTest} />
       <Route path="/integrations" component={IntegrationsPage} />
       <Route path="/integration-dashboard" component={IntegrationDashboard} />
