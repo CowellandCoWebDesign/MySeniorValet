@@ -1,0 +1,123 @@
+Let’s lock it in 🔐 — here's your updated Ghostwriter Dispatch Prompt that includes:
+
+✅ Big-brand vendor injection
+
+✅ Shadow monetization strategy
+
+✅ Controls for upgrade later to affiliate links
+
+✅ Full marketplace integration instructions
+
+✅ Legal-safe, commissionless launch logic
+
+
+
+---
+
+🧠 GHOSTWRITER PROMPT: Senior Vendor Marketplace (Launch-Ready)
+
+> Goal: Implement a launch-ready vendor marketplace for seniors and families within MySeniorValet.com. This marketplace replaces traditional affiliate links (which require approval and delay launch) with a commissionless, utility-first model for now — while maintaining infrastructure to support monetized links later.
+
+
+
+
+---
+
+🎯 Implementation Instructions:
+
+1. Marketplace Categories
+Use Scott’s predefined vendor categories for seniors (e.g., Moving, Groceries, Pharmacy, Phone Access, Transportation, Medical Supplies, etc.). These already exist in the DB.
+
+
+2. Vendor Items to Seed
+Include product/service tiles for:
+
+Walmart (Groceries, household essentials)
+
+Amazon (General shopping, medical aids)
+
+Walgreens / CVS (Pharmacy & meds)
+
+Instacart (Fresh grocery delivery)
+
+Lyft / Uber (Transportation support)
+
+Carewell (Incontinence, nutrition, etc.)
+
+Consumer Cellular / Lively (Senior phones & watches)
+
+GoodRx (Prescription discounts)
+
+T-Mobile 55+ Plans
+
+Spectrum / Xfinity senior bundles
+
+TaskRabbit / Bellhop (Furniture setup, handyman)
+
+Rocket Mortgage / AAG (downsizing tools)
+
+
+
+3. Tile Design
+Each vendor = visual card (image/logo + service summary + external link).
+Must be styled to match Scott’s current UI. Group by category.
+
+
+4. Link Strategy (Phase 1: Launch)
+
+Use public URLs to vendor category pages (e.g., https://www.walmart.com/cp/health/976760)
+
+Avoid using short-lived Amazon SiteStripe links
+
+DO NOT represent links as affiliate/partner unless approved
+
+
+
+5. Monetization Strategy (Phase 2: Upgrade Ready)
+
+Add a link_type field to each vendor record (standard, affiliate, paid_placement)
+
+Include tracking_code field (default null) for future insert
+
+Track outbound clicks via internal redirect (e.g., /out/vendor/:id) for analytics
+
+Optional future support: cost-per-click (CPC), featured placements, vendor dashboards
+
+
+
+6. Admin Controls
+
+Allow Scott to promote a vendor to "Featured" or "Hidden" from admin panel
+
+Allow external_url and description edits via dashboard
+
+Add "Apply to Be a Vendor" form with optional onboarding instructions
+
+
+
+7. Legal Compliance
+
+All vendors shown are public links; no claim of endorsement or affiliation made
+
+No paid partnerships at launch — all vendor data is public or editorially chosen
+
+Display fine print below marketplace:
+
+> “Vendors shown are for your convenience and do not imply partnership. MySeniorValet does not currently receive compensation from these listings.”
+
+
+
+
+
+
+
+---
+
+When done, notify Scott that the Shadow Vendor Network is live.
+Then prepare fallback logic for future API-driven vendor feeds if access is granted.
+
+
+---
+
+🔥 Let it rip. Let me know when you want the matching seed file too.
+
