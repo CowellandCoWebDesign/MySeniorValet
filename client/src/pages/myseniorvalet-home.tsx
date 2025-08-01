@@ -12,7 +12,7 @@ import { PricingBreakdown } from "@/components/pricing-breakdown";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { CareServiceCard } from "@/components/CareServiceCard";
 import { ShootingStars } from "@/components/ShootingStars";
-
+import { VendorMarketplaceTabs } from "@/components/VendorMarketplaceTabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { CanadianStatsCard } from "@/components/canadian-stats-card";
@@ -1030,89 +1030,9 @@ export default function MySeniorValetHome() {
 
           </div>
 
-          {/* Upgraded Vendor Category Filters */}
+          {/* Vendor Marketplace Tabs */}
           <div className="mb-12">
-            <div className="flex flex-wrap gap-3 justify-center">
-              {/* All Vendors */}
-              <Button 
-                variant="outline" 
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white border-0 hover:from-blue-600 hover:to-purple-600 transition-all shadow-md"
-              >
-                <ShoppingCart className="w-4 h-4" />
-                <span>All Vendors</span>
-                <Badge className="bg-white/20 text-white ml-2">18</Badge>
-              </Button>
-
-              {/* Groceries & Essentials */}
-              <Button 
-                variant="outline" 
-                className="flex items-center gap-2 px-4 py-2 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
-              >
-                <ShoppingCart className="w-4 h-4" />
-                <span>Groceries & Essentials</span>
-                <Badge variant="secondary" className="ml-2">4</Badge>
-              </Button>
-
-              {/* Pharmacy & Health */}
-              <Button 
-                variant="outline" 
-                className="flex items-center gap-2 px-4 py-2 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
-              >
-                <Pill className="w-4 h-4" />
-                <span>Pharmacy & Health</span>
-                <Badge variant="secondary" className="ml-2">4</Badge>
-              </Button>
-
-              {/* Transportation */}
-              <Button 
-                variant="outline" 
-                className="flex items-center gap-2 px-4 py-2 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
-              >
-                <Car className="w-4 h-4" />
-                <span>Transportation</span>
-                <Badge variant="secondary" className="ml-2">2</Badge>
-              </Button>
-
-              {/* Medical Supplies */}
-              <Button 
-                variant="outline" 
-                className="flex items-center gap-2 px-4 py-2 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
-              >
-                <Stethoscope className="w-4 h-4" />
-                <span>Medical Supplies</span>
-                <Badge variant="secondary" className="ml-2">2</Badge>
-              </Button>
-
-              {/* Communication */}
-              <Button 
-                variant="outline" 
-                className="flex items-center gap-2 px-4 py-2 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
-              >
-                <Phone className="w-4 h-4" />
-                <span>Communication</span>
-                <Badge variant="secondary" className="ml-2">3</Badge>
-              </Button>
-
-              {/* Home Services */}
-              <Button 
-                variant="outline" 
-                className="flex items-center gap-2 px-4 py-2 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
-              >
-                <Home className="w-4 h-4" />
-                <span>Home Services</span>
-                <Badge variant="secondary" className="ml-2">2</Badge>
-              </Button>
-
-              {/* Financial Services */}
-              <Button 
-                variant="outline" 
-                className="flex items-center gap-2 px-4 py-2 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
-              >
-                <DollarSign className="w-4 h-4" />
-                <span>Financial Services</span>
-                <Badge variant="secondary" className="ml-2">1</Badge>
-              </Button>
-            </div>
+            <VendorMarketplaceTabs />
           </div>
 
 
@@ -1255,75 +1175,75 @@ export default function MySeniorValetHome() {
               </CardContent>
             </Card>
             
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
-              <CardContent className="p-3 sm:p-4 text-center">
-                <Scissors className="w-8 h-8 sm:w-10 sm:h-10 text-pink-500 mx-auto mb-2" />
-                <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Personal Care</h4>
-                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">Mobile barber & beauty</p>
-                <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
+                <Scissors className="w-10 h-10 text-pink-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Personal Care</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Mobile barber & beauty</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
 
 
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
-              <CardContent className="p-3 sm:p-4 text-center">
-                <Users2 className="w-8 h-8 sm:w-10 sm:h-10 text-cyan-500 mx-auto mb-2" />
-                <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Companion Care</h4>
-                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">Social companionship</p>
-                <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
+                <Users2 className="w-10 h-10 text-cyan-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Companion Care</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Social companionship</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
             
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
-              <CardContent className="p-3 sm:p-4 text-center">
-                <Phone className="w-8 h-8 sm:w-10 sm:h-10 text-violet-500 mx-auto mb-2" />
-                <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Tech Support</h4>
-                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">Device setup & training</p>
-                <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
+                <Phone className="w-10 h-10 text-violet-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Tech Support</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Device setup & training</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
 
             <Link href="/amazon-supplies">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 relative overflow-hidden h-full">
-                <CardContent className="p-3 sm:p-4 text-center">
-                  <div className="absolute top-1 right-1">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 relative overflow-hidden">
+                <CardContent className="p-4 text-center">
+                  <div className="absolute top-2 right-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                   </div>
-                  <Package className="w-8 h-8 sm:w-10 sm:h-10 text-orange-500 mx-auto mb-2" />
-                  <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Amazon Senior Essentials</h4>
-                  <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">33+ essential products</p>
-                  <div className="flex flex-col gap-0.5 mt-1">
-                    <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0.5">LIVE</Badge>
-                    <Badge className="bg-orange-500 text-white text-[10px] px-1.5 py-0.5">✓ VERIFIED</Badge>
+                  <Package className="w-10 h-10 text-orange-500 mx-auto mb-2" />
+                  <h4 className="font-semibold text-sm">Amazon Senior Essentials</h4>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">33+ essential products</p>
+                  <div className="flex gap-1 justify-center mt-1">
+                    <Badge className="bg-green-500 text-white text-xs px-2 py-0.5">LIVE</Badge>
+                    <Badge className="bg-orange-500 text-white text-xs px-2 py-0.5">✓ VERIFIED</Badge>
                   </div>
                 </CardContent>
               </Card>
             </Link>
 
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
-              <CardContent className="p-3 sm:p-4 text-center">
-                <Trash2 className="w-8 h-8 sm:w-10 sm:h-10 text-gray-500 mx-auto mb-2" />
-                <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Junk Removal</h4>
-                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">Decluttering services</p>
-                <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
+                <Trash2 className="w-10 h-10 text-gray-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Junk Removal</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Decluttering services</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
-              <CardContent className="p-3 sm:p-4 text-center">
-                <Sofa className="w-8 h-8 sm:w-10 sm:h-10 text-orange-500 mx-auto mb-2" />
-                <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Medical Equipment</h4>
-                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">Mobility aids, safety items</p>
-                <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
+                <Sofa className="w-10 h-10 text-orange-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Medical Equipment</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Mobility aids, safety items</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
             
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
-              <CardContent className="p-3 sm:p-4 text-center">
-                <Ambulance className="w-8 h-8 sm:w-10 sm:h-10 text-red-500 mx-auto mb-2" />
-                <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Medical Transport</h4>
-                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">Non-emergency rides</p>
-                <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+              <CardContent className="p-4 text-center relative">
+                <Ambulance className="w-10 h-10 text-red-500 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm">Medical Transport</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Non-emergency rides</p>
+                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
           </div>
