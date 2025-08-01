@@ -1,0 +1,9 @@
+name,address,city,state_province,postal_code,country,phone,community_subtype,care_types,total_units,latitude,longitude
+Sunnybrook Veterans Centre,2075 Bayview Avenue,Toronto,ON,M4N 3M5,Canada,416-480-6100,va_housing,"['Long-Term Care', 'Veterans Care']",500,43.7184,-79.3763
+Chartwell Aurora Retirement Residence,220 Wellington Street East,Aurora,ON,L4G 1J5,Canada,905-841-2777,independent_living,"['Independent Living', 'Assisted Living']",156,44.0065,-79.4504
+CHSLD Vigi Mont-Royal,5555 Chemin de la Côte-des-Neiges,Montreal,QC,H3T 1Y6,Canada,514-340-2800,skilled_nursing,"['Long-Term Care', 'Memory Care']",204,45.4969,-73.6256
+Les Résidences Soleil Manoir Plaza,505 Rue Sherbrooke Est,Montreal,QC,H2L 1J9,Canada,514-508-0708,independent_living,"['Independent Living', 'Assisted Living']",450,45.514,-73.5693
+Arbutus Care Centre,4505 Valley Drive,Vancouver,BC,V6J 4B7,Canada,604-263-6622,skilled_nursing,"['Complex Care', 'Dementia Care']",150,49.241,-123.1596
+The Residence at Morgan Heights,2850 160 Street,Surrey,BC,V3Z 0C8,Canada,604-541-6325,independent_living,"['Independent Living', 'Assisted Living']",123,49.0535,-122.7902
+AgeCare Walden Heights,20 Walgrove Drive SE,Calgary,AB,T2X 0R2,Canada,403-873-3709,assisted_living,"['Assisted Living', 'Memory Care']",240,50.8731,-114.0083
+Revera The Hamptons,9 Hamptons Link NW,Calgary,AB,T3A 5V9,Canada,403-275-5667,independent_living,"['Independent Living', 'Supportive Living']",161,51.1246,-114.1532

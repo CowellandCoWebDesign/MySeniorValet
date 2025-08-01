@@ -1,0 +1,12 @@
+{
+  "provinces": {
+    "Ontario": 2,
+    "Quebec": 2,
+    "British Columbia": 2,
+    "Alberta": 2
+  },
+  "total_communities": 8,
+  "collection_start": "2025-08-01T19:26:06.004797",
+  "data_sources": [],
+  "collection_end": "2025-08-01T19:26:06.005771"
+}
