@@ -840,14 +840,22 @@ export default function MySeniorValetHome() {
               </CardContent>
             </Card>
             
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
-              <CardContent className="p-4 text-center relative">
-                <Building className="w-10 h-10 text-purple-500 mx-auto mb-2" />
-                <h4 className="font-semibold text-sm">Senior Centers</h4>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Community programs</p>
-                <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
-              </CardContent>
-            </Card>
+            <Link href="/senior-resources">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 relative overflow-hidden">
+                <CardContent className="p-4 text-center">
+                  <div className="absolute top-2 right-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  </div>
+                  <Utensils className="w-10 h-10 text-purple-500 mx-auto mb-2" />
+                  <h4 className="font-semibold text-sm text-purple-700 dark:text-purple-300">Senior Resources</h4>
+                  <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">Food banks, IHSS & SLS</p>
+                  <div className="flex gap-1 justify-center mt-1">
+                    <Badge className="bg-green-500 text-white text-xs px-2 py-0.5">✓ NEW</Badge>
+                    <Badge className="bg-purple-500 text-white text-xs px-2 py-0.5">GOV DATA</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
             
             <Link href="/transportation">
               <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-sky-50 dark:from-blue-900/20 dark:to-sky-900/20 relative overflow-hidden">

@@ -55,6 +55,7 @@ import Costs from "@/pages/costs";
 import RealDataPricing from "@/pages/real-data-pricing";
 import Services from "@/pages/services";
 import SeniorServices from "@/pages/senior-services";
+import SeniorResources from "@/pages/senior-resources";
 import FloralServices from "@/pages/FloralServices";
 import MovingServices from "@/pages/MovingServices";
 import TransportationServices from "@/pages/TransportationServices";
@@ -168,6 +169,7 @@ function Router() {
       <Route path="/real-data-pricing" component={RealDataPricing} />
       <Route path="/services" component={Services} />
       <Route path="/senior-services" component={SeniorServices} />
+      <Route path="/senior-resources" component={SeniorResources} />
       <Route path="/vendor-marketplace" component={VendorMarketplace} />
       <Route path="/florals" component={FloralServices} />
       <Route path="/moving" component={MovingServices} />

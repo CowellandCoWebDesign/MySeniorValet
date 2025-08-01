@@ -42,6 +42,7 @@ import servicesManagementRoutes from "./servicesManagementRoutes";
 import { featureAccessRouter } from "./featureAccessRoutes";
 import { registerAnalyticsRoutes } from "./analyticsRoutes";
 import { setupVAResourcesRoutes } from "./vaResourcesRoutes";
+import { setupSeniorResourcesRoutes } from "./seniorResourcesRoutes";
 import authenticPricingRoutes from "./authentic-pricing-routes";
 import weaviateRoutes from "./weaviate-routes";
 import enhancedWeaviateRoutes from "./enhanced-weaviate-routes";
@@ -100,6 +101,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerMoveInServicesRoutes(app);
   registerAnalyticsRoutes(app);
   setupVAResourcesRoutes(app);
+  setupSeniorResourcesRoutes(app);
   
   // Register moving services routes
   movingRoutes(app);
