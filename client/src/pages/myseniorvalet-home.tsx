@@ -886,8 +886,6 @@ export default function MySeniorValetHome() {
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Amazon Marketplace</h4>
                       <div className="flex items-center space-x-1">
-                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">4.8</span>
                       </div>
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Essential move-in products</p>
@@ -936,8 +934,6 @@ export default function MySeniorValetHome() {
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg">TWO MEN AND A TRUCK</h4>
                       <div className="flex items-center space-x-1">
-                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">4.8</span>
                       </div>
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Moving Services</p>
@@ -994,8 +990,6 @@ export default function MySeniorValetHome() {
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg">1-800-FLORALS</h4>
                       <div className="flex items-center space-x-1">
-                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">4.9</span>
                       </div>
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Floral Services</p>
@@ -1053,8 +1047,6 @@ export default function MySeniorValetHome() {
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg">GoGoGrandparent</h4>
                       <div className="flex items-center space-x-1">
-                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">4.7</span>
                       </div>
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Transportation Services</p>
@@ -1092,7 +1084,6 @@ export default function MySeniorValetHome() {
                   { 
                     name: "TechCare Support", 
                     category: "Technology Support", 
-                    rating: "4.8", 
                     price: "$45/visit", 
                     features: ["Cell phone setup", "Wifi installation", "Device training"],
                     color: "from-blue-500 to-blue-600",
@@ -1101,7 +1092,6 @@ export default function MySeniorValetHome() {
                   { 
                     name: "Elder Law Partners", 
                     category: "Legal Services", 
-                    rating: "4.9", 
                     price: "$200/hr", 
                     features: ["Estate planning", "Medicare guidance", "Power of attorney"],
                     color: "from-purple-500 to-purple-600",
@@ -1110,7 +1100,6 @@ export default function MySeniorValetHome() {
                   { 
                     name: "Medical Supply Co", 
                     category: "Medical Equipment", 
-                    rating: "4.7", 
                     price: "$25/day", 
                     features: ["Mobility aids", "Safety equipment", "Home delivery"],
                     color: "from-orange-500 to-orange-600",
@@ -1119,7 +1108,6 @@ export default function MySeniorValetHome() {
                   { 
                     name: "Senior Financial Advisors", 
                     category: "Financial Planning", 
-                    rating: "4.9", 
                     price: "$150/hr", 
                     features: ["Retirement planning", "Long-term care", "Investment advice"],
                     color: "from-emerald-500 to-emerald-600",
@@ -1128,7 +1116,6 @@ export default function MySeniorValetHome() {
                   { 
                     name: "CleanStart Specialists", 
                     category: "Junk Removal", 
-                    rating: "4.6", 
                     price: "$120/load", 
                     features: ["Decluttering", "Donation sorting", "Estate cleanouts"],
                     color: "from-gray-500 to-gray-600",  
@@ -1137,7 +1124,6 @@ export default function MySeniorValetHome() {
                   { 
                     name: "MediCare Transport", 
                     category: "Medical Transport", 
-                    rating: "4.8", 
                     price: "$35/trip", 
                     features: ["Non-emergency", "Wheelchair accessible", "Insurance billing"],
                     color: "from-red-500 to-red-600",
@@ -1146,7 +1132,6 @@ export default function MySeniorValetHome() {
                   { 
                     name: "Comfort Care Companions", 
                     category: "Companion Care", 
-                    rating: "4.9", 
                     price: "$25/hr", 
                     features: ["Social visits", "Light housekeeping", "Meal preparation"],
                     color: "from-pink-500 to-pink-600",
@@ -1162,7 +1147,6 @@ export default function MySeniorValetHome() {
                       <div className={`h-32 bg-gradient-to-br ${service.color} flex items-center justify-center`}>
                         <div className="text-4xl">{service.icon}</div>
                         <div className="absolute top-3 right-3 bg-white/90 px-2 py-1 rounded-full text-xs font-semibold text-gray-800">
-                          ⭐ {service.rating}
                         </div>
                       </div>
                     </div>
@@ -1492,8 +1476,6 @@ export default function MySeniorValetHome() {
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Amazon Marketplace</h4>
                       <div className="flex items-center space-x-1">
-                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">4.8</span>
                       </div>
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Essential move-in products</p>
@@ -1542,8 +1524,6 @@ export default function MySeniorValetHome() {
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg">TWO MEN AND A TRUCK</h4>
                       <div className="flex items-center space-x-1">
-                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">4.8</span>
                       </div>
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Moving Services</p>
@@ -1600,8 +1580,6 @@ export default function MySeniorValetHome() {
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg">1-800-FLORALS</h4>
                       <div className="flex items-center space-x-1">
-                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">4.9</span>
                       </div>
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Floral Services</p>
@@ -1659,8 +1637,6 @@ export default function MySeniorValetHome() {
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg">GoGoGrandparent</h4>
                       <div className="flex items-center space-x-1">
-                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">4.7</span>
                       </div>
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Transportation Services</p>
@@ -1698,7 +1674,6 @@ export default function MySeniorValetHome() {
                   { 
                     name: "TechCare Support", 
                     category: "Technology Support", 
-                    rating: "4.8", 
                     price: "$45/visit", 
                     features: ["Cell phone setup", "Wifi installation", "Device training"],
                     color: "from-blue-500 to-blue-600",
@@ -1707,7 +1682,6 @@ export default function MySeniorValetHome() {
                   { 
                     name: "Elder Law Partners", 
                     category: "Legal Services", 
-                    rating: "4.9", 
                     price: "$200/hr", 
                     features: ["Estate planning", "Medicare guidance", "Power of attorney"],
                     color: "from-purple-500 to-purple-600",
@@ -1716,7 +1690,6 @@ export default function MySeniorValetHome() {
                   { 
                     name: "Medical Supply Co", 
                     category: "Medical Equipment", 
-                    rating: "4.7", 
                     price: "$25/day", 
                     features: ["Mobility aids", "Safety equipment", "Home delivery"],
                     color: "from-orange-500 to-orange-600",
@@ -1725,7 +1698,6 @@ export default function MySeniorValetHome() {
                   { 
                     name: "Senior Financial Advisors", 
                     category: "Financial Planning", 
-                    rating: "4.9", 
                     price: "$150/hr", 
                     features: ["Retirement planning", "Long-term care", "Investment advice"],
                     color: "from-emerald-500 to-emerald-600",
@@ -1734,7 +1706,6 @@ export default function MySeniorValetHome() {
                   { 
                     name: "CleanStart Specialists", 
                     category: "Junk Removal", 
-                    rating: "4.6", 
                     price: "$120/load", 
                     features: ["Decluttering", "Donation sorting", "Estate cleanouts"],
                     color: "from-gray-500 to-gray-600",  
@@ -1743,7 +1714,6 @@ export default function MySeniorValetHome() {
                   { 
                     name: "MediCare Transport", 
                     category: "Medical Transport", 
-                    rating: "4.8", 
                     price: "$35/trip", 
                     features: ["Non-emergency", "Wheelchair accessible", "Insurance billing"],
                     color: "from-red-500 to-red-600",
@@ -1752,7 +1722,6 @@ export default function MySeniorValetHome() {
                   { 
                     name: "Comfort Care Companions", 
                     category: "Companion Care", 
-                    rating: "4.9", 
                     price: "$25/hr", 
                     features: ["Social visits", "Light housekeeping", "Meal preparation"],
                     color: "from-pink-500 to-pink-600",
@@ -1768,7 +1737,6 @@ export default function MySeniorValetHome() {
                       <div className={`h-32 bg-gradient-to-br ${service.color} flex items-center justify-center`}>
                         <div className="text-4xl">{service.icon}</div>
                         <div className="absolute top-3 right-3 bg-white/90 px-2 py-1 rounded-full text-xs font-semibold text-gray-800">
-                          ⭐ {service.rating}
                         </div>
                       </div>
                     </div>
@@ -1905,8 +1873,6 @@ export default function MySeniorValetHome() {
                               <div className="flex items-center justify-between mb-2">
                                 <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg line-clamp-1">{product.name}</h4>
                                 <div className="flex items-center space-x-1">
-                                  <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                                  <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{product.rating || "4.5"}</span>
                                 </div>
                               </div>
                               <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">{product.category}</p>

@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Pill, Car, Stethoscope, Phone, Home, DollarSign, ExternalLink, Star, CheckCircle, Shield } from 'lucide-react';
+import { ShoppingCart, Pill, Car, Stethoscope, Phone, Home, DollarSign, ExternalLink, CheckCircle, Shield } from 'lucide-react';
 
 interface MarketplaceCategory {
   id: number;
@@ -178,10 +178,7 @@ export function VendorMarketplaceTabs() {
                       <Badge className={`${theme.badgeBg} text-xs px-2 py-1 font-medium`}>
                         {theme.badge}
                       </Badge>
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">4.8</span>
-                      </div>
+
                     </div>
                     <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 mb-3">
                       {vendor.description}
