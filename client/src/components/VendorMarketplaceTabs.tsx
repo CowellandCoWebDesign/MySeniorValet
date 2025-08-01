@@ -251,6 +251,40 @@ export function VendorMarketplaceTabs() {
 
   return (
     <div className="w-full">
+      {/* Featured Partners Header with Live Status Indicators */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+              Featured Partners
+            </h3>
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-sm text-green-700 dark:text-green-300 font-medium">Live integrations active</span>
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+              <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">More providers launching weekly</span>
+            </div>
+          </div>
+          <div className="text-right">
+            <div className="text-lg font-bold text-gray-900 dark:text-gray-100">Now Available!</div>
+            <div className="text-sm text-green-600 dark:text-green-300 font-medium">Service recommendations</div>
+          </div>
+        </div>
+        
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-3 mb-4">
+          <div className="flex items-center">
+            <div className="text-green-600 dark:text-green-400 mr-2">✅</div>
+            <p className="text-sm text-green-800 dark:text-green-200 font-medium">
+              <strong>Live Provider Network:</strong> Curated selection of service providers for your senior living needs.
+            </p>
+          </div>
+        </div>
+        
+        <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
+          Featured services • Amazon Pharmacy • Walmart • T-Mobile 55+ • 1-800-FLORALS • Additional vendors being added weekly
+        </p>
+      </div>
+
       <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
         {/* Enhanced colorful tabs for all screen sizes */}
         <TabsList className="flex flex-wrap h-auto p-2 bg-gray-50 dark:bg-gray-900 rounded-xl gap-2 mb-6 shadow-sm">
