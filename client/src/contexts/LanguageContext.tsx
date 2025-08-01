@@ -11,7 +11,7 @@ interface LanguageContextType {
 const translations = {
   en: {
     'hero.title': 'Find Your Perfect Senior Living Community',
-    'hero.subtitle': 'Transparency in Senior Living',
+    'hero.subtitle': 'From live pricing and unit availability to move coordination, furniture setup, and prescription delivery, MySeniorValet is your white-glove partner.',
     'hero.description': 'Discover verified senior living communities with transparent pricing and authentic reviews across North America',
     'hero.communities': 'Communities',
     'hero.search': 'Search Communities',
@@ -61,7 +61,7 @@ const translations = {
   },
   fr: {
     'hero.title': 'Trouvez votre communauté de vie pour aînés idéale',
-    'hero.subtitle': 'Transparence dans les résidences pour aînés',
+    'hero.subtitle': 'Des prix en temps réel et la disponibilité des unités à la coordination du déménagement, l\'installation du mobilier et la livraison de médicaments, MySeniorValet est votre partenaire de service haut de gamme.',
     'hero.description': 'Découvrez des communautés vérifiées avec des prix transparents et des avis authentiques à travers l\'Amérique du Nord',
     'hero.communities': 'Communautés',
     'hero.search': 'Rechercher des communautés',
