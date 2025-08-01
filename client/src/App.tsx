@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { DisclaimerBanner } from "@/components/disclaimer-banner";
 import { MascotProvider } from "@/components/mascot";
 import { ThemeProvider } from "@/components/theme-provider";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 // Import Leaflet CSS globally for map functionality
 import 'leaflet/dist/leaflet.css';
@@ -206,13 +207,15 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light">
-        <TooltipProvider>
-          <MascotProvider>
-            <Toaster />
-            <Router />
-            <DisclaimerBanner />
-          </MascotProvider>
-        </TooltipProvider>
+        <LanguageProvider>
+          <TooltipProvider>
+            <MascotProvider>
+              <Toaster />
+              <Router />
+              <DisclaimerBanner />
+            </MascotProvider>
+          </TooltipProvider>
+        </LanguageProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

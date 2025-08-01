@@ -1,0 +1,20 @@
+{
+  "provinces": {
+    "Manitoba": 2,
+    "Saskatchewan": 2,
+    "Nova Scotia": 2,
+    "New Brunswick": 3,
+    "Newfoundland and Labrador": 2,
+    "Prince Edward Island": 2
+  },
+  "territories": {
+    "Yukon": 1,
+    "Northwest Territories": 1,
+    "Nunavut": 1
+  },
+  "total_communities": 16,
+  "collection_start": "2025-08-01T19:37:58.591662",
+  "data_sources": [],
+  "bilingual_communities": 10,
+  "collection_end": "2025-08-01T19:37:58.592510"
+}

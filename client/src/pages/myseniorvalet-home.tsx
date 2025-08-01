@@ -13,12 +13,15 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { CareServiceCard } from "@/components/CareServiceCard";
 import { ShootingStars } from "@/components/ShootingStars";
 import { VendorMarketplaceTabs } from "@/components/VendorMarketplaceTabs";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 
 
 
 export default function MySeniorValetHome() {
   console.log("MYSENIORVALET HOME PAGE LOADED - VERSION 3 WITH CONCIERGE SERVICES PRIORITIZED - 25,376 COMMUNITIES");
+  const { t, language } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedAmazonCategory, setSelectedAmazonCategory] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -165,6 +168,7 @@ export default function MySeniorValetHome() {
               </div>
             </div>
             <div className="flex items-center space-x-3">
+              <LanguageSwitcher />
               <ThemeToggle />
               <Link href="/login" className="text-white hover:text-amber-200 dark:text-gray-300 dark:hover:text-amber-300 transition-colors font-medium text-sm">
                 Sign In
@@ -197,11 +201,10 @@ export default function MySeniorValetHome() {
           <div className="text-center mb-6 md:mb-8 max-w-7xl">
             <div className="space-y-6 mb-6">
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white dark:text-gray-100 leading-tight drop-shadow-2xl tracking-tight">
-                <span className="block mb-3 hero-text-main animate-space-entry animate-cosmic-glow">Everything Senior Living Needs</span>
-                <span className="block text-gradient text-gradient-animated bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-300 bg-clip-text text-transparent drop-shadow-none hero-text-main animate-space-entry animate-cosmic-glow" style={{ animationDelay: '0.3s' }}>in one place</span>
+                <span className="block mb-3 hero-text-main animate-space-entry animate-cosmic-glow">{t('hero.title')}</span>
               </h1>
               <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl text-white dark:text-gray-200 opacity-95 drop-shadow-lg px-4 animate-space-warp max-w-5xl mx-auto font-medium leading-relaxed" style={{ animationDelay: '0.8s' }}>
-                From live pricing and unit availability to move coordination, furniture setup, and prescription delivery, MySeniorValet is your white-glove partner.
+                {t('hero.description')}
               </h2>
             </div>
           </div>
@@ -221,7 +224,7 @@ export default function MySeniorValetHome() {
                 <div className="flex items-center">
                   <input
                     type="text"
-                    placeholder="Ask me anything: 'memory care near me', 'pet-friendly', 'under $3000'..."
+                    placeholder={t('hero.searchPlaceholder')}
                     value={searchQuery}
                     onChange={(e) => handleSearchChange(e.target.value)}
                     onKeyDown={(e) => {

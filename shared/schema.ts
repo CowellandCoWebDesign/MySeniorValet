@@ -226,6 +226,7 @@ export const communityReports = pgTable("community_reports", {
 export const communities = pgTable("communities", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  nameFr: text("name_fr"), // French name for bilingual communities
   address: text("address").notNull(),
   city: text("city").notNull(),
   state: text("state").notNull(),
@@ -234,6 +235,9 @@ export const communities = pgTable("communities", {
   email: text("email"),
   website: text("website"),
   description: text("description"),
+  descriptionFr: text("description_fr"), // French description
+  bilingual: boolean("bilingual").default(false), // Indicates if facility offers bilingual services
+  primaryLanguage: text("primary_language").default("English"), // Primary service language
   careTypes: text("care_types").array().notNull(), // ['Independent Living', 'Assisted Living', 'Memory Care', 'Skilled Nursing']
   amenities: text("amenities").array().default([]),
   services: text("services").array().default([]), // ['24/7 Nursing', 'Physical Therapy', 'Transportation', 'Meal Service']
