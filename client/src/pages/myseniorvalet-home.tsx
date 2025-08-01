@@ -611,15 +611,18 @@ export default function MySeniorValetHome() {
       </section>
 
       {/* Canadian Communities Section - NEW */}
-      <section className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
+      <section className="px-4 py-12 relative dark:bg-gray-800">
         {/* Background Canadian-themed styling */}
         <div className="absolute inset-0 z-0">
-          <img 
-            src="https://images.unsplash.com/photo-1519181245277-cffeb31da2e3?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-            alt="Canadian landscape background"
-            className="w-full h-full object-cover opacity-50"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-red-50/40 to-white/40 dark:from-gray-900/60 dark:to-gray-800/60"></div>
+          <div className="w-full h-full bg-gradient-to-br from-red-100 via-white to-red-50 dark:from-red-900/20 dark:via-gray-900 dark:to-red-900/10">
+            {/* Canadian maple leaf pattern */}
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute top-10 left-20 text-red-600 text-8xl">🍁</div>
+              <div className="absolute top-40 right-40 text-red-600 text-6xl rotate-45">🍁</div>
+              <div className="absolute bottom-20 left-1/3 text-red-600 text-7xl -rotate-12">🍁</div>
+              <div className="absolute bottom-10 right-20 text-red-600 text-5xl rotate-180">🍁</div>
+            </div>
+          </div>
         </div>
         
         <div className="relative z-10">
@@ -654,9 +657,10 @@ export default function MySeniorValetHome() {
               : '24 communautés dans les 13 provinces et territoires • 10 avec services bilingues français/anglais'}
           </p>
         
-          <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-            {/* Show Canadian communities */}
-            {canadianLoading ? (
+          <div className="relative overflow-hidden" style={{maxHeight: '400px'}}>
+            <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+              {/* Show Canadian communities */}
+              {canadianLoading ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
                 <Card key={index} className="overflow-hidden flex-shrink-0 w-64 h-96 border border-gray-200 animate-pulse">
@@ -802,6 +806,7 @@ export default function MySeniorValetHome() {
                 </Link>
               </>
             )}
+            </div>
           </div>
         </div>
       </section>
