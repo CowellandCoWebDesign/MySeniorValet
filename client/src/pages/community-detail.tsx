@@ -882,14 +882,23 @@ export default function CommunityDetail() {
                       </div>
                     </div>
 
-                    {/* Call to Action */}
-                    <div className="mt-3 pt-3 border-t border-amber-200 dark:border-amber-700">
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        Community owners can request verification by contacting 
-                        <a href="mailto:verify@myseniorvalet.com" className="text-blue-600 dark:text-blue-400 hover:underline ml-1">
-                          verify@myseniorvalet.com
-                        </a>
-                      </p>
+                    {/* Call to Action - Claim Now Button */}
+                    <div className="mt-4 pt-4 border-t border-amber-200 dark:border-amber-700">
+                      <div className="space-y-3">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Are you the owner or authorized representative of this community?
+                        </p>
+                        <Button 
+                          onClick={() => window.location.href = `/claim-community?id=${community.id}`}
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 flex items-center justify-center"
+                        >
+                          <Building className="w-5 h-5 mr-2" />
+                          Claim This Community Now
+                        </Button>
+                        <p className="text-xs text-gray-500 dark:text-gray-500 text-center">
+                          Get verified status • Update pricing & availability • Respond to reviews
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
