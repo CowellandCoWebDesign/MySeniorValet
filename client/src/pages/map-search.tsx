@@ -13,6 +13,7 @@ import Map from '@/components/Map';
 import MapTutorial from '@/components/MapTutorial';
 import MapErrorBoundary from '@/components/MapErrorBoundary';
 import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
+import { AISearchInsights } from '@/components/AISearchInsights';
 import { useQuery } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 
@@ -1357,6 +1358,19 @@ export default function MapSearch() {
             </div>
           ) : (
             <div className="space-y-3">
+              {/* AI-powered insights for communities in view */}
+              {mapBounds && mapCommunities.length > 0 && (
+                <AISearchInsights 
+                  bounds={{
+                    north: mapBounds.getNorth(),
+                    south: mapBounds.getSouth(),
+                    east: mapBounds.getEast(),
+                    west: mapBounds.getWest()
+                  }}
+                  searchQuery={searchQuery}
+                />
+              )}
+              
               {/* Use mapCommunities directly for immediate updates - sorted by distance from map center */}
               {mapCommunities
                 .sort((a: Community, b: Community) => {
