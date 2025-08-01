@@ -252,26 +252,58 @@ export function VendorMarketplaceTabs() {
   return (
     <div className="w-full">
       <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
-        {/* Simple wrapping tabs for all screen sizes */}
-        <TabsList className="flex flex-wrap h-auto p-1 bg-gray-100 dark:bg-gray-800 rounded-lg gap-1 mb-6">
+        {/* Enhanced colorful tabs for all screen sizes */}
+        <TabsList className="flex flex-wrap h-auto p-2 bg-gray-50 dark:bg-gray-900 rounded-xl gap-2 mb-6 shadow-sm">
           <TabsTrigger 
             value="all" 
-            className="inline-flex items-center gap-2 px-3 py-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm rounded-md transition-all text-sm"
+            className="group inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all text-sm font-medium border border-gray-200 dark:border-gray-700 data-[state=active]:border-transparent"
           >
-            <span className="text-sm">🏪</span>
-            All
+            <span className="text-base">🏪</span>
+            <span>All Vendors</span>
+            <span className="inline-flex items-center justify-center px-2 py-0.5 ml-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full group-data-[state=active]:bg-white/20 group-data-[state=active]:text-white">
+              {vendors.length}
+            </span>
           </TabsTrigger>
           {categories.map((category) => {
             const Icon = iconMap[category.icon || 'ShoppingCart'];
+            const vendorCount = vendors.filter(v => v.categoryId === category.id).length;
+            
+            // Category-specific gradient colors
+            const categoryGradients: Record<string, string> = {
+              'groceries': 'data-[state=active]:from-green-500 data-[state=active]:to-emerald-500',
+              'pharmacy': 'data-[state=active]:from-orange-500 data-[state=active]:to-red-500',
+              'transportation': 'data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500',
+              'medical-supplies': 'data-[state=active]:from-red-500 data-[state=active]:to-pink-500',
+              'communication': 'data-[state=active]:from-purple-500 data-[state=active]:to-indigo-500',
+              'home-services': 'data-[state=active]:from-yellow-500 data-[state=active]:to-amber-500',
+              'financial': 'data-[state=active]:from-indigo-500 data-[state=active]:to-blue-600',
+            };
+            
+            // Category-specific hover colors
+            const categoryHovers: Record<string, string> = {
+              'groceries': 'hover:bg-green-50 dark:hover:bg-green-900/20',
+              'pharmacy': 'hover:bg-orange-50 dark:hover:bg-orange-900/20',
+              'transportation': 'hover:bg-blue-50 dark:hover:bg-blue-900/20',
+              'medical-supplies': 'hover:bg-red-50 dark:hover:bg-red-900/20',
+              'communication': 'hover:bg-purple-50 dark:hover:bg-purple-900/20',
+              'home-services': 'hover:bg-yellow-50 dark:hover:bg-yellow-900/20',
+              'financial': 'hover:bg-indigo-50 dark:hover:bg-indigo-900/20',
+            };
+            
             return (
               <TabsTrigger 
                 key={category.slug} 
                 value={category.slug} 
-                className="inline-flex items-center gap-1.5 px-3 py-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm rounded-md transition-all text-sm"
+                className={`group inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-800 ${categoryHovers[category.slug] || 'hover:bg-gray-50 dark:hover:bg-gray-700'} data-[state=active]:bg-gradient-to-r ${categoryGradients[category.slug] || 'data-[state=active]:from-gray-500 data-[state=active]:to-gray-600'} data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all text-sm font-medium border border-gray-200 dark:border-gray-700 data-[state=active]:border-transparent`}
               >
                 <Icon className="w-4 h-4" />
                 <span className="hidden sm:inline">{category.name}</span>
                 <span className="sm:hidden">{category.name.split(' ')[0]}</span>
+                {vendorCount > 0 && (
+                  <span className="inline-flex items-center justify-center px-2 py-0.5 ml-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full group-data-[state=active]:bg-white/20 group-data-[state=active]:text-white">
+                    {vendorCount}
+                  </span>
+                )}
               </TabsTrigger>
             );
           })}
