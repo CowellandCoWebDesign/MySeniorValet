@@ -1058,12 +1058,13 @@ export default function MySeniorValetHome() {
                 <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
                   {/* Amazon Products using California Communities Card Style */}
                   {(() => {
-                    // Get all products from database
-                    const allProducts = (amazonProductImages as any)?.products || [];
+                    // Safely get products from API response with type checking
+                    const productsData = amazonProductImages as { products?: any[] } | undefined;
+                    const allProducts = Array.isArray(productsData?.products) ? productsData.products : [];
                     
-                    if (allProducts.length === 0) {
+                    if (!productsData || allProducts.length === 0) {
                       return (
-                        <div className="text-center py-8 px-4">
+                        <div className="text-center py-8 px-4 w-full">
                           <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                           <p className="text-gray-600 dark:text-gray-400">Loading Amazon products...</p>
                         </div>
