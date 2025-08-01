@@ -135,6 +135,13 @@ export default function MySeniorValetHome() {
 
   const vaFacilities = (vaResourcesData as any)?.facilities || {};
 
+  // Canadian communities query
+  const { data: canadianCommunities, isLoading: canadianLoading } = useQuery({
+    queryKey: ["/api/communities/canadian/featured"],
+    retry: false,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+
   const featuredCommunities = (trendingCommunities as any[])?.slice(0, 8) || [];
   
   // Combine coastal and featured communities for the top section
@@ -318,61 +325,7 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Canadian Expansion Showcase */}
-      <section className="px-4 py-8 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-            {/* Canadian Stats Card */}
-            <div className="animate-fade-in-up">
-              <CanadianStatsCard 
-                totalCommunities={24}
-                bilingualCount={10}
-                provinceCount={13}
-              />
-            </div>
-            
-            {/* Bilingual Community Highlights */}
-            <div className="space-y-4">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-                <Flag className="h-6 w-6 text-red-600" />
-                {language === 'en' ? 'Featured Canadian Communities' : 'Communautés canadiennes en vedette'}
-              </h3>
-              
-              <div className="space-y-3">
-                {[
-                  { name: "Chartwell Le St-Gabriel", location: "Montreal, QC", bilingual: true },
-                  { name: "Shannex Parkland Moncton", location: "Moncton, NB", bilingual: true },
-                  { name: "Copper Ridge Place", location: "Whitehorse, YT", bilingual: true }
-                ].map((community, index) => (
-                  <Card key={index} className="hover:shadow-lg transition-all duration-300 border-l-4 border-red-600">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h4 className="font-semibold text-gray-900 dark:text-gray-100">{community.name}</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">{community.location}</p>
-                        </div>
-                        {community.bilingual && (
-                          <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
-                            <Languages className="w-3 h-3 mr-1" />
-                            {language === 'en' ? 'Bilingual' : 'Bilingue'}
-                          </Badge>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-              
-              <Link href="/map-search?country=Canada">
-                <Button className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white">
-                  {language === 'en' ? 'Explore All Canadian Communities' : 'Explorer toutes les communautés canadiennes'}
-                  <ChevronRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+
 
       {/* HUD Communities Showcase - Position 2 (Moved from Position 3) */}
       <section className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
@@ -652,6 +605,205 @@ export default function MySeniorValetHome() {
                   </Link>
                 );
               })
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Canadian Communities Section - NEW */}
+      <section className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
+        {/* Background Canadian-themed styling */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://images.unsplash.com/photo-1519181245277-cffeb31da2e3?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+            alt="Canadian landscape background"
+            className="w-full h-full object-cover opacity-50"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-red-50/40 to-white/40 dark:from-gray-900/60 dark:to-gray-800/60"></div>
+        </div>
+        
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1 flex items-center gap-2">
+                <Flag className="h-6 w-6 text-red-600" />
+                {language === 'en' ? 'Featured Canadian Communities' : 'Communautés canadiennes en vedette'}
+              </h2>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                <span className="text-sm text-red-700 dark:text-red-300 font-medium">
+                  {language === 'en' ? 'Coast to coast coverage' : 'Couverture d\'un océan à l\'autre'}
+                </span>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">
+                  {language === 'en' ? 'Bilingual services available' : 'Services bilingues disponibles'}
+                </span>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-lg font-bold text-gray-900 dark:text-gray-100">$2,500 - $5,500 CAD</div>
+              <div className="text-sm text-red-600 dark:text-red-300 font-medium">
+                {language === 'en' ? 'Canadian communities' : 'Communautés canadiennes'}
+              </div>
+            </div>
+          </div>
+          
+          <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
+            {language === 'en' 
+              ? '24 communities across all 13 provinces and territories • 10 with bilingual French/English services' 
+              : '24 communautés dans les 13 provinces et territoires • 10 avec services bilingues français/anglais'}
+          </p>
+        
+          <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+            {/* Show Canadian communities */}
+            {canadianLoading ? (
+              // Loading skeleton cards
+              Array.from({ length: 4 }).map((_, index) => (
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border border-gray-200 animate-pulse">
+                  <div className="aspect-[4/3] bg-gray-200"></div>
+                  <CardContent className="p-3">
+                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-1"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded"></div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <>
+                {((canadianCommunities as any[]) || [
+                  { id: 'can-1', name: "Chartwell Le St-Gabriel", city: "Montreal", state: "QC", priceRange: { min: 3500 }, careTypes: ["Assisted Living"], bilingual: true },
+                  { id: 'can-2', name: "Shannex Parkland Moncton", city: "Moncton", state: "NB", priceRange: { min: 3200 }, careTypes: ["Independent Living"], bilingual: true },
+                  { id: 'can-3', name: "Copper Ridge Place", city: "Whitehorse", state: "YT", priceRange: { min: 4200 }, careTypes: ["Memory Care"], bilingual: true },
+                  { id: 'can-4', name: "Harbour Stone Enhanced Care", city: "Sidney", state: "BC", priceRange: { min: 4800 }, careTypes: ["Enhanced Care"], bilingual: false },
+                  { id: 'can-5', name: "Park Place Seniors Living", city: "Regina", state: "SK", priceRange: { min: 3800 }, careTypes: ["Assisted Living"], bilingual: false },
+                  { id: 'can-6', name: "Canterbury Court", city: "Winnipeg", state: "MB", priceRange: { min: 3600 }, careTypes: ["Independent Living"], bilingual: false }
+                ]).slice(0, 12).map((community: any, index) => (
+                  <Link key={`canadian-${community.id}-${index}`} href={`/community/${community.id}`}>
+                    <Card className="overflow-hidden flex-shrink-0 w-56 h-[30rem] animate-float canadian-card dark:bg-gray-700 hover:shadow-xl transition-all border-2 border-red-200" style={{animationDelay: `${index * 0.2}s`}}>
+                      <div className="relative">
+                        <div className="aspect-[4/3] bg-gradient-to-br from-red-100 to-white dark:from-red-900 dark:to-gray-800 flex items-center justify-center">
+                          <div className="text-center">
+                            <div className="text-2xl mb-2">🍁</div>
+                            <div className="text-sm font-medium text-red-800 dark:text-red-200">
+                              {language === 'en' ? 'Photos Coming Soon' : 'Photos à venir'}
+                            </div>
+                            <div className="text-xs text-red-600 dark:text-red-300">
+                              {language === 'en' ? 'Verifying authentic images' : 'Vérification des images'}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Heart Icon */}
+                        <div className="absolute top-3 right-3">
+                          <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
+                            <Heart className="w-4 h-4 text-gray-600" />
+                          </div>
+                        </div>
+                        
+                        {/* Price Badge */}
+                        <Badge className="absolute bottom-3 left-3 bg-gray-900 text-white text-xs px-2 py-1 font-medium">
+                          ${community.priceRange?.min ? community.priceRange.min.toLocaleString() : '3,500'} CAD
+                        </Badge>
+                        
+                        {/* Bilingual Badge */}
+                        {community.bilingual && (
+                          <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium flex items-center gap-1">
+                            <Languages className="w-3 h-3" />
+                            {language === 'en' ? 'Bilingual' : 'Bilingue'}
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      <CardContent className="p-3">
+                        <div className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                          <span className="text-sm">{language === 'en' ? 'Starting at' : 'À partir de'}</span> ${community.priceRange?.min ? community.priceRange.min.toLocaleString() : '3,500'} CAD
+                        </div>
+                        
+                        <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
+                          {community.careTypes?.[0] || 'Assisted Living'} • {language === 'en' ? 'Canadian Community' : 'Communauté canadienne'}
+                        </div>
+                        
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2 line-clamp-1">
+                          {community.name}
+                        </div>
+                        
+                        <div className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
+                          📍 {community.city}, {community.state}
+                        </div>
+                        
+                        {/* Special Features */}
+                        <div className="space-y-1 mt-2">
+                          {community.bilingual && (
+                            <div className="text-xs text-blue-600 dark:text-blue-400 flex items-center">
+                              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1"></div>
+                              {language === 'en' ? 'French & English services' : 'Services en français et anglais'}
+                            </div>
+                          )}
+                          <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center">
+                            <div className="w-1.5 h-1.5 bg-gray-500 rounded-full mr-1"></div>
+                            {language === 'en' ? 'Canadian healthcare standards' : 'Normes de santé canadiennes'}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+                
+                {/* View All Canadian Communities Card */}
+                <Link href="/map-search?country=Canada">
+                  <Card className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border-2 border-red-500 bg-gradient-to-br from-red-50 to-white dark:from-red-900/20 dark:to-gray-900/20 hover:shadow-2xl transition-all cursor-pointer group">
+                    <div className="aspect-[4/3] bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
+                      <div className="text-center text-white">
+                        <Flag className="h-16 w-16 mx-auto mb-3" />
+                        <h3 className="text-xl font-bold mb-2">
+                          {language === 'en' ? 'View All' : 'Voir toutes'}
+                        </h3>
+                        <p className="text-lg">
+                          {language === 'en' ? 'Canadian Communities' : 'Communautés canadiennes'}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <CardContent className="p-4">
+                      <div className="text-center">
+                        <h4 className="text-4xl font-bold text-red-600 dark:text-red-400 mb-2">24</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                          {language === 'en' ? 'Total Canadian Communities' : 'Communautés canadiennes totales'}
+                        </p>
+                        
+                        <div className="space-y-2 text-left mb-4">
+                          <div className="flex items-center text-sm">
+                            <div className="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
+                            <span className="text-gray-700 dark:text-gray-300">
+                              {language === 'en' ? '13 provinces & territories' : '13 provinces et territoires'}
+                            </span>
+                          </div>
+                          <div className="flex items-center text-sm">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                            <span className="text-gray-700 dark:text-gray-300">
+                              {language === 'en' ? '10 bilingual communities' : '10 communautés bilingues'}
+                            </span>
+                          </div>
+                          <div className="flex items-center text-sm">
+                            <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                            <span className="text-gray-700 dark:text-gray-300">
+                              {language === 'en' ? 'Coast to coast coverage' : 'D\'un océan à l\'autre'}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <Button 
+                          className="w-full bg-red-600 hover:bg-red-700 text-white group-hover:scale-105 transition-transform"
+                        >
+                          {language === 'en' ? 'Explore Canadian Communities' : 'Explorer les communautés'}
+                          <ChevronRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </>
             )}
           </div>
         </div>
