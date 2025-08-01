@@ -76,49 +76,16 @@ class SuperclusterService {
   }
 
   private getClusterConfig(zoom: number): Supercluster.Options {
-    // Yelp/Zillow-inspired clustering configuration
-    // Always maintain clustering for performance, only show individuals at very close zoom
+    // Clustering configuration - NO clustering at multi-county view or closer
     
-    if (zoom >= 17) {
-      // Ultra close view - minimal clustering for individual marker display
+    if (zoom >= 10) {
+      // Multi-county view and closer - COMPLETELY DISABLE CLUSTERING
+      // Show all individual markers, no matter how many
       return {
-        radius: 15,        // Very small radius, only cluster extremely close points
+        radius: 0,         // Zero radius = no clustering at all
         maxZoom: 20,       // Support ultra high zoom
         minZoom: 0,
-        minPoints: 8,      // Only cluster very dense areas (8+ overlapping)
-        generateId: true,
-        extent: 512,
-        nodeSize: 64,
-      };
-    } else if (zoom >= 15) {
-      // Building level - minimal clustering
-      return {
-        radius: 5,         // Very small radius for building-level detail
-        maxZoom: 20,
-        minZoom: 0,
-        minPoints: 20,     // Only cluster very dense areas
-        generateId: true,
-        extent: 512,
-        nodeSize: 64,
-      };
-    } else if (zoom >= 13) {
-      // City/Neighborhood view - NO clustering, show all individual markers
-      return {
-        radius: 1,         // Effectively disable clustering with 1px radius
-        maxZoom: 20,
-        minZoom: 0,
-        minPoints: 100,    // Extremely high threshold - only cluster if 100+ overlap exactly
-        generateId: true,
-        extent: 512,
-        nodeSize: 64,
-      };
-    } else if (zoom >= 11) {
-      // Regional view - light clustering starts here
-      return {
-        radius: 80,        // Increased radius to ensure clustering at city level
-        maxZoom: 20,
-        minZoom: 0,
-        minPoints: 2,      // Cluster any 2+ communities
+        minPoints: 999999, // Impossibly high threshold
         generateId: true,
         extent: 512,
         nodeSize: 64,
