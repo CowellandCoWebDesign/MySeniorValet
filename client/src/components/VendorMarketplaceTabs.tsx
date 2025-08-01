@@ -50,6 +50,10 @@ export function VendorMarketplaceTabs() {
     queryKey: ['/api/marketplace/vendors'],
   });
 
+  // Separate featured and regular vendors
+  const featuredVendors = vendors.filter(v => v.isFeatured).sort((a, b) => a.displayOrder - b.displayOrder);
+  const regularVendors = vendors.filter(v => !v.isFeatured).sort((a, b) => a.displayOrder - b.displayOrder);
+
   const handleVendorClick = (vendorId: number) => {
     window.open(`/api/marketplace/out/${vendorId}`, '_blank');
   };
@@ -76,6 +80,16 @@ export function VendorMarketplaceTabs() {
     
     // Define vendor-specific styling
     const vendorThemes: Record<string, any> = {
+      'amazon-pharmacy': {
+        borderColor: vendor.isFeatured ? 'border-orange-400 dark:border-orange-500' : 'border-orange-300 dark:border-orange-600',
+        bgGradient: vendor.isFeatured ? 'from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30' : 'from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20',
+        iconBg: 'bg-orange-100 dark:bg-orange-800',
+        iconColor: 'text-orange-600 dark:text-orange-300',
+        buttonBg: 'bg-orange-600 hover:bg-orange-700',
+        badge: 'Prime Eligible',
+        badgeBg: 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200',
+        liveBadgeBg: 'bg-orange-500'
+      },
       'amazon': {
         borderColor: 'border-orange-300 dark:border-orange-600',
         bgGradient: 'from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20',
@@ -87,14 +101,34 @@ export function VendorMarketplaceTabs() {
         liveBadgeBg: 'bg-orange-500'
       },
       'walmart': {
-        borderColor: 'border-blue-300 dark:border-blue-600',
-        bgGradient: 'from-blue-50 to-sky-50 dark:from-blue-900/20 dark:to-sky-900/20',
+        borderColor: vendor.isFeatured ? 'border-blue-400 dark:border-blue-500' : 'border-blue-300 dark:border-blue-600',
+        bgGradient: vendor.isFeatured ? 'from-blue-100 to-sky-100 dark:from-blue-900/30 dark:to-sky-900/30' : 'from-blue-50 to-sky-50 dark:from-blue-900/20 dark:to-sky-900/20',
         iconBg: 'bg-blue-100 dark:bg-blue-800',
         iconColor: 'text-blue-600 dark:text-blue-300',
         buttonBg: 'bg-blue-600 hover:bg-blue-700',
         badge: 'Everyday Low Prices',
         badgeBg: 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200',
         liveBadgeBg: 'bg-blue-500'
+      },
+      'tmobile-55plus': {
+        borderColor: vendor.isFeatured ? 'border-pink-400 dark:border-pink-500' : 'border-pink-300 dark:border-pink-600',
+        bgGradient: vendor.isFeatured ? 'from-pink-100 to-fuchsia-100 dark:from-pink-900/30 dark:to-fuchsia-900/30' : 'from-pink-50 to-fuchsia-50 dark:from-pink-900/20 dark:to-fuchsia-900/20',
+        iconBg: 'bg-pink-100 dark:bg-pink-800',
+        iconColor: 'text-pink-600 dark:text-pink-300',
+        buttonBg: 'bg-pink-600 hover:bg-pink-700',
+        badge: '55+ Special',
+        badgeBg: 'bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200',
+        liveBadgeBg: 'bg-pink-500'
+      },
+      '1800florals': {
+        borderColor: vendor.isFeatured ? 'border-purple-400 dark:border-purple-500' : 'border-purple-300 dark:border-purple-600',
+        bgGradient: vendor.isFeatured ? 'from-purple-100 to-violet-100 dark:from-purple-900/30 dark:to-violet-900/30' : 'from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20',
+        iconBg: 'bg-purple-100 dark:bg-purple-800',
+        iconColor: 'text-purple-600 dark:text-purple-300',
+        buttonBg: 'bg-purple-600 hover:bg-purple-700',
+        badge: 'Same Day Delivery',
+        badgeBg: 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200',
+        liveBadgeBg: 'bg-purple-500'
       },
       'gogograndparent': {
         borderColor: 'border-purple-300 dark:border-purple-600',
@@ -171,6 +205,12 @@ export function VendorMarketplaceTabs() {
                     <div className="flex flex-wrap items-center gap-3 mb-2">
                       <h4 className="font-bold text-lg sm:text-xl text-gray-900 dark:text-gray-100">{vendor.name}</h4>
 
+                      {vendor.isFeatured && (
+                        <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs px-2 py-1 font-medium shadow-sm">
+                          ⭐ Featured
+                        </Badge>
+                      )}
+
                       <Badge className={`${theme.badgeBg} text-xs px-2 py-1 font-medium`}>
                         {theme.badge}
                       </Badge>
@@ -212,36 +252,114 @@ export function VendorMarketplaceTabs() {
   return (
     <div className="w-full">
       <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
-        <TabsList className="w-full flex justify-start mb-8 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
-          <TabsTrigger value="all" className="px-4 py-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 rounded-md transition-all">
-            All Vendors
-          </TabsTrigger>
-          {categories.map((category) => (
+        <div className="relative mb-8">
+          {/* Gradient indicators for scroll */}
+          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white dark:from-gray-900 to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white dark:from-gray-900 to-transparent z-10 pointer-events-none" />
+          
+          <TabsList className="flex w-full overflow-x-auto scrollbar-hide bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
             <TabsTrigger 
-              key={category.slug} 
-              value={category.slug} 
-              className="px-4 py-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 rounded-md transition-all"
+              value="all" 
+              className="flex items-center gap-2 px-4 py-2 whitespace-nowrap data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 rounded-md transition-all flex-shrink-0"
             >
-              {category.name}
+              <div className="w-5 h-5 flex items-center justify-center">
+                <span className="text-lg">🏪</span>
+              </div>
+              All Vendors
             </TabsTrigger>
-          ))}
-        </TabsList>
+            {categories.map((category) => {
+              const Icon = iconMap[category.icon || 'ShoppingCart'];
+              return (
+                <TabsTrigger 
+                  key={category.slug} 
+                  value={category.slug} 
+                  className="flex items-center gap-2 px-4 py-2 whitespace-nowrap data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 rounded-md transition-all flex-shrink-0"
+                >
+                  <Icon className="w-4 h-4" />
+                  {category.name}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
+        </div>
 
         <TabsContent value="all" className="mt-6">
-          <div className="flex flex-col space-y-4">
-            {vendors.map(renderVendorRow)}
+          <div className="flex flex-col space-y-6">
+            {/* Featured Vendors Section */}
+            {featuredVendors.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Featured Partners</h3>
+                  <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white">
+                    Top Picks
+                  </Badge>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {featuredVendors.map(renderVendorRow)}
+                </div>
+              </div>
+            )}
+            
+            {/* All Other Vendors */}
+            {regularVendors.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">
+                  All Service Providers
+                </h3>
+                <div className="flex flex-col space-y-4">
+                  {regularVendors.map(renderVendorRow)}
+                </div>
+              </div>
+            )}
           </div>
         </TabsContent>
         
-        {categories.map((category) => (
-          <TabsContent key={category.slug} value={category.slug} className="mt-6">
-            <div className="flex flex-col space-y-4">
-              {vendors
-                .filter(v => v.categoryId === category.id)
-                .map(renderVendorRow)}
-            </div>
-          </TabsContent>
-        ))}
+        {categories.map((category) => {
+          const categoryFeatured = vendors.filter(v => v.categoryId === category.id && v.isFeatured).sort((a, b) => a.displayOrder - b.displayOrder);
+          const categoryRegular = vendors.filter(v => v.categoryId === category.id && !v.isFeatured).sort((a, b) => a.displayOrder - b.displayOrder);
+          
+          return (
+            <TabsContent key={category.slug} value={category.slug} className="mt-6">
+              <div className="flex flex-col space-y-6">
+                {/* Featured Vendors in Category */}
+                {categoryFeatured.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-4">
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Featured {category.name}</h3>
+                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white">
+                        Top Picks
+                      </Badge>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {categoryFeatured.map(renderVendorRow)}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Regular Vendors in Category */}
+                {categoryRegular.length > 0 && (
+                  <div>
+                    {categoryFeatured.length > 0 && (
+                      <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">
+                        More {category.name} Services
+                      </h3>
+                    )}
+                    <div className="flex flex-col space-y-4">
+                      {categoryRegular.map(renderVendorRow)}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Empty State */}
+                {categoryFeatured.length === 0 && categoryRegular.length === 0 && (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500">No vendors available in this category</p>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+          );
+        })}
       </Tabs>
     </div>
   );
