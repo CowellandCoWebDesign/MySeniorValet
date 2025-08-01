@@ -76,11 +76,10 @@ class SuperclusterService {
   }
 
   private getClusterConfig(zoom: number): Supercluster.Options {
-    // Clustering configuration - NO clustering at multi-county view or closer
+    // Smart clustering based on zoom level
     
-    if (zoom >= 10) {
-      // Multi-county view and closer - COMPLETELY DISABLE CLUSTERING
-      // Show all individual markers, no matter how many
+    if (zoom >= 14) {
+      // Street/building level - NO clustering
       return {
         radius: 0,         // Zero radius = no clustering at all
         maxZoom: 20,       // Support ultra high zoom
@@ -90,10 +89,43 @@ class SuperclusterService {
         extent: 512,
         nodeSize: 64,
       };
-    } else if (zoom >= 8) {
-      // Regional view - aggressive clustering
+    } else if (zoom >= 12) {
+      // City level - minimal clustering only for very dense areas
       return {
-        radius: 80,        // Large radius for regional grouping
+        radius: 20,        // Small radius for minimal clustering
+        maxZoom: 20,
+        minZoom: 0,
+        minPoints: 10,     // Only cluster if 10+ communities overlap
+        generateId: true,
+        extent: 512,
+        nodeSize: 64,
+      };
+    } else if (zoom >= 10) {
+      // County level - light clustering
+      return {
+        radius: 40,        // Medium radius
+        maxZoom: 20,
+        minZoom: 0,
+        minPoints: 5,      // Cluster 5+ communities
+        generateId: true,
+        extent: 512,
+        nodeSize: 64,
+      };
+    } else if (zoom >= 8) {
+      // Multi-county/regional view - moderate clustering
+      return {
+        radius: 60,        // Larger radius for regional grouping
+        maxZoom: 20,
+        minZoom: 0,
+        minPoints: 3,      // Cluster any 3+ communities
+        generateId: true,
+        extent: 512,
+        nodeSize: 64,
+      };
+    } else if (zoom >= 6) {
+      // State view - heavy clustering
+      return {
+        radius: 80,        // Large radius for state-level view
         maxZoom: 20,
         minZoom: 0,
         minPoints: 2,      // Cluster any 2+ communities
@@ -101,10 +133,10 @@ class SuperclusterService {
         extent: 512,
         nodeSize: 64,
       };
-    } else if (zoom >= 5) {
-      // State view - heavy clustering
+    } else if (zoom >= 4) {
+      // Multi-state view - aggressive clustering
       return {
-        radius: 100,       // Very large radius for state-level view
+        radius: 100,       // Very large radius
         maxZoom: 20,
         minZoom: 0,
         minPoints: 2,      // Cluster any 2+ communities
@@ -113,9 +145,9 @@ class SuperclusterService {
         nodeSize: 64,
       };
     } else {
-      // Country view - maximum clustering
+      // Country/world view - maximum clustering
       return {
-        radius: 150,       // Maximum radius for country-level view
+        radius: 120,       // Maximum radius for country-level view
         maxZoom: 20,
         minZoom: 0,
         minPoints: 2,      // Cluster any 2+ communities
@@ -275,22 +307,22 @@ class SuperclusterService {
       const clusters = index.getClusters(bbox, zoom);
       const processingTime = Date.now() - startTime;
       
-      // Log clustering behavior with Yelp/Zillow-style configuration
+      // Log clustering behavior with updated configuration
       const config = this.getClusterConfig(zoom);
-      if (zoom >= 17) {
-        console.log(`Ultra close view (zoom ${zoom}): MINIMAL clustering (radius ${config.radius}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
-      } else if (zoom >= 15) {
-        console.log(`Building level (zoom ${zoom}): LIGHT clustering (radius ${config.radius}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
-      } else if (zoom >= 13) {
-        console.log(`Neighborhood view (zoom ${zoom}): MEDIUM clustering (radius ${config.radius}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
-      } else if (zoom >= 11) {
-        console.log(`City view (zoom ${zoom}): STANDARD clustering (radius ${config.radius}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
+      if (zoom >= 14) {
+        console.log(`Street level (zoom ${zoom}): NO clustering (radius ${config.radius}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
+      } else if (zoom >= 12) {
+        console.log(`City view (zoom ${zoom}): MINIMAL clustering (radius ${config.radius}, minPoints ${config.minPoints}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
+      } else if (zoom >= 10) {
+        console.log(`County view (zoom ${zoom}): LIGHT clustering (radius ${config.radius}, minPoints ${config.minPoints}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
       } else if (zoom >= 8) {
-        console.log(`Regional view (zoom ${zoom}): AGGRESSIVE clustering (radius ${config.radius}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
-      } else if (zoom >= 5) {
-        console.log(`State view (zoom ${zoom}): HEAVY clustering (radius ${config.radius}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
+        console.log(`Regional view (zoom ${zoom}): MODERATE clustering (radius ${config.radius}, minPoints ${config.minPoints}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
+      } else if (zoom >= 6) {
+        console.log(`State view (zoom ${zoom}): HEAVY clustering (radius ${config.radius}, minPoints ${config.minPoints}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
+      } else if (zoom >= 4) {
+        console.log(`Multi-state view (zoom ${zoom}): AGGRESSIVE clustering (radius ${config.radius}, minPoints ${config.minPoints}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
       } else {
-        console.log(`Country view (zoom ${zoom}): MAXIMUM clustering (radius ${config.radius}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
+        console.log(`Country view (zoom ${zoom}): MAXIMUM clustering (radius ${config.radius}, minPoints ${config.minPoints}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
       }
       
       console.log(`Bounds: [${west.toFixed(4)}, ${south.toFixed(4)}, ${east.toFixed(4)}, ${north.toFixed(4)}]`);
