@@ -50,9 +50,8 @@ export function VendorMarketplaceTabs() {
     queryKey: ['/api/marketplace/vendors'],
   });
 
-  // Separate featured and regular vendors
-  const featuredVendors = vendors.filter(v => v.isFeatured).sort((a, b) => a.displayOrder - b.displayOrder);
-  const regularVendors = vendors.filter(v => !v.isFeatured).sort((a, b) => a.displayOrder - b.displayOrder);
+  // Sort all vendors by display order
+  const sortedVendors = vendors.sort((a, b) => a.displayOrder - b.displayOrder);
 
   const handleVendorClick = (vendorId: number) => {
     window.open(`/api/marketplace/out/${vendorId}`, '_blank');
@@ -345,29 +344,14 @@ export function VendorMarketplaceTabs() {
 
         <TabsContent value="all" className="mt-6">
           <div className="flex flex-col space-y-6">
-            {/* Featured Vendors Section */}
-            {featuredVendors.length > 0 && (
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Featured Partners</h3>
-                  <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white">
-                    Top Picks
-                  </Badge>
-                </div>
-                <div className="flex flex-col space-y-4">
-                  {featuredVendors.map(renderVendorRow)}
-                </div>
-              </div>
-            )}
-            
-            {/* All Other Vendors */}
-            {regularVendors.length > 0 && (
+            {/* All Service Providers */}
+            {sortedVendors.length > 0 && (
               <div>
                 <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">
                   All Service Providers
                 </h3>
                 <div className="flex flex-col space-y-4">
-                  {regularVendors.map(renderVendorRow)}
+                  {sortedVendors.map(renderVendorRow)}
                 </div>
               </div>
             )}
@@ -375,43 +359,22 @@ export function VendorMarketplaceTabs() {
         </TabsContent>
         
         {categories.map((category) => {
-          const categoryFeatured = vendors.filter(v => v.categoryId === category.id && v.isFeatured).sort((a, b) => a.displayOrder - b.displayOrder);
-          const categoryRegular = vendors.filter(v => v.categoryId === category.id && !v.isFeatured).sort((a, b) => a.displayOrder - b.displayOrder);
+          const categoryVendors = vendors.filter(v => v.categoryId === category.id).sort((a, b) => a.displayOrder - b.displayOrder);
           
           return (
             <TabsContent key={category.slug} value={category.slug} className="mt-6">
               <div className="flex flex-col space-y-6">
-                {/* Featured Vendors in Category */}
-                {categoryFeatured.length > 0 && (
+                {/* Vendors in Category */}
+                {categoryVendors.length > 0 ? (
                   <div>
-                    <div className="flex items-center gap-2 mb-4">
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Featured {category.name}</h3>
-                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white">
-                        Top Picks
-                      </Badge>
-                    </div>
+                    <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">
+                      {category.name} Services
+                    </h3>
                     <div className="flex flex-col space-y-4">
-                      {categoryFeatured.map(renderVendorRow)}
+                      {categoryVendors.map(renderVendorRow)}
                     </div>
                   </div>
-                )}
-                
-                {/* Regular Vendors in Category */}
-                {categoryRegular.length > 0 && (
-                  <div>
-                    {categoryFeatured.length > 0 && (
-                      <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">
-                        More {category.name} Services
-                      </h3>
-                    )}
-                    <div className="flex flex-col space-y-4">
-                      {categoryRegular.map(renderVendorRow)}
-                    </div>
-                  </div>
-                )}
-                
-                {/* Empty State */}
-                {categoryFeatured.length === 0 && categoryRegular.length === 0 && (
+                ) : (
                   <div className="text-center py-8">
                     <p className="text-gray-500">No vendors available in this category</p>
                   </div>
