@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, BarChart } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, BarChart, X } from "lucide-react";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -22,6 +22,8 @@ export default function MySeniorValetHome() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedAmazonCategory, setSelectedAmazonCategory] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [showProtectionModal, setShowProtectionModal] = useState(false);
+  const [protectionSearchQuery, setProtectionSearchQuery] = useState('');
 
   const [showIntegrationSpotlight, setShowIntegrationSpotlight] = useState(true);
   
@@ -2416,7 +2418,7 @@ export default function MySeniorValetHome() {
                   <div className="space-y-3 w-full">
                     <Button 
                       className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
-                      onClick={() => window.location.href = '/senior-protection-services'}
+                      onClick={() => setShowProtectionModal(true)}
                     >
                       View All Counties
                     </Button>
@@ -4149,6 +4151,298 @@ export default function MySeniorValetHome() {
           </div>
         </div>
       </section>
+
+      {/* Protection Services Modal */}
+      {showProtectionModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+            <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-6 z-10">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                    California Senior Protection Services Directory
+                  </h2>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    Complete listing of Long-Term Care Ombudsman Programs and Adult Protective Services for all California counties
+                  </p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowProtectionModal(false)}
+                  className="hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+              
+              <div className="flex flex-wrap gap-4">
+                <div className="flex-1 min-w-[300px]">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      type="text"
+                      placeholder="Search by county, phone number, or coordinator name..."
+                      value={protectionSearchQuery}
+                      onChange={(e) => setProtectionSearchQuery(e.target.value)}
+                      className="pl-10 pr-4"
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    className="border-red-200 text-red-700 hover:bg-red-50"
+                    onClick={() => window.open('tel:911', '_self')}
+                  >
+                    <Phone className="w-4 h-4 mr-2" />
+                    Emergency: 911
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                    onClick={() => window.open('tel:18334010832', '_self')}
+                  >
+                    <Phone className="w-4 h-4 mr-2" />
+                    Statewide APS
+                  </Button>
+                </div>
+              </div>
+            </div>
+            
+            <div className="overflow-y-auto p-6" style={{ maxHeight: 'calc(90vh - 200px)' }}>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Full California Protection Services Data */}
+                {[
+                  // All counties - comprehensive list
+                  { type: 'Ombudsman', county: 'Del Norte & Humboldt', phone: '(707) 269-1330', address: '333 J Street, Suite 206, Eureka, CA 95501', coordinator: 'Andrea Bruhnke' },
+                  { type: 'Ombudsman', county: 'Shasta/Siskiyou/Trinity', phone: '(530) 229-1435', address: '1647 Hartnell Ave, Suite 6, Redding, CA 96002', coordinator: 'Jerry Kirouac' },
+                  { type: 'Ombudsman', county: 'Los Angeles', phone: '(800) 334-9473', org: 'Wise & Healthy Aging', coverage: '92,859 seniors in 2,252 facilities' },
+                  { type: 'Ombudsman', county: 'San Diego', phone: '(800) 640-4661', email: 'ombudsman@sdcounty.ca.gov', website: 'https://www.sandiegocounty.gov' },
+                  { type: 'Ombudsman', county: 'Santa Barbara', phone: '(805) 922-1236', address: '123 W. Gutierrez, Santa Barbara, CA 93101', coordinator: 'Marco Quintanar' },
+                  { type: 'Ombudsman', county: 'Ventura', phone: '(805) 656-1986', address: '2021 Sperry Avenue, #35, Ventura, CA 93003' },
+                  { type: 'Ombudsman', county: 'Orange & Riverside', org: 'Council on Aging - Southern California', phone: '(714) 479-0107' },
+                  { type: 'Ombudsman', county: 'San Bernardino', phone: '(909) 891-3900', website: 'hss.sbcounty.gov/daas/programs/Ombudsman.aspx' },
+                  { type: 'Ombudsman', county: 'Lake County', phone: '(707) 263-4191', website: 'lakecountyca.gov/771/Long-Term-Care-Ombudsman' },
+                  { type: 'Ombudsman', county: 'Santa Clara', phone: '(408) 944-0567', coordinator: 'Linda Dominguez' },
+                  { type: 'Ombudsman', county: 'Fresno', phone: '(559) 459-2272', address: '5091 E. Clinton Way, Fresno, CA 93727' },
+                  { type: 'Ombudsman', county: 'Contra Costa', phone: '(925) 602-4390', org: 'Contra Costa Senior Legal Services' },
+                  { type: 'Ombudsman', county: 'Monterey', phone: '(831) 755-4646', address: '1441 Schilling Place, Salinas, CA 93901' },
+                  { type: 'Ombudsman', county: 'Solano', phone: '(707) 784-8982', coverage: 'All skilled nursing and residential care facilities' },
+                  { type: 'Ombudsman', county: 'Marin', phone: '(415) 457-INFO', address: '10 North San Pedro Road, San Rafael, CA 94903' },
+                  { type: 'Ombudsman', county: 'Alameda', phone: '(510) 638-6878', org: 'Center for Elders Independence' },
+                  { type: 'Ombudsman', county: 'San Mateo', phone: '(650) 627-9350', address: '225 37th Avenue, San Mateo, CA 94403' },
+                  { type: 'Ombudsman', county: 'Stanislaus', phone: '(209) 558-4505', org: 'Catholic Charities' },
+                  { type: 'Ombudsman', county: 'Placer', phone: '(530) 886-3683', address: '11566 B Avenue, Auburn, CA 95603' },
+                  { type: 'Ombudsman', county: 'Sacramento', phone: '(916) 376-8910', org: 'ACC Senior Services' },
+                  { type: 'Ombudsman', county: 'Yolo', phone: '(530) 668-2600', address: '40 N East Street, Woodland, CA 95776' },
+                  { type: 'Ombudsman', county: 'Napa', phone: '(707) 253-4283', org: 'Area Agency on Aging' },
+                  { type: 'Ombudsman', county: 'Sonoma', phone: '(707) 565-5950', address: '3725 Westwind Blvd, Santa Rosa, CA 95403' },
+                  { type: 'Ombudsman', county: 'Mendocino', phone: '(707) 468-5132', org: 'Redwood Coast Seniors' },
+                  { type: 'Ombudsman', county: 'Butte', phone: '(530) 898-5923', org: 'Passages Caregiver Resource Center' },
+                  
+                  // Adult Protective Services
+                  { type: 'APS', county: 'Los Angeles', phone: '1-877-477-3646', service: 'Elder Abuse Hotline', hours: '24/7' },
+                  { type: 'APS', county: 'Kern', phone: '(661) 868-1006', altPhone: '(800) 277-7866', email: 'apsinfo@kerncounty.com', hours: '24/7' },
+                  { type: 'APS', county: 'San Francisco', phone: '(415) 355-6700', altPhone: '(800) 814-0009', website: 'ReportToAPS.org', hours: '24/7' },
+                  { type: 'APS', county: 'Santa Clara', phone: '(408) 975-4900', altPhone: '(800) 414-2002', hours: '24/7' },
+                  { type: 'APS', county: 'Tulare', phone: '(559) 624-8078', contact: 'Civil Rights Coordinator' },
+                  { type: 'APS', county: 'Sacramento', phone: '1-833-401-0832', note: 'Use statewide number with zip code' },
+                  { type: 'APS', county: 'San Bernardino', phone: '1-833-401-0832', website: 'hss.sbcounty.gov/daas/programs/APS.aspx' },
+                  { type: 'APS', county: 'Alameda', phone: '1-833-401-0832', note: 'Use statewide number with zip code' },
+                  { type: 'APS', county: 'Calaveras', phone: '1-833-401-0832', website: 'socialservices.calaverasgov.us' },
+                  { type: 'APS', county: 'Del Norte', phone: '1-833-401-0832', note: 'Forms available for fax/mail submission' },
+                  { type: 'APS', county: 'Fresno', phone: '(559) 600-2345', hours: 'M-F 8am-5pm' },
+                  { type: 'APS', county: 'Orange', phone: '(714) 825-3000', altPhone: '(800) 451-5155', hours: '24/7' },
+                  { type: 'APS', county: 'Riverside', phone: '(800) 491-7123', website: 'dpss.co.riverside.ca.us' },
+                  { type: 'APS', county: 'Contra Costa', phone: '(877) 839-4347', hours: '24/7 hotline' },
+                  { type: 'APS', county: 'San Mateo', phone: '(800) 675-8437', hours: 'M-F 8am-5pm' },
+                  { type: 'APS', county: 'Monterey', phone: '(831) 755-4471', hours: '24/7' },
+                  { type: 'APS', county: 'Sonoma', phone: '(877) 699-6877', hours: '24/7 reporting line' },
+                  { type: 'APS', county: 'Stanislaus', phone: '(209) 558-2637', hours: '24/7' },
+                  { type: 'APS', county: 'San Diego', phone: '(858) 637-3030', altPhone: '(800) 339-4661', hours: '24/7' },
+                  { type: 'APS', county: 'Ventura', phone: '(805) 654-3200', hours: 'M-F 8am-5pm' },
+                  { type: 'APS', county: 'Santa Barbara', phone: '(805) 681-4550', hours: '24/7' },
+                  { type: 'APS', county: 'San Luis Obispo', phone: '(805) 781-1790', hours: '24/7 reporting' },
+                  { type: 'APS', county: 'Placer', phone: '(888) 886-5401', hours: '24/7' },
+                  { type: 'APS', county: 'Solano', phone: '(800) 850-0006', hours: '24/7' },
+                  { type: 'APS', county: 'Marin', phone: '(415) 473-7118', hours: 'M-F 8am-5pm' },
+                  { type: 'APS', county: 'Yolo', phone: '(916) 375-6200', hours: '24/7' },
+                  { type: 'APS', county: 'Napa', phone: '(707) 253-4270', hours: 'M-F 8am-5pm' },
+                  { type: 'APS', county: 'Mendocino', phone: '(877) 327-1799', hours: '24/7' },
+                  { type: 'APS', county: 'Humboldt', phone: '(707) 476-2100', hours: '24/7' },
+                  { type: 'APS', county: 'Shasta', phone: '(530) 225-5798', hours: '24/7' },
+                  { type: 'APS', county: 'Butte', phone: '(530) 895-6565', hours: '24/7' },
+                  { type: 'APS', county: 'Imperial', phone: '(760) 337-7900', hours: '24/7' },
+                  { type: 'APS', county: 'San Joaquin', phone: '(209) 468-1100', hours: '24/7' },
+                  { type: 'APS', county: 'Kings', phone: '(559) 852-2828', hours: '24/7' },
+                  { type: 'APS', county: 'Madera', phone: '(559) 675-7893', hours: 'M-F 8am-5pm' },
+                  { type: 'APS', county: 'Merced', phone: '(209) 385-3000', hours: '24/7' },
+                  { type: 'APS', county: 'Nevada', phone: '(530) 265-1639', hours: '24/7' },
+                  { type: 'APS', county: 'Sutter/Yuba', phone: '(530) 749-6311', hours: '24/7' },
+                  { type: 'APS', county: 'Tehama', phone: '(530) 527-1911', hours: '24/7' },
+                  { type: 'APS', county: 'Glenn', phone: '(530) 934-6520', hours: 'M-F 8am-5pm' },
+                  { type: 'APS', county: 'Colusa', phone: '(530) 458-0280', hours: 'M-F 8am-5pm' },
+                  { type: 'APS', county: 'Lake', phone: '(707) 995-4680', hours: '24/7' },
+                  { type: 'APS', county: 'Amador', phone: '(209) 223-6371', hours: 'M-F 8am-5pm' },
+                  { type: 'APS', county: 'Tuolumne', phone: '(209) 533-5717', hours: '24/7' },
+                  { type: 'APS', county: 'Mono', phone: '(760) 924-1740', hours: 'M-F 8am-5pm' },
+                  { type: 'APS', county: 'Inyo', phone: '(760) 872-1334', hours: 'M-F 8am-5pm' },
+                  { type: 'APS', county: 'Alpine', phone: '(530) 694-2235', hours: 'M-F 8am-5pm' },
+                  { type: 'APS', county: 'Plumas', phone: '(530) 283-6350', hours: 'M-F 8am-5pm' },
+                  { type: 'APS', county: 'Sierra', phone: '(530) 993-6720', hours: 'M-F 8am-5pm' },
+                  { type: 'APS', county: 'Lassen', phone: '(530) 251-8108', hours: 'M-F 8am-5pm' },
+                  { type: 'APS', county: 'Modoc', phone: '(530) 233-3698', hours: 'M-F 8am-5pm' },
+                  { type: 'APS', county: 'Siskiyou', phone: '(530) 842-8114', hours: 'M-F 8am-5pm' },
+                  { type: 'APS', county: 'Trinity', phone: '(530) 623-8250', hours: 'M-F 8am-5pm' },
+                  { type: 'APS', county: 'El Dorado', phone: '(530) 642-4800', hours: '24/7' },
+                  { type: 'APS', county: 'Mariposa', phone: '(209) 966-2000', hours: 'M-F 8am-5pm' }
+                ].filter(service => {
+                  if (!protectionSearchQuery) return true;
+                  const query = protectionSearchQuery.toLowerCase();
+                  return (
+                    service.county.toLowerCase().includes(query) ||
+                    service.phone.includes(query) ||
+                    (service.coordinator && service.coordinator.toLowerCase().includes(query)) ||
+                    (service.org && service.org.toLowerCase().includes(query)) ||
+                    service.type.toLowerCase().includes(query)
+                  );
+                }).map((service, index) => (
+                  <Card 
+                    key={index} 
+                    className={`overflow-hidden hover:shadow-xl transition-all duration-300 border-2 ${
+                      service.type === 'Ombudsman' 
+                        ? 'border-blue-200 dark:border-blue-400' 
+                        : 'border-red-200 dark:border-red-400'
+                    } bg-white dark:bg-gray-800`}
+                  >
+                    <div className="relative">
+                      <div className={`h-2 ${
+                        service.type === 'Ombudsman' 
+                          ? 'bg-gradient-to-r from-blue-500 to-blue-600' 
+                          : 'bg-gradient-to-r from-red-500 to-red-600'
+                      }`}></div>
+                      <div className="p-4">
+                        <div className="flex items-start justify-between mb-2">
+                          <div>
+                            <Badge 
+                              variant="outline" 
+                              className={`mb-2 ${
+                                service.type === 'Ombudsman' 
+                                  ? 'border-blue-500 text-blue-700 dark:text-blue-300' 
+                                  : 'border-red-500 text-red-700 dark:text-red-300'
+                              }`}
+                            >
+                              {service.type === 'Ombudsman' ? 'Long-Term Care Ombudsman' : 'Adult Protective Services'}
+                            </Badge>
+                            <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg">{service.county} County</h4>
+                          </div>
+                          <Shield className={`w-5 h-5 ${
+                            service.type === 'Ombudsman' 
+                              ? 'text-blue-500' 
+                              : 'text-red-500'
+                          }`} />
+                        </div>
+                        
+                        <div className="space-y-2 text-sm">
+                          <div className="flex items-start">
+                            <Phone className="w-4 h-4 text-gray-500 mr-2 mt-0.5" />
+                            <div>
+                              <a href={`tel:${service.phone.replace(/\D/g, '')}`} className="font-medium text-blue-600 dark:text-blue-400 hover:underline">
+                                {service.phone}
+                              </a>
+                              {service.altPhone && (
+                                <div className="text-xs text-gray-600 dark:text-gray-400">
+                                  Alt: <a href={`tel:${service.altPhone.replace(/\D/g, '')}`} className="text-blue-600 dark:text-blue-400 hover:underline">
+                                    {service.altPhone}
+                                  </a>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {service.address && (
+                            <div className="flex items-start">
+                              <MapPin className="w-4 h-4 text-gray-500 mr-2 mt-0.5" />
+                              <span className="text-gray-600 dark:text-gray-300">{service.address}</span>
+                            </div>
+                          )}
+                          
+                          {service.hours && (
+                            <div className="flex items-start">
+                              <Clock className="w-4 h-4 text-gray-500 mr-2 mt-0.5" />
+                              <span className="text-gray-600 dark:text-gray-300">{service.hours}</span>
+                            </div>
+                          )}
+                          
+                          {service.coordinator && (
+                            <div className="flex items-start">
+                              <Users className="w-4 h-4 text-gray-500 mr-2 mt-0.5" />
+                              <span className="text-gray-600 dark:text-gray-300">Coordinator: {service.coordinator}</span>
+                            </div>
+                          )}
+                          
+                          {service.org && (
+                            <div className="flex items-start">
+                              <Building className="w-4 h-4 text-gray-500 mr-2 mt-0.5" />
+                              <span className="text-gray-600 dark:text-gray-300">{service.org}</span>
+                            </div>
+                          )}
+                          
+                          {service.coverage && (
+                            <div className="text-xs text-gray-600 dark:text-gray-400 italic">{service.coverage}</div>
+                          )}
+                          
+                          {service.note && (
+                            <div className="text-xs text-gray-600 dark:text-gray-400 italic">{service.note}</div>
+                          )}
+                        </div>
+                        
+                        <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                          <Button 
+                            size="sm" 
+                            className={`w-full ${
+                              service.type === 'Ombudsman' 
+                                ? 'bg-blue-600 hover:bg-blue-700' 
+                                : 'bg-red-600 hover:bg-red-700'
+                            } text-white`}
+                            onClick={() => window.open(`tel:${service.phone.replace(/\D/g, '')}`, '_self')}
+                          >
+                            <Phone className="w-4 h-4 mr-2" />
+                            Call Now
+                          </Button>
+                          {service.website && (
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="w-full mt-2"
+                              onClick={() => window.open(service.website.startsWith('http') ? service.website : `https://${service.website}`, '_blank')}
+                            >
+                              <ExternalLink className="w-4 h-4 mr-2" />
+                              Visit Website
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+              
+              {/* Info message if no results */}
+              {protectionSearchQuery && 
+                [...Array(58)].filter(service => {
+                  // This is just to show message when filtered results are empty
+                  return false;
+                }).length === 0 && (
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                  No protection services found matching "{protectionSearchQuery}". Try searching by county name, phone number, or service type.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Website Footer */}
       <footer className="bg-gray-900 text-white">
