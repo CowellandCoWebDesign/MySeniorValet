@@ -1,0 +1,17 @@
+{
+  "total_facilities": 441,
+  "cities_covered": 30,
+  "counties_covered": 29,
+  "facility_types": {
+    "Adult Day Care": 76,
+    "Continuing Care Retirement Community": 74,
+    "Assisted Living": 49,
+    "Independent Living": 67,
+    "Skilled Nursing Facility": 59,
+    "Memory Care": 69,
+    "Personal Care Home": 47
+  },
+  "collection_timestamp": "20250801_095024",
+  "collection_date": "2025-08-01 09:51:53",
+  "data_source": "Kentucky Cabinet for Health and Family Services"
+}

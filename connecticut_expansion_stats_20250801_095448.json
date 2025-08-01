@@ -1,0 +1,29 @@
+{
+  "total_facilities": 155,
+  "counties_covered": 8,
+  "cities_covered": 80,
+  "counties_list": [
+    "Fairfield",
+    "Hartford",
+    "Litchfield",
+    "Middlesex",
+    "New Haven",
+    "New London",
+    "Tolland",
+    "Windham"
+  ],
+  "major_metros": {
+    "Bridgeport": 4,
+    "Hartford": 3,
+    "New Haven": 3,
+    "Stamford": 4,
+    "Waterbury": 3,
+    "Norwalk": 4,
+    "Danbury": 4,
+    "New Britain": 3,
+    "West Hartford": 3,
+    "Greenwich": 3
+  },
+  "collection_date": "2025-08-01T09:54:48.126333",
+  "data_source": "Connecticut Department of Public Health"
+}
