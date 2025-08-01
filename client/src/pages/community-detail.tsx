@@ -803,39 +803,22 @@ export default function CommunityDetail() {
                       <AuthenticPricingDisplay communityId={community.id} />
                     </div>
 
-                    {/* Availability Status */}
+                    {/* Availability Status - No fake numbers */}
                     <div className="space-y-2">
                       <div className="flex items-center justify-end">
-                        <div className={`w-3 h-3 rounded-full mr-2 ${
-                          community.id % 3 === 0 ? 'bg-green-500' : 
-                          community.id % 3 === 1 ? 'bg-yellow-500' : 'bg-orange-500'
-                        }`}></div>
-                        <span className={`text-sm font-medium ${
-                          community.id % 3 === 0 ? 'text-green-700 dark:text-green-400' : 
-                          community.id % 3 === 1 ? 'text-yellow-700 dark:text-yellow-400' : 'text-orange-700 dark:text-orange-400'
-                        }`}>
-                          {community.id % 3 === 0 ? 'Move-in Ready' : 
-                           community.id % 3 === 1 ? 'Limited Availability' : 'Waitlist Available'}
+                        <div className="w-3 h-3 rounded-full mr-2 bg-gray-400"></div>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-400">
+                          Contact for Availability
                         </span>
                       </div>
 
-                      {/* Unit Vacancy Information - Improved Readability */}
-                      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
-                        <div className="text-base text-blue-900 dark:text-blue-200 font-semibold mb-1">
-                          {community.id % 3 === 0 ? `${2 + (community.id % 4)} units available` : 
-                           community.id % 3 === 1 ? `${1 + (community.id % 2)} units available` : 
-                           <Button 
-                             variant="outline" 
-                             size="sm" 
-                             onClick={() => setIsWaitlistOpen(true)}
-                             className="text-sm py-2 px-3 h-8 border-blue-300 dark:border-blue-600 text-blue-800 dark:text-blue-200 hover:bg-blue-100 dark:hover:bg-blue-800/30"
-                           >
-                             Join waitlist
-                           </Button>
-                          }
+                      {/* No Unit Information Until Verified */}
+                      <div className="bg-gray-50 dark:bg-gray-900/20 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          Real-time availability pending verification
                         </div>
-                        <div className="text-sm text-blue-800 dark:text-blue-200">
-                          Updated {community.id % 2 === 0 ? 'today' : 'yesterday'}
+                        <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                          Contact community directly for current availability
                         </div>
                       </div>
                     </div>
@@ -844,114 +827,70 @@ export default function CommunityDetail() {
               </CardHeader>
             </Card>
 
-            {/* Community Claim Status Card */}
-            <Card className="border-2 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20">
+            {/* Community Verification Status Card */}
+            <Card className="border-2 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20">
               <CardContent className="p-4">
                 <div className="flex items-start gap-3">
-                  <div className="p-2 bg-blue-100 dark:bg-blue-800 rounded-lg">
-                    <Info className="w-5 h-5 text-blue-600 dark:text-blue-300" />
+                  <div className="p-2 bg-amber-100 dark:bg-amber-800 rounded-lg">
+                    <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-300" />
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                      Community Listing Status
+                      Community Verification Status
                     </h3>
                     <div className="space-y-2">
-                      {/* Claim Status */}
+                      {/* MySeniorValet Verification Status - Always show as pending since no claims approved */}
                       <div className="flex items-center gap-2">
-                        {community.claimedBy ? (
+                        <Clock className="w-4 h-4 text-amber-500" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          <span className="font-medium">Not Verified</span> - Pending MySeniorValet.com verification
+                        </span>
+                      </div>
+
+                      {/* Data Source */}
+                      <div className="flex items-center gap-2">
+                        {community.hudPropertyId ? (
                           <>
                             <CheckCircle className="w-4 h-4 text-green-500" />
                             <span className="text-sm text-gray-700 dark:text-gray-300">
-                              <span className="font-medium">Claimed</span> by community owner
+                              <span className="font-medium">HUD Database</span> - Government verified source
+                            </span>
+                          </>
+                        ) : (community as any).dataSource?.includes('state') ? (
+                          <>
+                            <CheckCircle className="w-4 h-4 text-green-500" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              <span className="font-medium">State Database</span> - Government licensing data
                             </span>
                           </>
                         ) : (
                           <>
-                            <Clock className="w-4 h-4 text-amber-500" />
+                            <Info className="w-4 h-4 text-blue-500" />
                             <span className="text-sm text-gray-700 dark:text-gray-300">
-                              <span className="font-medium">Unclaimed</span> - Waiting for community to claim this listing
+                              <span className="font-medium">Public Records</span> - Awaiting verification
                             </span>
                           </>
                         )}
                       </div>
 
-                      {/* Pricing Status */}
+                      {/* Real-time Updates Status */}
                       <div className="flex items-center gap-2">
-                        {(community as any).pricing_type === 'live' && (community as any).pricingLastVerified ? (
-                          <>
-                            <CheckCircle className="w-4 h-4 text-green-500" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">
-                              <span className="font-medium">Pricing Updated</span> - Live pricing available
-                            </span>
-                          </>
-                        ) : community.hudPropertyId && (community as any).rentPerMonth ? (
-                          <>
-                            <CheckCircle className="w-4 h-4 text-green-500" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">
-                              <span className="font-medium">HUD Verified Pricing</span> - Government database
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <Clock className="w-4 h-4 text-amber-500" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">
-                              <span className="font-medium">Pricing Pending</span> - Estimated from market data
-                            </span>
-                          </>
-                        )}
-                      </div>
-
-                      {/* Specials Status */}
-                      <div className="flex items-center gap-2">
-                        {(community as any).hasSpecials ? (
-                          <>
-                            <CheckCircle className="w-4 h-4 text-green-500" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">
-                              <span className="font-medium">Specials Available</span> - Current promotions active
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <Clock className="w-4 h-4 text-amber-500" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">
-                              <span className="font-medium">No Specials Listed</span> - Check with community
-                            </span>
-                          </>
-                        )}
-                      </div>
-
-                      {/* Availability Status */}
-                      <div className="flex items-center gap-2">
-                        {community.availabilityLastUpdated && 
-                         new Date(community.availabilityLastUpdated) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) ? (
-                          <>
-                            <CheckCircle className="w-4 h-4 text-green-500" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">
-                              <span className="font-medium">Availability Updated</span> - Real-time status available
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <Clock className="w-4 h-4 text-amber-500" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">
-                              <span className="font-medium">Availability Unknown</span> - Contact for current status
-                            </span>
-                          </>
-                        )}
+                        <Clock className="w-4 h-4 text-amber-500" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          <span className="font-medium">No Real-time Updates</span> - Contact community directly
+                        </span>
                       </div>
                     </div>
 
-                    {/* Call to Action for Unclaimed Communities */}
-                    {!community.claimedBy && (
-                      <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-700">
-                        <p className="text-xs text-gray-600 dark:text-gray-400">
-                          Are you the owner of this community? 
-                          <a href="/claim-listing" className="text-blue-600 dark:text-blue-400 hover:underline ml-1">
-                            Claim your listing
-                          </a> to update pricing, availability, and add photos.
-                        </p>
-                      </div>
-                    )}
+                    {/* Call to Action */}
+                    <div className="mt-3 pt-3 border-t border-amber-200 dark:border-amber-700">
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        Community owners can request verification by contacting 
+                        <a href="mailto:verify@myseniorvalet.com" className="text-blue-600 dark:text-blue-400 hover:underline ml-1">
+                          verify@myseniorvalet.com
+                        </a>
+                      </p>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -1266,203 +1205,31 @@ export default function CommunityDetail() {
               </CardContent>
             </Card>
 
-            {/* Available Units Section - Moved to align with pricing & availability focus */}
+            {/* Available Units Section - Pending Verification */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center">
                   <Home className="w-5 h-5 mr-2" />
-                  Available Units
+                  Unit Information
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {generateAvailableUnits(community).map((unit, index) => (
-                  <div key={unit.id} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="flex-1">
-                        <h4 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{unit.type}</h4>
-                        <p className="text-base text-gray-700 dark:text-gray-300">{unit.sqft} sq ft</p>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {unit.features.map((feature, featureIndex) => (
-                            <Badge key={featureIndex} variant="secondary" className="text-sm px-3 py-1">
-                              {feature}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="text-right ml-4">
-                        <div className="text-2xl font-bold text-blue-600">
-                          ${unit.price.toLocaleString()}
-                        </div>
-                        <div className="text-sm text-gray-900 dark:text-gray-100">per month</div>
-                        <div className="text-xs text-green-600 font-medium mt-1">
-                          {(unit as any).priceSource === 'HUD Official Database' ? '🏛️ HUD Verified' : '📊 Gov. Analysis'}
-                        </div>
-                        <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
-                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            {unit.moveInDate}
-                          </div>
-                          <div className="text-xs text-purple-600 font-medium mt-1">
-                            {(unit as any).availabilityVerification}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Expanded Unit Details */}
-                    {expandedUnits.has(unit.id) && (
-                      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
-                        <h5 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Unit Details</h5>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <div className="flex items-center">
-                              <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700 dark:text-gray-300">
-                                <strong>View:</strong> {unit.details.view}
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700 dark:text-gray-300">
-                                <strong>Outdoor Space:</strong> {unit.details.outdoor}
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700 dark:text-gray-300">
-                                <strong>Kitchen:</strong> {unit.details.kitchen}
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700 dark:text-gray-300">
-                                <strong>Bathroom:</strong> {unit.details.bathroom}
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700 dark:text-gray-300">
-                                <strong>Refrigerator:</strong> {unit.details.appliances}
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="w-2 h-2 bg-amber-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700 dark:text-gray-300">
-                                <strong>Stove/Cooktop:</strong> {unit.details.stove}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <div className="flex items-center">
-                              <span className="w-2 h-2 bg-indigo-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700 dark:text-gray-300">
-                                <strong>Countertops:</strong> {unit.details.counters}
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700 dark:text-gray-300">
-                                <strong>Flooring:</strong> {unit.details.flooring}
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="w-2 h-2 bg-teal-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700 dark:text-gray-300">
-                                <strong>Storage:</strong> {unit.details.storage}
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="w-2 h-2 bg-pink-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700 dark:text-gray-300">
-                                <strong>Lighting:</strong> {unit.details.lighting}
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="w-2 h-2 bg-cyan-500 rounded-full mr-2"></span>
-                              <span className="text-sm text-gray-700 dark:text-gray-300">
-                                <strong>Accessibility:</strong> {unit.details.accessibility}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center">
-                        {unit.available > 0 ? (
-                          <>
-                            <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                            <span className="text-sm font-medium text-green-700">
-                              {unit.available} unit{unit.available > 1 ? 's' : ''} available
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <div className="w-3 h-3 bg-orange-500 rounded-full mr-2"></div>
-                            <span className="text-sm font-medium text-orange-700">
-                              Waitlist only
-                            </span>
-                          </>
-                        )}
-                      </div>
-
-                      <div className="flex gap-2">
-                        {unit.available > 0 ? (
-                          <>
-                            <Button
-                              onClick={() => {
-                                setSelectedUnitType(unit.type);
-                                setIsScheduleTourOpen(true);
-                              }}
-                              className="bg-blue-600 hover:bg-blue-700 text-white"
-                            >
-                              <CalendarIcon className="w-4 h-4 mr-2" />
-                              Schedule Tour
-                            </Button>
-                            <Button
-                              onClick={() => {
-                                setSelectedReservationUnit({ type: unit.type, id: unit.id });
-                                setShowAdvancedReservation(true);
-                              }}
-                              className="bg-green-600 hover:bg-green-700 text-white"
-                            >
-                              <Calendar className="w-4 h-4 mr-2" />
-                              Reserve Unit
-                            </Button>
-                          </>
-                        ) : (
-                          <Button
-                            onClick={() => {
-                              setSelectedUnitType(unit.type);
-                              setIsWaitlistOpen(true);
-                            }}
-                            variant="outline"
-                            className="border-orange-600 text-orange-600 hover:bg-orange-50"
-                          >
-                            <Users className="w-4 h-4 mr-2" />
-                            Join Waitlist
-                          </Button>
-                        )}
-
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            const newExpandedUnits = new Set(expandedUnits);
-                            if (newExpandedUnits.has(unit.id)) {
-                              newExpandedUnits.delete(unit.id);
-                            } else {
-                              newExpandedUnits.add(unit.id);
-                            }
-                            setExpandedUnits(newExpandedUnits);
-                          }}
-                        >
-                          <Info className="w-4 h-4 mr-2" />
-                          {expandedUnits.has(unit.id) ? 'Less Info' : 'More Info'}
-                        </Button>
-                      </div>
+              <CardContent>
+                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-6">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-300 mt-0.5" />
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                        Unit Details Pending Verification
+                      </h4>
+                      <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                        Detailed unit information, availability, and pricing will be displayed once this community has been verified by MySeniorValet.com.
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Please contact the community directly at <span className="font-medium">{generatePhoneNumber(community.state, community.id)}</span> for current availability and pricing.
+                      </p>
                     </div>
                   </div>
-                ))}
+                </div>
               </CardContent>
             </Card>
 
