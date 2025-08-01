@@ -4,6 +4,7 @@ import { communities } from "@shared/schema";
 import { eq, and, or, desc, sql, isNotNull, gte } from "drizzle-orm";
 import { enhancedSearchService } from "../enhanced-search-service";
 import { cache } from "../cache";
+import { eliminateCallForPricing } from "../intelligent-pricing-system";
 
 interface SearchParams {
   // Text search params
@@ -232,7 +233,7 @@ export function registerUnifiedSearchRoutes(app: Express) {
           
           if (enhancedResults.communities.length > results.length) {
             const response = {
-              communities: enhancedResults.communities,
+              communities: enhancedResults.communities.map(community => eliminateCallForPricing(community)),
               total: enhancedResults.communities.length,
               totalAvailable: totalCount,
               searchType: 'enhanced',
@@ -251,7 +252,7 @@ export function registerUnifiedSearchRoutes(app: Express) {
       }
       
       const response = {
-        communities: results,
+        communities: results.map(community => eliminateCallForPricing(community)),
         total: results.length,
         totalAvailable: totalCount,
         searchType: isMapSearch ? 'map' : 'text',

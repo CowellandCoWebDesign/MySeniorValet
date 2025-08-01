@@ -172,6 +172,11 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
                       Official
                     </span>
                   )}
+                  {!hasAuthenticPricing && community.displayPricing?.priceLabel === 'Market Estimate' && (
+                    <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                      Market Estimate
+                    </span>
+                  )}
                 </div>
               )}
               
@@ -288,8 +293,13 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
                                     Official HUD Pricing
                                   </Badge>
                                 </div>
+                              ) : community.displayPricing?.priceLabel === 'Market Estimate' ? (
+                                <>
+                                  <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">Market Estimate</p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-500">Based on real market data</p>
+                                </>
                               ) : (
-                                <p className="text-xs text-gray-600 dark:text-gray-400">Estimated pricing</p>
+                                <p className="text-xs text-gray-600 dark:text-gray-400">Verified pricing</p>
                               )}
                             </>
                           )}

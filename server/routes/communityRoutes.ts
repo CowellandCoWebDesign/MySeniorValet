@@ -54,7 +54,7 @@ export function registerCommunityRoutes(app: Express) {
         .orderBy(sql`CAST(${communities.rentPerMonth} AS DECIMAL) ASC`)
         .limit(8);
 
-      res.json(hudFeatured);
+      res.json(hudFeatured.map(community => eliminateCallForPricing(community)));
     } catch (error) {
       console.error("Error fetching HUD featured communities:", error);
       res.status(500).json({ error: "Failed to fetch HUD featured communities" });
@@ -71,7 +71,7 @@ export function registerCommunityRoutes(app: Express) {
         .orderBy(desc(communities.rating))
         .limit(20);
 
-      res.json(trending);
+      res.json(trending.map(community => eliminateCallForPricing(community)));
     } catch (error) {
       console.error("Error fetching trending communities:", error);
       res.status(500).json({ error: "Failed to fetch trending communities" });
@@ -95,7 +95,7 @@ export function registerCommunityRoutes(app: Express) {
         .orderBy(desc(communities.rating))
         .limit(20);
 
-      res.json(coastal);
+      res.json(coastal.map(community => eliminateCallForPricing(community)));
     } catch (error) {
       console.error("Error fetching coastal communities:", error);
       res.status(500).json({ error: "Failed to fetch coastal communities" });
