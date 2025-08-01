@@ -1,0 +1,8 @@
+{
+  "state": "Minnesota",
+  "manual_download_available": true,
+  "bulk_csv_url": "https://www.health.state.mn.us/facilities/regulation/directory/docs/provdir.xlsx",
+  "api_available": false,
+  "notes": "Excel file download available with daily updates",
+  "timestamp": "2025-08-01T15:17:55.479787"
+}
