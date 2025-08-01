@@ -1499,13 +1499,11 @@ export default function MySeniorValetHome() {
             </Card>
           </div>
 
-          {/* Care Services Container */}
-          <div>
-            {/* Care Service Sections Container */}
-            <>
-              {/* Senior Placement Agencies Section - REMOVED per user request */}
+          {/* Care Service Sections Container */}
+          <>
+            {/* Senior Placement Agencies Section - REMOVED per user request */}
 
-              {/* Home Care Services Section */}
+            {/* Home Care Services Section */}
             {(() => {
               const services = (careServicesData as any)?.services || [];
               const homeCareServices = services.filter((s: any) => s.serviceCategory === 'Home Care Services');
@@ -1882,7 +1880,6 @@ export default function MySeniorValetHome() {
               }
               return null;
             })()}
-          </>
 
             {/* All Care Services - Default View */}
             {!selectedCategory && (
@@ -1922,7 +1919,7 @@ export default function MySeniorValetHome() {
                     ...(service.careTypes?.includes('Medicare') ? [commonBadges.medicareAccepted] : []),
                     ...(service.careTypes?.includes('Medicaid') ? [commonBadges.medicaidAccepted] : []),
                     ...(service.serviceCategory === 'Senior Placement Agency' ? [commonBadges.available247] : []),
-                    ...(service.website ? [{ type: 'info' as const, label: 'Website Available' }] : [])
+                    ...(service.website ? [{ type: 'verified' as const, label: 'Website Available' }] : [])
                   ].slice(0, 4); // Limit to 4 badges for space
                   
                   return (
@@ -2010,7 +2007,8 @@ export default function MySeniorValetHome() {
                 </div>
               )}
             </div>
-          </div>
+            )}
+          </>
         </div>
       </section>
 
