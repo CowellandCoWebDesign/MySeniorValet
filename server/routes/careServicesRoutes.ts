@@ -315,6 +315,104 @@ router.get('/care-services/analytics', async (req, res) => {
   }
 });
 
+// Get Canadian care services
+router.get('/care-services/canadian', async (req, res) => {
+  try {
+    const { limit = 50 } = req.query;
+    
+    const canadianServices = await db
+      .select({
+        id: communities.id,
+        name: communities.name,
+        careTypes: communities.careTypes,
+        phone: communities.phone,
+        address: communities.address,
+        city: communities.city,
+        state: communities.state,
+        zipCode: communities.zipCode,
+        website: communities.website,
+        latitude: communities.latitude,
+        longitude: communities.longitude,
+        bilingual: communities.bilingual
+      })
+      .from(communities)
+      .where(
+        and(
+          // Canadian communities
+          sql`${communities.county} = 'Canada'`,
+          // Care service types
+          or(
+            like(sql`LOWER(${communities.name})`, '%home care%'),
+            like(sql`LOWER(${communities.name})`, '%caregiving%'),
+            like(sql`LOWER(${communities.name})`, '%visiting%'),
+            like(sql`LOWER(${communities.name})`, '%home health%'),
+            like(sql`LOWER(${communities.careTypes}::text)`, '%adult day%'),
+            like(sql`LOWER(${communities.name})`, '%adult day%'),
+            like(sql`LOWER(${communities.name})`, '%day program%'),
+            like(sql`LOWER(${communities.careTypes}::text)`, '%therapy%'),
+            like(sql`LOWER(${communities.name})`, '%therapy%'),
+            like(sql`LOWER(${communities.name})`, '%rehabilitation%'),
+            like(sql`LOWER(${communities.name})`, '%physical therapy%'),
+            like(sql`LOWER(${communities.name})`, '%occupational%'),
+            like(sql`LOWER(${communities.careTypes}::text)`, '%hospice%'),
+            like(sql`LOWER(${communities.name})`, '%hospice%'),
+            like(sql`LOWER(${communities.careTypes}::text)`, '%respite%'),
+            like(sql`LOWER(${communities.name})`, '%respite%'),
+            like(sql`LOWER(${communities.careTypes}::text)`, '%personal care%'),
+            like(sql`LOWER(${communities.name})`, '%personal care%')
+          ),
+          // Must have phone
+          isNotNull(communities.phone),
+          ne(communities.phone, ''),
+          // Exclude placement agencies
+          sql`LOWER(${communities.name}) NOT LIKE '%placement%'`,
+          sql`LOWER(${communities.name}) NOT LIKE '%referral%'`,
+          sql`LOWER(${communities.name}) NOT LIKE '%advisor%'`,
+          sql`LOWER(${communities.name}) NOT LIKE '%locator%'`
+        )
+      )
+      .orderBy(communities.state, communities.city, communities.name)
+      .limit(Number(limit));
+
+    // If no care services found, return regular Canadian communities as services
+    if (canadianServices.length === 0) {
+      const regularCanadianCommunities = await db
+        .select({
+          id: communities.id,
+          name: communities.name,
+          careTypes: communities.careTypes,
+          phone: communities.phone,
+          address: communities.address,
+          city: communities.city,
+          state: communities.state,
+          zipCode: communities.zipCode,
+          website: communities.website,
+          latitude: communities.latitude,
+          longitude: communities.longitude,
+          bilingual: communities.bilingual
+        })
+        .from(communities)
+        .where(
+          and(
+            sql`${communities.county} = 'Canada'`,
+            isNotNull(communities.phone),
+            ne(communities.phone, '')
+          )
+        )
+        .orderBy(communities.state, communities.city, communities.name)
+        .limit(Number(limit));
+      
+      res.json(regularCanadianCommunities);
+    } else {
+      res.json(canadianServices);
+    }
+
+  } catch (error) {
+    console.error('Error fetching Canadian care services:', error);
+    res.status(500).json({ message: 'Failed to fetch Canadian care services' });
+  }
+});
+
 // Search care services by name or location
 router.get('/care-services/search', async (req, res) => {
   try {

@@ -97,6 +97,7 @@ import AISearchComparison from "@/pages/AISearchComparison";
 import SuperAdminDashboard from "@/pages/super-admin-dashboard";
 import FinancialDashboard from "@/pages/financial-dashboard";
 import { useAuth } from "@/hooks/useAuth";
+import CanadaPage from "@/pages/canada";
 
 function Router() {
   const [location] = useLocation();
@@ -110,6 +111,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={MySeniorValetHome} />
+      <Route path="/canada" component={CanadaPage} />
       <Route path="/search" component={MapSearch} />
       <Route path="/map" component={MapSearch} />
       <Route path="/map-search" component={MapSearch} />

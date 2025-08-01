@@ -767,7 +767,7 @@ export default function MySeniorValetHome() {
                 ))}
                 
                 {/* View All Canadian Communities Card */}
-                <Link href="/map-search?country=Canada">
+                <Link href="/canada">
                   <Card className="overflow-hidden flex-shrink-0 w-64 h-96 border-2 border-red-500 bg-gradient-to-br from-red-50 to-white dark:from-red-900/20 dark:to-gray-900/20 hover:shadow-2xl transition-all cursor-pointer group">
                     <div className="aspect-[4/3] bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
                       <div className="text-center text-white">

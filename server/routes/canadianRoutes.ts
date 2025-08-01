@@ -21,6 +21,22 @@ router.get("/canadian", async (req, res) => {
   }
 });
 
+// Get all Canadian communities (with /all endpoint)
+router.get("/canadian/all", async (req, res) => {
+  try {
+    const canadianCommunities = await db
+      .select()
+      .from(communities)
+      .where(eq(communities.county, 'Canada'))
+      .orderBy(communities.state, communities.city);
+    
+    res.json(canadianCommunities);
+  } catch (error) {
+    console.error("Error fetching all Canadian communities:", error);
+    res.status(500).json({ error: "Failed to fetch all Canadian communities" });
+  }
+});
+
 // Get bilingual communities
 router.get("/bilingual", async (req, res) => {
   try {

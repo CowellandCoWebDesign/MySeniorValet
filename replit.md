@@ -46,7 +46,8 @@ The platform is built with a modern web stack.
   - Added platform promise message: "Not all senior housing requires a six-figure budget. MySeniorValet shows everything — from $0 HUD properties to full-service memory care."
   - Community detail pages now show "Claim This Community Now" button instead of email verification
   - Implemented Care Spectrum Slider component - interactive UI for exploring housing types from lowest cost (HUD) to highest care (Skilled Nursing)
-  - Canadian expansion showcase section on homepage with bilingual features
+  - Created dedicated Canada page (/canada) - Canadian-focused homepage version with Canadian communities, vendors, care services, and resources
+  - Canadian expansion showcase section on homepage with bilingual features (View All link now navigates to Canada page)
 - **Platform Scope**: Achieved 34,171 communities covering full North American senior housing spectrum (USA + Canada)
 
 ## External Dependencies
