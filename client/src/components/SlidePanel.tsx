@@ -168,8 +168,9 @@ export default function SlidePanel({
       <div style={style} className="px-2">
         <EnhancedCommunityCard
           community={c}
-          variant="featured"
+          variant="list"
           index={index}
+          onSelect={() => window.location.href = `/community/${c.id}`}
         />
       </div>
     );
@@ -281,7 +282,7 @@ export default function SlidePanel({
                   height={height}
                   width={width}
                   itemCount={isLoading ? 10 : sortedCommunities.length}
-                  itemSize={310}
+                  itemSize={120}
                 >
                   {Row}
                 </List>

@@ -10,6 +10,7 @@ import { Search, Heart, MapPin, Filter, Star, Home, ArrowLeft, Settings, Map, Li
 import { Link, useLocation } from "wouter";
 import { PricingTransparencyBadgeList, TransparencyScore } from "@/components/PricingTransparencyBadge";
 import { NavigationHeader } from "@/components/NavigationHeader";
+import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
 
 interface Community {
   id: number;
@@ -170,8 +171,24 @@ export default function MySeniorValetSearch() {
         </div>
       )}
 
-      {/* Communities List - Matching Slider Card Design */}
-      {!isLoading && (
+      {/* Communities List - Enhanced with Better Information Display */}
+      {!isLoading && viewMode === 'list' && (
+        <div className="px-4 py-2 space-y-4">
+          {filteredCommunities.map((community, index) => (
+            <div key={community.id} className="animate-fadeIn" style={{animationDelay: `${index * 0.05}s`}}>
+              <EnhancedCommunityCard
+                community={community}
+                variant="list"
+                index={index}
+                onSelect={() => window.location.href = `/community/${community.id}`}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Grid View - Keep for Map Mode */}
+      {!isLoading && viewMode === 'map' && (
         <div className="px-4 py-2 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
           {filteredCommunities.map((community, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
