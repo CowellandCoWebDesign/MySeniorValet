@@ -1163,7 +1163,7 @@ export default function CommunityDetail() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {generateAvailableUnits(community).map((unit, index) => (
-                  <div key={unit.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <div key={unit.id} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow">
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex-1">
                         <h4 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{unit.type}</h4>
@@ -1184,7 +1184,7 @@ export default function CommunityDetail() {
                         <div className="text-xs text-green-600 font-medium mt-1">
                           {(unit as any).priceSource === 'HUD Official Database' ? '🏛️ HUD Verified' : '📊 Gov. Analysis'}
                         </div>
-                        <div className="mt-2 pt-2 border-t border-gray-200">
+                        <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
                           <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                             {unit.moveInDate}
                           </div>
@@ -1197,7 +1197,7 @@ export default function CommunityDetail() {
 
                     {/* Expanded Unit Details */}
                     {expandedUnits.has(unit.id) && (
-                      <div className="mt-4 pt-4 border-t border-gray-200">
+                      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
                         <h5 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Unit Details</h5>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
