@@ -846,7 +846,7 @@ export default function MySeniorValetHome() {
                 </div>
                 <div className="text-right">
                   <div className="text-lg font-bold text-gray-900 dark:text-gray-100">Now Available!</div>
-                  <div className="text-sm text-green-600 dark:text-green-300 font-medium">Live vendor partnerships</div>
+                  <div className="text-sm text-green-600 dark:text-green-300 font-medium">Service recommendations</div>
                 </div>
               </div>
               
@@ -854,13 +854,13 @@ export default function MySeniorValetHome() {
                 <div className="flex items-center">
                   <div className="text-green-600 dark:text-green-400 mr-2">✅</div>
                   <p className="text-sm text-green-800 dark:text-green-200 font-medium">
-                    <strong>Live Provider Network:</strong> Real verified service providers now available. Direct booking and exclusive MySeniorValet member pricing.
+                    <strong>Live Provider Network:</strong> Curated selection of service providers for your senior living needs.
                   </p>
                 </div>
               </div>
               
               <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
-                3 live vendor partnerships • 1-800-FLORALS • TWO MEN AND A TRUCK • GoGoGrandparent + Amazon supply integration
+                Featured services • 1-800-FLORALS • TWO MEN AND A TRUCK • GoGoGrandparent • Amazon product recommendations
               </p>
             </div>
 
@@ -1436,7 +1436,7 @@ export default function MySeniorValetHome() {
                 </div>
                 <div className="text-right">
                   <div className="text-lg font-bold text-gray-900 dark:text-gray-100">Now Available!</div>
-                  <div className="text-sm text-green-600 dark:text-green-300 font-medium">Live vendor partnerships</div>
+                  <div className="text-sm text-green-600 dark:text-green-300 font-medium">Service recommendations</div>
                 </div>
               </div>
               
@@ -1444,13 +1444,13 @@ export default function MySeniorValetHome() {
                 <div className="flex items-center">
                   <div className="text-green-600 dark:text-green-400 mr-2">✅</div>
                   <p className="text-sm text-green-800 dark:text-green-200 font-medium">
-                    <strong>Live Provider Network:</strong> Real verified service providers now available. Direct booking and exclusive MySeniorValet member pricing.
+                    <strong>Live Provider Network:</strong> Curated selection of service providers for your senior living needs.
                   </p>
                 </div>
               </div>
               
               <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
-                3 live vendor partnerships • 1-800-FLORALS • TWO MEN AND A TRUCK • GoGoGrandparent + Amazon supply integration
+                Featured services • 1-800-FLORALS • TWO MEN AND A TRUCK • GoGoGrandparent • Amazon product recommendations
               </p>
             </div>
 
@@ -1802,7 +1802,7 @@ export default function MySeniorValetHome() {
                   </div>
                   <div className="text-right">
                     <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">$12.99 - $89.99</div>
-                    <div className="text-xs text-orange-600 dark:text-orange-400">Amazon partner</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">Product recommendations</div>
                   </div>
                 </div>
                 
@@ -2085,7 +2085,7 @@ export default function MySeniorValetHome() {
                             ...(service.careTypes?.includes('Medicare') ? [commonBadges.medicareAccepted] : []),
                             ...(service.careTypes?.includes('Medicaid') ? [commonBadges.medicaidAccepted] : []),
                             commonBadges.stateLicensed,
-                            ...(service.website ? [{ type: 'verified' as const, label: 'Website Verified' }] : [])
+                            ...(service.website ? [{ type: 'info' as const, label: 'Website Available' }] : [])
                           ].slice(0, 4);
                           
                           return (
@@ -2148,7 +2148,7 @@ export default function MySeniorValetHome() {
                             ...(service.careTypes?.includes('Medicare') ? [commonBadges.medicareAccepted] : []),
                             ...(service.careTypes?.includes('Medicaid') ? [commonBadges.medicaidAccepted] : []),
                             commonBadges.stateLicensed,
-                            ...(service.website ? [{ type: 'verified' as const, label: 'Website Verified' }] : [])
+                            ...(service.website ? [{ type: 'info' as const, label: 'Website Available' }] : [])
                           ].slice(0, 4);
                           
                           return (
@@ -2211,7 +2211,7 @@ export default function MySeniorValetHome() {
                             ...(service.careTypes?.includes('Medicare') ? [commonBadges.medicareAccepted] : []),
                             ...(service.careTypes?.includes('Medicaid') ? [commonBadges.medicaidAccepted] : []),
                             { type: 'feature' as const, label: 'Activities & Meals' },
-                            ...(service.website ? [{ type: 'verified' as const, label: 'Website Verified' }] : [])
+                            ...(service.website ? [{ type: 'info' as const, label: 'Website Available' }] : [])
                           ].slice(0, 4);
                           
                           return (
@@ -2274,7 +2274,7 @@ export default function MySeniorValetHome() {
                             ...(service.careTypes?.includes('Medicare') ? [commonBadges.medicareAccepted] : []),
                             ...(service.careTypes?.includes('Medicaid') ? [commonBadges.medicaidAccepted] : []),
                             commonBadges.stateLicensed,
-                            ...(service.website ? [{ type: 'verified' as const, label: 'Website Verified' }] : [])
+                            ...(service.website ? [{ type: 'info' as const, label: 'Website Available' }] : [])
                           ].slice(0, 4);
                           
                           return (
@@ -2337,7 +2337,7 @@ export default function MySeniorValetHome() {
                             ...(service.careTypes?.includes('Medicare') ? [commonBadges.medicareAccepted] : []),
                             ...(service.careTypes?.includes('Medicaid') ? [commonBadges.medicaidAccepted] : []),
                             commonBadges.available247,
-                            ...(service.website ? [{ type: 'verified' as const, label: 'Website Verified' }] : [])
+                            ...(service.website ? [{ type: 'info' as const, label: 'Website Available' }] : [])
                           ].slice(0, 4);
                           
                           return (
@@ -2400,7 +2400,7 @@ export default function MySeniorValetHome() {
                             ...(service.careTypes?.includes('Medicare') ? [commonBadges.medicareAccepted] : []),
                             ...(service.careTypes?.includes('Medicaid') ? [commonBadges.medicaidAccepted] : []),
                             commonBadges.stateLicensed,
-                            ...(service.website ? [{ type: 'verified' as const, label: 'Website Verified' }] : [])
+                            ...(service.website ? [{ type: 'info' as const, label: 'Website Available' }] : [])
                           ].slice(0, 4);
                           
                           return (
@@ -2467,7 +2467,7 @@ export default function MySeniorValetHome() {
                     ...(service.careTypes?.includes('Medicare') ? [commonBadges.medicareAccepted] : []),
                     ...(service.careTypes?.includes('Medicaid') ? [commonBadges.medicaidAccepted] : []),
                     ...(service.serviceCategory === 'Senior Placement Agency' ? [commonBadges.available247] : []),
-                    ...(service.website ? [{ type: 'verified' as const, label: 'Website Verified' }] : [])
+                    ...(service.website ? [{ type: 'info' as const, label: 'Website Available' }] : [])
                   ].slice(0, 4); // Limit to 4 badges for space
                   
                   return (
