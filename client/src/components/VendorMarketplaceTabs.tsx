@@ -294,7 +294,7 @@ export function VendorMarketplaceTabs() {
                     Top Picks
                   </Badge>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex flex-col space-y-4">
                   {featuredVendors.map(renderVendorRow)}
                 </div>
               </div>
@@ -330,7 +330,7 @@ export function VendorMarketplaceTabs() {
                         Top Picks
                       </Badge>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex flex-col space-y-4">
                       {categoryFeatured.map(renderVendorRow)}
                     </div>
                   </div>
