@@ -463,10 +463,26 @@ export default function CommunityPage() {
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">{community.name}</h1>
-                    <div className="flex items-center text-gray-600 dark:text-gray-300 mb-4">
+                    <div className="flex items-center text-gray-600 dark:text-gray-300 mb-2">
                       <MapPin className="h-5 w-5 mr-2" />
                       {community.address}, {community.city}, {community.state} {community.zipCode}
                     </div>
+                    
+                    {/* Community Website - Prominently Displayed */}
+                    {community.website && (
+                      <div className="flex items-center mb-4">
+                        <Globe className="h-5 w-5 text-blue-600 mr-2" />
+                        <a 
+                          href={community.website.startsWith('http') ? community.website : `https://${community.website}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="text-blue-600 hover:text-blue-800 hover:underline font-semibold text-lg flex items-center"
+                        >
+                          Visit Official Website
+                          <ExternalLink className="h-4 w-4 ml-1" />
+                        </a>
+                      </div>
+                    )}
                     
                     {/* VERIFIED OCCUPANCY INFORMATION */}
                     {(community.occupancyRateHud || community.totalUnitsHud || community.availableUnits) && (
@@ -550,15 +566,14 @@ export default function CommunityPage() {
                   {community.phone && (
                     <div className="flex items-center space-x-2">
                       <Phone className="h-4 w-4 text-blue-600" />
-                      <span className="text-sm">{community.phone}</span>
+                      <span className="text-sm font-medium">{community.phone}</span>
                     </div>
                   )}
-                  {community.website && (
+                  {community.email && (
                     <div className="flex items-center space-x-2">
-                      <Globe className="h-4 w-4 text-blue-600" />
-                      <a href={`https://${community.website}`} target="_blank" rel="noopener noreferrer" 
-                         className="text-sm text-blue-600 hover:underline font-semibold">
-                        Visit Official Website
+                      <MailIcon className="h-4 w-4 text-blue-600" />
+                      <a href={`mailto:${community.email}`} className="text-sm text-blue-600 hover:underline">
+                        {community.email}
                       </a>
                     </div>
                   )}
