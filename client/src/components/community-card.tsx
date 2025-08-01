@@ -276,6 +276,9 @@ export function CommunityCard({ community }: CommunityCardProps) {
                 <span className="text-sm opacity-90">• {community.availableUnits} units</span>
               )}
             </div>
+            <div className="text-xs opacity-80">
+              {community.hudPropertyId ? '🏛️ HUD' : '📞 Call to verify'}
+            </div>
           </div>
         </div>
       ) : (
@@ -294,6 +297,9 @@ export function CommunityCard({ community }: CommunityCardProps) {
               {community.availableUnits && (
                 <span className="text-sm opacity-90">• {community.availableUnits} units</span>
               )}
+            </div>
+            <div className="text-xs opacity-80">
+              {community.hudPropertyId ? '🏛️ HUD' : '📞 Call to verify'}
             </div>
           </div>
         </div>

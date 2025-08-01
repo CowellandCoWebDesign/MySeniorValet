@@ -523,6 +523,9 @@ export default function MySeniorValetHome() {
                           {!community.claimed && (
                             <span className="text-xs text-gray-300 ml-1 font-normal">est.</span>
                           )}
+                          {community.hudPropertyId && (
+                            <span className="text-xs text-green-300 ml-1">🏛️</span>
+                          )}
                         </Badge>
                         
                         {/* Location Type Badge */}
@@ -661,6 +664,9 @@ export default function MySeniorValetHome() {
                         {community.priceRange && community.priceRange.min ? `$${(community.priceRange.min / 1000).toFixed(1)}K+` : '$4K+'}
                         {!community.claimed && (
                           <span className="text-xs text-gray-300 ml-1 font-normal">est.</span>
+                        )}
+                        {community.hudPropertyId && (
+                          <span className="text-xs text-green-300 ml-1">🏛️</span>
                         )}
                       </Badge>
                       
@@ -3442,6 +3448,9 @@ export default function MySeniorValetHome() {
                   {/* Price Badge */}
                   <Badge className="absolute bottom-3 left-3 bg-gray-900 text-white text-xs px-2 py-1 font-medium">
                     {community.priceRange && community.priceRange.min ? `$${(community.priceRange.min / 1000).toFixed(1)}K+` : '$4K+'}
+                    {community.hudPropertyId && (
+                      <span className="text-xs text-green-300 ml-1">🏛️</span>
+                    )}
                   </Badge>
                   
                   {/* Only show HUD badge if it's a HUD property */}

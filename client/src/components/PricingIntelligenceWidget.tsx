@@ -158,6 +158,9 @@ export function PricingIntelligenceWidget() {
           <h3 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <Star className="w-4 h-4 text-yellow-600" />
             Care Type Distribution & Pricing
+            <span className="text-xs text-green-600 font-normal ml-auto">
+              🏛️ HUD + State records
+            </span>
           </h3>
           
           {stats.careTypeBreakdown.map((careType) => {
@@ -193,6 +196,9 @@ export function PricingIntelligenceWidget() {
           <h3 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 mb-3">
             <Clock className="w-4 h-4 text-green-600" />
             Live Availability
+            <span className="text-xs text-purple-600 font-normal ml-auto">
+              📊 Aggregated from 25,326+ communities
+            </span>
           </h3>
           
           <div className="grid grid-cols-2 gap-4 text-center">

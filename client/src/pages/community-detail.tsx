@@ -491,6 +491,25 @@ export default function CommunityDetail() {
 
       const intelligentPrice = getIntelligentUnitPricing(unit.type, community.state);
 
+      // Determine availability source based on community data
+      let availabilitySource = 'Community Reported';
+      let availabilityVerification = '📞 Call to verify';
+      
+      if (community.claimedBy && community.availabilityLastUpdated && 
+          new Date(community.availabilityLastUpdated) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)) {
+        // Community verified within last 7 days
+        availabilitySource = 'Community Verified';
+        availabilityVerification = '✓ Verified this week';
+      } else if (community.hudPropertyId) {
+        // HUD properties often have waitlist systems
+        availabilitySource = 'HUD Waitlist System';
+        availabilityVerification = '🏛️ Contact for HUD waitlist';
+      } else if (community.dataSource && community.dataSource.includes('state')) {
+        // State database sourced
+        availabilitySource = 'State Database';
+        availabilityVerification = '🏢 State records';
+      }
+
       return {
         id: `${community.id}-${index}`,
         type: unit.type,
@@ -500,6 +519,8 @@ export default function CommunityDetail() {
         available: availableUnits,
         price: intelligentPrice,
         priceSource: community.hudPropertyId ? 'HUD Official Database' : 'Government Market Analysis',
+        availabilitySource: availabilitySource,
+        availabilityVerification: availabilityVerification,
         moveInDate: availableUnits > 0 ? 
           (index % 2 === 0 ? 'Available now' : 'Available in 2-3 weeks') : 
           'Join waitlist'
@@ -1163,8 +1184,13 @@ export default function CommunityDetail() {
                         <div className="text-xs text-green-600 font-medium mt-1">
                           {(unit as any).priceSource === 'HUD Official Database' ? '🏛️ HUD Verified' : '📊 Gov. Analysis'}
                         </div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mt-1">
-                          {unit.moveInDate}
+                        <div className="mt-2 pt-2 border-t border-gray-200">
+                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {unit.moveInDate}
+                          </div>
+                          <div className="text-xs text-purple-600 font-medium mt-1">
+                            {(unit as any).availabilityVerification}
+                          </div>
                         </div>
                       </div>
                     </div>
