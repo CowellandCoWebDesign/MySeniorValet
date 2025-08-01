@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 
 export default function AISearchComparison() {
-  const [activeComparison, setActiveComparison] = useState<'features' | 'performance' | 'pricing'>('features');
+  const [activeComparison, setActiveComparison] = useState<'features' | 'performance' | 'pricing' | 'reviews' | 'mapviews'>('features');
 
   const searchImplementations = [
     {
@@ -191,7 +191,7 @@ export default function AISearchComparison() {
 
       {/* Detailed Comparison */}
       <Tabs value={activeComparison} onValueChange={(v) => setActiveComparison(v as any)}>
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="features">
             <Sparkles className="w-4 h-4 mr-2" />
             Features
@@ -202,7 +202,15 @@ export default function AISearchComparison() {
           </TabsTrigger>
           <TabsTrigger value="pricing">
             <DollarSign className="w-4 h-4 mr-2" />
-            Pricing Solutions
+            Pricing
+          </TabsTrigger>
+          <TabsTrigger value="reviews">
+            <Star className="w-4 h-4 mr-2" />
+            Reviews
+          </TabsTrigger>
+          <TabsTrigger value="mapviews">
+            <MapPin className="w-4 h-4 mr-2" />
+            Map Views
           </TabsTrigger>
         </TabsList>
 
@@ -364,6 +372,301 @@ export default function AISearchComparison() {
                   <li className="flex items-start gap-2">
                     <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
                     <span><strong>Accuracy:</strong> Deploy multi-AI verification for critical searches</span>
+                  </li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="reviews">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Star className="w-5 h-5 text-yellow-600" />
+                Free Review Data Sources Beyond Google & Yelp
+              </CardTitle>
+              <CardDescription>
+                Comprehensive list of free and accessible review data sources for senior living communities
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Government & Official Sources */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg flex items-center gap-2">
+                  <Globe className="w-5 h-5 text-blue-600" />
+                  Government & Official Sources
+                </h3>
+                <div className="grid gap-4">
+                  <Alert className="border-blue-200 bg-blue-50">
+                    <AlertDescription>
+                      <div className="space-y-2">
+                        <h4 className="font-semibold">Medicare.gov - Nursing Home Compare</h4>
+                        <p className="text-sm">Official CMS data with quality ratings, health inspections, and staffing information</p>
+                        <Badge variant="outline">Free API Available</Badge>
+                      </div>
+                    </AlertDescription>
+                  </Alert>
+                  
+                  <Alert className="border-blue-200 bg-blue-50">
+                    <AlertDescription>
+                      <div className="space-y-2">
+                        <h4 className="font-semibold">State Health Department Databases</h4>
+                        <p className="text-sm">Each state maintains inspection reports and violation records for licensed facilities</p>
+                        <Badge variant="outline">Varies by State</Badge>
+                      </div>
+                    </AlertDescription>
+                  </Alert>
+                </div>
+              </div>
+
+              {/* Industry-Specific Platforms */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg flex items-center gap-2">
+                  <Target className="w-5 h-5 text-purple-600" />
+                  Industry-Specific Review Platforms
+                </h3>
+                <div className="grid gap-4">
+                  <Alert className="border-purple-200 bg-purple-50">
+                    <AlertDescription>
+                      <div className="space-y-2">
+                        <h4 className="font-semibold">U.S. News Best Senior Living</h4>
+                        <p className="text-sm">450,000+ resident and family survey responses from 3,800+ communities</p>
+                        <Badge>Free Public Ratings</Badge>
+                      </div>
+                    </AlertDescription>
+                  </Alert>
+
+                  <Alert className="border-purple-200 bg-purple-50">
+                    <AlertDescription>
+                      <div className="space-y-2">
+                        <h4 className="font-semibold">A Place for Mom</h4>
+                        <p className="text-sm">Consumer reviews and facility information with cost data</p>
+                        <Badge>Free Consumer Access</Badge>
+                      </div>
+                    </AlertDescription>
+                  </Alert>
+
+                  <Alert className="border-purple-200 bg-purple-50">
+                    <AlertDescription>
+                      <div className="space-y-2">
+                        <h4 className="font-semibold">AssistedLiving.org</h4>
+                        <p className="text-sm">Data-driven research with facility reviews and industry statistics</p>
+                        <Badge>Free Resources</Badge>
+                      </div>
+                    </AlertDescription>
+                  </Alert>
+                </div>
+              </div>
+
+              {/* Additional Sources */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg flex items-center gap-2">
+                  <Brain className="w-5 h-5 text-green-600" />
+                  Additional Free Sources
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 border rounded-lg">
+                    <h4 className="font-semibold mb-2">Better Business Bureau (BBB)</h4>
+                    <p className="text-sm text-gray-600">Business ratings and complaint history</p>
+                  </div>
+                  <div className="p-4 border rounded-lg">
+                    <h4 className="font-semibold mb-2">State Ombudsman Reports</h4>
+                    <p className="text-sm text-gray-600">Complaint investigations and resolutions</p>
+                  </div>
+                  <div className="p-4 border rounded-lg">
+                    <h4 className="font-semibold mb-2">Facebook Community Pages</h4>
+                    <p className="text-sm text-gray-600">Local community feedback (with API limitations)</p>
+                  </div>
+                  <div className="p-4 border rounded-lg">
+                    <h4 className="font-semibold mb-2">SeniorAdvisor.com</h4>
+                    <p className="text-sm text-gray-600">Family and resident reviews</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Implementation Strategy */}
+              <div className="mt-6 p-4 bg-green-50 rounded-lg">
+                <h4 className="font-semibold mb-2 flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  Recommended Implementation Strategy
+                </h4>
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600">1.</span>
+                    <span>Start with U.S. News ratings for resident satisfaction data</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600">2.</span>
+                    <span>Integrate Medicare.gov API for health inspection scores</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600">3.</span>
+                    <span>Add state health department data for compliance records</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600">4.</span>
+                    <span>Use AI to aggregate and cross-verify multiple sources</span>
+                  </li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="mapviews">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-orange-600" />
+                Map View Comparison
+              </CardTitle>
+              <CardDescription>
+                Compare different map visualization approaches for senior living search
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Current Map Implementation */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg">Current MySeniorValet Map Features</h3>
+                <div className="grid gap-4">
+                  <Alert className="border-orange-200 bg-orange-50">
+                    <AlertDescription>
+                      <div className="space-y-2">
+                        <h4 className="font-semibold">Interactive Leaflet Map</h4>
+                        <ul className="text-sm space-y-1 ml-4">
+                          <li>• Real-time clustering with Supercluster</li>
+                          <li>• Dynamic zoom levels (cluster → individual markers)</li>
+                          <li>• Bottom panel with community list</li>
+                          <li>• AI insights panel for communities in view</li>
+                          <li>• Dark/light mode toggle</li>
+                        </ul>
+                      </div>
+                    </AlertDescription>
+                  </Alert>
+                </div>
+              </div>
+
+              {/* Comparison with Competitors */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg">Industry Map Implementations</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left p-2">Feature</th>
+                        <th className="text-center p-2">MySeniorValet</th>
+                        <th className="text-center p-2">A Place for Mom</th>
+                        <th className="text-center p-2">Caring.com</th>
+                        <th className="text-center p-2">SeniorLiving.com</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b hover:bg-gray-50">
+                        <td className="p-2 font-medium">Clustering</td>
+                        <td className="text-center p-2"><CheckCircle className="w-5 h-5 text-green-600 mx-auto" /></td>
+                        <td className="text-center p-2"><CheckCircle className="w-5 h-5 text-green-600 mx-auto" /></td>
+                        <td className="text-center p-2"><CheckCircle className="w-5 h-5 text-green-600 mx-auto" /></td>
+                        <td className="text-center p-2"><XCircle className="w-5 h-5 text-gray-400 mx-auto" /></td>
+                      </tr>
+                      <tr className="border-b hover:bg-gray-50">
+                        <td className="p-2 font-medium">AI Insights</td>
+                        <td className="text-center p-2"><CheckCircle className="w-5 h-5 text-green-600 mx-auto" /></td>
+                        <td className="text-center p-2"><XCircle className="w-5 h-5 text-gray-400 mx-auto" /></td>
+                        <td className="text-center p-2"><XCircle className="w-5 h-5 text-gray-400 mx-auto" /></td>
+                        <td className="text-center p-2"><XCircle className="w-5 h-5 text-gray-400 mx-auto" /></td>
+                      </tr>
+                      <tr className="border-b hover:bg-gray-50">
+                        <td className="p-2 font-medium">Real-time Pricing</td>
+                        <td className="text-center p-2"><CheckCircle className="w-5 h-5 text-green-600 mx-auto" /></td>
+                        <td className="text-center p-2"><XCircle className="w-5 h-5 text-gray-400 mx-auto" /></td>
+                        <td className="text-center p-2"><CheckCircle className="w-5 h-5 text-green-600 mx-auto" /></td>
+                        <td className="text-center p-2"><XCircle className="w-5 h-5 text-gray-400 mx-auto" /></td>
+                      </tr>
+                      <tr className="border-b hover:bg-gray-50">
+                        <td className="p-2 font-medium">List/Map Toggle</td>
+                        <td className="text-center p-2"><CheckCircle className="w-5 h-5 text-green-600 mx-auto" /></td>
+                        <td className="text-center p-2"><CheckCircle className="w-5 h-5 text-green-600 mx-auto" /></td>
+                        <td className="text-center p-2"><CheckCircle className="w-5 h-5 text-green-600 mx-auto" /></td>
+                        <td className="text-center p-2"><CheckCircle className="w-5 h-5 text-green-600 mx-auto" /></td>
+                      </tr>
+                      <tr className="border-b hover:bg-gray-50">
+                        <td className="p-2 font-medium">Performance (25k+ markers)</td>
+                        <td className="text-center p-2"><CheckCircle className="w-5 h-5 text-green-600 mx-auto" /></td>
+                        <td className="text-center p-2"><XCircle className="w-5 h-5 text-gray-400 mx-auto" /></td>
+                        <td className="text-center p-2"><XCircle className="w-5 h-5 text-gray-400 mx-auto" /></td>
+                        <td className="text-center p-2"><XCircle className="w-5 h-5 text-gray-400 mx-auto" /></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Map View Types */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg">Available Map Views</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 border rounded-lg">
+                    <h4 className="font-semibold mb-2 text-green-600">Standard Map View</h4>
+                    <ul className="text-sm space-y-1">
+                      <li>• Street map with landmarks</li>
+                      <li>• Community markers with pricing</li>
+                      <li>• Cluster numbers</li>
+                      <li>• Best for: General browsing</li>
+                    </ul>
+                  </div>
+                  <div className="p-4 border rounded-lg">
+                    <h4 className="font-semibold mb-2 text-blue-600">Satellite View</h4>
+                    <ul className="text-sm space-y-1">
+                      <li>• Aerial imagery</li>
+                      <li>• Building layouts visible</li>
+                      <li>• Surrounding area context</li>
+                      <li>• Best for: Evaluating location</li>
+                    </ul>
+                  </div>
+                  <div className="p-4 border rounded-lg">
+                    <h4 className="font-semibold mb-2 text-purple-600">Heat Map View</h4>
+                    <ul className="text-sm space-y-1">
+                      <li>• Density visualization</li>
+                      <li>• Price range indicators</li>
+                      <li>• Quality score overlay</li>
+                      <li>• Best for: Market analysis</li>
+                    </ul>
+                  </div>
+                  <div className="p-4 border rounded-lg">
+                    <h4 className="font-semibold mb-2 text-orange-600">3D Building View</h4>
+                    <ul className="text-sm space-y-1">
+                      <li>• 3D building models</li>
+                      <li>• Street-level perspective</li>
+                      <li>• Virtual tours integration</li>
+                      <li>• Best for: Visual exploration</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* Unique MySeniorValet Features */}
+              <div className="mt-6 p-4 bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg">
+                <h4 className="font-semibold mb-2 flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-purple-600" />
+                  MySeniorValet Map Advantages
+                </h4>
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+                    <span><strong>AI-Powered Insights:</strong> Only platform with multi-AI analysis of communities in view</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+                    <span><strong>Intelligent Pricing:</strong> Real-time market estimates eliminate "Contact for pricing"</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+                    <span><strong>Performance:</strong> Handles 25,000+ communities smoothly with Supercluster</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+                    <span><strong>Transparency:</strong> Shows HUD verified pricing and market intelligence</span>
                   </li>
                 </ul>
               </div>
