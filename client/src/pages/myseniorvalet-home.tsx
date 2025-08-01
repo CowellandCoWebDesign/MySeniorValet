@@ -831,6 +831,381 @@ export default function MySeniorValetHome() {
             </p>
           </div>
 
+          {/* Featured Service Providers Section */}
+          <div className="mb-12">
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                    Featured Service Providers
+                  </h3>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm text-green-700 dark:text-green-300 font-medium">Live integrations active</span>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">More providers launching weekly</span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-lg font-bold text-gray-900 dark:text-gray-100">Now Available!</div>
+                  <div className="text-sm text-green-600 dark:text-green-300 font-medium">Live vendor partnerships</div>
+                </div>
+              </div>
+              
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-3 mb-4">
+                <div className="flex items-center">
+                  <div className="text-green-600 dark:text-green-400 mr-2">✅</div>
+                  <p className="text-sm text-green-800 dark:text-green-200 font-medium">
+                    <strong>Live Provider Network:</strong> Real verified service providers now available. Direct booking and exclusive MySeniorValet member pricing.
+                  </p>
+                </div>
+              </div>
+              
+              <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
+                3 live vendor partnerships • 1-800-FLORALS • TWO MEN AND A TRUCK • GoGoGrandparent + Amazon supply integration
+              </p>
+            </div>
+
+            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+              {/* Live Provider: Amazon Move-In Essentials */}
+              <Link href="/amazon-supplies">
+                <Card className="overflow-hidden flex-shrink-0 w-64 hover:shadow-xl transition-all duration-300 border-2 border-orange-200 dark:border-orange-400 bg-white dark:bg-gray-800">
+                  <div className="relative">
+                    <div className="aspect-[4/3] bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+                      <div className="text-center text-white">
+                        <Package className="w-12 h-12 mb-2 mx-auto" />
+                        <div className="text-2xl font-bold">AMAZON</div>
+                        <div className="text-sm">Move-In Essentials</div>
+                      </div>
+                    </div>
+                    <div className="absolute top-2 right-2">
+                      <Badge className="bg-green-500 text-white text-xs px-2 py-1 font-bold animate-pulse">
+                        🟢 LIVE NOW
+                      </Badge>
+                    </div>
+                  </div>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Amazon Marketplace</h4>
+                      <div className="flex items-center space-x-1">
+                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">4.8</span>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Essential move-in products</p>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-lg font-bold text-orange-600 dark:text-orange-400">$15.99 - $45.99</span>
+                      <span className="text-xs bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded-full">Prime Eligible</span>
+                    </div>
+                    <div className="space-y-1 mb-3">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-600 dark:text-gray-300">7 Essential Products</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-600 dark:text-gray-300">Prime Shipping Eligible</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-600 dark:text-gray-300">Senior-friendly items</span>
+                      </div>
+                    </div>
+                    <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white text-sm py-2">
+                      View Products →
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Link>
+              
+              {/* Live Provider: Two Men and a Truck */}
+              <Link href="/moving">
+                <Card className="overflow-hidden flex-shrink-0 w-64 hover:shadow-xl transition-all duration-300 border-2 border-green-200 dark:border-green-400 bg-white dark:bg-gray-800">
+                  <div className="relative">
+                    <div className="aspect-[4/3] bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 flex items-center justify-center p-4">
+                      <div className="text-center">
+                        <div className="text-4xl mb-2">🚛</div>
+                        <div className="text-lg font-bold text-blue-800 dark:text-blue-200">TWO MEN AND A TRUCK</div>
+                      </div>
+                    </div>
+                    <div className="absolute top-2 right-2">
+                      <Badge className="bg-green-500 text-white text-xs px-2 py-1 font-bold animate-pulse">
+                        🟢 LIVE NOW
+                      </Badge>
+                    </div>
+                  </div>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg">TWO MEN AND A TRUCK</h4>
+                      <div className="flex items-center space-x-1">
+                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">4.8</span>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Moving Services</p>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-lg font-bold text-blue-600 dark:text-blue-400">Quote-based</span>
+                      <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full">96% Success Rate</span>
+                    </div>
+                    <div className="space-y-1 mb-3">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-600 dark:text-gray-300">Senior specialists</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-600 dark:text-gray-300">400+ locations nationwide</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-600 dark:text-gray-300">Full insurance coverage</span>
+                      </div>
+                    </div>
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm py-2">
+                      Get Free Quote
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Link>
+              
+              {/* Live Provider: 1-800-FLORALS */}
+              <Link href="/florals">
+                <Card className="overflow-hidden flex-shrink-0 w-64 hover:shadow-xl transition-all duration-300 border-2 border-pink-200 dark:border-pink-400 bg-white dark:bg-gray-800">
+                  <div className="relative">
+                    <div 
+                      className="aspect-[4/3] bg-gradient-to-br from-pink-100 to-rose-200 dark:from-pink-900 dark:to-rose-800 flex items-center justify-center relative overflow-hidden"
+                      style={{
+                        backgroundImage: (conciergeImages as any)?.[1]?.url ? `url(${(conciergeImages as any)[1].url})` : undefined,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                      }}
+                    >
+                      <div className="absolute inset-0 bg-black/20"></div>
+                      <div className="text-center">
+                        <div className="text-4xl mb-2">🌸</div>
+                        <div className="text-lg font-bold text-pink-800 dark:text-pink-200">1-800-FLORALS</div>
+                      </div>
+                    </div>
+                    <div className="absolute top-2 right-2">
+                      <Badge className="bg-green-500 text-white text-xs px-2 py-1 font-bold animate-pulse">
+                        🟢 LIVE NOW
+                      </Badge>
+                    </div>
+                  </div>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg">1-800-FLORALS</h4>
+                      <div className="flex items-center space-x-1">
+                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">4.9</span>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Floral Services</p>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-lg font-bold text-pink-600 dark:text-pink-400">$29.99+</span>
+                      <span className="text-xs bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200 px-2 py-1 rounded-full">Same Day Delivery</span>
+                    </div>
+                    <div className="space-y-1 mb-3">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-600 dark:text-gray-300">Professional arrangements</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-600 dark:text-gray-300">Community delivery</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-600 dark:text-gray-300">Special occasions</span>
+                      </div>
+                    </div>
+                    <Button className="w-full bg-pink-600 hover:bg-pink-700 text-white text-sm py-2">
+                      Order Flowers
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Link>
+              
+              {/* Live Provider: GoGoGrandparent Transportation */}
+              <Link href="/transportation">
+                <Card className="overflow-hidden flex-shrink-0 w-64 hover:shadow-xl transition-all duration-300 border-2 border-blue-200 dark:border-blue-400 bg-white dark:bg-gray-800">
+                  <div className="relative">
+                    <div 
+                      className="aspect-[4/3] bg-gradient-to-br from-blue-100 to-cyan-200 dark:from-blue-900 dark:to-cyan-800 flex items-center justify-center relative overflow-hidden"
+                      style={{
+                        backgroundImage: (conciergeImages as any)?.[2]?.url ? `url(${(conciergeImages as any)[2].url})` : undefined,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                      }}
+                    >
+                      <div className="absolute inset-0 bg-black/20"></div>
+                      <div className="text-center relative z-10 bg-white/90 rounded-lg p-3 shadow-lg">
+                        <div className="text-2xl mb-2">🚗</div>
+                        <div className="text-lg font-bold text-blue-800 dark:text-blue-200">GoGoGrandparent</div>
+                        <div className="text-sm text-blue-600 dark:text-blue-300">Transportation Services</div>
+                      </div>
+                    </div>
+                    <div className="absolute top-2 right-2">
+                      <Badge className="bg-green-500 text-white text-xs px-2 py-1 font-bold animate-pulse">
+                        🟢 LIVE NOW
+                      </Badge>
+                    </div>
+                  </div>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg">GoGoGrandparent</h4>
+                      <div className="flex items-center space-x-1">
+                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">4.7</span>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Transportation Services</p>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-lg font-bold text-blue-600 dark:text-blue-400">$16.99+/month</span>
+                      <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full">No Smartphone</span>
+                    </div>
+                    <div className="space-y-1 mb-3">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-600 dark:text-gray-300">Call (855) 464-6872</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-600 dark:text-gray-300">24/7 availability</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-600 dark:text-gray-300">GoGoGuardian monitoring</span>
+                      </div>
+                    </div>
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm py-2">
+                      <Phone className="w-4 h-4 mr-2" />
+                      Call to Book
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Link>
+
+
+              
+              {/* Service Provider Cards - Framework Ready */}
+              {Array.from({ length: 5 }).map((_, index) => {
+                const serviceTypes = [
+                  { 
+                    name: "TechCare Support", 
+                    category: "Technology Support", 
+                    rating: "4.8", 
+                    price: "$45/visit", 
+                    features: ["Cell phone setup", "Wifi installation", "Device training"],
+                    color: "from-blue-500 to-blue-600",
+                    icon: "📱"
+                  },
+                  { 
+                    name: "Elder Law Partners", 
+                    category: "Legal Services", 
+                    rating: "4.9", 
+                    price: "$200/hr", 
+                    features: ["Estate planning", "Medicare guidance", "Power of attorney"],
+                    color: "from-purple-500 to-purple-600",
+                    icon: "⚖️"
+                  },
+                  { 
+                    name: "Medical Supply Co", 
+                    category: "Medical Equipment", 
+                    rating: "4.7", 
+                    price: "$25/day", 
+                    features: ["Mobility aids", "Safety equipment", "Home delivery"],
+                    color: "from-orange-500 to-orange-600",
+                    icon: "🦽"
+                  },
+                  { 
+                    name: "Senior Financial Advisors", 
+                    category: "Financial Planning", 
+                    rating: "4.9", 
+                    price: "$150/hr", 
+                    features: ["Retirement planning", "Long-term care", "Investment advice"],
+                    color: "from-emerald-500 to-emerald-600",
+                    icon: "💰"
+                  },
+                  { 
+                    name: "CleanStart Specialists", 
+                    category: "Junk Removal", 
+                    rating: "4.6", 
+                    price: "$120/load", 
+                    features: ["Decluttering", "Donation sorting", "Estate cleanouts"],
+                    color: "from-gray-500 to-gray-600",  
+                    icon: "🗑️"
+                  },
+                  { 
+                    name: "MediCare Transport", 
+                    category: "Medical Transport", 
+                    rating: "4.8", 
+                    price: "$35/trip", 
+                    features: ["Non-emergency", "Wheelchair accessible", "Insurance billing"],
+                    color: "from-red-500 to-red-600",
+                    icon: "🚑"
+                  },
+                  { 
+                    name: "Comfort Care Companions", 
+                    category: "Companion Care", 
+                    rating: "4.9", 
+                    price: "$25/hr", 
+                    features: ["Social visits", "Light housekeeping", "Meal preparation"],
+                    color: "from-pink-500 to-pink-600",
+                    icon: "👥"
+                  }
+                ];
+                
+                const service = serviceTypes[index] || serviceTypes[0];
+                
+                return (
+                  <Card key={index} className="overflow-hidden flex-shrink-0 w-80 h-[28rem] border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                    <div className="relative">
+                      <div className={`h-32 bg-gradient-to-br ${service.color} flex items-center justify-center`}>
+                        <div className="text-4xl">{service.icon}</div>
+                        <div className="absolute top-3 right-3 bg-white/90 px-2 py-1 rounded-full text-xs font-semibold text-gray-800">
+                          ⭐ {service.rating}
+                        </div>
+                      </div>
+                    </div>
+                    <CardContent className="p-4 flex flex-col h-[calc(28rem-8rem)]">
+                      <div className="mb-2">
+                        <div className="text-xs text-teal-600 dark:text-teal-400 font-medium mb-1">{service.category}</div>
+                        <h4 className="font-bold text-gray-900 dark:text-gray-100 text-sm leading-tight">{service.name}</h4>
+                      </div>
+                      
+                      <div className="mb-3">
+                        <div className="text-lg font-bold text-gray-900 dark:text-gray-100">{service.price}</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">Starting rate</div>
+                      </div>
+                      
+                      <div className="space-y-1 mb-4 flex-grow">
+                        {service.features.map((feature, idx) => (
+                          <div key={idx} className="flex items-center text-xs text-gray-600 dark:text-gray-300">
+                            <div className="w-1.5 h-1.5 bg-teal-500 rounded-full mr-2"></div>
+                            {feature}
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <div className="space-y-2 mt-auto">
+                        <Button 
+                          className="w-full bg-teal-500 hover:bg-teal-600 text-white py-2 text-xs font-semibold"
+                          disabled
+                        >
+                          Contact Provider
+                        </Button>
+                        <div className="text-xs text-center text-gray-500 dark:text-gray-400">
+                          API Integration Coming Soon
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Vendor Marketplace Tabs */}
           <div className="mb-12">
             <VendorMarketplaceTabs />
