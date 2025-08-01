@@ -826,9 +826,7 @@ export default function MySeniorValetHome() {
               </div>
             </div>
             
-            <p className="text-sm text-green-600 dark:text-green-400 font-medium bg-green-50 dark:bg-green-900/20 rounded-full px-6 py-2 inline-block mb-4">
-              ✓ Services are live and available now - no longer coming soon!
-            </p>
+
           </div>
 
           {/* Featured Service Providers Section */}
@@ -1858,123 +1856,82 @@ export default function MySeniorValetHome() {
                     }
 
                     return allProducts.map((product: any, index: number) => {
+                      const categoryBadges: Record<number, { badge: string, badgeBg: string }> = {
+                        0: { badge: 'Mobility & Safety', badgeBg: 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' },
+                        1: { badge: 'Daily Living', badgeBg: 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200' },
+                        2: { badge: 'Bathroom Safety', badgeBg: 'bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-200' },
+                        3: { badge: 'Medication', badgeBg: 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' },
+                        4: { badge: 'Home Essentials', badgeBg: 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200' },
+                        5: { badge: 'Furniture', badgeBg: 'bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200' }
+                      };
+                      
+                      const categoryInfo = categoryBadges[index % 6];
+                      
                       return (
                         <a key={product.id || index} href={product.externalUrl || '#'} target="_blank" rel="noopener noreferrer">
-                          <Card className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer">
-                            {/* Product Image - Same style as community cards */}
-                            <div className="aspect-[4/3] bg-gray-100 relative">
-                              {product.imageUrl ? (
-                                <img 
-                                  src={product.imageUrl} 
-                                  alt={product.name}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center">
-                                  <Package className="w-16 h-16 text-orange-500" />
-                                </div>
-                              )}
-                              
-                              {/* Live Badge - Top Right */}
+                          <Card className="overflow-hidden flex-shrink-0 w-64 hover:shadow-xl transition-all duration-300 border-2 border-orange-200 dark:border-orange-400 bg-white dark:bg-gray-800">
+                            <div className="relative">
+                              <div className="aspect-[4/3] bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center p-4">
+                                {product.imageUrl ? (
+                                  <div className="bg-white rounded-lg p-2 shadow-lg w-full h-full">
+                                    <img 
+                                      src={product.imageUrl} 
+                                      alt={product.name}
+                                      className="w-full h-full object-contain"
+                                    />
+                                  </div>
+                                ) : (
+                                  <div className="text-center text-white">
+                                    <Package className="w-12 h-12 mb-2 mx-auto" />
+                                    <div className="text-xl font-bold">AMAZON</div>
+                                    <div className="text-sm">Essentials</div>
+                                  </div>
+                                )}
+                              </div>
                               <div className="absolute top-2 right-2">
-                                <Badge className="bg-green-500 text-white text-xs px-2 py-1 font-medium">
-                                  LIVE
+                                <Badge className="bg-green-500 text-white text-xs px-2 py-1 font-bold animate-pulse">
+                                  🟢 LIVE NOW
                                 </Badge>
                               </div>
-                              
-                              {/* Featured Badge if applicable */}
                               {product.isFeatured && (
                                 <div className="absolute top-2 left-2">
-                                  <Badge className="bg-orange-500 text-white text-xs px-2 py-1 font-medium">
-                                    FEATURED
+                                  <Badge className="bg-yellow-500 text-white text-xs px-2 py-1 font-bold">
+                                    ⭐ FEATURED
                                   </Badge>
                                 </div>
                               )}
                             </div>
-                            
-                            <CardContent className="p-3">
-                              {/* Category and Rating - Same as community care type */}
-                              <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
-                                {product.category} • Amazon Essential
-                              </div>
-                              
-                              {/* Product Title - Same as community name */}
-                              <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2 line-clamp-1">
-                                {product.name}
-                              </div>
-                              
-                              {/* Description - Same as community address */}
-                              <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1 mb-2">
-                                {product.description || product.shortDescription}
-                              </div>
-                              
-                              {/* Price - Similar to community pricing */}
-                              <div className="text-lg font-bold text-orange-600 mb-2">
-                                {product.price}
-                              </div>
-                              
-                              {/* Rating and Reviews */}
-                              <div className="flex items-center justify-between text-xs mb-2">
-                                <div className="flex items-center gap-1">
-                                  <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                                  <span className="font-medium">{product.rating || "4.5★"}</span>
+                            <CardContent className="p-4">
+                              <div className="flex items-center justify-between mb-2">
+                                <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg line-clamp-1">{product.name}</h4>
+                                <div className="flex items-center space-x-1">
+                                  <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                                  <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{product.rating || "4.5"}</span>
                                 </div>
-                                <span className="text-gray-500">{product.reviews || "Prime eligible"}</span>
                               </div>
-                              
-                              {/* Prime Delivery Info */}
-                              <div className="flex items-center gap-1 text-xs text-blue-600 mb-3">
-                                <Truck className="w-3 h-3" />
-                                <span>Prime 2-Day Delivery</span>
+                              <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">{product.category}</p>
+                              <div className="flex items-center justify-between mb-3">
+                                <span className="text-lg font-bold text-orange-600 dark:text-orange-400">{product.price}</span>
+                                <span className={`text-xs px-2 py-1 rounded-full ${categoryInfo.badgeBg}`}>
+                                  {categoryInfo.badge}
+                                </span>
                               </div>
-                              
-                              {/* Amazon Regional Badge - Bottom of Card (similar to California badges) */}
-                              <div className="mb-2">
-                                {index % 6 === 0 && (
-                                  <Badge className="bg-blue-600/90 text-white text-xs px-2 py-1 font-medium">
-                                    Mobility & Safety
-                                  </Badge>
-                                )}
-                                {index % 6 === 1 && (
-                                  <Badge className="bg-purple-600/90 text-white text-xs px-2 py-1 font-medium">
-                                    Daily Living
-                                  </Badge>
-                                )}
-                                {index % 6 === 2 && (
-                                  <Badge className="bg-teal-600/90 text-white text-xs px-2 py-1 font-medium">
-                                    Bathroom Safety
-                                  </Badge>
-                                )}
-                                {index % 6 === 3 && (
-                                  <Badge className="bg-green-600/90 text-white text-xs px-2 py-1 font-medium">
-                                    Medication
-                                  </Badge>
-                                )}
-                                {index % 6 === 4 && (
-                                  <Badge className="bg-orange-600/90 text-white text-xs px-2 py-1 font-medium">
-                                    Home Essentials
-                                  </Badge>
-                                )}
-                                {index % 6 === 5 && (
-                                  <Badge className="bg-indigo-600/90 text-white text-xs px-2 py-1 font-medium">
-                                    Furniture
-                                  </Badge>
-                                )}
-                              </div>
-                              
-                              {/* AI Disclaimer if applicable */}
-                              {product.aiGenerated && (
-                                <div className="text-xs text-gray-500 italic mb-1">
-                                  *AI-rendered • Not exact to listing
+                              <div className="space-y-1 mb-3">
+                                <div className="flex items-center gap-2">
+                                  <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
+                                  <span className="text-xs text-gray-600 dark:text-gray-300">Prime Eligible</span>
                                 </div>
-                              )}
-                              
-                              {/* Call to Action - Same as community visit */}
-                              <Button 
-                                size="sm" 
-                                className="w-full bg-orange-500 hover:bg-orange-600 text-white text-xs py-1"
-                              >
-                                View on Amazon
+                                <div className="flex items-center gap-2">
+                                  <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
+                                  <span className="text-xs text-gray-600 dark:text-gray-300">2-Day Delivery</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
+                                  <span className="text-xs text-gray-600 dark:text-gray-300">Senior-Friendly</span>
+                                </div>
+                              </div>
+                              <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white text-sm py-2">
+                                View on Amazon →
                               </Button>
                             </CardContent>
                           </Card>
