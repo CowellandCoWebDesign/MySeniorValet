@@ -91,12 +91,12 @@ class SuperclusterService {
         nodeSize: 64,
       };
     } else if (zoom >= 15) {
-      // Building level - light clustering
+      // Building level - minimal clustering
       return {
-        radius: 25,        // Small radius for building-level detail
+        radius: 5,         // Very small radius for building-level detail
         maxZoom: 20,
         minZoom: 0,
-        minPoints: 5,      // Cluster moderately dense areas
+        minPoints: 20,     // Only cluster very dense areas
         generateId: true,
         extent: 512,
         nodeSize: 64,
@@ -104,10 +104,10 @@ class SuperclusterService {
     } else if (zoom >= 13) {
       // City/Neighborhood view - NO clustering, show all individual markers
       return {
-        radius: 10,        // Very small radius, minimal clustering
+        radius: 1,         // Effectively disable clustering with 1px radius
         maxZoom: 20,
         minZoom: 0,
-        minPoints: 10,     // Only cluster if 10+ communities are extremely close
+        minPoints: 100,    // Extremely high threshold - only cluster if 100+ overlap exactly
         generateId: true,
         extent: 512,
         nodeSize: 64,
