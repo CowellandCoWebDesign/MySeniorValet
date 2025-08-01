@@ -392,7 +392,9 @@ function MapBoundsHandler({
       // Set up event handlers for map movement with better responsiveness
       map.on('moveend', handleBoundsChange);
       map.on('zoomend', () => {
-        handleZoomChange();
+        const newZoom = map.getZoom();
+        console.log('📍 Map zoom changed to:', newZoom);
+        handleZoomChange(newZoom);
         handleBoundsChange(); // Also trigger bounds update on zoom
       });
       map.on('dragend', handleBoundsChange); // Update after drag completes
@@ -410,7 +412,7 @@ function MapBoundsHandler({
             if (map && map.getBounds) {
               console.log(`Setting initial bounds and zoom (attempt ${attempts + 1})`);
               handleBoundsChange();
-              handleZoomChange();
+              handleZoomChange(map.getZoom());
 
               // Verify bounds were set
               const bounds = map.getBounds();
