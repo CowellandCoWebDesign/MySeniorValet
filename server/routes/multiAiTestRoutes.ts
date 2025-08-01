@@ -16,7 +16,7 @@ export function registerMultiAITestRoutes(app: Express) {
       // Check AI status first
       const aiStatus = await checkAllAIStatus();
       const workingAIs = Object.entries(aiStatus)
-        .filter(([_, status]) => status.isOperational)
+        .filter(([_, status]) => status.working)
         .map(([name]) => name);
       
       console.log(`✅ Working AIs: ${workingAIs.join(', ')}`);
@@ -74,7 +74,7 @@ export function registerMultiAITestRoutes(app: Express) {
           aiInsights = {
             workingAIs,
             interpretation: transparencyReport.consensus.keyFindings[0] || `Found ${searchResults.length} communities matching your search`,
-            priceAnalysis: transparencyReport.warnings.find((w: any) => w.includes('price')) || 'Pricing data available for most communities',
+            priceAnalysis: transparencyReport.warnings.find((w: any) => typeof w === 'string' && w.includes('price')) || 'Pricing data available for most communities',
             recommendations: searchResults.slice(0, 3).map(c => ({
               name: c.name,
               reason: `${c.rating || 0} star rating in ${c.city}, ${c.state}`
@@ -124,7 +124,7 @@ export function registerMultiAITestRoutes(app: Express) {
       // Check AI status
       const aiStatus = await checkAllAIStatus();
       const workingAIs = Object.entries(aiStatus)
-        .filter(([_, status]) => status.isOperational)
+        .filter(([_, status]) => status.working)
         .map(([name]) => name);
       
       // Build comparison with AI insights
@@ -206,7 +206,7 @@ export function registerMultiAITestRoutes(app: Express) {
   app.get('/api/multi-ai/status', async (_req, res) => {
     try {
       const status = await checkAllAIStatus();
-      const operational = Object.values(status).filter(s => s.isOperational).length;
+      const operational = Object.values(status).filter(s => s.working).length;
       
       res.json({
         status,

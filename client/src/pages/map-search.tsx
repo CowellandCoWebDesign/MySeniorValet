@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useLocation } from 'wouter';
-import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle } from 'lucide-react';
+import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle, Brain } from 'lucide-react';
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -72,11 +72,20 @@ export default function MapSearch() {
   const [showTutorial, setShowTutorial] = useState(false);
   const [hasSeenTutorial, setHasSeenTutorial] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showAIInsights, setShowAIInsights] = useState(false);
+  const [aiSearchResults, setAISearchResults] = useState<any>(null);
 
   // Tutorial disabled - keeping localStorage check for compatibility
   useEffect(() => {
     const hasSeenTutorialBefore = localStorage.getItem('map-tutorial-completed');
     setHasSeenTutorial(true); // Always mark as seen to disable tutorial
+  }, []);
+
+  // Perform multi-AI search when page loads with a query
+  useEffect(() => {
+    if (initialQuery) {
+      performMultiAISearch(initialQuery);
+    }
   }, []);
 
   // Debug mapBounds changes
@@ -377,11 +386,47 @@ export default function MapSearch() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
+  // Multi-AI search function
+  const performMultiAISearch = async (query: string) => {
+    if (!query) return;
+    
+    console.log('🤖 Performing Multi-AI search for:', query);
+    setShowAIInsights(true);
+    
+    try {
+      const response = await fetch('/api/multi-ai/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, filters: {} })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Multi-AI search results:', data);
+        setAISearchResults(data);
+        
+        // Update map center if we have communities
+        if (data.communities && data.communities.length > 0) {
+          const firstCommunity = data.communities[0];
+          if (firstCommunity.latitude && firstCommunity.longitude) {
+            setMapCenter([firstCommunity.latitude, firstCommunity.longitude]);
+            setMapZoom(12);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Multi-AI search error:', error);
+    }
+  };
+
   const handleLocationSearch = async (location: string) => {
     if (!location || location.trim() === '') return;
 
     setHasSearched(true);
     console.log('🔍 Searching for location:', location);
+    
+    // Perform multi-AI search alongside location search
+    performMultiAISearch(location);
 
     // Try to geocode the location using enhanced API
     try {
@@ -1358,6 +1403,34 @@ export default function MapSearch() {
             </div>
           ) : (
             <div className="space-y-3">
+              {/* Multi-AI Search Results */}
+              {showAIInsights && aiSearchResults && (
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-4 mb-4 border border-blue-200 dark:border-blue-700">
+                  <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-2 flex items-center gap-2">
+                    <Brain className="w-5 h-5" />
+                    Multi-AI Intelligence Analysis
+                  </h4>
+                  {aiSearchResults.aiAnalysis && (
+                    <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                      <p className="font-medium">AI Insights:</p>
+                      <ul className="list-disc pl-5 space-y-1">
+                        {aiSearchResults.aiAnalysis.recommendations?.map((rec: string, idx: number) => (
+                          <li key={idx}>{rec}</li>
+                        ))}
+                      </ul>
+                      {aiSearchResults.aiAnalysis.searchInterpretation && (
+                        <p className="mt-2 italic text-blue-600 dark:text-blue-400">
+                          "{aiSearchResults.aiAnalysis.searchInterpretation}"
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                    Powered by Claude, ChatGPT, and Gemini working together
+                  </div>
+                </div>
+              )}
+              
               {/* AI-powered insights for communities in view */}
               {mapBounds && mapCommunities.length > 0 && (
                 <AISearchInsights 

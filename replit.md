@@ -26,6 +26,7 @@ The platform is built with a modern web stack.
 - **System Design**: Features a robust services management system with a 5-table database architecture. Implements a subscription tier system for access control (Free, Featured Spotlight, Premium Tools, Platinum Partner). Includes an automated testing infrastructure for code quality.
 
 ## Recent Changes (August 1, 2025)
+- **Multi-AI Search Integration**: Integrated the multi-AI intelligence network (Claude, ChatGPT, Gemini) into the main search flow. Previously, the home page search was using basic database queries only. Now when users search from the home page, it triggers the multi-AI orchestrator for enhanced search results with AI-powered insights and recommendations. Removed unused "Compare AI Search" button from home page.
 - **International Expansion - Canada Added**: Successfully expanded MySeniorValet to Canada with 24 communities across all 13 provinces and territories. Platform now covers North America (USA + Canada) with 34,171 total communities
 - **Enhanced Bilingual Support**: 
   - Implemented comprehensive French/English language switching with persistent preferences
@@ -43,6 +44,7 @@ The platform is built with a modern web stack.
   - Super admin dashboard shows full housing type distribution breakdown
   - Enhanced community filter panel supports all new housing types
   - Canadian expansion showcase section on homepage with bilingual features
+  - Multi-AI search results display in map view with insights panel
 - **Platform Scope**: Achieved 34,171 communities covering full North American senior housing spectrum (USA + Canada)
 
 ## External Dependencies
