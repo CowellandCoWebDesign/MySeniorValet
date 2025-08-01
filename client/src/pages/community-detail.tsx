@@ -827,7 +827,7 @@ export default function CommunityDetail() {
               </CardHeader>
             </Card>
 
-            {/* Community Verification Status Card */}
+            {/* Community Claim Status Card */}
             <Card className="border-2 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20">
               <CardContent className="p-4">
                 <div className="flex items-start gap-3">
@@ -836,7 +836,7 @@ export default function CommunityDetail() {
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                      Community Verification Status
+                      Community Claim Status
                     </h3>
                     <div className="space-y-2">
                       {/* MySeniorValet Verification Status - Always show as pending since no claims approved */}
