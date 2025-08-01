@@ -216,7 +216,7 @@ export default function CommunityDetail() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
   const [isFavorite, setIsFavorite] = useState(false);
-
+  const [isScheduleTourOpen, setIsScheduleTourOpen] = useState(false);
 
   const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
   const [waitlistName, setWaitlistName] = useState('');
@@ -842,6 +842,119 @@ export default function CommunityDetail() {
                   </div>
                 </div>
               </CardHeader>
+            </Card>
+
+            {/* Community Claim Status Card */}
+            <Card className="border-2 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-blue-100 dark:bg-blue-800 rounded-lg">
+                    <Info className="w-5 h-5 text-blue-600 dark:text-blue-300" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                      Community Listing Status
+                    </h3>
+                    <div className="space-y-2">
+                      {/* Claim Status */}
+                      <div className="flex items-center gap-2">
+                        {community.claimedBy ? (
+                          <>
+                            <CheckCircle className="w-4 h-4 text-green-500" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              <span className="font-medium">Claimed</span> by community owner
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <Clock className="w-4 h-4 text-amber-500" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              <span className="font-medium">Unclaimed</span> - Waiting for community to claim this listing
+                            </span>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Pricing Status */}
+                      <div className="flex items-center gap-2">
+                        {(community as any).pricing_type === 'live' && (community as any).pricingLastVerified ? (
+                          <>
+                            <CheckCircle className="w-4 h-4 text-green-500" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              <span className="font-medium">Pricing Updated</span> - Live pricing available
+                            </span>
+                          </>
+                        ) : community.hudPropertyId && (community as any).rentPerMonth ? (
+                          <>
+                            <CheckCircle className="w-4 h-4 text-green-500" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              <span className="font-medium">HUD Verified Pricing</span> - Government database
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <Clock className="w-4 h-4 text-amber-500" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              <span className="font-medium">Pricing Pending</span> - Estimated from market data
+                            </span>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Specials Status */}
+                      <div className="flex items-center gap-2">
+                        {(community as any).hasSpecials ? (
+                          <>
+                            <CheckCircle className="w-4 h-4 text-green-500" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              <span className="font-medium">Specials Available</span> - Current promotions active
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <Clock className="w-4 h-4 text-amber-500" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              <span className="font-medium">No Specials Listed</span> - Check with community
+                            </span>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Availability Status */}
+                      <div className="flex items-center gap-2">
+                        {community.availabilityLastUpdated && 
+                         new Date(community.availabilityLastUpdated) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) ? (
+                          <>
+                            <CheckCircle className="w-4 h-4 text-green-500" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              <span className="font-medium">Availability Updated</span> - Real-time status available
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <Clock className="w-4 h-4 text-amber-500" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              <span className="font-medium">Availability Unknown</span> - Contact for current status
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Call to Action for Unclaimed Communities */}
+                    {!community.claimedBy && (
+                      <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-700">
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          Are you the owner of this community? 
+                          <a href="/claim-listing" className="text-blue-600 dark:text-blue-400 hover:underline ml-1">
+                            Claim your listing
+                          </a> to update pricing, availability, and add photos.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
             </Card>
 
             {/* Contact & Tour Section */}
