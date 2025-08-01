@@ -73,91 +73,14 @@ export class CountyResearchSystem {
   }
 
   private async discoverCommunitiesInCounty(county: string): Promise<CountyResearchData[]> {
-    console.log(`🔍 Using Google Places API to discover ALL senior living communities in ${county} County...`);
+    console.log(`🔍 Discovering senior living communities in ${county} County from government sources...`);
     
-    try {
-      // Use Google Places API to find ALL communities
-      const googleResults = await this.searchAllSeniorLivingInCounty(county);
-      console.log(`📍 Found ${googleResults.length} communities via Google Places in ${county} County`);
-      return googleResults;
-    } catch (error) {
-      console.log(`❌ Google Places failed for ${county}, using fallback data:`, error);
-      // Only fall back to predefined data if Google Places completely fails
-      return this.getFallbackDataForCounty(county);
-    }
+    // Google Places API has been removed to prevent unauthorized charges
+    // Communities will be sourced from authentic government databases only
+    return this.getFallbackDataForCounty(county);
   }
 
-  private async searchAllSeniorLivingInCounty(county: string): Promise<CountyResearchData[]> {
-    const { googlePlacesIntegration } = await import('./google-places-integration');
-    const allCommunities: CountyResearchData[] = [];
-    
-    // Get all major cities in the county for comprehensive coverage
-    const cities = this.getAllCitiesInCounty(county);
-    
-    // Search terms to capture ALL types of senior living
-    const searchTerms = [
-      'senior living',
-      'assisted living', 
-      'retirement community',
-      'memory care',
-      'senior apartments',
-      'senior housing',
-      'independent living',
-      'continuing care retirement',
-      'nursing home',
-      'senior care facility',
-      'elder care',
-      'senior residence'
-    ];
-    
-    for (const city of cities) {
-      console.log(`🏙️ Searching all senior living types in ${city}...`);
-      
-      for (const searchTerm of searchTerms) {
-        try {
-          const searchQuery = `${searchTerm} near ${city}, ${county} County, California`;
-          
-          // Use Google Places to find all facilities
-          const results = await googlePlacesIntegration.discoverCommunitiesInArea(
-            [searchTerm], // Single search term as array
-            `${city}, ${county} County, California`, // Location string
-            25000 // 25km radius per city for thorough coverage
-          );
-          
-          for (const place of results) {
-            if (this.isValidSeniorLivingFacility(place.name, place.types || [])) {
-              allCommunities.push({
-                name: place.name,
-                address: place.address || '',
-                city: place.city || this.extractCityFromAddress(place.address || '', city),
-                state: place.state || 'CA',
-                zipCode: place.zipCode || this.extractZipFromAddress(place.address || ''),
-                phone: place.phone,
-                website: place.website,
-                careTypes: this.inferCareTypesFromName(place.name),
-                latitude: place.lat || null,
-                longitude: place.lng || null,
-                verified: true,
-                source: 'Google Places Discovery'
-              });
-            }
-          }
-          
-          // Rate limiting to respect Google's quotas
-          await new Promise(resolve => setTimeout(resolve, 200));
-          
-        } catch (searchError) {
-          console.log(`Search failed for "${searchTerm}" in ${city}:`, searchError);
-        }
-      }
-    }
-    
-    // Deduplicate based on name and location similarity
-    const deduplicated = this.comprehensiveDeduplication(allCommunities);
-    console.log(`🧹 After deduplication: ${deduplicated.length} unique communities found`);
-    
-    return deduplicated;
-  }
+
 
   private getAllCitiesInCounty(county: string): string[] {
     // Comprehensive city lists for thorough coverage
@@ -782,8 +705,8 @@ export class CountyResearchSystem {
       phone: c.phone || null,
       website: c.website || null,
       careTypes: c.careTypes,
-      latitude: c.latitude || null,
-      longitude: c.longitude || null,
+      latitude: c.latitude ? c.latitude.toString() : null,
+      longitude: c.longitude ? c.longitude.toString() : null,
       county,
       region: this.getRegionForCounty(county),
       isVerified: c.verified,

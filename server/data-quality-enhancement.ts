@@ -7,7 +7,6 @@ import { db } from "./db";
 import { communities } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import OpenAI from "openai";
-import { googlePlacesIntegration } from "./google-places-integration";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -78,46 +77,15 @@ export class DataQualityEnhancement {
   }
 
   /**
-   * Add authentic Google review data from Google Places API
+   * Placeholder for future review integration
    */
-  async addAuthenticGoogleReviews(communityId: number): Promise<{
+  async addAuthenticReviews(communityId: number): Promise<{
     reviewsAdded: number;
     success: boolean;
   }> {
-    try {
-      const community = await db.select().from(communities).where(eq(communities.id, communityId)).then(r => r[0]);
-      if (!community) return { reviewsAdded: 0, success: false };
-
-      // Get Google Places data which includes reviews
-      const enrichmentResult = await googlePlacesIntegration.enrichCommunityWithGooglePlaces(community);
-      
-      if (enrichmentResult?.success && enrichmentResult.reviews.length > 0) {
-        // Convert Google reviews to our yelp_reviews format (since it's the main review field)
-        const formattedReviews = enrichmentResult.reviews.map(review => ({
-          rating: review.rating,
-          text: review.text,
-          author: review.author,
-          date: review.date,
-          isPositive: review.rating >= 4
-        }));
-
-        // Update community with authentic Google reviews
-        await db
-          .update(communities)
-          .set({ 
-            yelpReviews: formattedReviews
-          })
-          .where(eq(communities.id, communityId));
-
-        console.log(`✅ Added ${formattedReviews.length} authentic Google reviews for ${community.name}`);
-        return { reviewsAdded: formattedReviews.length, success: true };
-      }
-
-      return { reviewsAdded: 0, success: false };
-    } catch (error) {
-      console.error('Error adding Google reviews:', error);
-      return { reviewsAdded: 0, success: false };
-    }
+    // Reviews will be sourced from authentic government or partner APIs only
+    // Google Places API has been removed to prevent unauthorized charges
+    return { reviewsAdded: 0, success: false };
   }
 
   /**
@@ -252,7 +220,7 @@ Only include items specifically mentioned in the reviews. Be precise and avoid g
     // 2. Add authentic Google reviews if missing
     if (report.before.reviewCount === 0) {
       report.issues.push("No review data available");
-      const reviewResult = await this.addAuthenticGoogleReviews(communityId);
+      const reviewResult = await this.addAuthenticReviews(communityId);
       if (reviewResult.success) {
         report.improvements.push(`Added ${reviewResult.reviewsAdded} authentic Google reviews`);
         report.after.reviewCount = reviewResult.reviewsAdded;

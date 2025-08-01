@@ -1,6 +1,6 @@
 /**
  * Geocoding Service - Add missing coordinates to communities
- * Uses Google Places API to get latitude/longitude for communities missing location data
+ * Placeholder service - Google API removed to prevent charges
  */
 
 import { db } from "./db";

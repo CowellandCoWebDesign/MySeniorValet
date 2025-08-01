@@ -8,15 +8,12 @@ import { storage } from "../storage";
 import { enhancedSearchService } from "../enhanced-search-service";
 import { dataQualityEnhancement } from "../data-quality-enhancement";
 import { careTypeClassifier } from "../care-type-classifier";
-import { googlePlacesReviews } from "../google-places-reviews";
-import { comprehensivePhotoEnrichment } from "../comprehensive-photo-enrichment";
-import { systematicPhotoEnrichment } from "../systematic-photo-enrichment";
-import { emergencyEnrichment } from "../emergency-enrichment";
+// Google Places imports removed to prevent API charges
+// Photo enrichment services removed - they use Google Places API
 import { pricingTransparencyService } from "../pricing-transparency-badges";
 import { intelligentPricingService } from "../intelligent-pricing-service";
 import { nationwidePricingResearch } from "../nationwide-pricing-research";
 import { eliminateCallForPricing } from "../intelligent-pricing-system";
-import { googlePlacesIntegration } from "../google-places-integration";
 import { realDataAnalyzer } from "../real-data-analyzer";
 import { z } from "zod";
 

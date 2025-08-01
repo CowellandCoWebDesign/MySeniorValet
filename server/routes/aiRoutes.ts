@@ -6,7 +6,7 @@ import { aiRecommendationEngine, RecommendationRequest } from "../ai-recommendat
 import { MultiAIOrchestrator } from "../multi-ai-intelligence";
 import { AnthropicAIService, GeminiAIService, AIOrchestrator } from "../ai-services";
 import { aiSearchService } from "../ai-search-service";
-import { googleReviewsAI } from "../google-reviews-ai";
+// Google Reviews AI removed to prevent API charges
 import { perplexityService } from "../perplexity-ai-service";
 import { isAuthenticated as requireAuth } from "../replitAuth";
 
