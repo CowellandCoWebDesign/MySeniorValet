@@ -508,20 +508,10 @@ export default function MySeniorValetHome() {
                           </div>
                         </div>
                         
-                        {/* Vacancy Status Badge - Top Priority */}
-                        {index % 3 === 0 && (
-                          <Badge className="absolute top-3 left-3 bg-green-600 text-white text-xs px-2 py-1 font-medium animate-pulse">
-                            🟢 Available Now
-                          </Badge>
-                        )}
-                        {index % 3 === 1 && (
-                          <Badge className="absolute top-3 left-3 bg-orange-600 text-white text-xs px-2 py-1 font-medium">
-                            🟡 Waitlist Open
-                          </Badge>
-                        )}
-                        {index % 3 === 2 && (
-                          <Badge className="absolute top-3 left-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
-                            📋 Call for Availability
+                        {/* Only show verified occupancy data if available */}
+                        {community.occupancyRateHud && (
+                          <Badge className="absolute top-3 left-3 bg-gray-600 text-white text-xs px-2 py-1 font-medium">
+                            {Math.round(100 - parseFloat(community.occupancyRateHud))}% Occupancy
                           </Badge>
                         )}
                         
@@ -657,20 +647,10 @@ export default function MySeniorValetHome() {
                         </div>
                       </div>
                       
-                      {/* Vacancy Status Badge - Top Priority */}
-                      {index % 3 === 0 && (
-                        <Badge className="absolute top-3 left-3 bg-green-600 text-white text-xs px-2 py-1 font-medium animate-pulse">
-                          🟢 Available Now
-                        </Badge>
-                      )}
-                      {index % 3 === 1 && (
-                        <Badge className="absolute top-3 left-3 bg-orange-600 text-white text-xs px-2 py-1 font-medium">
-                          🟡 Waitlist Open
-                        </Badge>
-                      )}
-                      {index % 3 === 2 && (
-                        <Badge className="absolute top-3 left-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
-                          📋 Call for Availability
+                      {/* Only show verified occupancy data if available */}
+                      {community.occupancyRateHud && (
+                        <Badge className="absolute top-3 left-3 bg-gray-600 text-white text-xs px-2 py-1 font-medium">
+                          {Math.round(100 - parseFloat(community.occupancyRateHud))}% Occupancy
                         </Badge>
                       )}
                       
@@ -682,32 +662,16 @@ export default function MySeniorValetHome() {
                         )}
                       </Badge>
                       
-                      {/* Achievement Badge - Special Recognition */}
-                      {index % 5 === 0 && (
-                        <Badge className="absolute bottom-3 right-3 bg-purple-600 text-white text-xs px-2 py-1 font-medium">
-                          🏆 Featured
-                        </Badge>
-                      )}
-                      {index % 5 === 1 && (
+                      {/* Only show HUD badge if it's a HUD property */}
+                      {community.hudPropertyId && (
                         <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
-                          ⭐ Top Rated
-                        </Badge>
-                      )}
-                      {index % 5 === 2 && (
-                        <Badge className="absolute bottom-3 right-3 bg-green-600 text-white text-xs px-2 py-1 font-medium">
-                          💎 Premium
+                          HUD Property
                         </Badge>
                       )}
                     </div>
                     
                     <CardContent className="p-3">
-                      {/* Availability Status - Above Price */}
-                      {index % 3 === 0 && (
-                        <div className="flex items-center text-xs text-green-600 dark:text-green-400 font-medium mb-2">
-                          <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
-                          Available
-                        </div>
-                      )}
+
                       
                       <div className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                         <span className="text-sm">Starting at</span> ${community.priceRange && community.priceRange.min ? community.priceRange.min.toLocaleString() : '4,200'}
@@ -3736,20 +3700,10 @@ export default function MySeniorValetHome() {
                     </div>
                   </div>
                   
-                  {/* Vacancy Status Badge - Top Priority */}
-                  {index % 3 === 0 && (
-                    <Badge className="absolute top-3 left-3 bg-green-600 text-white text-xs px-2 py-1 font-medium animate-pulse">
-                      🟢 Available Now
-                    </Badge>
-                  )}
-                  {index % 3 === 1 && (
-                    <Badge className="absolute top-3 left-3 bg-orange-600 text-white text-xs px-2 py-1 font-medium">
-                      🟡 Waitlist Open
-                    </Badge>
-                  )}
-                  {index % 3 === 2 && (
-                    <Badge className="absolute top-3 left-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
-                      📋 Call for Availability
+                  {/* Only show verified occupancy data if available */}
+                  {community.occupancyRateHud && (
+                    <Badge className="absolute top-3 left-3 bg-gray-600 text-white text-xs px-2 py-1 font-medium">
+                      {Math.round(100 - parseFloat(community.occupancyRateHud))}% Occupancy
                     </Badge>
                   )}
                   
@@ -3758,20 +3712,10 @@ export default function MySeniorValetHome() {
                     {community.priceRange && community.priceRange.min ? `$${(community.priceRange.min / 1000).toFixed(1)}K+` : '$4K+'}
                   </Badge>
                   
-                  {/* Achievement Badge - Special Recognition */}
-                  {index % 5 === 0 && (
-                    <Badge className="absolute bottom-3 right-3 bg-purple-600 text-white text-xs px-2 py-1 font-medium">
-                      🏆 Featured
-                    </Badge>
-                  )}
-                  {index % 5 === 1 && (
+                  {/* Only show HUD badge if it's a HUD property */}
+                  {community.hudPropertyId && (
                     <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
-                      ⭐ Top Rated
-                    </Badge>
-                  )}
-                  {index % 5 === 2 && (
-                    <Badge className="absolute bottom-3 right-3 bg-green-600 text-white text-xs px-2 py-1 font-medium">
-                      💎 Premium
+                      HUD Property
                     </Badge>
                   )}
                 </div>
@@ -3781,12 +3725,7 @@ export default function MySeniorValetHome() {
                     <div className="text-xl font-bold text-gray-900 dark:text-white">
                       <span className="text-sm">Starting at</span> ${community.priceRange && community.priceRange.min ? community.priceRange.min.toLocaleString() : '4,200'}
                     </div>
-                    {index % 3 === 0 && (
-                      <div className="flex items-center text-xs text-green-600 dark:text-green-400 font-medium">
-                        <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
-                        Available
-                      </div>
-                    )}
+
                   </div>
                   
                   <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">

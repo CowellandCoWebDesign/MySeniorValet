@@ -467,6 +467,51 @@ export default function CommunityPage() {
                       <MapPin className="h-5 w-5 mr-2" />
                       {community.address}, {community.city}, {community.state} {community.zipCode}
                     </div>
+                    
+                    {/* VERIFIED OCCUPANCY INFORMATION */}
+                    {(community.occupancyRateHud || community.totalUnitsHud || community.availableUnits) && (
+                      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700 mb-4">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <Activity className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                          <span className="font-semibold text-blue-900 dark:text-blue-200">
+                            Verified Occupancy Information
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          {community.occupancyRateHud && (
+                            <div>
+                              <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                                {Math.round(parseFloat(community.occupancyRateHud))}%
+                              </div>
+                              <div className="text-sm text-blue-700 dark:text-blue-300">Current Occupancy</div>
+                            </div>
+                          )}
+                          {community.totalUnitsHud && (
+                            <div>
+                              <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                                {community.totalUnitsHud}
+                              </div>
+                              <div className="text-sm text-blue-700 dark:text-blue-300">Total Units</div>
+                            </div>
+                          )}
+                          {community.availableUnits && (
+                            <div>
+                              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                                {community.availableUnits}
+                              </div>
+                              <div className="text-sm text-green-700 dark:text-green-300">Available Now</div>
+                            </div>
+                          )}
+                        </div>
+                        {community.hudPropertyId && (
+                          <div className="text-xs text-blue-600 dark:text-blue-400 mt-3 flex items-center">
+                            <Shield className="w-3 h-3 mr-1" />
+                            Source: HUD Property ID {community.hudPropertyId}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
                     {community.description && (
                       <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{community.description}</p>
                     )}
@@ -894,38 +939,31 @@ export default function CommunityPage() {
                     </div>
                   )}
 
-                  {/* DATA VERIFICATION BADGES */}
-                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
+                  {/* DATA VERIFICATION STATUS */}
+                  <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <Shield className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                        <span className="font-medium text-blue-900 dark:text-blue-200">
-                          Data Verification Status
+                        <Info className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                        <span className="font-medium text-gray-900 dark:text-gray-200">
+                          Data Sources
                         </span>
                       </div>
                       <div className="flex space-x-2">
-                        <Badge className="bg-green-100 text-green-800 text-xs">
-                          MySeniorValet Verified
-                        </Badge>
-                        {community.amenities && community.amenities.length > 0 && (
+                        {community.hudPropertyId && (
                           <Badge className="bg-blue-100 text-blue-800 text-xs">
-                            {community.amenities.length} Amenities Confirmed
+                            HUD Data Available
                           </Badge>
                         )}
-                        {((community.fitnessServices?.length || 0) + 
-                          (community.diningServices?.length || 0) + 
-                          (community.transportationServices?.length || 0)) > 0 && (
-                          <Badge className="bg-purple-100 text-purple-800 text-xs">
-                            {(community.fitnessServices?.length || 0) + 
-                             (community.diningServices?.length || 0) + 
-                             (community.transportationServices?.length || 0)} Services Verified
+                        {community.amenities && community.amenities.length > 0 && (
+                          <Badge className="bg-gray-100 text-gray-800 text-xs">
+                            {community.amenities.length} Amenities Listed
                           </Badge>
                         )}
                       </div>
                     </div>
-                    <div className="text-sm text-blue-700 dark:text-blue-300 mt-2">
-                      All amenities and services data is verified from official sources, community management, 
-                      or direct facility inspections. Last updated: {new Date().toLocaleDateString()}
+                    <div className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                      Information compiled from government databases and public records. 
+                      Please verify current details directly with the community.
                     </div>
                   </div>
                 </div>
@@ -1266,44 +1304,36 @@ export default function CommunityPage() {
                     </div>
                   )}
 
-                  {/* HEALTHCARE VERIFICATION BADGES */}
-                  <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-700">
+                  {/* HEALTHCARE DATA STATUS */}
+                  <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <Stethoscope className="w-5 h-5 text-red-600 dark:text-red-400" />
-                        <span className="font-medium text-red-900 dark:text-red-200">
-                          Healthcare Data Verification
+                        <Stethoscope className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                        <span className="font-medium text-gray-900 dark:text-gray-200">
+                          Healthcare Information
                         </span>
                       </div>
                       <div className="flex space-x-2">
-                        <Badge className="bg-green-100 text-green-800 text-xs">
-                          Medical Excellence Verified
-                        </Badge>
                         {community.healthcareServices && community.healthcareServices.length > 0 && (
-                          <Badge className="bg-red-100 text-red-800 text-xs">
-                            {community.healthcareServices.length} Healthcare Services
+                          <Badge className="bg-gray-100 text-gray-800 text-xs">
+                            {community.healthcareServices.length} Healthcare Services Listed
                           </Badge>
                         )}
                         {community.careTypes && community.careTypes.length > 0 && (
-                          <Badge className="bg-teal-100 text-teal-800 text-xs">
-                            {community.careTypes.length} Care Programs
-                          </Badge>
-                        )}
-                        {community.hudPropertyId && (
-                          <Badge className="bg-emerald-100 text-emerald-800 text-xs">
-                            HUD Government Verified
+                          <Badge className="bg-gray-100 text-gray-800 text-xs">
+                            {community.careTypes.length} Care Types
                           </Badge>
                         )}
                         {community.licenseNumber && (
-                          <Badge className="bg-violet-100 text-violet-800 text-xs">
-                            State Licensed
+                          <Badge className="bg-blue-100 text-blue-800 text-xs">
+                            State License: {community.licenseNumber}
                           </Badge>
                         )}
                       </div>
                     </div>
-                    <div className="text-sm text-red-700 dark:text-red-300 mt-2">
-                      Healthcare and care services data verified through state licensing boards, 
-                      Medicare databases, and direct facility inspections. Last updated: {new Date().toLocaleDateString()}
+                    <div className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                      Healthcare information compiled from available public records. 
+                      Please verify current services and licensing directly with the community.
                     </div>
                   </div>
                 </div>

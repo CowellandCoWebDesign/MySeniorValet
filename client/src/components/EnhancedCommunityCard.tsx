@@ -296,13 +296,10 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
               </div>
             </div>
             
-            {/* Availability Badge */}
-            {community.displayAvailability?.availabilityStatus && (
-              <Badge className={`absolute top-3 left-3 ${availabilityBgColor} text-white text-xs px-2 py-1 font-medium ${availabilityColor === 'green' ? 'animate-pulse' : ''}`}>
-                {availabilityColor === 'green' && '🟢 Available Now'}
-                {availabilityColor === 'yellow' && '🟡 Waitlist Open'}
-                {availabilityColor === 'red' && '📋 Call for Availability'}
-                {availabilityColor === 'gray' && '📋 Call for Availability'}
+            {/* Only show verified occupancy data if available */}
+            {community.occupancyRateHud && (
+              <Badge className="absolute top-3 left-3 bg-gray-600 text-white text-xs px-2 py-1 font-medium">
+                {Math.round(100 - parseFloat(community.occupancyRateHud))}% Occupancy
               </Badge>
             )}
             
@@ -314,25 +311,16 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
               )}
             </Badge>
             
-            {/* Achievement Badge */}
-            {variant === 'featured' && (
-              <Badge className="absolute bottom-3 right-3 bg-purple-600 text-white text-xs px-2 py-1 font-medium">
-                🏆 Featured
+            {/* Only show HUD badge if it's a HUD property */}
+            {community.hudPropertyId && (
+              <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
+                HUD Property
               </Badge>
             )}
+            {/* Only show coastal view for actually coastal communities */}
             {variant === 'coastal' && (
               <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
-                🌊 Ocean View
-              </Badge>
-            )}
-            {variant === 'highest-rated' && (
-              <Badge className="absolute bottom-3 right-3 bg-amber-600 text-white text-xs px-2 py-1 font-medium">
-                ⭐ Top Rated
-              </Badge>
-            )}
-            {variant === 'verified' && (
-              <Badge className="absolute bottom-3 right-3 bg-emerald-600 text-white text-xs px-2 py-1 font-medium">
-                ✅ Verified
+                🌊 Coastal Area
               </Badge>
             )}
           </div>
@@ -344,11 +332,17 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
                 🏛️ HUD Official
               </Badge>
             )}
-            {/* Availability Status */}
-            {community.displayAvailability?.availabilityStatus && (
-              <div className={`flex items-center text-xs text-${availabilityColor}-600 dark:text-${availabilityColor}-400 font-medium mb-2`}>
-                <div className={`w-2 h-2 bg-${availabilityColor}-500 rounded-full mr-1`}></div>
-                {community.displayAvailability.availabilityStatus}
+            {/* Real Occupancy Data if available */}
+            {(community.occupancyRateHud || community.totalUnitsHud) && (
+              <div className="flex items-center text-xs text-gray-600 dark:text-gray-400 font-medium mb-2">
+                {community.occupancyRateHud && (
+                  <span className="mr-2">
+                    {Math.round(parseFloat(community.occupancyRateHud))}% occupied
+                  </span>
+                )}
+                {community.totalUnitsHud && (
+                  <span>• {community.totalUnitsHud} units</span>
+                )}
               </div>
             )}
             
@@ -378,10 +372,7 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
               {community.careTypes && community.careTypes.length > 0 ? 
                 community.careTypes[0] : 
                 'Senior Living'
-              } • {variant === 'coastal' ? 'Coastal Living' : 
-                   variant === 'highest-rated' ? 'Top Rated' :
-                   variant === 'verified' ? 'Verified' :
-                   variant === 'hud' ? 'HUD Official' : 'Premium Care'}
+              }{community.hudPropertyId && ' • HUD Property'}
             </div>
             
             {/* Address - Simplified for HUD cards */}
@@ -392,7 +383,7 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
               }
             </div>
             
-            {/* Regional Badge */}
+            {/* Only show actual regional info for coastal areas */}
             {variant === 'coastal' && (
               <div className="mb-2">
                 <Badge className="bg-cyan-600/90 text-white text-xs px-2 py-1 font-medium">
@@ -400,21 +391,8 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
                 </Badge>
               </div>
             )}
-            {variant === 'highest-rated' && (
-              <div className="mb-2">
-                <Badge className="bg-amber-600/90 text-white text-xs px-2 py-1 font-medium">
-                  Top Performer
-                </Badge>
-              </div>
-            )}
-            {variant === 'verified' && (
-              <div className="mb-2">
-                <Badge className="bg-emerald-600/90 text-white text-xs px-2 py-1 font-medium">
-                  Verified Data
-                </Badge>
-              </div>
-            )}
-            {variant === 'hud' && (
+            {/* Only show government source badge for HUD properties */}
+            {community.hudPropertyId && (
               <div className="mb-2">
                 <Badge className="bg-green-600/90 text-white text-xs px-2 py-1 font-medium">
                   Government Source
