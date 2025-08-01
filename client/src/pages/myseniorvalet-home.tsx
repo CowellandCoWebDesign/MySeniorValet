@@ -2210,6 +2210,232 @@ export default function MySeniorValetHome() {
           </div>
       </section>
 
+      {/* California Ombudsman & Adult Protective Services Directory */}
+      <section className="px-4 py-8 bg-gradient-to-br from-red-50 to-orange-50 dark:from-gray-800 dark:to-gray-900">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                  California Senior Protection Services
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300 text-sm">
+                  Ombudsman Programs & Adult Protective Services (APS) - Your advocates for quality care and protection
+                </p>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-medium text-red-600 dark:text-red-400">Emergency? Call 911</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">Statewide APS: 1-833-401-0832</div>
+              </div>
+            </div>
+            
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-3 mb-4">
+              <div className="flex items-center">
+                <Shield className="w-5 h-5 text-red-600 dark:text-red-400 mr-2" />
+                <p className="text-sm text-red-800 dark:text-red-200 font-medium">
+                  <strong>Important:</strong> These services protect seniors from abuse, neglect, and exploitation. All reports can be made anonymously.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+            {/* California Protection Services Data */}
+            {[
+              // Ombudsman Programs
+              { type: 'Ombudsman', county: 'Del Norte & Humboldt', phone: '(707) 269-1330', address: '333 J Street, Suite 206, Eureka, CA 95501', coordinator: 'Andrea Bruhnke' },
+              { type: 'Ombudsman', county: 'Shasta/Siskiyou/Trinity', phone: '(530) 229-1435', address: '1647 Hartnell Ave, Suite 6, Redding, CA 96002', coordinator: 'Jerry Kirouac' },
+              { type: 'Ombudsman', county: 'Los Angeles', phone: '(800) 334-9473', org: 'Wise & Healthy Aging', coverage: '92,859 seniors in 2,252 facilities' },
+              { type: 'Ombudsman', county: 'San Diego', phone: '(800) 640-4661', email: 'ombudsman@sdcounty.ca.gov', website: 'https://www.sandiegocounty.gov' },
+              { type: 'Ombudsman', county: 'Santa Barbara', phone: '(805) 922-1236', address: '123 W. Gutierrez, Santa Barbara, CA 93101', coordinator: 'Marco Quintanar' },
+              { type: 'Ombudsman', county: 'Ventura', phone: '(805) 656-1986', address: '2021 Sperry Avenue, #35, Ventura, CA 93003' },
+              { type: 'Ombudsman', county: 'Orange & Riverside', org: 'Council on Aging - Southern California', phone: '(714) 479-0107' },
+              { type: 'Ombudsman', county: 'San Bernardino', phone: '(909) 891-3900', website: 'hss.sbcounty.gov/daas/programs/Ombudsman.aspx' },
+              { type: 'Ombudsman', county: 'Lake County', phone: '(707) 263-4191', website: 'lakecountyca.gov/771/Long-Term-Care-Ombudsman' },
+              { type: 'Ombudsman', county: 'Santa Clara', phone: '(408) 944-0567', coordinator: 'Linda Dominguez' },
+              
+              // Adult Protective Services
+              { type: 'APS', county: 'Los Angeles', phone: '1-877-477-3646', service: 'Elder Abuse Hotline', hours: '24/7' },
+              { type: 'APS', county: 'Kern', phone: '(661) 868-1006', altPhone: '(800) 277-7866', email: 'apsinfo@kerncounty.com', hours: '24/7' },
+              { type: 'APS', county: 'San Francisco', phone: '(415) 355-6700', altPhone: '(800) 814-0009', website: 'ReportToAPS.org', hours: '24/7' },
+              { type: 'APS', county: 'Santa Clara', phone: '(408) 975-4900', altPhone: '(800) 414-2002', hours: '24/7' },
+              { type: 'APS', county: 'Tulare', phone: '(559) 624-8078', contact: 'Civil Rights Coordinator' },
+              { type: 'APS', county: 'Sacramento', phone: '1-833-401-0832', note: 'Use statewide number with zip code' },
+              { type: 'APS', county: 'San Bernardino', phone: '1-833-401-0832', website: 'hss.sbcounty.gov/daas/programs/APS.aspx' },
+              { type: 'APS', county: 'Alameda', phone: '1-833-401-0832', note: 'Use statewide number with zip code' },
+              { type: 'APS', county: 'Calaveras', phone: '1-833-401-0832', website: 'socialservices.calaverasgov.us' },
+              { type: 'APS', county: 'Del Norte', phone: '1-833-401-0832', note: 'Forms available for fax/mail submission' },
+              
+              // Additional Counties
+              { type: 'Ombudsman', county: 'Fresno', phone: '(559) 459-2272', address: '5091 E. Clinton Way, Fresno, CA 93727' },
+              { type: 'Ombudsman', county: 'Contra Costa', phone: '(925) 602-4390', org: 'Contra Costa Senior Legal Services' },
+              { type: 'Ombudsman', county: 'Monterey', phone: '(831) 755-4646', address: '1441 Schilling Place, Salinas, CA 93901' },
+              { type: 'Ombudsman', county: 'Solano', phone: '(707) 784-8982', coverage: 'All skilled nursing and residential care facilities' },
+              { type: 'Ombudsman', county: 'Marin', phone: '(415) 457-INFO', address: '10 North San Pedro Road, San Rafael, CA 94903' },
+              { type: 'APS', county: 'Fresno', phone: '(559) 600-2345', hours: 'M-F 8am-5pm' },
+              { type: 'APS', county: 'Orange', phone: '(714) 825-3000', altPhone: '(800) 451-5155', hours: '24/7' },
+              { type: 'APS', county: 'Riverside', phone: '(800) 491-7123', website: 'dpss.co.riverside.ca.us' },
+              { type: 'APS', county: 'Contra Costa', phone: '(877) 839-4347', hours: '24/7 hotline' },
+              { type: 'APS', county: 'San Mateo', phone: '(800) 675-8437', hours: 'M-F 8am-5pm' },
+              { type: 'APS', county: 'Monterey', phone: '(831) 755-4471', hours: '24/7' },
+              { type: 'APS', county: 'Sonoma', phone: '(877) 699-6877', hours: '24/7 reporting line' }
+            ].map((service, index) => (
+              <Card 
+                key={index} 
+                className={`overflow-hidden flex-shrink-0 w-80 hover:shadow-xl transition-all duration-300 border-2 ${
+                  service.type === 'Ombudsman' 
+                    ? 'border-blue-200 dark:border-blue-400' 
+                    : 'border-red-200 dark:border-red-400'
+                } bg-white dark:bg-gray-800`}
+              >
+                <div className="relative">
+                  <div className={`h-2 ${
+                    service.type === 'Ombudsman' 
+                      ? 'bg-gradient-to-r from-blue-500 to-blue-600' 
+                      : 'bg-gradient-to-r from-red-500 to-red-600'
+                  }`}></div>
+                  <div className="p-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <Badge 
+                          variant="outline" 
+                          className={`mb-2 ${
+                            service.type === 'Ombudsman' 
+                              ? 'border-blue-500 text-blue-700 dark:text-blue-300' 
+                              : 'border-red-500 text-red-700 dark:text-red-300'
+                          }`}
+                        >
+                          {service.type === 'Ombudsman' ? 'Long-Term Care Ombudsman' : 'Adult Protective Services'}
+                        </Badge>
+                        <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg">{service.county} County</h4>
+                      </div>
+                      <Shield className={`w-5 h-5 ${
+                        service.type === 'Ombudsman' 
+                          ? 'text-blue-500' 
+                          : 'text-red-500'
+                      }`} />
+                    </div>
+                    
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-start">
+                        <Phone className="w-4 h-4 text-gray-500 mr-2 mt-0.5" />
+                        <div>
+                          <a href={`tel:${service.phone.replace(/\D/g, '')}`} className="font-medium text-blue-600 dark:text-blue-400 hover:underline">
+                            {service.phone}
+                          </a>
+                          {service.altPhone && (
+                            <div className="text-xs text-gray-600 dark:text-gray-400">
+                              Alt: <a href={`tel:${service.altPhone.replace(/\D/g, '')}`} className="text-blue-600 dark:text-blue-400 hover:underline">
+                                {service.altPhone}
+                              </a>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {service.address && (
+                        <div className="flex items-start">
+                          <MapPin className="w-4 h-4 text-gray-500 mr-2 mt-0.5" />
+                          <span className="text-gray-600 dark:text-gray-300">{service.address}</span>
+                        </div>
+                      )}
+                      
+                      {service.hours && (
+                        <div className="flex items-start">
+                          <Clock className="w-4 h-4 text-gray-500 mr-2 mt-0.5" />
+                          <span className="text-gray-600 dark:text-gray-300">{service.hours}</span>
+                        </div>
+                      )}
+                      
+                      {service.coordinator && (
+                        <div className="flex items-start">
+                          <Users className="w-4 h-4 text-gray-500 mr-2 mt-0.5" />
+                          <span className="text-gray-600 dark:text-gray-300">Coordinator: {service.coordinator}</span>
+                        </div>
+                      )}
+                      
+                      {service.org && (
+                        <div className="flex items-start">
+                          <Building className="w-4 h-4 text-gray-500 mr-2 mt-0.5" />
+                          <span className="text-gray-600 dark:text-gray-300">{service.org}</span>
+                        </div>
+                      )}
+                      
+                      {service.coverage && (
+                        <div className="text-xs text-gray-600 dark:text-gray-400 italic">{service.coverage}</div>
+                      )}
+                      
+                      {service.note && (
+                        <div className="text-xs text-gray-600 dark:text-gray-400 italic">{service.note}</div>
+                      )}
+                    </div>
+                    
+                    <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                      <Button 
+                        size="sm" 
+                        className={`w-full ${
+                          service.type === 'Ombudsman' 
+                            ? 'bg-blue-600 hover:bg-blue-700' 
+                            : 'bg-red-600 hover:bg-red-700'
+                        } text-white`}
+                        onClick={() => window.open(`tel:${service.phone.replace(/\D/g, '')}`, '_self')}
+                      >
+                        <Phone className="w-4 h-4 mr-2" />
+                        Call Now
+                      </Button>
+                      {service.website && (
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="w-full mt-2"
+                          onClick={() => window.open(service.website.startsWith('http') ? service.website : `https://${service.website}`, '_blank')}
+                        >
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          Visit Website
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+            
+            {/* View All Card */}
+            <div className="flex-shrink-0 w-80">
+              <Card className="h-full bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 border-2 border-gray-300 dark:border-gray-600 hover:shadow-xl transition-all duration-300">
+                <CardContent className="flex flex-col items-center justify-center h-full p-6 text-center">
+                  <div className="mb-4">
+                    <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mb-3">
+                      <Search className="w-8 h-8 text-gray-600 dark:text-gray-300" />
+                    </div>
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Need More Help?</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                      Find protection services for all 58 California counties
+                    </p>
+                  </div>
+                  <div className="space-y-3 w-full">
+                    <Button 
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                      onClick={() => window.location.href = '/senior-protection-services'}
+                    >
+                      View All Counties
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => window.open('tel:18334010832', '_self')}
+                    >
+                      <Phone className="w-4 h-4 mr-2" />
+                      Call Statewide APS
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Complete Senior Living Intelligence - Third Position */}
       <section className="px-4 py-8">
         <div className="max-w-6xl mx-auto">
