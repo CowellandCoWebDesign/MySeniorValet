@@ -132,7 +132,7 @@ export function VendorMarketplaceTabs() {
         iconBg: 'bg-gray-100 dark:bg-gray-800',
         iconColor: 'text-gray-600 dark:text-gray-300',
         buttonBg: 'bg-gray-600 hover:bg-gray-700',
-        badge: 'Partner',
+        badge: 'Service',
         badgeBg: 'bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200',
         liveBadgeBg: 'bg-gray-500'
       }
@@ -170,11 +170,7 @@ export function VendorMarketplaceTabs() {
                   <div className="flex-1">
                     <div className="flex flex-wrap items-center gap-3 mb-2">
                       <h4 className="font-bold text-lg sm:text-xl text-gray-900 dark:text-gray-100">{vendor.name}</h4>
-                      {vendor.isFeatured && (
-                        <Badge className={`${theme.liveBadgeBg} text-white text-xs px-2 py-1 font-bold animate-pulse`}>
-                          🟢 LIVE NOW
-                        </Badge>
-                      )}
+
                       <Badge className={`${theme.badgeBg} text-xs px-2 py-1 font-medium`}>
                         {theme.badge}
                       </Badge>
@@ -190,7 +186,7 @@ export function VendorMarketplaceTabs() {
                       </span>
                       <span className="flex items-center gap-1 text-green-600 dark:text-green-400 font-medium">
                         <CheckCircle className="w-4 h-4" />
-                        Verified Partner
+                        Available Service
                       </span>
                       <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400 font-medium">
                         <Shield className="w-4 h-4" />

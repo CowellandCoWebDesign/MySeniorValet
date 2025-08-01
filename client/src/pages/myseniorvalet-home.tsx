@@ -877,9 +877,6 @@ export default function MySeniorValetHome() {
                       </div>
                     </div>
                     <div className="absolute top-2 right-2">
-                      <Badge className="bg-green-500 text-white text-xs px-2 py-1 font-bold animate-pulse">
-                        🟢 LIVE NOW
-                      </Badge>
                     </div>
                   </div>
                   <CardContent className="p-4">
@@ -925,9 +922,6 @@ export default function MySeniorValetHome() {
                       </div>
                     </div>
                     <div className="absolute top-2 right-2">
-                      <Badge className="bg-green-500 text-white text-xs px-2 py-1 font-bold animate-pulse">
-                        🟢 LIVE NOW
-                      </Badge>
                     </div>
                   </div>
                   <CardContent className="p-4">
@@ -981,9 +975,6 @@ export default function MySeniorValetHome() {
                       </div>
                     </div>
                     <div className="absolute top-2 right-2">
-                      <Badge className="bg-green-500 text-white text-xs px-2 py-1 font-bold animate-pulse">
-                        🟢 LIVE NOW
-                      </Badge>
                     </div>
                   </div>
                   <CardContent className="p-4">
@@ -1038,9 +1029,6 @@ export default function MySeniorValetHome() {
                       </div>
                     </div>
                     <div className="absolute top-2 right-2">
-                      <Badge className="bg-green-500 text-white text-xs px-2 py-1 font-bold animate-pulse">
-                        🟢 LIVE NOW
-                      </Badge>
                     </div>
                   </div>
                   <CardContent className="p-4">
@@ -1467,9 +1455,6 @@ export default function MySeniorValetHome() {
                       </div>
                     </div>
                     <div className="absolute top-2 right-2">
-                      <Badge className="bg-green-500 text-white text-xs px-2 py-1 font-bold animate-pulse">
-                        🟢 LIVE NOW
-                      </Badge>
                     </div>
                   </div>
                   <CardContent className="p-4">
@@ -1515,9 +1500,6 @@ export default function MySeniorValetHome() {
                       </div>
                     </div>
                     <div className="absolute top-2 right-2">
-                      <Badge className="bg-green-500 text-white text-xs px-2 py-1 font-bold animate-pulse">
-                        🟢 LIVE NOW
-                      </Badge>
                     </div>
                   </div>
                   <CardContent className="p-4">
@@ -1571,9 +1553,6 @@ export default function MySeniorValetHome() {
                       </div>
                     </div>
                     <div className="absolute top-2 right-2">
-                      <Badge className="bg-green-500 text-white text-xs px-2 py-1 font-bold animate-pulse">
-                        🟢 LIVE NOW
-                      </Badge>
                     </div>
                   </div>
                   <CardContent className="p-4">
@@ -1628,9 +1607,6 @@ export default function MySeniorValetHome() {
                       </div>
                     </div>
                     <div className="absolute top-2 right-2">
-                      <Badge className="bg-green-500 text-white text-xs px-2 py-1 font-bold animate-pulse">
-                        🟢 LIVE NOW
-                      </Badge>
                     </div>
                   </div>
                   <CardContent className="p-4">
@@ -1857,9 +1833,6 @@ export default function MySeniorValetHome() {
                                 )}
                               </div>
                               <div className="absolute top-2 right-2">
-                                <Badge className="bg-green-500 text-white text-xs px-2 py-1 font-bold animate-pulse">
-                                  🟢 LIVE NOW
-                                </Badge>
                               </div>
                               {product.isFeatured && (
                                 <div className="absolute top-2 left-2">
