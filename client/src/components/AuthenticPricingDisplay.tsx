@@ -58,14 +58,9 @@ export function AuthenticPricingDisplay({ communityId }: { communityId: number }
   }
 
   if (error || !data) {
-    return (
-      <Alert>
-        <AlertTitle>Pricing data temporarily unavailable</AlertTitle>
-        <AlertDescription>
-          We're working to gather authentic pricing information from verified sources.
-        </AlertDescription>
-      </Alert>
-    );
+    // Don't show any error message when pricing data is unavailable
+    // The pricing is already shown above in the community details
+    return null;
   }
 
   const formatPrice = (price: number) => {

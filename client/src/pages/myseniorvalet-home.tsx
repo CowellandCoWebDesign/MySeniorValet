@@ -1328,10 +1328,7 @@ export default function MySeniorValetHome() {
                   <p className="text-gray-600 dark:text-gray-300 text-lg max-w-3xl mx-auto mb-4">
                     Connect with {(careServicesAnalytics as any)?.totalServices?.toLocaleString() || '4,210'}+ verified healthcare and caregiving services in your area
                   </p>
-                  <div className="flex items-center justify-center gap-2">
-                    <Clock className="w-5 h-5 text-amber-600" />
-                    <span className="text-lg font-bold text-amber-600">⏳ Awaiting service providers to claim & update listings</span>
-                  </div>
+
                 </div>
                 
                 {/* Care Service Categories - Full Width Rows */}
