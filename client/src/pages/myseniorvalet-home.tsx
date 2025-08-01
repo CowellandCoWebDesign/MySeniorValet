@@ -659,7 +659,7 @@ export default function MySeniorValetHome() {
             {canadianLoading ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border border-gray-200 animate-pulse">
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-64 h-96 border border-gray-200 animate-pulse">
                   <div className="aspect-[4/3] bg-gray-200"></div>
                   <CardContent className="p-3">
                     <div className="h-6 bg-gray-200 rounded mb-2"></div>
@@ -671,16 +671,9 @@ export default function MySeniorValetHome() {
               ))
             ) : (
               <>
-                {((canadianCommunities as any[]) || [
-                  { id: 'can-1', name: "Chartwell Le St-Gabriel", city: "Montreal", state: "QC", priceRange: { min: 3500 }, careTypes: ["Assisted Living"], bilingual: true },
-                  { id: 'can-2', name: "Shannex Parkland Moncton", city: "Moncton", state: "NB", priceRange: { min: 3200 }, careTypes: ["Independent Living"], bilingual: true },
-                  { id: 'can-3', name: "Copper Ridge Place", city: "Whitehorse", state: "YT", priceRange: { min: 4200 }, careTypes: ["Memory Care"], bilingual: true },
-                  { id: 'can-4', name: "Harbour Stone Enhanced Care", city: "Sidney", state: "BC", priceRange: { min: 4800 }, careTypes: ["Enhanced Care"], bilingual: false },
-                  { id: 'can-5', name: "Park Place Seniors Living", city: "Regina", state: "SK", priceRange: { min: 3800 }, careTypes: ["Assisted Living"], bilingual: false },
-                  { id: 'can-6', name: "Canterbury Court", city: "Winnipeg", state: "MB", priceRange: { min: 3600 }, careTypes: ["Independent Living"], bilingual: false }
-                ]).slice(0, 12).map((community: any, index) => (
+                {((canadianCommunities as any[]) || []).slice(0, 12).map((community: any, index) => (
                   <Link key={`canadian-${community.id}-${index}`} href={`/community/${community.id}`}>
-                    <Card className="overflow-hidden flex-shrink-0 w-56 h-[30rem] animate-float canadian-card dark:bg-gray-700 hover:shadow-xl transition-all border-2 border-red-200" style={{animationDelay: `${index * 0.2}s`}}>
+                    <Card className="overflow-hidden flex-shrink-0 w-64 animate-float canadian-card dark:bg-gray-700 hover:shadow-xl transition-all border-2 border-red-200" style={{animationDelay: `${index * 0.2}s`}}>
                       <div className="relative">
                         <div className="aspect-[4/3] bg-gradient-to-br from-red-100 to-white dark:from-red-900 dark:to-gray-800 flex items-center justify-center">
                           <div className="text-center">
@@ -715,34 +708,38 @@ export default function MySeniorValetHome() {
                         )}
                       </div>
                       
-                      <CardContent className="p-3">
-                        <div className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                          <span className="text-sm">{language === 'en' ? 'Starting at' : 'À partir de'}</span> ${community.priceRange?.min ? community.priceRange.min.toLocaleString() : '3,500'} CAD
+                      <CardContent className="p-3 flex flex-col h-full">
+                        <div className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+                          ${community.priceRange?.min ? community.priceRange.min.toLocaleString() : '3,500'} CAD
                         </div>
                         
-                        <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
-                          {community.careTypes?.[0] || 'Assisted Living'} • {language === 'en' ? 'Canadian Community' : 'Communauté canadienne'}
+                        <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                          {language === 'en' ? 'Starting at' : 'À partir de'}
                         </div>
                         
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2 line-clamp-1">
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1 line-clamp-2">
                           {community.name}
                         </div>
                         
-                        <div className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
+                        <div className="text-xs text-gray-700 dark:text-gray-300 mb-1">
+                          {community.careTypes?.[0] || 'Assisted Living'}
+                        </div>
+                        
+                        <div className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
                           📍 {community.city}, {community.state}
                         </div>
                         
                         {/* Special Features */}
-                        <div className="space-y-1 mt-2">
+                        <div className="space-y-1 mt-auto">
                           {community.bilingual && (
                             <div className="text-xs text-blue-600 dark:text-blue-400 flex items-center">
                               <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1"></div>
-                              {language === 'en' ? 'French & English services' : 'Services en français et anglais'}
+                              {language === 'en' ? 'Bilingual services' : 'Services bilingues'}
                             </div>
                           )}
                           <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center">
-                            <div className="w-1.5 h-1.5 bg-gray-500 rounded-full mr-1"></div>
-                            {language === 'en' ? 'Canadian healthcare standards' : 'Normes de santé canadiennes'}
+                            <div className="w-1.5 h-1.5 bg-red-500 rounded-full mr-1"></div>
+                            {language === 'en' ? 'Canadian community' : 'Communauté canadienne'}
                           </div>
                         </div>
                       </CardContent>
@@ -752,7 +749,7 @@ export default function MySeniorValetHome() {
                 
                 {/* View All Canadian Communities Card */}
                 <Link href="/map-search?country=Canada">
-                  <Card className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border-2 border-red-500 bg-gradient-to-br from-red-50 to-white dark:from-red-900/20 dark:to-gray-900/20 hover:shadow-2xl transition-all cursor-pointer group">
+                  <Card className="overflow-hidden flex-shrink-0 w-64 h-96 border-2 border-red-500 bg-gradient-to-br from-red-50 to-white dark:from-red-900/20 dark:to-gray-900/20 hover:shadow-2xl transition-all cursor-pointer group">
                     <div className="aspect-[4/3] bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
                       <div className="text-center text-white">
                         <Flag className="h-16 w-16 mx-auto mb-3" />

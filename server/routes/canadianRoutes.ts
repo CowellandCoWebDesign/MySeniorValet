@@ -83,4 +83,21 @@ router.get("/canadian/province/:province", async (req, res) => {
   }
 });
 
+// Get featured Canadian communities
+router.get("/canadian/featured", async (req, res) => {
+  try {
+    const featuredCanadian = await db
+      .select()
+      .from(communities)
+      .where(eq(communities.county, 'Canada'))
+      .orderBy(communities.state, communities.city)
+      .limit(12);
+    
+    res.json(featuredCanadian);
+  } catch (error) {
+    console.error("Error fetching featured Canadian communities:", error);
+    res.status(500).json({ error: "Failed to fetch featured Canadian communities" });
+  }
+});
+
 export default router;
