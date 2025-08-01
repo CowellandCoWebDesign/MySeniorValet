@@ -362,6 +362,13 @@ export default function MySeniorValetHome() {
             {(hudCount as any)?.total || '6,078+'} affordable communities • 
             Government transparency and income-based options
           </p>
+          
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-6">
+            <p className="text-sm text-blue-800 dark:text-blue-200 font-medium">
+              <span className="font-bold">Platform Promise:</span> Not all senior housing requires a six-figure budget. 
+              MySeniorValet shows everything — from $0 HUD properties to full-service memory care.
+            </p>
+          </div>
         
           <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
             {/* Show HUD communities */}

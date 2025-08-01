@@ -13,7 +13,7 @@ export const CommunityFilterPanel: React.FC<CommunityFilterPanelProps> = ({
   onSubtypeChange
 }) => {
   const housingTypes = [
-    { value: 'hud_senior_housing', label: 'HUD-Sponsored Housing', badge: '🏷️ HUD Verified', color: 'bg-blue-500' },
+    { value: 'hud_senior_housing', label: 'HUD-Sponsored Housing', badge: '🏷️ Income-Qualified | HUD Verified', color: 'bg-blue-500' },
     { value: 'senior_mobile_park', label: '55+ Mobile Parks', badge: '🏕️ 55+ Mobile', color: 'bg-green-500' },
     { value: 'active_adult_55plus', label: 'Active Adult 55+', badge: '🟢 Active Adult', color: 'bg-emerald-500' },
     { value: 'independent_living', label: 'Independent Living', badge: '🟣 Independent Living', color: 'bg-purple-500' },
