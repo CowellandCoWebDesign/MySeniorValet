@@ -1,0 +1,37 @@
+{
+  "total_facilities": 190,
+  "counties_covered": 16,
+  "cities_covered": 127,
+  "counties_list": [
+    "Androscoggin",
+    "Aroostook",
+    "Cumberland",
+    "Franklin",
+    "Hancock",
+    "Kennebec",
+    "Knox",
+    "Lincoln",
+    "Oxford",
+    "Penobscot",
+    "Piscataquis",
+    "Sagadahoc",
+    "Somerset",
+    "Waldo",
+    "Washington",
+    "York"
+  ],
+  "major_metros": {
+    "Portland": 4,
+    "Bangor": 3,
+    "Lewiston": 2,
+    "Augusta": 2,
+    "Biddeford": 2,
+    "Waterville": 2,
+    "Presque Isle": 2,
+    "Rockland": 2,
+    "Auburn": 2,
+    "Ellsworth": 2
+  },
+  "collection_date": "2025-08-01T14:15:54.925843",
+  "data_source": "Maine Department of Health and Human Services"
+}
