@@ -2212,6 +2212,199 @@ export default function MySeniorValetHome() {
           </div>
       </section>
 
+      {/* Resources for Seniors */}
+      <section className="px-4 py-8 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-6">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+              Resources for Seniors
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 text-sm">
+              Essential government programs, healthcare resources, and support services for seniors
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {/* Essential Resources */}
+            {[
+              {
+                category: 'Healthcare',
+                name: 'Medicare',
+                description: 'Federal health insurance for people 65 or older',
+                phone: '1-800-MEDICARE (1-800-633-4227)',
+                website: 'https://www.medicare.gov',
+                icon: Stethoscope,
+                color: 'blue'
+              },
+              {
+                category: 'Financial',
+                name: 'Social Security',
+                description: 'Retirement, disability, and survivor benefits',
+                phone: '1-800-772-1213',
+                website: 'https://www.ssa.gov',
+                icon: DollarSign,
+                color: 'green'
+              },
+              {
+                category: 'Veterans',
+                name: 'Veterans Affairs',
+                description: 'Healthcare and benefits for veterans',
+                phone: '1-800-827-1000',
+                website: 'https://www.va.gov',
+                icon: Shield,
+                color: 'red'
+              },
+              {
+                category: 'Advocacy',
+                name: 'AARP',
+                description: 'Advocacy and resources for people 50+',
+                phone: '1-888-687-2277',
+                website: 'https://www.aarp.org',
+                icon: Users2,
+                color: 'purple'
+              },
+              {
+                category: 'Healthcare',
+                name: 'Medicaid',
+                description: 'Health coverage for low-income individuals',
+                phone: '1-877-267-2323',
+                website: 'https://www.medicaid.gov',
+                icon: Heart,
+                color: 'pink'
+              },
+              {
+                category: 'Nutrition',
+                name: 'Meals on Wheels',
+                description: 'Home-delivered meals for seniors',
+                phone: '1-888-998-6325',
+                website: 'https://www.mealsonwheelsamerica.org',
+                icon: Utensils,
+                color: 'orange'
+              },
+              {
+                category: 'Legal',
+                name: 'National Legal Aid',
+                description: 'Free legal help for seniors',
+                phone: '1-844-529-3494',
+                website: 'https://www.lsc.gov',
+                icon: Scale,
+                color: 'indigo'
+              },
+              {
+                category: 'Housing',
+                name: 'HUD Senior Housing',
+                description: 'Affordable housing assistance',
+                phone: '1-800-569-4287',
+                website: 'https://www.hud.gov/topics/information_for_senior_citizens',
+                icon: Home,
+                color: 'teal'
+              },
+              {
+                category: 'Transportation',
+                name: 'Eldercare Locator',
+                description: 'Connect to local transportation services',
+                phone: '1-800-677-1116',
+                website: 'https://eldercare.acl.gov',
+                icon: Car,
+                color: 'yellow'
+              },
+              {
+                category: 'Health Info',
+                name: 'NIH Senior Health',
+                description: 'Health information from National Institutes',
+                phone: '1-800-222-2225',
+                website: 'https://www.nia.nih.gov',
+                icon: Brain,
+                color: 'cyan'
+              },
+              {
+                category: 'Prescription Help',
+                name: 'Extra Help/LIS',
+                description: 'Medicare prescription drug cost assistance',
+                phone: '1-800-772-1213',
+                website: 'https://www.ssa.gov/medicare/prescriptionhelp',
+                icon: Pill,
+                color: 'emerald'
+              },
+              {
+                category: 'Emergency',
+                name: 'Crisis Support',
+                description: '24/7 mental health crisis support',
+                phone: '988',
+                website: 'https://988lifeline.org',
+                icon: Phone,
+                color: 'rose'
+              }
+            ].map((resource, index) => {
+              const Icon = resource.icon;
+              const colorClasses = {
+                blue: 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400',
+                green: 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400',
+                red: 'bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400',
+                purple: 'bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400',
+                pink: 'bg-pink-100 dark:bg-pink-900/20 text-pink-600 dark:text-pink-400',
+                orange: 'bg-orange-100 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400',
+                indigo: 'bg-indigo-100 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400',
+                teal: 'bg-teal-100 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400',
+                yellow: 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400',
+                cyan: 'bg-cyan-100 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400',
+                emerald: 'bg-emerald-100 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400',
+                rose: 'bg-rose-100 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400'
+              };
+              const bgColor = colorClasses[resource.color as keyof typeof colorClasses].split(' ').slice(0, 2).join(' ');
+              const textColor = colorClasses[resource.color as keyof typeof colorClasses].split(' ').slice(2).join(' ');
+              
+              return (
+                <Card key={index} className="hover:shadow-xl transition-all duration-300 border-2 hover:border-gray-300 dark:hover:border-gray-600">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className={`w-12 h-12 ${bgColor} rounded-lg flex items-center justify-center`}>
+                        <Icon className={`w-6 h-6 ${textColor}`} />
+                      </div>
+                      <Badge variant="outline" className="text-xs">
+                        {resource.category}
+                      </Badge>
+                    </div>
+                    
+                    <h4 className="font-bold text-gray-900 dark:text-gray-100 mb-1">{resource.name}</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{resource.description}</p>
+                    
+                    <div className="space-y-2">
+                      <a 
+                        href={`tel:${resource.phone.replace(/\D/g, '')}`} 
+                        className="flex items-center text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                      >
+                        <Phone className="w-3 h-3 mr-1" />
+                        {resource.phone}
+                      </a>
+                      
+                      <Button 
+                        size="sm" 
+                        className="w-full"
+                        variant="outline"
+                        onClick={() => window.open(resource.website, '_blank')}
+                      >
+                        <ExternalLink className="w-3 h-3 mr-1" />
+                        Visit Website
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+          
+          <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+            <div className="flex items-center">
+              <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2 flex-shrink-0" />
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                <strong>Need Help Finding Resources?</strong> Call the Eldercare Locator at 1-800-677-1116 to connect with local services in your area.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* California Ombudsman & Adult Protective Services Directory */}
       <section className="px-4 py-8 bg-gradient-to-br from-red-50 to-orange-50 dark:from-gray-800 dark:to-gray-900">
         <div className="max-w-6xl mx-auto">
