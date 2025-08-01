@@ -129,6 +129,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register Enhanced Weaviate AI-native routes
   app.use('/api/weaviate-enhanced', enhancedWeaviateRoutes);
+  
+  // Register Canadian community routes
+  const canadianRoutes = await import('./canadianRoutes');
+  app.use('/api/communities', canadianRoutes.default);
 
   // Register existing specialized routers
   app.use('/api/quiz', quizRouter);

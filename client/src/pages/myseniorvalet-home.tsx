@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, BarChart, X } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, BarChart, X, Flag, Languages } from "lucide-react";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -15,6 +15,7 @@ import { ShootingStars } from "@/components/ShootingStars";
 import { VendorMarketplaceTabs } from "@/components/VendorMarketplaceTabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { CanadianStatsCard } from "@/components/canadian-stats-card";
 
 
 
@@ -314,6 +315,62 @@ export default function MySeniorValetHome() {
           </div>
           
 
+        </div>
+      </section>
+
+      {/* Canadian Expansion Showcase */}
+      <section className="px-4 py-8 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            {/* Canadian Stats Card */}
+            <div className="animate-fade-in-up">
+              <CanadianStatsCard 
+                totalCommunities={24}
+                bilingualCount={10}
+                provinceCount={13}
+              />
+            </div>
+            
+            {/* Bilingual Community Highlights */}
+            <div className="space-y-4">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+                <Flag className="h-6 w-6 text-red-600" />
+                {language === 'en' ? 'Featured Canadian Communities' : 'Communautés canadiennes en vedette'}
+              </h3>
+              
+              <div className="space-y-3">
+                {[
+                  { name: "Chartwell Le St-Gabriel", location: "Montreal, QC", bilingual: true },
+                  { name: "Shannex Parkland Moncton", location: "Moncton, NB", bilingual: true },
+                  { name: "Copper Ridge Place", location: "Whitehorse, YT", bilingual: true }
+                ].map((community, index) => (
+                  <Card key={index} className="hover:shadow-lg transition-all duration-300 border-l-4 border-red-600">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-semibold text-gray-900 dark:text-gray-100">{community.name}</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{community.location}</p>
+                        </div>
+                        {community.bilingual && (
+                          <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                            <Languages className="w-3 h-3 mr-1" />
+                            {language === 'en' ? 'Bilingual' : 'Bilingue'}
+                          </Badge>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              
+              <Link href="/map-search?country=Canada">
+                <Button className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white">
+                  {language === 'en' ? 'Explore All Canadian Communities' : 'Explorer toutes les communautés canadiennes'}
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 

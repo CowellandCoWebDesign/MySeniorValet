@@ -26,15 +26,24 @@ The platform is built with a modern web stack.
 - **System Design**: Features a robust services management system with a 5-table database architecture. Implements a subscription tier system for access control (Free, Featured Spotlight, Premium Tools, Platinum Partner). Includes an automated testing infrastructure for code quality.
 
 ## Recent Changes (August 1, 2025)
-- **International Expansion - Canada Added**: Successfully expanded MySeniorValet to Canada with 8 communities across Ontario, Quebec, British Columbia, and Alberta. Platform now covers North America (USA + Canada) with 34,155 total communities
+- **International Expansion - Canada Added**: Successfully expanded MySeniorValet to Canada with 24 communities across all 13 provinces and territories. Platform now covers North America (USA + Canada) with 34,171 total communities
+- **Enhanced Bilingual Support**: 
+  - Implemented comprehensive French/English language switching with persistent preferences
+  - Created LanguageContext with extensive translation dictionary
+  - Added language switcher component to navigation
+  - Built dedicated Canadian statistics dashboard showing bilingual distribution
+  - Created specialized bilingual community cards with dual-language content
+  - Set up Canadian-specific API routes for filtering and stats
+  - 10 communities offer full bilingual services (French/English)
 - **Final Spectrum Integration Completed**: Successfully implemented Ghost dispatch expanding housing type coverage to full senior housing continuum
-- **Database Expansion**: Dramatically expanded from 25,376 to 34,155 communities - added 8,779 new communities including mobile home parks, manufactured home communities, 55+ active adult communities, RV retirement parks, and Canadian senior living facilities
+- **Database Expansion**: Dramatically expanded from 25,376 to 34,171 communities - added 8,795 new communities including mobile home parks, manufactured home communities, 55+ active adult communities, RV retirement parks, and Canadian senior living facilities
 - **Schema Enhancement**: Upgraded communitySubtype field to comprehensive enum with 13 housing types: HUD senior housing, mobile parks, active adult, independent living, assisted living, memory care, board & care, skilled nursing, VA housing, unlicensed housing, manufactured homes, RV parks, and senior cooperatives
 - **Frontend Updates**: 
   - Community cards now display color-coded housing type badges with unique emojis for each type
   - Super admin dashboard shows full housing type distribution breakdown
   - Enhanced community filter panel supports all new housing types
-- **Platform Scope**: Achieved 34,155 communities covering full North American senior housing spectrum (USA + Canada)
+  - Canadian expansion showcase section on homepage with bilingual features
+- **Platform Scope**: Achieved 34,171 communities covering full North American senior housing spectrum (USA + Canada)
 
 ## External Dependencies
 - **Database Connectivity**: `@neondatabase/serverless`
