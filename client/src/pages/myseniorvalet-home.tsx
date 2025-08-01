@@ -16,6 +16,7 @@ import { VendorMarketplaceTabs } from "@/components/VendorMarketplaceTabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { CanadianStatsCard } from "@/components/canadian-stats-card";
+import { CareSpectrumSlider } from "@/components/CareSpectrumSlider";
 
 
 
@@ -454,6 +455,13 @@ export default function MySeniorValetHome() {
               </>
             )}
           </div>
+        </div>
+      </section>
+
+      {/* Care Spectrum Slider Section - Interactive Housing Type Selection */}
+      <section className="px-4 py-12 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <CareSpectrumSlider />
         </div>
       </section>
 
