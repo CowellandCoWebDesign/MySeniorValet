@@ -4,7 +4,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Pill, Car, Stethoscope, Phone, Home, DollarSign, ExternalLink, CheckCircle, Shield } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ShoppingCart, Pill, Car, Stethoscope, Phone, Home, DollarSign, ExternalLink, CheckCircle, Shield, Grid3X3 } from 'lucide-react';
 
 interface MarketplaceCategory {
   id: number;
@@ -252,31 +253,162 @@ export function VendorMarketplaceTabs() {
   return (
     <div className="w-full">
       <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
-        <div className="relative mb-8">
-          {/* Gradient indicators for scroll */}
-          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white dark:from-gray-900 to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white dark:from-gray-900 to-transparent z-10 pointer-events-none" />
-          
-          <TabsList className="flex w-full overflow-x-auto scrollbar-hide bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+        {/* Mobile Category Selector - Dropdown */}
+        <div className="sm:hidden mb-6">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Select Category
+          </label>
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger className="w-full">
+              <SelectValue>
+                <div className="flex items-center gap-2">
+                  {selectedCategory === 'all' ? (
+                    <>
+                      <Grid3X3 className="w-4 h-4" />
+                      <span>All Vendors</span>
+                    </>
+                  ) : (
+                    <>
+                      {(() => {
+                        const category = categories.find(c => c.slug === selectedCategory);
+                        const Icon = category ? iconMap[category.icon || 'ShoppingCart'] : ShoppingCart;
+                        return (
+                          <>
+                            <Icon className="w-4 h-4" />
+                            <span>{category?.name || 'Select Category'}</span>
+                          </>
+                        );
+                      })()}
+                    </>
+                  )}
+                </div>
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent className="max-h-[400px]">
+              <SelectItem value="all">
+                <div className="flex items-center gap-2">
+                  <Grid3X3 className="w-4 h-4" />
+                  <span>All Vendors</span>
+                  <Badge variant="secondary" className="ml-auto">
+                    {vendors.length}
+                  </Badge>
+                </div>
+              </SelectItem>
+              {categories.map((category) => {
+                const Icon = iconMap[category.icon || 'ShoppingCart'];
+                const vendorCount = vendors.filter(v => v.categoryId === category.id).length;
+                return (
+                  <SelectItem key={category.slug} value={category.slug}>
+                    <div className="flex items-center gap-2 w-full">
+                      <Icon className="w-4 h-4" />
+                      <span>{category.name}</span>
+                      <Badge variant="secondary" className="ml-auto">
+                        {vendorCount}
+                      </Badge>
+                    </div>
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Tablet Category Grid */}
+        <div className="hidden sm:block lg:hidden mb-6">
+          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Choose Category</h3>
+          <div className="grid grid-cols-3 gap-3">
+            <button
+              onClick={() => setSelectedCategory('all')}
+              className={`p-3 rounded-lg border-2 transition-all ${
+                selectedCategory === 'all'
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+              }`}
+            >
+              <Grid3X3 className="w-5 h-5 mx-auto mb-1" />
+              <div className="text-xs font-medium">All</div>
+              <Badge variant="secondary" className="mt-1 text-xs">
+                {vendors.length}
+              </Badge>
+            </button>
+            {categories.map((category) => {
+              const Icon = iconMap[category.icon || 'ShoppingCart'];
+              const vendorCount = vendors.filter(v => v.categoryId === category.id).length;
+              const isActive = selectedCategory === category.slug;
+              
+              // Category-specific colors
+              const categoryColors: Record<string, string> = {
+                'groceries': 'border-green-500 bg-green-50 dark:bg-green-900/20',
+                'pharmacy': 'border-orange-500 bg-orange-50 dark:bg-orange-900/20',
+                'transportation': 'border-blue-500 bg-blue-50 dark:bg-blue-900/20',
+                'medical-supplies': 'border-red-500 bg-red-50 dark:bg-red-900/20',
+                'communication': 'border-purple-500 bg-purple-50 dark:bg-purple-900/20',
+                'home-services': 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20',
+                'financial': 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20',
+              };
+              
+              return (
+                <button
+                  key={category.slug}
+                  onClick={() => setSelectedCategory(category.slug)}
+                  className={`p-3 rounded-lg border-2 transition-all ${
+                    isActive
+                      ? categoryColors[category.slug] || 'border-gray-500 bg-gray-50 dark:bg-gray-900/20'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                  }`}
+                >
+                  <Icon className="w-5 h-5 mx-auto mb-1" />
+                  <div className="text-xs font-medium">{category.name.split(' ')[0]}</div>
+                  <Badge variant="secondary" className="mt-1 text-xs">
+                    {vendorCount}
+                  </Badge>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Desktop Tabs */}
+        <div className="hidden lg:block mb-8">
+          <TabsList className="inline-flex h-auto p-1 bg-gray-100 dark:bg-gray-800 rounded-lg flex-wrap gap-2">
             <TabsTrigger 
               value="all" 
-              className="flex items-center gap-2 px-4 py-2 whitespace-nowrap data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 rounded-md transition-all flex-shrink-0"
+              className="inline-flex items-center gap-2 px-4 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm rounded-md transition-all font-medium"
             >
-              <div className="w-5 h-5 flex items-center justify-center">
-                <span className="text-lg">🏪</span>
-              </div>
+              <Grid3X3 className="w-4 h-4" />
               All Vendors
+              <Badge variant="secondary" className="ml-1">
+                {vendors.length}
+              </Badge>
             </TabsTrigger>
             {categories.map((category) => {
               const Icon = iconMap[category.icon || 'ShoppingCart'];
+              const vendorCount = vendors.filter(v => v.categoryId === category.id).length;
+              
+              // Category-specific active colors for desktop
+              const categoryActiveColors: Record<string, string> = {
+                'groceries': 'data-[state=active]:bg-green-100 dark:data-[state=active]:bg-green-900/30 data-[state=active]:border-green-500',
+                'pharmacy': 'data-[state=active]:bg-orange-100 dark:data-[state=active]:bg-orange-900/30 data-[state=active]:border-orange-500',
+                'transportation': 'data-[state=active]:bg-blue-100 dark:data-[state=active]:bg-blue-900/30 data-[state=active]:border-blue-500',
+                'medical-supplies': 'data-[state=active]:bg-red-100 dark:data-[state=active]:bg-red-900/30 data-[state=active]:border-red-500',
+                'communication': 'data-[state=active]:bg-purple-100 dark:data-[state=active]:bg-purple-900/30 data-[state=active]:border-purple-500',
+                'home-services': 'data-[state=active]:bg-yellow-100 dark:data-[state=active]:bg-yellow-900/30 data-[state=active]:border-yellow-500',
+                'financial': 'data-[state=active]:bg-indigo-100 dark:data-[state=active]:bg-indigo-900/30 data-[state=active]:border-indigo-500',
+              };
+              
               return (
                 <TabsTrigger 
                   key={category.slug} 
                   value={category.slug} 
-                  className="flex items-center gap-2 px-4 py-2 whitespace-nowrap data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 rounded-md transition-all flex-shrink-0"
+                  className={`inline-flex items-center gap-2 px-4 py-2.5 border-2 border-transparent hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition-all font-medium ${
+                    categoryActiveColors[category.slug] || 'data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-700 data-[state=active]:border-gray-500'
+                  }`}
                 >
                   <Icon className="w-4 h-4" />
                   {category.name}
+                  <Badge variant="secondary" className="ml-1">
+                    {vendorCount}
+                  </Badge>
                 </TabsTrigger>
               );
             })}
