@@ -190,8 +190,8 @@ export const EnhancedMultiAIOrchestrator = {
         ],
         confidence: 85,
         warnings: [
-          ...(Array.isArray(financialAnalysis?.warnings) ? financialAnalysis.warnings : []),
-          ...(Array.isArray(contractAnalysis?.concerns) ? contractAnalysis.concerns : [])
+          ...(financialAnalysis.warnings || []),
+          ...(contractAnalysis?.concerns || [])
         ]
       };
     } catch (error) {
