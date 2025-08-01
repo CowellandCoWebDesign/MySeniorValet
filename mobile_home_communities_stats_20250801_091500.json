@@ -1,0 +1,15 @@
+{
+  "collection_date": "20250801_091500",
+  "total_communities": 9,
+  "by_state": {
+    "Unknown": 9
+  },
+  "by_type": {
+    "mobile_home_park": 9,
+    "manufactured_home": 0,
+    "rv_park": 0,
+    "active_adult": 0
+  },
+  "age_restricted": 9,
+  "with_amenities": 0
+}
