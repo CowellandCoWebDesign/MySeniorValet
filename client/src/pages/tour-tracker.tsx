@@ -9,9 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Camera, Star, Users, Clock, Smartphone, CheckCircle, AlertCircle, Calendar } from "lucide-react";
+import { MapPin, Camera, Star, Users, Clock, Smartphone, CheckCircle, AlertCircle, Calendar, Search, Building2 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Link, useLocation } from "wouter";
 import { NavigationHeader } from "@/components/NavigationHeader";
@@ -144,8 +144,12 @@ const PhotoUpload = ({
 export default function TourTracker() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
+  const [showCommunitySearch, setShowCommunitySearch] = useState(false);
+  const [communitySearchQuery, setCommunitySearchQuery] = useState("");
+  const [showRedirectWarning, setShowRedirectWarning] = useState(false);
+  const [pendingCommunityId, setPendingCommunityId] = useState<number | null>(null);
   const [tourForm, setTourForm] = useState({
     tourType: "",
     visitDate: "",
@@ -171,6 +175,16 @@ export default function TourTracker() {
   const { data: communities = [] } = useQuery({
     queryKey: ['/api/user/tour-communities'],
     enabled: isAuthenticated,
+  });
+
+  // Search communities
+  const { data: searchResults } = useQuery({
+    queryKey: ['/api/communities/search', communitySearchQuery],
+    enabled: communitySearchQuery.length >= 2,
+    queryFn: async () => {
+      const response = await apiRequest('GET', `/api/communities/search?q=${encodeURIComponent(communitySearchQuery)}`);
+      return response;
+    },
   });
 
   // Fetch existing tour reviews (only for authenticated users)
@@ -493,24 +507,40 @@ export default function TourTracker() {
                   {/* Community Selection */}
                   <div className="space-y-2">
                     <Label>Community Visited *</Label>
-                    <Select 
-                      value={selectedCommunity?.id.toString() || ""}
-                      onValueChange={(value) => {
-                        const community = communities.find((c: Community) => c.id.toString() === value);
-                        setSelectedCommunity(community || null);
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a community..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {communities.map((community: Community) => (
-                          <SelectItem key={community.id} value={community.id.toString()}>
-                            {community.name} - {community.city}, {community.state}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="flex gap-2">
+                      {selectedCommunity ? (
+                        <div className="flex-1 flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                          <Building2 className="h-4 w-4 text-blue-600" />
+                          <div className="flex-1">
+                            <p className="font-medium text-sm">{selectedCommunity.name}</p>
+                            <p className="text-xs text-gray-600 dark:text-gray-400">
+                              {selectedCommunity.city}, {selectedCommunity.state}
+                            </p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowCommunitySearch(true)}
+                          >
+                            Change
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-full justify-start"
+                          onClick={() => setShowCommunitySearch(true)}
+                        >
+                          <Search className="h-4 w-4 mr-2" />
+                          Select a community...
+                        </Button>
+                      )}
+                    </div>
+                    {!selectedCommunity && (
+                      <p className="text-xs text-red-500">Please select a community to continue</p>
+                    )}
                   </div>
 
                   {/* Visit Details */}
@@ -917,6 +947,140 @@ export default function TourTracker() {
         </Tabs>
         </div>
       </div>
+
+      {/* Community Search Dialog */}
+      <Dialog open={showCommunitySearch} onOpenChange={setShowCommunitySearch}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Select a Community</DialogTitle>
+            <DialogDescription>
+              Search for a community to track your tour experience
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              <Input
+                placeholder="Search by name, city, or address..."
+                value={communitySearchQuery}
+                onChange={(e) => setCommunitySearchQuery(e.target.value)}
+                className="pl-10 pr-4 py-2 text-lg"
+              />
+            </div>
+
+            {communitySearchQuery.length >= 2 && searchResults?.communities && (
+              <div className="space-y-2">
+                {searchResults.communities.length === 0 ? (
+                  <p className="text-center text-gray-500 py-8">No communities found matching your search.</p>
+                ) : (
+                  searchResults.communities.map((community: Community) => (
+                    <Button
+                      key={community.id}
+                      variant="ghost"
+                      className="w-full justify-start p-4 hover:bg-gray-50 dark:hover:bg-gray-800"
+                      onClick={() => {
+                        if (communityIdFromUrl && community.id !== parseInt(communityIdFromUrl)) {
+                          setPendingCommunityId(community.id);
+                          setShowRedirectWarning(true);
+                        } else {
+                          setSelectedCommunity(community);
+                          setShowCommunitySearch(false);
+                        }
+                      }}
+                    >
+                      <Building2 className="h-5 w-5 mr-3 text-gray-400" />
+                      <div className="text-left">
+                        <p className="font-medium">{community.name}</p>
+                        <p className="text-sm text-gray-600">
+                          {community.city}, {community.state} • {community.address}
+                        </p>
+                      </div>
+                    </Button>
+                  ))
+                )}
+              </div>
+            )}
+
+            {!communitySearchQuery && communities.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm text-gray-600 font-medium">Recently Viewed Communities</p>
+                {communities.map((community: Community) => (
+                  <Button
+                    key={community.id}
+                    variant="ghost"
+                    className="w-full justify-start p-4 hover:bg-gray-50 dark:hover:bg-gray-800"
+                    onClick={() => {
+                      if (communityIdFromUrl && community.id !== parseInt(communityIdFromUrl)) {
+                        setPendingCommunityId(community.id);
+                        setShowRedirectWarning(true);
+                      } else {
+                        setSelectedCommunity(community);
+                        setShowCommunitySearch(false);
+                      }
+                    }}
+                  >
+                    <Building2 className="h-5 w-5 mr-3 text-gray-400" />
+                    <div className="text-left">
+                      <p className="font-medium">{community.name}</p>
+                      <p className="text-sm text-gray-600">
+                        {community.city}, {community.state}
+                      </p>
+                    </div>
+                  </Button>
+                ))}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Redirect Warning Dialog */}
+      <Dialog open={showRedirectWarning} onOpenChange={setShowRedirectWarning}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Change Community?</DialogTitle>
+            <DialogDescription>
+              You'll be redirected to the selected community's detail page where you can start a new tour tracker.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-3">
+              <p className="text-sm text-amber-800 dark:text-amber-200">
+                <AlertCircle className="h-4 w-4 inline-block mr-2" />
+                Any unsaved tour data for the current community will be lost.
+              </p>
+            </div>
+            <p className="text-sm text-gray-600">
+              You can track tours for different communities by visiting their detail pages and clicking the "Start Comprehensive Tour Grading" button.
+            </p>
+          </div>
+          
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowRedirectWarning(false);
+                setPendingCommunityId(null);
+              }}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (pendingCommunityId) {
+                  window.location.href = `/community/${pendingCommunityId}`;
+                }
+              }}
+              className="flex-1 bg-blue-600 hover:bg-blue-700"
+            >
+              Continue to Community
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

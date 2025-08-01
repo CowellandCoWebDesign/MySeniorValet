@@ -20,7 +20,7 @@ The platform is built with a modern web stack.
 - **Build System**: Vite for the frontend and esbuild for the backend.
 - **Authentication**: Replit Auth with role-based access control for secure user and admin access.
 - **Key Features**: Interactive Map System with AI analysis, AI-Powered Search with multi-AI verification, Transparent Pricing including HUD-verified data, Comprehensive Community Profiles, Unified Admin Dashboard with role-based access, Family Collaboration features for tour tracking and sharing, and a Vendor Marketplace for service providers.
-- **UI/UX Decisions**: Emphasizes a clean, modern aesthetic with specific preference for cosmic imagery on the homepage. Consistent design elements are applied across features like horizontal sliders for services and products. AI-generated product imagery is used for legal compliance and visual appeal.
+- **UI/UX Decisions**: Emphasizes a clean, modern aesthetic with specific preference for cosmic imagery on the homepage. Consistent design elements are applied across features like horizontal sliders for services and products. AI-generated product imagery is used for legal compliance and visual appeal. Tour tracker includes enhanced community selection with search and redirect warnings.
 - **System Design**: Features a robust services management system with a 5-table database architecture. Implements a subscription tier system for access control (Free, Featured Spotlight, Premium Tools, Platinum Partner). Includes an automated testing infrastructure for code quality.
 
 ## External Dependencies
