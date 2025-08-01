@@ -158,8 +158,8 @@ export function PricingIntelligenceWidget() {
           <h3 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <Star className="w-4 h-4 text-yellow-600" />
             Care Type Distribution & Pricing
-            <span className="text-xs text-green-600 font-normal ml-auto">
-              🏛️ HUD + State records
+            <span className="text-xs text-amber-600 font-normal ml-auto">
+              ⏳ Awaiting community claims for real-time pricing
             </span>
           </h3>
           
@@ -196,8 +196,8 @@ export function PricingIntelligenceWidget() {
           <h3 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 mb-3">
             <Clock className="w-4 h-4 text-green-600" />
             Live Availability
-            <span className="text-xs text-purple-600 font-normal ml-auto">
-              📊 Aggregated from 25,326+ communities
+            <span className="text-xs text-amber-600 font-normal ml-auto">
+              ⏳ Awaiting community claims for real-time updates
             </span>
           </h3>
           

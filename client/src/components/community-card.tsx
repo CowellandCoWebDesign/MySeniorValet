@@ -277,7 +277,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
               )}
             </div>
             <div className="text-xs opacity-80">
-              {community.hudPropertyId ? '🏛️ HUD' : '📞 Call to verify'}
+              {community.hudPropertyId ? '🏛️ HUD' : '⏳ Waiting for community to claim & update'}
             </div>
           </div>
         </div>
@@ -299,7 +299,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
               )}
             </div>
             <div className="text-xs opacity-80">
-              {community.hudPropertyId ? '🏛️ HUD' : '📞 Call to verify'}
+              {community.hudPropertyId ? '🏛️ HUD' : '⏳ Waiting for community to claim & update'}
             </div>
           </div>
         </div>

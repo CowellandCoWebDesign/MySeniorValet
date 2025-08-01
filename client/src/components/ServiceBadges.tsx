@@ -103,6 +103,6 @@ export const commonBadges = {
   available247: { type: '24/7' as const, label: '24/7 Available' },
   fastResponse: { type: 'response' as const, label: '<1hr Response' },
   multiLanguage: { type: 'language' as const, label: 'Multi-Language' },
-  governmentVerified: { type: 'verified' as const, label: 'Gov Verified' },
+  governmentVerified: { type: 'verified' as const, label: '⏳ Awaiting Claim' },
   veteranFriendly: { type: 'veteran' as const, label: 'Veteran Friendly' }
 };

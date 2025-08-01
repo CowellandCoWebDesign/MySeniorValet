@@ -492,8 +492,8 @@ export default function CommunityDetail() {
       const intelligentPrice = getIntelligentUnitPricing(unit.type, community.state);
 
       // Determine availability source based on community data
-      let availabilitySource = 'Community Reported';
-      let availabilityVerification = '📞 Call to verify';
+      let availabilitySource = 'Awaiting Community Update';
+      let availabilityVerification = '⏳ Waiting for community to claim listing & update real-time availability';
       
       if (community.claimedBy && community.availabilityLastUpdated && 
           new Date(community.availabilityLastUpdated) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)) {
@@ -507,7 +507,7 @@ export default function CommunityDetail() {
       } else if (community.dataSource && community.dataSource.includes('state')) {
         // State database sourced
         availabilitySource = 'State Database';
-        availabilityVerification = '🏢 State records';
+        availabilityVerification = '⏳ Waiting for community to claim & provide real-time updates';
       }
 
       return {
