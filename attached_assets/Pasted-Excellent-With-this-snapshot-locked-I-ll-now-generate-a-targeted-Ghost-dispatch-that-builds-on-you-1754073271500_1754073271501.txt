@@ -1,0 +1,187 @@
+Excellent. With this snapshot locked, I’ll now generate a targeted Ghost dispatch that builds on your existing infrastructure to fully implement:
+
+✅ Public directory coverage
+✅ Ethical enrichment & AI summaries
+✅ Verified/premium listing claims
+✅ Monetization through tools — not restricted data
+
+
+---
+
+🚀 GHOST DISPATCH: Dual-Mode Listing Integration
+
+🔧 Title:
+
+Enable Dual-Mode Listing Model with AI Enrichment, Community Claims, and Tiered Upgrades
+
+🧠 Purpose:
+
+Allow MySeniorValet to show all senior communities using ethical sources while enabling operators to claim, enhance, and monetize listings without violating content rights or source restrictions.
+
+
+---
+
+✅ Tasks for Implementation
+
+1. Expand Subtype Tagging
+
+Fix incomplete subtype tagging for:
+
+mobile_home_park
+
+active_adult_55plus
+
+memory_care_only
+
+licensed_board_and_care
+
+
+Use AI assistance + Weaviate to suggest tags based on existing summaries and metadata.
+
+
+
+---
+
+2. Launch Public Listing Claim System
+
+Backend (Tables already exist)
+
+Use community_claims for pending/approved claims
+
+Connect claimed_communities to verified user accounts
+
+
+Verification Logic
+
+Match email domain to website
+
+Match phone number to HUD/CMS records
+
+Manual override for small operators
+
+
+Frontend Flow
+
+Add “Claim this Listing” button on unclaimed pages
+
+3-step verification UI: contact info → ownership → confirm claim
+
+Auto-upgrade to Tier 1 (Free) upon claim approval
+
+
+
+---
+
+3. Add Enrichment Layer (AI-Safe)
+
+Purpose:
+
+Use AI summaries to improve listings while staying compliant.
+
+Implementation:
+
+Populate enrichments table with:
+
+Summarized community description (source = HUD/CMS/Yelp metadata only)
+
+AI-generated care type explainer (from open data)
+
+Auto-tag features using Claude+OpenAI consensus
+
+
+
+Rule:
+
+Only enrich communities from verified open/public data or with user-provided input. Never generate from gated aggregator copy.
+
+
+---
+
+4. Tier Activation & Feature Gating
+
+Use community_subscriptions to toggle premium tools:
+
+Tier	Activation Trigger	Features Unlocked
+
+Basic (Free)	Claimed listing	Photo uploads (5), edit description, reply to reviews
+Spotlight ($149)	Stripe subscription	Red tag promo, search boost, gallery (10), intake forms
+Premium ($249)	Stripe subscription	Unlimited uploads, branded forms, analytics, tour tracker
+Platinum ($349)	Stripe subscription	Homepage, sponsored content, concierge sync, API access
+
+
+
+---
+
+5. Ethical & Legal Safeguards
+
+✅ Do not store scraped copy from Yelp, APFM, SHN, etc.
+
+✅ Display logos/images only if uploaded or community-verified
+
+✅ Link out to official sites when not claimed
+
+✅ Display clear disclosure: “This listing is based on publicly available information. Claim this listing to customize it.”
+
+
+
+---
+
+6. Post-Claim Marketing Automation
+
+Trigger SendGrid flow upon claim approval:
+
+“Welcome to your new listing portal”
+
+Upsell Spotlight tier
+
+Embed Stripe payment link
+
+
+Add calendar reminder to check on unconverted claims after 10 days
+
+
+
+---
+
+🔄 Optional Enhancements
+
+Add claim_interest funnel for unverified communities (inbound lead capture)
+
+Enable ghost_enrichment_queue table for Claude to enrich new records in batches
+
+Add endpoint /api/communities/enrich for admin-triggered AI summaries
+
+
+
+---
+
+✅ Outcome
+
+You preserve:
+
+✅ Legal compliance
+
+✅ National visibility
+
+✅ Monetization through opt-in
+
+✅ AI-powered enrichment
+
+
+And avoid:
+
+❌ Copyright violations
+
+❌ Aggregator license risks
+
+❌ Reliance on Google/Yelp APIs
+
+
+
+---
+
+Ready to deploy.
+
+If you want this dispatched as code (SQL + endpoint scaffolding), just say:
+“Ghost: ship it in code format.”
+

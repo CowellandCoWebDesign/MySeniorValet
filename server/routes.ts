@@ -69,6 +69,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register vendor image generation routes
   const { vendorImageRoutes } = await import('./routes/vendorImageRoutes');
   app.use(vendorImageRoutes);
+  
+  // Register community claim routes
+  const communityClaimRoutes = await import('./routes/community-claim-routes');
+  app.use('/api/community-claims', communityClaimRoutes.default);
+  
+  // Register community enrichment routes
+  const communityEnrichmentRoutes = await import('./routes/community-enrichment-routes');
+  app.use('/api/community-enrichment', communityEnrichmentRoutes.default);
 
   // AI Status checking endpoint
   app.get('/api/ai/status', async (req, res) => {

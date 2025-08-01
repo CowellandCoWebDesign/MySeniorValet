@@ -1055,6 +1055,33 @@ export const communityClaims = pgTable("community_claims", {
   index("community_claims_status_idx").on(table.status),
 ]);
 
+// Community enrichments table for AI-generated content
+export const enrichments = pgTable("enrichments", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  enrichmentType: text("enrichment_type", {
+    enum: ["ai_summary", "care_type_explanation", "suggested_tags", "subtype_classification"]
+  }).notNull(),
+  data: jsonb("data").$type<{
+    description?: string;
+    careTypeExplanation?: string;
+    suggestedTags?: string[];
+    suggestedSubtype?: string;
+    dataSource?: string;
+    confidence?: number;
+  }>().notNull(),
+  source: text("source").notNull(), // 'public_metadata_ai', 'hud_csv', 'cms_data', 'user_input'
+  confidence: decimal("confidence", { precision: 3, scale: 2 }).default("0.00"),
+  isApproved: boolean("is_approved").default(false),
+  approvedBy: integer("approved_by").references(() => users.id),
+  approvedAt: timestamp("approved_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("enrichments_community_idx").on(table.communityId),
+  index("enrichments_type_idx").on(table.enrichmentType),
+]);
+
 // Pending Communities - Approval queue for communities that can't be auto-added
 export const pendingCommunities = pgTable("pending_communities", {
   id: serial("id").primaryKey(),
