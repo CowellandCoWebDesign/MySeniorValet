@@ -112,6 +112,7 @@ export function registerCommunityRoutes(app: Express) {
         city,
         rating,
         features,
+        subtypes,
         excludePending = "true" 
       } = req.query;
 
@@ -159,6 +160,14 @@ export function registerCommunityRoutes(app: Express) {
           and(...featureArray.map(f => 
             sql`${communities.features}::text[] && ARRAY[${f}]`
           ))
+        );
+      }
+
+      // Subtype filter
+      if (subtypes) {
+        const subtypeArray = (subtypes as string).split(',');
+        conditions.push(
+          inArray(communities.communitySubtype, subtypeArray)
         );
       }
 

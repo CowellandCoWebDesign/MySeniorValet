@@ -33,13 +33,22 @@ function hasVerifiedPricing(community: Community): boolean {
 }
 
 // Helper function to get community subtype label
-const getCommunitySubtypeLabel = (subtype: string): string => {
+const getCommunitySubtypeLabel = (subtype: string): { label: string; badge: string; color: string } => {
   switch(subtype) {
-    case 'mobile_home_park': return 'Mobile Home Park';
-    case 'active_adult': return '55+ Active Adult Community';
-    case 'manufactured_home': return 'Manufactured Home Community';
-    case 'rv_retirement': return 'RV Retirement Park';
-    default: return subtype;
+    case 'hud_senior_housing': return { label: 'HUD Verified', badge: '🏷️ HUD Verified', color: 'bg-blue-500' };
+    case 'senior_mobile_park': return { label: '55+ Mobile', badge: '🏕️ 55+ Mobile', color: 'bg-green-500' };
+    case 'active_adult_55plus': return { label: 'Active Adult', badge: '🟢 Active Adult', color: 'bg-emerald-500' };
+    case 'independent_living': return { label: 'Independent Living', badge: '🟣 Independent Living', color: 'bg-purple-500' };
+    case 'assisted_living': return { label: 'Assisted Living', badge: '🔶 Assisted Living', color: 'bg-orange-500' };
+    case 'memory_care': return { label: 'Memory Care', badge: '🔴 Memory Care', color: 'bg-red-500' };
+    case 'board_and_care': return { label: 'Board & Care', badge: '🏡 Board & Care', color: 'bg-yellow-600' };
+    case 'skilled_nursing': return { label: 'Skilled Nursing', badge: '🏥 Skilled Nursing', color: 'bg-indigo-500' };
+    case 'va_housing': return { label: 'Veteran Housing', badge: '🎖️ Veteran Housing', color: 'bg-slate-600' };
+    case 'unlicensed_senior_housing': return { label: 'Unlicensed Housing', badge: '🕊️ Unlicensed Housing', color: 'bg-gray-500' };
+    case 'mobile_home_park': return { label: 'Mobile Home Park', badge: '🏕️ Mobile Park', color: 'bg-green-500' };
+    case 'manufactured_home_community': return { label: 'Manufactured Home', badge: '🏘️ Manufactured', color: 'bg-teal-500' };
+    case 'rv_retirement_park': return { label: 'RV Retirement', badge: '🚐 RV Park', color: 'bg-cyan-500' };
+    default: return { label: subtype || 'Community', badge: '🏢 Community', color: 'bg-gray-500' };
   }
 };
 
@@ -357,6 +366,16 @@ export function CommunityCard({ community }: CommunityCardProps) {
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 hover:text-blue-600 transition-colors duration-300">{community.name}</h3>
+            
+            {/* Housing Type Badge */}
+            {community.communitySubtype && (
+              <div className="mb-2">
+                <Badge className={`${getCommunitySubtypeLabel(community.communitySubtype).color} text-white text-xs`}>
+                  {getCommunitySubtypeLabel(community.communitySubtype).badge}
+                </Badge>
+              </div>
+            )}
+            
             <div className="flex items-center text-gray-600 dark:text-gray-400 text-sm mb-3 hover:text-gray-800 dark:text-gray-200 transition-colors duration-200">
               <MapPin className="h-4 w-4 mr-1 hover:text-blue-500 transition-colors duration-200" />
               {community.address}, {community.city}, {community.state}

@@ -67,17 +67,45 @@ export class CommunityEnrichmentService {
 
   // Classify community subtype using AI
   private async classifySubtype(community: any): Promise<string | null> {
+    // Check for HUD property first
+    if (community.hudPropertyId) {
+      return 'hud_senior_housing';
+    }
+
+    // Check for VA housing
+    if (community.name?.toLowerCase().includes('veteran') || 
+        community.name?.toLowerCase().includes('va ') ||
+        community.description?.toLowerCase().includes('veteran')) {
+      return 'va_housing';
+    }
+
     const prompt = `Based on the following community information, classify it into ONE of these subtypes:
-    - mobile_home_park (55+ mobile home communities)
-    - active_adult_55plus (age-restricted active living)
-    - memory_care_only (dedicated memory/dementia care)
-    - licensed_board_and_care (small residential care homes)
-    - traditional_assisted_living (standard assisted living)
+    - hud_senior_housing (HUD-sponsored properties)
+    - senior_mobile_park (55+ mobile home parks, manufactured homes)
+    - active_adult_55plus (age-restricted active adult communities)
+    - independent_living (independent living with meals/activities, no care)
+    - assisted_living (provides help with daily activities)
+    - memory_care (dedicated memory/dementia care)
+    - skilled_nursing (SNF, nursing home with medical care)
+    - board_and_care (small residential care homes <16 beds)
+    - va_housing (veteran housing)
+    - unlicensed_senior_housing (no license, nonprofit/religious)
+    
+    Rules:
+    - If it mentions "mobile home", "manufactured", "lot rent" → senior_mobile_park
+    - If it mentions "55+", "active adult", "age-restricted" without care → active_adult_55plus
+    - If it provides meals and activities but no personal care → independent_living
+    - If it helps with ADLs (bathing, dressing, medication) → assisted_living
+    - If it specializes in memory/dementia care → memory_care
+    - If it has skilled nursing, rehab, or medical staff → skilled_nursing
+    - If it's a small home (<16 beds) with license → board_and_care
+    - If no license mentioned and nonprofit/religious → unlicensed_senior_housing
     
     Community: ${community.name}
     Care Types: ${community.careTypes?.join(', ') || 'Not specified'}
     Description: ${community.description || 'None'}
     Address: ${community.address}, ${community.city}, ${community.state}
+    License: ${community.licenseNumber ? 'Has license' : 'No license'}
     
     Respond with just the subtype string, nothing else.`;
 
@@ -92,8 +120,12 @@ export class CommunityEnrichmentService {
       const subtype = response.choices[0]?.message?.content?.trim();
       
       // Validate the response
-      const validSubtypes = ['mobile_home_park', 'active_adult_55plus', 'memory_care_only', 
-                            'licensed_board_and_care', 'traditional_assisted_living'];
+      const validSubtypes = [
+        'hud_senior_housing', 'senior_mobile_park', 'active_adult_55plus',
+        'independent_living', 'assisted_living', 'memory_care',
+        'skilled_nursing', 'board_and_care', 'va_housing',
+        'unlicensed_senior_housing'
+      ];
       
       return validSubtypes.includes(subtype || '') ? subtype : null;
     } catch (error) {

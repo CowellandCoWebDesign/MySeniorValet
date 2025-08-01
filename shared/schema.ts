@@ -254,10 +254,19 @@ export const communities = pgTable("communities", {
   // New fields for expanded senior living types
   communitySubtype: text("community_subtype", { 
     enum: [
+      "hud_senior_housing",
+      "senior_mobile_park",
+      "active_adult_55plus",
+      "independent_living",
+      "assisted_living",
+      "memory_care",
+      "skilled_nursing",
+      "board_and_care",
+      "va_housing",
+      "unlicensed_senior_housing",
       "traditional_assisted_living",
       "mobile_home_park",
-      "manufactured_home_community", 
-      "active_adult_55plus",
+      "manufactured_home_community",
       "rv_retirement_park",
       "senior_coop",
       "norc",

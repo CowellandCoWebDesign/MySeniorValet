@@ -27,11 +27,31 @@ export function registerPlatformRoutes(app: Express) {
         .select({ count: sql<string>`count(*)` })
         .from(reviews);
       
+      // Get housing type breakdown
+      const housingTypeBreakdown = await db
+        .select({
+          subtype: communities.communitySubtype,
+          count: sql<number>`count(*)`
+        })
+        .from(communities)
+        .groupBy(communities.communitySubtype);
+      
+      // Calculate HUD properties count
+      const [hudCount] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(communities)
+        .where(sql`${communities.hudPropertyId} IS NOT NULL`);
+      
       res.json({
         totalCommunities: parseInt(communityCount.count),
         totalUsers: parseInt(userCount.count),
         totalTours: parseInt(tourCount.count),
         totalReviews: parseInt(reviewCount.count),
+        housingTypeBreakdown: housingTypeBreakdown.reduce((acc, { subtype, count }) => {
+          if (subtype) acc[subtype] = count;
+          return acc;
+        }, {} as Record<string, number>),
+        hudPropertiesCount: hudCount.count,
         platformStatus: 'operational',
         lastUpdated: new Date().toISOString()
       });
