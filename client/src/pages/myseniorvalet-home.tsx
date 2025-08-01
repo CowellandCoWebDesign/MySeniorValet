@@ -205,7 +205,7 @@ export default function MySeniorValetHome() {
                 <span className="block mb-3 hero-text-main animate-space-entry animate-cosmic-glow">{t('hero.title')}</span>
               </h1>
               <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl text-white dark:text-gray-200 opacity-95 drop-shadow-lg px-4 animate-space-warp max-w-5xl mx-auto font-medium leading-relaxed" style={{ animationDelay: '0.8s' }}>
-                {t('hero.description')}
+                White Glove Service for Senior Living Selection
               </h2>
             </div>
           </div>
