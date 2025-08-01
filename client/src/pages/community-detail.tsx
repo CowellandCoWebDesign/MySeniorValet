@@ -1214,143 +1214,410 @@ export default function CommunityDetail() {
               </CardContent>
             </Card>
 
-            {/* Available Units Section */}
+            {/* Available Units Section - Enhanced with Rich Information */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center">
                   <Home className="w-5 h-5 mr-2" />
-                  Unit Types & Availability
+                  Available Units & Floor Plans
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
                 {/* Availability Notice */}
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-4">
                   <div className="flex items-start gap-3">
-                    <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                    <Info className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5" />
                     <div className="flex-1">
-                      <p className="text-sm text-blue-800 dark:text-blue-200 font-medium">
+                      <p className="text-sm text-amber-800 dark:text-amber-200 font-medium">
                         Live availability numbers pending community verification
                       </p>
-                      <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
-                        Contact the community directly for current unit availability
+                      <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
+                        Pricing shown is market estimates. Contact community for current availability and exact pricing.
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Standard Room Types */}
-                <div className="space-y-3">
+                {/* Enhanced Unit Types Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Studio Units */}
-                  <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                    <div className="flex items-center justify-between">
+                  <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-5 hover:shadow-lg transition-all bg-gradient-to-br from-purple-50 to-white dark:from-purple-900/10 dark:to-gray-800">
+                    <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
-                          <Home className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                        <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                          <Home className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                         </div>
                         <div>
-                          <h4 className="font-medium text-gray-900 dark:text-gray-100">Studio Apartment</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">400-500 sq ft • Efficiency layout</p>
+                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">Studio Apartment</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Efficiency Living</p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Availability</p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500">Contact for details</p>
+                      <Badge variant="secondary" className="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
+                        Most Affordable
+                      </Badge>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600 dark:text-gray-400">Square Footage</span>
+                        <span className="font-medium text-gray-900 dark:text-gray-100">400-500 sq ft</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600 dark:text-gray-400">Est. Monthly Cost</span>
+                        <span className="font-semibold text-xl text-purple-600 dark:text-purple-400">
+                          ${community.communitySubtype === 'hud_senior_housing' ? '0-500' : '2,500-3,500'}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600 dark:text-gray-400">Availability</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedUnitType('Studio');
+                            setIsWaitlistOpen(true);
+                          }}
+                          className="text-purple-600 hover:text-purple-700 p-0 h-auto font-medium"
+                        >
+                          Join Waitlist →
+                        </Button>
+                      </div>
+                      
+                      <Separator className="my-2" />
+                      
+                      <div className="space-y-2">
+                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Includes:</p>
+                        <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                          <li className="flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3 text-green-500" />
+                            Kitchenette with microwave & mini-fridge
+                          </li>
+                          <li className="flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3 text-green-500" />
+                            Private bathroom with safety features
+                          </li>
+                          <li className="flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3 text-green-500" />
+                            Emergency call system
+                          </li>
+                        </ul>
                       </div>
                     </div>
                   </div>
 
                   {/* One Bedroom */}
-                  <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                    <div className="flex items-center justify-between">
+                  <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-5 hover:shadow-lg transition-all bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/10 dark:to-gray-800">
+                    <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                          <Home className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                          <Home className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                         </div>
                         <div>
-                          <h4 className="font-medium text-gray-900 dark:text-gray-100">One Bedroom</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">550-700 sq ft • Separate bedroom</p>
+                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">One Bedroom</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Private & Comfortable</p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Availability</p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500">Contact for details</p>
+                      <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                        Most Popular
+                      </Badge>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600 dark:text-gray-400">Square Footage</span>
+                        <span className="font-medium text-gray-900 dark:text-gray-100">550-700 sq ft</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600 dark:text-gray-400">Est. Monthly Cost</span>
+                        <span className="font-semibold text-xl text-blue-600 dark:text-blue-400">
+                          ${community.communitySubtype === 'hud_senior_housing' ? '100-600' : '3,000-4,500'}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600 dark:text-gray-400">Availability</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedUnitType('One Bedroom');
+                            setIsWaitlistOpen(true);
+                          }}
+                          className="text-blue-600 hover:text-blue-700 p-0 h-auto font-medium"
+                        >
+                          Join Waitlist →
+                        </Button>
+                      </div>
+                      
+                      <Separator className="my-2" />
+                      
+                      <div className="space-y-2">
+                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Includes:</p>
+                        <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                          <li className="flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3 text-green-500" />
+                            Full kitchen with appliances
+                          </li>
+                          <li className="flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3 text-green-500" />
+                            Separate bedroom with closet
+                          </li>
+                          <li className="flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3 text-green-500" />
+                            Living room area
+                          </li>
+                          <li className="flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3 text-green-500" />
+                            Patio or balcony (select units)
+                          </li>
+                        </ul>
                       </div>
                     </div>
                   </div>
 
                   {/* Two Bedroom */}
-                  <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                    <div className="flex items-center justify-between">
+                  <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-5 hover:shadow-lg transition-all bg-gradient-to-br from-green-50 to-white dark:from-green-900/10 dark:to-gray-800">
+                    <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
-                          <Home className="w-5 h-5 text-green-600 dark:text-green-400" />
+                        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                          <Home className="w-6 h-6 text-green-600 dark:text-green-400" />
                         </div>
                         <div>
-                          <h4 className="font-medium text-gray-900 dark:text-gray-100">Two Bedroom</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">800-1,000 sq ft • Spacious layout</p>
+                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">Two Bedroom</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Spacious Living</p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Availability</p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500">Contact for details</p>
+                      <Badge variant="secondary" className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
+                        Premium Space
+                      </Badge>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600 dark:text-gray-400">Square Footage</span>
+                        <span className="font-medium text-gray-900 dark:text-gray-100">800-1,000 sq ft</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600 dark:text-gray-400">Est. Monthly Cost</span>
+                        <span className="font-semibold text-xl text-green-600 dark:text-green-400">
+                          ${community.communitySubtype === 'hud_senior_housing' ? '200-800' : '4,000-5,500'}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600 dark:text-gray-400">Availability</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedUnitType('Two Bedroom');
+                            setIsWaitlistOpen(true);
+                          }}
+                          className="text-green-600 hover:text-green-700 p-0 h-auto font-medium"
+                        >
+                          Join Waitlist →
+                        </Button>
+                      </div>
+                      
+                      <Separator className="my-2" />
+                      
+                      <div className="space-y-2">
+                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Includes:</p>
+                        <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                          <li className="flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3 text-green-500" />
+                            Two full bedrooms
+                          </li>
+                          <li className="flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3 text-green-500" />
+                            1.5 or 2 bathrooms
+                          </li>
+                          <li className="flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3 text-green-500" />
+                            Full kitchen & dining area
+                          </li>
+                          <li className="flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3 text-green-500" />
+                            In-unit washer/dryer hookups
+                          </li>
+                        </ul>
                       </div>
                     </div>
                   </div>
 
                   {/* Companion Suite */}
-                  <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                    <div className="flex items-center justify-between">
+                  <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-5 hover:shadow-lg transition-all bg-gradient-to-br from-orange-50 to-white dark:from-orange-900/10 dark:to-gray-800">
+                    <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
-                          <Users className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                        <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                          <Users className="w-6 h-6 text-orange-600 dark:text-orange-400" />
                         </div>
                         <div>
-                          <h4 className="font-medium text-gray-900 dark:text-gray-100">Companion Suite</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Shared living • Cost-effective option</p>
+                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">Companion Suite</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Shared Living Option</p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Availability</p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500">Contact for details</p>
+                      <Badge variant="secondary" className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300">
+                        Best Value
+                      </Badge>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600 dark:text-gray-400">Room Type</span>
+                        <span className="font-medium text-gray-900 dark:text-gray-100">Semi-Private</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600 dark:text-gray-400">Est. Monthly Cost</span>
+                        <span className="font-semibold text-xl text-orange-600 dark:text-orange-400">
+                          ${community.communitySubtype === 'hud_senior_housing' ? '0-300' : '2,000-3,000'}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600 dark:text-gray-400">Availability</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedUnitType('Companion Suite');
+                            setIsWaitlistOpen(true);
+                          }}
+                          className="text-orange-600 hover:text-orange-700 p-0 h-auto font-medium"
+                        >
+                          Join Waitlist →
+                        </Button>
+                      </div>
+                      
+                      <Separator className="my-2" />
+                      
+                      <div className="space-y-2">
+                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Includes:</p>
+                        <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                          <li className="flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3 text-green-500" />
+                            Private bedroom area
+                          </li>
+                          <li className="flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3 text-green-500" />
+                            Shared living spaces
+                          </li>
+                          <li className="flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3 text-green-500" />
+                            Companion matching service
+                          </li>
+                          <li className="flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3 text-green-500" />
+                            Cost-effective care option
+                          </li>
+                        </ul>
                       </div>
                     </div>
                   </div>
 
-                  {/* Memory Care Unit */}
-                  <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                    <div className="flex items-center justify-between">
+                  {/* Memory Care Suite */}
+                  <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-5 hover:shadow-lg transition-all bg-gradient-to-br from-pink-50 to-white dark:from-pink-900/10 dark:to-gray-800 md:col-span-2">
+                    <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-pink-100 dark:bg-pink-900/30 rounded-lg flex items-center justify-center">
-                          <Heart className="w-5 h-5 text-pink-600 dark:text-pink-400" />
+                        <div className="w-12 h-12 bg-pink-100 dark:bg-pink-900/30 rounded-lg flex items-center justify-center">
+                          <Heart className="w-6 h-6 text-pink-600 dark:text-pink-400" />
                         </div>
                         <div>
-                          <h4 className="font-medium text-gray-900 dark:text-gray-100">Memory Care Suite</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Secure unit • Specialized care environment</p>
+                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">Memory Care Suite</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Specialized Dementia & Alzheimer's Care</p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Availability</p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500">Contact for details</p>
+                      <Badge variant="secondary" className="bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300">
+                        Specialized Care
+                      </Badge>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600 dark:text-gray-400">Room Type</span>
+                          <span className="font-medium text-gray-900 dark:text-gray-100">Private or Semi-Private</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600 dark:text-gray-400">Est. Monthly Cost</span>
+                          <span className="font-semibold text-xl text-pink-600 dark:text-pink-400">$5,000-8,000</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600 dark:text-gray-400">Availability</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedUnitType('Memory Care');
+                              setIsWaitlistOpen(true);
+                            }}
+                            className="text-pink-600 hover:text-pink-700 p-0 h-auto font-medium"
+                          >
+                            Join Waitlist →
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Special Features:</p>
+                        <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                          <li className="flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3 text-green-500" />
+                            24/7 specialized staff supervision
+                          </li>
+                          <li className="flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3 text-green-500" />
+                            Secure unit with controlled access
+                          </li>
+                          <li className="flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3 text-green-500" />
+                            Structured daily activities program
+                          </li>
+                          <li className="flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3 text-green-500" />
+                            Specialized dining programs
+                          </li>
+                        </ul>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Contact for Availability */}
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mt-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Phone className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <p className="text-sm text-gray-700 dark:text-gray-300">
-                        For current availability and pricing:
+                {/* Important Notes Section */}
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-3">
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                    <Info className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    Important Information
+                  </h4>
+                  <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-2">
+                    <li className="flex items-start gap-2">
+                      <span className="text-gray-400">•</span>
+                      <span>Pricing shown includes base rent and typical care services. Additional fees may apply for enhanced care levels.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-gray-400">•</span>
+                      <span>Most communities require a one-time community fee ranging from $1,000-$5,000.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-gray-400">•</span>
+                      <span>Pet deposits typically range from $300-$500 for pet-friendly units.</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Contact CTA */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6">
+                  <div className="flex items-center justify-between flex-wrap gap-4">
+                    <div>
+                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                        Ready to Check Availability?
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Speak with a community advisor for current pricing and availability
                       </p>
                     </div>
                     <Button
-                      variant="outline"
-                      size="sm"
                       onClick={() => window.open(`tel:${community.phone || generatePhoneNumber(community.state, community.id)}`, '_self')}
-                      className="text-blue-600 hover:text-blue-700"
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
                     >
+                      <Phone className="w-4 h-4 mr-2" />
                       {community.phone || generatePhoneNumber(community.state, community.id)}
                     </Button>
                   </div>
