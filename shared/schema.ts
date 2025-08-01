@@ -251,6 +251,47 @@ export const communities = pgTable("communities", {
   transportationServices: text("transportation_services").array().default([]), // ['Medical Appointments', 'Shopping Trips', 'Airport Shuttle', 'Local Errands']
   socialServices: text("social_services").array().default([]), // ['Activity Director', 'Support Groups', 'Family Counseling', 'Spiritual Care']
   
+  // New fields for expanded senior living types
+  communitySubtype: text("community_subtype", { 
+    enum: [
+      "traditional_assisted_living",
+      "mobile_home_park",
+      "manufactured_home_community", 
+      "active_adult_55plus",
+      "rv_retirement_park",
+      "senior_coop",
+      "norc",
+      "ccah_program",
+      "independent_living_facility"
+    ]
+  }),
+  ageRestriction: integer("age_restriction"), // Minimum age requirement (55, 62, etc.)
+  
+  // Mobile Home / Manufactured Home specific fields
+  lotRent: decimal("lot_rent", { precision: 10, scale: 2 }),
+  hoaFee: decimal("hoa_fee", { precision: 10, scale: 2 }),
+  hasHomesForSale: boolean("has_homes_for_sale").default(false),
+  hasRentals: boolean("has_rentals").default(true),
+  allowsDoubleWides: boolean("allows_double_wides").default(true),
+  allowsSingleWides: boolean("allows_single_wides").default(true),
+  
+  // Active Adult Community fields
+  gatedCommunity: boolean("gated_community").default(false),
+  golfCourse: boolean("golf_course").default(false),
+  resortStyle: boolean("resort_style").default(false),
+  masterPlanned: boolean("master_planned").default(false),
+  
+  // RV Park specific fields
+  allowsRvs: boolean("allows_rvs").default(false),
+  rvSitesAvailable: integer("rv_sites_available"),
+  rvHookups: text("rv_hookups").array().default([]), // ['Electric', 'Water', 'Sewer', 'Cable', 'WiFi']
+  parkModelHomes: boolean("park_model_homes").default(false),
+  
+  // General community features
+  petFriendly: boolean("pet_friendly").default(true),
+  petRestrictions: text("pet_restrictions").array().default([]),
+  activeLifestyle: boolean("active_lifestyle").default(false),
+  
   // Multiple Review Sources
   yelpReviews: json("yelp_reviews").$type<Array<{
     rating: number;

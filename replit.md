@@ -1,7 +1,9 @@
 # MySeniorValet - Senior Living Community Transparency Platform
 
 ## Overview
-MySeniorValet is a comprehensive senior living transparency platform designed to provide accurate, verified information about senior living communities. It features multi-AI intelligence orchestration (Claude, Gemini, ChatGPT, Grok) for cross-checking accuracy and industry-leading transparency functionality. The platform aims to offer unparalleled insight into senior living options, including verified HUD pricing and extensive community details.
+MySeniorValet is a comprehensive senior living transparency platform designed to provide accurate, verified information about senior living communities. It features multi-AI intelligence orchestration (Claude, Gemini, ChatGPT, Grok) for cross-checking accuracy and industry-leading transparency functionality. The platform aims to offer unparalleled insight into senior living options, including verified HUD pricing and extensive community details. 
+
+**Current Database Status**: 25,376 communities (as of August 1, 2025) - Recently expanded to include mobile home parks, manufactured home communities, and 55+ active adult communities beyond traditional assisted living facilities.
 
 ## User Preferences
 - **Authentication Priority**: William.cowell01@gmail.com requires super admin access. Platform configured for production Replit Auth integration.
@@ -14,14 +16,20 @@ MySeniorValet is a comprehensive senior living transparency platform designed to
 
 ## System Architecture
 The platform is built with a modern web stack.
-- **Frontend**: React with TypeScript, styled using Tailwind CSS and shadcn/ui components.
+- **Frontend**: React with TypeScript, styled using Tailwind CSS and shadcn/ui components. Community cards display new subtype badges for mobile home parks and 55+ communities.
 - **Backend**: Express.js with TypeScript.
-- **Database**: PostgreSQL, managed with Drizzle ORM.
+- **Database**: PostgreSQL, managed with Drizzle ORM. Enhanced schema supports multiple senior living types including mobile home parks, manufactured home communities, 55+ active adult communities, and RV retirement parks.
 - **Build System**: Vite for the frontend and esbuild for the backend.
 - **Authentication**: Replit Auth with role-based access control for secure user and admin access.
 - **Key Features**: Interactive Map System with AI analysis, AI-Powered Search with multi-AI verification, Transparent Pricing including HUD-verified data, Comprehensive Community Profiles, Unified Admin Dashboard with role-based access, Family Collaboration features for tour tracking and sharing, and a Senior Vendor Marketplace featuring real service providers (Amazon Pharmacy, Walmart, T-Mobile 55+, 1-800-FLORALS as featured partners).
 - **UI/UX Decisions**: Emphasizes a clean, modern aesthetic with specific preference for cosmic imagery on the homepage. Consistent design elements are applied across features like horizontal sliders for services and products. AI-generated product imagery is used for legal compliance and visual appeal. Tour tracker includes enhanced community selection with search and redirect warnings.
 - **System Design**: Features a robust services management system with a 5-table database architecture. Implements a subscription tier system for access control (Free, Featured Spotlight, Premium Tools, Platinum Partner). Includes an automated testing infrastructure for code quality.
+
+## Recent Changes (August 1, 2025)
+- **Database Expansion**: Successfully expanded from 25,326 to 25,376 communities by adding mobile home parks and 55+ active adult communities
+- **Schema Enhancement**: Added new fields to support community subtypes, age restrictions, lot rent, HOA fees, and RV-specific amenities
+- **Frontend Updates**: Community cards now display subtype badges (e.g., "Mobile Home Park", "55+ Active Adult") to help users identify different senior living options
+- **Data Collection**: Created and executed automated collection scripts for priority states (FL, AZ, CA, TX, NC) to gather mobile home and active adult community data
 
 ## External Dependencies
 - **Database Connectivity**: `@neondatabase/serverless`

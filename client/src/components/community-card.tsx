@@ -32,6 +32,17 @@ function hasVerifiedPricing(community: Community): boolean {
   return false;
 }
 
+// Helper function to get community subtype label
+const getCommunitySubtypeLabel = (subtype: string): string => {
+  switch(subtype) {
+    case 'mobile_home_park': return 'Mobile Home Park';
+    case 'active_adult': return '55+ Active Adult Community';
+    case 'manufactured_home': return 'Manufactured Home Community';
+    case 'rv_retirement': return 'RV Retirement Park';
+    default: return subtype;
+  }
+};
+
 export function CommunityCard({ community }: CommunityCardProps) {
   const [expandedSections, setExpandedSections] = useState({
     amenities: false,
@@ -53,6 +64,21 @@ export function CommunityCard({ community }: CommunityCardProps) {
       case "Memory Care": return <Stethoscope className="h-4 w-4" />;
       case "Skilled Nursing": return <Activity className="h-4 w-4" />;
       default: return <Home className="h-4 w-4" />;
+    }
+  };
+
+  const getCommunitySubtypeLabel = (subtype?: string) => {
+    if (!subtype) return null;
+    switch(subtype) {
+      case "mobile_home_park": return "Mobile Home Park";
+      case "manufactured_home_community": return "Manufactured Home";
+      case "active_adult_55plus": return "55+ Active Adult";
+      case "rv_retirement_park": return "RV Retirement Park";
+      case "senior_coop": return "Senior Co-op";
+      case "norc": return "NORC";
+      case "ccah_program": return "CCAH Program";
+      case "independent_living_facility": return "Independent Living";
+      default: return null;
     }
   };
   const getAvailabilityConfig = (status: string) => {
@@ -763,6 +789,16 @@ export function CommunityCard({ community }: CommunityCardProps) {
               );
             })}
           </div>
+          
+          {/* Community Subtype Badge */}
+          {(community as any).communitySubtype && (
+            <div className="mt-3">
+              <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+                <Home className="h-3 w-3 mr-1" />
+                {getCommunitySubtypeLabel((community as any).communitySubtype)}
+              </Badge>
+            </div>
+          )}
 
           {/* Care Services Details */}
           {community.careServices && community.careServices.length > 0 && (

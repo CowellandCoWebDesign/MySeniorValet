@@ -1,0 +1,2227 @@
+[
+  {
+    "name": "Sunset Village 55+ Community",
+    "address": "150 Oak Ave",
+    "city": "Fort Myers",
+    "state": "FL",
+    "zipCode": "33901",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Beautiful 55+ mobile home community in Fort Myers, FL. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 160,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Golf Course Access",
+      "RV Storage"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 420,
+        "max": 830
+      },
+      "hoaFee": null,
+      "homePrice": {
+        "min": 80000,
+        "max": 210000
+      }
+    },
+    "contact": {
+      "phone": "(339) 555-1001",
+      "website": "www.sunsetvillage.com",
+      "email": "info@sunsetvillage.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": true,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Palm Park 55+ Community",
+    "address": "200 Palm Dr",
+    "city": "Fort Myers",
+    "state": "FL",
+    "zipCode": "33901",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "active_adult_55plus",
+    "description": "Beautiful 55+ active adult community in Fort Myers, FL. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 170,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Golf Course Access",
+      "Covered Parking"
+    ],
+    "pricing": {
+      "lotRent": null,
+      "hoaFee": 170,
+      "homePrice": {
+        "min": 85000,
+        "max": 220000
+      }
+    },
+    "contact": {
+      "phone": "(339) 555-1002",
+      "website": "www.palmpark.com",
+      "email": "info@palmpark.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": false,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Desert Community 55+ Community",
+    "address": "250 Sunset Blvd",
+    "city": "Sarasota",
+    "state": "FL",
+    "zipCode": "34236",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Beautiful 55+ mobile home community in Sarasota, FL. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 180,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Gated Community",
+      "Golf Course Access",
+      "RV Storage"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 460,
+        "max": 890
+      },
+      "hoaFee": null,
+      "homePrice": {
+        "min": 90000,
+        "max": 230000
+      }
+    },
+    "contact": {
+      "phone": "(342) 555-1003",
+      "website": "www.desertcommunity.com",
+      "email": "info@desertcommunity.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": true,
+    "gatedCommunity": true,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Ocean Gardens 55+ Community",
+    "address": "300 Park Rd",
+    "city": "Sarasota",
+    "state": "FL",
+    "zipCode": "34236",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "active_adult_55plus",
+    "description": "Beautiful 55+ active adult community in Sarasota, FL. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 190,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Golf Course Access",
+      "Covered Parking"
+    ],
+    "pricing": {
+      "lotRent": null,
+      "hoaFee": 190,
+      "homePrice": {
+        "min": 95000,
+        "max": 240000
+      }
+    },
+    "contact": {
+      "phone": "(342) 555-1004",
+      "website": "www.oceangardens.com",
+      "email": "info@oceangardens.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": false,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Lake Meadows 55+ Community",
+    "address": "350 Lake Dr",
+    "city": "Clearwater",
+    "state": "FL",
+    "zipCode": "33755",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Beautiful 55+ mobile home community in Clearwater, FL. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 200,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Golf Course Access",
+      "RV Storage"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 500,
+        "max": 950
+      },
+      "hoaFee": null,
+      "homePrice": {
+        "min": 100000,
+        "max": 250000
+      }
+    },
+    "contact": {
+      "phone": "(337) 555-1005",
+      "website": "www.lakemeadows.com",
+      "email": "info@lakemeadows.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": true,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "River Manor 55+ Community",
+    "address": "400 Main St",
+    "city": "Clearwater",
+    "state": "FL",
+    "zipCode": "33755",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "active_adult_55plus",
+    "description": "Beautiful 55+ active adult community in Clearwater, FL. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 210,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Gated Community",
+      "Golf Course Access",
+      "Covered Parking"
+    ],
+    "pricing": {
+      "lotRent": null,
+      "hoaFee": 210,
+      "homePrice": {
+        "min": 105000,
+        "max": 260000
+      }
+    },
+    "contact": {
+      "phone": "(337) 555-1006",
+      "website": "www.rivermanor.com",
+      "email": "info@rivermanor.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": false,
+    "gatedCommunity": true,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Golden Terrace 55+ Community",
+    "address": "450 Oak Ave",
+    "city": "Orlando",
+    "state": "FL",
+    "zipCode": "32801",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Beautiful 55+ mobile home community in Orlando, FL. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 220,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Golf Course Access",
+      "RV Storage"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 540,
+        "max": 1010
+      },
+      "hoaFee": null,
+      "homePrice": {
+        "min": 110000,
+        "max": 270000
+      }
+    },
+    "contact": {
+      "phone": "(328) 555-1007",
+      "website": "www.goldenterrace.com",
+      "email": "info@goldenterrace.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": true,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Silver Hills 55+ Community",
+    "address": "500 Palm Dr",
+    "city": "Orlando",
+    "state": "FL",
+    "zipCode": "32801",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "active_adult_55plus",
+    "description": "Beautiful 55+ active adult community in Orlando, FL. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 230,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Golf Course Access",
+      "Covered Parking"
+    ],
+    "pricing": {
+      "lotRent": null,
+      "hoaFee": 230,
+      "homePrice": {
+        "min": 115000,
+        "max": 280000
+      }
+    },
+    "contact": {
+      "phone": "(328) 555-1008",
+      "website": "www.silverhills.com",
+      "email": "info@silverhills.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": false,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Royal Ridge 55+ Community",
+    "address": "550 Sunset Blvd",
+    "city": "Tampa",
+    "state": "FL",
+    "zipCode": "33602",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Beautiful 55+ mobile home community in Tampa, FL. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 240,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Gated Community",
+      "Golf Course Access",
+      "RV Storage"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 580,
+        "max": 1070
+      },
+      "hoaFee": null,
+      "homePrice": {
+        "min": 120000,
+        "max": 290000
+      }
+    },
+    "contact": {
+      "phone": "(336) 555-1009",
+      "website": "www.royalridge.com",
+      "email": "info@royalridge.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": true,
+    "gatedCommunity": true,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Heritage Palms 55+ Community",
+    "address": "600 Park Rd",
+    "city": "Tampa",
+    "state": "FL",
+    "zipCode": "33602",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "active_adult_55plus",
+    "description": "Beautiful 55+ active adult community in Tampa, FL. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 250,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Golf Course Access",
+      "Covered Parking"
+    ],
+    "pricing": {
+      "lotRent": null,
+      "hoaFee": 250,
+      "homePrice": {
+        "min": 125000,
+        "max": 300000
+      }
+    },
+    "contact": {
+      "phone": "(336) 555-1010",
+      "website": "www.heritagepalms.com",
+      "email": "info@heritagepalms.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": false,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Paradise Oaks 55+ Community",
+    "address": "650 Lake Dr",
+    "city": "Phoenix",
+    "state": "AZ",
+    "zipCode": "85001",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Beautiful 55+ mobile home community in Phoenix, AZ. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 260,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Golf Course Access",
+      "RV Storage"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 620,
+        "max": 1130
+      },
+      "hoaFee": null,
+      "homePrice": {
+        "min": 130000,
+        "max": 310000
+      }
+    },
+    "contact": {
+      "phone": "(850) 555-1011",
+      "website": "www.paradiseoaks.com",
+      "email": "info@paradiseoaks.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": true,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Vista Pines 55+ Community",
+    "address": "700 Main St",
+    "city": "Phoenix",
+    "state": "AZ",
+    "zipCode": "85001",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "active_adult_55plus",
+    "description": "Beautiful 55+ active adult community in Phoenix, AZ. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 270,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Gated Community",
+      "Golf Course Access",
+      "Covered Parking"
+    ],
+    "pricing": {
+      "lotRent": null,
+      "hoaFee": 270,
+      "homePrice": {
+        "min": 135000,
+        "max": 320000
+      }
+    },
+    "contact": {
+      "phone": "(850) 555-1012",
+      "website": "www.vistapines.com",
+      "email": "info@vistapines.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": false,
+    "gatedCommunity": true,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Majestic Haven 55+ Community",
+    "address": "750 Oak Ave",
+    "city": "Scottsdale",
+    "state": "AZ",
+    "zipCode": "85251",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Beautiful 55+ mobile home community in Scottsdale, AZ. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 280,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Golf Course Access",
+      "RV Storage"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 660,
+        "max": 1190
+      },
+      "hoaFee": null,
+      "homePrice": {
+        "min": 140000,
+        "max": 330000
+      }
+    },
+    "contact": {
+      "phone": "(852) 555-1013",
+      "website": "www.majestichaven.com",
+      "email": "info@majestichaven.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": true,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Serenity Acres 55+ Community",
+    "address": "800 Palm Dr",
+    "city": "Scottsdale",
+    "state": "AZ",
+    "zipCode": "85251",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "active_adult_55plus",
+    "description": "Beautiful 55+ active adult community in Scottsdale, AZ. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 290,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Golf Course Access",
+      "Covered Parking"
+    ],
+    "pricing": {
+      "lotRent": null,
+      "hoaFee": 290,
+      "homePrice": {
+        "min": 145000,
+        "max": 340000
+      }
+    },
+    "contact": {
+      "phone": "(852) 555-1014",
+      "website": "www.serenityacres.com",
+      "email": "info@serenityacres.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": false,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Harmony Landing 55+ Community",
+    "address": "850 Sunset Blvd",
+    "city": "Mesa",
+    "state": "AZ",
+    "zipCode": "85201",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Beautiful 55+ mobile home community in Mesa, AZ. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 300,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Gated Community",
+      "Golf Course Access",
+      "RV Storage"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 700,
+        "max": 1250
+      },
+      "hoaFee": null,
+      "homePrice": {
+        "min": 150000,
+        "max": 350000
+      }
+    },
+    "contact": {
+      "phone": "(852) 555-1015",
+      "website": "www.harmonylanding.com",
+      "email": "info@harmonylanding.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": true,
+    "gatedCommunity": true,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Leisure Pointe 55+ Community",
+    "address": "900 Park Rd",
+    "city": "Mesa",
+    "state": "AZ",
+    "zipCode": "85201",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "active_adult_55plus",
+    "description": "Beautiful 55+ active adult community in Mesa, AZ. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 310,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Golf Course Access",
+      "Covered Parking"
+    ],
+    "pricing": {
+      "lotRent": null,
+      "hoaFee": 310,
+      "homePrice": {
+        "min": 155000,
+        "max": 360000
+      }
+    },
+    "contact": {
+      "phone": "(852) 555-1016",
+      "website": "www.leisurepointe.com",
+      "email": "info@leisurepointe.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": false,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Country Springs 55+ Community",
+    "address": "950 Lake Dr",
+    "city": "Tucson",
+    "state": "AZ",
+    "zipCode": "85701",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Beautiful 55+ mobile home community in Tucson, AZ. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 320,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Golf Course Access",
+      "RV Storage"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 740,
+        "max": 1310
+      },
+      "hoaFee": null,
+      "homePrice": {
+        "min": 160000,
+        "max": 370000
+      }
+    },
+    "contact": {
+      "phone": "(857) 555-1017",
+      "website": "www.countrysprings.com",
+      "email": "info@countrysprings.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": true,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Sunny Cove 55+ Community",
+    "address": "1000 Main St",
+    "city": "Tucson",
+    "state": "AZ",
+    "zipCode": "85701",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "active_adult_55plus",
+    "description": "Beautiful 55+ active adult community in Tucson, AZ. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 330,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Gated Community",
+      "Golf Course Access",
+      "Covered Parking"
+    ],
+    "pricing": {
+      "lotRent": null,
+      "hoaFee": 330,
+      "homePrice": {
+        "min": 165000,
+        "max": 380000
+      }
+    },
+    "contact": {
+      "phone": "(857) 555-1018",
+      "website": "www.sunnycove.com",
+      "email": "info@sunnycove.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": false,
+    "gatedCommunity": true,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Sunrise Estates 55+ Community",
+    "address": "1050 Oak Ave",
+    "city": "Tempe",
+    "state": "AZ",
+    "zipCode": "85281",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Beautiful 55+ mobile home community in Tempe, AZ. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 340,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Golf Course Access",
+      "RV Storage"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 780,
+        "max": 1370
+      },
+      "hoaFee": null,
+      "homePrice": {
+        "min": 170000,
+        "max": 390000
+      }
+    },
+    "contact": {
+      "phone": "(852) 555-1019",
+      "website": "www.sunriseestates.com",
+      "email": "info@sunriseestates.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": true,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Sunset Village 55+ Community",
+    "address": "1100 Palm Dr",
+    "city": "Tempe",
+    "state": "AZ",
+    "zipCode": "85281",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "active_adult_55plus",
+    "description": "Beautiful 55+ active adult community in Tempe, AZ. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 350,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Golf Course Access",
+      "Covered Parking"
+    ],
+    "pricing": {
+      "lotRent": null,
+      "hoaFee": 350,
+      "homePrice": {
+        "min": 175000,
+        "max": 400000
+      }
+    },
+    "contact": {
+      "phone": "(852) 555-1020",
+      "website": "www.sunsetvillage.com",
+      "email": "info@sunsetvillage.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": false,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Palm Park 55+ Community",
+    "address": "1150 Sunset Blvd",
+    "city": "San Diego",
+    "state": "CA",
+    "zipCode": "92101",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Beautiful 55+ mobile home community in San Diego, CA. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 360,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Gated Community",
+      "Golf Course Access",
+      "RV Storage"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 820,
+        "max": 1430
+      },
+      "hoaFee": null,
+      "homePrice": {
+        "min": 180000,
+        "max": 410000
+      }
+    },
+    "contact": {
+      "phone": "(921) 555-1021",
+      "website": "www.palmpark.com",
+      "email": "info@palmpark.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": true,
+    "gatedCommunity": true,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Desert Community 55+ Community",
+    "address": "1200 Park Rd",
+    "city": "San Diego",
+    "state": "CA",
+    "zipCode": "92101",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "active_adult_55plus",
+    "description": "Beautiful 55+ active adult community in San Diego, CA. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 370,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Golf Course Access",
+      "Covered Parking"
+    ],
+    "pricing": {
+      "lotRent": null,
+      "hoaFee": 370,
+      "homePrice": {
+        "min": 185000,
+        "max": 420000
+      }
+    },
+    "contact": {
+      "phone": "(921) 555-1022",
+      "website": "www.desertcommunity.com",
+      "email": "info@desertcommunity.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": false,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Ocean Gardens 55+ Community",
+    "address": "1250 Lake Dr",
+    "city": "Riverside",
+    "state": "CA",
+    "zipCode": "92501",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Beautiful 55+ mobile home community in Riverside, CA. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 380,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Golf Course Access",
+      "RV Storage"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 860,
+        "max": 1490
+      },
+      "hoaFee": null,
+      "homePrice": {
+        "min": 190000,
+        "max": 430000
+      }
+    },
+    "contact": {
+      "phone": "(925) 555-1023",
+      "website": "www.oceangardens.com",
+      "email": "info@oceangardens.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": true,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Lake Meadows 55+ Community",
+    "address": "1300 Main St",
+    "city": "Riverside",
+    "state": "CA",
+    "zipCode": "92501",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "active_adult_55plus",
+    "description": "Beautiful 55+ active adult community in Riverside, CA. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 390,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Gated Community",
+      "Golf Course Access",
+      "Covered Parking"
+    ],
+    "pricing": {
+      "lotRent": null,
+      "hoaFee": 390,
+      "homePrice": {
+        "min": 195000,
+        "max": 440000
+      }
+    },
+    "contact": {
+      "phone": "(925) 555-1024",
+      "website": "www.lakemeadows.com",
+      "email": "info@lakemeadows.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": false,
+    "gatedCommunity": true,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "River Manor 55+ Community",
+    "address": "1350 Oak Ave",
+    "city": "Palm Desert",
+    "state": "CA",
+    "zipCode": "92260",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Beautiful 55+ mobile home community in Palm Desert, CA. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 400,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Golf Course Access",
+      "RV Storage"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 900,
+        "max": 1550
+      },
+      "hoaFee": null,
+      "homePrice": {
+        "min": 200000,
+        "max": 450000
+      }
+    },
+    "contact": {
+      "phone": "(922) 555-1025",
+      "website": "www.rivermanor.com",
+      "email": "info@rivermanor.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": true,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Golden Terrace 55+ Community",
+    "address": "1400 Palm Dr",
+    "city": "Palm Desert",
+    "state": "CA",
+    "zipCode": "92260",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "active_adult_55plus",
+    "description": "Beautiful 55+ active adult community in Palm Desert, CA. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 410,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Golf Course Access",
+      "Covered Parking"
+    ],
+    "pricing": {
+      "lotRent": null,
+      "hoaFee": 410,
+      "homePrice": {
+        "min": 205000,
+        "max": 460000
+      }
+    },
+    "contact": {
+      "phone": "(922) 555-1026",
+      "website": "www.goldenterrace.com",
+      "email": "info@goldenterrace.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": false,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Silver Hills 55+ Community",
+    "address": "1450 Sunset Blvd",
+    "city": "San Jose",
+    "state": "CA",
+    "zipCode": "95113",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Beautiful 55+ mobile home community in San Jose, CA. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 420,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Gated Community",
+      "Golf Course Access",
+      "RV Storage"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 940,
+        "max": 1610
+      },
+      "hoaFee": null,
+      "homePrice": {
+        "min": 210000,
+        "max": 470000
+      }
+    },
+    "contact": {
+      "phone": "(951) 555-1027",
+      "website": "www.silverhills.com",
+      "email": "info@silverhills.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": true,
+    "gatedCommunity": true,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Royal Ridge 55+ Community",
+    "address": "1500 Park Rd",
+    "city": "San Jose",
+    "state": "CA",
+    "zipCode": "95113",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "active_adult_55plus",
+    "description": "Beautiful 55+ active adult community in San Jose, CA. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 430,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Golf Course Access",
+      "Covered Parking"
+    ],
+    "pricing": {
+      "lotRent": null,
+      "hoaFee": 430,
+      "homePrice": {
+        "min": 215000,
+        "max": 480000
+      }
+    },
+    "contact": {
+      "phone": "(951) 555-1028",
+      "website": "www.royalridge.com",
+      "email": "info@royalridge.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": false,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Heritage Palms 55+ Community",
+    "address": "1550 Lake Dr",
+    "city": "Sacramento",
+    "state": "CA",
+    "zipCode": "95814",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Beautiful 55+ mobile home community in Sacramento, CA. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 440,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Golf Course Access",
+      "RV Storage"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 980,
+        "max": 1670
+      },
+      "hoaFee": null,
+      "homePrice": {
+        "min": 220000,
+        "max": 490000
+      }
+    },
+    "contact": {
+      "phone": "(958) 555-1029",
+      "website": "www.heritagepalms.com",
+      "email": "info@heritagepalms.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": true,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Paradise Oaks 55+ Community",
+    "address": "1600 Main St",
+    "city": "Sacramento",
+    "state": "CA",
+    "zipCode": "95814",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "active_adult_55plus",
+    "description": "Beautiful 55+ active adult community in Sacramento, CA. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 450,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Gated Community",
+      "Golf Course Access",
+      "Covered Parking"
+    ],
+    "pricing": {
+      "lotRent": null,
+      "hoaFee": 450,
+      "homePrice": {
+        "min": 225000,
+        "max": 500000
+      }
+    },
+    "contact": {
+      "phone": "(958) 555-1030",
+      "website": "www.paradiseoaks.com",
+      "email": "info@paradiseoaks.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": false,
+    "gatedCommunity": true,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Vista Pines 55+ Community",
+    "address": "1650 Oak Ave",
+    "city": "Houston",
+    "state": "TX",
+    "zipCode": "77001",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Beautiful 55+ mobile home community in Houston, TX. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 460,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Walking Trails",
+      "RV Storage"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 1020,
+        "max": 1730
+      },
+      "hoaFee": null,
+      "homePrice": {
+        "min": 230000,
+        "max": 510000
+      }
+    },
+    "contact": {
+      "phone": "(770) 555-1031",
+      "website": "www.vistapines.com",
+      "email": "info@vistapines.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": true,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Majestic Haven 55+ Community",
+    "address": "1700 Palm Dr",
+    "city": "Houston",
+    "state": "TX",
+    "zipCode": "77001",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "active_adult_55plus",
+    "description": "Beautiful 55+ active adult community in Houston, TX. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 470,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Walking Trails",
+      "Covered Parking"
+    ],
+    "pricing": {
+      "lotRent": null,
+      "hoaFee": 470,
+      "homePrice": {
+        "min": 235000,
+        "max": 520000
+      }
+    },
+    "contact": {
+      "phone": "(770) 555-1032",
+      "website": "www.majestichaven.com",
+      "email": "info@majestichaven.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": false,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Serenity Acres 55+ Community",
+    "address": "1750 Sunset Blvd",
+    "city": "Austin",
+    "state": "TX",
+    "zipCode": "78701",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Beautiful 55+ mobile home community in Austin, TX. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 480,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Gated Community",
+      "Walking Trails",
+      "RV Storage"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 1060,
+        "max": 1790
+      },
+      "hoaFee": null,
+      "homePrice": {
+        "min": 240000,
+        "max": 530000
+      }
+    },
+    "contact": {
+      "phone": "(787) 555-1033",
+      "website": "www.serenityacres.com",
+      "email": "info@serenityacres.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": true,
+    "gatedCommunity": true,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Harmony Landing 55+ Community",
+    "address": "1800 Park Rd",
+    "city": "Austin",
+    "state": "TX",
+    "zipCode": "78701",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "active_adult_55plus",
+    "description": "Beautiful 55+ active adult community in Austin, TX. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 490,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Walking Trails",
+      "Covered Parking"
+    ],
+    "pricing": {
+      "lotRent": null,
+      "hoaFee": 490,
+      "homePrice": {
+        "min": 245000,
+        "max": 540000
+      }
+    },
+    "contact": {
+      "phone": "(787) 555-1034",
+      "website": "www.harmonylanding.com",
+      "email": "info@harmonylanding.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": false,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Leisure Pointe 55+ Community",
+    "address": "1850 Lake Dr",
+    "city": "San Antonio",
+    "state": "TX",
+    "zipCode": "78205",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Beautiful 55+ mobile home community in San Antonio, TX. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 500,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Walking Trails",
+      "RV Storage"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 1100,
+        "max": 1850
+      },
+      "hoaFee": null,
+      "homePrice": {
+        "min": 250000,
+        "max": 550000
+      }
+    },
+    "contact": {
+      "phone": "(782) 555-1035",
+      "website": "www.leisurepointe.com",
+      "email": "info@leisurepointe.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": true,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Country Springs 55+ Community",
+    "address": "1900 Main St",
+    "city": "San Antonio",
+    "state": "TX",
+    "zipCode": "78205",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "active_adult_55plus",
+    "description": "Beautiful 55+ active adult community in San Antonio, TX. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 510,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Gated Community",
+      "Walking Trails",
+      "Covered Parking"
+    ],
+    "pricing": {
+      "lotRent": null,
+      "hoaFee": 510,
+      "homePrice": {
+        "min": 255000,
+        "max": 560000
+      }
+    },
+    "contact": {
+      "phone": "(782) 555-1036",
+      "website": "www.countrysprings.com",
+      "email": "info@countrysprings.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": false,
+    "gatedCommunity": true,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Sunny Cove 55+ Community",
+    "address": "1950 Oak Ave",
+    "city": "Dallas",
+    "state": "TX",
+    "zipCode": "75201",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Beautiful 55+ mobile home community in Dallas, TX. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 520,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Walking Trails",
+      "RV Storage"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 1140,
+        "max": 1910
+      },
+      "hoaFee": null,
+      "homePrice": {
+        "min": 260000,
+        "max": 570000
+      }
+    },
+    "contact": {
+      "phone": "(752) 555-1037",
+      "website": "www.sunnycove.com",
+      "email": "info@sunnycove.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": true,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Sunrise Estates 55+ Community",
+    "address": "2000 Palm Dr",
+    "city": "Dallas",
+    "state": "TX",
+    "zipCode": "75201",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "active_adult_55plus",
+    "description": "Beautiful 55+ active adult community in Dallas, TX. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 530,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Walking Trails",
+      "Covered Parking"
+    ],
+    "pricing": {
+      "lotRent": null,
+      "hoaFee": 530,
+      "homePrice": {
+        "min": 265000,
+        "max": 580000
+      }
+    },
+    "contact": {
+      "phone": "(752) 555-1038",
+      "website": "www.sunriseestates.com",
+      "email": "info@sunriseestates.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": false,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Sunset Village 55+ Community",
+    "address": "2050 Sunset Blvd",
+    "city": "Fort Worth",
+    "state": "TX",
+    "zipCode": "76102",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Beautiful 55+ mobile home community in Fort Worth, TX. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 540,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Gated Community",
+      "Walking Trails",
+      "RV Storage"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 1180,
+        "max": 1970
+      },
+      "hoaFee": null,
+      "homePrice": {
+        "min": 270000,
+        "max": 590000
+      }
+    },
+    "contact": {
+      "phone": "(761) 555-1039",
+      "website": "www.sunsetvillage.com",
+      "email": "info@sunsetvillage.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": true,
+    "gatedCommunity": true,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Palm Park 55+ Community",
+    "address": "2100 Park Rd",
+    "city": "Fort Worth",
+    "state": "TX",
+    "zipCode": "76102",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "active_adult_55plus",
+    "description": "Beautiful 55+ active adult community in Fort Worth, TX. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 550,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Walking Trails",
+      "Covered Parking"
+    ],
+    "pricing": {
+      "lotRent": null,
+      "hoaFee": 550,
+      "homePrice": {
+        "min": 275000,
+        "max": 600000
+      }
+    },
+    "contact": {
+      "phone": "(761) 555-1040",
+      "website": "www.palmpark.com",
+      "email": "info@palmpark.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": false,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Desert Community 55+ Community",
+    "address": "2150 Lake Dr",
+    "city": "Charlotte",
+    "state": "NC",
+    "zipCode": "28202",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Beautiful 55+ mobile home community in Charlotte, NC. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 560,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Walking Trails",
+      "RV Storage"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 1220,
+        "max": 2030
+      },
+      "hoaFee": null,
+      "homePrice": {
+        "min": 280000,
+        "max": 610000
+      }
+    },
+    "contact": {
+      "phone": "(282) 555-1041",
+      "website": "www.desertcommunity.com",
+      "email": "info@desertcommunity.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": true,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Ocean Gardens 55+ Community",
+    "address": "2200 Main St",
+    "city": "Charlotte",
+    "state": "NC",
+    "zipCode": "28202",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "active_adult_55plus",
+    "description": "Beautiful 55+ active adult community in Charlotte, NC. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 570,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Gated Community",
+      "Walking Trails",
+      "Covered Parking"
+    ],
+    "pricing": {
+      "lotRent": null,
+      "hoaFee": 570,
+      "homePrice": {
+        "min": 285000,
+        "max": 620000
+      }
+    },
+    "contact": {
+      "phone": "(282) 555-1042",
+      "website": "www.oceangardens.com",
+      "email": "info@oceangardens.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": false,
+    "gatedCommunity": true,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Lake Meadows 55+ Community",
+    "address": "2250 Oak Ave",
+    "city": "Raleigh",
+    "state": "NC",
+    "zipCode": "27601",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Beautiful 55+ mobile home community in Raleigh, NC. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 580,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Walking Trails",
+      "RV Storage"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 1260,
+        "max": 2090
+      },
+      "hoaFee": null,
+      "homePrice": {
+        "min": 290000,
+        "max": 630000
+      }
+    },
+    "contact": {
+      "phone": "(276) 555-1043",
+      "website": "www.lakemeadows.com",
+      "email": "info@lakemeadows.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": true,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "River Manor 55+ Community",
+    "address": "2300 Palm Dr",
+    "city": "Raleigh",
+    "state": "NC",
+    "zipCode": "27601",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "active_adult_55plus",
+    "description": "Beautiful 55+ active adult community in Raleigh, NC. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 590,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Walking Trails",
+      "Covered Parking"
+    ],
+    "pricing": {
+      "lotRent": null,
+      "hoaFee": 590,
+      "homePrice": {
+        "min": 295000,
+        "max": 640000
+      }
+    },
+    "contact": {
+      "phone": "(276) 555-1044",
+      "website": "www.rivermanor.com",
+      "email": "info@rivermanor.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": false,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Golden Terrace 55+ Community",
+    "address": "2350 Sunset Blvd",
+    "city": "Durham",
+    "state": "NC",
+    "zipCode": "27701",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Beautiful 55+ mobile home community in Durham, NC. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 600,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Gated Community",
+      "Walking Trails",
+      "RV Storage"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 1300,
+        "max": 2150
+      },
+      "hoaFee": null,
+      "homePrice": {
+        "min": 300000,
+        "max": 650000
+      }
+    },
+    "contact": {
+      "phone": "(277) 555-1045",
+      "website": "www.goldenterrace.com",
+      "email": "info@goldenterrace.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": true,
+    "gatedCommunity": true,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Silver Hills 55+ Community",
+    "address": "2400 Park Rd",
+    "city": "Durham",
+    "state": "NC",
+    "zipCode": "27701",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "active_adult_55plus",
+    "description": "Beautiful 55+ active adult community in Durham, NC. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 610,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Walking Trails",
+      "Covered Parking"
+    ],
+    "pricing": {
+      "lotRent": null,
+      "hoaFee": 610,
+      "homePrice": {
+        "min": 305000,
+        "max": 660000
+      }
+    },
+    "contact": {
+      "phone": "(277) 555-1046",
+      "website": "www.silverhills.com",
+      "email": "info@silverhills.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": false,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Royal Ridge 55+ Community",
+    "address": "2450 Lake Dr",
+    "city": "Asheville",
+    "state": "NC",
+    "zipCode": "28801",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Beautiful 55+ mobile home community in Asheville, NC. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 620,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Walking Trails",
+      "RV Storage"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 1340,
+        "max": 2210
+      },
+      "hoaFee": null,
+      "homePrice": {
+        "min": 310000,
+        "max": 670000
+      }
+    },
+    "contact": {
+      "phone": "(288) 555-1047",
+      "website": "www.royalridge.com",
+      "email": "info@royalridge.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": true,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Heritage Palms 55+ Community",
+    "address": "2500 Main St",
+    "city": "Asheville",
+    "state": "NC",
+    "zipCode": "28801",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "active_adult_55plus",
+    "description": "Beautiful 55+ active adult community in Asheville, NC. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 630,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Gated Community",
+      "Walking Trails",
+      "Covered Parking"
+    ],
+    "pricing": {
+      "lotRent": null,
+      "hoaFee": 630,
+      "homePrice": {
+        "min": 315000,
+        "max": 680000
+      }
+    },
+    "contact": {
+      "phone": "(288) 555-1048",
+      "website": "www.heritagepalms.com",
+      "email": "info@heritagepalms.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": false,
+    "gatedCommunity": true,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Paradise Oaks 55+ Community",
+    "address": "2550 Oak Ave",
+    "city": "Wilmington",
+    "state": "NC",
+    "zipCode": "28401",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Beautiful 55+ mobile home community in Wilmington, NC. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 640,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Walking Trails",
+      "RV Storage"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 1380,
+        "max": 2270
+      },
+      "hoaFee": null,
+      "homePrice": {
+        "min": 320000,
+        "max": 690000
+      }
+    },
+    "contact": {
+      "phone": "(284) 555-1049",
+      "website": "www.paradiseoaks.com",
+      "email": "info@paradiseoaks.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": true,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  },
+  {
+    "name": "Vista Pines 55+ Community",
+    "address": "2600 Palm Dr",
+    "city": "Wilmington",
+    "state": "NC",
+    "zipCode": "28401",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "active_adult_55plus",
+    "description": "Beautiful 55+ active adult community in Wilmington, NC. Resort-style amenities and active lifestyle.",
+    "ageRestriction": 55,
+    "totalUnits": 650,
+    "features": [
+      "Clubhouse",
+      "Swimming Pool",
+      "Fitness Center",
+      "Pet Friendly",
+      "Activities Director",
+      "Security Patrol",
+      "Walking Trails",
+      "Covered Parking"
+    ],
+    "pricing": {
+      "lotRent": null,
+      "hoaFee": 650,
+      "homePrice": {
+        "min": 325000,
+        "max": 700000
+      }
+    },
+    "contact": {
+      "phone": "(284) 555-1050",
+      "website": "www.vistapines.com",
+      "email": "info@vistapines.com"
+    },
+    "hasHomesForSale": true,
+    "hasRentals": false,
+    "gatedCommunity": false,
+    "petFriendly": true,
+    "allowsRvs": false,
+    "dataSource": "mobile_home_expansion"
+  }
+]

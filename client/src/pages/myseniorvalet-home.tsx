@@ -18,7 +18,7 @@ import { VendorMarketplaceTabs } from "@/components/VendorMarketplaceTabs";
 
 
 export default function MySeniorValetHome() {
-  console.log("MYSENIORVALET HOME PAGE LOADED - VERSION 3 WITH CONCIERGE SERVICES PRIORITIZED - 26,306 COMMUNITIES");
+  console.log("MYSENIORVALET HOME PAGE LOADED - VERSION 3 WITH CONCIERGE SERVICES PRIORITIZED - 25,376 COMMUNITIES");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedAmazonCategory, setSelectedAmazonCategory] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
