@@ -538,14 +538,10 @@ export default function VendorMarketplaceTiers() {
                 variant={selectedTier === key ? "default" : "outline"}
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (key === 'free') {
-                    setLocation('/vendor-signup');
-                  } else {
-                    handleUpgrade(key);
-                  }
+                  handleUpgrade(key);
                 }}
               >
-                {key === 'free' ? 'Start Free' : key === 'basic' ? 'Get Started' : 'Upgrade Now'}
+                {key === 'basic' ? 'Get Started' : 'Upgrade Now'}
               </Button>
             </CardContent>
           </Card>
@@ -562,7 +558,7 @@ export default function VendorMarketplaceTiers() {
               Join thousands of vendors who trust MySeniorValet to connect with families seeking senior care services
             </p>
             <div className="flex justify-center gap-4">
-              <Button size="lg" onClick={() => setLocation('/vendor-signup')}>
+              <Button size="lg" onClick={() => handleUpgrade('basic')}>
                 <Sparkles className="w-4 h-4 mr-2" />
                 Start Free Trial
               </Button>
