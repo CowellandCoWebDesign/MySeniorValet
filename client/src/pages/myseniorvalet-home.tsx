@@ -94,7 +94,14 @@ export default function MySeniorValetHome() {
     staleTime: 10 * 60 * 1000, // Cache for 10 minutes
   });
 
-  // Fast-loading trending communities with diverse search examples
+  // Hawaii communities for featured slider
+  const { data: hawaiiCommunities, isLoading: hawaiiLoading } = useQuery({
+    queryKey: ["/api/communities/by-location/Hawaii"],
+    retry: false,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+
+  // Keep trending for other sections that may need it
   const { data: trendingCommunities, isLoading: trendingLoading } = useQuery({
     queryKey: ["/api/communities/trending"],
     retry: false,
@@ -349,25 +356,25 @@ export default function MySeniorValetHome() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                🌟 Featured Communities
+                🌺 Hawaii Communities
               </h2>
               <p className="text-gray-600 dark:text-gray-300">
-                Handpicked communities with exceptional ratings and services
+                Paradise living with world-class senior care in the Hawaiian Islands
               </p>
             </div>
-            <Link href="/search?featured=true">
+            <Link href="/search?location=Hawaii">
               <Button variant="outline" className="flex items-center gap-2">
-                View All Featured
+                View All Hawaii
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
           </div>
           
           <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
-            {(!trendingCommunities || (trendingCommunities as any[]).length === 0) ? (
+            {(hawaiiLoading || !hawaiiCommunities || (hawaiiCommunities as any[]).length === 0) ? (
               Array.from({ length: 6 }).map((_, index) => (
                 <Card key={index} className="overflow-hidden flex-shrink-0 w-64 h-80 animate-pulse">
-                  <div className="aspect-[4/3] bg-gray-200 dark:bg-gray-700"></div>
+                  <div className="aspect-[4/3] bg-gradient-to-br from-blue-200 to-teal-200 dark:bg-gray-700"></div>
                   <CardContent className="p-4">
                     <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
                     <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
@@ -376,9 +383,9 @@ export default function MySeniorValetHome() {
                 </Card>
               ))
             ) : (
-              (trendingCommunities as any[]).slice(0, 8).map((community: any, index) => (
+              (hawaiiCommunities as any[]).slice(0, 8).map((community: any, index) => (
                 <EnhancedCommunityCard
-                  key={`featured-${community.id}-${index}`}
+                  key={`hawaii-${community.id}-${index}`}
                   community={community}
                   index={index}
                   variant='featured'

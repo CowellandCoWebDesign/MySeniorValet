@@ -192,19 +192,28 @@ export function registerCommunityRoutes(app: Express) {
   app.get("/api/communities/by-location/:location", async (req, res) => {
     try {
       const location = req.params.location;
+      
+      // Handle special cases for location queries
+      let searchTerm = location;
+      if (location.toLowerCase() === 'hawaii') {
+        searchTerm = 'HI';
+      }
+      
       const locationCommunities = await db
         .select()
         .from(communities)
         .where(
           or(
-            eq(communities.state, location),
-            eq(communities.city, location)
+            eq(communities.state, searchTerm),
+            eq(communities.city, location),
+            // Also search for Hawaii in names for additional coverage
+            ...(location.toLowerCase() === 'hawaii' ? [sql`LOWER(${communities.name}) LIKE '%hawaii%'`] : [])
           )
         )
         .orderBy(desc(communities.rating))
         .limit(20);
 
-      res.json(locationCommunities);
+      res.json(locationCommunities.map(community => eliminateCallForPricing(community)));
     } catch (error) {
       console.error("Error fetching communities by location:", error);
       res.status(500).json({ error: "Failed to fetch communities by location" });
