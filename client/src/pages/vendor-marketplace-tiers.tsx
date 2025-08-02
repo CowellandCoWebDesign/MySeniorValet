@@ -29,10 +29,11 @@ import {
   Building,
   DollarSign,
   Zap,
-  X
+  X,
+  Info
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Header } from "@/components/header";
@@ -142,17 +143,25 @@ export default function VendorMarketplaceTiers() {
             </Badge>
           </div>
           <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-            Partner with MySeniorValet's Senior Care Marketplace
+            Join MySeniorValet's Commercial Vendor Marketplace
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto mb-6">
-            Join our trusted network of essential service providers connecting with 34,000+ senior living communities 
-            and millions of families across North America
+            Connect your business with 34,000+ senior living communities and millions of families 
+            seeking trusted commercial services and products
           </p>
+          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 max-w-3xl mx-auto mb-4">
+            <p className="text-sm text-blue-800 dark:text-blue-200 flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              <span className="font-medium">Note:</span> This is our paid vendor marketplace for businesses. 
+              Looking for free healthcare services? Visit our 
+              <Link to="/" className="underline ml-1 hover:text-blue-600">Senior Care Services Directory</Link>
+            </p>
+          </div>
           
           {/* Service Categories */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 max-w-5xl mx-auto mb-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-              We're Looking for Partners in These Essential Categories:
+              Commercial Service Categories We're Seeking:
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
               <div className="flex items-start gap-2">
@@ -213,6 +222,40 @@ export default function VendorMarketplaceTiers() {
                   <p className="text-sm text-gray-600 dark:text-gray-400">Activities, education, social engagement</p>
                 </div>
               </div>
+            </div>
+            
+            {/* Healthcare Providers Section */}
+            <div className="border-t pt-4 mt-4">
+              <h4 className="text-md font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+                <Star className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                NEW: Healthcare Providers Can Now Join Our Paid Marketplace
+              </h4>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-left">
+                <div className="flex items-start gap-2">
+                  <Shield className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5" />
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">Home Health Agencies</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Skilled nursing, therapy services</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Shield className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5" />
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">Hospice Providers</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">End-of-life care services</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Shield className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5" />
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">Medical Practices</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Geriatric specialists, mobile doctors</p>
+                  </div>
+                </div>
+              </div>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-3 italic">
+                Note: Basic free listings remain available in our Senior Care Services Directory
+              </p>
             </div>
           </div>
           
@@ -468,6 +511,42 @@ export default function VendorMarketplaceTiers() {
                 </tr>
               </tbody>
             </table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* How Tiers Affect Visibility */}
+      <Card className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 border-amber-200 dark:border-amber-800 mb-10 max-w-5xl mx-auto">
+        <CardContent className="py-6 px-6">
+          <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100 flex items-center gap-2">
+            <Eye className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+            How Paid Tiers Increase Your Visibility
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-left">
+              <Badge variant="outline" className="mb-2 border-gray-300">Basic ($99/mo)</Badge>
+              <ul className="text-sm space-y-1 text-gray-600 dark:text-gray-400">
+                <li>• Standard directory listing</li>
+                <li>• Appears in search results</li>
+                <li>• No promotional placement</li>
+              </ul>
+            </div>
+            <div className="text-left">
+              <Badge variant="outline" className="mb-2 border-purple-500 text-purple-700 dark:text-purple-300">Featured ($249/mo)</Badge>
+              <ul className="text-sm space-y-1 text-gray-600 dark:text-gray-400">
+                <li>• <span className="font-medium text-purple-600 dark:text-purple-400">Featured in vendor carousels</span></li>
+                <li>• <span className="font-medium text-purple-600 dark:text-purple-400">Priority in search results</span></li>
+                <li>• Promotional badge on listings</li>
+              </ul>
+            </div>
+            <div className="text-left">
+              <Badge variant="outline" className="mb-2 border-yellow-500 text-yellow-700 dark:text-yellow-300">National ($499/mo)</Badge>
+              <ul className="text-sm space-y-1 text-gray-600 dark:text-gray-400">
+                <li>• <span className="font-medium text-yellow-600 dark:text-yellow-400">Premium banner placement</span></li>
+                <li>• <span className="font-medium text-yellow-600 dark:text-yellow-400">Top of all vendor listings</span></li>
+                <li>• Homepage featured section</li>
+              </ul>
+            </div>
           </div>
         </CardContent>
       </Card>
