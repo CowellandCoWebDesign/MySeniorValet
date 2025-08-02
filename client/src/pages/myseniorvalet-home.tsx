@@ -2347,7 +2347,7 @@ export default function MySeniorValetHome() {
                   {/* Pricing */}
                   <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 mb-6 w-full">
                     <p className="text-center text-sm font-medium text-purple-800 dark:text-purple-300">
-                      Starting at $99/month • View all tiers
+                      $99 Basic • $249 Featured • $499 National • $999+ Enterprise
                     </p>
                   </div>
 
