@@ -104,11 +104,11 @@ export default function VendorMarketplaceTiers() {
   });
 
   const tierColors = {
-    free: "border-green-300 bg-green-50",
-    basic: "border-gray-300 bg-gray-50",
-    featured: "border-blue-500 bg-blue-50 ring-2 ring-blue-500",
-    national: "border-purple-500 bg-purple-50",
-    enterprise: "border-amber-500 bg-amber-50"
+    free: "border-green-500 bg-green-50 dark:bg-green-900/20 dark:border-green-400",
+    basic: "border-gray-300 bg-gray-50 dark:bg-gray-800 dark:border-gray-600",
+    featured: "border-blue-500 bg-blue-50 dark:bg-blue-900/20 ring-2 ring-blue-500 dark:border-blue-400",
+    national: "border-purple-500 bg-purple-50 dark:bg-purple-900/20 dark:border-purple-400",
+    enterprise: "border-amber-500 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-400"
   };
 
   const tierIcons = {
@@ -124,7 +124,7 @@ export default function VendorMarketplaceTiers() {
       // Show upgrade flow
       toast({
         title: "Contact Sales",
-        description: `To upgrade to ${allTiers[tier]?.name} tier, please contact our sales team.`,
+        description: `To upgrade to ${allTiers[tier as keyof typeof allTiers]?.name} tier, please contact our sales team.`,
       });
       
       // Redirect to contact sales page
@@ -167,19 +167,24 @@ export default function VendorMarketplaceTiers() {
         </div>
 
       {/* Tier Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        {vendorTiers && Object.entries(vendorTiers).map(([key, tier]) => 
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
+        {Object.entries(allTiers).map(([key, tier]) => 
           tier && tier.features ? (
           <Card 
             key={key}
-            className={`relative overflow-hidden transition-all cursor-pointer ${
-              selectedTier === key ? tierColors[key as keyof typeof tierColors] : ''
+            className={`relative overflow-hidden transition-all cursor-pointer hover:shadow-lg ${
+              selectedTier === key ? tierColors[key as keyof typeof tierColors] : 'bg-white dark:bg-gray-800'
             }`}
             onClick={() => setSelectedTier(key)}
           >
+            {key === 'free' && (
+              <div className="absolute top-0 right-0 bg-green-600 text-white px-3 py-1 text-sm rounded-bl-lg">
+                NEW!
+              </div>
+            )}
             {key === 'featured' && (
               <div className="absolute top-0 right-0 bg-blue-600 text-white px-3 py-1 text-sm rounded-bl-lg">
-                Primary Upsell
+                Most Popular
               </div>
             )}
             
@@ -187,10 +192,12 @@ export default function VendorMarketplaceTiers() {
               <div className="flex justify-center mb-3">
                 {tierIcons[key as keyof typeof tierIcons]}
               </div>
-              <CardTitle className="text-2xl">{tier.name}</CardTitle>
+              <CardTitle className="text-xl text-gray-900 dark:text-gray-100">{tier.name}</CardTitle>
               <div className="mt-4">
-                <span className="text-4xl font-bold">${tier.price}</span>
-                <span className="text-gray-600">/month</span>
+                <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                  {tier.price === 0 ? 'Free' : `$${tier.price}`}
+                </span>
+                {tier.price > 0 && <span className="text-gray-600 dark:text-gray-400">/month</span>}
               </div>
             </CardHeader>
             
@@ -198,8 +205,8 @@ export default function VendorMarketplaceTiers() {
               <div className="space-y-2">
                 {/* Regional Coverage */}
                 <div className="flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-gray-600" />
-                  <span className="text-sm">
+                  <Globe className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
                     {tier.features.regionalCoverage === -1 
                       ? 'Nationwide coverage' 
                       : tier.features.regionalCoverage === 1
@@ -211,8 +218,8 @@ export default function VendorMarketplaceTiers() {
                 {/* Analytics Access */}
                 {tier.features.analyticsAccess !== 'none' && (
                   <div className="flex items-center gap-2">
-                    <BarChart3 className="w-4 h-4 text-gray-600" />
-                    <span className="text-sm">
+                    <BarChart3 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
                       {tier.features.analyticsAccess === 'basic' && 'Basic analytics dashboard'}
                       {tier.features.analyticsAccess === 'advanced' && 'Advanced analytics & reports'}
                       {tier.features.analyticsAccess === 'enterprise' && 'Enterprise analytics suite'}
@@ -223,56 +230,56 @@ export default function VendorMarketplaceTiers() {
                 {/* Photos & Branding */}
                 {tier.features.photos ? (
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-blue-600" />
-                    <span className="text-sm font-medium">Custom logo & branding</span>
+                    <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Custom logo & branding</span>
                   </div>
                 ) : key === 'basic' && (
                   <div className="flex items-center gap-2">
-                    <Lock className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm text-gray-500">No photos or branding</span>
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                    <span className="text-sm text-gray-500 dark:text-gray-400">No photos or branding</span>
                   </div>
                 )}
                 
                 {/* Verified Badge */}
                 {key === 'basic' ? (
                   <div className="flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm">$25 verification badge add-on</span>
+                    <Shield className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">$25 verification badge add-on</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-blue-600" />
-                    <span className="text-sm font-medium">MySeniorValet Approved badge</span>
+                    <Shield className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">MySeniorValet Approved badge</span>
                   </div>
                 )}
                 
                 {/* Featured Placement */}
                 {tier.features.featuredPlacement && (
                   <div className="flex items-center gap-2">
-                    <Star className="w-4 h-4 text-yellow-600" />
-                    <span className="text-sm font-medium">Featured placement</span>
+                    <Star className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Featured placement</span>
                   </div>
                 )}
                 
                 {/* Special Features */}
                 {tier.features.bannerRotation && (
                   <div className="flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-purple-600" />
-                    <span className="text-sm font-medium">Banner rotation</span>
+                    <TrendingUp className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Banner rotation</span>
                   </div>
                 )}
                 
                 {tier.features.dedicatedProfilePage && (
                   <div className="flex items-center gap-2">
-                    <Briefcase className="w-4 h-4 text-purple-600" />
-                    <span className="text-sm font-medium">Dedicated vendor page</span>
+                    <Briefcase className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Dedicated vendor page</span>
                   </div>
                 )}
                 
                 {tier.features.exclusiveCategory && (
                   <div className="flex items-center gap-2">
-                    <Crown className="w-4 h-4 text-amber-600" />
-                    <span className="text-sm font-medium">Exclusive category access</span>
+                    <Crown className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Exclusive category access</span>
                   </div>
                 )}
               </div>
@@ -282,10 +289,14 @@ export default function VendorMarketplaceTiers() {
                 variant={selectedTier === key ? "default" : "outline"}
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleUpgrade(key);
+                  if (key === 'free') {
+                    setLocation('/vendor-signup');
+                  } else {
+                    handleUpgrade(key);
+                  }
                 }}
               >
-                {key === 'basic' ? 'Get Started' : 'Upgrade Now'}
+                {key === 'free' ? 'Start Free' : key === 'basic' ? 'Get Started' : 'Upgrade Now'}
               </Button>
             </CardContent>
           </Card>
@@ -294,28 +305,30 @@ export default function VendorMarketplaceTiers() {
       </div>
 
       {/* Detailed Feature Comparison */}
-      <Card>
+      <Card className="bg-white dark:bg-gray-800">
         <CardHeader>
-          <CardTitle className="text-2xl">Detailed Feature Comparison</CardTitle>
+          <CardTitle className="text-2xl text-gray-900 dark:text-gray-100">Detailed Feature Comparison</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b">
-                  <th className="text-left py-3 px-4">Feature</th>
-                  <th className="text-center py-3 px-4">Basic</th>
-                  <th className="text-center py-3 px-4">Featured</th>
-                  <th className="text-center py-3 px-4">National</th>
-                  <th className="text-center py-3 px-4">Enterprise</th>
+                <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <th className="text-left py-3 px-4 text-gray-900 dark:text-gray-100">Feature</th>
+                  <th className="text-center py-3 px-4 text-gray-900 dark:text-gray-100">Free</th>
+                  <th className="text-center py-3 px-4 text-gray-900 dark:text-gray-100">Basic</th>
+                  <th className="text-center py-3 px-4 text-gray-900 dark:text-gray-100">Featured</th>
+                  <th className="text-center py-3 px-4 text-gray-900 dark:text-gray-100">National</th>
+                  <th className="text-center py-3 px-4 text-gray-900 dark:text-gray-100">Enterprise</th>
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b">
-                  <td className="py-3 px-4 font-medium">Monthly Price</td>
-                  <td className="text-center py-3 px-4 font-bold">$99</td>
-                  <td className="text-center py-3 px-4 font-bold">$249</td>
-                  <td className="text-center py-3 px-4 font-bold">$499</td>
+                <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">Monthly Price</td>
+                  <td className="text-center py-3 px-4 font-bold text-gray-900 dark:text-gray-100">Free</td>
+                  <td className="text-center py-3 px-4 font-bold text-gray-900 dark:text-gray-100">$99</td>
+                  <td className="text-center py-3 px-4 font-bold text-gray-900 dark:text-gray-100">$249</td>
+                  <td className="text-center py-3 px-4 font-bold text-gray-900 dark:text-gray-100">$499</td>
                   <td className="text-center py-3 px-4 font-bold">$999+</td>
                 </tr>
                 <tr className="border-b">
