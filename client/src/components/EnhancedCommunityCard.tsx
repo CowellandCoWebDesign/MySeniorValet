@@ -29,6 +29,10 @@ interface CommunityCardProps {
     rentPerMonth?: number | string; // HUD communities use this field
     occupancyRateHud?: string | number;
     totalUnitsHud?: string | number;
+    communitySubtype?: string; // Add community subtype
+    amenities?: string[]; // Add amenities
+    phone?: string; // Add phone
+    website?: string; // Add website
 
     // Enhanced HUD data from extractor
     displayPricing?: {
@@ -72,6 +76,29 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
     (community.hudPropertyId && community.rentPerMonth) || 
     (isHudProperty && community.rentPerMonth);
   const hasOccupancyData = community.displayAvailability?.occupancyDisplay;
+
+  // Community subtype badge mapping
+  const getSubtypeBadge = (subtype?: string) => {
+    const subtypeMap: Record<string, { emoji: string; label: string; color: string }> = {
+      'hud_senior_housing': { emoji: '🏛️', label: 'HUD Senior Housing', color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' },
+      'mobile_home_park': { emoji: '🏡', label: 'Mobile Home Park', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' },
+      'active_adult_55_plus': { emoji: '🏌️', label: '55+ Active Adult', color: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' },
+      'independent_living': { emoji: '🏢', label: 'Independent Living', color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200' },
+      'assisted_living': { emoji: '🏥', label: 'Assisted Living', color: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' },
+      'memory_care': { emoji: '🧠', label: 'Memory Care', color: 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200' },
+      'board_and_care_home': { emoji: '🏠', label: 'Board & Care', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' },
+      'skilled_nursing': { emoji: '⚕️', label: 'Skilled Nursing', color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' },
+      'ccrc_life_plan': { emoji: '🌟', label: 'Life Plan CCRC', color: 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200' },
+      'va_housing': { emoji: '🇺🇸', label: 'Veterans Housing', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' },
+      'unlicensed_housing': { emoji: '🏘️', label: 'Residential Care', color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200' },
+      'manufactured_home_community': { emoji: '🏘️', label: 'Manufactured Homes', color: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200' },
+      'rv_retirement_park': { emoji: '🚐', label: 'RV Retirement', color: 'bg-lime-100 text-lime-800 dark:bg-lime-900 dark:text-lime-200' },
+      'senior_cooperative': { emoji: '🤝', label: 'Senior Co-op', color: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200' }
+    };
+    
+    if (!subtype) return null;
+    return subtypeMap[subtype] || null;
+  };
 
   // Get authentic pricing display - check HUD rentPerMonth first
   const displayPrice = community.displayPricing?.displayPrice || 
@@ -124,30 +151,49 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
 
               {/* Badges */}
               <div className="flex flex-wrap gap-1.5">
-                {isHudProperty && (
-                  <Badge className="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border border-green-300">
+                {/* Community Subtype Badge */}
+                {community.communitySubtype && (() => {
+                  const badge = getSubtypeBadge(community.communitySubtype);
+                  return badge ? (
+                    <Badge className={`text-xs ${badge.color} border-0`}>
+                      <span className="mr-1">{badge.emoji}</span>
+                      {badge.label}
+                    </Badge>
+                  ) : null;
+                })()}
+                
+                {isHudProperty && !community.communitySubtype?.includes('hud') && (
+                  <Badge className="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border border-green-300 dark:border-green-700">
                     <Shield className="h-3 w-3 mr-1" />
                     HUD Verified
                   </Badge>
                 )}
                 
                 {community.dataQuality?.qualityScore && community.dataQuality.qualityScore >= 80 && (
-                  <Badge className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                  <Badge className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 border border-blue-300 dark:border-blue-700">
                     <CheckCircle className="h-3 w-3 mr-1" />
                     Verified
                   </Badge>
                 )}
                 
                 {community.transparencyBadges && community.transparencyBadges.length > 0 && (
-                  <Badge className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                  <Badge className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 border border-purple-300 dark:border-purple-700">
                     <Award className="h-3 w-3 mr-1" />
                     {community.transparencyBadges.length} Badges
                   </Badge>
                 )}
                 
                 {displayPrice === 'Contact for Pricing' && community.sizeCategory && (
-                  <Badge className="text-xs bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+                  <Badge className="text-xs bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 border border-orange-300 dark:border-orange-700">
                     {community.sizeCategory}
+                  </Badge>
+                )}
+                
+                {/* Amenities Badge */}
+                {community.amenities && community.amenities.length > 5 && (
+                  <Badge className="text-xs bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 border border-indigo-300 dark:border-indigo-700">
+                    <Sparkles className="h-3 w-3 mr-1" />
+                    {community.amenities.length} Amenities
                   </Badge>
                 )}
               </div>
@@ -500,7 +546,7 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
             {/* Only show verified occupancy data if available */}
             {community.occupancyRateHud && (
               <Badge className="absolute top-3 left-3 bg-gray-600 text-white text-xs px-2 py-1 font-medium">
-                {Math.round(100 - parseFloat(community.occupancyRateHud))}% Occupancy
+                {Math.round(100 - parseFloat(String(community.occupancyRateHud)))}% Occupancy
               </Badge>
             )}
             
@@ -538,7 +584,7 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
               <div className="flex items-center text-xs text-gray-600 dark:text-gray-400 font-medium mb-2">
                 {community.occupancyRateHud && (
                   <span className="mr-2">
-                    {Math.round(parseFloat(community.occupancyRateHud))}% occupied
+                    {Math.round(parseFloat(String(community.occupancyRateHud)))}% occupied
                   </span>
                 )}
                 {community.totalUnitsHud && (

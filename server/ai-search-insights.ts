@@ -1,5 +1,3 @@
-import { multiAIIntelligence } from './multi-ai-intelligence';
-import { realDataAnalyzer } from './real-data-analyzer';
 import OpenAI from 'openai';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -149,29 +147,75 @@ export class AISearchInsights {
     const strengths = [];
     const concerns = [];
     
-    // Analyze strengths
-    const rating = parseFloat(community.rating || '0');
-    if (rating >= 4.5) strengths.push('Exceptional ratings');
-    else if (rating >= 4.0) strengths.push('Strong ratings');
+    // Location-specific information
+    const locationStr = `${community.city}, ${community.state}`;
     
-    if (community.hudPropertyId) strengths.push('Government subsidized');
-    if (community.photos?.length > 5) strengths.push('Well documented');
-    if (community.website) strengths.push('Professional online presence');
+    // Analyze strengths with specifics
+    const rating = parseFloat(community.rating || '0');
+    if (rating >= 4.5) strengths.push(`${rating}/5 star rating from ${community.reviewCount || 0} reviews`);
+    else if (rating >= 4.0) strengths.push(`Solid ${rating}/5 rating`);
+    
+    // HUD properties
+    if (community.hudPropertyId) {
+      if (community.rentPerMonth) {
+        strengths.push(`HUD subsidized: $${community.rentPerMonth}/month`);
+      } else {
+        strengths.push('Income-qualified HUD property');
+      }
+    }
+    
+    // Community type specifics
+    if (community.communitySubtype) {
+      const subtypeMap: Record<string, string> = {
+        'hud_senior_housing': 'HUD Senior Housing',
+        'mobile_home_park': 'Mobile Home Community',
+        'active_adult_55_plus': 'Active 55+ Community',
+        'independent_living': 'Independent Living',
+        'assisted_living': 'Assisted Living Facility',
+        'memory_care': 'Memory Care Specialized',
+        'board_and_care_home': 'Board & Care Home',
+        'skilled_nursing': 'Skilled Nursing Facility',
+        'ccrc_life_plan': 'Continuing Care Community',
+        'va_housing': 'Veterans Housing',
+        'unlicensed_housing': 'Residential Care',
+        'manufactured_home_community': 'Manufactured Homes',
+        'rv_retirement_park': 'RV Retirement Park',
+        'senior_cooperative': 'Senior Co-op Housing'
+      };
+      const subtypeName = subtypeMap[community.communitySubtype] || community.communitySubtype;
+      strengths.push(subtypeName);
+    }
+    
+    // Care types offered
+    if (community.careTypes?.length > 0) {
+      strengths.push(`Offers: ${community.careTypes.join(', ')}`);
+    }
+    
+    // Amenities
+    if (community.amenities?.length > 3) {
+      strengths.push(`${community.amenities.length} amenities`);
+    }
+    
+    if (community.photos?.length > 5) strengths.push(`${community.photos.length} photos available`);
+    if (community.website) strengths.push('Direct website available');
     
     // Analyze concerns if requested
     if (includeConcerns) {
-      if (rating < 3.0) concerns.push('Below average ratings');
-      else if (rating < 3.5) concerns.push('Mixed reviews');
+      if (rating < 3.0 && rating > 0) concerns.push(`Low rating: ${rating}/5 stars`);
+      else if (rating < 3.5 && rating > 0) concerns.push(`Mixed reviews: ${rating}/5 stars`);
       
       if (!community.photos || community.photos.length === 0) {
-        concerns.push('Limited photos available');
+        concerns.push('No photos available');
       }
-      if (!community.website) concerns.push('No website listed');
+      if (!community.website && !community.phone) concerns.push('Limited contact information');
+      if (!community.availability || community.availability === 'Unknown') {
+        concerns.push('Availability status unclear');
+      }
     }
     
     return {
       id: community.id,
-      name: community.name,
+      name: `${community.name} (${locationStr})`,
       rating: rating,
       price: community.displayPricing?.displayPrice || 'Contact for pricing',
       careTypes: community.careTypes || [],
