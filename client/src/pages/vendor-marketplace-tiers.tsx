@@ -70,11 +70,11 @@ interface VendorTier {
 
 // Add free tier to vendor tiers
 const freeTier: VendorTier = {
-  name: "Free Listing",
+  name: "Free Starter",
   price: 0,
   features: {
     listingVisible: true,
-    regionalCoverage: 1, // Limited to 1 region
+    regionalCoverage: 1, // Limited to 1 zip code
     leadGeneration: 5, // Limited leads per month
     featuredPlacement: false,
     prioritySupport: false,
@@ -203,83 +203,124 @@ export default function VendorMarketplaceTiers() {
             
             <CardContent className="space-y-3">
               <div className="space-y-2">
-                {/* Regional Coverage */}
-                <div className="flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">
-                    {tier.features.regionalCoverage === -1 
-                      ? 'Nationwide coverage' 
-                      : tier.features.regionalCoverage === 1
-                      ? '1 regional zip cluster'
-                      : `Up to ${tier.features.regionalCoverage} regional areas`}
-                  </span>
-                </div>
-                
-                {/* Analytics Access */}
-                {tier.features.analyticsAccess !== 'none' && (
-                  <div className="flex items-center gap-2">
-                    <BarChart3 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">
-                      {tier.features.analyticsAccess === 'basic' && 'Basic analytics dashboard'}
-                      {tier.features.analyticsAccess === 'advanced' && 'Advanced analytics & reports'}
-                      {tier.features.analyticsAccess === 'enterprise' && 'Enterprise analytics suite'}
-                    </span>
-                  </div>
+                {/* Tier-specific Features */}
+                {key === 'free' && (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <Globe className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">1 zip code coverage</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <User className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Basic public listing</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MessageSquare className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">5 leads per month</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                      <span className="text-sm text-gray-500 dark:text-gray-400">No branding or photos</span>
+                    </div>
+                  </>
                 )}
                 
-                {/* Photos & Branding */}
-                {tier.features.photos ? (
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Custom logo & branding</span>
-                  </div>
-                ) : key === 'basic' && (
-                  <div className="flex items-center gap-2">
-                    <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                    <span className="text-sm text-gray-500 dark:text-gray-400">No photos or branding</span>
-                  </div>
+                {key === 'basic' && (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <Globe className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">1 regional zip cluster</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <User className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Name, phone, category, description</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Affiliate tracking ID integration</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                      <span className="text-sm text-gray-500 dark:text-gray-400">No photos or branding</span>
+                    </div>
+                  </>
+                )}
+                
+                {key === 'featured' && (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <Globe className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Up to 5 regional areas</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Custom logo & branding</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <BarChart3 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Basic analytics dashboard</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Star className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Featured placement</span>
+                    </div>
+                  </>
+                )}
+                
+                {key === 'national' && (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <Globe className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Nationwide coverage</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Banner rotation</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Briefcase className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Dedicated vendor page</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Quarterly performance reports</span>
+                    </div>
+                  </>
+                )}
+                
+                {key === 'enterprise' && (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <Crown className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Exclusive category access</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Building className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Co-branded integrations</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Revenue share options</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Cross-platform placement</span>
+                    </div>
+                  </>
                 )}
                 
                 {/* Verified Badge */}
-                {key === 'basic' ? (
+                {key === 'basic' && (
                   <div className="flex items-center gap-2">
                     <Shield className="w-4 h-4 text-gray-400 dark:text-gray-500" />
                     <span className="text-sm text-gray-700 dark:text-gray-300">$25 verification badge add-on</span>
                   </div>
-                ) : (
+                )}
+                
+                {(key === 'featured' || key === 'national' || key === 'enterprise') && (
                   <div className="flex items-center gap-2">
                     <Shield className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">MySeniorValet Approved badge</span>
-                  </div>
-                )}
-                
-                {/* Featured Placement */}
-                {tier.features.featuredPlacement && (
-                  <div className="flex items-center gap-2">
-                    <Star className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Featured placement</span>
-                  </div>
-                )}
-                
-                {/* Special Features */}
-                {tier.features.bannerRotation && (
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Banner rotation</span>
-                  </div>
-                )}
-                
-                {tier.features.dedicatedProfilePage && (
-                  <div className="flex items-center gap-2">
-                    <Briefcase className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Dedicated vendor page</span>
-                  </div>
-                )}
-                
-                {tier.features.exclusiveCategory && (
-                  <div className="flex items-center gap-2">
-                    <Crown className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Exclusive category access</span>
                   </div>
                 )}
               </div>
@@ -329,57 +370,44 @@ export default function VendorMarketplaceTiers() {
                   <td className="text-center py-3 px-4 font-bold text-gray-900 dark:text-gray-100">$99</td>
                   <td className="text-center py-3 px-4 font-bold text-gray-900 dark:text-gray-100">$249</td>
                   <td className="text-center py-3 px-4 font-bold text-gray-900 dark:text-gray-100">$499</td>
-                  <td className="text-center py-3 px-4 font-bold">$999+</td>
+                  <td className="text-center py-3 px-4 font-bold text-gray-900 dark:text-gray-100">$999+</td>
                 </tr>
-                <tr className="border-b">
-                  <td className="py-3 px-4 font-medium">Regional Coverage</td>
-                  <td className="text-center py-3 px-4">1 zip cluster</td>
-                  <td className="text-center py-3 px-4">Up to 5 regions</td>
-                  <td className="text-center py-3 px-4">Nationwide</td>
-                  <td className="text-center py-3 px-4">Custom/Exclusive</td>
+                <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">Regional Coverage</td>
+                  <td className="text-center py-3 px-4 text-gray-700 dark:text-gray-300">1 zip code</td>
+                  <td className="text-center py-3 px-4 text-gray-700 dark:text-gray-300">1 zip cluster</td>
+                  <td className="text-center py-3 px-4 text-gray-700 dark:text-gray-300">Up to 5 regions</td>
+                  <td className="text-center py-3 px-4 text-gray-700 dark:text-gray-300">Nationwide</td>
+                  <td className="text-center py-3 px-4 text-gray-700 dark:text-gray-300">Custom/Exclusive</td>
                 </tr>
-                <tr className="border-b">
-                  <td className="py-3 px-4 font-medium">Featured Placement</td>
+                <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">Featured Placement</td>
                   <td className="text-center py-3 px-4">
-                    <Lock className="w-4 h-4 text-gray-400 inline" />
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500 inline" />
                   </td>
                   <td className="text-center py-3 px-4">
-                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500 inline" />
                   </td>
                   <td className="text-center py-3 px-4">
-                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                    <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 inline" />
                   </td>
                   <td className="text-center py-3 px-4">
-                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
-                  </td>
-                </tr>
-                <tr className="border-b">
-                  <td className="py-3 px-4 font-medium">Photos & Branding</td>
-                  <td className="text-center py-3 px-4">
-                    <Lock className="w-4 h-4 text-gray-400 inline" />
+                    <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 inline" />
                   </td>
                   <td className="text-center py-3 px-4">
-                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
-                  </td>
-                  <td className="text-center py-3 px-4">
-                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
-                  </td>
-                  <td className="text-center py-3 px-4">
-                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                    <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 inline" />
                   </td>
                 </tr>
-                <tr className="border-b">
-                  <td className="py-3 px-4 font-medium">Analytics Dashboard</td>
-                  <td className="text-center py-3 px-4">None</td>
-                  <td className="text-center py-3 px-4">Basic</td>
-                  <td className="text-center py-3 px-4">Advanced</td>
-                  <td className="text-center py-3 px-4">Enterprise</td>
-                </tr>
-                <tr className="border-b">
-                  <td className="py-3 px-4 font-medium">Verified Badge</td>
-                  <td className="text-center py-3 px-4">$25 add-on</td>
+                <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">Photos & Branding</td>
                   <td className="text-center py-3 px-4">
-                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 inline" />
                   </td>
                   <td className="text-center py-3 px-4">
                     <CheckCircle className="w-4 h-4 text-green-600 inline" />
@@ -388,43 +416,118 @@ export default function VendorMarketplaceTiers() {
                     <CheckCircle className="w-4 h-4 text-green-600 inline" />
                   </td>
                 </tr>
-                <tr className="border-b">
-                  <td className="py-3 px-4 font-medium">Banner Rotation</td>
+                <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">Analytics Dashboard</td>
+                  <td className="text-center py-3 px-4 text-gray-700 dark:text-gray-300">None</td>
+                  <td className="text-center py-3 px-4 text-gray-700 dark:text-gray-300">None</td>
+                  <td className="text-center py-3 px-4 text-gray-700 dark:text-gray-300">Basic</td>
+                  <td className="text-center py-3 px-4 text-gray-700 dark:text-gray-300">Advanced</td>
+                  <td className="text-center py-3 px-4 text-gray-700 dark:text-gray-300">Enterprise</td>
+                </tr>
+                <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">Verified Badge</td>
                   <td className="text-center py-3 px-4">
-                    <Lock className="w-4 h-4 text-gray-400 inline" />
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4 text-gray-700 dark:text-gray-300">$25 add-on</td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 inline" />
                   </td>
                   <td className="text-center py-3 px-4">
-                    <Lock className="w-4 h-4 text-gray-400 inline" />
+                    <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 inline" />
                   </td>
                   <td className="text-center py-3 px-4">
-                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
-                  </td>
-                  <td className="text-center py-3 px-4">
-                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                    <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 inline" />
                   </td>
                 </tr>
-                <tr className="border-b">
-                  <td className="py-3 px-4 font-medium">Call-to-Action Button</td>
+                <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">Banner Rotation</td>
                   <td className="text-center py-3 px-4">
-                    <Lock className="w-4 h-4 text-gray-400 inline" />
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500 inline" />
                   </td>
                   <td className="text-center py-3 px-4">
-                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500 inline" />
                   </td>
                   <td className="text-center py-3 px-4">
-                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500 inline" />
                   </td>
                   <td className="text-center py-3 px-4">
-                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                    <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 inline" />
                   </td>
                 </tr>
-                <tr className="border-b">
-                  <td className="py-3 px-4 font-medium">Promotions & Offers</td>
+                <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">Dedicated Vendor Page</td>
                   <td className="text-center py-3 px-4">
-                    <Lock className="w-4 h-4 text-gray-400 inline" />
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500 inline" />
                   </td>
                   <td className="text-center py-3 px-4">
-                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 inline" />
+                  </td>
+                </tr>
+                <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">Exclusive Category Access</td>
+                  <td className="text-center py-3 px-4">
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 inline" />
+                  </td>
+                </tr>
+                <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">Co-branded Integrations</td>
+                  <td className="text-center py-3 px-4">
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 inline" />
+                  </td>
+                </tr>
+                <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">Revenue Share Options</td>
+                  <td className="text-center py-3 px-4">
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 inline" />
                   </td>
                   <td className="text-center py-3 px-4">
                     <CheckCircle className="w-4 h-4 text-green-600 inline" />
