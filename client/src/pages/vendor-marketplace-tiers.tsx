@@ -47,7 +47,7 @@ interface VendorTier {
 }
 
 export default function VendorMarketplaceTiers() {
-  const [selectedTier, setSelectedTier] = useState<string>('professional');
+  const [selectedTier, setSelectedTier] = useState<string>('featured');
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
@@ -58,16 +58,16 @@ export default function VendorMarketplaceTiers() {
 
   const tierColors = {
     basic: "border-gray-300 bg-gray-50",
-    professional: "border-blue-500 bg-blue-50 ring-2 ring-blue-500",
-    enterprise: "border-purple-500 bg-purple-50",
-    platinum: "border-amber-500 bg-amber-50"
+    featured: "border-blue-500 bg-blue-50 ring-2 ring-blue-500",
+    national: "border-purple-500 bg-purple-50",
+    enterprise: "border-amber-500 bg-amber-50"
   };
 
   const tierIcons = {
     basic: <ShoppingBag className="w-8 h-8 text-gray-600" />,
-    professional: <Building2 className="w-8 h-8 text-blue-600" />,
-    enterprise: <Crown className="w-8 h-8 text-purple-600" />,
-    platinum: <Star className="w-8 h-8 text-amber-600" />
+    featured: <Star className="w-8 h-8 text-blue-600" />,
+    national: <Globe className="w-8 h-8 text-purple-600" />,
+    enterprise: <Crown className="w-8 h-8 text-amber-600" />
   };
 
   const handleUpgrade = async (tier: string) => {
@@ -122,9 +122,9 @@ export default function VendorMarketplaceTiers() {
             }`}
             onClick={() => setSelectedTier(key)}
           >
-            {key === 'professional' && (
+            {key === 'featured' && (
               <div className="absolute top-0 right-0 bg-blue-600 text-white px-3 py-1 text-sm rounded-bl-lg">
-                Most Popular
+                Primary Upsell
               </div>
             )}
             
@@ -215,18 +215,18 @@ export default function VendorMarketplaceTiers() {
                 <tr className="border-b">
                   <th className="text-left py-3 px-4">Feature</th>
                   <th className="text-center py-3 px-4">Basic</th>
-                  <th className="text-center py-3 px-4">Professional</th>
+                  <th className="text-center py-3 px-4">Featured</th>
+                  <th className="text-center py-3 px-4">National</th>
                   <th className="text-center py-3 px-4">Enterprise</th>
-                  <th className="text-center py-3 px-4">Platinum</th>
                 </tr>
               </thead>
               <tbody>
                 <tr className="border-b">
-                  <td className="py-3 px-4 font-medium">Monthly Leads</td>
-                  <td className="text-center py-3 px-4">10</td>
-                  <td className="text-center py-3 px-4">50</td>
-                  <td className="text-center py-3 px-4">200</td>
-                  <td className="text-center py-3 px-4">Unlimited</td>
+                  <td className="py-3 px-4 font-medium">Regional Coverage</td>
+                  <td className="text-center py-3 px-4">1 Zip Cluster</td>
+                  <td className="text-center py-3 px-4">5 Regions</td>
+                  <td className="text-center py-3 px-4">Nationwide</td>
+                  <td className="text-center py-3 px-4">Custom</td>
                 </tr>
                 <tr className="border-b">
                   <td className="py-3 px-4 font-medium">Featured Placement</td>
@@ -244,14 +244,42 @@ export default function VendorMarketplaceTiers() {
                   </td>
                 </tr>
                 <tr className="border-b">
-                  <td className="py-3 px-4 font-medium">Analytics Access</td>
+                  <td className="py-3 px-4 font-medium">Photos & Branding</td>
+                  <td className="text-center py-3 px-4">
+                    <Lock className="w-4 h-4 text-gray-400 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                  </td>
+                </tr>
+                <tr className="border-b">
+                  <td className="py-3 px-4 font-medium">Analytics Dashboard</td>
+                  <td className="text-center py-3 px-4">None</td>
                   <td className="text-center py-3 px-4">Basic</td>
-                  <td className="text-center py-3 px-4">Detailed</td>
                   <td className="text-center py-3 px-4">Advanced</td>
-                  <td className="text-center py-3 px-4">Platinum</td>
+                  <td className="text-center py-3 px-4">Enterprise</td>
                 </tr>
                 <tr className="border-b">
-                  <td className="py-3 px-4 font-medium">Priority Support</td>
+                  <td className="py-3 px-4 font-medium">Verified Badge</td>
+                  <td className="text-center py-3 px-4">$25 add-on</td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                  </td>
+                </tr>
+                <tr className="border-b">
+                  <td className="py-3 px-4 font-medium">Banner Rotation</td>
                   <td className="text-center py-3 px-4">
                     <Lock className="w-4 h-4 text-gray-400 inline" />
                   </td>
@@ -266,22 +294,14 @@ export default function VendorMarketplaceTiers() {
                   </td>
                 </tr>
                 <tr className="border-b">
-                  <td className="py-3 px-4 font-medium">Dedicated Account Manager</td>
-                  <td className="text-center py-3 px-4">
-                    <Lock className="w-4 h-4 text-gray-400 inline" />
-                  </td>
-                  <td className="text-center py-3 px-4">
-                    <Lock className="w-4 h-4 text-gray-400 inline" />
-                  </td>
-                  <td className="text-center py-3 px-4">
-                    <Lock className="w-4 h-4 text-gray-400 inline" />
-                  </td>
-                  <td className="text-center py-3 px-4">
-                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
-                  </td>
+                  <td className="py-3 px-4 font-medium">Affiliate Tracking</td>
+                  <td className="text-center py-3 px-4">Optional</td>
+                  <td className="text-center py-3 px-4">Required</td>
+                  <td className="text-center py-3 px-4">Required</td>
+                  <td className="text-center py-3 px-4">Required</td>
                 </tr>
                 <tr className="border-b">
-                  <td className="py-3 px-4 font-medium">API Access</td>
+                  <td className="py-3 px-4 font-medium">Exclusive Category Access</td>
                   <td className="text-center py-3 px-4">
                     <Lock className="w-4 h-4 text-gray-400 inline" />
                   </td>

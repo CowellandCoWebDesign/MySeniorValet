@@ -5,71 +5,112 @@ import { vendors } from "@shared/schema";
 // Vendor subscription tier definitions
 export const VENDOR_SUBSCRIPTION_TIERS = {
   basic: {
-    name: "Basic Vendor",
-    price: 199,
+    name: "Basic Listing",
+    price: 99,
     features: {
       listingVisible: true,
-      leadGeneration: 10, // leads per month
+      regionalCoverage: 1, // 1 regional zip cluster
+      leadGeneration: -1, // No lead tracking at basic
       featuredPlacement: false,
       prioritySupport: false,
-      analyticsAccess: 'basic',
-      profileCustomization: 'limited',
-      productListings: 5,
-      monthlyClicks: 100,
-      responseTime: '48 hours',
-      verifiedBadge: false,
-      promotionalOffers: 1,
+      analyticsAccess: 'none',
+      profileCustomization: 'basic', // Name, phone, category, description only
+      productListings: 0, // No products at basic
+      monthlyClicks: -1, // No click tracking at basic
+      responseTime: '72 hours',
+      verifiedBadge: false, // Optional $25 add-on
+      promotionalOffers: 0, // No promotions at basic
+      userReviews: true,
+      affiliateTracking: true, // Optional
+      photos: false,
+      callToAction: false,
+      logo: false,
     }
   },
-  professional: {
-    name: "Professional Vendor",
-    price: 399,
+  featured: {
+    name: "Featured Vendor", 
+    price: 249,
     features: {
       listingVisible: true,
-      leadGeneration: 50, // leads per month
+      regionalCoverage: 5, // Up to 5 regional areas
+      leadGeneration: -1, // Tracking enabled but no limit
       featuredPlacement: true,
       prioritySupport: false,
-      analyticsAccess: 'detailed',
+      analyticsAccess: 'basic', // Views, clicks, user actions
       profileCustomization: 'advanced',
-      productListings: 25,
-      monthlyClicks: 500,
+      productListings: -1, // Unlimited products
+      monthlyClicks: -1, // Unlimited clicks tracked
       responseTime: '24 hours',
-      verifiedBadge: true,
-      promotionalOffers: 3,
+      verifiedBadge: true, // "MySeniorValet Approved" badge
+      promotionalOffers: -1, // Can post promotions
+      userReviews: true,
+      affiliateTracking: true, // Required at this tier
+      photos: true,
+      callToAction: true,
+      logo: true,
+      featuredCarousel: true,
     }
   },
-  enterprise: {
-    name: "Enterprise Vendor",
-    price: 799,
+  national: {
+    name: "National Partner",
+    price: 499,
     features: {
       listingVisible: true,
-      leadGeneration: 200, // leads per month
+      regionalCoverage: -1, // Nationwide (no limits)
+      leadGeneration: -1, // Unlimited
       featuredPlacement: true,
       prioritySupport: true,
       analyticsAccess: 'advanced',
       profileCustomization: 'full',
-      productListings: 100,
-      monthlyClicks: 2000,
+      productListings: -1, // Unlimited
+      monthlyClicks: -1, // Unlimited
       responseTime: '12 hours',
       verifiedBadge: true,
-      promotionalOffers: 10,
+      promotionalOffers: -1, // Unlimited
+      userReviews: true,
+      affiliateTracking: true,
+      photos: true,
+      callToAction: true,
+      logo: true,
+      featuredCarousel: true,
+      bannerRotation: true,
+      dedicatedProfilePage: true,
+      apiLeadPassback: true,
+      quarterlyReport: true,
+      topConciergeMatch: true,
     }
   },
-  platinum: {
-    name: "Platinum Partner",
-    price: 1499,
+  enterprise: {
+    name: "Enterprise / Exclusivity",
+    price: 999, // Starting price, custom negotiated
     features: {
       listingVisible: true,
-      leadGeneration: -1, // unlimited
+      regionalCoverage: -1, // Custom regional or national
+      leadGeneration: -1, // Unlimited
       featuredPlacement: true,
       prioritySupport: true,
-      analyticsAccess: 'platinum',
+      analyticsAccess: 'enterprise',
       profileCustomization: 'white-label',
-      productListings: -1, // unlimited
-      monthlyClicks: -1, // unlimited
+      productListings: -1, // Unlimited
+      monthlyClicks: -1, // Unlimited
       responseTime: 'Priority (4 hours)',
       verifiedBadge: true,
-      promotionalOffers: -1, // unlimited
+      promotionalOffers: -1, // Unlimited
+      userReviews: true,
+      affiliateTracking: true,
+      photos: true,
+      callToAction: true,
+      logo: true,
+      featuredCarousel: true,
+      bannerRotation: true,
+      dedicatedProfilePage: true,
+      apiLeadPassback: true,
+      quarterlyReport: true,
+      topConciergeMatch: true,
+      exclusiveCategory: true,
+      coBranding: true,
+      revenueShare: true, // Optional hybrid model
+      crossPlatformPlacement: true,
       dedicatedAccountManager: true,
       apiAccess: true,
       customIntegrations: true,
