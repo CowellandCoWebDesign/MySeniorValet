@@ -142,16 +142,114 @@ export default function VendorMarketplaceTiers() {
             </Badge>
           </div>
           <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-            Become a Trusted MySeniorValet Partner
+            Partner with MySeniorValet's Senior Care Marketplace
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-3">
-            We're excited to have you join our community of caring professionals who make a real difference 
-            in the lives of seniors and their families every day
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto mb-6">
+            Join our trusted network of essential service providers connecting with 34,000+ senior living communities 
+            and millions of families across North America
           </p>
-          <p className="text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
-            Whether you're just starting or ready to expand, we have a partnership level that's perfect for you.
-            Let's grow together!
+          
+          {/* Service Categories */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 max-w-5xl mx-auto mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+              We're Looking for Partners in These Essential Categories:
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
+              <div className="flex items-start gap-2">
+                <ShoppingBag className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5" />
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">Pharmacy & Medical</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Medication delivery, medical supplies, DME equipment</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <Home className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">Moving & Transition</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Senior move managers, downsizing, estate services</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <Users className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5" />
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">Professional Services</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Elder law, financial planning, insurance advisors</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <Star className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5" />
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">Home Care & Support</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">In-home care, hospice, therapy services</p>
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left mt-4">
+              <div className="flex items-start gap-2">
+                <Gift className="w-5 h-5 text-pink-600 dark:text-pink-400 mt-0.5" />
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">Daily Living</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Meal delivery, grocery services, transportation</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <Shield className="w-5 h-5 text-indigo-600 dark:text-indigo-400 mt-0.5" />
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">Safety & Security</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Medical alerts, home monitoring, fall prevention</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <Building className="w-5 h-5 text-teal-600 dark:text-teal-400 mt-0.5" />
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">Property Services</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Real estate, home modifications, maintenance</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <Sparkles className="w-5 h-5 text-orange-600 dark:text-orange-400 mt-0.5" />
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">Lifestyle & Wellness</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Activities, education, social engagement</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <p className="text-lg text-gray-500 dark:text-gray-400 max-w-3xl mx-auto">
+            Whether you're a local provider or national brand, we have a partnership tier designed to help you reach 
+            the right families at the right time with the right message
           </p>
+          
+          {/* Ideal Partner Profile */}
+          <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-6 max-w-4xl mx-auto mt-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center justify-center gap-2">
+              <Crown className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              Our Ideal Partners
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+              <div>
+                <p className="font-medium text-gray-900 dark:text-gray-100 mb-2">✓ You're Passionate About Senior Care</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  Your business exists to improve the lives of seniors and their families - profit is important, but purpose drives you
+                </p>
+                <p className="font-medium text-gray-900 dark:text-gray-100 mb-2">✓ You Deliver Exceptional Service</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  You have verifiable references, proper licensing/insurance, and a track record of going above and beyond
+                </p>
+              </div>
+              <div>
+                <p className="font-medium text-gray-900 dark:text-gray-100 mb-2">✓ You're Ready to Grow</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  Whether expanding locally or nationally, you have the capacity to handle increased demand professionally
+                </p>
+                <p className="font-medium text-gray-900 dark:text-gray-100 mb-2">✓ You Value Transparency</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  You believe in honest pricing, clear communication, and building trust through authentic relationships
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
       {/* Detailed Feature Comparison */}
@@ -380,23 +478,23 @@ export default function VendorMarketplaceTiers() {
           <CardContent className="py-8 px-6">
             <h3 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-gray-100 flex items-center justify-center gap-2">
               <Sparkles className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-              Why Partners Love Working With Us
+              Why 1,000+ Vendors Choose MySeniorValet
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
               <div className="flex flex-col items-center text-center">
-                <Users className="w-10 h-10 text-blue-600 dark:text-blue-400 mb-3" />
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Meaningful Connections</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Connect with families who truly need your services at the right moment</p>
+                <Building2 className="w-10 h-10 text-blue-600 dark:text-blue-400 mb-3" />
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">34,000+ Communities</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Direct access to verified senior living communities actively seeking quality vendor partners</p>
               </div>
               <div className="flex flex-col items-center text-center">
-                <TrendingUp className="w-10 h-10 text-green-600 dark:text-green-400 mb-3" />
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Grow Together</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Your success is our success - we're invested in your growth journey</p>
+                <Users className="w-10 h-10 text-green-600 dark:text-green-400 mb-3" />
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Pre-Qualified Leads</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Connect with families and facilities already looking for your specific services</p>
               </div>
               <div className="flex flex-col items-center text-center">
-                <Shield className="w-10 h-10 text-purple-600 dark:text-purple-400 mb-3" />
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Trusted Platform</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Join a community built on transparency, trust, and real impact</p>
+                <TrendingUp className="w-10 h-10 text-purple-600 dark:text-purple-400 mb-3" />
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Proven ROI</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Average partners see 5x return on investment within first 90 days</p>
               </div>
             </div>
           </CardContent>
