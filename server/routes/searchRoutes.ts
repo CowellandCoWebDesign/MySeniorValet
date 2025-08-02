@@ -66,21 +66,40 @@ export function registerSearchRoutes(app: Express) {
       // Try to geocode the location if provided
       if (searchParams.location) {
         try {
+          console.log('🔍 Attempting to geocode location:', searchParams.location);
           const geocoded = geocodeLocation(searchParams.location);
+          
           if (geocoded) {
+            console.log('✅ Geocoded successfully:', geocoded);
             const zoomLevel = getZoomLevel(searchParams.location);
             
             // Add searchMetadata with coordinates for the frontend
             result.searchMetadata = {
               coordinates: geocoded,
               searchLocation: searchParams.location,
-              searchType: 'city',
+              searchType: 'exact' as const,
               totalResults: result.communities.length,
               originalQuery: searchParams.location
             };
+          } else {
+            console.log('❌ Geocoding failed for location:', searchParams.location);
+            // If geocoding fails, try to find communities with matching city names
+            if (result.communities.length > 0) {
+              const firstCommunity = result.communities[0];
+              if (firstCommunity.latitude && firstCommunity.longitude) {
+                console.log('📍 Using first community location as fallback');
+                result.searchMetadata = {
+                  coordinates: { lat: firstCommunity.latitude, lng: firstCommunity.longitude },
+                  searchLocation: searchParams.location,
+                  searchType: 'fallback' as const,
+                  totalResults: result.communities.length,
+                  originalQuery: searchParams.location
+                };
+              }
+            }
           }
         } catch (error) {
-          console.error('Geocoding failed:', error);
+          console.error('Geocoding error:', error);
         }
       }
       

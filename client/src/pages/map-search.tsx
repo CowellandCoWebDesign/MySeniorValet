@@ -400,8 +400,12 @@ export default function MapSearch() {
 
     // Try to geocode the location using enhanced API
     try {
-      const response = await fetch(`/api/communities/search/enhanced?location=${encodeURIComponent(location)}&limit=1`);
-      console.log('Enhanced API response status:', response.status);
+      // First try the enhanced API with filters if we have them
+      const careTypeFilter = filters.careType !== 'All Types' ? `&careType=${encodeURIComponent(filters.careType)}` : '';
+      const budgetFilter = filters.budget !== 'Any Budget' ? `&budget=${encodeURIComponent(filters.budget)}` : '';
+      
+      const response = await fetch(`/api/communities/search/enhanced?location=${encodeURIComponent(location)}&limit=50${careTypeFilter}${budgetFilter}`);
+      console.log('Enhanced API response status:', response.status, 'for location:', location);
 
       if (response.ok) {
         const data = await response.json();
@@ -413,6 +417,7 @@ export default function MapSearch() {
           setMapCenter([data.searchMetadata.coordinates.lat, data.searchMetadata.coordinates.lng]);
           setMapZoom(data.searchMetadata.searchType === 'state' ? 7 : 
                     data.searchMetadata.searchType === 'city' ? 12 : 10);
+          setShowBottomPanel(true); // Show results
           return;
         }
 
@@ -423,6 +428,7 @@ export default function MapSearch() {
             console.log('✅ Using first community coordinates:', firstCommunity);
             setMapCenter([firstCommunity.latitude, firstCommunity.longitude]);
             setMapZoom(12);
+            setShowBottomPanel(true); // Show results
             return;
           }
         }
@@ -723,9 +729,12 @@ export default function MapSearch() {
         careTypes: careTypesParam
       });
       
+      // Apply filters and then search
+      let newFilters = { ...filters };
+      
       // Apply budget filter from onboarding
       if (budgetParam) {
-        setFilters(prev => ({ ...prev, budget: getBudgetFilter(budgetParam) }));
+        newFilters.budget = getBudgetFilter(budgetParam);
       }
       
       // Apply care type filter from onboarding
@@ -733,13 +742,19 @@ export default function MapSearch() {
         // The careTypes param might be a comma-separated list
         const firstCareType = careTypesParam.split(',')[0];
         if (firstCareType) {
-          setFilters(prev => ({ ...prev, careType: firstCareType }));
+          newFilters.careType = firstCareType;
         }
       }
       
-      handleLocationSearch(initialQuery);
+      // Set filters and perform search
+      setFilters(newFilters);
+      
+      // Small delay to ensure filters are set
+      setTimeout(() => {
+        handleLocationSearch(initialQuery);
+      }, 100);
     }
-  }, [initialQuery, hasSearched]); // Run when these dependencies change
+  }, []); // Only run once on mount
 
   // Debounced search suggestions
   useEffect(() => {

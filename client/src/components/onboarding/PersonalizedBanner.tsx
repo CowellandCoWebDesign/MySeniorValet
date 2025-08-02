@@ -123,7 +123,7 @@ export function PersonalizedBanner() {
 
           {/* Actions */}
           <div className="flex flex-col gap-2 ml-4">
-            <Link href={`/search?location=${encodeURIComponent(onboardingData?.location || '')}&budget=${onboardingData?.budget || ''}&careTypes=${onboardingData?.careType?.join(',') || ''}`}>
+            <Link href={`/map-search?query=${encodeURIComponent(onboardingData?.location || '')}&budget=${onboardingData?.budget || ''}&careTypes=${onboardingData?.careType?.join(',') || ''}`}>
               <Button size="sm" className="gap-2">
                 <Home className="h-4 w-4" />
                 Find Communities

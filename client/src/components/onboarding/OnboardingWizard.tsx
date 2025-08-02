@@ -28,7 +28,7 @@ interface OnboardingWizardProps {
   onComplete: (userData: OnboardingData) => void;
 }
 
-interface OnboardingData {
+export interface OnboardingData {
   name: string;
   location: string;
   careType: string[];
