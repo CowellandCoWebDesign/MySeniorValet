@@ -5,7 +5,7 @@ import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSig
          Mail, Globe, Users, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
          Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X, 
          Clock, HelpCircle, ChevronLeft, ChevronRight, Activity, UtensilsCrossed, Car, 
-         ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp } from 'lucide-react';
+         ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem } from 'lucide-react';
 import type { Community } from '@shared/schema';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -35,6 +35,38 @@ import { AuthenticPricingDisplay } from "@/components/AuthenticPricingDisplay";
 import { TourScheduler } from "@/components/TourScheduler";
 import { MessageCommunityButton } from "@/components/message-community-button";
 import { MissingPhotosPanel } from "@/components/MissingPhotosPanel";
+import { SubscriptionUpgradeModal } from "@/components/SubscriptionUpgradeModal";
+
+// Get subscription tier badge details
+const getSubscriptionTierBadge = (tier?: string) => {
+  switch (tier) {
+    case 'platinum':
+      return {
+        icon: Crown,
+        label: 'Platinum Partner',
+        className: 'bg-gradient-to-r from-purple-100 to-purple-200 text-purple-900 border-purple-300 dark:from-purple-900/40 dark:to-purple-800/40 dark:text-purple-100 dark:border-purple-700'
+      };
+    case 'featured':
+      return {
+        icon: Gem,
+        label: 'Featured Community',
+        className: 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-900 border-blue-300 dark:from-blue-900/40 dark:to-blue-800/40 dark:text-blue-100 dark:border-blue-700'
+      };
+    case 'standard':
+      return {
+        icon: CheckCircle,
+        label: 'Standard Verified',
+        className: 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/40 dark:text-green-200 dark:border-green-700'
+      };
+    case 'verified':
+    default:
+      return {
+        icon: Shield,
+        label: 'Verified Listing',
+        className: 'bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600'
+      };
+  }
+};
 
 // Determine if community has verified pricing data
 const hasVerifiedPricing = (community: Community): boolean => {
@@ -230,6 +262,11 @@ export default function CommunityDetail() {
   // Advanced reservation flow state
   const [showAdvancedReservation, setShowAdvancedReservation] = useState(false);
   const [selectedReservationUnit, setSelectedReservationUnit] = useState<{ type: string; id: string } | null>(null);
+  
+  // Subscription upgrade modal state
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgradeFeature, setUpgradeFeature] = useState('');
+  
   const { toast } = useToast();
 
   // Validate ID and redirect if invalid
@@ -617,9 +654,22 @@ export default function CommunityDetail() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div>
-                    <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                      {community.name}
-                    </CardTitle>
+                    <div className="flex items-center gap-3 mb-2">
+                      <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        {community.name}
+                      </CardTitle>
+                      {/* Subscription Tier Badge */}
+                      {(() => {
+                        const tierBadge = getSubscriptionTierBadge(community.subscriptionTier);
+                        const TierIcon = tierBadge.icon;
+                        return (
+                          <Badge className={`flex items-center gap-1 px-3 py-1 border ${tierBadge.className}`}>
+                            <TierIcon className="w-4 h-4" />
+                            <span className="font-medium">{tierBadge.label}</span>
+                          </Badge>
+                        );
+                      })()}
+                    </div>
                     <div className="flex items-center text-gray-900 dark:text-gray-100 mb-2">
                       <MapPin className="w-4 h-4 mr-1" />
                       <span>{community.address}, {community.city}, {community.state} {community.zipCode}</span>
@@ -748,10 +798,38 @@ export default function CommunityDetail() {
                     
                     {/* In-App Messaging Button - Bottom Left */}
                     <div className="mt-4">
-                      <MessageCommunityButton
-                        communityId={community.id}
-                        communityName={community.name}
-                      />
+                      {/* Check subscription tier for messaging access */}
+                      {(() => {
+                        const tier = community.subscriptionTier || 'verified';
+                        
+                        if (tier === 'verified') {
+                          // Verified tier has no messaging access
+                          return (
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                setUpgradeFeature('messaging');
+                                setShowUpgradeModal(true);
+                              }}
+                              className="bg-yellow-50 hover:bg-yellow-100 border-yellow-300 text-yellow-700 font-semibold px-6 py-3 shadow-sm hover:shadow-md transition-all"
+                            >
+                              <MessageSquare className="h-5 w-5 mr-2" />
+                              <span className="flex items-center gap-1">
+                                Upgrade to Message
+                                <Sparkles className="h-4 w-4" />
+                              </span>
+                            </Button>
+                          );
+                        }
+                        
+                        // Standard tier and above have messaging access
+                        return (
+                          <MessageCommunityButton
+                            communityId={community.id}
+                            communityName={community.name}
+                          />
+                        );
+                      })()}
                     </div>
                   </div>
                   <div className="text-right">
@@ -2658,13 +2736,83 @@ export default function CommunityDetail() {
                   </TabsContent>
                   <TabsContent value="photos" className="space-y-4">
                     <div>
-                      <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">Photo Gallery</h3>
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Photo Gallery</h3>
+                        {/* Show photo usage limits based on subscription tier */}
+                        {community.claimedBy && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                              {(() => {
+                                const tier = community.subscriptionTier || 'verified';
+                                const photoLimits = { verified: 1, standard: 10, featured: 25, platinum: 50 };
+                                const currentPhotos = community.photos?.length || 0;
+                                const limit = photoLimits[tier as keyof typeof photoLimits];
+                                return `${currentPhotos}/${limit} photos`;
+                              })()}
+                            </span>
+                            {(() => {
+                              const tier = community.subscriptionTier || 'verified';
+                              const photoLimits = { verified: 1, standard: 10, featured: 25, platinum: 50 };
+                              const currentPhotos = community.photos?.length || 0;
+                              const limit = photoLimits[tier as keyof typeof photoLimits];
+                              
+                              if (currentPhotos >= limit) {
+                                return (
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline"
+                                    onClick={() => {
+                                      setUpgradeFeature('photos');
+                                      setShowUpgradeModal(true);
+                                    }}
+                                  >
+                                    <Sparkles className="w-4 h-4 mr-1" />
+                                    Upgrade for More
+                                  </Button>
+                                );
+                              }
+                              return null;
+                            })()}
+                          </div>
+                        )}
+                      </div>
+                      
                       {community.photos && community.photos.length > 0 ? (
-                        <div className="relative h-64 sm:h-80 md:h-96 overflow-hidden rounded-lg">
-                          <HeroPhotoCarousel 
-                            photos={community.photos} 
-                            communityName={community.name}
-                          />
+                        <div>
+                          <div className="relative h-64 sm:h-80 md:h-96 overflow-hidden rounded-lg mb-4">
+                            <HeroPhotoCarousel 
+                              photos={community.photos} 
+                              communityName={community.name}
+                            />
+                          </div>
+                          
+                          {/* Photo limit reached warning */}
+                          {community.claimedBy && (() => {
+                            const tier = community.subscriptionTier || 'verified';
+                            const photoLimits = { verified: 1, standard: 10, featured: 25, platinum: 50 };
+                            const currentPhotos = community.photos?.length || 0;
+                            const limit = photoLimits[tier as keyof typeof photoLimits];
+                            
+                            if (currentPhotos >= limit) {
+                              return (
+                                <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-700">
+                                  <div className="flex items-start">
+                                    <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mr-2 mt-0.5" />
+                                    <div>
+                                      <p className="text-sm font-medium text-yellow-800 dark:text-yellow-300">
+                                        Photo Limit Reached
+                                      </p>
+                                      <p className="text-sm text-yellow-700 dark:text-yellow-400 mt-1">
+                                        Your {tier} plan allows {limit} photo{limit > 1 ? 's' : ''}. 
+                                        Upgrade to add more photos and showcase your community better.
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            }
+                            return null;
+                          })()}
                         </div>
                       ) : (
                         <MissingPhotosPanel 
@@ -2955,6 +3103,16 @@ export default function CommunityDetail() {
           }}
         />
       )}
+      
+      {/* Subscription Upgrade Modal */}
+      <SubscriptionUpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        currentTier={community.subscriptionTier || 'verified'}
+        requestedFeature={upgradeFeature}
+        communityId={community.id}
+        communityName={community.name}
+      />
     </div>
   );
 }
