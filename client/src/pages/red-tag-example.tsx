@@ -200,12 +200,12 @@ const HeroPhotoCarousel = ({ photos, communityName }: { photos: string[], commun
 };
 
 export default function RedTagExamplePage() {
-  const [, params] = useRoute('/red-tag-example/:slug');
+  const [, params] = useRoute('/red-tag-example/:communitySlug');
   const [showAuthenticDisclaimer, setShowAuthenticDisclaimer] = useState(true);
   const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useState("overview");
 
-  const slug = params?.slug || 'sunrise-senior-living';
+  const slug = params?.communitySlug || 'sunrise-senior-living';
   const community = redTagExamples[slug as keyof typeof redTagExamples];
 
   if (!community) {
