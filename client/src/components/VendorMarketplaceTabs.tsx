@@ -251,15 +251,15 @@ export function VendorMarketplaceTabs() {
   return (
     <div className="w-full">
       <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
-        {/* Enhanced colorful tabs for all screen sizes */}
-        <TabsList className="flex flex-wrap h-auto p-2 bg-gray-50 dark:bg-gray-900 rounded-xl gap-2 mb-6 shadow-sm">
+        {/* Enhanced colorful tabs in 3-column grid layout */}
+        <TabsList className="grid grid-cols-3 gap-2 h-auto p-2 bg-gray-50 dark:bg-gray-900 rounded-xl mb-6 shadow-sm">
           <TabsTrigger 
             value="all" 
-            className="group inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all text-sm font-medium border border-gray-200 dark:border-gray-700 data-[state=active]:border-transparent"
+            className="group flex flex-col items-center justify-center gap-1 px-3 py-3 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all text-sm font-medium border border-gray-200 dark:border-gray-700 data-[state=active]:border-transparent h-full"
           >
-            <span className="text-base">🏪</span>
-            <span>All Vendors</span>
-            <span className="inline-flex items-center justify-center px-2 py-0.5 ml-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full group-data-[state=active]:bg-white/20 group-data-[state=active]:text-white">
+            <span className="text-2xl">🏪</span>
+            <span className="text-xs font-semibold">All Vendors</span>
+            <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full group-data-[state=active]:bg-white/20 group-data-[state=active]:text-white">
               {vendors.length}
             </span>
           </TabsTrigger>
@@ -293,13 +293,12 @@ export function VendorMarketplaceTabs() {
               <TabsTrigger 
                 key={category.slug} 
                 value={category.slug} 
-                className={`group inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-800 ${categoryHovers[category.slug] || 'hover:bg-gray-50 dark:hover:bg-gray-700'} data-[state=active]:bg-gradient-to-r ${categoryGradients[category.slug] || 'data-[state=active]:from-gray-500 data-[state=active]:to-gray-600'} data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all text-sm font-medium border border-gray-200 dark:border-gray-700 data-[state=active]:border-transparent`}
+                className={`group flex flex-col items-center justify-center gap-1 px-3 py-3 bg-white dark:bg-gray-800 ${categoryHovers[category.slug] || 'hover:bg-gray-50 dark:hover:bg-gray-700'} data-[state=active]:bg-gradient-to-r ${categoryGradients[category.slug] || 'data-[state=active]:from-gray-500 data-[state=active]:to-gray-600'} data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all text-sm font-medium border border-gray-200 dark:border-gray-700 data-[state=active]:border-transparent h-full`}
               >
-                <Icon className="w-4 h-4" />
-                <span className="hidden sm:inline">{category.name}</span>
-                <span className="sm:hidden">{category.name.split(' ')[0]}</span>
+                <Icon className="w-5 h-5" />
+                <span className="text-xs font-semibold text-center line-clamp-2">{category.name}</span>
                 {vendorCount > 0 && (
-                  <span className="inline-flex items-center justify-center px-2 py-0.5 ml-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full group-data-[state=active]:bg-white/20 group-data-[state=active]:text-white">
+                  <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full group-data-[state=active]:bg-white/20 group-data-[state=active]:text-white">
                     {vendorCount}
                   </span>
                 )}
