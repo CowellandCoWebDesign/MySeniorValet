@@ -389,38 +389,7 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Quick Stats Carousel - Visual Break */}
-      <section className="px-4 py-8 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-6">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              🚀 Platform Intelligence at a Glance
-            </h2>
-            <p className="text-gray-600 dark:text-gray-300">
-              Real-time data from our 3-AI orchestration system
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <Card className="p-4 text-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-              <div className="text-3xl font-bold text-blue-600">34,171+</div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">Communities</div>
-            </Card>
-            <Card className="p-4 text-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-              <div className="text-3xl font-bold text-green-600">5,936</div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">HUD Properties</div>
-            </Card>
-            <Card className="p-4 text-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-              <div className="text-3xl font-bold text-purple-600">3-AI</div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">Verification</div>
-            </Card>
-            <Card className="p-4 text-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-              <div className="text-3xl font-bold text-orange-600">100%</div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">Accuracy</div>
-            </Card>
-          </div>
-        </div>
-      </section>
+
 
       {/* Red Tag Deals Promotional Section */}
       <section className="px-4 py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30">
@@ -561,42 +530,22 @@ export default function MySeniorValetHome() {
 
 
 
-      {/* Benefits Showcase - Visual Break */}
-      <section className="px-4 py-8 bg-white dark:bg-gray-900">
+      {/* Compact Benefits Bar */}
+      <section className="px-4 py-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              💎 Why Choose MySeniorValet
-            </h2>
-            <p className="text-gray-600 dark:text-gray-300">
-              The only platform with 3-AI verification and comprehensive transparency
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-6">
-            <Card className="p-6 text-center hover:shadow-lg transition-shadow bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
-              <div className="w-16 h-16 mx-auto mb-4 bg-blue-600 rounded-full flex items-center justify-center">
-                <Brain className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">3-AI Orchestration</h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">Claude + Gemini + ChatGPT verify every community for absolute accuracy</p>
-            </Card>
-            
-            <Card className="p-6 text-center hover:shadow-lg transition-shadow bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
-              <div className="w-16 h-16 mx-auto mb-4 bg-green-600 rounded-full flex items-center justify-center">
-                <Shield className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">HUD Verified Pricing</h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">5,936 government-verified properties with transparent, income-based pricing</p>
-            </Card>
-            
-            <Card className="p-6 text-center hover:shadow-lg transition-shadow bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
-              <div className="w-16 h-16 mx-auto mb-4 bg-purple-600 rounded-full flex items-center justify-center">
-                <BarChart3 className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Live Market Data</h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">Real-time pricing intelligence from 34,171+ communities nationwide</p>
-            </Card>
+          <div className="flex flex-wrap justify-center items-center gap-4 text-sm">
+            <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-700/80 px-3 py-2 rounded-full">
+              <Brain className="w-4 h-4 text-blue-600" />
+              <span className="font-medium text-gray-900 dark:text-white">3-AI Verification</span>
+            </div>
+            <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-700/80 px-3 py-2 rounded-full">
+              <Shield className="w-4 h-4 text-green-600" />
+              <span className="font-medium text-gray-900 dark:text-white">HUD Verified</span>
+            </div>
+            <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-700/80 px-3 py-2 rounded-full">
+              <BarChart3 className="w-4 h-4 text-purple-600" />
+              <span className="font-medium text-gray-900 dark:text-white">34,171+ Communities</span>
+            </div>
           </div>
         </div>
       </section>
