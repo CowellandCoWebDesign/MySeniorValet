@@ -2879,12 +2879,7 @@ export default function CommunityDetail() {
                               <strong>State Transparency Portals</strong> - Public health department data
                             </div>
                           </li>
-                          <li className="flex items-start text-base text-blue-800 dark:text-blue-300">
-                            <div className="w-3 h-3 bg-purple-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
-                            <div>
-                              <strong>Direct Community Websites</strong> - Publicly available information only
-                            </div>
-                          </li>
+
                         </ul>
                       </div>
                     </div>

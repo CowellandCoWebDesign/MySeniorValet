@@ -126,18 +126,18 @@ export function TourScheduler({
               <AlertTitle className="text-amber-900">Tour Scheduling Unavailable</AlertTitle>
               <AlertDescription className="text-amber-800 mt-2">
                 <p className="mb-3">
-                  Tour scheduling is currently unavailable for unclaimed communities as we cannot send confirmation emails.
+                  Online tour scheduling is currently unavailable for this community.
                 </p>
-                <p className="font-semibold mb-2">This community would benefit from being claimed!</p>
+                <p className="font-semibold mb-2">Please contact the community directly to schedule your tour.</p>
                 <p className="text-sm">
-                  Once claimed for $49/month, the community will enjoy:
+                  They'll be happy to:
                 </p>
                 <ul className="text-sm mt-2 space-y-1">
-                  <li>• Real-time tour scheduling notifications</li>
-                  <li>• Direct messaging with families</li>
-                  <li>• Analytics dashboard to track interest</li>
-                  <li>• Priority placement in search results</li>
-                  <li>• Verified badge on community profile</li>
+                  <li>• Schedule a convenient tour time</li>
+                  <li>• Answer your questions about services</li>
+                  <li>• Discuss pricing and availability</li>
+                  <li>• Show you available units</li>
+                  <li>• Provide information about amenities</li>
                 </ul>
                 <div className="mt-4">
                   <Button 
