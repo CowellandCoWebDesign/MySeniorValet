@@ -85,6 +85,24 @@ export function RedTagDeals() {
         <p className="text-sm text-muted-foreground">
           Exclusive discounts and move-in specials from top-rated communities
         </p>
+        
+        {/* Launch Transparency Disclaimer */}
+        <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-700 rounded-lg">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+            <div className="text-left">
+              <p className="text-xs text-blue-800 dark:text-blue-200 font-medium mb-1">
+                Recent Launch Notice
+              </p>
+              <p className="text-xs text-blue-700 dark:text-blue-300">
+                The deals shown are representative examples of MySeniorValet's transparency capabilities. 
+                Since we've just launched, these are mock data demonstrations as we haven't yet received 
+                verified specials from claimed communities. Check back soon for authentic red tag deals 
+                as we grow in community transparency!
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Active Deals Alert - Compact */}
@@ -188,6 +206,12 @@ export function RedTagDeals() {
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
+          <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-700 rounded-lg">
+            <p className="text-xs text-amber-800 dark:text-amber-200">
+              <strong>Authentic Tips:</strong> The savings strategies below are based on real industry data and proven negotiation techniques used by senior living experts.
+            </p>
+          </div>
+          
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-3">
               <h4 className="font-semibold">Best Times to Move</h4>
