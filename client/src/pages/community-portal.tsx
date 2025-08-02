@@ -26,7 +26,9 @@ import {
   Settings,
   X,
   FileSignature,
-  Home
+  Home,
+  LogIn,
+  PhoneCall
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -235,105 +237,277 @@ export default function CommunityPortal() {
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             MySeniorValet Community Portal
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
             Transform your community visibility, connect with families, and drive move-ins with our comprehensive platform
           </p>
         </div>
         
+        {/* Quick Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Button 
             size="lg" 
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-6 text-lg group shadow-lg"
+            variant="outline"
+            className="px-6 py-3 text-md border-2 hover:bg-blue-50 dark:hover:bg-blue-900 shadow-md"
             onClick={() => setCurrentStep('search')}
           >
             <Shield className="w-5 h-5 mr-2" />
-            Claim Your Community
-            <Building className="w-5 h-5 ml-2 group-hover:scale-110 transition-transform" />
+            Already Listed? Claim Your Community
           </Button>
           <Button 
             size="lg" 
-            variant="outline" 
-            className="px-8 py-6 text-lg border-2 hover:bg-gray-50 dark:hover:bg-gray-800 shadow-md"
-            onClick={() => setShowPricing(true)}
+            variant="outline"
+            className="px-6 py-3 text-md border-2 hover:bg-purple-50 dark:hover:bg-purple-900 shadow-md"
+            onClick={handleLoginRedirect}
           >
-            <Eye className="w-5 h-5 mr-2" />
-            View Pricing Plans
+            <LogIn className="w-5 h-5 mr-2" />
+            Login to Portal
           </Button>
         </div>
       </div>
-      
-      {/* Modern Features Grid */}
-      <div className="grid md:grid-cols-3 gap-8">
-        <Card className="text-center p-6 hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Eye className="w-8 h-8 text-white" />
-          </div>
-          <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-white">Increase Visibility</h3>
-          <p className="text-gray-600 dark:text-gray-300">Stand out among 31,000+ communities with enhanced search placement and premium features</p>
-        </Card>
+
+      {/* Pricing Tiers - Now the Main Hero Section */}
+      <div className="space-y-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold mb-4">Choose Your Community Management Tier</h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-2">Join 31,000+ communities enhancing their online presence</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">All plans include free onboarding support</p>
+        </div>
         
-        <Card className="text-center p-6 hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
-          <div className="bg-gradient-to-r from-purple-600 to-purple-700 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Users className="w-8 h-8 text-white" />
-          </div>
-          <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-white">Connect with Families</h3>
-          <p className="text-gray-600 dark:text-gray-300">Direct messaging, tour scheduling, and family collaboration tools to convert leads</p>
-        </Card>
-        
-        <Card className="text-center p-6 hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
-          <div className="bg-gradient-to-r from-green-600 to-green-700 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Settings className="w-8 h-8 text-white" />
-          </div>
-          <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-white">Streamline Operations</h3>
-          <p className="text-gray-600 dark:text-gray-300">Automated leasing tools, payment processing, and comprehensive reporting dashboard</p>
-        </Card>
-      </div>
-      
-      {/* Success Stats */}
-      <div className="bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 dark:from-blue-950 dark:via-purple-950 dark:to-pink-950 rounded-2xl p-8 shadow-lg">
-        <h3 className="text-3xl font-bold text-center mb-8 text-gray-900 dark:text-white">Join Thousands of Successful Communities</h3>
-        <div className="grid md:grid-cols-4 gap-8 text-center">
-          <div className="space-y-2">
-            <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">31,000+</div>
-            <div className="text-gray-600 dark:text-gray-300 font-medium">Communities Listed</div>
-          </div>
-          <div className="space-y-2">
-            <div className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-purple-700 bg-clip-text text-transparent">89%</div>
-            <div className="text-gray-600 dark:text-gray-300 font-medium">Average Occupancy</div>
-          </div>
-          <div className="space-y-2">
-            <div className="text-4xl font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">4.8</div>
-            <div className="text-gray-600 dark:text-gray-300 font-medium">Average Rating</div>
-          </div>
-          <div className="space-y-2">
-            <div className="text-4xl font-bold bg-gradient-to-r from-orange-600 to-red-700 bg-clip-text text-transparent">24/7</div>
-            <div className="text-gray-600 dark:text-gray-300 font-medium">Support Available</div>
+        {/* Tier Cards Grid - Full Display */}
+        <div className="grid md:grid-cols-4 gap-6 max-w-7xl mx-auto">
+          {plans.map((plan, index) => {
+            const isPopular = plan.popular;
+            const isFree = plan.priceValue === 0;
+            
+            return (
+              <Card 
+                key={plan.id} 
+                className={`relative transform transition-all duration-300 hover:scale-105 ${
+                  isPopular ? 'border-2 border-purple-500 shadow-2xl' : 'border hover:shadow-lg'
+                }`}
+              >
+                {isPopular && (
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+                    <Badge className="bg-purple-500 text-white px-4 py-1 text-sm font-bold">
+                      Most Popular
+                    </Badge>
+                  </div>
+                )}
+                
+                <CardHeader className={`text-center pb-6 ${
+                  plan.color === 'gray' ? 'bg-gray-50 dark:bg-gray-900' : 
+                  plan.color === 'blue' ? 'bg-blue-50 dark:bg-blue-950' : 
+                  plan.color === 'purple' ? 'bg-purple-50 dark:bg-purple-950' : 
+                  'bg-yellow-50 dark:bg-yellow-950'
+                }`}>
+                  <CardTitle className="text-2xl font-bold mb-2">{plan.name}</CardTitle>
+                  <div className="text-4xl font-bold mb-2">
+                    {isFree ? (
+                      <span className="text-green-600">FREE</span>
+                    ) : (
+                      <span>{plan.price}</span>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">{plan.description}</p>
+                </CardHeader>
+                
+                <CardContent className="pt-6 pb-4">
+                  <div className="space-y-3 mb-6">
+                    <div className="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-2">
+                      Key Features
+                    </div>
+                    <ul className="space-y-2">
+                      {plan.features.slice(0, 6).map((feature, idx) => (
+                        <li key={idx} className="flex items-start space-x-2">
+                          <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    
+                    {plan.features.length > 6 && (
+                      <p className="text-xs text-center text-gray-500 mt-2">
+                        +{plan.features.length - 6} more features
+                      </p>
+                    )}
+                  </div>
+                  
+                  <Button 
+                    className={`w-full ${
+                      isPopular ? 'bg-purple-600 hover:bg-purple-700 text-white' : 
+                      isFree ? 'bg-green-600 hover:bg-green-700 text-white' : ''
+                    }`}
+                    variant={!isPopular && !isFree ? "outline" : "default"}
+                    onClick={() => {
+                      setSelectedPlan(plan.id);
+                      setCurrentStep('search');
+                    }}
+                  >
+                    {isFree ? 'Start Free' : `Choose ${plan.name}`}
+                  </Button>
+                  
+                  {isPopular && (
+                    <p className="text-xs text-center text-gray-500 mt-2">
+                      ⭐ Recommended for growing communities
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+
+        {/* Portfolio Pricing Note */}
+        <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4 max-w-2xl mx-auto">
+          <div className="flex items-start space-x-3">
+            <Building className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+            <div>
+              <p className="font-semibold text-blue-900 dark:text-blue-100">Portfolio Operators - Bulk Pricing Available</p>
+              <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                10-49 communities: <span className="font-bold">$299/month each</span> | 
+                50+ communities: <span className="font-bold">$249/month each</span> (Platinum tier only)
+              </p>
+            </div>
           </div>
         </div>
       </div>
       
-      {/* Quick Pricing Preview */}
-      <div className="text-center space-y-6">
-        <h3 className="text-2xl font-bold">Simple, Transparent Pricing</h3>
-        <div className="grid md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-          {plans.map((plan, index) => (
-            <Card key={plan.id} className={`text-center p-4 ${index === 2 ? 'border-purple-500 shadow-lg' : ''}`}>
-              <h4 className="font-semibold text-lg">{plan.name}</h4>
-              <div className="text-2xl font-bold text-blue-600 my-2">{plan.price}</div>
-              <p className="text-sm text-gray-600">{plan.description}</p>
-              {index === 2 && (
-                <Badge className="mt-2 bg-purple-500">Most Popular</Badge>
-              )}
-            </Card>
-          ))}
+      {/* Feature Comparison Table */}
+      <div className="space-y-8">
+        <h3 className="text-2xl font-bold text-center">Compare Features Across Tiers</h3>
+        <div className="overflow-x-auto shadow-lg rounded-lg">
+          <table className="w-full border-collapse bg-white dark:bg-gray-900">
+            <thead>
+              <tr className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700">
+                <th className="border border-gray-200 dark:border-gray-700 p-4 text-left font-semibold">Feature</th>
+                <th className="border border-gray-200 dark:border-gray-700 p-4 text-center font-semibold">
+                  <div>Verified</div>
+                  <div className="text-xs font-normal text-gray-500">FREE</div>
+                </th>
+                <th className="border border-gray-200 dark:border-gray-700 p-4 text-center font-semibold">
+                  <div>Standard</div>
+                  <div className="text-xs font-normal text-gray-500">$149/mo</div>
+                </th>
+                <th className="border border-gray-200 dark:border-gray-700 p-4 text-center font-semibold bg-purple-100 dark:bg-purple-900">
+                  <div>Featured</div>
+                  <div className="text-xs font-normal text-gray-500">$249/mo</div>
+                </th>
+                <th className="border border-gray-200 dark:border-gray-700 p-4 text-center font-semibold">
+                  <div>Platinum</div>
+                  <div className="text-xs font-normal text-gray-500">$349/mo</div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                {
+                  feature: 'Profile Ownership',
+                  verified: '✅ Claim for free', standard: '✅', featured: '✅', platinum: '✅'
+                },
+                {
+                  feature: 'Contact Info Editing',
+                  verified: '✅ Phone, website, email', standard: '✅', featured: '✅', platinum: '✅'
+                },
+                {
+                  feature: 'Photo Gallery',
+                  verified: '1 photo', standard: '10 photos', featured: '25 photos', platinum: '50 photos'
+                },
+                {
+                  feature: 'Video Tour',
+                  verified: '❌', standard: '❌', featured: '1 video (2 min)', platinum: '3 videos (5 min each)'
+                },
+                {
+                  feature: 'PDF Brochures',
+                  verified: '❌', standard: '1 PDF', featured: '3 PDFs', platinum: 'Unlimited PDFs'
+                },
+                {
+                  feature: 'Analytics Dashboard',
+                  verified: '❌', standard: '✅ Basic', featured: '✅ Advanced', platinum: '✅ Full + Insights'
+                },
+                {
+                  feature: 'Review Management',
+                  verified: '❌ Cannot respond', standard: '✅ Can respond', featured: '✅ Can respond', platinum: '✅ Priority support'
+                },
+                {
+                  feature: 'Search Visibility',
+                  verified: 'Basic listing', standard: '"Standard" badge', featured: 'Featured placement', platinum: 'Top priority + gold border'
+                },
+                {
+                  feature: 'Tour Scheduler',
+                  verified: '✅ If email present', standard: '✅', featured: '✅ + Calendar sync', platinum: '✅ + API integration'
+                },
+                {
+                  feature: 'In-App Messaging',
+                  verified: '❌', standard: '❌', featured: '✅ + AI assist', platinum: '✅ + Priority routing'
+                }
+              ].map((row, index) => (
+                <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                  <td className="border border-gray-200 dark:border-gray-700 p-4 font-medium">{row.feature}</td>
+                  <td className="border border-gray-200 dark:border-gray-700 p-4 text-center text-sm">{row.verified}</td>
+                  <td className="border border-gray-200 dark:border-gray-700 p-4 text-center text-sm">{row.standard}</td>
+                  <td className="border border-gray-200 dark:border-gray-700 p-4 text-center text-sm bg-purple-50 dark:bg-purple-900/20">{row.featured}</td>
+                  <td className="border border-gray-200 dark:border-gray-700 p-4 text-center text-sm">{row.platinum}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-        <Button 
-          variant="outline" 
-          onClick={() => setShowPricing(true)}
-          className="px-8 py-3"
-        >
-          See All Features & Pricing
-        </Button>
+        
+        {/* Additional Benefits Note */}
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 rounded-lg p-6 text-center">
+          <p className="text-lg font-semibold text-gray-900 dark:text-white mb-2">🎯 Pro Tip</p>
+          <p className="text-gray-700 dark:text-gray-300">
+            Communities with Featured or Platinum tiers see an average <span className="font-bold text-purple-600">3x increase in qualified leads</span> and <span className="font-bold text-green-600">45% faster occupancy rates</span>
+          </p>
+        </div>
+      </div>
+      
+      {/* Success Metrics Bar */}
+      <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-lg p-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+          <div>
+            <div className="text-2xl font-bold text-blue-600">34,000+</div>
+            <div className="text-sm text-gray-600 dark:text-gray-300">Communities</div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-purple-600">89%</div>
+            <div className="text-sm text-gray-600 dark:text-gray-300">Avg Occupancy</div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-green-600">4.8/5</div>
+            <div className="text-sm text-gray-600 dark:text-gray-300">Avg Rating</div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-orange-600">24/7</div>
+            <div className="text-sm text-gray-600 dark:text-gray-300">Support</div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Call to Action */}
+      <div className="text-center space-y-4">
+        <h3 className="text-2xl font-bold">Ready to Enhance Your Community's Presence?</h3>
+        <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          Join thousands of communities that have transformed their online visibility and resident attraction with MySeniorValet
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Button 
+            size="lg"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+            onClick={() => setCurrentStep('search')}
+          >
+            <Building className="w-5 h-5 mr-2" />
+            Get Started Now
+          </Button>
+          <Button 
+            size="lg"
+            variant="outline"
+            onClick={() => window.open('/contact', '_blank')}
+          >
+            <PhoneCall className="w-5 h-5 mr-2" />
+            Schedule a Demo
+          </Button>
+        </div>
       </div>
     </div>
   );
