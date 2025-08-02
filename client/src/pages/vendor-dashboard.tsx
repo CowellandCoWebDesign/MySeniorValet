@@ -28,7 +28,12 @@ import {
   RefreshCw,
   Download,
   Filter,
-  Search
+  Search,
+  Crown,
+  Check,
+  CreditCard,
+  X,
+  Zap
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -39,24 +44,38 @@ import { AdvancedAnalytics } from "@/components/analytics/AdvancedAnalytics";
 interface VendorProfile {
   id: number;
   businessName: string;
-  description: string;
-  contactPhone: string;
-  contactEmail: string;
+  contactName: string;
+  email: string;
+  phone: string;
   website?: string;
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  verificationStatus: string;
-  subscriptionTier: string;
-  commissionRate: string;
-  totalLeads: number;
-  totalConversions: number;
-  lifetimeRevenue: string;
-  totalReviews: number;
-  averageRating: string | null;
-  isActive: boolean;
-  services: VendorService[];
+  businessType: string;
+  description: string;
+  serviceAreas: string[];
+  planType: 'basic' | 'professional' | 'enterprise';
+  stripeCustomerId: string;
+  stripeSubscriptionId: string;
+  status: string;
+  verifiedPartner: boolean;
+  monthlyAmount: number;
+  createdAt: string;
+  updatedAt: string;
+  // Legacy fields for compatibility
+  contactPhone?: string;
+  contactEmail?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  verificationStatus?: string;
+  subscriptionTier?: string;
+  commissionRate?: string;
+  totalLeads?: number;
+  totalConversions?: number;
+  lifetimeRevenue?: string;
+  totalReviews?: number;
+  averageRating?: string | null;
+  isActive?: boolean;
+  services?: VendorService[];
 }
 
 interface VendorService {
@@ -403,7 +422,7 @@ export default function VendorDashboard() {
                       <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1">
                         <Phone className="h-3 w-3" /> Phone
                       </p>
-                      <p className="mt-1">{vendorProfile.contactPhone}</p>
+                      <p className="mt-1">{vendorProfile.phone || vendorProfile.contactPhone}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1">
@@ -459,6 +478,157 @@ export default function VendorDashboard() {
                     <Download className="h-4 w-4 mr-2" />
                     Download Reports
                   </Button>
+                </CardContent>
+              </Card>
+
+              {/* Subscription Management */}
+              <Card className="col-span-full">
+                <CardHeader>
+                  <CardTitle>Subscription Management</CardTitle>
+                  <CardDescription>Manage your MySeniorValet partnership plan</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    {/* Current Plan */}
+                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg">
+                      <div className="flex items-center gap-4">
+                        <div className="h-12 w-12 bg-purple-600 rounded-full flex items-center justify-center">
+                          <Crown className="h-6 w-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-lg flex items-center gap-2">
+                            {vendorProfile.planType ? vendorProfile.planType.charAt(0).toUpperCase() + vendorProfile.planType.slice(1) : vendorProfile.subscriptionTier} Plan
+                            {vendorProfile.verifiedPartner && (
+                              <Badge className="bg-purple-600 text-white">Verified Partner</Badge>
+                            )}
+                          </h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            ${vendorProfile.monthlyAmount || '0'}/month • Active since {vendorProfile.createdAt ? format(new Date(vendorProfile.createdAt), 'MMM d, yyyy') : 'N/A'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Status</p>
+                        <Badge className={vendorProfile.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}>
+                          {vendorProfile.status || 'Active'}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    {/* Service Areas */}
+                    {vendorProfile.serviceAreas && vendorProfile.serviceAreas.length > 0 && (
+                      <div>
+                        <h4 className="font-medium mb-2">Service Areas</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {vendorProfile.serviceAreas.map((area, index) => (
+                            <Badge key={index} variant="outline" className="bg-gray-50 dark:bg-gray-800">
+                              <MapPin className="h-3 w-3 mr-1" />
+                              {area}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Plan Features */}
+                    <div>
+                      <h4 className="font-medium mb-3">Your Plan Includes</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {vendorProfile.planType === 'enterprise' ? (
+                          <>
+                            <div className="flex items-start gap-2">
+                              <Check className="h-4 w-4 text-green-600 mt-0.5" />
+                              <span className="text-sm">Premium placement guarantee</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <Check className="h-4 w-4 text-green-600 mt-0.5" />
+                              <span className="text-sm">Dedicated account manager</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <Check className="h-4 w-4 text-green-600 mt-0.5" />
+                              <span className="text-sm">Custom branding options</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <Check className="h-4 w-4 text-green-600 mt-0.5" />
+                              <span className="text-sm">API access for integration</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <Check className="h-4 w-4 text-green-600 mt-0.5" />
+                              <span className="text-sm">Priority customer support</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <Check className="h-4 w-4 text-green-600 mt-0.5" />
+                              <span className="text-sm">Unlimited lead notifications</span>
+                            </div>
+                          </>
+                        ) : vendorProfile.planType === 'professional' ? (
+                          <>
+                            <div className="flex items-start gap-2">
+                              <Check className="h-4 w-4 text-green-600 mt-0.5" />
+                              <span className="text-sm">Featured listing with badge</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <Check className="h-4 w-4 text-green-600 mt-0.5" />
+                              <span className="text-sm">Priority placement in search</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <Check className="h-4 w-4 text-green-600 mt-0.5" />
+                              <span className="text-sm">Advanced analytics dashboard</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <Check className="h-4 w-4 text-green-600 mt-0.5" />
+                              <span className="text-sm">Lead notifications</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <Check className="h-4 w-4 text-green-600 mt-0.5" />
+                              <span className="text-sm">Customer review management</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <Check className="h-4 w-4 text-green-600 mt-0.5" />
+                              <span className="text-sm">Monthly performance reports</span>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="flex items-start gap-2">
+                              <Check className="h-4 w-4 text-green-600 mt-0.5" />
+                              <span className="text-sm">Basic listing on MySeniorValet</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <Check className="h-4 w-4 text-green-600 mt-0.5" />
+                              <span className="text-sm">Contact information display</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <Check className="h-4 w-4 text-green-600 mt-0.5" />
+                              <span className="text-sm">Service area coverage</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <Check className="h-4 w-4 text-green-600 mt-0.5" />
+                              <span className="text-sm">Monthly performance reports</span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                      <Button className="flex-1" variant="outline">
+                        <CreditCard className="h-4 w-4 mr-2" />
+                        Manage Billing
+                      </Button>
+                      {vendorProfile.planType !== 'enterprise' && (
+                        <Button className="flex-1 bg-purple-600 hover:bg-purple-700">
+                          <Zap className="h-4 w-4 mr-2" />
+                          Upgrade Plan
+                        </Button>
+                      )}
+                      <Button className="flex-1 text-red-600 hover:text-red-700" variant="outline">
+                        <X className="h-4 w-4 mr-2" />
+                        Cancel Subscription
+                      </Button>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>

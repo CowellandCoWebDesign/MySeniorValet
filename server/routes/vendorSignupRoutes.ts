@@ -3,6 +3,8 @@ import Stripe from 'stripe';
 import { db } from '../db';
 import { vendorRegistrations, auditLogs } from '../../shared/schema';
 import { eq } from 'drizzle-orm';
+import { sendVendorWelcomeEmail, sendVendorPaymentReceiptEmail } from '../email/vendorEmails';
+import { sendVendorWelcomeEmail, sendVendorPaymentReceiptEmail } from '../email/vendorEmails';
 
 const router = Router();
 
@@ -175,6 +177,27 @@ router.post('/api/stripe-webhook/vendor', async (req, res) => {
             ipAddress: 'stripe-webhook',
             userAgent: 'stripe-webhook'
           });
+
+          // Send welcome email
+          await sendVendorWelcomeEmail({
+            businessName: metadata.businessName,
+            contactName: metadata.contactName,
+            email: metadata.email,
+            planType: metadata.planType as 'basic' | 'professional' | 'enterprise',
+            monthlyAmount: invoice.amount_paid / 100,
+            subscriptionId: subscription
+          });
+
+          // Send payment receipt
+          await sendVendorPaymentReceiptEmail({
+            businessName: metadata.businessName,
+            contactName: metadata.contactName,
+            email: metadata.email,
+            planType: metadata.planType as 'basic' | 'professional' | 'enterprise',
+            monthlyAmount: invoice.amount_paid / 100,
+            subscriptionId: subscription,
+            paymentIntentId: invoice.payment_intent as string
+          });
         }
         break;
       }
@@ -198,6 +221,44 @@ router.post('/api/stripe-webhook/vendor', async (req, res) => {
   } catch (error: any) {
     console.error('Webhook error:', error.message);
     res.status(400).send(`Webhook Error: ${error.message}`);
+  }
+});
+
+// Get vendor profile
+router.get('/api/vendor/profile', async (req, res) => {
+  try {
+    // For now, return mock authenticated user's vendor profile
+    // In production, this would check the authenticated user's email
+    const userEmail = req.query.email || 'test@example.com';
+    
+    const vendor = await db.query.vendorRegistrations.findFirst({
+      where: eq(vendorRegistrations.email, userEmail as string)
+    });
+    
+    if (vendor) {
+      // Return vendor data in the format expected by the dashboard
+      res.json({
+        ...vendor,
+        // Map new fields to legacy fields for compatibility
+        contactPhone: vendor.phone,
+        contactEmail: vendor.email,
+        subscriptionTier: vendor.planType.charAt(0).toUpperCase() + vendor.planType.slice(1),
+        verificationStatus: vendor.verifiedPartner ? 'Verified' : 'Pending',
+        isActive: vendor.status === 'active',
+        totalLeads: 0,
+        totalConversions: 0,
+        lifetimeRevenue: '0',
+        totalReviews: 0,
+        averageRating: null,
+        commissionRate: vendor.planType === 'enterprise' ? '5%' : vendor.planType === 'professional' ? '8%' : '10%',
+        services: []
+      });
+    } else {
+      res.status(404).json({ error: 'No vendor profile found' });
+    }
+  } catch (error: any) {
+    console.error('Error fetching vendor profile:', error);
+    res.status(500).json({ error: 'Failed to fetch vendor profile' });
   }
 });
 
@@ -290,6 +351,74 @@ router.post('/api/vendor-registration-status', async (req, res) => {
   } catch (error: any) {
     console.error('Error checking vendor registration status:', error);
     res.status(500).json({ error: 'Failed to check registration status' });
+  }
+});
+
+// Get vendor leads (mock data for now)
+router.get('/api/vendor/leads', async (req, res) => {
+  try {
+    // Return mock leads data
+    res.json([
+      {
+        id: 1,
+        vendorId: 1,
+        customerName: "John Smith",
+        customerEmail: "john@example.com",
+        customerPhone: "(555) 123-4567",
+        serviceRequested: "In-home care assistance",
+        preferredDate: new Date().toISOString(),
+        budget: "$2,000 - $3,000/month",
+        location: "Los Angeles, CA",
+        message: "Looking for help with daily activities for my mother",
+        source: "Website",
+        status: "pending",
+        createdAt: new Date().toISOString()
+      }
+    ]);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch leads' });
+  }
+});
+
+// Get vendor analytics (mock data for now)
+router.get('/api/vendor/analytics', async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    
+    // Generate mock analytics data for the date range
+    const analytics = [];
+    const start = new Date(startDate as string);
+    const end = new Date(endDate as string);
+    
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      analytics.push({
+        id: Math.random(),
+        vendorId: 1,
+        date: new Date(d).toISOString(),
+        pageViews: Math.floor(Math.random() * 500) + 100,
+        profileClicks: Math.floor(Math.random() * 50) + 10,
+        contactClicks: Math.floor(Math.random() * 20) + 5,
+        leadCount: Math.floor(Math.random() * 10) + 1,
+        conversionCount: Math.floor(Math.random() * 5),
+        revenue: String(Math.floor(Math.random() * 1000) + 100),
+        averageResponseTime: Math.floor(Math.random() * 30) + 5,
+        customerSatisfactionScore: Math.random() * 2 + 3
+      });
+    }
+    
+    res.json(analytics);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch analytics' });
+  }
+});
+
+// Update vendor metrics
+router.post('/api/vendor/update-metrics', async (req, res) => {
+  try {
+    // Mock implementation - in production this would recalculate metrics
+    res.json({ success: true, message: 'Metrics updated successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update metrics' });
   }
 });
 
