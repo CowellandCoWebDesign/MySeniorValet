@@ -15,6 +15,7 @@ interface RedTagDeal {
   dealType: string;
   highlights: string[];
   rating: number;
+  heroImage: string;
 }
 
 export function RedTagDeals() {
@@ -30,7 +31,8 @@ export function RedTagDeals() {
       expirationDate: "2025-09-01",
       dealType: "Move-In Special",
       highlights: ["No community fee", "First month 50% off", "Free moving assistance"],
-      rating: 4.5
+      rating: 4.5,
+      heroImage: "https://images.unsplash.com/photo-1571508601b60-5c8d0869d40a?w=800&h=600&fit=crop"
     },
     {
       id: 2,
@@ -42,7 +44,8 @@ export function RedTagDeals() {
       expirationDate: "2025-08-15",
       dealType: "Limited Time Offer",
       highlights: ["Waived deposit", "Complimentary care assessment", "Priority placement"],
-      rating: 4.8
+      rating: 4.8,
+      heroImage: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop"
     },
     {
       id: 3,
@@ -54,7 +57,8 @@ export function RedTagDeals() {
       expirationDate: "2025-08-31",
       dealType: "Summer Special",
       highlights: ["Reduced rates", "Free cable & internet", "Meal plan upgrade"],
-      rating: 4.3
+      rating: 4.3,
+      heroImage: "https://images.unsplash.com/photo-1571508601108-4d53efdfeb6b?w=800&h=600&fit=crop"
     }
   ];
 
@@ -129,13 +133,28 @@ export function RedTagDeals() {
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
         {redTagDeals.map((deal) => (
           <Card key={deal.id} className="relative overflow-hidden border hover:border-red-300 dark:hover:border-red-700 transition-all">
-            {/* Discount Badge */}
-            <div className="absolute top-0 right-0 bg-red-600 text-white px-2 py-0.5 rounded-bl text-xs font-bold">
-              {deal.discountPercent}% OFF
+            {/* Hero Image */}
+            <div className="relative h-32 overflow-hidden">
+              <img 
+                src={deal.heroImage} 
+                alt={deal.communityName}
+                className="w-full h-full object-cover"
+              />
+              {/* Red Tag Overlay */}
+              <div className="absolute top-2 left-2">
+                <Badge className="bg-red-600 text-white text-xs font-semibold px-2 py-1">
+                  <Tag className="w-3 h-3 mr-1" />
+                  RED TAG
+                </Badge>
+              </div>
+              {/* Discount Badge */}
+              <div className="absolute top-2 right-2 bg-red-600 text-white px-2 py-0.5 rounded text-xs font-bold">
+                {deal.discountPercent}% OFF
+              </div>
             </div>
 
             <CardHeader className="p-3">
-              <CardTitle className="pr-16">
+              <CardTitle>
                 <div>
                   <h3 className="text-sm font-bold">{deal.communityName}</h3>
                   <p className="text-xs text-muted-foreground">{deal.location}</p>
