@@ -1,6 +1,6 @@
 import { type Express } from "express";
 import { db } from "../db";
-import { communities, reviews, communityClaims, claimedCommunities, pendingCommunities } from "@shared/schema";
+import { communities, reviews, communityClaims, claimedCommunities, pendingCommunities, auditLogs } from "@shared/schema";
 import { eq, and, or, desc, inArray, sql, between, gte, lte, isNotNull } from "drizzle-orm";
 import { insertCommunitySchema } from "@shared/schema";
 import { isAuthenticated as requireAuth, isAdmin, checkRole } from "../replitAuth";
@@ -354,6 +354,64 @@ export function registerCommunityRoutes(app: Express) {
     } catch (error) {
       console.error("Error fetching community:", error);
       res.status(500).json({ error: "Failed to fetch community" });
+    }
+  });
+
+  // Community contribution endpoint
+  app.post("/api/community/contribute", async (req, res) => {
+    try {
+      const {
+        communityId,
+        communityName,
+        contributorName,
+        contributorEmail,
+        relationshipToCommunity,
+        priceInfo,
+        priceSource,
+        availabilityInfo,
+        incentivesInfo,
+        additionalNotes
+      } = req.body;
+
+      // Validate required fields
+      if (!communityId || !contributorEmail || !relationshipToCommunity) {
+        return res.status(400).json({ 
+          error: "Missing required fields: communityId, contributorEmail, and relationshipToCommunity are required" 
+        });
+      }
+
+      // Store contribution in audit logs for now (until we create dedicated table)
+      await db.insert(auditLogs).values({
+        userId: contributorEmail, // Using email as user identifier
+        action: 'community_contribution',
+        entityType: 'communities',
+        entityId: communityId.toString(),
+        changes: {
+          contributorName,
+          contributorEmail,
+          relationshipToCommunity,
+          priceInfo,
+          priceSource,
+          availabilityInfo,
+          incentivesInfo,
+          additionalNotes,
+          photos: req.body.photos || [],
+          submittedAt: new Date().toISOString()
+        },
+        ipAddress: req.ip || 'unknown',
+        userAgent: req.headers['user-agent'] || 'unknown'
+      });
+
+      // Send notification to admin (placeholder for actual implementation)
+      console.log(`New community contribution received for ${communityName} (ID: ${communityId}) from ${contributorEmail}`);
+
+      res.json({ 
+        success: true,
+        message: "Thank you for your contribution! It will be reviewed and added to the community listing soon."
+      });
+    } catch (error) {
+      console.error("Error processing community contribution:", error);
+      res.status(500).json({ error: "Failed to process contribution" });
     }
   });
 

@@ -26,6 +26,14 @@ The platform is built with a modern web stack.
 - **System Design**: Features a robust services management system with a 5-table database architecture. Implements a subscription tier system for access control (Free, Featured Spotlight, Premium Tools, Platinum Partner). Includes an automated testing infrastructure for code quality.
 
 ## Recent Changes (August 2, 2025)
+- **Photo Handling System Implementation with ChatGPT Partner Dispatch**:
+  - Created MissingPhotosPanel component displaying placeholder image with "Photos Pending — Not Verified" badge
+  - Built community contribution page at `/community/:id/contribute` for users to submit photos and information
+  - Implemented `POST /api/community/contribute` endpoint storing submissions in audit logs
+  - Integrated MissingPhotosPanel into both Hero Photo Carousel and Photos tab on community detail pages
+  - Added transparency messaging encouraging real user contributions to unlock community listings
+  - Created comprehensive automated testing documentation covering all components and data flow
+  - System handles missing photos by showing informative panel explaining what's missing and how to help
 - **Playful Onboarding Wizard with Character-Driven Guidance**:
   - Created comprehensive OnboardingWizard component with 3 AI characters (Sage, Compass, Heart) providing personalized guidance
   - Built OnboardingContext provider for managing onboarding state with localStorage persistence
