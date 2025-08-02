@@ -24,9 +24,11 @@ const redTagExamples = {
     reviewCount: 156,
     actualCommunityId: 264,
     photos: [
-      "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=600&fit=crop",
       "https://images.unsplash.com/photo-1571508601b60-5c8d0869d40a?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?w=800&h=600&fit=crop"
+      "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1578645510447-e20b4311e3ce?w=800&h=600&fit=crop"
     ],
     redTagSpecial: {
       title: "First Month FREE + $500 Move-in Credit",
@@ -52,8 +54,10 @@ const redTagExamples = {
     reviewCount: 89,
     actualCommunityId: 265,
     photos: [
+      "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop",
       "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop"
+      "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&h=600&fit=crop"
     ],
     redTagSpecial: {
       title: "No Deposit + 2 Months FREE Rent",
@@ -79,8 +83,10 @@ const redTagExamples = {
     reviewCount: 134,
     actualCommunityId: 266,
     photos: [
-      "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1571508601108-4d53efdfeb6b?w=800&h=600&fit=crop"
+      "https://images.unsplash.com/photo-1571508601108-4d53efdfeb6b?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1560448076-bb485b17dc05?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1571508601b60-5c8d0869d40a?w=800&h=600&fit=crop"
     ],
     redTagSpecial: {
       title: "$1,000 Off First 3 Months + Free Care Assessment",
