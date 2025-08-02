@@ -24,6 +24,7 @@ import { MarketIntelligence } from "@/components/MarketIntelligence";
 import { MoveInCostCalculator } from "@/components/MoveInCostCalculator";
 import { RedTagDeals } from "@/components/RedTagDeals";
 import { AidAndAttendance } from "@/components/AidAndAttendance";
+import { CostComparisonWorksheet } from "@/components/CostComparisonWorksheet";
 
 
 
@@ -490,6 +491,13 @@ export default function MySeniorValetHome() {
       <section className="px-4 py-12 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-6xl mx-auto">
           <MoveInCostCalculator />
+        </div>
+      </section>
+
+      {/* Cost Comparison Worksheet Section */}
+      <section className="px-4 py-12 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <CostComparisonWorksheet />
         </div>
       </section>
 
