@@ -233,27 +233,97 @@ export default function CommunityPortal() {
             </Card>
           </div>
 
-          {/* Action Buttons */}
-          <div className="text-center space-y-6">
-            <div className="space-x-4">
-              <Button 
-                size="lg" 
-                className="px-8 py-4 text-lg"
-                onClick={() => setCurrentStep('plan-selection')}
-              >
-                <Building className="w-5 h-5 mr-2" />
-                Claim Your Community
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="px-8 py-4 text-lg"
-                onClick={handleLoginRedirect}
-              >
-                <Shield className="w-5 h-5 mr-2" />
-                Existing Member Login
-              </Button>
+          {/* Pricing Tiers Section - HERO ELEMENT */}
+          <div className="mb-12">
+            <h2 className="text-3xl font-bold text-center mb-4">Choose Your Community Management Tier</h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 text-center mb-8">
+              All plans include authentic MySeniorValet verified listing
+            </p>
+            
+            {productsLoading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p className="text-gray-600 dark:text-gray-300">Loading subscription options...</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {plans.map((plan: any) => (
+                  <Card 
+                    key={plan.id} 
+                    className={`relative cursor-pointer hover:shadow-xl transition-all duration-300 ${
+                      plan.popular ? 'ring-2 ring-blue-500 scale-105' : ''
+                    }`}
+                    onClick={() => handleSelectPlan(plan.id)}
+                  >
+                    {plan.popular && (
+                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                        <Badge className="bg-blue-600 text-white px-3 py-1">Most Popular</Badge>
+                      </div>
+                    )}
+                    <CardHeader className="text-center">
+                      <CardTitle className={`text-2xl ${
+                        plan.color === 'gray' ? 'text-gray-600' :
+                        plan.color === 'blue' ? 'text-blue-600' :
+                        plan.color === 'purple' ? 'text-purple-600' : 'text-yellow-600'
+                      }`}>
+                        {plan.name}
+                      </CardTitle>
+                      <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                        {plan.price}
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{plan.description}</p>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3 mb-6">
+                        {plan.features.slice(0, 6).map((feature: string, index: number) => (
+                          <div key={index} className="flex items-start gap-2">
+                            <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">{feature}</span>
+                          </div>
+                        ))}
+                        {plan.features.length > 6 && (
+                          <div className="text-sm text-gray-500 italic">
+                            +{plan.features.length - 6} more features...
+                          </div>
+                        )}
+                      </div>
+                      <Button 
+                        className="w-full" 
+                        disabled={createCheckoutMutation.isPending}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSelectPlan(plan.id);
+                        }}
+                      >
+                        {createCheckoutMutation.isPending ? (
+                          "Loading..."
+                        ) : plan.price === '$0' ? (
+                          "Start Free"
+                        ) : (
+                          `Choose ${plan.name}`
+                        )}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Quick Action Buttons */}
+          <div className="text-center space-y-4">
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              Already have an account?
             </div>
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="px-6 py-3"
+              onClick={handleLoginRedirect}
+            >
+              <Shield className="w-5 h-5 mr-2" />
+              Login to Community Portal
+            </Button>
             
             <div className="text-sm text-gray-500 dark:text-gray-400">
               Already managing your community? <Link to="/community-dashboard/1" className="text-blue-600 hover:underline">Access your dashboard</Link>
