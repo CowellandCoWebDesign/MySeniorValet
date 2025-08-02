@@ -2286,17 +2286,17 @@ export default function MySeniorValetHome() {
                   {/* Pricing */}
                   <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-6 w-full">
                     <p className="text-center text-sm font-medium text-blue-800 dark:text-blue-300">
-                      Starting at $299/month
+                      Free to claim - Subscription plans available
                     </p>
                   </div>
 
                   {/* CTA Button */}
                   <Button
                     className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 w-full"
-                    onClick={() => setLocation('/communities/claim')}
+                    onClick={() => setLocation('/community-portal')}
                   >
                     <Building className="w-5 h-5 mr-2" />
-                    List Your Community
+                    Claim Your Community
                   </Button>
                 </div>
               </CardContent>
@@ -2347,17 +2347,17 @@ export default function MySeniorValetHome() {
                   {/* Pricing */}
                   <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 mb-6 w-full">
                     <p className="text-center text-sm font-medium text-purple-800 dark:text-purple-300">
-                      Starting at $49/month
+                      Starting at $99/month • View all tiers
                     </p>
                   </div>
 
                   {/* CTA Button */}
                   <Button
                     className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 w-full"
-                    onClick={() => setLocation('/vendor-signup')}
+                    onClick={() => setLocation('/vendor-marketplace-tiers')}
                   >
                     <Sparkles className="w-5 h-5 mr-2" />
-                    Become a Vendor Partner
+                    View Vendor Pricing & Tiers
                   </Button>
                 </div>
               </CardContent>
