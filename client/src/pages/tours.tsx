@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TourFeedbackModal } from "@/components/TourFeedbackModal";
 import {
   Dialog,
   DialogContent,
@@ -29,6 +30,8 @@ import {
 export default function ToursPage() {
   const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
   const [selectedCommunity, setSelectedCommunity] = useState<any>(null);
+  const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
+  const [selectedTourForFeedback, setSelectedTourForFeedback] = useState<any>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -180,7 +183,13 @@ export default function ToursPage() {
 
           {isPast && tour.tour.status === 'completed' && !tour.tour.feedbackSubmitted && (
             <div className="mt-4">
-              <Button size="sm">
+              <Button 
+                size="sm"
+                onClick={() => {
+                  setSelectedTourForFeedback(tour);
+                  setFeedbackModalOpen(true);
+                }}
+              >
                 Leave Feedback
               </Button>
             </div>
@@ -388,6 +397,24 @@ export default function ToursPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Tour Feedback Modal */}
+      {selectedTourForFeedback && (
+        <TourFeedbackModal
+          isOpen={feedbackModalOpen}
+          onClose={() => {
+            setFeedbackModalOpen(false);
+            setSelectedTourForFeedback(null);
+            queryClient.invalidateQueries({ queryKey: ['/api/tours/my-tours'] });
+          }}
+          tourId={selectedTourForFeedback.tour.id}
+          tourDetails={{
+            communityName: selectedTourForFeedback.community.name,
+            tourDate: selectedTourForFeedback.tour.tourDate,
+            userName: selectedTourForFeedback.user?.firstName
+          }}
+        />
+      )}
     </div>
   );
 }
