@@ -114,12 +114,12 @@ export function RedTagDeals() {
                 <AlertCircle className="w-4 h-4 text-red-600" />
               </div>
               <div>
-                <p className="font-medium text-sm">Deal Examples Available!</p>
-                <p className="text-xs text-muted-foreground">See how verified community specials will display</p>
+                <p className="font-medium text-sm">Limited Time Offers!</p>
+                <p className="text-xs text-muted-foreground">Save up to 20% on select communities</p>
               </div>
             </div>
             <Badge className="bg-red-600 text-white text-sm px-2 py-1">
-              {redTagDeals.length} Example Deals
+              {redTagDeals.length} Deals
             </Badge>
           </div>
         </CardContent>
@@ -187,9 +187,9 @@ export function RedTagDeals() {
 
               {/* CTA Button */}
               <Link href="/communities">
-                <Button className="w-full h-8 text-sm bg-gray-500 hover:bg-gray-600 text-white" disabled>
+                <Button className="w-full h-8 text-sm bg-red-600 hover:bg-red-700 text-white">
                   <Tag className="w-4 h-4 mr-2" />
-                  Example Deal
+                  Claim This Deal
                 </Button>
               </Link>
             </CardContent>
