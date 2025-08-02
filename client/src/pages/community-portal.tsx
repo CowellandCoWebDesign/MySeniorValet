@@ -58,113 +58,84 @@ export default function CommunityPortal() {
     queryKey: ['/api/subscriptions/products'],
   });
 
-  const plans = subscriptionProducts?.products?.map((product: any) => ({
-    id: product.id,
-    name: product.name,
-    price: product.price === 0 ? 'Free' : `$${(product.price / 100).toFixed(0)}/month`,
-    priceValue: product.price / 100,
-    tier: product.name,
-    color: product.id === 'basic-listing' ? 'gray' : 
-           product.id === 'featured-spotlight' ? 'blue' :
-           product.id === 'premium-tools' ? 'purple' : 'gold',
-    description: product.description,
-    features: product.features || [],
-    popular: product.id === 'featured-spotlight'
-  })) || [
-    // Fallback plans if Stripe data isn't loaded
+  const plans = [
     {
-      id: 'basic-listing',
-      name: 'Basic Listing',
+      id: 'verified',
+      name: 'Tier 1: Verified Listing',
       price: 'Free',
       priceValue: 0,
-      tier: 'Basic',
+      tier: 'Verified',
       color: 'gray',
-      description: 'Default community listing',
-      features: ['Basic listing', 'Contact information'],
-      popular: false
-    },
-    {
-      id: 'featured-spotlight',
-      name: 'Verified Standard',
-      price: '$149/month',
-      priceValue: 149,
-      tier: 'Verified Standard',
-      color: 'blue',
-      description: 'Budget-conscious operators wanting verified info + basic upgrades',
+      description: 'Claimable for free once community verifies their email',
       features: [
-        'All Basic features',
-        'Editable contact info & description',
-        'Google Reviews integration',
-        'Photo gallery (5 photos max)',
-        'Standard amenity tags',
-        'Blue "Verified" badge',
-        'Monthly reporting dashboard',
-        'AI-generated lease template',
-        'eSignature integration (DocuSign)',
-        'Move-in intake form automation',
-        'Help documentation'
+        'Edit contact info (phone, website, email, address)',
+        'Upload 1 photo',
+        'Tour Scheduler enabled (if email is present)',
+        'Appears in basic search results',
+        '❌ Cannot respond to reviews',
+        '❌ No PDF uploads',
+        '❌ No analytics',
+        '❌ No visibility boost'
       ],
       popular: false
     },
     {
-      id: 'enhanced',
-      name: 'Enhanced Showcase',
+      id: 'standard',
+      name: 'Tier 2: Standard',
+      price: '$149/month',
+      priceValue: 149,
+      tier: 'Standard',
+      color: 'blue',
+      description: 'All Tier 1 features, plus:',
+      features: [
+        'Upload up to 10 photos',
+        'Upload 1 brochure PDF',
+        'Add external calendar link',
+        'Access basic analytics',
+        'Can respond to reviews',
+        '"Standard Verified" badge'
+      ],
+      popular: false
+    },
+    {
+      id: 'featured',
+      name: 'Tier 3: Featured',
       price: '$249/month',
       priceValue: 249,
-      tier: 'Enhanced Showcase',
+      tier: 'Featured',
       color: 'purple',
-      description: 'Operators focused on lead generation, photo gallery, reviews, and leasing tools',
+      description: 'All Tier 2 features, plus:',
       features: [
-        'All Verified Standard features',
-        'Yelp Reviews integration',
-        'Photo gallery (20 photos max)',
-        'Video upload (1 video)',
-        'Virtual tour embed',
-        'Full amenity tags',
-        'High search appearance',
-        'Feature tags in search',
-        'AI-driven lead match priority',
-        'Direct family messaging (secure)',
-        'Rent collection tools (Stripe/ACH)',
-        'Deposit & fee tracking',
-        'Secure family document uploads',
-        'Resident onboarding workflow',
-        'Co-signer/family collaboration tools',
-        'Lease expiration reminders',
-        'Recurring charges management',
-        'Internal notes/admin memo tool',
-        'Affiliate program eligibility',
-        'Assisted onboarding'
+        'Upload up to 25 photos',
+        '1 video (max 2 mins)',
+        'Upload up to 3 PDFs',
+        'Featured placement in search & maps',
+        'In-app messaging + AI assist',
+        'Promo badge support',
+        'Concierge "Preferred" tag'
       ],
       popular: true
     },
     {
       id: 'platinum',
-      name: 'Platinum Spotlight',
-      price: '$399/month',
-      priceValue: 399,
-      tier: 'Platinum Spotlight',
+      name: 'Tier 4: Platinum',
+      price: '$349/month',
+      priceValue: 349,
+      tier: 'Platinum',
       color: 'gold',
-      description: 'Flagship communities needing premium exposure, full automation, and white-glove onboarding',
+      description: 'All Tier 3 features, plus (For Communities Only):',
       features: [
-        'All Enhanced Showcase features',
-        'Unlimited photo gallery',
-        'Video uploads (up to 3 videos)',
-        'Custom feature tags',
-        'Premium gold border in search',
-        'Top search priority (rotating spotlight)',
-        'Animation on hover',
-        'Branded banner',
-        'Featured in "Best of" sections',
-        'Full reporting + competitive insights',
-        'Concierge placement leads',
-        'Custom branded lease packets',
-        'Move-out checklist automation',
-        'Multi-resident/multi-unit support',
-        'Fully managed onboarding',
-        'White-glove support',
-        'Affiliate program with premium benefits'
-      ]
+        'Upload up to 50 photos',
+        'Up to 3 videos (5 mins each)',
+        'Unlimited PDFs',
+        'Staff bios, care philosophy, menus',
+        'Availability sync (form, spreadsheet, or API)',
+        'Admin dashboard (multi-property view if licensed)',
+        'Top Concierge Priority',
+        'Monthly performance review call',
+        '💰 Portfolio pricing: 10-49: $299/mo each, 50+: $249/mo each'
+      ],
+      popular: false
     }
   ];
 

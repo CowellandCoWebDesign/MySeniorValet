@@ -96,6 +96,7 @@ The platform is built with a modern web stack designed for transparency and user
   Includes comprehensive notification and in-app messaging systems, onboarding wizard with AI character guidance, and robust photo handling system. The platform supports full bilingual functionality (French/English).
 - **Dashboard Separation**: User dashboard shows personalized journey analytics (saved communities, tours, search patterns). Business features (DocuSign, payment processing) are reserved for platinum-tier communities only and shown contextually on community pages, not in user dashboards.
 - **Subscription Enforcement** (Added August 2, 2025): Platform-wide tier restrictions implemented across community dashboards, vendor marketplace, photo uploads, analytics access, and messaging features. All tier-gated features show upgrade prompts with SubscriptionUpgradeModal integration.
+- **Tier Specification Implementation** (Completed August 2, 2025): Successfully implemented exact tier specifications from user screenshots. Community Portal displays 4 tiers: Verified (Free), Standard ($149), Featured ($249), Platinum ($349). Vendor Marketplace shows only 3 tiers: Basic Listing ($99), Featured Vendor ($249), National Partner ($499). Added comprehensive feature comparison tables with visual indicators. Frontend pages correctly reflect backend pricing structures with no Enterprise or Free vendor tiers.
 
 ## External Dependencies
 - **Database Connectivity**: `@neondatabase/serverless`
