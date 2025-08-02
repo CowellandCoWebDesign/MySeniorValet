@@ -20,6 +20,10 @@ import { CareSpectrumSlider } from "@/components/CareSpectrumSlider";
 import { RemovalRequestModal } from "@/components/RemovalRequestModal";
 import { OnboardingWrapper } from "@/components/onboarding/OnboardingWrapper";
 import { PersonalizedBanner } from "@/components/onboarding/PersonalizedBanner";
+import { MarketIntelligence } from "@/components/MarketIntelligence";
+import { MoveInCostCalculator } from "@/components/MoveInCostCalculator";
+import { RedTagDeals } from "@/components/RedTagDeals";
+import { AidAndAttendance } from "@/components/AidAndAttendance";
 
 
 
@@ -465,6 +469,27 @@ export default function MySeniorValetHome() {
               </>
             )}
           </div>
+        </div>
+      </section>
+
+      {/* Red Tag Deals Section */}
+      <section className="px-4 py-12 bg-gradient-to-br from-red-50 to-orange-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <RedTagDeals />
+        </div>
+      </section>
+
+      {/* Market Intelligence Section */}
+      <section className="px-4 py-12 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <MarketIntelligence />
+        </div>
+      </section>
+
+      {/* Move-In Cost Calculator Section */}
+      <section className="px-4 py-12 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <MoveInCostCalculator />
         </div>
       </section>
 
@@ -2112,6 +2137,11 @@ export default function MySeniorValetHome() {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* VA Aid & Attendance Benefits */}
+          <div className="mb-12">
+            <AidAndAttendance />
           </div>
 
           {/* Government Resources */}
