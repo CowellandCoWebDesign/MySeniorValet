@@ -2292,7 +2292,7 @@ export default function MySeniorValetHome() {
                   {/* Disclaimer */}
                   <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-6">
                     <p className="text-sm text-blue-800 dark:text-blue-300">
-                      <strong>Note:</strong> These listings are curated for convenience only. Inclusion does not imply endorsement or affiliation unless marked as "Official Partner."
+                      <strong>Note:</strong> Vendor listings are provided for your convenience. MySeniorValet participates in the Amazon Services LLC Associates Program. All other vendors are listed without formal partnerships or affiliations. Look for "Official Partner" badges for verified partnerships.
                     </p>
                   </div>
 

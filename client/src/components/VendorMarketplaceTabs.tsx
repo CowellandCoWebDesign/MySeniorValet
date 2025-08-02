@@ -347,6 +347,13 @@ export function VendorMarketplaceTabs() {
               <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
                 Featured services • Amazon Pharmacy • Walmart • T-Mobile 55+ • 1-800-FLORALS • Two Men and a Truck 🚚 • Additional vendors being added weekly
               </p>
+              
+              {/* Affiliate Disclosure */}
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-3">
+                <p className="text-xs text-blue-800 dark:text-blue-300">
+                  <strong>Disclosure:</strong> MySeniorValet participates in the Amazon Services LLC Associates Program. All other vendors are listed for your convenience without formal partnerships unless marked as "Official Partner."
+                </p>
+              </div>
             </div>
 
             {/* All Service Providers */}
