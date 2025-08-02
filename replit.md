@@ -29,15 +29,70 @@ The platform is built with a modern web stack designed for transparency and user
 - **UI/UX Decisions**: Emphasizes a clean, modern aesthetic with cosmic imagery. Consistent design elements include horizontal sliders and AI-generated product imagery for compliance. The system incorporates an automated testing infrastructure.
 - **System Design**: Features a 5-table database architecture for services management, dual subscription tier systems:
   - **Community Tiers** - OFFICIAL PRICING:
-    - Verified Listing: Free (1 photo, edit contact info, tour scheduling if email verified)
-    - Standard: $149/month (10 photos, 1 PDF, respond to reviews, basic analytics)
-    - Featured: $249/month (25 photos, 1 video, 3 PDFs, in-app messaging, featured placement)
-    - Platinum: $349/month (50 photos, 3 videos, unlimited PDFs, staff bios, monthly performance call)
-  - **Vendor Tiers** - CRITICAL PRICING:
-    - Basic Listing: $99/month (1 regional zip cluster, no photos/branding, $25 verification badge add-on)
-    - Featured Vendor: $249/month (5 regional areas, logo/branding, featured placement, basic analytics) 
-    - National Partner: $499/month (nationwide coverage, banner rotation, dedicated profile page, quarterly reports)
-    - Enterprise: $999+/month (custom pricing, exclusive category access, co-branding, revenue share options)
+    - Tier 1: Verified Listing - $0/month (Free)
+      * Claimable for free once community verifies email
+      * Edit contact info (phone, website, email, address)
+      * Upload 1 photo
+      * Tour Scheduler enabled if email is present
+      * Cannot respond to reviews
+      * No PDF uploads, no analytics, no visibility boost
+      * Appears in basic search results
+    - Tier 2: Standard - $149/month
+      * All Tier 1 features, plus:
+      * Upload up to 10 photos
+      * Upload 1 brochure PDF
+      * Add external calendar link
+      * Access basic analytics
+      * Can respond to reviews
+      * "Standard Verified" badge
+    - Tier 3: Featured - $249/month
+      * All Tier 2 features, plus:
+      * Upload up to 25 photos
+      * 1 video (max 2 mins)
+      * Upload up to 3 PDFs
+      * Featured placement in search & maps
+      * In-app messaging + AI assist
+      * Promo badge support
+      * Concierge "Preferred" tag
+    - Tier 4: Platinum - $349/month (For Communities Only)
+      * All Tier 3 features, plus:
+      * Upload up to 50 photos
+      * Up to 3 videos (5 mins each)
+      * Unlimited PDFs
+      * Staff bios, care philosophy, menus
+      * Availability sync (form, spreadsheet, or API)
+      * Admin dashboard (multi-property view if licensed)
+      * Top Concierge Priority
+      * Monthly performance review call
+      * Portfolio operators must subscribe per community
+      * Bulk rates: 10-49 communities: $299/month each, 50+: $249/month each
+  - **Vendor Tiers** - CRITICAL PRICING (3 TIERS ONLY):
+    - Tier 1: Basic Listing - $99/month
+      * Public listing in vendor directory
+      * Region-limited to 1 zip cluster
+      * Name, phone, category, description
+      * Optional $25 verified badge
+      * No logo, no analytics, no placement boost
+      * User reviews allowed
+      * Affiliate link support (if provided)
+    - Tier 2: Featured Vendor - $249/month
+      * All Tier 1 features, plus:
+      * Coverage across 5 regions
+      * Upload logo, brand colors, CTA button
+      * Basic analytics (views, clicks, leads)
+      * Post vendor promos
+      * Featured placement in vendor carousels
+      * Must have affiliate link for "Approved" badge
+    - Tier 3: National Partner (Premium) - $499/month
+      * All Tier 2 features, plus:
+      * Nationwide visibility (no geo cap)
+      * Banner rotation in major discovery areas
+      * Concierge system priority & routing
+      * AI-generated lead summaries + scoring
+      * Optional API or CSV lead passback
+      * Dedicated vendor microsite
+      * Quarterly performance report
+      * Optional vendor success call
   Includes comprehensive notification and in-app messaging systems, onboarding wizard with AI character guidance, and robust photo handling system. The platform supports full bilingual functionality (French/English).
 - **Dashboard Separation**: User dashboard shows personalized journey analytics (saved communities, tours, search patterns). Business features (DocuSign, payment processing) are reserved for platinum-tier communities only and shown contextually on community pages, not in user dashboards.
 - **Subscription Enforcement** (Added August 2, 2025): Platform-wide tier restrictions implemented across community dashboards, vendor marketplace, photo uploads, analytics access, and messaging features. All tier-gated features show upgrade prompts with SubscriptionUpgradeModal integration.

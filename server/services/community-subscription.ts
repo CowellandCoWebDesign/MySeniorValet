@@ -90,7 +90,7 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       seasonalBadges: false,
       
       // Advanced
-      tourCalendarLink: false,
+      tourCalendarLink: false, // No external calendar link
       staffBios: false,
       menus: false,
       carePhilosophy: false,
