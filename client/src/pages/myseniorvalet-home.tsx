@@ -2333,7 +2333,7 @@ export default function MySeniorValetHome() {
             <Card className="shadow-xl overflow-hidden border-0 hover:shadow-2xl transition-shadow duration-300 relative">
               {/* Premium badge */}
               <div className="absolute top-0 right-0 bg-gradient-to-br from-yellow-400 to-amber-500 px-4 py-2 rounded-bl-lg">
-                <span className="text-xs font-bold text-gray-900">NEW: FREE TIER</span>
+                <span className="text-xs font-bold text-gray-900">3 TIERS AVAILABLE</span>
               </div>
               
               <CardContent className="p-8">
@@ -2353,8 +2353,8 @@ export default function MySeniorValetHome() {
                     <div className="flex items-start gap-3">
                       <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0 animate-pulse" />
                       <div>
-                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">FREE Starter Listing Available</p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">Get started at no cost - upgrade anytime</p>
+                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Nationwide Coverage Available</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Reach families across all markets</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
@@ -2382,12 +2382,11 @@ export default function MySeniorValetHome() {
 
                   {/* Enhanced Pricing Display */}
                   <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/30 dark:to-indigo-900/30 rounded-lg p-4 mb-6 w-full border border-purple-200 dark:border-purple-700">
-                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Starting at:</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Professional tiers starting at:</p>
                     <div className="flex flex-wrap justify-center gap-2 text-sm">
-                      <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">FREE Starter</Badge>
-                      <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">$99 Basic</Badge>
-                      <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">$249 Featured</Badge>
-                      <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">$499+ Premium</Badge>
+                      <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300">$99 Basic Listing</Badge>
+                      <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">$249 Featured</Badge>
+                      <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">$499 National Partner</Badge>
                     </div>
                   </div>
 
@@ -2405,7 +2404,7 @@ export default function MySeniorValetHome() {
                       className="border-2 border-purple-300 dark:border-purple-600 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 font-medium px-8 py-2 rounded-lg transition-all duration-200 w-full"
                       onClick={() => setLocation('/vendor-signup')}
                     >
-                      Start Free Listing
+                      Get Started Today
                     </Button>
                   </div>
                 </div>
