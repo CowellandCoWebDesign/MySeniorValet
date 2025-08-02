@@ -47,6 +47,7 @@ import authenticPricingRoutes from "./authentic-pricing-routes";
 import weaviateRoutes from "./weaviate-routes";
 import enhancedWeaviateRoutes from "./enhanced-weaviate-routes";
 import { registerPlatformRoutes } from "./platformRoutes";
+import { registerStripeTestRoutes } from "./stripe-test";
 
 // Import existing routers
 import { quizRouter } from "./quiz";
@@ -90,6 +91,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerReviewRoutes(app);
   registerFamilyRoutes(app);
   registerPaymentRoutes(app);
+  registerStripeTestRoutes(app);
   registerStatsRoutes(app);
   registerPricingRoutes(app);
   app.use(notificationRoutes);
