@@ -41,7 +41,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { Footer } from "@/components/footer";
-import { AdvancedAnalytics } from "@/components/analytics/AdvancedAnalytics";
+
 import { MessagesSection } from "@/components/MessagesSection";
 
 interface SavedCommunity {
@@ -83,7 +83,6 @@ export default function Dashboard() {
   const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
   const [tourRequests, setTourRequests] = useState<TourRequest[]>([]);
   const [activeTab, setActiveTab] = useState("overview");
-  const [showIntegrationTools, setShowIntegrationTools] = useState(true);
   const [showCommunitySearch, setShowCommunitySearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCommunity, setSelectedCommunity] = useState<any>(null);
@@ -186,7 +185,7 @@ export default function Dashboard() {
           <CardContent className="p-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 items-center">
               <div className="lg:col-span-2">
-                <h1 className="text-3xl font-bold mb-2">Welcome back, {user?.name || 'Explorer'}!</h1>
+                <h1 className="text-3xl font-bold mb-2">Welcome back, {user?.email || 'Explorer'}!</h1>
                 <p className="text-blue-100">Your senior living journey at a glance</p>
               </div>
               <div className="text-center">
@@ -339,94 +338,67 @@ export default function Dashboard() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-8">
-            {/* Integration Tools Showcase */}
-            {showIntegrationTools && (
-              <Card className="bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 text-white border-0 shadow-2xl rounded-3xl overflow-hidden">
-                <CardHeader className="p-8 pb-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-2xl font-bold mb-2">🚀 Advanced Integration Tools</CardTitle>
-                      <p className="text-white/90">Enterprise-grade features at your fingertips</p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowIntegrationTools(false)}
-                      className="text-white hover:bg-white/20"
-                    >
-                      ✕
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-8 pt-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {/* AI Analytics */}
-                    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/20 transition-all">
-                      <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span className="text-xl">📊</span>
+            {/* AI-Powered Recommendations */}
+            <Card className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white border-0 shadow-2xl rounded-3xl overflow-hidden">
+              <CardHeader className="p-8 pb-6">
+                <div>
+                  <CardTitle className="text-2xl font-bold mb-2">
+                    <span className="mr-2">🤖</span>
+                    Your Personalized Insights
+                  </CardTitle>
+                  <p className="text-white/90">AI-powered recommendations based on your preferences and activity</p>
+                </div>
+              </CardHeader>
+              <CardContent className="p-8 pt-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Recommended Communities */}
+                  <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
+                    <div className="flex items-center mb-4">
+                      <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center mr-3">
+                        <Heart className="h-5 w-5 text-white" />
                       </div>
-                      <h3 className="font-semibold mb-2">AI Analytics</h3>
-                      <p className="text-sm text-white/80 mb-3">Market intelligence and predictive insights</p>
-                      <Link href="/integrations">
-                        <Button size="sm" variant="outline" className="border-white/30 text-white hover:bg-white/20">
-                          Explore
-                        </Button>
-                      </Link>
+                      <h3 className="font-semibold">Recommended for You</h3>
                     </div>
-
-                    {/* Document Management */}
-                    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/20 transition-all">
-                      <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span className="text-xl">📄</span>
-                      </div>
-                      <h3 className="font-semibold mb-2">DocuSign</h3>
-                      <p className="text-sm text-white/80 mb-3">Digital contract signing and document workflow</p>
-                      <Link href="/community-portal">
-                        <Button size="sm" variant="outline" className="border-white/30 text-white hover:bg-white/20">
-                          Sign Docs
-                        </Button>
-                      </Link>
-                    </div>
-
-                    {/* Communication Suite */}
-                    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/20 transition-all">
-                      <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span className="text-xl">💬</span>
-                      </div>
-                      <h3 className="font-semibold mb-2">Communications</h3>
-                      <p className="text-sm text-white/80 mb-3">Multi-channel messaging and video calls</p>
-                      <Link href="/admin">
-                        <Button size="sm" variant="outline" className="border-white/30 text-white hover:bg-white/20">
-                          Message
-                        </Button>
-                      </Link>
-                    </div>
-
-                    {/* Security Dashboard */}
-                    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/20 transition-all">
-                      <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span className="text-xl">🔒</span>
-                      </div>
-                      <h3 className="font-semibold mb-2">Security</h3>
-                      <p className="text-sm text-white/80 mb-3">Real-time threat monitoring and protection</p>
-                      <Link href="/admin">
-                        <Button size="sm" variant="outline" className="border-white/30 text-white hover:bg-white/20">
-                          Monitor
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-8 text-center">
-                    <Link href="/integrations">
-                      <Button className="bg-white text-purple-600 hover:bg-gray-100 px-8 py-3 rounded-2xl font-semibold">
-                        View All 10+ Enterprise Tools
+                    <p className="text-sm text-white/80 mb-4">3 new communities match your saved preferences</p>
+                    <Link href="/search?recommended=true">
+                      <Button size="sm" className="w-full bg-white/20 hover:bg-white/30 text-white border-0">
+                        View Matches
                       </Button>
                     </Link>
                   </div>
-                </CardContent>
-              </Card>
-            )}
+
+                  {/* Price Alerts */}
+                  <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
+                    <div className="flex items-center mb-4">
+                      <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mr-3">
+                        <Bell className="h-5 w-5 text-white" />
+                      </div>
+                      <h3 className="font-semibold">Price Updates</h3>
+                    </div>
+                    <p className="text-sm text-white/80 mb-4">2 saved communities have updated their pricing</p>
+                    <Button size="sm" className="w-full bg-white/20 hover:bg-white/30 text-white border-0">
+                      View Changes
+                    </Button>
+                  </div>
+
+                  {/* Search Insights */}
+                  <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
+                    <div className="flex items-center mb-4">
+                      <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center mr-3">
+                        <TrendingUp className="h-5 w-5 text-white" />
+                      </div>
+                      <h3 className="font-semibold">Search Insights</h3>
+                    </div>
+                    <p className="text-sm text-white/80 mb-4">Your top location: {recentSearches[0]?.location || 'Not set'}</p>
+                    <Link href="/search">
+                      <Button size="sm" className="w-full bg-white/20 hover:bg-white/30 text-white border-0">
+                        Refine Search
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Recent Activity */}
@@ -803,14 +775,115 @@ export default function Dashboard() {
             <Card className="shadow-xl rounded-3xl overflow-hidden border-0 bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 dark:from-gray-800 dark:via-blue-900/20 dark:to-purple-900/20">
               <CardHeader className="p-8 pb-6">
                 <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Your Analytics & Insights
+                  Your Personal Journey Analytics
                 </CardTitle>
                 <p className="text-gray-600 dark:text-gray-400 mt-2">
-                  Track your engagement, behavior patterns, and personalized recommendations
+                  Track your search patterns and community preferences
                 </p>
               </CardHeader>
               <CardContent className="p-8 pt-4">
-                <AdvancedAnalytics timeRange="30d" showExport={true} autoRefresh={false} />
+                {/* User Activity Summary */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  <Card className="border-blue-200 bg-blue-50/50 dark:bg-blue-900/20">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h4 className="font-semibold text-gray-700 dark:text-gray-300">Communities Viewed</h4>
+                        <Eye className="h-5 w-5 text-blue-500" />
+                      </div>
+                      <p className="text-3xl font-bold text-blue-600">47</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Last 30 days</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-green-200 bg-green-50/50 dark:bg-green-900/20">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h4 className="font-semibold text-gray-700 dark:text-gray-300">Tours Scheduled</h4>
+                        <Calendar className="h-5 w-5 text-green-500" />
+                      </div>
+                      <p className="text-3xl font-bold text-green-600">{tourRequests.length}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Total scheduled</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-purple-200 bg-purple-50/50 dark:bg-purple-900/20">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h4 className="font-semibold text-gray-700 dark:text-gray-300">Saved Communities</h4>
+                        <Heart className="h-5 w-5 text-purple-500" />
+                      </div>
+                      <p className="text-3xl font-bold text-purple-600">{savedCommunities.length}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">In your favorites</p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Search Preferences */}
+                <Card className="mb-8">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Your Search Preferences</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Most Searched Locations</p>
+                        <div className="flex flex-wrap gap-2">
+                          {Array.from(new Set(recentSearches.map(s => s.location))).slice(0, 5).map((location, idx) => (
+                            <Badge key={idx} variant="secondary" className="rounded-full">
+                              <MapPin className="h-3 w-3 mr-1" />
+                              {location}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Preferred Care Types</p>
+                        <div className="flex flex-wrap gap-2">
+                          {Array.from(new Set(savedCommunities.map(c => c.careType))).map((type, idx) => (
+                            <Badge key={idx} className="bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full">
+                              {type}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Price Range Interest</p>
+                        <div className="flex flex-wrap gap-2">
+                          {Array.from(new Set(savedCommunities.map(c => c.priceRange))).map((range, idx) => (
+                            <Badge key={idx} className="bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full">
+                              {range}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Activity Timeline */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Recent Activity Timeline</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {recentSearches.slice(0, 5).map((search, idx) => (
+                        <div key={search.id} className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold">
+                            {idx + 1}
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium">{search.query}</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                              {search.location} • {new Date(search.date).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <Badge variant="outline">{search.results} results</Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
               </CardContent>
             </Card>
           </TabsContent>
