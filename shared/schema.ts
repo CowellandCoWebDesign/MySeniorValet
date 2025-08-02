@@ -2076,6 +2076,73 @@ export const dataBackups = pgTable("data_backups", {
 });
 
 // Vendor Registrations - for vendor signup and subscriptions
+// Vendor messaging system tables
+export const vendorConversations = pgTable("vendor_conversations", {
+  id: serial("id").primaryKey(),
+  type: text("type", { enum: ["vendor_support", "customer_vendor", "admin_support"] }).notNull(),
+  status: text("status", { enum: ["active", "resolved", "archived"] }).default("active"),
+  subject: text("subject").notNull(),
+  priority: text("priority", { enum: ["low", "medium", "high", "urgent"] }).default("medium"),
+  metadata: jsonb("metadata").$type<{
+    vendorId?: number;
+    customerId?: string;
+    communityId?: number;
+    serviceType?: string;
+  }>().default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  lastMessageAt: timestamp("last_message_at").defaultNow(),
+}, (table) => [
+  index("vendor_conversations_type_idx").on(table.type),
+  index("vendor_conversations_status_idx").on(table.status),
+  index("vendor_conversations_last_message_idx").on(table.lastMessageAt),
+]);
+
+export const vendorConversationParticipants = pgTable("vendor_conversation_participants", {
+  id: serial("id").primaryKey(),
+  conversationId: integer("conversation_id").notNull().references(() => vendorConversations.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  vendorId: integer("vendor_id").references(() => vendorRegistrations.id, { onDelete: "cascade" }),
+  role: text("role", { enum: ["customer", "vendor", "admin", "support"] }).notNull(),
+  lastReadAt: timestamp("last_read_at"),
+  notificationEnabled: boolean("notification_enabled").default(true),
+  joinedAt: timestamp("joined_at").defaultNow(),
+}, (table) => [
+  index("vendor_participants_conversation_idx").on(table.conversationId),
+  index("vendor_participants_user_idx").on(table.userId),
+  index("vendor_participants_vendor_idx").on(table.vendorId),
+  unique("vendor_unique_participant").on(table.conversationId, table.userId, table.vendorId),
+]);
+
+export const vendorMessages = pgTable("vendor_messages", {
+  id: serial("id").primaryKey(),
+  conversationId: integer("conversation_id").notNull().references(() => vendorConversations.id, { onDelete: "cascade" }),
+  senderId: varchar("sender_id").references(() => users.id, { onDelete: "set null" }),
+  senderVendorId: integer("sender_vendor_id").references(() => vendorRegistrations.id, { onDelete: "set null" }),
+  senderType: text("sender_type", { enum: ["user", "vendor", "admin", "system"] }).notNull(),
+  content: text("content").notNull(),
+  attachments: jsonb("attachments").$type<Array<{
+    type: string;
+    url: string;
+    name: string;
+    size: number;
+  }>>().default([]),
+  isEdited: boolean("is_edited").default(false),
+  editedAt: timestamp("edited_at"),
+  isDeleted: boolean("is_deleted").default(false),
+  deletedAt: timestamp("deleted_at"),
+  readBy: jsonb("read_by").$type<Array<{
+    userId?: string;
+    vendorId?: number;
+    readAt: string;
+  }>>().default([]),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("vendor_messages_conversation_idx").on(table.conversationId),
+  index("vendor_messages_sender_idx").on(table.senderId),
+  index("vendor_messages_created_idx").on(table.createdAt),
+]);
+
 export const vendorRegistrations = pgTable("vendor_registrations", {
   id: serial("id").primaryKey(),
   businessName: varchar("business_name", { length: 255 }).notNull(),

@@ -26,6 +26,15 @@ The platform is built with a modern web stack.
 - **System Design**: Features a robust services management system with a 5-table database architecture. Implements a subscription tier system for access control (Free, Featured Spotlight, Premium Tools, Platinum Partner). Includes an automated testing infrastructure for code quality.
 
 ## Recent Changes (August 2, 2025)
+- **In-App Messaging System Implementation**:
+  - Created comprehensive vendor messaging system with real-time communication capabilities
+  - Built vendor_conversations, vendor_conversation_participants, and vendor_messages tables for message storage
+  - Implemented messaging API endpoints for creating conversations, sending messages, marking as read, and managing conversation status
+  - Created VendorMessaging component with conversation list, message thread view, and new conversation dialog
+  - Added ContactVendorButton component for customers to easily reach out to vendors from community pages
+  - Integrated messaging tab into vendor dashboard with unread message count and priority indicators
+  - Support for different conversation types: vendor_support, customer_vendor, and admin_support
+  - Message threading with read status tracking and conversation management features
 - **Legal Protection & Vendor Onboarding Enhancement**: 
   - Transformed removal request section into positive vendor onboarding opportunity
   - Created comprehensive RemovalRequestModal component with database storage

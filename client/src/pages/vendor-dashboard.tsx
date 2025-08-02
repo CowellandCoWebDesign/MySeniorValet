@@ -40,6 +40,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { format } from "date-fns";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { AdvancedAnalytics } from "@/components/analytics/AdvancedAnalytics";
+import { VendorMessaging } from "@/components/messaging/VendorMessaging";
 
 interface VendorProfile {
   id: number;
@@ -396,12 +397,13 @@ export default function VendorDashboard() {
 
         {/* Tabs */}
         <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="services">Services</TabsTrigger>
             <TabsTrigger value="leads">Leads</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="reviews">Reviews</TabsTrigger>
+            <TabsTrigger value="messages">Messages</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="mt-6">
@@ -820,6 +822,10 @@ export default function VendorDashboard() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="messages" className="mt-6">
+            <VendorMessaging vendorId={vendorProfile.id} />
           </TabsContent>
         </Tabs>
       </div>

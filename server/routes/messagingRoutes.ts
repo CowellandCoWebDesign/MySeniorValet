@@ -1,446 +1,239 @@
-import { Router } from "express";
-import { db } from "../db";
-import { chatConversations, chatParticipants, chatMessages } from "@shared/schema";
-import { eq, and, or, desc, sql, isNull } from "drizzle-orm";
-import type { ChatConversation, ChatParticipant, ChatMessage } from "@shared/schema";
-
-
+import { Router } from 'express';
+import { db } from '../db';
+import { vendorConversations, vendorConversationParticipants, vendorMessages, users, vendorRegistrations } from '../../shared/schema';
+import { eq, and, or, desc, sql } from 'drizzle-orm';
 
 const router = Router();
 
-// Helper function to get user ID from multiple auth methods
-function getUserId(req: any): string | null {
-  // Check quick auth session first
-  const sessionId = req.cookies?.sessionId;
-  if (sessionId && global.activeSessions?.[sessionId]) {
-    return String(global.activeSessions[sessionId].userId);
-  }
-  
-  // Check Replit auth
-  const replitUserId = req.headers['x-replit-user-id'] as string;
-  if (replitUserId) {
-    return replitUserId;
-  }
-  
-  // Check standard auth user
-  if (req.user?.id) {
-    return String(req.user.id);
-  }
-  
-  return null;
-}
-
-// Get all conversations for a user
-router.get("/conversations", async (req, res) => {
+// Get conversations for a user or vendor
+router.get('/conversations', async (req, res) => {
   try {
-    const userId = getUserId(req);
+    const { userId, vendorId, type } = req.query;
     
-    if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
+    // Get conversations where user/vendor is a participant
+    let participantConditions = [];
+    if (userId) {
+      participantConditions.push(eq(vendorConversationParticipants.userId, parseInt(userId as string)));
     }
-
-    // Get conversations with participant info and last message
+    if (vendorId) {
+      participantConditions.push(eq(vendorConversationParticipants.vendorId, parseInt(vendorId as string)));
+    }
+    
     const conversations = await db
       .select({
-        conversation: chatConversations,
-        participant: chatParticipants,
-        unreadCount: chatParticipants.unreadCount,
+        conversation: vendorConversations,
+        participants: sql`
+          COALESCE(
+            json_agg(
+              json_build_object(
+                'id', ${vendorConversationParticipants.id},
+                'userId', ${vendorConversationParticipants.userId},
+                'vendorId', ${vendorConversationParticipants.vendorId},
+                'role', ${vendorConversationParticipants.role},
+                'lastReadAt', ${vendorConversationParticipants.lastReadAt}
+              )
+            ) FILTER (WHERE ${vendorConversationParticipants.id} IS NOT NULL),
+            '[]'::json
+          )`
       })
-      .from(chatConversations)
-      .innerJoin(
-        chatParticipants,
+      .from(vendorConversations)
+      .leftJoin(
+        vendorConversationParticipants,
+        eq(vendorConversations.id, vendorConversationParticipants.conversationId)
+      )
+      .where(
         and(
-          eq(chatParticipants.conversationId, chatConversations.id),
-          eq(chatParticipants.userId, userId),
-          isNull(chatParticipants.leftAt)
+          type ? eq(vendorConversations.type, type as any) : undefined,
+          participantConditions.length > 0 ? or(...participantConditions) : undefined
         )
       )
-      .orderBy(desc(chatConversations.lastMessageAt));
-
-    // Get last message for each conversation
-    const conversationsWithLastMessage = await Promise.all(
-      conversations.map(async ({ conversation, participant, unreadCount }) => {
-        const [lastMessage] = await db
-          .select()
-          .from(chatMessages)
-          .where(eq(chatMessages.conversationId, conversation.id))
-          .orderBy(desc(chatMessages.createdAt))
-          .limit(1);
-
-        return {
-          ...conversation,
-          unreadCount: unreadCount || 0,
-          lastMessage
-        };
-      })
-    );
-
-    res.json(conversationsWithLastMessage);
-  } catch (error) {
-    console.error("Error fetching conversations:", error);
-    res.status(500).json({ message: "Failed to fetch conversations" });
-  }
-});
-
-// Get messages in a conversation
-router.get("/conversations/:conversationId/messages", async (req, res) => {
-  try {
-    const userId = getUserId(req);
-    const conversationId = parseInt(req.params.conversationId);
-    const limit = parseInt(req.query.limit as string) || 50;
-    const offset = parseInt(req.query.offset as string) || 0;
-
-    if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    // Verify user is a participant
-    const [participant] = await db
-      .select()
-      .from(chatParticipants)
-      .where(
-        and(
-          eq(chatParticipants.conversationId, conversationId),
-          eq(chatParticipants.userId, userId),
-          isNull(chatParticipants.leftAt)
-        )
-      );
-
-    if (!participant) {
-      return res.status(403).json({ message: "Not a participant in this conversation" });
-    }
-
-    // Get messages
-    const messages = await db
-      .select()
-      .from(chatMessages)
-      .where(eq(chatMessages.conversationId, conversationId))
-      .orderBy(desc(chatMessages.createdAt))
-      .limit(limit)
-      .offset(offset);
-
-    // Mark messages as read
-    await db
-      .update(chatParticipants)
-      .set({
-        unreadCount: 0,
-        lastReadAt: new Date()
-      })
-      .where(
-        and(
-          eq(chatParticipants.conversationId, conversationId),
-          eq(chatParticipants.userId, userId)
-        )
-      );
-
-    res.json(messages.reverse()); // Reverse to show oldest first
-  } catch (error) {
-    console.error("Error fetching messages:", error);
-    res.status(500).json({ message: "Failed to fetch messages" });
+      .groupBy(vendorConversations.id)
+      .orderBy(desc(vendorConversations.lastMessageAt));
+    
+    // Map the results to include conversation data at the top level
+    const formattedConversations = conversations.map(item => ({
+      ...item.conversation,
+      participants: item.participants
+    }));
+    
+    res.json(formattedConversations);
+  } catch (error: any) {
+    console.error('Error fetching conversations:', error);
+    res.status(500).json({ error: 'Failed to fetch conversations' });
   }
 });
 
 // Create a new conversation
-router.post("/conversations", async (req, res) => {
+router.post('/conversations', async (req, res) => {
   try {
-    const userId = getUserId(req);
-    const { type, subject, communityId, participantIds, metadata, message } = req.body;
-
-    if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    // Create conversation
-    const [conversation] = await db
-      .insert(chatConversations)
-      .values({
-        type: type || 'direct',
-        subject,
-        communityId,
-        metadata,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        lastMessageAt: new Date()
-      })
-      .returning();
-
-    // Add participants (including creator)
-    const allParticipants = [...new Set([userId, ...(participantIds || [])])];
+    const { type, subject, priority, metadata, participants } = req.body;
     
-    await db
-      .insert(chatParticipants)
-      .values(
-        allParticipants.map(participantId => ({
-          conversationId: conversation.id,
-          userId: participantId,
-          role: participantId === userId ? 'owner' : 'member',
-          unreadCount: 0,
-          joinedAt: new Date()
-        }))
-      );
+    // Create conversation
+    const [conversation] = await db.insert(vendorConversations).values({
+      type,
+      subject,
+      priority,
+      metadata
+    }).returning();
+    
+    // Add participants
+    const participantData = participants.map((p: any) => ({
+      conversationId: conversation.id,
+      userId: p.userId || null,
+      vendorId: p.vendorId || null,
+      role: p.role
+    }));
+    
+    await db.insert(vendorConversationParticipants).values(participantData);
+    
+    res.json({ conversation, participants: participantData });
+  } catch (error: any) {
+    console.error('Error creating conversation:', error);
+    res.status(500).json({ error: 'Failed to create conversation' });
+  }
+});
 
-    // If initial message provided, send it
-    if (message) {
-      const [firstMessage] = await db
-        .insert(chatMessages)
-        .values({
-          conversationId: conversation.id,
-          senderId: userId,
-          content: message,
-          type: 'text',
-          createdAt: new Date()
-        })
-        .returning();
-
-      res.json({ 
-        ...conversation,
-        conversationId: conversation.id,
-        message: firstMessage 
-      });
-    } else {
-      res.json({ 
-        ...conversation,
-        conversationId: conversation.id 
-      });
-    }
-  } catch (error) {
-    console.error("Error creating conversation:", error);
-    res.status(500).json({ message: "Failed to create conversation" });
+// Get messages for a conversation
+router.get('/conversations/:conversationId/messages', async (req, res) => {
+  try {
+    const { conversationId } = req.params;
+    const { limit = 50, offset = 0 } = req.query;
+    
+    const messages = await db
+      .select({
+        message: vendorMessages,
+        senderUser: users,
+        senderVendor: vendorRegistrations
+      })
+      .from(vendorMessages)
+      .leftJoin(users, eq(vendorMessages.senderId, users.id))
+      .leftJoin(vendorRegistrations, eq(vendorMessages.senderVendorId, vendorRegistrations.id))
+      .where(eq(vendorMessages.conversationId, parseInt(conversationId)))
+      .orderBy(desc(vendorMessages.createdAt))
+      .limit(parseInt(limit as string))
+      .offset(parseInt(offset as string));
+    
+    res.json(messages);
+  } catch (error: any) {
+    console.error('Error fetching messages:', error);
+    res.status(500).json({ error: 'Failed to fetch messages' });
   }
 });
 
 // Send a message
-router.post("/conversations/:conversationId/messages", async (req, res) => {
+router.post('/conversations/:conversationId/messages', async (req, res) => {
   try {
-    const userId = getUserId(req);
-    const conversationId = parseInt(req.params.conversationId);
-    const { content, type = 'text', metadata } = req.body;
-
-    if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    // Verify user is a participant
-    const [participant] = await db
-      .select()
-      .from(chatParticipants)
-      .where(
-        and(
-          eq(chatParticipants.conversationId, conversationId),
-          eq(chatParticipants.userId, userId),
-          isNull(chatParticipants.leftAt)
-        )
-      );
-
-    if (!participant) {
-      return res.status(403).json({ message: "Not a participant in this conversation" });
-    }
-
+    const { conversationId } = req.params;
+    const { senderId, senderVendorId, senderType, content, attachments } = req.body;
+    
     // Create message
-    const [message] = await db
-      .insert(chatMessages)
-      .values({
-        conversationId,
-        senderId: userId,
-        content,
-        type,
-        metadata,
-        createdAt: new Date()
-      })
-      .returning();
-
-    // Update conversation's last message time
-    await db
-      .update(chatConversations)
-      .set({
+    const [message] = await db.insert(vendorMessages).values({
+      conversationId: parseInt(conversationId),
+      senderId: senderId || null,
+      senderVendorId: senderVendorId || null,
+      senderType,
+      content,
+      attachments: attachments || []
+    }).returning();
+    
+    // Update conversation last message time
+    await db.update(vendorConversations)
+      .set({ 
         lastMessageAt: new Date(),
         updatedAt: new Date()
       })
-      .where(eq(chatConversations.id, conversationId));
-
-    // Update unread count for other participants
-    await db
-      .update(chatParticipants)
-      .set({
-        unreadCount: sql`${chatParticipants.unreadCount} + 1`
-      })
-      .where(
-        and(
-          eq(chatParticipants.conversationId, conversationId),
-          sql`${chatParticipants.userId} != ${userId}`,
-          isNull(chatParticipants.leftAt)
-        )
-      );
-
-    res.json(message);
-  } catch (error) {
-    console.error("Error sending message:", error);
-    res.status(500).json({ message: "Failed to send message" });
+      .where(eq(vendorConversations.id, parseInt(conversationId)));
+    
+    // Get sender details
+    let sender = null;
+    if (senderId) {
+      [sender] = await db.select().from(users).where(eq(users.id, senderId));
+    } else if (senderVendorId) {
+      [sender] = await db.select().from(vendorRegistrations).where(eq(vendorRegistrations.id, senderVendorId));
+    }
+    
+    res.json({ message, sender });
+  } catch (error: any) {
+    console.error('Error sending message:', error);
+    res.status(500).json({ error: 'Failed to send message' });
   }
 });
 
-// Delete a message
-router.delete("/messages/:messageId", async (req, res) => {
+// Mark messages as read
+router.post('/conversations/:conversationId/read', async (req, res) => {
   try {
-    const userId = getUserId(req);
-    const messageId = parseInt(req.params.messageId);
-
-    if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    // Verify user is the sender
-    const [message] = await db
-      .select()
-      .from(chatMessages)
+    const { conversationId } = req.params;
+    const { userId, vendorId } = req.body;
+    
+    // Update participant's last read time
+    await db.update(vendorConversationParticipants)
+      .set({ lastReadAt: new Date() })
       .where(
         and(
-          eq(chatMessages.id, messageId),
-          eq(chatMessages.senderId, userId)
+          eq(vendorConversationParticipants.conversationId, parseInt(conversationId)),
+          userId ? eq(vendorConversationParticipants.userId, userId) : 
+                   eq(vendorConversationParticipants.vendorId, vendorId)
         )
       );
-
-    if (!message) {
-      return res.status(404).json({ message: "Message not found or unauthorized" });
-    }
-
-    // Soft delete the message
-    await db
-      .update(chatMessages)
-      .set({ deletedAt: new Date() })
-      .where(eq(chatMessages.id, messageId));
-
+    
     res.json({ success: true });
-  } catch (error) {
-    console.error("Error deleting message:", error);
-    res.status(500).json({ message: "Failed to delete message" });
+  } catch (error: any) {
+    console.error('Error marking messages as read:', error);
+    res.status(500).json({ error: 'Failed to mark messages as read' });
   }
 });
 
-// Edit a message
-router.put("/messages/:messageId", async (req, res) => {
+// Update conversation status
+router.patch('/conversations/:conversationId', async (req, res) => {
   try {
-    const userId = getUserId(req);
-    const messageId = parseInt(req.params.messageId);
-    const { content } = req.body;
-
-    if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    // Verify user is the sender
-    const [message] = await db
-      .select()
-      .from(chatMessages)
-      .where(
-        and(
-          eq(chatMessages.id, messageId),
-          eq(chatMessages.senderId, userId),
-          isNull(chatMessages.deletedAt)
-        )
-      );
-
-    if (!message) {
-      return res.status(404).json({ message: "Message not found or unauthorized" });
-    }
-
-    // Update the message
-    const [updatedMessage] = await db
-      .update(chatMessages)
-      .set({ 
-        content,
-        editedAt: new Date()
-      })
-      .where(eq(chatMessages.id, messageId))
+    const { conversationId } = req.params;
+    const { status, priority } = req.body;
+    
+    const updates: any = { updatedAt: new Date() };
+    if (status) updates.status = status;
+    if (priority) updates.priority = priority;
+    
+    const [updated] = await db.update(vendorConversations)
+      .set(updates)
+      .where(eq(vendorConversations.id, parseInt(conversationId)))
       .returning();
-
-    res.json(updatedMessage);
-  } catch (error) {
-    console.error("Error editing message:", error);
-    res.status(500).json({ message: "Failed to edit message" });
+    
+    res.json(updated);
+  } catch (error: any) {
+    console.error('Error updating conversation:', error);
+    res.status(500).json({ error: 'Failed to update conversation' });
   }
 });
 
-// Get unread count
-router.get("/unread-count", async (req, res) => {
+// Get unread message count
+router.get('/unread-count', async (req, res) => {
   try {
-    const userId = getUserId(req);
-
-    if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
+    const { userId, vendorId } = req.query;
+    
     const result = await db
       .select({
-        totalUnread: sql<number>`COALESCE(SUM(${chatParticipants.unreadCount}), 0)`
+        count: sql<number>`COUNT(DISTINCT ${vendorMessages.id})`
       })
-      .from(chatParticipants)
+      .from(vendorMessages)
+      .innerJoin(
+        vendorConversationParticipants,
+        eq(vendorMessages.conversationId, vendorConversationParticipants.conversationId)
+      )
       .where(
         and(
-          eq(chatParticipants.userId, userId),
-          isNull(chatParticipants.leftAt)
+          userId ? eq(vendorConversationParticipants.userId, parseInt(userId as string)) :
+                   eq(vendorConversationParticipants.vendorId, parseInt(vendorId as string)),
+          or(
+            sql`${vendorMessages.createdAt} > ${vendorConversationParticipants.lastReadAt}`,
+            sql`${vendorConversationParticipants.lastReadAt} IS NULL`
+          )
         )
       );
-
-    res.json({ unreadCount: result[0]?.totalUnread || 0 });
-  } catch (error) {
-    console.error("Error getting unread count:", error);
-    res.status(500).json({ message: "Failed to get unread count" });
-  }
-});
-
-// Alias for unread count (for client compatibility)
-router.get("/unread", async (req, res) => {
-  try {
-    const userId = getUserId(req);
-
-    if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    const result = await db
-      .select({
-        totalUnread: sql<number>`COALESCE(SUM(${chatParticipants.unreadCount}), 0)`
-      })
-      .from(chatParticipants)
-      .where(
-        and(
-          eq(chatParticipants.userId, userId),
-          isNull(chatParticipants.leftAt)
-        )
-      );
-
-    res.json({ unreadCount: result[0]?.totalUnread || 0 });
-  } catch (error) {
-    console.error("Error getting unread count:", error);
-    res.status(500).json({ message: "Failed to get unread count" });
-  }
-});
-
-// Leave a conversation
-router.post("/conversations/:conversationId/leave", async (req, res) => {
-  try {
-    const userId = getUserId(req);
-    const conversationId = parseInt(req.params.conversationId);
-
-    if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    await db
-      .update(chatParticipants)
-      .set({ leftAt: new Date() })
-      .where(
-        and(
-          eq(chatParticipants.conversationId, conversationId),
-          eq(chatParticipants.userId, userId)
-        )
-      );
-
-    res.json({ success: true });
-  } catch (error) {
-    console.error("Error leaving conversation:", error);
-    res.status(500).json({ message: "Failed to leave conversation" });
+    
+    res.json({ unreadCount: result[0]?.count || 0 });
+  } catch (error: any) {
+    console.error('Error getting unread count:', error);
+    res.status(500).json({ error: 'Failed to get unread count' });
   }
 });
 
