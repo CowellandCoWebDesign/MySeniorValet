@@ -123,14 +123,14 @@ export function TourScheduler({
           {!hasEmail ? (
             <Alert className="mt-4 border-amber-200 bg-amber-50">
               <AlertCircle className="h-4 w-4 text-amber-600" />
-              <AlertTitle className="text-amber-900">Tour Scheduling Unavailable</AlertTitle>
+              <AlertTitle className="text-amber-900">Community Not Yet Verified</AlertTitle>
               <AlertDescription className="text-amber-800 mt-2">
                 <p className="mb-3">
-                  Online tour scheduling is currently unavailable for this community.
+                  This community hasn't claimed their listing on MySeniorValet yet, so online tour scheduling isn't available.
                 </p>
-                <p className="font-semibold mb-2">Please contact the community directly to schedule your tour.</p>
+                <p className="font-semibold mb-2">No worries! You can still schedule a tour by calling directly.</p>
                 <p className="text-sm">
-                  They'll be happy to:
+                  When you call, they'll be happy to:
                 </p>
                 <ul className="text-sm mt-2 space-y-1">
                   <li>• Schedule a convenient tour time</li>
