@@ -29,99 +29,88 @@ export function AidAndAttendance() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <Shield className="w-8 h-8 text-blue-600" />
-          <h2 className="text-3xl font-bold">VA Aid & Attendance Benefits</h2>
+    <div className="space-y-4">
+      <div className="mb-3">
+        <div className="flex items-center gap-2 mb-2">
+          <Shield className="w-5 h-5 text-blue-600" />
+          <h3 className="text-xl font-bold">VA Aid & Attendance Benefits</h3>
         </div>
-        <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+        <p className="text-sm text-muted-foreground">
           Up to $31,714 annually in tax-free benefits for eligible veterans and surviving spouses
         </p>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid md:grid-cols-4 gap-4">
+      {/* Quick Stats - Compact */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         <Card className="border-blue-200 dark:border-blue-800">
-          <CardContent className="pt-6 text-center">
-            <DollarSign className="w-8 h-8 text-green-600 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-green-600">$2,642</p>
-            <p className="text-sm text-muted-foreground">Monthly for Married Veterans</p>
+          <CardContent className="p-3 text-center">
+            <DollarSign className="w-5 h-5 text-green-600 mx-auto mb-1" />
+            <p className="text-lg font-bold text-green-600">$2,642</p>
+            <p className="text-xs text-muted-foreground">Monthly (Married)</p>
           </CardContent>
         </Card>
         <Card className="border-purple-200 dark:border-purple-800">
-          <CardContent className="pt-6 text-center">
-            <Users className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-purple-600">2.3M</p>
-            <p className="text-sm text-muted-foreground">Eligible Veterans</p>
+          <CardContent className="p-3 text-center">
+            <Users className="w-5 h-5 text-purple-600 mx-auto mb-1" />
+            <p className="text-lg font-bold text-purple-600">2.3M</p>
+            <p className="text-xs text-muted-foreground">Eligible</p>
           </CardContent>
         </Card>
         <Card className="border-orange-200 dark:border-orange-800">
-          <CardContent className="pt-6 text-center">
-            <Heart className="w-8 h-8 text-orange-600 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-orange-600">90%</p>
-            <p className="text-sm text-muted-foreground">Don't Know They Qualify</p>
+          <CardContent className="p-3 text-center">
+            <Heart className="w-5 h-5 text-orange-600 mx-auto mb-1" />
+            <p className="text-lg font-bold text-orange-600">90%</p>
+            <p className="text-xs text-muted-foreground">Unaware</p>
           </CardContent>
         </Card>
         <Card className="border-green-200 dark:border-green-800">
-          <CardContent className="pt-6 text-center">
-            <CheckCircle className="w-8 h-8 text-green-600 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-green-600">Tax Free</p>
-            <p className="text-sm text-muted-foreground">100% Non-Taxable</p>
+          <CardContent className="p-3 text-center">
+            <CheckCircle className="w-5 h-5 text-green-600 mx-auto mb-1" />
+            <p className="text-lg font-bold text-green-600">Tax Free</p>
+            <p className="text-xs text-muted-foreground">100%</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Eligibility Requirements */}
+      {/* Eligibility Requirements - Compact */}
       <Card>
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950">
-          <CardTitle>Eligibility Requirements</CardTitle>
-          <CardDescription>
-            Basic criteria to qualify for Aid & Attendance benefits
-          </CardDescription>
+        <CardHeader className="py-3 px-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950">
+          <CardTitle className="text-base">Eligibility Requirements</CardTitle>
         </CardHeader>
-        <CardContent className="pt-6">
-          <div className="grid md:grid-cols-2 gap-4">
+        <CardContent className="pt-3">
+          <div className="grid md:grid-cols-2 gap-2">
             {eligibilityRequirements.map((req, index) => (
-              <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <req.icon className="w-5 h-5 text-blue-600 mt-0.5" />
-                <span className="text-sm">{req.requirement}</span>
+              <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded text-xs">
+                <req.icon className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                <span>{req.requirement}</span>
               </div>
             ))}
           </div>
-          <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-950 rounded-lg">
-            <div className="flex items-start gap-2">
-              <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
-              <p className="text-sm">
-                <strong>Important:</strong> Honorable discharge required. Income and assets must fall below specific thresholds set by the VA.
-              </p>
+          <div className="mt-2 p-2 bg-yellow-50 dark:bg-yellow-950 rounded text-xs">
+            <div className="flex items-start gap-1">
+              <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+              <p><strong>Note:</strong> Honorable discharge & income limits apply</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Benefit Amounts Table */}
+      {/* Benefit Amounts Table - Compact */}
       <Card>
-        <CardHeader className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-950 dark:to-blue-950">
-          <CardTitle className="flex items-center gap-2">
-            <Calculator className="w-6 h-6 text-green-600" />
+        <CardHeader className="py-3 px-4 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-950 dark:to-blue-950">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Calculator className="w-4 h-4 text-green-600" />
             2025 Benefit Amounts
           </CardTitle>
-          <CardDescription>
-            Maximum monthly and annual benefit amounts by recipient type
-          </CardDescription>
         </CardHeader>
-        <CardContent className="pt-6">
-          <div className="space-y-3">
+        <CardContent className="pt-3">
+          <div className="space-y-2">
             {benefitAmounts.map((benefit, index) => (
-              <div key={index} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <div>
-                  <p className="font-semibold">{benefit.recipient}</p>
-                  <p className="text-sm text-muted-foreground">Tax-free monthly payment</p>
-                </div>
+              <div key={index} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                <p className="text-sm font-medium">{benefit.recipient}</p>
                 <div className="text-right">
-                  <p className="text-2xl font-bold text-green-600">${benefit.monthly.toLocaleString()}</p>
-                  <p className="text-sm text-muted-foreground">${benefit.annual.toLocaleString()}/year</p>
+                  <p className="text-base font-bold text-green-600">${benefit.monthly.toLocaleString()}</p>
+                  <p className="text-xs text-muted-foreground">${benefit.annual.toLocaleString()}/yr</p>
                 </div>
               </div>
             ))}
@@ -129,76 +118,66 @@ export function AidAndAttendance() {
         </CardContent>
       </Card>
 
-      {/* Covered Services */}
+      {/* Covered Services - Compact */}
       <Card>
-        <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950">
-          <CardTitle>What Aid & Attendance Covers</CardTitle>
-          <CardDescription>
-            Use these benefits for various care services
-          </CardDescription>
+        <CardHeader className="py-3 px-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950">
+          <CardTitle className="text-base">What Aid & Attendance Covers</CardTitle>
         </CardHeader>
-        <CardContent className="pt-6">
-          <div className="grid md:grid-cols-2 gap-3">
+        <CardContent className="pt-3">
+          <div className="grid md:grid-cols-2 gap-1 text-sm">
             {coveredServices.map((service, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
+              <div key={index} className="flex items-center gap-1">
+                <CheckCircle className="w-3 h-3 text-green-600 flex-shrink-0" />
                 <span>{service}</span>
               </div>
             ))}
           </div>
-          <div className="mt-6 space-y-4">
-            <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
-              <h4 className="font-semibold mb-2 flex items-center gap-2">
-                <Info className="w-5 h-5 text-blue-600" />
-                How It Works
-              </h4>
-              <p className="text-sm">
-                Aid & Attendance is a monthly cash benefit paid directly to eligible veterans or surviving spouses. 
-                You can use this money for any expense, but it's designed to help cover the cost of long-term care.
-              </p>
-            </div>
-            <Link href="/va-resources">
-              <Button className="w-full" size="lg">
-                Check Your Eligibility Now
-              </Button>
-            </Link>
+          <div className="mt-3 p-2 bg-blue-50 dark:bg-blue-950 rounded">
+            <p className="text-xs">
+              <strong>Note:</strong> Monthly cash benefit for any expense, designed for long-term care costs.
+            </p>
           </div>
+          <Link href="/va-resources">
+            <Button className="w-full mt-3" size="sm">
+              Check Eligibility
+            </Button>
+          </Link>
         </CardContent>
       </Card>
 
-      {/* Application Process */}
+      {/* Application Process - Compact */}
       <Card className="border-orange-200 dark:border-orange-800">
-        <CardHeader className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950 dark:to-red-950">
-          <CardTitle>Application Process</CardTitle>
+        <CardHeader className="py-3 px-4 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950 dark:to-red-950">
+          <CardTitle className="text-base">Application Steps</CardTitle>
         </CardHeader>
-        <CardContent className="pt-6">
-          <div className="space-y-4">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-orange-600 text-white rounded-full flex items-center justify-center font-bold">1</div>
-              <div>
-                <p className="font-semibold">Gather Documentation</p>
-                <p className="text-sm text-muted-foreground">DD-214, medical records, financial statements</p>
+        <CardContent className="pt-3">
+          <div className="space-y-2">
+            <div className="flex items-start gap-2">
+              <div className="w-6 h-6 bg-orange-600 text-white rounded-full flex items-center justify-center text-xs font-bold">1</div>
+              <div className="text-sm">
+                <p className="font-medium">Gather Documentation</p>
+                <p className="text-xs text-muted-foreground">DD-214, medical records, financials</p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-orange-600 text-white rounded-full flex items-center justify-center font-bold">2</div>
-              <div>
-                <p className="font-semibold">Complete VA Form 21-2680</p>
-                <p className="text-sm text-muted-foreground">Examination for Housebound Status or Need for Aid & Attendance</p>
+            <div className="flex items-start gap-2">
+              <div className="w-6 h-6 bg-orange-600 text-white rounded-full flex items-center justify-center text-xs font-bold">2</div>
+              <div className="text-sm">
+                <p className="font-medium">Complete Form 21-2680</p>
+                <p className="text-xs text-muted-foreground">Housebound/Aid & Attendance exam</p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-orange-600 text-white rounded-full flex items-center justify-center font-bold">3</div>
-              <div>
-                <p className="font-semibold">Submit Application</p>
-                <p className="text-sm text-muted-foreground">File with VA and wait 3-6 months for decision</p>
+            <div className="flex items-start gap-2">
+              <div className="w-6 h-6 bg-orange-600 text-white rounded-full flex items-center justify-center text-xs font-bold">3</div>
+              <div className="text-sm">
+                <p className="font-medium">Submit to VA</p>
+                <p className="text-xs text-muted-foreground">Wait 3-6 months for decision</p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-orange-600 text-white rounded-full flex items-center justify-center font-bold">4</div>
-              <div>
-                <p className="font-semibold">Receive Benefits</p>
-                <p className="text-sm text-muted-foreground">Retroactive to application date once approved</p>
+            <div className="flex items-start gap-2">
+              <div className="w-6 h-6 bg-orange-600 text-white rounded-full flex items-center justify-center text-xs font-bold">4</div>
+              <div className="text-sm">
+                <p className="font-medium">Receive Benefits</p>
+                <p className="text-xs text-muted-foreground">Retroactive to application date</p>
               </div>
             </div>
           </div>

@@ -76,95 +76,92 @@ export function RedTagDeals() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <Tag className="w-8 h-8 text-red-600" />
-          <h2 className="text-3xl font-bold">Red Tag Deals & Special Offers</h2>
+    <div className="space-y-4">
+      <div className="text-center mb-3">
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <Tag className="w-5 h-5 text-red-600" />
+          <h2 className="text-xl font-bold">Red Tag Deals & Special Offers</h2>
         </div>
-        <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+        <p className="text-sm text-muted-foreground">
           Exclusive discounts and move-in specials from top-rated communities
         </p>
       </div>
 
-      {/* Active Deals Alert */}
+      {/* Active Deals Alert - Compact */}
       <Card className="border-red-200 dark:border-red-800 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950 dark:to-orange-950">
-        <CardContent className="pt-6">
+        <CardContent className="py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-red-100 dark:bg-red-900 rounded-full">
-                <AlertCircle className="w-6 h-6 text-red-600" />
+            <div className="flex items-center gap-2">
+              <div className="p-2 bg-red-100 dark:bg-red-900 rounded-full">
+                <AlertCircle className="w-4 h-4 text-red-600" />
               </div>
               <div>
-                <p className="font-semibold text-lg">Limited Time Offers Available!</p>
-                <p className="text-sm text-muted-foreground">Save up to 20% on select communities</p>
+                <p className="font-medium text-sm">Limited Time Offers!</p>
+                <p className="text-xs text-muted-foreground">Save up to 20% on select communities</p>
               </div>
             </div>
-            <Badge className="bg-red-600 text-white text-lg px-4 py-2">
-              {redTagDeals.length} Active Deals
+            <Badge className="bg-red-600 text-white text-sm px-2 py-1">
+              {redTagDeals.length} Deals
             </Badge>
           </div>
         </CardContent>
       </Card>
 
-      {/* Deal Cards Grid */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Deal Cards Grid - Compact */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
         {redTagDeals.map((deal) => (
-          <Card key={deal.id} className="relative overflow-hidden border-2 hover:border-red-300 dark:hover:border-red-700 transition-all">
+          <Card key={deal.id} className="relative overflow-hidden border hover:border-red-300 dark:hover:border-red-700 transition-all">
             {/* Discount Badge */}
-            <div className="absolute top-0 right-0 bg-red-600 text-white px-3 py-1 rounded-bl-lg">
-              <span className="font-bold text-lg">{deal.discountPercent}% OFF</span>
+            <div className="absolute top-0 right-0 bg-red-600 text-white px-2 py-0.5 rounded-bl text-xs font-bold">
+              {deal.discountPercent}% OFF
             </div>
 
-            <CardHeader>
-              <CardTitle className="pr-20">
-                <div className="space-y-1">
-                  <h3 className="text-lg font-bold">{deal.communityName}</h3>
-                  <p className="text-sm text-muted-foreground">{deal.location}</p>
+            <CardHeader className="p-3">
+              <CardTitle className="pr-16">
+                <div>
+                  <h3 className="text-sm font-bold">{deal.communityName}</h3>
+                  <p className="text-xs text-muted-foreground">{deal.location}</p>
                 </div>
               </CardTitle>
             </CardHeader>
 
-            <CardContent className="space-y-4">
+            <CardContent className="p-3 pt-0 space-y-2">
               {/* Pricing */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl font-bold text-red-600">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-bold text-red-600">
                     {formatCurrency(deal.discountedPrice)}
                   </span>
-                  <span className="text-lg text-muted-foreground line-through">
+                  <span className="text-sm text-muted-foreground line-through">
                     {formatCurrency(deal.originalPrice)}
                   </span>
-                  <Badge variant="secondary" className="ml-auto">
-                    {deal.dealType}
-                  </Badge>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Clock className="w-4 h-4" />
-                  <span>{getDaysRemaining(deal.expirationDate)} days remaining</span>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Clock className="w-3 h-3" />
+                  <span>{getDaysRemaining(deal.expirationDate)} days left</span>
                 </div>
               </div>
 
               {/* Rating */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-0.5">
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
-                    className={`w-4 h-4 ${
+                    className={`w-3 h-3 ${
                       i < Math.floor(deal.rating)
                         ? "fill-yellow-400 text-yellow-400"
                         : "text-gray-300"
                     }`}
                   />
                 ))}
-                <span className="text-sm ml-1">({deal.rating})</span>
+                <span className="text-xs ml-1">({deal.rating})</span>
               </div>
 
               {/* Highlights */}
-              <div className="space-y-1">
+              <div className="space-y-0.5">
                 {deal.highlights.map((highlight, index) => (
-                  <div key={index} className="flex items-center gap-2 text-sm">
-                    <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
+                  <div key={index} className="flex items-center gap-1 text-xs">
+                    <CheckCircle className="w-3 h-3 text-green-600 flex-shrink-0" />
                     <span>{highlight}</span>
                   </div>
                 ))}
@@ -172,7 +169,7 @@ export function RedTagDeals() {
 
               {/* CTA Button */}
               <Link href="/communities">
-                <Button className="w-full bg-red-600 hover:bg-red-700 text-white">
+                <Button className="w-full h-8 text-sm bg-red-600 hover:bg-red-700 text-white">
                   <Tag className="w-4 h-4 mr-2" />
                   Claim This Deal
                 </Button>

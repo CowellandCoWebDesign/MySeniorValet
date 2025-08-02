@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calculator, Home, DollarSign, TrendingUp, CheckCircle, AlertCircle, Info, Download, Print } from "lucide-react";
+import { Calculator, Home, DollarSign, TrendingUp, CheckCircle, AlertCircle, Info, Download, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ExpenseCategory {
@@ -67,81 +67,78 @@ export function CostComparisonWorksheet() {
   const potentialSavings = totalHomeExpenses - averageSeniorLivingCost;
 
   return (
-    <div className="space-y-6">
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <Calculator className="w-8 h-8 text-purple-600" />
-          <h2 className="text-3xl font-bold">Cost Comparison Worksheet</h2>
+    <div className="space-y-4">
+      <div className="text-center mb-4">
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <Calculator className="w-5 h-5 text-purple-600" />
+          <h2 className="text-xl font-bold">Cost Comparison Worksheet</h2>
         </div>
-        <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+        <p className="text-sm text-muted-foreground">
           Compare your current home expenses to the all-inclusive value of senior living
         </p>
       </div>
 
-      {/* Quick Summary Card */}
+      {/* Quick Summary Card - Compact */}
       <Card className={cn(
-        "border-2",
+        "border",
         potentialSavings > 0 ? "border-green-500 bg-green-50 dark:bg-green-950" : "border-blue-500 bg-blue-50 dark:bg-blue-950"
       )}>
-        <CardContent className="pt-6">
-          <div className="grid md:grid-cols-3 gap-6 text-center">
+        <CardContent className="py-3">
+          <div className="grid md:grid-cols-3 gap-3 text-center">
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Your Current Home Expenses</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              <p className="text-xs text-muted-foreground">Current Home Expenses</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-gray-100">
                 ${totalHomeExpenses.toLocaleString()}
               </p>
               <p className="text-xs text-muted-foreground">per month</p>
             </div>
             <div className="flex items-center justify-center">
-              <div className="text-4xl">→</div>
+              <div className="text-2xl">→</div>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Average Senior Living Cost</p>
-              <p className="text-3xl font-bold text-purple-600">
+              <p className="text-xs text-muted-foreground">Avg Senior Living</p>
+              <p className="text-xl font-bold text-purple-600">
                 ${averageSeniorLivingCost.toLocaleString()}
               </p>
-              <p className="text-xs text-muted-foreground">all-inclusive per month</p>
+              <p className="text-xs text-muted-foreground">all-inclusive</p>
             </div>
           </div>
           {potentialSavings > 0 && (
-            <div className="mt-6 p-4 bg-green-100 dark:bg-green-900 rounded-lg text-center">
-              <p className="text-lg font-semibold text-green-800 dark:text-green-200">
-                Potential Monthly Savings: ${potentialSavings.toLocaleString()}
-              </p>
-              <p className="text-sm text-green-700 dark:text-green-300 mt-1">
-                That's ${(potentialSavings * 12).toLocaleString()} per year!
+            <div className="mt-3 p-2 bg-green-100 dark:bg-green-900 rounded text-center">
+              <p className="text-sm font-semibold text-green-800 dark:text-green-200">
+                Save ${potentialSavings.toLocaleString()}/mo (${(potentialSavings * 12).toLocaleString()}/yr)
               </p>
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Expense Input Grid */}
+      {/* Expense Input Grid - Compact */}
       <Card>
-        <CardHeader>
-          <CardTitle>Enter Your Current Monthly Expenses</CardTitle>
-          <CardDescription>
+        <CardHeader className="py-3 px-4">
+          <CardTitle className="text-base">Enter Your Current Monthly Expenses</CardTitle>
+          <CardDescription className="text-xs">
             Adjust the amounts to match your actual expenses. Items marked with ✓ are typically included in senior living.
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <CardContent className="px-4 pb-4">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
             {expenseCategories.map((category) => (
-              <div key={category.id} className="space-y-2">
+              <div key={category.id} className="space-y-1">
                 <Label htmlFor={category.id} className="flex items-center justify-between">
-                  <span className="text-sm">{category.label}</span>
+                  <span className="text-xs">{category.label}</span>
                   {category.includesInSeniorLiving && (
-                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <CheckCircle className="w-3 h-3 text-green-600" />
                   )}
                 </Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                  <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
                   <Input
                     id={category.id}
                     type="number"
                     value={expenses[category.id as keyof typeof expenses]}
                     onChange={(e) => handleExpenseChange(category.id, e.target.value)}
-                    className="pl-7"
+                    className="pl-6 h-8 text-sm"
                     min="0"
                     step="10"
                   />
@@ -152,94 +149,94 @@ export function CostComparisonWorksheet() {
         </CardContent>
       </Card>
 
-      {/* What's Included in Senior Living */}
+      {/* What's Included in Senior Living - Compact */}
       <Card className="border-purple-200 dark:border-purple-800">
-        <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-950 dark:to-indigo-950">
-          <CardTitle className="flex items-center gap-2">
-            <Home className="w-6 h-6 text-purple-600" />
+        <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-950 dark:to-indigo-950 py-3 px-4">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Home className="w-4 h-4 text-purple-600" />
             What's Included in Senior Living
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-6">
-          <div className="grid md:grid-cols-2 gap-6">
+        <CardContent className="pt-3 pb-4 px-4">
+          <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <h4 className="font-semibold mb-3 flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
+              <h4 className="font-medium mb-2 flex items-center gap-1 text-sm">
+                <CheckCircle className="w-3 h-3 text-green-600" />
                 Housing & Utilities
               </h4>
-              <ul className="space-y-2 text-sm">
-                <li className="flex items-start gap-2">
-                  <span className="text-green-600 mt-0.5">•</span>
+              <ul className="space-y-1 text-xs">
+                <li className="flex items-start gap-1">
+                  <span className="text-green-600">•</span>
                   <span>Private apartment or suite</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-600 mt-0.5">•</span>
+                <li className="flex items-start gap-1">
+                  <span className="text-green-600">•</span>
                   <span>All utilities (electric, water, gas, trash)</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-600 mt-0.5">•</span>
+                <li className="flex items-start gap-1">
+                  <span className="text-green-600">•</span>
                   <span>Property maintenance & repairs</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-600 mt-0.5">•</span>
+                <li className="flex items-start gap-1">
+                  <span className="text-green-600">•</span>
                   <span>24/7 emergency maintenance</span>
                 </li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-3 flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
+              <h4 className="font-medium mb-2 flex items-center gap-1 text-sm">
+                <CheckCircle className="w-3 h-3 text-green-600" />
                 Services & Amenities
               </h4>
-              <ul className="space-y-2 text-sm">
-                <li className="flex items-start gap-2">
-                  <span className="text-green-600 mt-0.5">•</span>
+              <ul className="space-y-1 text-xs">
+                <li className="flex items-start gap-1">
+                  <span className="text-green-600">•</span>
                   <span>Three meals daily plus snacks</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-600 mt-0.5">•</span>
+                <li className="flex items-start gap-1">
+                  <span className="text-green-600">•</span>
                   <span>Weekly housekeeping & laundry</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-600 mt-0.5">•</span>
+                <li className="flex items-start gap-1">
+                  <span className="text-green-600">•</span>
                   <span>Transportation to appointments</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-600 mt-0.5">•</span>
+                <li className="flex items-start gap-1">
+                  <span className="text-green-600">•</span>
                   <span>Activities & entertainment programs</span>
                 </li>
               </ul>
             </div>
           </div>
 
-          <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
-            <h4 className="font-semibold mb-2 flex items-center gap-2">
-              <Info className="w-5 h-5 text-blue-600" />
+          <div className="mt-3 p-2 bg-blue-50 dark:bg-blue-950 rounded">
+            <h4 className="font-medium mb-1 flex items-center gap-1 text-sm">
+              <Info className="w-3 h-3 text-blue-600" />
               Additional Benefits
             </h4>
-            <ul className="grid md:grid-cols-2 gap-2 text-sm">
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-blue-600" />
+            <ul className="grid md:grid-cols-2 gap-1 text-xs">
+              <li className="flex items-center gap-1">
+                <CheckCircle className="w-3 h-3 text-blue-600" />
                 <span>No property taxes or HOA fees</span>
               </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-blue-600" />
+              <li className="flex items-center gap-1">
+                <CheckCircle className="w-3 h-3 text-blue-600" />
                 <span>No yard work or snow removal</span>
               </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-blue-600" />
+              <li className="flex items-center gap-1">
+                <CheckCircle className="w-3 h-3 text-blue-600" />
                 <span>On-site wellness programs</span>
               </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-blue-600" />
+              <li className="flex items-center gap-1">
+                <CheckCircle className="w-3 h-3 text-blue-600" />
                 <span>Social activities & companionship</span>
               </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-blue-600" />
+              <li className="flex items-center gap-1">
+                <CheckCircle className="w-3 h-3 text-blue-600" />
                 <span>Cable, internet & phone included</span>
               </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-blue-600" />
+              <li className="flex items-center gap-1">
+                <CheckCircle className="w-3 h-3 text-blue-600" />
                 <span>Safety & security features</span>
               </li>
             </ul>
@@ -247,19 +244,19 @@ export function CostComparisonWorksheet() {
         </CardContent>
       </Card>
 
-      {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-center">
-        <Button size="lg" variant="outline" className="flex items-center gap-2">
-          <Download className="w-5 h-5" />
-          Download Worksheet
+      {/* Action Buttons - Compact */}
+      <div className="flex flex-col sm:flex-row gap-2 justify-center">
+        <Button size="sm" variant="outline" className="flex items-center gap-1">
+          <Download className="w-4 h-4" />
+          Download
         </Button>
-        <Button size="lg" variant="outline" className="flex items-center gap-2">
-          <Print className="w-5 h-5" />
-          Print Comparison
+        <Button size="sm" variant="outline" className="flex items-center gap-1">
+          <Printer className="w-4 h-4" />
+          Print
         </Button>
-        <Button size="lg" className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2">
-          <TrendingUp className="w-5 h-5" />
-          Find Communities in Your Budget
+        <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-1">
+          <TrendingUp className="w-4 h-4" />
+          Find Communities
         </Button>
       </div>
     </div>

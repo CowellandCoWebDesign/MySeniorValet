@@ -5,73 +5,73 @@ import { BarChart3, Brain, Shield, Eye, CheckCircle, TrendingUp, AlertCircle } f
 
 export function MarketIntelligence() {
   return (
-    <div className="space-y-6">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold mb-4">Understanding Care Levels & Live Market Intelligence</h2>
-        <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+    <div className="space-y-4">
+      <div className="text-center mb-4">
+        <h2 className="text-xl font-bold mb-2">Understanding Care Levels & Live Market Intelligence</h2>
+        <p className="text-sm text-muted-foreground">
           Real pricing data from 25,376+ communities across North America
         </p>
       </div>
 
-      {/* Market Intelligence Overview */}
-      <Card className="border-2 border-blue-200 dark:border-blue-800">
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950">
-          <CardTitle className="flex items-center gap-2">
-            <Brain className="w-6 h-6 text-blue-600" />
+      {/* Market Intelligence Overview - Compact */}
+      <Card className="border-blue-200 dark:border-blue-800">
+        <CardHeader className="py-3 px-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Brain className="w-4 h-4 text-blue-600" />
             AI-Powered Senior Living Intelligence
           </CardTitle>
-          <CardDescription>
-            Industry-leading Transparency System • Multi-AI Verification Engine • 14,000 Communities Mapped
+          <CardDescription className="text-xs">
+            Transparency System • Multi-AI Verification • 14,000+ Communities
           </CardDescription>
         </CardHeader>
-        <CardContent className="pt-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <h3 className="font-semibold flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
-                What Makes This Revolutionary
+        <CardContent className="pt-3">
+          <div className="grid md:grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <h3 className="font-medium flex items-center gap-1 text-sm">
+                <CheckCircle className="w-3 h-3 text-green-600" />
+                Revolutionary Features
               </h3>
-              <ul className="space-y-2 text-sm">
-                <li className="flex items-start gap-2">
-                  <span className="text-green-600 mt-1">•</span>
-                  <span><strong>Natural Language AI Search:</strong> "Find a memory care under $3,000 in Sacramento with pet therapy"... and it actually works!</span>
+              <ul className="space-y-1 text-xs">
+                <li className="flex items-start gap-1">
+                  <span className="text-green-600">•</span>
+                  <span><strong>AI Search:</strong> Natural language queries</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-600 mt-1">•</span>
-                  <span><strong>Live Pricing Intelligence:</strong> Real pricing data from 25,376+ communities across North America, updated daily</span>
+                <li className="flex items-start gap-1">
+                  <span className="text-green-600">•</span>
+                  <span><strong>Live Pricing:</strong> 25,376+ communities</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-600 mt-1">•</span>
-                  <span><strong>Community Transparency Score:</strong> Multi-factor algorithm evaluating regulatory compliance, patient satisfaction, and more</span>
+                <li className="flex items-start gap-1">
+                  <span className="text-green-600">•</span>
+                  <span><strong>Transparency Score:</strong> Multi-factor rating</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-600 mt-1">•</span>
-                  <span><strong>Geospatial Mapping 2.0:</strong> Interactive maps showing proximity to hospitals, VA centers, shopping, and amenities</span>
+                <li className="flex items-start gap-1">
+                  <span className="text-green-600">•</span>
+                  <span><strong>Geospatial 2.0:</strong> Interactive mapping</span>
                 </li>
               </ul>
             </div>
 
-            <div className="space-y-4">
-              <h3 className="font-semibold flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-purple-600" />
-                Industry-Leading 6-AI Verification System
+            <div className="space-y-2">
+              <h3 className="font-medium flex items-center gap-1 text-sm">
+                <BarChart3 className="w-3 h-3 text-purple-600" />
+                6-AI Verification System
               </h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                  <span className="text-sm font-medium">Financial Transparency</span>
-                  <Progress value={95} className="w-24" />
+              <div className="space-y-1">
+                <div className="flex items-center justify-between p-1.5 bg-gray-50 dark:bg-gray-800 rounded text-xs">
+                  <span>Financial Transparency</span>
+                  <Progress value={95} className="w-16 h-1.5" />
                 </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                  <span className="text-sm font-medium">Community Mapping</span>
-                  <Progress value={88} className="w-24" />
+                <div className="flex items-center justify-between p-1.5 bg-gray-50 dark:bg-gray-800 rounded text-xs">
+                  <span>Community Mapping</span>
+                  <Progress value={88} className="w-16 h-1.5" />
                 </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                  <span className="text-sm font-medium">Real-Time Fact Checking</span>
-                  <Progress value={92} className="w-24" />
+                <div className="flex items-center justify-between p-1.5 bg-gray-50 dark:bg-gray-800 rounded text-xs">
+                  <span>Real-Time Checking</span>
+                  <Progress value={92} className="w-16 h-1.5" />
                 </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                  <span className="text-sm font-medium">Visual Intelligence</span>
-                  <Progress value={85} className="w-24" />
+                <div className="flex items-center justify-between p-1.5 bg-gray-50 dark:bg-gray-800 rounded text-xs">
+                  <span>Visual Intelligence</span>
+                  <Progress value={85} className="w-16 h-1.5" />
                 </div>
               </div>
               <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
