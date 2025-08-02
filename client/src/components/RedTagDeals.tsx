@@ -95,10 +95,10 @@ export function RedTagDeals() {
                 Recent Launch Notice
               </p>
               <p className="text-xs text-blue-700 dark:text-blue-300">
-                The deals shown are representative examples of MySeniorValet's transparency capabilities. 
-                Since we've just launched, these are mock data demonstrations as we haven't yet received 
-                verified specials from claimed communities. Check back soon for authentic red tag deals 
-                as we grow in community transparency!
+                The three deal cards below (Sunrise Senior Living, Heritage Hills, Golden Years) are example demonstrations 
+                showing how verified community specials will appear. Our 34,171 authentic communities and HUD pricing data 
+                are 100% real - only these specific deal examples are demonstrations until communities claim their profiles 
+                and submit verified specials.
               </p>
             </div>
           </div>
@@ -114,12 +114,12 @@ export function RedTagDeals() {
                 <AlertCircle className="w-4 h-4 text-red-600" />
               </div>
               <div>
-                <p className="font-medium text-sm">Limited Time Offers!</p>
-                <p className="text-xs text-muted-foreground">Save up to 20% on select communities</p>
+                <p className="font-medium text-sm">Deal Examples Available!</p>
+                <p className="text-xs text-muted-foreground">See how verified community specials will display</p>
               </div>
             </div>
             <Badge className="bg-red-600 text-white text-sm px-2 py-1">
-              {redTagDeals.length} Deals
+              {redTagDeals.length} Example Deals
             </Badge>
           </div>
         </CardContent>
@@ -187,9 +187,9 @@ export function RedTagDeals() {
 
               {/* CTA Button */}
               <Link href="/communities">
-                <Button className="w-full h-8 text-sm bg-red-600 hover:bg-red-700 text-white">
+                <Button className="w-full h-8 text-sm bg-gray-500 hover:bg-gray-600 text-white" disabled>
                   <Tag className="w-4 h-4 mr-2" />
-                  Claim This Deal
+                  Example Deal
                 </Button>
               </Link>
             </CardContent>
