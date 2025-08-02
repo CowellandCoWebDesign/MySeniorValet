@@ -295,9 +295,9 @@ export default function AISupport() {
           <CardContent>
             <p className="text-gray-600 mb-4">Get detailed help via email</p>
             <div className="space-y-2">
-              <p className="text-sm">📧 General: info@myseniorvalet.com</p>
-              <p className="text-sm">🏢 Communities: communities@myseniorvalet.com</p>
-              <p className="text-sm">🔧 Technical: support@myseniorvalet.com</p>
+              <p className="text-sm">📧 General: hello@myseniorvalet.com</p>
+              <p className="text-sm">🏢 Communities: hello@myseniorvalet.com</p>
+              <p className="text-sm">🔧 Technical: hello@myseniorvalet.com</p>
             </div>
             <p className="text-xs text-gray-500 mt-4">Response time: 24-48 hours</p>
           </CardContent>

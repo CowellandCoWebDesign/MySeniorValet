@@ -303,7 +303,7 @@ export default function Terms() {
               </p>
               
               <div className="space-y-2">
-                <div><strong>Email:</strong> legal@myseniorvalet.com</div>
+                <div><strong>Email:</strong> hello@myseniorvalet.com</div>
                 <div><strong>Phone:</strong> 1-855-MY-VALET (1-855-698-2538)</div>
                 <div>
                   <strong>Mail:</strong><br />

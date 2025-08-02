@@ -85,7 +85,7 @@ export default function Accessibility() {
                 <Mail className="h-5 w-5 text-blue-600 mt-1" aria-hidden="true" />
                 <div>
                   <h3 className="font-semibold">Email</h3>
-                  <p className="text-gray-600">accessibility@myseniorvalet.com</p>
+                  <p className="text-gray-600">hello@myseniorvalet.com</p>
                   <p className="text-sm text-gray-500 mt-1">
                     We aim to respond within 2 business days
                   </p>

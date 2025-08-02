@@ -241,7 +241,7 @@ export default function Privacy() {
               
               <div className="space-y-3">
                 <div>
-                  <strong>Email:</strong> privacy@myseniorvalet.com
+                  <strong>Email:</strong> hello@myseniorvalet.com
                 </div>
                 <div>
                   <strong>Phone:</strong> 1-855-MY-VALET (1-855-698-2538)

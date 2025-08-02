@@ -2363,7 +2363,7 @@ export default function MySeniorValetHome() {
             <div>
               <h4 className="text-white font-semibold mb-4">Contact</h4>
               <p className="text-sm">Questions? Contact our support team.</p>
-              <p className="text-sm mt-2">support@myseniorvalet.com</p>
+              <p className="text-sm mt-2">hello@myseniorvalet.com</p>
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-gray-800 text-center text-sm">

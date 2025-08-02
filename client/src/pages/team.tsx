@@ -58,8 +58,8 @@ export default function Team() {
                 </div>
                 <div className="flex items-center space-x-2">
                   <Mail className="w-4 h-4 text-gray-500" />
-                  <a href="mailto:info@myseniorvalet.com" className="text-blue-600 hover:text-blue-700">
-                    info@myseniorvalet.com
+                  <a href="mailto:hello@myseniorvalet.com" className="text-blue-600 hover:text-blue-700">
+                    hello@myseniorvalet.com
                   </a>
                 </div>
                 <div className="flex items-center space-x-2">

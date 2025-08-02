@@ -1025,7 +1025,7 @@ export default function CommunityPortal() {
                   <h4 className="font-semibold mb-2">Community Support</h4>
                   <p className="text-sm text-gray-600 mb-2">Get help with claiming or managing your community profile</p>
                   <div className="space-y-1">
-                    <p className="text-sm">📧 communities@myseniorvalet.com</p>
+                    <p className="text-sm">📧 hello@myseniorvalet.com</p>
                     <p className="text-sm">📞 (555) 123-4567</p>
                   </div>
                 </div>

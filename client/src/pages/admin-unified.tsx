@@ -809,21 +809,21 @@ const SuperAdminControls = () => {
             <TableBody>
               <TableRow>
                 <TableCell className="text-sm">2025-01-27 14:23:45</TableCell>
-                <TableCell className="text-sm">admin@myseniorvalet.com</TableCell>
+                <TableCell className="text-sm">hello@myseniorvalet.com</TableCell>
                 <TableCell className="text-sm">Updated Rate Limits</TableCell>
                 <TableCell className="text-sm">System Config</TableCell>
                 <TableCell><Badge variant="default">Success</Badge></TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="text-sm">2025-01-27 13:15:22</TableCell>
-                <TableCell className="text-sm">admin@myseniorvalet.com</TableCell>
+                <TableCell className="text-sm">hello@myseniorvalet.com</TableCell>
                 <TableCell className="text-sm">Blocked IP Address</TableCell>
                 <TableCell className="text-sm">192.168.1.100</TableCell>
                 <TableCell><Badge variant="default">Success</Badge></TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="text-sm">2025-01-27 12:00:00</TableCell>
-                <TableCell className="text-sm">admin@myseniorvalet.com</TableCell>
+                <TableCell className="text-sm">hello@myseniorvalet.com</TableCell>
                 <TableCell className="text-sm">System Backup</TableCell>
                 <TableCell className="text-sm">Full Database</TableCell>
                 <TableCell><Badge variant="default">Success</Badge></TableCell>

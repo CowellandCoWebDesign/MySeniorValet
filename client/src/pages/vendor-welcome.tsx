@@ -237,9 +237,9 @@ export default function VendorWelcome() {
             Need help? Contact our vendor support team:
           </p>
           <div className="flex items-center justify-center gap-4">
-            <a href="mailto:vendors@myseniorvalet.com" className="flex items-center gap-1 hover:text-purple-600">
+            <a href="mailto:hello@myseniorvalet.com" className="flex items-center gap-1 hover:text-purple-600">
               <Mail className="w-4 h-4" />
-              vendors@myseniorvalet.com
+              hello@myseniorvalet.com
             </a>
             <span className="text-gray-400">|</span>
             <a href="tel:1-800-VENDORS" className="flex items-center gap-1 hover:text-purple-600">

@@ -306,8 +306,8 @@ export default function Help() {
                 <Mail className="w-5 h-5 text-blue-600" />
                 <div>
                   <p className="font-semibold">Email Support</p>
-                  <a href="mailto:info@myseniorvalet.com" className="text-blue-600 hover:text-blue-700">
-                    info@myseniorvalet.com
+                  <a href="mailto:hello@myseniorvalet.com" className="text-blue-600 hover:text-blue-700">
+                    hello@myseniorvalet.com
                   </a>
                 </div>
               </div>
