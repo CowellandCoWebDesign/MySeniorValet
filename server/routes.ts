@@ -70,6 +70,130 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const { vendorSubscriptionRouter } = await import('./routes/vendor-subscription');
   app.use('/api', vendorSubscriptionRouter);
   
+  // Register vendor Stripe payment routes
+  const { registerVendorStripeRoutes } = await import('./routes/vendor-stripe');
+  registerVendorStripeRoutes(app);
+
+  // Vendor dashboard API routes
+  app.get("/api/vendors/:vendorId/dashboard", isAuthenticated, async (req, res) => {
+    try {
+      const vendorId = parseInt(req.params.vendorId);
+      const userId = (req.user as any)?.claims?.sub;
+
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // Get vendor details
+      const [vendor] = await db.select()
+        .from(vendors)
+        .where(eq(vendors.id, vendorId))
+        .limit(1);
+
+      if (!vendor || vendor.userId !== userId) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+
+      // Get subscription status with features
+      const VENDOR_SUBSCRIPTION_TIERS = {
+        basic: {
+          features: {
+            maxLeadsPerMonth: 50,
+            commissionRate: 20,
+            featuredListingDays: 0,
+            analyticsAccess: false,
+            prioritySupport: false,
+            customBranding: false,
+            apiAccess: false,
+            teamMembers: 1,
+          }
+        },
+        featured: {
+          features: {
+            maxLeadsPerMonth: 250,
+            commissionRate: 15,
+            featuredListingDays: 30,
+            analyticsAccess: true,
+            prioritySupport: true,
+            customBranding: true,
+            apiAccess: false,
+            teamMembers: 3,
+          }
+        },
+        national: {
+          features: {
+            maxLeadsPerMonth: 1000,
+            commissionRate: 10,
+            featuredListingDays: 365,
+            analyticsAccess: true,
+            prioritySupport: true,
+            customBranding: true,
+            apiAccess: true,
+            teamMembers: 10,
+          }
+        },
+        enterprise: {
+          features: {
+            maxLeadsPerMonth: -1, // Unlimited
+            commissionRate: 5,
+            featuredListingDays: 365,
+            analyticsAccess: true,
+            prioritySupport: true,
+            customBranding: true,
+            apiAccess: true,
+            teamMembers: -1, // Unlimited
+          }
+        }
+      };
+
+      let subscriptionInfo = {
+        hasSubscription: vendor.stripeSubscriptionId ? true : false,
+        tier: vendor.subscriptionTier || 'basic',
+        status: vendor.subscriptionStatus || 'trial',
+        currentPeriodEnd: vendor.subscriptionEndDate,
+        features: VENDOR_SUBSCRIPTION_TIERS[vendor.subscriptionTier as keyof typeof VENDOR_SUBSCRIPTION_TIERS]?.features || VENDOR_SUBSCRIPTION_TIERS.basic.features
+      };
+
+      // Get analytics (placeholder for now)
+      const analytics = {
+        views: Math.floor(Math.random() * 1000),
+        clicks: vendor.monthlyClicksCount || 0,
+        leads: vendor.monthlyLeadsCount || 0,
+        conversions: Math.floor(Math.random() * 50),
+        revenue: parseFloat(vendor.lifetimeRevenue || '0')
+      };
+
+      // Get recent leads (placeholder for now)
+      const recentLeads = [];
+
+      res.json({
+        vendor: {
+          id: vendor.id,
+          businessName: vendor.businessName,
+          businessType: vendor.businessType,
+          subscriptionTier: vendor.subscriptionTier || 'basic',
+          subscriptionStatus: vendor.subscriptionStatus || 'trial',
+          isVerified: vendor.isVerified,
+          averageRating: parseFloat(vendor.averageRating || '0'),
+          totalReviews: vendor.totalReviews || 0,
+          monthlyLeadsCount: vendor.monthlyLeadsCount || 0,
+          monthlyClicksCount: vendor.monthlyClicksCount || 0,
+          totalLeadsGenerated: vendor.totalLeadsGenerated || 0,
+          lifetimeRevenue: vendor.lifetimeRevenue || '0',
+        },
+        subscription: subscriptionInfo,
+        analytics,
+        recentLeads
+      });
+    } catch (error: any) {
+      console.error('Vendor dashboard error:', error);
+      res.status(500).json({ 
+        message: "Error loading dashboard", 
+        error: error.message 
+      });
+    }
+  });
+  
   // Register notification routes
   const notificationRoutes = await import('./routes/notificationRoutes');
   app.use(notificationRoutes.default);
