@@ -21,28 +21,56 @@ import {
   Eye,
   MessageSquare,
   Upload,
-  DollarSign
+  DollarSign,
+  Sparkles,
+  Lock
 } from "lucide-react";
-import { useParams, Link } from "wouter";
+import { useParams, Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { SubscriptionStatusCard } from "@/components/SubscriptionStatusCard";
+import { SubscriptionUpgradeModal } from "@/components/SubscriptionUpgradeModal";
+import { useToast } from "@/hooks/use-toast";
+import type { Community } from "@shared/schema";
+
+interface SubscriptionStatus {
+  planName: string;
+  monthlyAmount: number;
+  currentPeriodEnd: Date;
+  features: string[];
+  totalSpent: number;
+  monthsSubscribed: number;
+  upgradeHistory: any[];
+}
+
+interface SubscriptionAnalytics {
+  views: number;
+  inquiries: number;
+  tours: number;
+  conversionRate: number;
+}
 
 export default function CommunityDashboardWithSubscriptions() {
   const { id } = useParams<{ id: string }>();
   const communityId = parseInt(id || '1');
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  
+  // Upgrade modal state
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgradeFeature, setUpgradeFeature] = useState('');
 
   // Fetch community data
-  const { data: community, isLoading: communityLoading } = useQuery({
+  const { data: community, isLoading: communityLoading } = useQuery<Community>({
     queryKey: [`/api/communities/${communityId}`],
   });
 
   // Fetch subscription status
-  const { data: subscriptionStatus, isLoading: subscriptionLoading } = useQuery({
+  const { data: subscriptionStatus, isLoading: subscriptionLoading } = useQuery<SubscriptionStatus>({
     queryKey: [`/api/communities/${communityId}/subscription-status`],
   });
 
   // Fetch subscription analytics
-  const { data: subscriptionAnalytics } = useQuery({
+  const { data: subscriptionAnalytics } = useQuery<SubscriptionAnalytics>({
     queryKey: [`/api/communities/${communityId}/subscription-analytics`],
   });
 
@@ -240,7 +268,36 @@ export default function CommunityDashboardWithSubscriptions() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Photo Gallery</CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Photo Gallery</CardTitle>
+                    {/* Show photo usage based on tier */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500">
+                        {(() => {
+                          const tier = community?.subscriptionTier || 'verified';
+                          const photoLimits = { verified: 1, standard: 10, featured: 25, platinum: 50 };
+                          const currentPhotos = community?.photos?.length || 0;
+                          const limit = photoLimits[tier as keyof typeof photoLimits];
+                          return `${currentPhotos}/${limit} photos`;
+                        })()}
+                      </span>
+                      {(() => {
+                        const tier = community?.subscriptionTier || 'verified';
+                        const photoLimits = { verified: 1, standard: 10, featured: 25, platinum: 50 };
+                        const currentPhotos = community?.photos?.length || 0;
+                        const limit = photoLimits[tier as keyof typeof photoLimits];
+                        
+                        if (currentPhotos >= limit) {
+                          return (
+                            <Badge variant="outline" className="text-yellow-600 border-yellow-600">
+                              Limit Reached
+                            </Badge>
+                          );
+                        }
+                        return null;
+                      })()}
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-4 mb-4">
@@ -251,10 +308,36 @@ export default function CommunityDashboardWithSubscriptions() {
                       <Upload className="w-8 h-8 text-gray-400" />
                     </div>
                   </div>
-                  <Button variant="outline" className="w-full">
-                    <Upload className="w-4 h-4 mr-2" />
-                    Upload Photos
-                  </Button>
+                  
+                  {(() => {
+                    const tier = community?.subscriptionTier || 'verified';
+                    const photoLimits = { verified: 1, standard: 10, featured: 25, platinum: 50 };
+                    const currentPhotos = community?.photos?.length || 0;
+                    const limit = photoLimits[tier as keyof typeof photoLimits];
+                    
+                    if (currentPhotos >= limit) {
+                      return (
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => {
+                            setUpgradeFeature('photos');
+                            setShowUpgradeModal(true);
+                          }}
+                        >
+                          <Sparkles className="w-4 h-4 mr-2" />
+                          Upgrade to Add More Photos
+                        </Button>
+                      );
+                    }
+                    
+                    return (
+                      <Button variant="outline" className="w-full">
+                        <Upload className="w-4 h-4 mr-2" />
+                        Upload Photos ({limit - currentPhotos} remaining)
+                      </Button>
+                    );
+                  })()}
                 </CardContent>
               </Card>
             </div>
@@ -262,57 +345,139 @@ export default function CommunityDashboardWithSubscriptions() {
 
           {/* Analytics Tab */}
           <TabsContent value="analytics">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Monthly Performance</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span>Profile Views</span>
-                      <span className="font-semibold">1,234</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Inquiries Generated</span>
-                      <span className="font-semibold">89</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Tour Requests</span>
-                      <span className="font-semibold">45</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Conversion Rate</span>
-                      <span className="font-semibold text-green-600">7.2%</span>
-                    </div>
+            {(() => {
+              const tier = community?.subscriptionTier || 'verified';
+              
+              // Verified tier - no analytics
+              if (tier === 'verified') {
+                return (
+                  <Card className="lg:col-span-2">
+                    <CardContent className="py-16 text-center">
+                      <Lock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-xl font-semibold mb-2">Analytics Unavailable</h3>
+                      <p className="text-gray-500 mb-6">Analytics are not available for Verified tier communities</p>
+                      <Button 
+                        onClick={() => {
+                          setUpgradeFeature('analytics');
+                          setShowUpgradeModal(true);
+                        }}
+                      >
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        Upgrade to Access Analytics
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              }
+              
+              // Standard tier - basic analytics
+              if (tier === 'standard') {
+                return (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Basic Performance</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-center">
+                            <span>Profile Views</span>
+                            <span className="font-semibold">{subscriptionAnalytics?.views || 0}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span>Inquiries Generated</span>
+                            <span className="font-semibold">{subscriptionAnalytics?.inquiries || 0}</span>
+                          </div>
+                          <div className="pt-4 border-t">
+                            <p className="text-sm text-gray-500 mb-2">
+                              Upgrade to Featured for tour requests and conversion metrics
+                            </p>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => {
+                                setUpgradeFeature('advanced-analytics');
+                                setShowUpgradeModal(true);
+                              }}
+                            >
+                              <Sparkles className="w-4 h-4 mr-2" />
+                              Get Advanced Analytics
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Revenue Impact</CardTitle>
+                      </CardHeader>
+                      <CardContent className="flex items-center justify-center py-8">
+                        <div className="text-center">
+                          <Lock className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                          <p className="text-sm text-gray-500">Available in Featured tier</p>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
-                </CardContent>
-              </Card>
+                );
+              }
+              
+              // Featured & Platinum - full analytics
+              return (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Monthly Performance</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                          <span>Profile Views</span>
+                          <span className="font-semibold">{subscriptionAnalytics?.views || 0}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>Inquiries Generated</span>
+                          <span className="font-semibold">{subscriptionAnalytics?.inquiries || 0}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>Tour Requests</span>
+                          <span className="font-semibold">{subscriptionAnalytics?.tours || 0}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>Conversion Rate</span>
+                          <span className="font-semibold text-green-600">{subscriptionAnalytics?.conversionRate || 0}%</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Revenue Impact</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span>Estimated Leads Value</span>
-                      <span className="font-semibold text-green-600">$12,500</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Subscription Investment</span>
-                      <span className="font-semibold">
-                        ${subscriptionStatus?.monthlyAmount || 0}/month
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>ROI</span>
-                      <span className="font-semibold text-green-600">540%</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Revenue Impact</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                          <span>Estimated Leads Value</span>
+                          <span className="font-semibold text-green-600">$12,500</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>Subscription Investment</span>
+                          <span className="font-semibold">
+                            ${subscriptionStatus?.monthlyAmount || 0}/month
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>ROI</span>
+                          <span className="font-semibold text-green-600">540%</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              );
+            })()}
           </TabsContent>
 
           {/* Subscription Tab */}
@@ -451,5 +616,14 @@ export default function CommunityDashboardWithSubscriptions() {
         </Tabs>
       </div>
     </div>
+    
+    {/* Subscription Upgrade Modal */}
+    <SubscriptionUpgradeModal
+      isOpen={showUpgradeModal}
+      onClose={() => setShowUpgradeModal(false)}
+      feature={upgradeFeature}
+      currentTier={community?.subscriptionTier || 'verified'}
+      communityId={communityId}
+    />
   );
 }

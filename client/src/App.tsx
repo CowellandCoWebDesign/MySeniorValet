@@ -69,6 +69,7 @@ import MoveInServices from "@/pages/MoveInServices";
 import AmazonServices from "@/pages/AmazonServices";
 import VendorProfile from "@/pages/VendorProfile";
 import VendorMarketplace from "@/pages/vendor-marketplace";
+import VendorMarketplaceTiers from "@/pages/vendor-marketplace-tiers";
 import FamilyConnect from "@/pages/family-connect";
 import CommunityPaymentProgram from "@/pages/community-payment-program";
 import ResidentOnboarding from "@/pages/resident-onboarding";
@@ -180,6 +181,7 @@ function Router() {
       <Route path="/senior-services" component={SeniorServices} />
       <Route path="/senior-resources" component={SeniorResources} />
       <Route path="/vendor-marketplace" component={VendorMarketplace} />
+      <Route path="/vendor-marketplace-tiers" component={VendorMarketplaceTiers} />
       <Route path="/florals" component={FloralServices} />
       <Route path="/moving" component={MovingServices} />
       <Route path="/transportation" component={TransportationServices} />

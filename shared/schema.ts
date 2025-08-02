@@ -1,5 +1,5 @@
 import { pgTable, text, serial, integer, boolean, timestamp, decimal, json, jsonb, date, varchar, real, numeric, index, customType, unique } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -1649,11 +1649,18 @@ export const vendors = pgTable("vendors", {
   
   // Subscription & Status
   subscriptionStatus: varchar("subscription_status", { length: 50 }).default('trial'), // 'trial', 'active', 'past_due', 'cancelled'
-  subscriptionTier: varchar("subscription_tier", { length: 50 }).default('basic'), // 'basic', 'professional', 'enterprise'
+  subscriptionTier: varchar("subscription_tier", { length: 50 }).default('basic'), // 'basic', 'professional', 'enterprise', 'platinum'
   subscriptionStartDate: timestamp("subscription_start_date"),
   subscriptionEndDate: timestamp("subscription_end_date"),
   stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
   stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }),
+  stripePriceId: varchar("stripe_price_id", { length: 255 }),
+  
+  // Vendor subscription tracking
+  monthlyLeadsCount: integer("monthly_leads_count").default(0),
+  monthlyClicksCount: integer("monthly_clicks_count").default(0),
+  totalLeadsGenerated: integer("total_leads_generated").default(0),
+  lastResetDate: timestamp("last_reset_date").default(sql`CURRENT_TIMESTAMP`),
   
   // Performance Metrics
   totalLeads: integer("total_leads").default(0),

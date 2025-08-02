@@ -27,8 +27,12 @@ The platform is built with a modern web stack designed for transparency and user
 - **Authentication**: Replit Auth with role-based access control.
 - **Key Features**: Interactive Map System with AI analysis, AI-Powered Search with multi-AI verification, Transparent Pricing (including HUD-verified data), Comprehensive Community Profiles, Unified Admin Dashboard, Family Collaboration tools, and a Senior Vendor Marketplace.
 - **UI/UX Decisions**: Emphasizes a clean, modern aesthetic with cosmic imagery. Consistent design elements include horizontal sliders and AI-generated product imagery for compliance. The system incorporates an automated testing infrastructure.
-- **System Design**: Features a 5-table database architecture for services management, a subscription tier system (Free, Featured Spotlight, Premium Tools, Platinum Partner), and comprehensive notification and in-app messaging systems. It also includes an onboarding wizard with AI character guidance and a robust photo handling system. The platform supports full bilingual functionality (French/English).
+- **System Design**: Features a 5-table database architecture for services management, dual subscription tier systems:
+  - **Community Tiers** (Verified/Standard/Featured/Platinum): Photo limits (1/10/25/50), analytics access restrictions, messaging limits
+  - **Vendor Tiers** (Basic $199/Professional $399/Enterprise $799/Platinum $1499): Lead generation limits, click tracking, featured placement, analytics tiers
+  Includes comprehensive notification and in-app messaging systems, onboarding wizard with AI character guidance, and robust photo handling system. The platform supports full bilingual functionality (French/English).
 - **Dashboard Separation**: User dashboard shows personalized journey analytics (saved communities, tours, search patterns). Business features (DocuSign, payment processing) are reserved for platinum-tier communities only and shown contextually on community pages, not in user dashboards.
+- **Subscription Enforcement** (Added August 2, 2025): Platform-wide tier restrictions implemented across community dashboards, vendor marketplace, photo uploads, analytics access, and messaging features. All tier-gated features show upgrade prompts with SubscriptionUpgradeModal integration.
 
 ## External Dependencies
 - **Database Connectivity**: `@neondatabase/serverless`

@@ -66,6 +66,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const marketplaceRoutes = await import('./routes/marketplaceRoutes');
   app.use('/api/marketplace', marketplaceRoutes.default);
   
+  // Register vendor subscription routes
+  const { vendorSubscriptionRouter } = await import('./routes/vendor-subscription');
+  app.use('/api', vendorSubscriptionRouter);
+  
   // Register notification routes
   const notificationRoutes = await import('./routes/notificationRoutes');
   app.use(notificationRoutes.default);
