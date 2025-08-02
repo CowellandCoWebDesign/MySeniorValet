@@ -325,4 +325,50 @@ router.get('/unread-count', async (req, res) => {
   }
 });
 
+// Get unread messages count for a user
+router.get('/unread-count', async (req, res) => {
+  try {
+    const userId = req.query.userId || req.user?.id;
+    if (!userId) {
+      return res.json({ count: 0 });
+    }
+
+    // Get all conversations the user is part of
+    const participantData = await db
+      .select({
+        conversationId: vendorConversationParticipants.conversationId,
+        lastReadAt: vendorConversationParticipants.lastReadAt
+      })
+      .from(vendorConversationParticipants)
+      .where(eq(vendorConversationParticipants.userId, parseInt(userId as string)));
+
+    if (participantData.length === 0) {
+      return res.json({ count: 0 });
+    }
+
+    // Count unread messages in those conversations
+    let unreadCount = 0;
+    for (const participant of participantData) {
+      const result = await db
+        .select({ count: sql<number>`cast(count(*) as int)` })
+        .from(vendorMessages)
+        .where(
+          and(
+            eq(vendorMessages.conversationId, participant.conversationId),
+            participant.lastReadAt
+              ? sql`${vendorMessages.createdAt} > ${participant.lastReadAt}`
+              : sql`true`
+          )
+        );
+      
+      unreadCount += result[0]?.count || 0;
+    }
+
+    res.json({ count: unreadCount });
+  } catch (error: any) {
+    console.error('Error fetching unread count:', error);
+    res.status(500).json({ error: 'Failed to fetch unread count' });
+  }
+});
+
 export default router;

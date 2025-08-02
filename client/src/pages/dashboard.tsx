@@ -36,12 +36,13 @@ import {
   ChevronRight,
   Plus
 } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { Footer } from "@/components/footer";
 import { AdvancedAnalytics } from "@/components/analytics/AdvancedAnalytics";
+import { MessagesSection } from "@/components/MessagesSection";
 
 interface SavedCommunity {
   id: number;
@@ -77,6 +78,7 @@ interface TourRequest {
 export default function Dashboard() {
   const { toast } = useToast();
   const { user } = useAuth();
+  const [location] = useLocation();
   const [savedCommunities, setSavedCommunities] = useState<SavedCommunity[]>([]);
   const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
   const [tourRequests, setTourRequests] = useState<TourRequest[]>([]);
@@ -85,6 +87,15 @@ export default function Dashboard() {
   const [showCommunitySearch, setShowCommunitySearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCommunity, setSelectedCommunity] = useState<any>(null);
+
+  // Parse URL query parameters
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    if (tab && ['overview', 'saved', 'tours', 'messages', 'analytics', 'profile'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [location]);
 
   // Load real data from API
   useEffect(() => {
@@ -298,7 +309,7 @@ export default function Dashboard() {
         {/* Main Dashboard Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
           <div className="flex justify-center">
-            <TabsList className="grid w-full max-w-3xl grid-cols-5 h-14 bg-white dark:bg-gray-800 shadow-lg rounded-2xl p-2">
+            <TabsList className="grid w-full max-w-4xl grid-cols-6 h-14 bg-white dark:bg-gray-800 shadow-lg rounded-2xl p-2">
               <TabsTrigger value="overview" className="flex items-center space-x-2 h-10 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
                 <TrendingUp className="h-4 w-4" />
                 <span className="hidden md:inline">Overview</span>
@@ -310,6 +321,10 @@ export default function Dashboard() {
               <TabsTrigger value="tours" className="flex items-center space-x-2 h-10 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
                 <Calendar className="h-4 w-4" />
                 <span className="hidden md:inline">Tours</span>
+              </TabsTrigger>
+              <TabsTrigger value="messages" className="flex items-center space-x-2 h-10 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
+                <MessageCircle className="h-4 w-4" />
+                <span className="hidden md:inline">Messages</span>
               </TabsTrigger>
               <TabsTrigger value="analytics" className="flex items-center space-x-2 h-10 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
                 <TrendingUp className="h-4 w-4" />
@@ -709,6 +724,11 @@ export default function Dashboard() {
                 </Card>
               ))}
             </div>
+          </TabsContent>
+
+          {/* Messages Tab */}
+          <TabsContent value="messages" className="space-y-6">
+            <MessagesSection />
           </TabsContent>
 
           {/* Profile Tab */}

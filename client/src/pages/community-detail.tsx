@@ -1095,15 +1095,6 @@ export default function CommunityDetail() {
                           communityId={community.id}
                           communityName={community.name}
                         />
-
-                        <Button 
-                          variant="outline" 
-                          className="py-4 text-base font-semibold border-2 border-green-600 text-green-600 hover:bg-green-50"
-                          onClick={() => window.open(`mailto:info@${community.name.toLowerCase().replace(/\s+/g, '')}.com?subject=Inquiry about ${community.name}`, '_blank')}
-                        >
-                          <MessageSquare className="w-5 h-5 mr-2" />
-                          Message
-                        </Button>
                       </div>
 
                       {/* Waitlist Dialog */}

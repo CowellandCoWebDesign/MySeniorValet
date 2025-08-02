@@ -16,7 +16,6 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Link, useLocation } from "wouter";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { TourScheduler } from "@/components/TourScheduler";
-import { MessageCommunityButton } from "@/components/message-community-button";
 
 interface Community {
   id: number;
@@ -486,20 +485,10 @@ export default function TourTracker() {
                       });
                     }}
                   />
-                  {selectedCommunity.claimedBy ? (
-                    <MessageCommunityButton
-                      communityId={selectedCommunity.id}
-                      communityName={selectedCommunity.name}
-                    />
-                  ) : (
-                    <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                      <AlertCircle className="h-4 w-4" />
-                      <span>In-app messaging available for claimed communities</span>
-                    </div>
-                  )}
+
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Connect with this community directly - schedule a tour or send a message to inquire about availability and ask questions. Continue below to document your visit experience.
+                  Ready to visit? Schedule your tour now or continue below to document your visit experience.
                 </p>
               </div>
             </CardContent>

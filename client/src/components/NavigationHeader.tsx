@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Home, ArrowLeft } from "lucide-react";
+import { Home, ArrowLeft, Bell } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/useAuth";
+import { useQuery } from "@tanstack/react-query";
 
 interface NavigationHeaderProps {
   title?: string;
@@ -17,6 +20,13 @@ export function NavigationHeader({
   onBackClick 
 }: NavigationHeaderProps) {
   const [location, setLocation] = useLocation();
+  const { user, isAuthenticated } = useAuth();
+  
+  // Query for unread messages count
+  const { data: unreadCount } = useQuery({
+    queryKey: ['/api/messages/unread-count'],
+    enabled: !!isAuthenticated,
+  });
 
   const handleBackClick = () => {
     if (onBackClick) {
@@ -62,6 +72,25 @@ export function NavigationHeader({
           </div>
 
           <div className="flex items-center space-x-2">
+            {isAuthenticated && (
+              <Link href="/dashboard?tab=messages">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl"
+                >
+                  <Bell className="w-5 h-5" />
+                  {unreadCount?.count > 0 && (
+                    <Badge 
+                      variant="destructive" 
+                      className="absolute -top-1 -right-1 h-5 min-w-[20px] px-1 text-xs"
+                    >
+                      {unreadCount.count}
+                    </Badge>
+                  )}
+                </Button>
+              </Link>
+            )}
             <ThemeToggle />
           </div>
         </div>
