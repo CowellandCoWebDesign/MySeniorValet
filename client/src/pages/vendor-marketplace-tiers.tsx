@@ -152,9 +152,9 @@ export default function VendorMarketplaceTiers() {
           <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 max-w-3xl mx-auto mb-4">
             <p className="text-sm text-blue-800 dark:text-blue-200 flex items-center gap-2">
               <Info className="w-4 h-4" />
-              <span className="font-medium">Note:</span> This is our paid vendor marketplace for businesses. 
-              Looking for free healthcare services? Visit our 
-              <Link to="/" className="underline ml-1 hover:text-blue-600">Senior Care Services Directory</Link>
+              <span className="font-medium">Important:</span> This marketplace is for commercial service providers only. 
+              Healthcare providers (home health, hospice, therapy) should visit our 
+              <Link to="/" className="underline ml-1 hover:text-blue-600">free Senior Care Services Directory</Link>
             </p>
           </div>
           
@@ -163,6 +163,9 @@ export default function VendorMarketplaceTiers() {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
               Commercial Service Categories We're Seeking:
             </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 italic">
+              (Healthcare providers like home health, hospice, and therapy belong in our free Senior Care Services Directory)
+            </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
               <div className="flex items-start gap-2">
                 <ShoppingBag className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5" />
@@ -222,40 +225,6 @@ export default function VendorMarketplaceTiers() {
                   <p className="text-sm text-gray-600 dark:text-gray-400">Activities, education, social engagement</p>
                 </div>
               </div>
-            </div>
-            
-            {/* Healthcare Providers Section */}
-            <div className="border-t pt-4 mt-4">
-              <h4 className="text-md font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
-                <Star className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                NEW: Healthcare Providers Can Now Join Our Paid Marketplace
-              </h4>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-left">
-                <div className="flex items-start gap-2">
-                  <Shield className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-gray-100">Home Health Agencies</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Skilled nursing, therapy services</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Shield className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-gray-100">Hospice Providers</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">End-of-life care services</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Shield className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-gray-100">Medical Practices</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Geriatric specialists, mobile doctors</p>
-                  </div>
-                </div>
-              </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-3 italic">
-                Note: Basic free listings remain available in our Senior Care Services Directory
-              </p>
             </div>
           </div>
           

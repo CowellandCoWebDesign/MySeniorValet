@@ -30,16 +30,49 @@ const createServiceSchema = z.object({
 });
 
 export function registerVendorRoutes(app: Express) {
-  // Get featured vendors (public)
+  // Get featured vendors (public) - Only return vendors with featured or national tier
   app.get("/api/vendors/featured", async (_req, res) => {
     try {
-      // For now, return demo featured vendors
-      const featuredVendors = [
-        { id: 1, businessName: "Elite Moving Specialists", category: "Moving Services", rating: 4.9 },
-        { id: 2, businessName: "Care Provider Network", category: "Home Health", rating: 4.8 },
-        { id: 3, businessName: "Senior Tech Solutions", category: "Technology Support", rating: 5.0 },
-        { id: 4, businessName: "Estate Planning Partners", category: "Legal Services", rating: 4.7 }
-      ];
+      // Fetch vendors with featured or national subscription tiers
+      const featuredVendors = await db
+        .select({
+          id: vendors.id,
+          userId: vendors.userId,
+          businessName: vendors.businessName,
+          businessType: vendors.businessType,
+          primaryContactEmail: vendors.primaryContactEmail,
+          primaryContactPhone: vendors.primaryContactPhone,
+          businessCity: vendors.businessCity,
+          businessState: vendors.businessState,
+          logoUrl: vendors.logoUrl,
+          description: vendors.description,
+          shortDescription: vendors.shortDescription,
+          website: vendors.website,
+          serviceAreas: vendors.serviceAreas,
+          isVerified: vendors.isVerified,
+          subscriptionTier: vendors.subscriptionTier,
+          averageRating: vendors.averageRating,
+          totalReviews: vendors.totalReviews,
+          status: vendors.status,
+          featured: vendors.featured,
+          createdAt: vendors.createdAt
+        })
+        .from(vendors)
+        .where(and(
+          eq(vendors.status, 'active'),
+          or(
+            eq(vendors.subscriptionTier, 'featured'),
+            eq(vendors.subscriptionTier, 'national')
+          )
+        ))
+        .orderBy(
+          // National tier first, then featured
+          desc(sql`CASE WHEN ${vendors.subscriptionTier} = 'national' THEN 2 
+                        WHEN ${vendors.subscriptionTier} = 'featured' THEN 1 
+                        ELSE 0 END`),
+          desc(vendors.averageRating)
+        )
+        .limit(12);
       
       res.json(featuredVendors);
     } catch (error) {
@@ -67,16 +100,74 @@ export function registerVendorRoutes(app: Express) {
       
       const vendorsData = conditions.length > 1 
         ? await db
-            .select()
+            .select({
+              id: vendors.id,
+              userId: vendors.userId,
+              businessName: vendors.businessName,
+              businessType: vendors.businessType,
+              primaryContactEmail: vendors.primaryContactEmail,
+              primaryContactPhone: vendors.primaryContactPhone,
+              businessCity: vendors.businessCity,
+              businessState: vendors.businessState,
+              logoUrl: vendors.logoUrl,
+              description: vendors.description,
+              shortDescription: vendors.shortDescription,
+              website: vendors.website,
+              serviceAreas: vendors.serviceAreas,
+              isVerified: vendors.isVerified,
+              subscriptionTier: vendors.subscriptionTier,
+              averageRating: vendors.averageRating,
+              totalReviews: vendors.totalReviews,
+              status: vendors.status,
+              featured: vendors.featured,
+              createdAt: vendors.createdAt
+            })
             .from(vendors)
             .where(and(...conditions))
-            .orderBy(desc(vendors.isVerified), desc(vendors.averageRating))
+            .orderBy(
+              // Sort by subscription tier first (national > featured > basic)
+              desc(sql`CASE WHEN ${vendors.subscriptionTier} = 'national' THEN 3 
+                            WHEN ${vendors.subscriptionTier} = 'featured' THEN 2
+                            WHEN ${vendors.subscriptionTier} = 'basic' THEN 1
+                            ELSE 0 END`),
+              desc(vendors.isVerified), 
+              desc(vendors.averageRating)
+            )
             .limit(50)
         : await db
-            .select()
+            .select({
+              id: vendors.id,
+              userId: vendors.userId,
+              businessName: vendors.businessName,
+              businessType: vendors.businessType,
+              primaryContactEmail: vendors.primaryContactEmail,
+              primaryContactPhone: vendors.primaryContactPhone,
+              businessCity: vendors.businessCity,
+              businessState: vendors.businessState,
+              logoUrl: vendors.logoUrl,
+              description: vendors.description,
+              shortDescription: vendors.shortDescription,
+              website: vendors.website,
+              serviceAreas: vendors.serviceAreas,
+              isVerified: vendors.isVerified,
+              subscriptionTier: vendors.subscriptionTier,
+              averageRating: vendors.averageRating,
+              totalReviews: vendors.totalReviews,
+              status: vendors.status,
+              featured: vendors.featured,
+              createdAt: vendors.createdAt
+            })
             .from(vendors)
             .where(eq(vendors.status, 'active'))
-            .orderBy(desc(vendors.isVerified), desc(vendors.averageRating))
+            .orderBy(
+              // Sort by subscription tier first (national > featured > basic)
+              desc(sql`CASE WHEN ${vendors.subscriptionTier} = 'national' THEN 3 
+                            WHEN ${vendors.subscriptionTier} = 'featured' THEN 2
+                            WHEN ${vendors.subscriptionTier} = 'basic' THEN 1
+                            ELSE 0 END`),
+              desc(vendors.isVerified), 
+              desc(vendors.averageRating)
+            )
             .limit(50);
 
       res.json(vendorsData);
@@ -92,7 +183,37 @@ export function registerVendorRoutes(app: Express) {
       const vendorId = parseInt(req.params.id);
       
       const [vendor] = await db
-        .select()
+        .select({
+          id: vendors.id,
+          userId: vendors.userId,
+          businessName: vendors.businessName,
+          businessType: vendors.businessType,
+          primaryContactEmail: vendors.primaryContactEmail,
+          primaryContactPhone: vendors.primaryContactPhone,
+          businessAddress: vendors.businessAddress,
+          businessCity: vendors.businessCity,
+          businessState: vendors.businessState,
+          businessZip: vendors.businessZip,
+          logoUrl: vendors.logoUrl,
+          coverImageUrl: vendors.coverImageUrl,
+          description: vendors.description,
+          shortDescription: vendors.shortDescription,
+          yearsInBusiness: vendors.yearsInBusiness,
+          employeeCount: vendors.employeeCount,
+          website: vendors.website,
+          socialLinks: vendors.socialLinks,
+          serviceAreas: vendors.serviceAreas,
+          serviceRadius: vendors.serviceRadius,
+          isVerified: vendors.isVerified,
+          verificationDate: vendors.verificationDate,
+          subscriptionStatus: vendors.subscriptionStatus,
+          subscriptionTier: vendors.subscriptionTier,
+          averageRating: vendors.averageRating,
+          totalReviews: vendors.totalReviews,
+          status: vendors.status,
+          featured: vendors.featured,
+          createdAt: vendors.createdAt
+        })
         .from(vendors)
         .where(eq(vendors.id, vendorId))
         .limit(1);

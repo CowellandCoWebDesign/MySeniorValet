@@ -46,30 +46,31 @@ export default function VendorMarketplace() {
     queryKey: ['/api/marketplace/categories'],
   });
 
-  // Fetch vendors
-  const { data: vendors = [] } = useQuery<MarketplaceVendor[]>({
-    queryKey: ['/api/marketplace/vendors'],
+  // Fetch vendors from the main vendor system with tier-based sorting
+  const { data: vendors = [] } = useQuery<any[]>({
+    queryKey: ['/api/vendors'],
   });
 
-  // Filter vendors by category
+  // Filter vendors by category (vendors now come from main vendor system)
   const filteredVendors = selectedCategory === 'all' 
     ? vendors 
     : vendors.filter(v => {
-        const category = categories.find(c => c.id === v.categoryId);
-        return category?.slug === selectedCategory;
+        // Check if vendor's service categories include the selected category
+        return v.serviceCategories?.includes(selectedCategory);
       });
 
-  // Group featured vendors
-  const featuredVendors = filteredVendors.filter(v => v.isFeatured);
-  const regularVendors = filteredVendors.filter(v => !v.isFeatured);
+  // Group vendors by subscription tier
+  const nationalVendors = filteredVendors.filter(v => v.subscriptionTier === 'national');
+  const featuredVendors = filteredVendors.filter(v => v.subscriptionTier === 'featured');
+  const basicVendors = filteredVendors.filter(v => v.subscriptionTier === 'basic' || !v.subscriptionTier);
   
   // Calculate statistics
   const totalVendors = vendors.length;
   const totalCategories = categories.length;
 
   const handleVendorClick = (vendorId: number) => {
-    // Track click and redirect through our tracking endpoint
-    window.open(`/api/marketplace/out/${vendorId}`, '_blank');
+    // Navigate to vendor detail page
+    window.location.href = `/vendor/${vendorId}`;
   };
 
   return (
@@ -143,46 +144,46 @@ export default function VendorMarketplace() {
           </TabsList>
 
           <TabsContent value={selectedCategory} className="mt-6">
-            {/* Featured Vendors */}
-            {featuredVendors.length > 0 && (
-              <div className="mb-8">
+            {/* National Partners (Premium) */}
+            {nationalVendors.length > 0 && (
+              <div className="mb-10">
                 <h2 className="text-2xl font-bold mb-4 flex items-center">
-                  <Star className="w-6 h-6 mr-2 text-yellow-500" />
-                  Featured Services
+                  <Sparkles className="w-6 h-6 mr-2 text-purple-500" />
+                  National Partners
                 </h2>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {featuredVendors.map(vendor => (
+                  {nationalVendors.map(vendor => (
                     <Card 
                       key={vendor.id} 
-                      className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-yellow-200"
+                      className="hover:shadow-xl transition-all cursor-pointer border-2 border-purple-400 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20"
                       onClick={() => handleVendorClick(vendor.id)}
                     >
                       <CardHeader>
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <CardTitle className="text-xl flex items-center">
-                              {vendor.name}
-                              <Badge className="ml-2 bg-yellow-500">Featured</Badge>
+                              {vendor.businessName}
+                              <Badge className="ml-2 bg-purple-600 text-white">National Partner</Badge>
                             </CardTitle>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                              {vendor.shortDescription}
+                              {vendor.description || 'Premium senior service provider'}
                             </p>
                           </div>
                           {vendor.logoUrl && (
                             <img 
                               src={vendor.logoUrl} 
-                              alt={vendor.name} 
-                              className="w-16 h-16 object-contain ml-4"
+                              alt={vendor.businessName} 
+                              className="w-20 h-20 object-contain ml-4"
                             />
                           )}
                         </div>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-gray-700 dark:text-gray-300 mb-4">
-                          {vendor.description}
+                        <p className="text-gray-700 dark:text-gray-300 mb-4 line-clamp-2">
+                          {vendor.description?.substring(0, 100)}...
                         </p>
-                        <Button className="w-full group">
-                          Visit {vendor.name}
+                        <Button className="w-full group bg-purple-600 hover:bg-purple-700">
+                          Visit {vendor.businessName}
                           <ExternalLink className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                         </Button>
                       </CardContent>
@@ -192,42 +193,84 @@ export default function VendorMarketplace() {
               </div>
             )}
 
-            {/* Regular Vendors */}
-            {regularVendors.length > 0 && (
-              <div>
-                <h2 className="text-2xl font-bold mb-4">
-                  {selectedCategory === 'all' ? 'All Services & Vendors' : categories.find(c => c.slug === selectedCategory)?.name}
+            {/* Featured Vendors */}
+            {featuredVendors.length > 0 && (
+              <div className="mb-10">
+                <h2 className="text-2xl font-bold mb-4 flex items-center">
+                  <Star className="w-6 h-6 mr-2 text-blue-500" />
+                  Featured Vendors
                 </h2>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {regularVendors.map(vendor => (
+                  {featuredVendors.map(vendor => (
                     <Card 
                       key={vendor.id} 
-                      className="hover:shadow-lg transition-shadow cursor-pointer"
+                      className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-blue-300 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20"
                       onClick={() => handleVendorClick(vendor.id)}
                     >
                       <CardHeader>
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <CardTitle className="text-xl">{vendor.name}</CardTitle>
+                            <CardTitle className="text-xl flex items-center">
+                              {vendor.businessName}
+                              <Badge className="ml-2 bg-blue-600 text-white">Featured</Badge>
+                            </CardTitle>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                              {vendor.shortDescription}
+                              {vendor.description || 'Trusted senior service provider'}
                             </p>
                           </div>
                           {vendor.logoUrl && (
                             <img 
                               src={vendor.logoUrl} 
-                              alt={vendor.name} 
+                              alt={vendor.businessName} 
                               className="w-16 h-16 object-contain ml-4"
                             />
                           )}
                         </div>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-gray-700 dark:text-gray-300 mb-4">
-                          {vendor.description}
+                        <p className="text-gray-700 dark:text-gray-300 mb-4 line-clamp-2">
+                          {vendor.description?.substring(0, 100)}...
+                        </p>
+                        <Button className="w-full group bg-blue-600 hover:bg-blue-700">
+                          Visit {vendor.businessName}
+                          <ExternalLink className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Basic Vendors */}
+            {basicVendors.length > 0 && (
+              <div>
+                <h2 className="text-2xl font-bold mb-4">
+                  {selectedCategory === 'all' ? 'All Services & Vendors' : categories.find(c => c.slug === selectedCategory)?.name}
+                </h2>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {basicVendors.map(vendor => (
+                    <Card 
+                      key={vendor.id} 
+                      className="hover:shadow-md transition-shadow cursor-pointer"
+                      onClick={() => handleVendorClick(vendor.id)}
+                    >
+                      <CardHeader>
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <CardTitle className="text-lg">{vendor.businessName}</CardTitle>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                              {vendor.description || 'Senior service provider'}
+                            </p>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-gray-700 dark:text-gray-300 mb-4 line-clamp-2">
+                          {vendor.description?.substring(0, 80)}...
                         </p>
                         <Button variant="outline" className="w-full group">
-                          Visit {vendor.name}
+                          View Details
                           <ExternalLink className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                         </Button>
                       </CardContent>
