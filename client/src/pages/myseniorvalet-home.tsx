@@ -1396,146 +1396,7 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Senior Resources Section */}
-      <section className="px-4 py-8">
-        <div className="max-w-6xl mx-auto">
-          <Card className="shadow-xl bg-white dark:bg-gray-800 border-0">
-            <CardContent className="p-6 sm:p-8">
-              <div className="text-center mb-8">
-                <h3 className="text-3xl font-bold mb-2 gradient-text-blue">Senior Resources & Support</h3>
-                <div className="h-1 w-32 bg-gradient-to-r from-purple-500 to-violet-500 mx-auto rounded-full"></div>
-                <p className="text-lg text-gray-600 dark:text-gray-400 mt-4">Government assistance programs and food resources</p>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Food Banks */}
-                <Card className="hover:shadow-lg transition-shadow border-2 border-purple-200">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-3 mb-4">
-                      <Utensils className="h-8 w-8 text-green-600" />
-                      <h4 className="font-semibold text-xl">Food Banks</h4>
-                    </div>
-                    <p className="text-gray-600 dark:text-gray-400 mb-4">
-                      Find senior-specific food assistance programs in your area
-                    </p>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-start gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                        <span>Home delivery for seniors</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                        <span>Commodity supplemental programs</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                        <span>Brown bag programs</span>
-                      </div>
-                    </div>
-                    <div className="mt-4">
-                      <p className="text-xs text-gray-500 mb-2">Available in:</p>
-                      <div className="flex flex-wrap gap-1">
-                        <Badge variant="secondary" className="text-xs">CA</Badge>
-                        <Badge variant="secondary" className="text-xs">FL</Badge>
-                        <Badge variant="secondary" className="text-xs">TX</Badge>
-                        <Badge variant="secondary" className="text-xs">AZ</Badge>
-                        <Badge variant="secondary" className="text-xs">NV</Badge>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* IHSS */}
-                <Card className="hover:shadow-lg transition-shadow border-2 border-blue-200">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-3 mb-4">
-                      <Home className="h-8 w-8 text-blue-600" />
-                      <h4 className="font-semibold text-xl">IHSS</h4>
-                    </div>
-                    <p className="text-gray-600 dark:text-gray-400 mb-4">
-                      In-Home Supportive Services for daily living assistance
-                    </p>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-start gap-2">
-                        <CheckCircle className="h-4 w-4 text-blue-500 mt-0.5" />
-                        <span>Personal care services</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <CheckCircle className="h-4 w-4 text-blue-500 mt-0.5" />
-                        <span>Housekeeping & meal prep</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <CheckCircle className="h-4 w-4 text-blue-500 mt-0.5" />
-                        <span>Transportation assistance</span>
-                      </div>
-                    </div>
-                    <div className="mt-4">
-                      <p className="text-xs text-gray-500 mb-2">Primary state:</p>
-                      <Badge className="bg-blue-100 text-blue-800">California Program</Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* SLS */}
-                <Card className="hover:shadow-lg transition-shadow border-2 border-purple-200">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-3 mb-4">
-                      <Users className="h-8 w-8 text-purple-600" />
-                      <h4 className="font-semibold text-xl">SLS</h4>
-                    </div>
-                    <p className="text-gray-600 dark:text-gray-400 mb-4">
-                      Supported Living Services for independent living
-                    </p>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-start gap-2">
-                        <CheckCircle className="h-4 w-4 text-purple-500 mt-0.5" />
-                        <span>24/7 support available</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <CheckCircle className="h-4 w-4 text-purple-500 mt-0.5" />
-                        <span>Skills training</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <CheckCircle className="h-4 w-4 text-purple-500 mt-0.5" />
-                        <span>Community integration</span>
-                      </div>
-                    </div>
-                    <div className="mt-4">
-                      <p className="text-xs text-gray-500 mb-2">Coordinated by:</p>
-                      <Badge className="bg-purple-100 text-purple-800">Regional Centers</Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Quick Contact Info */}
-              <div className="mt-8 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6">
-                <h4 className="font-semibold mb-4 flex items-center gap-2">
-                  <Phone className="h-5 w-5 text-gray-600" />
-                  Quick Access Hotlines
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <p className="font-medium text-gray-700 dark:text-gray-300">National Hunger Hotline</p>
-                    <a href="tel:1-866-348-6479" className="text-blue-600 hover:underline">1-866-3-HUNGRY</a>
-                    <p className="text-xs text-gray-500">Mon-Fri 7AM-10PM EST</p>
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-700 dark:text-gray-300">California IHSS</p>
-                    <a href="tel:1-877-323-1165" className="text-blue-600 hover:underline">1-877-323-1165</a>
-                    <p className="text-xs text-gray-500">County-specific assistance</p>
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-700 dark:text-gray-300">Eldercare Locator</p>
-                    <a href="tel:1-800-677-1116" className="text-blue-600 hover:underline">1-800-677-1116</a>
-                    <p className="text-xs text-gray-500">Find local services</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
 
 
 
@@ -2066,18 +1927,149 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Resources for Seniors */}
-      <section className="px-4 py-8 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900">
+      {/* Consolidated Senior Resources & Support */}
+      <section className="px-4 py-12 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900">
         <div className="max-w-6xl mx-auto">
-          <div className="mb-6">
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-              Resources for Seniors
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300 text-sm">
-              Essential government programs, healthcare resources, and support services for seniors
-            </p>
+          <div className="text-center mb-10">
+            <h3 className="text-3xl font-bold mb-2 gradient-text-blue">Senior Resources & Support Center</h3>
+            <div className="h-1 w-32 bg-gradient-to-r from-purple-500 to-violet-500 mx-auto rounded-full"></div>
+            <p className="text-lg text-gray-600 dark:text-gray-400 mt-4">Essential programs, government assistance, and support services</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+
+          {/* Senior Support Programs */}
+          <div className="mb-12">
+            <h4 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Assistance Programs</h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Food Banks */}
+              <Card className="hover:shadow-lg transition-shadow border-2 border-purple-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Utensils className="h-8 w-8 text-green-600" />
+                    <h4 className="font-semibold text-xl">Food Banks</h4>
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    Find senior-specific food assistance programs in your area
+                  </p>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
+                      <span>Home delivery for seniors</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
+                      <span>Commodity supplemental programs</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
+                      <span>Brown bag programs</span>
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <p className="text-xs text-gray-500 mb-2">Available in:</p>
+                    <div className="flex flex-wrap gap-1">
+                      <Badge variant="secondary" className="text-xs">CA</Badge>
+                      <Badge variant="secondary" className="text-xs">FL</Badge>
+                      <Badge variant="secondary" className="text-xs">TX</Badge>
+                      <Badge variant="secondary" className="text-xs">AZ</Badge>
+                      <Badge variant="secondary" className="text-xs">NV</Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* IHSS */}
+              <Card className="hover:shadow-lg transition-shadow border-2 border-blue-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Home className="h-8 w-8 text-blue-600" />
+                    <h4 className="font-semibold text-xl">IHSS</h4>
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    In-Home Supportive Services for daily living assistance
+                  </p>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="h-4 w-4 text-blue-500 mt-0.5" />
+                      <span>Personal care services</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="h-4 w-4 text-blue-500 mt-0.5" />
+                      <span>Housekeeping & meal prep</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="h-4 w-4 text-blue-500 mt-0.5" />
+                      <span>Transportation assistance</span>
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <p className="text-xs text-gray-500 mb-2">Primary state:</p>
+                    <Badge className="bg-blue-100 text-blue-800">California Program</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* SLS */}
+              <Card className="hover:shadow-lg transition-shadow border-2 border-purple-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Users className="h-8 w-8 text-purple-600" />
+                    <h4 className="font-semibold text-xl">SLS</h4>
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    Supported Living Services for independent living
+                  </p>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="h-4 w-4 text-purple-500 mt-0.5" />
+                      <span>24/7 support available</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="h-4 w-4 text-purple-500 mt-0.5" />
+                      <span>Skills training</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="h-4 w-4 text-purple-500 mt-0.5" />
+                      <span>Community integration</span>
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <p className="text-xs text-gray-500 mb-2">Coordinated by:</p>
+                    <Badge className="bg-purple-100 text-purple-800">Regional Centers</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Quick Contact Info */}
+            <div className="mt-8 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6">
+              <h4 className="font-semibold mb-4 flex items-center gap-2">
+                <Phone className="h-5 w-5 text-gray-600" />
+                Quick Access Hotlines
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div>
+                  <p className="font-medium text-gray-700 dark:text-gray-300">National Hunger Hotline</p>
+                  <a href="tel:1-866-348-6479" className="text-blue-600 hover:underline">1-866-3-HUNGRY</a>
+                  <p className="text-xs text-gray-500">Mon-Fri 7AM-10PM EST</p>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-700 dark:text-gray-300">California IHSS</p>
+                  <a href="tel:1-877-323-1165" className="text-blue-600 hover:underline">1-877-323-1165</a>
+                  <p className="text-xs text-gray-500">County-specific assistance</p>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-700 dark:text-gray-300">Eldercare Locator</p>
+                  <a href="tel:1-800-677-1116" className="text-blue-600 hover:underline">1-800-677-1116</a>
+                  <p className="text-xs text-gray-500">Find local services</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Government Resources */}
+          <div>
+            <h4 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Government Programs & Resources</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {/* Essential Resources */}
             {[
               {
@@ -2209,6 +2201,7 @@ export default function MySeniorValetHome() {
                 </Card>
               );
             })}
+            </div>
           </div>
         </div>
       </section>
