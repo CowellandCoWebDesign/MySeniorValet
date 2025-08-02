@@ -814,6 +814,35 @@ export const tours = pgTable("tours", {
   updatedAt: timestamp("updated_at").defaultNow()
 });
 
+// Tour Feedback - Stores detailed feedback after tour completion
+export const tourFeedback = pgTable("tour_feedback", {
+  id: serial("id").primaryKey(),
+  tourId: integer("tour_id").references(() => tours.id).notNull(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  
+  // Feedback fields
+  overallImpression: text("overall_impression"),
+  tourNotes: text("tour_notes"),
+  pricingInfo: text("pricing_info"),
+  staffNotes: text("staff_notes"),
+  
+  // Ratings
+  overallRating: integer("overall_rating"), // 1-5
+  wouldRecommend: boolean("would_recommend"),
+  likelihood: text("likelihood", { 
+    enum: ["very_likely", "likely", "neutral", "unlikely", "very_unlikely"] 
+  }),
+  
+  // Data sharing preferences
+  shareContactInfo: boolean("share_contact_info").default(true),
+  shareNotes: boolean("share_notes").default(false),
+  sharePricing: boolean("share_pricing").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
 // User favorites for communities
 export const userFavorites = pgTable("user_favorites", {
   id: serial("id").primaryKey(),

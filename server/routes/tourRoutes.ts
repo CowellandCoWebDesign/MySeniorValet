@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { db } from '../db';
-import { tours, communities, users, favorites } from '@shared/schema';
+import { tours, communities, users, userFavorites, tourFeedback } from '@shared/schema';
 import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
 import { EmailService } from '../services/email';
 import { format } from 'date-fns';
@@ -58,12 +58,12 @@ router.post('/api/tours/schedule', async (req: Request, res: Response) => {
         .where(eq(users.email, contactEmail));
       
       if (existingUser) {
-        userId = existingUser.id;
+        userId = parseInt(existingUser.id);
       } else {
         // Create guest user using raw SQL to avoid schema mismatch issues
         // Get the next available user ID
         const maxIdResult = await db.execute(sql`SELECT MAX(id) as max_id FROM users`);
-        const maxId = maxIdResult.rows[0]?.max_id || 39096632; // Start after current super admin
+        const maxId = parseInt(String(maxIdResult.rows[0]?.max_id || 39096632)) || 39096632; // Start after current super admin
         const newUserId = maxId + 1;
         const username = `guest_${contactEmail.split('@')[0]}_${Math.floor(Math.random() * 10000)}`;
         
@@ -80,7 +80,11 @@ router.post('/api/tours/schedule', async (req: Request, res: Response) => {
       }
     }
 
-    // Create the tour
+    // Create the tour (userId should never be null at this point)
+    if (!userId) {
+      return res.status(400).json({ error: 'Failed to create or identify user' });
+    }
+    
     const [tour] = await db
       .insert(tours)
       .values({
@@ -100,18 +104,18 @@ router.post('/api/tours/schedule', async (req: Request, res: Response) => {
       // Check if already favorited
       const existingFavorite = await db
         .select()
-        .from(favorites)
+        .from(userFavorites)
         .where(
           and(
-            eq(favorites.userId, userId),
-            eq(favorites.communityId, communityId)
+            eq(userFavorites.userId, userId),
+            eq(userFavorites.communityId, communityId)
           )
         );
 
       if (existingFavorite.length === 0) {
         // Add to favorites
         await db
-          .insert(favorites)
+          .insert(userFavorites)
           .values({
             userId,
             communityId,
@@ -258,10 +262,34 @@ router.post('/api/tours/:tourId/cancel', async (req: Request, res: Response) => 
     await db
       .update(tours)
       .set({ 
-        status: 'cancelled',
-        staffNotes: reason 
+        status: 'cancelled'
       })
       .where(eq(tours.id, tourId));
+    
+    // Store cancellation reason in tour feedback if needed
+    if (reason) {
+      // Check if feedback already exists
+      const existingFeedback = await db
+        .select()
+        .from(tourFeedback)
+        .where(eq(tourFeedback.tourId, tourId));
+      
+      if (existingFeedback.length > 0) {
+        await db
+          .update(tourFeedback)
+          .set({ staffNotes: reason })
+          .where(eq(tourFeedback.tourId, tourId));
+      } else {
+        await db
+          .insert(tourFeedback)
+          .values({
+            tourId,
+            userId: tour.tour.userId,
+            communityId: tour.tour.communityId,
+            staffNotes: reason
+          });
+      }
+    }
 
     // Send cancellation email
     if (tour.user?.email) {
@@ -295,39 +323,224 @@ router.post('/api/tours/:tourId/feedback', async (req: Request, res: Response) =
       pricingInfo,
       overallRating,
       wouldRecommend,
-      likelihood
+      likelihood,
+      shareContactInfo = true,
+      shareNotes = false,
+      sharePricing = false
     } = req.body;
 
-    // Verify tour ownership
-    const [tour] = await db
-      .select()
+    // Get full tour details with community and user info
+    const [tourDetails] = await db
+      .select({
+        tour: tours,
+        community: communities,
+        user: users
+      })
       .from(tours)
+      .leftJoin(communities, eq(tours.communityId, communities.id))
+      .leftJoin(users, eq(tours.userId, users.id))
       .where(eq(tours.id, tourId));
 
-    if (!tour) {
+    if (!tourDetails) {
       return res.status(404).json({ error: 'Tour not found' });
     }
 
-    if (req.user?.id !== tour.userId && req.user?.role !== 'admin') {
+    if (req.user?.id !== tourDetails.tour.userId && req.user?.role !== 'admin') {
       return res.status(403).json({ error: 'Not authorized to update this tour' });
     }
 
-    // Update tour with feedback
+    // Update tour status
     await db
       .update(tours)
       .set({
-        overallImpression,
-        tourNotes,
-        pricingInfo,
-        overallRating,
-        wouldRecommend,
-        likelihood,
         feedbackSubmitted: true,
         status: 'completed'
       })
       .where(eq(tours.id, tourId));
+    
+    // Store feedback in tourFeedback table
+    const existingFeedback = await db
+      .select()
+      .from(tourFeedback)
+      .where(eq(tourFeedback.tourId, tourId));
+    
+    if (existingFeedback.length > 0) {
+      await db
+        .update(tourFeedback)
+        .set({
+          overallImpression,
+          tourNotes,
+          pricingInfo,
+          overallRating,
+          wouldRecommend,
+          likelihood,
+          shareContactInfo,
+          shareNotes,
+          sharePricing,
+          updatedAt: new Date()
+        })
+        .where(eq(tourFeedback.tourId, tourId));
+    } else {
+      await db
+        .insert(tourFeedback)
+        .values({
+          tourId,
+          userId: tourDetails.tour.userId,
+          communityId: tourDetails.tour.communityId,
+          overallImpression,
+          tourNotes,
+          pricingInfo,
+          overallRating,
+          wouldRecommend,
+          likelihood,
+          shareContactInfo,
+          shareNotes,
+          sharePricing
+        });
+    }
 
-    res.json({ success: true, message: 'Tour feedback submitted successfully' });
+    // Import NotificationService
+    const { NotificationService } = await import('../notification-service');
+
+    // Send notification to user/prospect
+    if (tourDetails.user?.email) {
+      const prospectEmailHtml = `
+        <h2>Tour Completed at ${tourDetails.community?.name}</h2>
+        <p>Thank you for completing your tour! We hope you found it informative.</p>
+        
+        <h3>Your Tour Summary:</h3>
+        <ul>
+          <li><strong>Community:</strong> ${tourDetails.community?.name}</li>
+          <li><strong>Date:</strong> ${format(tourDetails.tour.tourDate, 'EEEE, MMMM d, yyyy at h:mm a')}</li>
+          <li><strong>Overall Rating:</strong> ${overallRating || 'Not rated'}/5</li>
+          <li><strong>Would Recommend:</strong> ${wouldRecommend ? 'Yes' : 'No'}</li>
+        </ul>
+        
+        ${tourNotes ? `<p><strong>Your Notes:</strong> ${tourNotes}</p>` : ''}
+        
+        <p><strong>Privacy Promise:</strong> MySeniorValet will never sell your information. We only connect you directly with communities, cutting out the middle confusion.</p>
+        
+        <p>The community has been notified of your tour completion and your contact preferences.</p>
+        
+        <hr>
+        <p style="color: #666; font-size: 14px;">
+          You're receiving this because you completed a tour through MySeniorValet. 
+          We're here to help you find the perfect senior living community.
+        </p>
+      `;
+
+      await EmailService.sendEmail({
+        to: tourDetails.user.email,
+        cc: 'hello@myseniorvalet.com',
+        subject: `Tour Completed - ${tourDetails.community?.name}`,
+        html: prospectEmailHtml
+      });
+
+      // Create notification for user
+      await NotificationService.createNotification({
+        userId: tourDetails.user.id.toString(),
+        type: 'tour_completed',
+        category: 'general',
+        priority: 'normal',
+        title: 'Tour Completed Successfully',
+        message: `Your tour at ${tourDetails.community?.name} has been marked as complete. The community has been notified.`,
+        actionUrl: `/tours`,
+        iconType: 'check-circle',
+        communityId: tourDetails.community?.id,
+        metadata: {
+          changeType: 'tour_completed'
+        }
+      });
+    }
+
+    // Send notification to community (if email available)
+    if (tourDetails.community?.communityManagerEmail || tourDetails.community?.email) {
+      const communityEmail = tourDetails.community.communityManagerEmail || tourDetails.community.email;
+      
+      // Build shared information based on user preferences
+      let sharedInfo = '';
+      if (shareContactInfo && tourDetails.user) {
+        sharedInfo += `
+          <h3>Contact Information (Shared with Permission):</h3>
+          <ul>
+            <li><strong>Name:</strong> ${tourDetails.user.firstName} ${tourDetails.user.lastName || ''}</li>
+            <li><strong>Email:</strong> ${tourDetails.user.email}</li>
+            <li><strong>Phone:</strong> ${tourDetails.user.phone || 'Not provided'}</li>
+          </ul>
+        `;
+      }
+      
+      if (shareNotes && tourNotes) {
+        sharedInfo += `
+          <h3>Tour Notes (Shared with Permission):</h3>
+          <p>${tourNotes}</p>
+        `;
+      }
+      
+      if (sharePricing && pricingInfo) {
+        sharedInfo += `
+          <h3>Pricing Discussion (Shared with Permission):</h3>
+          <p>${pricingInfo}</p>
+        `;
+      }
+
+      const communityEmailHtml = `
+        <h2>Tour Completed at Your Community</h2>
+        <p>A prospect has completed their tour and provided feedback.</p>
+        
+        <h3>Tour Details:</h3>
+        <ul>
+          <li><strong>Date:</strong> ${format(tourDetails.tour.tourDate, 'EEEE, MMMM d, yyyy at h:mm a')}</li>
+          <li><strong>Tour Type:</strong> ${tourDetails.tour.tourType?.replace('_', ' ') || 'In Person'}</li>
+          <li><strong>Overall Rating:</strong> ${overallRating || 'Not rated'}/5</li>
+          <li><strong>Likelihood to Move In:</strong> ${likelihood || 'Not specified'}</li>
+          <li><strong>Would Recommend:</strong> ${wouldRecommend ? 'Yes' : 'No'}</li>
+        </ul>
+        
+        ${sharedInfo || '<p>The prospect chose not to share additional information at this time.</p>'}
+        
+        <hr>
+        <p><strong>MySeniorValet Promise:</strong> We never sell prospect information. We simply connect families with communities, cutting out the middle confusion. This information is shared directly from the prospect to you.</p>
+        
+        <p style="color: #666; font-size: 14px;">
+          This tour was facilitated through MySeniorValet - Clarity in Senior Living
+        </p>
+      `;
+
+      await EmailService.sendEmail({
+        to: communityEmail!,
+        cc: 'hello@myseniorvalet.com',
+        subject: `Tour Completed - ${tourDetails.user?.firstName || 'Guest'} ${tourDetails.user?.lastName || ''}`,
+        html: communityEmailHtml
+      });
+    }
+
+    // Send notification to super admin
+    await NotificationService.createSuperAdminNotification(
+      'tour_completed',
+      'Tour Completed',
+      `Tour completed at ${tourDetails.community?.name} by ${tourDetails.user?.email}`,
+      {
+        category: 'general',
+        tourId,
+        communityId: tourDetails.community?.id,
+        communityName: tourDetails.community?.name,
+        userEmail: tourDetails.user?.email,
+        overallRating,
+        wouldRecommend,
+        likelihood
+      }
+    );
+
+    res.json({ 
+      success: true, 
+      message: 'Tour feedback submitted successfully. Notifications sent to all parties.',
+      notificationsSent: {
+        prospect: !!tourDetails.user?.email,
+        community: !!(tourDetails.community?.communityManagerEmail || tourDetails.community?.email),
+        admin: true
+      }
+    });
   } catch (error) {
     console.error('Error submitting tour feedback:', error);
     res.status(500).json({ error: 'Failed to submit tour feedback' });

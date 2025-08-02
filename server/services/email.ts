@@ -8,6 +8,8 @@ if (SENDGRID_API_KEY) {
 
 export interface EmailOptions {
   to: string | string[];
+  cc?: string | string[];
+  bcc?: string | string[];
   subject: string;
   text?: string;
   html?: string;
@@ -38,6 +40,10 @@ export class EmailService {
         subject: options.subject,
         replyTo: options.replyTo
       };
+      
+      // Add cc and bcc if provided
+      if (options.cc) msg.cc = options.cc;
+      if (options.bcc) msg.bcc = options.bcc;
 
       // Add template or content
       if (options.templateId) {
