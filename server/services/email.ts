@@ -42,8 +42,14 @@ export class EmailService {
       };
       
       // Add cc and bcc if provided
-      if (options.cc) msg.cc = options.cc;
-      if (options.bcc) msg.bcc = options.bcc;
+      if (options.cc) {
+        msg.cc = options.cc;
+        console.log(`Adding CC recipients: ${Array.isArray(options.cc) ? options.cc.join(', ') : options.cc}`);
+      }
+      if (options.bcc) {
+        msg.bcc = options.bcc;
+        console.log(`Adding BCC recipients: ${Array.isArray(options.bcc) ? options.bcc.join(', ') : options.bcc}`);
+      }
 
       // Add template or content
       if (options.templateId) {
@@ -54,11 +60,19 @@ export class EmailService {
         if (options.html) msg.html = options.html;
       }
 
-      await sgMail.send(msg);
-      console.log(`Email sent successfully to ${Array.isArray(options.to) ? options.to.join(', ') : options.to}`);
+      console.log(`Attempting to send email:
+        To: ${Array.isArray(options.to) ? options.to.join(', ') : options.to}
+        CC: ${options.cc ? (Array.isArray(options.cc) ? options.cc.join(', ') : options.cc) : 'none'}
+        Subject: ${options.subject}`);
+
+      const response = await sgMail.send(msg);
+      console.log(`Email sent successfully! Response status: ${response[0].statusCode}`);
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending email:', error);
+      if (error.response) {
+        console.error('SendGrid error response:', error.response.body);
+      }
       return false;
     }
   }

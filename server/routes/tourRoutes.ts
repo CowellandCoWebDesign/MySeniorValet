@@ -404,6 +404,8 @@ router.post('/api/tours/:tourId/feedback', async (req: Request, res: Response) =
 
     // Send notification to user/prospect
     if (tourDetails.user?.email) {
+      console.log(`Preparing to send prospect email to: ${tourDetails.user.email}`);
+      
       const prospectEmailHtml = `
         <h2>Tour Completed at ${tourDetails.community?.name}</h2>
         <p>Thank you for completing your tour! We hope you found it informative.</p>
@@ -429,12 +431,14 @@ router.post('/api/tours/:tourId/feedback', async (req: Request, res: Response) =
         </p>
       `;
 
-      await EmailService.sendEmail({
+      const prospectEmailSent = await EmailService.sendEmail({
         to: tourDetails.user.email,
         cc: 'hello@myseniorvalet.com',
         subject: `Tour Completed - ${tourDetails.community?.name}`,
         html: prospectEmailHtml
       });
+      
+      console.log(`Prospect email sent: ${prospectEmailSent ? 'SUCCESS' : 'FAILED'} (to: ${tourDetails.user.email}, cc: hello@myseniorvalet.com)`);
 
       // Create notification for user
       await NotificationService.createNotification({
@@ -457,9 +461,13 @@ router.post('/api/tours/:tourId/feedback', async (req: Request, res: Response) =
     // TEST MODE: Only send to admin emails until deployment
     const isTestMode = process.env.NODE_ENV !== 'production' || true; // Always test mode for now
     
-    if (tourDetails.community?.communityManagerEmail || tourDetails.community?.email) {
+    const communityHasEmail = tourDetails.community?.communityManagerEmail || tourDetails.community?.email;
+    console.log(`Community email check - Has email: ${!!communityHasEmail}, Manager Email: ${tourDetails.community?.communityManagerEmail}, Community Email: ${tourDetails.community?.email}`);
+    
+    if (communityHasEmail) {
       const actualCommunityEmail = tourDetails.community.communityManagerEmail || tourDetails.community.email;
       const communityEmail = isTestMode ? 'hello@myseniorvalet.com' : actualCommunityEmail;
+      console.log(`Preparing to send community email - Test Mode: ${isTestMode}, Actual: ${actualCommunityEmail}, Will send to: ${communityEmail}`);
       
       // Build shared information based on user preferences
       let sharedInfo = '';
@@ -512,12 +520,16 @@ router.post('/api/tours/:tourId/feedback', async (req: Request, res: Response) =
         </p>
       `;
 
-      await EmailService.sendEmail({
+      const communityEmailSent = await EmailService.sendEmail({
         to: communityEmail!,
         cc: 'hello@myseniorvalet.com',
         subject: `${isTestMode ? '[TEST MODE] ' : ''}Tour Completed - ${tourDetails.user?.firstName || 'Guest'} ${tourDetails.user?.lastName || ''}`,
         html: communityEmailHtml
       });
+      
+      console.log(`Community email sent: ${communityEmailSent ? 'SUCCESS' : 'FAILED'} (to: ${communityEmail}, cc: hello@myseniorvalet.com)`);
+    } else {
+      console.log('Community email NOT sent - No community email address available');
     }
 
     // Send notification to super admin
