@@ -50,7 +50,7 @@ export default function MapSearch() {
 
   // Get search query from URL parameters
   const urlParams = new URLSearchParams(window.location.search);
-  const initialQuery = urlParams.get('location') || urlParams.get('q') || '';
+  const initialQuery = urlParams.get('query') || urlParams.get('location') || urlParams.get('q') || '';
   const budgetParam = urlParams.get('budget') || '';
   const careTypesParam = urlParams.get('careTypes') || '';
 
