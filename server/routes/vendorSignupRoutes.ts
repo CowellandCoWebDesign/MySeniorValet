@@ -39,21 +39,27 @@ router.post('/api/vendor-signup', async (req, res) => {
       }
     });
 
+    // First create a product for this vendor plan
+    const product = await stripe.products.create({
+      name: `MySeniorValet ${planType.charAt(0).toUpperCase() + planType.slice(1)} Plan`,
+      description: `${planType} vendor listing on MySeniorValet platform`
+    });
+
+    // Create a price for the product
+    const price = await stripe.prices.create({
+      product: product.id,
+      unit_amount: amount * 100, // Convert to cents
+      currency: 'usd',
+      recurring: {
+        interval: 'month'
+      }
+    });
+
     // Create subscription with payment intent
     const subscription = await stripe.subscriptions.create({
       customer: customer.id,
       items: [{
-        price_data: {
-          currency: 'usd',
-          product_data: {
-            name: `MySeniorValet ${planType.charAt(0).toUpperCase() + planType.slice(1)} Plan`,
-            description: `${planType} vendor listing on MySeniorValet platform`
-          },
-          unit_amount: amount * 100, // Convert to cents
-          recurring: {
-            interval: 'month'
-          }
-        }
+        price: price.id
       }],
       payment_behavior: 'default_incomplete',
       payment_settings: { save_default_payment_method: 'on_subscription' },
