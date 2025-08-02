@@ -454,8 +454,12 @@ router.post('/api/tours/:tourId/feedback', async (req: Request, res: Response) =
     }
 
     // Send notification to community (if email available)
+    // TEST MODE: Only send to admin emails until deployment
+    const isTestMode = process.env.NODE_ENV !== 'production' || true; // Always test mode for now
+    
     if (tourDetails.community?.communityManagerEmail || tourDetails.community?.email) {
-      const communityEmail = tourDetails.community.communityManagerEmail || tourDetails.community.email;
+      const actualCommunityEmail = tourDetails.community.communityManagerEmail || tourDetails.community.email;
+      const communityEmail = isTestMode ? 'hello@myseniorvalet.com' : actualCommunityEmail;
       
       // Build shared information based on user preferences
       let sharedInfo = '';
@@ -485,6 +489,7 @@ router.post('/api/tours/:tourId/feedback', async (req: Request, res: Response) =
       }
 
       const communityEmailHtml = `
+        ${isTestMode ? '<div style="background: #fef3c7; padding: 10px; margin-bottom: 20px; border-radius: 5px;"><strong>TEST MODE:</strong> This email would normally go to ' + actualCommunityEmail + ' but is being sent to admin for testing.</div>' : ''}
         <h2>Tour Completed at Your Community</h2>
         <p>A prospect has completed their tour and provided feedback.</p>
         
@@ -510,7 +515,7 @@ router.post('/api/tours/:tourId/feedback', async (req: Request, res: Response) =
       await EmailService.sendEmail({
         to: communityEmail!,
         cc: 'hello@myseniorvalet.com',
-        subject: `Tour Completed - ${tourDetails.user?.firstName || 'Guest'} ${tourDetails.user?.lastName || ''}`,
+        subject: `${isTestMode ? '[TEST MODE] ' : ''}Tour Completed - ${tourDetails.user?.firstName || 'Guest'} ${tourDetails.user?.lastName || ''}`,
         html: communityEmailHtml
       });
     }
