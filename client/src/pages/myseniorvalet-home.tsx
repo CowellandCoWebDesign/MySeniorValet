@@ -343,6 +343,92 @@ export default function MySeniorValetHome() {
         </div>
       </div>
 
+      {/* Featured Communities Slider - Visual Break */}
+      <section className="px-4 py-8 bg-white dark:bg-gray-900">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                🌟 Featured Communities
+              </h2>
+              <p className="text-gray-600 dark:text-gray-300">
+                Handpicked communities with exceptional ratings and services
+              </p>
+            </div>
+            <Link href="/search?featured=true">
+              <Button variant="outline" className="flex items-center gap-2">
+                View All Featured
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
+          </div>
+          
+          <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+            {(!trendingCommunities || (trendingCommunities as any[]).length === 0) ? (
+              Array.from({ length: 6 }).map((_, index) => (
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-64 h-80 animate-pulse">
+                  <div className="aspect-[4/3] bg-gray-200 dark:bg-gray-700"></div>
+                  <CardContent className="p-4">
+                    <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              (trendingCommunities as any[]).slice(0, 8).map((community: any, index) => (
+                <EnhancedCommunityCard
+                  key={`featured-${community.id}-${index}`}
+                  community={community}
+                  index={index}
+                  variant='featured'
+                />
+              ))
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Quick Stats Carousel - Visual Break */}
+      <section className="px-4 py-8 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              🚀 Platform Intelligence at a Glance
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300">
+              Real-time data from our 3-AI orchestration system
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <Card className="p-4 text-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+              <div className="text-3xl font-bold text-blue-600">34,171+</div>
+              <div className="text-sm text-gray-600 dark:text-gray-300">Communities</div>
+            </Card>
+            <Card className="p-4 text-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+              <div className="text-3xl font-bold text-green-600">5,936</div>
+              <div className="text-sm text-gray-600 dark:text-gray-300">HUD Properties</div>
+            </Card>
+            <Card className="p-4 text-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+              <div className="text-3xl font-bold text-purple-600">3-AI</div>
+              <div className="text-sm text-gray-600 dark:text-gray-300">Verification</div>
+            </Card>
+            <Card className="p-4 text-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+              <div className="text-3xl font-bold text-orange-600">100%</div>
+              <div className="text-sm text-gray-600 dark:text-gray-300">Accuracy</div>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Red Tag Deals Promotional Section */}
+      <section className="px-4 py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30">
+        <div className="max-w-7xl mx-auto">
+          <RedTagDeals />
+        </div>
+      </section>
+
       {/* HUD Communities Showcase - Position 2 (Moved from Position 3) */}
       <section className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
         {/* Background Government Building Image */}
@@ -473,10 +559,45 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Red Tag Deals Section */}
-      <section className="px-4 py-12 bg-gradient-to-br from-red-50 to-orange-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <RedTagDeals />
+
+
+      {/* Benefits Showcase - Visual Break */}
+      <section className="px-4 py-8 bg-white dark:bg-gray-900">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              💎 Why Choose MySeniorValet
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300">
+              The only platform with 3-AI verification and comprehensive transparency
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-6">
+            <Card className="p-6 text-center hover:shadow-lg transition-shadow bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
+              <div className="w-16 h-16 mx-auto mb-4 bg-blue-600 rounded-full flex items-center justify-center">
+                <Brain className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">3-AI Orchestration</h3>
+              <p className="text-gray-600 dark:text-gray-300 text-sm">Claude + Gemini + ChatGPT verify every community for absolute accuracy</p>
+            </Card>
+            
+            <Card className="p-6 text-center hover:shadow-lg transition-shadow bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
+              <div className="w-16 h-16 mx-auto mb-4 bg-green-600 rounded-full flex items-center justify-center">
+                <Shield className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">HUD Verified Pricing</h3>
+              <p className="text-gray-600 dark:text-gray-300 text-sm">5,936 government-verified properties with transparent, income-based pricing</p>
+            </Card>
+            
+            <Card className="p-6 text-center hover:shadow-lg transition-shadow bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
+              <div className="w-16 h-16 mx-auto mb-4 bg-purple-600 rounded-full flex items-center justify-center">
+                <BarChart3 className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Live Market Data</h3>
+              <p className="text-gray-600 dark:text-gray-300 text-sm">Real-time pricing intelligence from 34,171+ communities nationwide</p>
+            </Card>
+          </div>
         </div>
       </section>
 
