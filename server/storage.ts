@@ -1,6 +1,7 @@
 import { 
   users, communities, inspections, reviews, reviewHelpfulness, favorites, searchHistory, 
   messages, tours, userSessions, listingFlags, adminUsers, userActivity, leads, leadActivities,
+  removalRequests, auditLogs,
   type User, type InsertUser, type UpsertUser, type Community, type InsertCommunity, 
   type Inspection, type InsertInspection, type Review, type InsertReview, 
   type InsertReviewHelpfulness, type SearchCommunity, type Favorite, type InsertFavorite,
@@ -8,6 +9,7 @@ import {
   type Tour, type InsertTour, type UserSession, type ListingFlag, type InsertListingFlag,
   type AdminUser, type InsertAdminUser, type UserActivity, type InsertUserActivity,
   type Lead, type InsertLead, type LeadActivity, type InsertLeadActivity,
+  type RemovalRequest, type InsertRemovalRequest,
   chatConversations, chatParticipants, chatMessages,
   type ChatConversation, type InsertChatConversation,
   type ChatParticipant, type InsertChatParticipant,
@@ -174,6 +176,12 @@ export interface IStorage {
     topVendors: Array<{ vendor: MarketplaceVendor; clicks: number }>;
     categoryBreakdown: Array<{ category: MarketplaceCategory; vendorCount: number; totalClicks: number }>;
   }>;
+
+  // Removal request methods
+  createRemovalRequest(request: InsertRemovalRequest): Promise<RemovalRequest>;
+  getRemovalRequests(params?: { status?: string; requestType?: string }): Promise<RemovalRequest[]>;
+  getRemovalRequestById(id: number): Promise<RemovalRequest | undefined>;
+  updateRemovalRequest(id: number, updates: Partial<RemovalRequest>): Promise<RemovalRequest | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -2124,6 +2132,80 @@ export class DatabaseStorage implements IStorage {
       topVendors,
       categoryBreakdown
     };
+  }
+
+  // Removal request methods
+  async createRemovalRequest(request: InsertRemovalRequest): Promise<RemovalRequest> {
+    const [created] = await db.insert(removalRequests).values({
+      ...request,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }).returning();
+    
+    // Log audit event
+    await db.insert(auditLogs).values({
+      userId: 'system',
+      entityType: 'removal_request',
+      entityId: created.id.toString(),
+      action: 'create',
+      metadata: {
+        requestType: request.requestType,
+        entityName: request.entityName,
+        requestorEmail: request.requestorEmail
+      }
+    });
+    
+    return created;
+  }
+
+  async getRemovalRequests(params?: { status?: string; requestType?: string }): Promise<RemovalRequest[]> {
+    let query = db.select().from(removalRequests);
+    const conditions = [];
+    
+    if (params?.status) {
+      conditions.push(eq(removalRequests.status, params.status));
+    }
+    
+    if (params?.requestType) {
+      conditions.push(eq(removalRequests.requestType, params.requestType));
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    return query.orderBy(desc(removalRequests.createdAt));
+  }
+
+  async getRemovalRequestById(id: number): Promise<RemovalRequest | undefined> {
+    const [request] = await db.select().from(removalRequests).where(eq(removalRequests.id, id));
+    return request || undefined;
+  }
+
+  async updateRemovalRequest(id: number, updates: Partial<RemovalRequest>): Promise<RemovalRequest | undefined> {
+    const [updated] = await db.update(removalRequests)
+      .set({
+        ...updates,
+        updatedAt: new Date()
+      })
+      .where(eq(removalRequests.id, id))
+      .returning();
+    
+    if (updated) {
+      // Log audit event
+      await db.insert(auditLogs).values({
+        userId: updates.processedBy || 'system',
+        entityType: 'removal_request',
+        entityId: id.toString(),
+        action: 'update',
+        metadata: {
+          status: updates.status,
+          processingNotes: updates.processingNotes
+        }
+      });
+    }
+    
+    return updated || undefined;
   }
 }
 

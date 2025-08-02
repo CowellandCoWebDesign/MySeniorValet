@@ -10,7 +10,7 @@ import {
   Package, Pill, Truck, Building2, Phone, Building, Scale, 
   Ambulance, Home, Utensils, Briefcase, DollarSign, Accessibility,
   Heart, Sun, MapPin, Star, ExternalLink, ShoppingCart, Search,
-  Filter, ChevronRight, Info, Clock, CheckCircle, XCircle
+  Filter, ChevronRight, Info, Clock, CheckCircle, XCircle, Flag, AlertCircle
 } from 'lucide-react';
 import { Link } from 'wouter';
 import { NavigationHeader } from "@/components/NavigationHeader";
@@ -323,6 +323,56 @@ export default function SeniorServicesPage() {
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Platform Removal Request Section */}
+        <div className="mt-12">
+          <Card className="border-2 border-red-200 dark:border-red-800 bg-white dark:bg-gray-800 shadow-lg">
+            <CardContent className="p-8">
+              <div className="flex items-start gap-4 mb-6">
+                <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg">
+                  <Flag className="w-6 h-6 text-red-600 dark:text-red-400" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                    Service Provider Information
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
+                    MySeniorValet aggregates publicly available information about senior services to help families make informed decisions. 
+                    We respect the rights of all service providers and vendors listed on our platform.
+                  </p>
+                  <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-4 mb-6">
+                    <h4 className="font-semibold text-amber-900 dark:text-amber-200 mb-2 flex items-center gap-2">
+                      <AlertCircle className="w-5 h-5" />
+                      Important Notice
+                    </h4>
+                    <ul className="text-sm text-amber-800 dark:text-amber-300 space-y-2">
+                      <li className="flex items-start gap-2">
+                        <span className="text-amber-600 dark:text-amber-400 mt-0.5">•</span>
+                        <span>All information displayed is sourced from public directories and official websites</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-amber-600 dark:text-amber-400 mt-0.5">•</span>
+                        <span>Service providers maintain full control over removal requests</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                      If you are an authorized representative and wish to remove your service from our directory, 
+                      please use the removal request option available on our homepage.
+                    </p>
+                    <Link href="/#removal-request">
+                      <Button variant="outline" className="border-red-300 text-red-600 hover:bg-red-50">
+                        <Flag className="w-4 h-4 mr-2" />
+                        Go to Removal Request Form
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

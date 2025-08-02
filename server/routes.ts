@@ -74,6 +74,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const communityClaimRoutes = await import('./routes/community-claim-routes');
   app.use('/api/community-claims', communityClaimRoutes.default);
   
+  // Register removal request routes
+  const removalRequestRoutes = await import('./routes/removalRequestRoutes');
+  app.use(removalRequestRoutes.default);
+  
   // Register community enrichment routes
   const communityEnrichmentRoutes = await import('./routes/community-enrichment-routes');
   app.use('/api/community-enrichment', communityEnrichmentRoutes.default);

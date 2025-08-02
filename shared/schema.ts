@@ -2021,12 +2021,12 @@ export const leadActivities = pgTable("lead_activities", {
 // Audit Log table for compliance and security tracking
 export const auditLogs = pgTable("audit_logs", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id), // Can be null for system actions
+  userId: varchar("user_id").references(() => users.id), // Can be null for system actions - changed to varchar for Replit Auth
   adminId: integer("admin_id").references(() => adminUsers.id), // For admin actions
   action: varchar("action", { length: 255 }).notNull(), // e.g., "user_created", "community_updated", "flag_resolved"
-  resourceType: varchar("resource_type", { length: 100 }).notNull(), // e.g., "user", "community", "flag", "system"
-  resourceId: varchar("resource_id", { length: 255 }), // ID of the affected resource
-  details: jsonb("details").$type<{
+  entityType: varchar("entity_type", { length: 100 }).notNull(), // e.g., "user", "community", "flag", "system"
+  entityId: varchar("entity_id", { length: 255 }), // ID of the affected entity
+  metadata: jsonb("metadata").$type<{
     previousValues?: any;
     newValues?: any;
     reason?: string;
@@ -2035,19 +2035,15 @@ export const auditLogs = pgTable("audit_logs", {
   ipAddress: varchar("ip_address", { length: 45 }), // IPv4 or IPv6
   userAgent: text("user_agent"),
   sessionId: varchar("session_id", { length: 255 }),
-  severity: varchar("severity", {
-    enum: ["Low", "Medium", "High", "Critical"]
-  }).notNull().default("Low"),
-  outcome: varchar("outcome", {
-    enum: ["Success", "Failure", "Partial"]
-  }).notNull().default("Success"),
+  severity: varchar("severity", { length: 20 }).notNull().default("Low"),
+  outcome: varchar("outcome", { length: 20 }).notNull().default("Success"),
   createdAt: timestamp("created_at").defaultNow(),
   indexedAt: timestamp("indexed_at").defaultNow() // For search optimization
 }, (table) => ({
   userIdIdx: index("audit_logs_user_id_idx").on(table.userId),
   adminIdIdx: index("audit_logs_admin_id_idx").on(table.adminId),
   actionIdx: index("audit_logs_action_idx").on(table.action),
-  resourceTypeIdx: index("audit_logs_resource_type_idx").on(table.resourceType),
+  entityTypeIdx: index("audit_logs_entity_type_idx").on(table.entityType),
   createdAtIdx: index("audit_logs_created_at_idx").on(table.createdAt),
   severityIdx: index("audit_logs_severity_idx").on(table.severity)
 }));
@@ -2401,6 +2397,52 @@ export const leasingTasksRelations = relations(leasingTasks, ({ one }) => ({
   }),
 }));
 
+// Removal Requests Table
+export const removalRequests = pgTable("removal_requests", {
+  id: serial("id").primaryKey(),
+  
+  // Request Type
+  requestType: varchar("request_type", { length: 50 }).notNull(), // 'community', 'vendor', 'service'
+  entityId: integer("entity_id").notNull(), // ID of the community, vendor, or service
+  entityName: varchar("entity_name", { length: 500 }).notNull(), // Name for display purposes
+  
+  // Requestor Information
+  requestorName: varchar("requestor_name", { length: 255 }).notNull(),
+  requestorEmail: varchar("requestor_email", { length: 255 }).notNull(),
+  requestorPhone: varchar("requestor_phone", { length: 20 }),
+  requestorRole: varchar("requestor_role", { length: 100 }).notNull(), // 'owner', 'authorized_representative', 'legal_counsel'
+  
+  // Request Details
+  reason: text("reason").notNull(),
+  legalBasis: varchar("legal_basis", { length: 100 }), // 'copyright', 'trademark', 'privacy', 'accuracy', 'other'
+  additionalNotes: text("additional_notes"),
+  
+  // Supporting Documentation
+  supportingDocuments: jsonb("supporting_documents").$type<Array<{
+    fileName: string;
+    fileType: string;
+    uploadedAt: string;
+    url: string;
+  }>>().default([]),
+  
+  // Processing
+  status: varchar("status", { length: 50 }).default('pending'), // 'pending', 'reviewing', 'approved', 'rejected', 'completed'
+  processedBy: varchar("processed_by").references(() => users.id),
+  processedAt: timestamp("processed_at"),
+  processingNotes: text("processing_notes"),
+  rejectionReason: text("rejection_reason"),
+  
+  // Metadata
+  ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("removal_requests_status_idx").on(table.status),
+  index("removal_requests_entity_idx").on(table.requestType, table.entityId),
+  index("removal_requests_created_idx").on(table.createdAt),
+]);
+
 export const insertUserSchema = createInsertSchema(users).pick({
   email: true,
   username: true,
@@ -2753,6 +2795,17 @@ export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({
   indexedAt: true,
 });
 
+export const insertRemovalRequestSchema = createInsertSchema(removalRequests).omit({
+  id: true,
+  status: true,
+  processedBy: true,
+  processedAt: true,
+  processingNotes: true,
+  rejectionReason: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export type InsertListingFlag = z.infer<typeof insertListingFlagSchema>;
 export type ListingFlag = typeof listingFlags.$inferSelect;
 export type InsertAdminUser = z.infer<typeof insertAdminUserSchema>;
@@ -2767,6 +2820,8 @@ export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type PendingCommunity = typeof pendingCommunities.$inferSelect;
 export type InsertPendingCommunity = typeof pendingCommunities.$inferInsert;
+export type InsertRemovalRequest = z.infer<typeof insertRemovalRequestSchema>;
+export type RemovalRequest = typeof removalRequests.$inferSelect;
 
 // Emotional Support Resource Tables
 export const supportResourceCategories = pgTable("support_resource_categories", {

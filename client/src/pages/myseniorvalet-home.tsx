@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, BarChart, X, Flag, Languages, Layers, ShoppingBasket } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, BarChart, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle } from "lucide-react";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { PricingBreakdown } from "@/components/pricing-breakdown";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -17,6 +17,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { CanadianStatsCard } from "@/components/canadian-stats-card";
 import { CareSpectrumSlider } from "@/components/CareSpectrumSlider";
+import { RemovalRequestModal } from "@/components/RemovalRequestModal";
 
 
 
@@ -24,11 +25,13 @@ import { CareSpectrumSlider } from "@/components/CareSpectrumSlider";
 export default function MySeniorValetHome() {
   console.log("MYSENIORVALET HOME PAGE LOADED - VERSION 3 WITH CONCIERGE SERVICES PRIORITIZED - 25,376 COMMUNITIES");
   const { t, language } = useLanguage();
+  const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedAmazonCategory, setSelectedAmazonCategory] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showProtectionModal, setShowProtectionModal] = useState(false);
   const [protectionSearchQuery, setProtectionSearchQuery] = useState('');
+  const [showRemovalModal, setShowRemovalModal] = useState(false);
 
   const [showIntegrationSpotlight, setShowIntegrationSpotlight] = useState(true);
   
@@ -1375,11 +1378,22 @@ export default function MySeniorValetHome() {
                   })()}
                 </div>
                 
-                {/* Amazon Associate Disclosure - FTC Compliance */}
-                <div className="mt-4 text-center">
+                {/* Legal Disclaimer & Platform Independence */}
+                <div className="mt-6 bg-gray-100 dark:bg-gray-800 rounded-lg p-4 border border-gray-300 dark:border-gray-600">
+                  <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-gray-600" />
+                    Information Aggregation Disclaimer
+                  </h4>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2">
+                    MySeniorValet is an independent platform that aggregates publicly available information about senior services and products for your convenience. 
+                    We are not affiliated with, endorsed by, or partnered with Amazon or any other vendor listed on our platform unless explicitly stated.
+                  </p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2">
+                    Product information, prices, and availability are sourced from public data and may change without notice. 
+                    Always verify details directly with the vendor before making purchase decisions.
+                  </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 italic">
-                    As an Amazon Associate, MySeniorValet earns from qualifying purchases. 
-                    Product prices and availability are accurate as of the date/time indicated and are subject to change.
+                    As an Amazon Associate, MySeniorValet may earn from qualifying purchases. This helps support our free platform for seniors.
                   </p>
                 </div>
               </div>
@@ -1918,7 +1932,7 @@ export default function MySeniorValetHome() {
             <Button
               size="lg"
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-              onClick={() => router.push('/care-services')}
+              onClick={() => setLocation('/care-services')}
             >
               <Layers className="w-5 h-5 mr-2" />
               Browse All Services
@@ -2206,6 +2220,72 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
+      {/* Platform Removal Request Section */}
+      <section className="px-4 py-8 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+        <div className="max-w-4xl mx-auto">
+          <Card className="border-2 border-red-200 dark:border-red-800 bg-white dark:bg-gray-800 shadow-lg">
+            <CardContent className="p-8">
+              <div className="flex items-start gap-4 mb-6">
+                <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg">
+                  <Flag className="w-6 h-6 text-red-600 dark:text-red-400" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                    Platform Removal Request
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
+                    MySeniorValet aggregates publicly available information about senior services to help families make informed decisions. 
+                    We respect the rights of all service providers and vendors listed on our platform.
+                  </p>
+                  <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-4 mb-6">
+                    <h4 className="font-semibold text-amber-900 dark:text-amber-200 mb-2 flex items-center gap-2">
+                      <AlertCircle className="w-5 h-5" />
+                      Important Information
+                    </h4>
+                    <ul className="text-sm text-amber-800 dark:text-amber-300 space-y-2">
+                      <li className="flex items-start gap-2">
+                        <span className="text-amber-600 dark:text-amber-400 mt-0.5">•</span>
+                        <span>We only display publicly available information found on official websites, directories, and public records</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-amber-600 dark:text-amber-400 mt-0.5">•</span>
+                        <span>No proprietary or confidential information is collected or displayed</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-amber-600 dark:text-amber-400 mt-0.5">•</span>
+                        <span>Our goal is to help seniors and families access services more easily</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                      Request Your Platform's Removal
+                    </h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      If you are an authorized representative of a service listed on MySeniorValet and wish to have your information removed, 
+                      please click the button below to submit a removal request. Our admin team will review your request within 48 hours.
+                    </p>
+                    <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+                        By submitting a removal request, you confirm that you are an authorized representative of the platform/service 
+                        and understand that this will remove all publicly sourced information about your service from MySeniorValet.
+                      </p>
+                      <Button
+                        className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                        onClick={() => setShowRemovalModal(true)}
+                      >
+                        <Flag className="w-4 h-4 mr-2" />
+                        Submit Removal Request
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-300 py-8">
         <div className="max-w-6xl mx-auto px-4">
@@ -2234,6 +2314,13 @@ export default function MySeniorValetHome() {
           </div>
         </div>
       </footer>
+      
+      {/* Removal Request Modal */}
+      <RemovalRequestModal
+        open={showRemovalModal}
+        onOpenChange={setShowRemovalModal}
+        entityType="vendor"
+      />
     </div>
   );
 }
