@@ -198,6 +198,7 @@ export class EmailService {
 
     return this.sendEmail({
       to: email,
+      cc: ['hello@myseniorvalet.com'], // Always CC for tour tracking
       subject: `Tour Confirmed - ${communityName} - ${formattedDate}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">

@@ -142,24 +142,40 @@ router.post('/api/tours/schedule', async (req: Request, res: Response) => {
       }
     );
 
-    // DISABLED FOR RELAUNCH: Not sending notifications to communities yet
-    // if (community.communityManagerEmail) {
-    //   await EmailService.sendEmail({
-    //     to: community.communityManagerEmail,
-    //     subject: `New Tour Scheduled - ${contactName}`,
-    //     html: `
-    //       <h2>New Tour Scheduled</h2>
-    //       <p><strong>Community:</strong> ${community.name}</p>
-    //       <p><strong>Date/Time:</strong> ${format(tourDateTime, 'EEEE, MMMM d, yyyy at h:mm a')}</p>
-    //       <p><strong>Guest:</strong> ${contactName}</p>
-    //       <p><strong>Email:</strong> ${contactEmail}</p>
-    //       <p><strong>Phone:</strong> ${contactPhone || 'Not provided'}</p>
-    //       <p><strong>Tour Type:</strong> ${tourType.replace('_', ' ')}</p>
-    //       <p><strong>Attendees:</strong> ${attendeeCount}</p>
-    //       ${specialRequests ? `<p><strong>Special Requests:</strong> ${specialRequests}</p>` : ''}
-    //     `
-    //   });
-    // }
+    // Send notification to community (in test mode, redirect to hello@myseniorvalet.com)
+    const communityEmail = community.communityManagerEmail || community.email || 'hello@myseniorvalet.com';
+    const isTestMode = true; // Always in test mode for now
+    
+    try {
+      await EmailService.sendEmail({
+        to: isTestMode ? 'hello@myseniorvalet.com' : communityEmail,
+        cc: isTestMode ? [] : ['hello@myseniorvalet.com'], // CC in production only
+        subject: `${isTestMode ? '[TEST MODE] ' : ''}New Tour Scheduled - ${contactName} - ${community.name}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            ${isTestMode ? '<div style="background-color: #fef3c7; border: 2px solid #f59e0b; padding: 15px; margin-bottom: 20px; border-radius: 8px;"><p style="margin: 0; color: #92400e;"><strong>TEST MODE:</strong> This email would normally go to ${communityEmail}</p></div>' : ''}
+            <h2 style="color: #1e40af;">New Tour Scheduled</h2>
+            <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px;">
+              <p><strong>Community:</strong> ${community.name}</p>
+              <p><strong>Date/Time:</strong> ${format(tourDateTime, 'EEEE, MMMM d, yyyy at h:mm a')}</p>
+              <p><strong>Guest:</strong> ${contactName}</p>
+              <p><strong>Email:</strong> ${contactEmail}</p>
+              <p><strong>Phone:</strong> ${contactPhone || 'Not provided'}</p>
+              <p><strong>Tour Type:</strong> ${tourType.replace('_', ' ')}</p>
+              <p><strong>Attendees:</strong> ${attendeeCount}</p>
+              ${specialRequests ? `<p><strong>Special Requests:</strong> ${specialRequests}</p>` : ''}
+            </div>
+            <p style="color: #666; font-size: 14px; margin-top: 20px;">
+              This notification is sent via MySeniorValet platform to help coordinate tours efficiently.
+            </p>
+          </div>
+        `
+      });
+      console.log(`Community notification sent to: ${isTestMode ? 'hello@myseniorvalet.com (TEST MODE)' : communityEmail}`);
+    } catch (error) {
+      console.error('Error sending community notification:', error);
+      // Don't fail the tour scheduling if community notification fails
+    }
 
     res.json({
       success: true,
