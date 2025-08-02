@@ -142,39 +142,88 @@ router.post('/api/tours/schedule', async (req: Request, res: Response) => {
       }
     );
 
-    // Send notification to community (in test mode, redirect to hello@myseniorvalet.com)
-    const communityEmail = community.communityManagerEmail || community.email || 'hello@myseniorvalet.com';
-    const isTestMode = true; // Always in test mode for now
+    // Find best available community email
+    const findBestCommunityEmail = () => {
+      return community.communityManagerEmail || 
+             community.email || 
+             community.managementEmail || 
+             null;
+    };
     
-    try {
-      await EmailService.sendEmail({
-        to: isTestMode ? 'hello@myseniorvalet.com' : communityEmail,
-        cc: isTestMode ? [] : ['hello@myseniorvalet.com'], // CC in production only
-        subject: `${isTestMode ? '[TEST MODE] ' : ''}New Tour Scheduled - ${contactName} - ${community.name}`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            ${isTestMode ? '<div style="background-color: #fef3c7; border: 2px solid #f59e0b; padding: 15px; margin-bottom: 20px; border-radius: 8px;"><p style="margin: 0; color: #92400e;"><strong>TEST MODE:</strong> This email would normally go to ${communityEmail}</p></div>' : ''}
-            <h2 style="color: #1e40af;">New Tour Scheduled</h2>
-            <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px;">
-              <p><strong>Community:</strong> ${community.name}</p>
-              <p><strong>Date/Time:</strong> ${format(tourDateTime, 'EEEE, MMMM d, yyyy at h:mm a')}</p>
-              <p><strong>Guest:</strong> ${contactName}</p>
-              <p><strong>Email:</strong> ${contactEmail}</p>
-              <p><strong>Phone:</strong> ${contactPhone || 'Not provided'}</p>
-              <p><strong>Tour Type:</strong> ${tourType.replace('_', ' ')}</p>
-              <p><strong>Attendees:</strong> ${attendeeCount}</p>
-              ${specialRequests ? `<p><strong>Special Requests:</strong> ${specialRequests}</p>` : ''}
+    const communityEmail = findBestCommunityEmail();
+    const isTestMode = true; // Always in test mode for now
+    const isClaimed = false; // TODO: Check if community is claimed
+    
+    if (communityEmail || isTestMode) {
+      try {
+        const emailTo = isTestMode ? 'hello@myseniorvalet.com' : communityEmail || 'hello@myseniorvalet.com';
+        
+        await EmailService.sendEmail({
+          to: emailTo,
+          cc: isTestMode ? [] : ['hello@myseniorvalet.com'], // CC in production only
+          subject: `${isTestMode ? '[TEST MODE] ' : ''}New Tour Interest - ${community.name}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              ${isTestMode ? `<div style="background-color: #fef3c7; border: 2px solid #f59e0b; padding: 15px; margin-bottom: 20px; border-radius: 8px;"><p style="margin: 0; color: #92400e;"><strong>TEST MODE:</strong> This email would normally go to ${communityEmail || 'the community contact'}</p></div>` : ''}
+              
+              <div style="background-color: #1e40af; color: white; padding: 30px; text-align: center;">
+                <h1 style="margin: 0;">You Have a New Tour Scheduled!</h1>
+              </div>
+              
+              <div style="padding: 30px;">
+                <h2 style="color: #1e40af;">Tour Details</h2>
+                <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px;">
+                  <p><strong>Date/Time:</strong> ${format(tourDateTime, 'EEEE, MMMM d, yyyy at h:mm a')}</p>
+                  <p><strong>Guest Name:</strong> ${contactName}</p>
+                  <p><strong>Contact:</strong> ${contactEmail} ${contactPhone ? `| ${contactPhone}` : ''}</p>
+                  <p><strong>Tour Type:</strong> ${tourType.replace('_', ' ').charAt(0).toUpperCase() + tourType.slice(1).replace('_', ' ')}</p>
+                  <p><strong>Party Size:</strong> ${attendeeCount} ${attendeeCount === 1 ? 'person' : 'people'}</p>
+                  ${specialRequests ? `<p><strong>Special Requests:</strong> ${specialRequests}</p>` : ''}
+                </div>
+                
+                ${!isClaimed ? `
+                <div style="background-color: #e0f2fe; border: 2px solid #0ea5e9; padding: 20px; margin: 20px 0; border-radius: 8px;">
+                  <h3 style="color: #0c4a6e; margin-top: 0;">🌟 Claim Your Community Listing</h3>
+                  <p>Did you know MySeniorValet connects thousands of families with senior communities every month?</p>
+                  <ul style="color: #0c4a6e;">
+                    <li><strong>34,171+ communities</strong> across North America</li>
+                    <li><strong>Direct connection</strong> to qualified prospects</li>
+                    <li><strong>No middleman fees</strong> - we connect families directly to you</li>
+                    <li><strong>Tour tracking</strong> and feedback tools</li>
+                  </ul>
+                  <p><strong>Claim your listing today to:</strong></p>
+                  <ul style="color: #0c4a6e;">
+                    <li>✓ Update your community information and photos</li>
+                    <li>✓ Receive tour notifications instantly</li>
+                    <li>✓ Access analytics about your listing views</li>
+                    <li>✓ Get a "Verified Partner" badge</li>
+                  </ul>
+                  <div style="text-align: center; margin: 20px 0;">
+                    <a href="https://myseniorvalet.com/vendor-signup" style="background-color: #0ea5e9; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">Claim Your Listing - Starting at $49/month</a>
+                  </div>
+                </div>
+                ` : ''}
+                
+                <hr style="border: 1px solid #e5e7eb; margin: 30px 0;">
+                
+                <p style="color: #666; font-size: 14px;">
+                  <strong>About MySeniorValet:</strong> We're the transparency platform for senior living, connecting families directly with communities. No hidden fees, no data sales, just clear connections.
+                </p>
+                
+                <p style="color: #666; font-size: 14px;">
+                  This tour was scheduled through MySeniorValet.com. If you have questions, reply to this email or visit our platform.
+                </p>
+              </div>
             </div>
-            <p style="color: #666; font-size: 14px; margin-top: 20px;">
-              This notification is sent via MySeniorValet platform to help coordinate tours efficiently.
-            </p>
-          </div>
-        `
-      });
-      console.log(`Community notification sent to: ${isTestMode ? 'hello@myseniorvalet.com (TEST MODE)' : communityEmail}`);
-    } catch (error) {
-      console.error('Error sending community notification:', error);
-      // Don't fail the tour scheduling if community notification fails
+          `
+        });
+        console.log(`Community notification sent to: ${isTestMode ? 'hello@myseniorvalet.com (TEST MODE)' : emailTo}`);
+      } catch (error) {
+        console.error('Error sending community notification:', error);
+        // Don't fail the tour scheduling if community notification fails
+      }
+    } else {
+      console.log('No community email found - notification not sent');
     }
 
     res.json({
@@ -473,67 +522,128 @@ router.post('/api/tours/:tourId/feedback', async (req: Request, res: Response) =
       });
     }
 
-    // Send notification to community (if email available)
-    // TEST MODE: Only send to admin emails until deployment
+    // Find best available community email
+    const findBestCommunityEmail = () => {
+      return tourDetails.community?.communityManagerEmail || 
+             tourDetails.community?.email || 
+             tourDetails.community?.managementEmail || 
+             null;
+    };
+    
     const isTestMode = process.env.NODE_ENV !== 'production' || true; // Always test mode for now
+    const communityEmail = findBestCommunityEmail();
+    const isClaimed = false; // TODO: Check if community is claimed
     
-    const communityHasEmail = tourDetails.community?.communityManagerEmail || tourDetails.community?.email;
-    console.log(`Community email check - Has email: ${!!communityHasEmail}, Manager Email: ${tourDetails.community?.communityManagerEmail}, Community Email: ${tourDetails.community?.email}`);
+    console.log(`Community email check - Manager Email: ${tourDetails.community?.communityManagerEmail}, Community Email: ${tourDetails.community?.email}, Management Email: ${tourDetails.community?.managementEmail}`);
     
-    if (communityHasEmail) {
-      const actualCommunityEmail = tourDetails.community.communityManagerEmail || tourDetails.community.email;
-      const communityEmail = isTestMode ? 'hello@myseniorvalet.com' : actualCommunityEmail;
-      console.log(`Preparing to send community email - Test Mode: ${isTestMode}, Actual: ${actualCommunityEmail}, Will send to: ${communityEmail}`);
+    if (communityEmail || isTestMode) {
+      const emailTo = isTestMode ? 'hello@myseniorvalet.com' : communityEmail || 'hello@myseniorvalet.com';
+      console.log(`Preparing to send community email - Test Mode: ${isTestMode}, Actual: ${communityEmail}, Will send to: ${emailTo}`);
       
       // Build shared information based on user preferences
       let sharedInfo = '';
       if (shareContactInfo && tourDetails.user) {
         sharedInfo += `
-          <h3>Contact Information (Shared with Permission):</h3>
-          <ul>
-            <li><strong>Name:</strong> ${tourDetails.user.firstName} ${tourDetails.user.lastName || ''}</li>
-            <li><strong>Email:</strong> ${tourDetails.user.email}</li>
-            <li><strong>Phone:</strong> ${tourDetails.user.phone || 'Not provided'}</li>
-          </ul>
+          <div style="background-color: #f9fafb; padding: 15px; border-radius: 6px; margin: 10px 0;">
+            <h4 style="margin-top: 0; color: #1e40af;">Contact Information (Shared with Permission)</h4>
+            <p style="margin: 5px 0;"><strong>Name:</strong> ${tourDetails.user.firstName} ${tourDetails.user.lastName || ''}</p>
+            <p style="margin: 5px 0;"><strong>Email:</strong> <a href="mailto:${tourDetails.user.email}">${tourDetails.user.email}</a></p>
+            <p style="margin: 5px 0;"><strong>Phone:</strong> ${tourDetails.user.phone || 'Not provided'}</p>
+          </div>
         `;
       }
       
       if (shareNotes && tourNotes) {
         sharedInfo += `
-          <h3>Tour Notes (Shared with Permission):</h3>
-          <p>${tourNotes}</p>
+          <div style="background-color: #f9fafb; padding: 15px; border-radius: 6px; margin: 10px 0;">
+            <h4 style="margin-top: 0; color: #1e40af;">Tour Notes (Shared with Permission)</h4>
+            <p style="margin: 5px 0;">${tourNotes}</p>
+          </div>
         `;
       }
       
-      if (sharePricing && pricingInfo) {
+      // Pricing is ALWAYS shared according to the requirements
+      if (pricingInfo) {
         sharedInfo += `
-          <h3>Pricing Discussion (Shared with Permission):</h3>
-          <p>${pricingInfo}</p>
+          <div style="background-color: #fef3c7; padding: 15px; border-radius: 6px; margin: 10px 0;">
+            <h4 style="margin-top: 0; color: #92400e;">Pricing Information Discussed</h4>
+            <p style="margin: 5px 0;">${pricingInfo}</p>
+          </div>
         `;
       }
 
       const communityEmailHtml = `
-        ${isTestMode ? '<div style="background: #fef3c7; padding: 10px; margin-bottom: 20px; border-radius: 5px;"><strong>TEST MODE:</strong> This email would normally go to ' + actualCommunityEmail + ' but is being sent to admin for testing.</div>' : ''}
-        <h2>Tour Completed at Your Community</h2>
-        <p>A prospect has completed their tour and provided feedback.</p>
-        
-        <h3>Tour Details:</h3>
-        <ul>
-          <li><strong>Date:</strong> ${format(tourDetails.tour.tourDate, 'EEEE, MMMM d, yyyy at h:mm a')}</li>
-          <li><strong>Tour Type:</strong> ${tourDetails.tour.tourType?.replace('_', ' ') || 'In Person'}</li>
-          <li><strong>Overall Rating:</strong> ${overallRating || 'Not rated'}/5</li>
-          <li><strong>Likelihood to Move In:</strong> ${likelihood || 'Not specified'}</li>
-          <li><strong>Would Recommend:</strong> ${wouldRecommend ? 'Yes' : 'No'}</li>
-        </ul>
-        
-        ${sharedInfo || '<p>The prospect chose not to share additional information at this time.</p>'}
-        
-        <hr>
-        <p><strong>MySeniorValet Promise:</strong> We never sell prospect information. We simply connect families with communities, cutting out the middle confusion. This information is shared directly from the prospect to you.</p>
-        
-        <p style="color: #666; font-size: 14px;">
-          This tour was facilitated through MySeniorValet - Clarity in Senior Living
-        </p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          ${isTestMode ? `<div style="background-color: #fef3c7; border: 2px solid #f59e0b; padding: 15px; margin-bottom: 20px; border-radius: 8px;"><p style="margin: 0; color: #92400e;"><strong>TEST MODE:</strong> This email would normally go to ${communityEmail || 'the community contact'}</p></div>` : ''}
+          
+          <div style="background-color: #1e40af; color: white; padding: 30px; text-align: center;">
+            <h1 style="margin: 0;">Tour Feedback Received!</h1>
+          </div>
+          
+          <div style="padding: 30px;">
+            <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+              <h3 style="margin-top: 0; color: #1e40af;">Tour Summary</h3>
+              <table style="width: 100%;">
+                <tr>
+                  <td style="padding: 5px 0;"><strong>Date:</strong></td>
+                  <td>${format(tourDetails.tour.tourDate, 'EEEE, MMMM d, yyyy')}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 5px 0;"><strong>Overall Rating:</strong></td>
+                  <td>${'⭐'.repeat(overallRating || 0)} (${overallRating || 0}/5)</td>
+                </tr>
+                <tr>
+                  <td style="padding: 5px 0;"><strong>Would Recommend:</strong></td>
+                  <td>${wouldRecommend ? '✅ Yes' : '❌ No'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 5px 0;"><strong>Move-in Likelihood:</strong></td>
+                  <td>${likelihood ? likelihood.replace('_', ' ').charAt(0).toUpperCase() + likelihood.slice(1).replace('_', ' ') : 'Not specified'}</td>
+                </tr>
+              </table>
+            </div>
+            
+            ${overallImpression ? `
+            <div style="background-color: #e0f2fe; padding: 15px; border-radius: 6px; margin: 10px 0;">
+              <h4 style="margin-top: 0; color: #0c4a6e;">Overall Impression</h4>
+              <p style="margin: 5px 0;">${overallImpression}</p>
+            </div>
+            ` : ''}
+            
+            ${sharedInfo || '<p style="text-align: center; color: #666; padding: 20px;">The prospect chose not to share additional contact information at this time.</p>'}
+            
+            ${!isClaimed ? `
+            <div style="background-color: #d1fae5; border: 2px solid #10b981; padding: 20px; margin: 20px 0; border-radius: 8px;">
+              <h3 style="color: #047857; margin-top: 0;">💎 Upgrade to Get More from Your Tours</h3>
+              <p>As a claimed community partner, you'll receive:</p>
+              <ul style="color: #047857;">
+                <li><strong>Real-time notifications</strong> when tours are scheduled</li>
+                <li><strong>Detailed analytics</strong> on your listing performance</li>
+                <li><strong>Priority placement</strong> in search results</li>
+                <li><strong>Direct messaging</strong> with prospects</li>
+                <li><strong>Custom pricing updates</strong> and special offers</li>
+                <li><strong>Professional photos</strong> and virtual tour options</li>
+              </ul>
+              <div style="text-align: center; margin: 20px 0;">
+                <a href="https://myseniorvalet.com/vendor-signup" style="background-color: #10b981; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">Claim Your Listing Today</a>
+              </div>
+              <p style="text-align: center; color: #047857; font-size: 14px;">
+                Plans start at just $49/month - less than the cost of one tour no-show!
+              </p>
+            </div>
+            ` : ''}
+            
+            <hr style="border: 1px solid #e5e7eb; margin: 30px 0;">
+            
+            <p style="color: #666; font-size: 14px;">
+              <strong>Why MySeniorValet?</strong> We believe in transparency and direct connections. Unlike other platforms, we never sell data or charge hidden referral fees. We simply connect families with communities, making the process clearer for everyone.
+            </p>
+            
+            <p style="color: #666; font-size: 14px; text-align: center;">
+              Questions? Reply to this email or visit <a href="https://myseniorvalet.com">myseniorvalet.com</a>
+            </p>
+          </div>
+        </div>
       `;
 
       const communityEmailSent = await EmailService.sendEmail({
