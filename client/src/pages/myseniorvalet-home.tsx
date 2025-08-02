@@ -2227,119 +2227,186 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Vendor Onboarding & Platform Information Section */}
+      {/* Partner Onboarding Section - Communities & Vendors */}
       <section className="py-20 px-4 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-6xl mx-auto">
-          <Card className="shadow-xl overflow-hidden border-0">
-            <CardContent className="p-8">
-              <div className="flex flex-col md:flex-row gap-8">
-                <div className="md:w-1/5 flex justify-center items-start">
-                  <ShoppingBasket className="w-12 h-12 text-purple-600 dark:text-purple-400" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                    Are You a Vendor Who Would Like to Be Listed on Our Platform?
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              Join the MySeniorValet Platform
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              Whether you're a senior living community or a service provider, join thousands already connecting with families across North America
+            </p>
+          </div>
+
+          {/* Two Cards Side by Side */}
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Communities Card */}
+            <Card className="shadow-xl overflow-hidden border-0 hover:shadow-2xl transition-shadow duration-300">
+              <CardContent className="p-8">
+                <div className="flex flex-col items-center text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+                    <Building className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+                    Senior Living Communities
                   </h3>
-                  <p className="text-lg text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
-                    Join thousands of senior-focused businesses reaching families across North America. 
-                    MySeniorValet connects quality vendors with seniors and their families who need your services.
+                  <p className="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
+                    Showcase your community to families actively searching for the perfect senior living solution
                   </p>
                   
-                  {/* Benefits Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                    <div className="flex items-start gap-3 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
-                      <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5" />
+                  {/* Community Benefits */}
+                  <div className="space-y-3 mb-6 text-left w-full">
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                       <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-gray-100">Reach 34,000+ Communities</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Connect with seniors across all 50 states and Canada</p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">Featured placement in search results</p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
-                      <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                       <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-gray-100">Analytics & Insights</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Track engagement and optimize your listings</p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">Direct messaging from interested families</p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
-                      <Shield className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5" />
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                       <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-gray-100">Verified Partner Badge</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Stand out as an official MySeniorValet partner</p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">Analytics dashboard with insights</p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
-                      <Users2 className="w-5 h-5 text-orange-600 dark:text-orange-400 mt-0.5" />
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                       <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-gray-100">Targeted Audience</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Reach families actively seeking senior services</p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">Premium photo galleries & virtual tours</p>
                       </div>
                     </div>
                   </div>
 
-                  {/* CTA Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                    <Button
-                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold px-8 py-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
-                      onClick={() => setLocation('/vendor-signup')}
-                    >
-                      <Sparkles className="w-5 h-5 mr-2" />
-                      Become a Verified Partner
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="border-2 border-purple-600 text-purple-600 hover:bg-purple-50 dark:border-purple-400 dark:text-purple-400 dark:hover:bg-purple-900/20 font-semibold px-8 py-4 rounded-lg"
-                      onClick={() => setLocation('/vendor-marketplace')}
-                    >
-                      <ExternalLink className="w-5 h-5 mr-2" />
-                      View Current Vendors
-                    </Button>
-                  </div>
-
-                  {/* Disclaimer */}
-                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-6">
-                    <p className="text-sm text-blue-800 dark:text-blue-300">
-                      <strong>Note:</strong> Vendor listings are provided for your convenience. MySeniorValet participates in the Amazon Services LLC Associates Program. All other vendors are listed without formal partnerships or affiliations. Look for "Official Partner" badges for verified partnerships.
+                  {/* Pricing */}
+                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-6 w-full">
+                    <p className="text-center text-sm font-medium text-blue-800 dark:text-blue-300">
+                      Starting at $299/month
                     </p>
                   </div>
 
-                  {/* Removal Option (Subtle) */}
-                  <div className="border-t pt-6 mt-8">
-                    <details className="group">
-                      <summary className="cursor-pointer text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors duration-200 list-none flex items-center gap-2">
-                        <ChevronRight className="w-4 h-4 transition-transform group-open:rotate-90" />
-                        Already listed and need to update or remove your information?
-                      </summary>
-                      <div className="mt-4 pl-6 space-y-4">
-                        <p className="text-sm text-gray-600 dark:text-gray-300">
-                          We aggregate publicly available information to help families find senior services. 
-                          If you're an authorized representative and need to manage your listing:
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-3">
-                          <Button
-                            variant="outline"
-                            className="text-sm"
-                            onClick={() => setLocation('/claim-listing')}
-                          >
-                            <Shield className="w-4 h-4 mr-2" />
-                            Claim Your Listing
-                          </Button>
-                          <Button
-                            variant="outline"
-                            className="text-sm text-red-600 hover:text-red-700 border-red-300 hover:border-red-400"
-                            onClick={() => setShowRemovalModal(true)}
-                          >
-                            <Flag className="w-4 h-4 mr-2" />
-                            Request Removal
-                          </Button>
-                        </div>
-                      </div>
-                    </details>
+                  {/* CTA Button */}
+                  <Button
+                    className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 w-full"
+                    onClick={() => setLocation('/communities/claim')}
+                  >
+                    <Building className="w-5 h-5 mr-2" />
+                    List Your Community
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Vendors Card */}
+            <Card className="shadow-xl overflow-hidden border-0 hover:shadow-2xl transition-shadow duration-300">
+              <CardContent className="p-8">
+                <div className="flex flex-col items-center text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+                    <ShoppingBasket className="w-8 h-8 text-white" />
                   </div>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+                    Service Providers & Vendors
+                  </h3>
+                  <p className="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
+                    Reach thousands of families seeking senior care services and products
+                  </p>
+                  
+                  {/* Vendor Benefits */}
+                  <div className="space-y-3 mb-6 text-left w-full">
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">Access to 34,000+ communities</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">Featured in marketplace categories</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">Lead generation & analytics</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">Verified Partner badges</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Pricing */}
+                  <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 mb-6 w-full">
+                    <p className="text-center text-sm font-medium text-purple-800 dark:text-purple-300">
+                      Starting at $49/month
+                    </p>
+                  </div>
+
+                  {/* CTA Button */}
+                  <Button
+                    className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 w-full"
+                    onClick={() => setLocation('/vendor-signup')}
+                  >
+                    <Sparkles className="w-5 h-5 mr-2" />
+                    Become a Vendor Partner
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Combined Disclaimer */}
+          <div className="mt-12 bg-gray-50 dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+            <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+              <Shield className="w-4 h-4 text-gray-600" />
+              Platform Partnership Information
+            </h4>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+              MySeniorValet aggregates publicly available information about senior services for your convenience. 
+              We participate in the Amazon Services LLC Associates Program. All other listings are provided without formal partnerships unless explicitly marked with "Official Partner" badges.
+            </p>
+            
+            {/* Removal Options */}
+            <details className="group mt-4">
+              <summary className="cursor-pointer text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors duration-200 list-none flex items-center gap-2">
+                <ChevronRight className="w-4 h-4 transition-transform group-open:rotate-90" />
+                Already listed and need to update or remove your information?
+              </summary>
+              <div className="mt-4 pl-6 space-y-3">
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  If you're an authorized representative and need to manage your listing:
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setLocation('/claim-listing')}
+                  >
+                    <Shield className="w-4 h-4 mr-2" />
+                    Claim Your Listing
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-red-600 hover:text-red-700 border-red-300 hover:border-red-400"
+                    onClick={() => setShowRemovalModal(true)}
+                  >
+                    <Flag className="w-4 h-4 mr-2" />
+                    Request Removal
+                  </Button>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </details>
+          </div>
         </div>
       </section>
 

@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ShoppingCart, Pill, Car, Stethoscope, Phone, Home, DollarSign, ExternalLink, Star, TrendingUp } from 'lucide-react';
+import { ShoppingCart, Pill, Car, Stethoscope, Phone, Home, DollarSign, ExternalLink, Star, TrendingUp, Sparkles } from 'lucide-react';
 
 interface MarketplaceCategory {
   id: number;
@@ -62,6 +62,10 @@ export default function VendorMarketplace() {
   // Group featured vendors
   const featuredVendors = filteredVendors.filter(v => v.isFeatured);
   const regularVendors = filteredVendors.filter(v => !v.isFeatured);
+  
+  // Calculate statistics
+  const totalVendors = vendors.length;
+  const totalCategories = categories.length;
 
   const handleVendorClick = (vendorId: number) => {
     // Track click and redirect through our tracking endpoint
@@ -71,17 +75,37 @@ export default function VendorMarketplace() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-12">
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
         <div className="container mx-auto px-4">
           <Link href="/">
             <Button variant="ghost" className="text-white hover:text-gray-200 mb-4">
               ← Back to Home
             </Button>
           </Link>
-          <h1 className="text-4xl font-bold mb-4">Senior Services Marketplace</h1>
-          <p className="text-xl opacity-90">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Senior Services & Vendor Marketplace</h1>
+          <p className="text-xl opacity-90 mb-8">
             Trusted services and products to support your senior living journey
           </p>
+          
+          {/* Statistics Row */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
+              <div className="text-3xl font-bold">{totalVendors || 50}+</div>
+              <div className="text-sm opacity-80">Verified Vendors</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
+              <div className="text-3xl font-bold">{totalCategories || 7}</div>
+              <div className="text-sm opacity-80">Service Categories</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
+              <div className="text-3xl font-bold">34K+</div>
+              <div className="text-sm opacity-80">Communities Served</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
+              <div className="text-3xl font-bold">50%</div>
+              <div className="text-sm opacity-80">Limited Time Savings</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -101,7 +125,7 @@ export default function VendorMarketplace() {
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="mb-8">
           <TabsList className="grid grid-cols-4 lg:grid-cols-8 gap-2 h-auto p-1">
             <TabsTrigger value="all" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
-              All Services
+              All Services & Vendors
             </TabsTrigger>
             {categories.map(category => {
               const Icon = iconMap[category.icon || 'ShoppingCart'];
@@ -172,7 +196,7 @@ export default function VendorMarketplace() {
             {regularVendors.length > 0 && (
               <div>
                 <h2 className="text-2xl font-bold mb-4">
-                  {selectedCategory === 'all' ? 'All Services' : categories.find(c => c.slug === selectedCategory)?.name}
+                  {selectedCategory === 'all' ? 'All Services & Vendors' : categories.find(c => c.slug === selectedCategory)?.name}
                 </h2>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {regularVendors.map(vendor => (
@@ -224,19 +248,72 @@ export default function VendorMarketplace() {
           </TabsContent>
         </Tabs>
 
+        {/* Why Join Section */}
+        <div className="mt-16 mb-16">
+          <h2 className="text-3xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
+            Why Join Our Marketplace?
+          </h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="border-2 hover:border-blue-500 transition-all duration-300">
+              <CardHeader>
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mb-4 mx-auto">
+                  <TrendingUp className="w-8 h-8 text-white" />
+                </div>
+                <CardTitle className="text-center">Reach 34,000+ Communities</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-center text-gray-600 dark:text-gray-400">
+                  Connect with senior living communities across all 50 states and Canada. Your services reach families when they need them most.
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="border-2 hover:border-purple-500 transition-all duration-300">
+              <CardHeader>
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mb-4 mx-auto">
+                  <Star className="w-8 h-8 text-white" />
+                </div>
+                <CardTitle className="text-center">Get Verified Partner Status</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-center text-gray-600 dark:text-gray-400">
+                  Stand out with official partner badges, featured placements, and priority in search results. Build trust with families instantly.
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="border-2 hover:border-green-500 transition-all duration-300">
+              <CardHeader>
+                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mb-4 mx-auto">
+                  <DollarSign className="w-8 h-8 text-white" />
+                </div>
+                <CardTitle className="text-center">Limited Time: 50% Off</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-center text-gray-600 dark:text-gray-400">
+                  Join now and save 50% on all vendor partnerships. Starting at just $49/month for full marketplace access and lead generation.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
         {/* Bottom CTA */}
         <div className="mt-12 bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg p-8 text-center">
-          <h3 className="text-2xl font-bold mb-4">Want to be listed here?</h3>
+          <h3 className="text-2xl font-bold mb-4">Ready to Grow Your Senior Service Business?</h3>
           <p className="text-gray-700 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
-            If you provide services or products for seniors and their families, 
-            apply to be featured in our marketplace.
+            Join thousands of trusted vendors already connecting with families through MySeniorValet. 
+            Get started today and claim your 50% discount before it expires!
           </p>
-          <Link href="/vendor-signup">
-            <Button size="lg" className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
-              Apply to Be a Vendor
-              <TrendingUp className="w-5 h-5 ml-2" />
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Link href="/vendor-signup">
+              <Button size="lg" className="bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl">
+                <Sparkles className="w-5 h-5 mr-2" />
+                Become a Verified Partner
+              </Button>
+            </Link>
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              Limited time offer • No setup fees
+            </span>
+          </div>
         </div>
       </div>
     </div>
