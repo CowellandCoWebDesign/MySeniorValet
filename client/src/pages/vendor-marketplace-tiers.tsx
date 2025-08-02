@@ -136,20 +136,34 @@ export default function VendorMarketplaceTiers() {
       <div className="container mx-auto py-8 px-4 max-w-7xl mt-16">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Vendor Marketplace Portal</h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Join thousands of senior care providers reaching families nationwide
+          <div className="mb-6">
+            <Badge className="px-4 py-2 text-base bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+              Welcome to Our Partner Community! 🤝
+            </Badge>
+          </div>
+          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+            Become a Trusted MySeniorValet Partner
+          </h1>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-3">
+            We're excited to have you join our community of caring professionals who make a real difference 
+            in the lives of seniors and their families every day
           </p>
-          <p className="text-lg text-gray-500 dark:text-gray-400 mt-2">
-            Compare our vendor tiers and choose the perfect fit for your business
+          <p className="text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
+            Whether you're just starting or ready to expand, we have a partnership level that's perfect for you.
+            Let's grow together!
           </p>
         </div>
 
       {/* Detailed Feature Comparison */}
-      <Card className="bg-white dark:bg-gray-800 mb-12">
-        <CardHeader>
-          <CardTitle className="text-2xl text-gray-900 dark:text-gray-100">Comprehensive Feature Comparison</CardTitle>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Choose the tier that best fits your business needs</p>
+      <Card className="bg-white dark:bg-gray-800 mb-12 border-2 border-purple-100 dark:border-purple-900/30">
+        <CardHeader className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20">
+          <CardTitle className="text-2xl text-gray-900 dark:text-gray-100 flex items-center gap-2">
+            <Gift className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+            Your Partnership Benefits at a Glance
+          </CardTitle>
+          <p className="text-base text-gray-600 dark:text-gray-400 mt-2">
+            Each tier is designed to support your unique journey. Find the perfect match for where you are today and where you're headed tomorrow!
+          </p>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -360,6 +374,35 @@ export default function VendorMarketplaceTiers() {
         </CardContent>
       </Card>
 
+      {/* Welcome Message */}
+      <div className="mb-10 max-w-4xl mx-auto text-center">
+        <Card className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/10 dark:to-blue-900/10 border-0 shadow-lg">
+          <CardContent className="py-8 px-6">
+            <h3 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-gray-100 flex items-center justify-center gap-2">
+              <Sparkles className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+              Why Partners Love Working With Us
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+              <div className="flex flex-col items-center text-center">
+                <Users className="w-10 h-10 text-blue-600 dark:text-blue-400 mb-3" />
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Meaningful Connections</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Connect with families who truly need your services at the right moment</p>
+              </div>
+              <div className="flex flex-col items-center text-center">
+                <TrendingUp className="w-10 h-10 text-green-600 dark:text-green-400 mb-3" />
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Grow Together</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Your success is our success - we're invested in your growth journey</p>
+              </div>
+              <div className="flex flex-col items-center text-center">
+                <Shield className="w-10 h-10 text-purple-600 dark:text-purple-400 mb-3" />
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Trusted Platform</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Join a community built on transparency, trust, and real impact</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Tier Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         {Object.entries(allTiers).map(([key, tier]) => 
@@ -541,7 +584,7 @@ export default function VendorMarketplaceTiers() {
                   handleUpgrade(key);
                 }}
               >
-                {key === 'basic' ? 'Get Started' : 'Upgrade Now'}
+                {key === 'basic' ? 'Start Your Journey' : key === 'featured' ? 'Grow Your Impact' : 'Maximize Your Reach'}
               </Button>
             </CardContent>
           </Card>
@@ -551,22 +594,31 @@ export default function VendorMarketplaceTiers() {
 
       {/* Call to Action */}
       <div className="mt-12 text-center">
-        <Card className="max-w-2xl mx-auto bg-gradient-to-r from-blue-50 to-purple-50">
-          <CardContent className="py-8">
-            <h2 className="text-2xl font-bold mb-4">Ready to Grow Your Business?</h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-6">
-              Join thousands of vendors who trust MySeniorValet to connect with families seeking senior care services
+        <Card className="max-w-2xl mx-auto bg-gradient-to-r from-purple-50 via-blue-50 to-purple-50 dark:from-purple-900/20 dark:via-blue-900/20 dark:to-purple-900/20 border-2 border-purple-200 dark:border-purple-800">
+          <CardContent className="py-10 px-8">
+            <div className="mb-4">
+              <Users className="w-12 h-12 text-purple-600 dark:text-purple-400 mx-auto mb-3" />
+            </div>
+            <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-gray-100">
+              Ready to Make a Difference Together?
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-xl mx-auto">
+              We believe in building meaningful partnerships. When you succeed, families find the care they need. 
+              Let's chat about how we can support your journey!
             </p>
-            <div className="flex justify-center gap-4">
-              <Button size="lg" onClick={() => handleUpgrade('basic')}>
-                <Sparkles className="w-4 h-4 mr-2" />
-                Start Free Trial
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Button size="lg" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700" onClick={() => handleUpgrade('basic')}>
+                <Home className="w-4 h-4 mr-2" />
+                Start Your Partnership Journey
               </Button>
-              <Button size="lg" variant="outline" onClick={() => setLocation('/contact-sales')}>
-                <PhoneCall className="w-4 h-4 mr-2" />
-                Contact Sales
+              <Button size="lg" variant="outline" className="border-purple-300 hover:border-purple-400" onClick={() => setLocation('/contact-sales')}>
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Let's Have a Conversation
               </Button>
             </div>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-6">
+              Questions? We're here to help! Our team is passionate about supporting your success.
+            </p>
           </CardContent>
         </Card>
       </div>
