@@ -18,6 +18,8 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { CanadianStatsCard } from "@/components/canadian-stats-card";
 import { CareSpectrumSlider } from "@/components/CareSpectrumSlider";
 import { RemovalRequestModal } from "@/components/RemovalRequestModal";
+import { OnboardingWrapper } from "@/components/onboarding/OnboardingWrapper";
+import { PersonalizedBanner } from "@/components/onboarding/PersonalizedBanner";
 
 
 
@@ -329,7 +331,12 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-
+      {/* Personalized Banner */}
+      <div className="px-4 py-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <PersonalizedBanner />
+        </div>
+      </div>
 
       {/* HUD Communities Showcase - Position 2 (Moved from Position 3) */}
       <section className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
@@ -2371,6 +2378,9 @@ export default function MySeniorValetHome() {
         onOpenChange={setShowRemovalModal}
         entityType="vendor"
       />
+      
+      {/* Onboarding Wizard */}
+      <OnboardingWrapper />
     </div>
   );
 }
