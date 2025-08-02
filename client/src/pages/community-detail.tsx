@@ -745,6 +745,14 @@ export default function CommunityDetail() {
                         ));
                       })()}
                     </div>
+                    
+                    {/* In-App Messaging Button - Bottom Left */}
+                    <div className="mt-4">
+                      <MessageCommunityButton
+                        communityId={community.id}
+                        communityName={community.name}
+                      />
+                    </div>
                   </div>
                   <div className="text-right">
                     {/* Live Pricing with Badge */}
@@ -813,14 +821,6 @@ export default function CommunityDetail() {
                 </div>
               </CardHeader>
             </Card>
-
-            {/* In-App Messaging Button - Prominently Placed */}
-            <div className="flex justify-center my-4">
-              <MessageCommunityButton
-                communityId={community.id}
-                communityName={community.name}
-              />
-            </div>
 
             {/* Community Claim Status Card */}
             <Card className="border-2 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20">

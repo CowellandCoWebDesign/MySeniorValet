@@ -90,43 +90,33 @@ export function MessageCommunityButton({ communityId, communityName }: MessageCo
 
   if (!user) {
     return (
-      <div className="flex flex-col items-center gap-1">
-        <Button
-          variant="outline"
-          onClick={() => {
-            toast({
-              title: "Sign in required",
-              description: "Please sign in to message this community.",
-            });
-            navigate("/login");
-          }}
-          className="bg-blue-50 hover:bg-blue-100 border-blue-300 text-blue-700 font-semibold px-6 py-3 shadow-sm hover:shadow-md transition-all"
-        >
-          <MessageSquare className="h-5 w-5 mr-2" />
-          Send In-App Message
-        </Button>
-        <p className="text-xs text-gray-500 dark:text-gray-400">
-          Not SMS - Messages sent through MySeniorValet
-        </p>
-      </div>
+      <Button
+        variant="outline"
+        onClick={() => {
+          toast({
+            title: "Sign in required",
+            description: "Please sign in to message this community.",
+          });
+          navigate("/login");
+        }}
+        className="bg-blue-50 hover:bg-blue-100 border-blue-300 text-blue-700 font-semibold px-6 py-3 shadow-sm hover:shadow-md transition-all"
+      >
+        <MessageSquare className="h-5 w-5 mr-2" />
+        Send In-App Message
+      </Button>
     );
   }
 
   return (
     <>
-      <div className="flex flex-col items-center gap-1">
-        <Button 
-          variant="outline" 
-          onClick={() => setShowDialog(true)}
-          className="bg-blue-50 hover:bg-blue-100 border-blue-300 text-blue-700 font-semibold px-6 py-3 shadow-sm hover:shadow-md transition-all"
-        >
-          <MessageSquare className="h-5 w-5 mr-2" />
-          Send In-App Message
-        </Button>
-        <p className="text-xs text-gray-500 dark:text-gray-400">
-          Not SMS - Messages sent through MySeniorValet
-        </p>
-      </div>
+      <Button 
+        variant="outline" 
+        onClick={() => setShowDialog(true)}
+        className="bg-blue-50 hover:bg-blue-100 border-blue-300 text-blue-700 font-semibold px-6 py-3 shadow-sm hover:shadow-md transition-all"
+      >
+        <MessageSquare className="h-5 w-5 mr-2" />
+        Send In-App Message
+      </Button>
 
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent>
