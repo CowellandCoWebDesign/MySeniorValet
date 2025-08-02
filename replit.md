@@ -7,6 +7,12 @@ MySeniorValet is a comprehensive senior living transparency platform designed to
 
 ## User Preferences
 - **Authentication Priority**: William.cowell01@gmail.com requires super admin access. Platform configured for production Replit Auth integration.
+- **Notification Email Configuration**:
+  - Super Admin Primary: William.cowell01@gmail.com (private)
+  - Super Admin Backup: CowellandCoWebDesign@gmail.com (private)
+  - Onboarding Team: hello@myseniorvalet.com (public)
+  - Billing Team: billing@myseniorvalet.com (public)
+  - Super admin receives all critical system alerts, security notifications, and platform milestones
 - **Data Integrity Standards**: Maintain strict Golden Data Rule enforcement. HUD properties show verified government pricing only. Communities without verified pricing display "Contact for pricing." Multi-AI verification system for absolute accuracy. Never claim partnerships, verifications, or certifications unless legally verified and documented. Service recommendations must be clearly labeled as such, not as partnerships.
 - **Documentation Preferences**: Keep documentation clean and consolidated. Remove outdated files to prevent confusion. Focus on current operational status over historical details.
 - **Visual Design Preferences**: Hero image should be a beautiful space/astronomy image (https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg). The user specifically prefers cosmic space imagery over senior living villa photos, symbolizing infinite possibilities in senior living.

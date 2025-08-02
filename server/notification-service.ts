@@ -11,6 +11,12 @@ import {
 } from "@shared/schema";
 import { eq, and, gte, lte, or, desc, inArray } from "drizzle-orm";
 import sgMail from "@sendgrid/mail";
+import { 
+  NOTIFICATION_EMAIL_CONFIG, 
+  getEmailsForNotificationType, 
+  isSuperAdminEmail,
+  getNotificationSenderEmail 
+} from "./config/notification-emails";
 
 // Initialize SendGrid
 if (process.env.SENDGRID_API_KEY) {
@@ -34,10 +40,147 @@ export class NotificationService {
         await this.queueEmailNotification(notification.id, data.userId!);
       }
       
+      // Check if this notification should also go to super admin or team
+      await this.handleAdminNotifications(notification, data);
+      
       return notification;
     } catch (error) {
       console.error("Error creating notification:", error);
       throw error;
+    }
+  }
+  
+  // Handle admin and team notifications
+  static async handleAdminNotifications(notification: any, data: InsertNotification) {
+    try {
+      // Determine notification routing based on type
+      let routingKey: keyof typeof NOTIFICATION_EMAIL_CONFIG.routing | null = null;
+      
+      switch (data.type) {
+        case 'system':
+          routingKey = 'systemAlerts';
+          break;
+        case 'milestone':
+          routingKey = 'communityMilestones';
+          break;
+        case 'price_change':
+        case 'availability_change':
+          // Important updates go to super admin
+          routingKey = 'communityMilestones';
+          break;
+      }
+      
+      if (routingKey) {
+        const emails = getEmailsForNotificationType(routingKey);
+        for (const email of emails) {
+          await this.queueAdminEmailNotification(notification.id, email, notification.title, data.message);
+        }
+      }
+    } catch (error) {
+      console.error("Error handling admin notifications:", error);
+    }
+  }
+  
+  // Queue admin email notification
+  static async queueAdminEmailNotification(notificationId: number, email: string, subject: string, body: string) {
+    try {
+      await db.insert(notificationQueue).values({
+        notificationId,
+        userId: 'system', // System generated for admin
+        emailTo: email,
+        emailSubject: `[MySeniorValet Admin] ${subject}`,
+        emailBody: body,
+        status: 'pending'
+      });
+    } catch (error) {
+      console.error("Error queueing admin email notification:", error);
+    }
+  }
+  
+  // Create super admin notification
+  static async createSuperAdminNotification(
+    type: string,
+    title: string,
+    message: string,
+    data?: any
+  ) {
+    try {
+      // Get super admin user
+      const [superAdmin] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, NOTIFICATION_EMAIL_CONFIG.superAdmin.primary))
+        .limit(1);
+      
+      if (!superAdmin) {
+        console.error("Super admin user not found");
+        return null;
+      }
+      
+      // Create notification for super admin
+      const notification = await this.createNotification({
+        userId: superAdmin.id,
+        type,
+        title,
+        message,
+        category: data?.category || 'general',
+        metadata: data || {},
+        communityId: data?.communityId || null
+      });
+      
+      return notification;
+    } catch (error) {
+      console.error("Error creating super admin notification:", error);
+      return null;
+    }
+  }
+  
+  // Initialize super admin preferences
+  static async initializeSuperAdminPreferences() {
+    try {
+      // Get super admin user
+      const [superAdmin] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, NOTIFICATION_EMAIL_CONFIG.superAdmin.primary))
+        .limit(1);
+      
+      if (!superAdmin) {
+        console.log("Super admin user not found, will initialize when created");
+        return;
+      }
+      
+      // Check if preferences exist
+      const [existingPrefs] = await db
+        .select()
+        .from(userNotificationPreferences)
+        .where(eq(userNotificationPreferences.userId, superAdmin.id))
+        .limit(1);
+      
+      if (!existingPrefs) {
+        // Create super admin preferences with all notifications enabled
+        await db.insert(userNotificationPreferences).values({
+          userId: superAdmin.id,
+          emailEnabled: true,
+          emailFrequency: 'immediate',
+          communityUpdates: true,
+          priceChanges: true,
+          newPhotos: true,
+          newReviews: true,
+          availabilityChanges: true,
+          milestones: true,
+          systemAnnouncements: true,
+          watchedCommunities: [],
+          quietHoursEnabled: false,
+          quietHoursStart: '22:00',
+          quietHoursEnd: '08:00',
+          timezone: 'America/New_York'
+        });
+        
+        console.log("Super admin notification preferences initialized");
+      }
+    } catch (error) {
+      console.error("Error initializing super admin preferences:", error);
     }
   }
   
@@ -135,7 +278,7 @@ export class NotificationService {
             .update(notificationQueue)
             .set({
               status: 'failed',
-              attempts: email.attempts + 1,
+              attempts: (email.attempts || 0) + 1,
               lastAttemptAt: new Date(),
               error: String(error)
             })
@@ -244,7 +387,7 @@ export class NotificationService {
                   metadata: {
                     milestone: milestone.name,
                     threshold: milestone.threshold,
-                    currentValue: check.currentValue
+                    newValue: check.currentValue
                   }
                 });
               }

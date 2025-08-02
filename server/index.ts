@@ -131,6 +131,13 @@ app.use((req, res, next) => {
       console.error('Failed to create demo user:', error);
     });
   });
+  
+  // Initialize super admin notification preferences (non-blocking)
+  import('./notification-service').then(({ NotificationService }) => {
+    NotificationService.initializeSuperAdminPreferences().catch(error => {
+      console.error('Failed to initialize super admin preferences:', error);
+    });
+  });
 
   // Initialize supercluster service (non-blocking)
   import('./services/supercluster').then(({ superclusterService }) => {
