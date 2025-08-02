@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, BarChart, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, BarChart, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn } from "lucide-react";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -2329,63 +2329,85 @@ export default function MySeniorValetHome() {
               </CardContent>
             </Card>
 
-            {/* Vendors Card */}
-            <Card className="shadow-xl overflow-hidden border-0 hover:shadow-2xl transition-shadow duration-300">
+            {/* Vendors Card - Enhanced */}
+            <Card className="shadow-xl overflow-hidden border-0 hover:shadow-2xl transition-shadow duration-300 relative">
+              {/* Premium badge */}
+              <div className="absolute top-0 right-0 bg-gradient-to-br from-yellow-400 to-amber-500 px-4 py-2 rounded-bl-lg">
+                <span className="text-xs font-bold text-gray-900">NEW: FREE TIER</span>
+              </div>
+              
               <CardContent className="p-8">
                 <div className="flex flex-col items-center text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
-                    <ShoppingBasket className="w-8 h-8 text-white" />
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg transform hover:scale-110 transition-transform duration-300">
+                    <Briefcase className="w-8 h-8 text-white" />
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
-                    Service Providers & Vendors
+                    Vendor Marketplace
                   </h3>
                   <p className="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
-                    Reach thousands of families seeking senior care services and products
+                    Join 1,500+ vendors reaching families nationwide with trusted senior care services
                   </p>
                   
-                  {/* Vendor Benefits */}
+                  {/* Enhanced Vendor Benefits */}
                   <div className="space-y-3 mb-6 text-left w-full">
                     <div className="flex items-start gap-3">
-                      <CheckCircle className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+                      <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0 animate-pulse" />
                       <div>
-                        <p className="text-sm text-gray-700 dark:text-gray-300">Access to 34,000+ communities</p>
+                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">FREE Starter Listing Available</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Get started at no cost - upgrade anytime</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
-                      <CheckCircle className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+                      <Users className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
                       <div>
-                        <p className="text-sm text-gray-700 dark:text-gray-300">Featured in marketplace categories</p>
+                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Reach 34,171 Communities</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Connect with families across North America</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
-                      <CheckCircle className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+                      <TrendingUp className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
                       <div>
-                        <p className="text-sm text-gray-700 dark:text-gray-300">Lead generation & analytics</p>
+                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Premium Analytics & Leads</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Track performance & generate quality leads</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
-                      <CheckCircle className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+                      <Shield className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
                       <div>
-                        <p className="text-sm text-gray-700 dark:text-gray-300">Verified Partner badges</p>
+                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Verified Partner Badge</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Build trust with official verification</p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Pricing */}
-                  <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 mb-6 w-full">
-                    <p className="text-center text-sm font-medium text-purple-800 dark:text-purple-300">
-                      $99 Basic • $249 Featured • $499 National • $999+ Enterprise
-                    </p>
+                  {/* Enhanced Pricing Display */}
+                  <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/30 dark:to-indigo-900/30 rounded-lg p-4 mb-6 w-full border border-purple-200 dark:border-purple-700">
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Starting at:</p>
+                    <div className="flex flex-wrap justify-center gap-2 text-sm">
+                      <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">FREE Starter</Badge>
+                      <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">$99 Basic</Badge>
+                      <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">$249 Featured</Badge>
+                      <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">$499+ Premium</Badge>
+                    </div>
                   </div>
 
-                  {/* CTA Button */}
-                  <Button
-                    className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 w-full"
-                    onClick={() => setLocation('/vendor-marketplace-tiers')}
-                  >
-                    <Sparkles className="w-5 h-5 mr-2" />
-                    View Vendor Pricing & Tiers
-                  </Button>
+                  {/* Enhanced CTA Buttons */}
+                  <div className="space-y-3 w-full">
+                    <Button
+                      className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 w-full transform hover:scale-105"
+                      onClick={() => setLocation('/vendor-marketplace-tiers')}
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Explore Vendor Tiers
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="border-2 border-purple-300 dark:border-purple-600 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 font-medium px-8 py-2 rounded-lg transition-all duration-200 w-full"
+                      onClick={() => setLocation('/vendor-signup')}
+                    >
+                      Start Free Listing
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
