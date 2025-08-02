@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, BarChart, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn } from "lucide-react";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -2268,53 +2268,66 @@ export default function MySeniorValetHome() {
 
           {/* Two Cards Side by Side */}
           <div className="grid md:grid-cols-2 gap-8">
-            {/* Communities Card */}
-            <Card className="shadow-xl overflow-hidden border-0 hover:shadow-2xl transition-shadow duration-300">
+            {/* Communities Card - Enhanced to match Vendor quality */}
+            <Card className="shadow-xl overflow-hidden border-0 hover:shadow-2xl transition-shadow duration-300 relative">
+              {/* Premium badge */}
+              <div className="absolute top-0 right-0 bg-gradient-to-br from-blue-400 to-cyan-500 px-4 py-2 rounded-bl-lg">
+                <span className="text-xs font-bold text-white">34,171 COMMUNITIES</span>
+              </div>
+              
               <CardContent className="p-8">
                 <div className="flex flex-col items-center text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg transform hover:scale-110 transition-transform duration-300">
                     <Building className="w-8 h-8 text-white" />
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
                     Senior Living Communities
                   </h3>
                   <p className="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
-                    Showcase your community to families actively searching for the perfect senior living solution
+                    Join thousands of communities connecting with families actively searching for care
                   </p>
                   
-                  {/* Community Benefits */}
+                  {/* Enhanced Community Benefits */}
                   <div className="space-y-3 mb-6 text-left w-full">
                     <div className="flex items-start gap-3">
-                      <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                      <Star className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0 animate-pulse" />
                       <div>
-                        <p className="text-sm text-gray-700 dark:text-gray-300">Featured placement in search results</p>
+                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Free Verified Listings</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Get started at no cost with verified status</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
-                      <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                      <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                       <div>
-                        <p className="text-sm text-gray-700 dark:text-gray-300">Direct messaging from interested families</p>
+                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Featured Placement Options</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Boost visibility in search & maps</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
-                      <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                      <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                       <div>
-                        <p className="text-sm text-gray-700 dark:text-gray-300">Analytics dashboard with insights</p>
+                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Tour Scheduler Integration</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Automated booking & lead capture</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
-                      <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                      <BarChart3 className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                       <div>
-                        <p className="text-sm text-gray-700 dark:text-gray-300">Premium photo galleries & virtual tours</p>
+                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Analytics & Performance</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Track views, inquiries & conversions</p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Pricing */}
-                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-6 w-full">
-                    <p className="text-center text-sm font-medium text-blue-800 dark:text-blue-300">
-                      Free Verified • $149 Standard • $249 Featured • $349 Platinum
-                    </p>
+                  {/* Enhanced Pricing Display */}
+                  <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 rounded-lg p-4 mb-6 w-full border border-blue-200 dark:border-blue-700">
+                    <div className="text-center">
+                      <p className="text-xs text-blue-600 dark:text-blue-400 font-semibold mb-1">4 TIER OPTIONS</p>
+                      <p className="text-sm font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                        Free → $149 → $249 → $349
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Monthly subscriptions • Cancel anytime</p>
+                    </div>
                   </div>
 
                   {/* CTA Button */}
