@@ -4,7 +4,7 @@ import { db } from '../db';
 import { vendorRegistrations, auditLogs } from '../../shared/schema';
 import { eq } from 'drizzle-orm';
 import { sendVendorWelcomeEmail, sendVendorPaymentReceiptEmail } from '../email/vendorEmails';
-import { sendVendorWelcomeEmail, sendVendorPaymentReceiptEmail } from '../email/vendorEmails';
+import { internalNotifications } from '../services/internal-notifications';
 
 const router = Router();
 
@@ -198,6 +198,21 @@ router.post('/api/stripe-webhook/vendor', async (req, res) => {
             subscriptionId: subscription,
             paymentIntentId: invoice.payment_intent as string
           });
+          
+          // Send internal notification
+          try {
+            await internalNotifications.notifyVendorRegistered({
+              businessName: metadata.businessName,
+              contactName: metadata.contactName,
+              email: metadata.email,
+              planType: metadata.planType,
+              monthlyAmount: invoice.amount_paid / 100,
+              subscriptionId: subscription
+            });
+          } catch (notificationError) {
+            console.error('Error sending internal vendor notification:', notificationError);
+            // Don't fail the webhook if internal notification fails
+          }
         }
         break;
       }

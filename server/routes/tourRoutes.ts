@@ -4,6 +4,7 @@ import { tours, communities, users, userFavorites, tourFeedback } from '@shared/
 import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
 import { EmailService } from '../services/email';
 import { format } from 'date-fns';
+import { internalNotifications } from '../services/internal-notifications';
 
 const router = Router();
 
@@ -306,6 +307,25 @@ router.post('/api/tours/schedule', async (req: Request, res: Response) => {
       }
     } else {
       console.log('No community email found - notification not sent');
+    }
+
+    // Send internal notification to admin team
+    try {
+      await internalNotifications.notifyTourScheduled({
+        communityId: community.id,
+        communityName: community.name,
+        userName: contactName,
+        userEmail: contactEmail,
+        userPhone: contactPhone,
+        requestedDate: format(tourDateTime, 'EEEE, MMMM d, yyyy at h:mm a'),
+        tourType,
+        attendeeCount,
+        message: specialRequests,
+        contactPreference
+      });
+    } catch (notificationError) {
+      console.error('Error sending internal notification:', notificationError);
+      // Don't fail the tour scheduling if internal notification fails
     }
 
     res.json({

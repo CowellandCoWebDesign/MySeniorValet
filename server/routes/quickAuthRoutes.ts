@@ -6,6 +6,7 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { z } from "zod";
 import cookieParser from "cookie-parser";
+import { internalNotifications } from "../services/internal-notifications";
 
 // Simple schemas for quick auth
 const quickSignupSchema = z.object({
@@ -67,6 +68,20 @@ export function registerQuickAuthRoutes(app: Express) {
         email: newUser.email as string,
         role: newUser.role as string
       };
+      
+      // Send internal notification
+      try {
+        await internalNotifications.notifyUserRegistered({
+          userId: newUser.id as number,
+          userName: `${newUser.first_name} ${newUser.last_name}`.trim() || (newUser.email as string),
+          userEmail: newUser.email as string,
+          role: newUser.role as string,
+          signupMethod: 'quick'
+        });
+      } catch (notificationError) {
+        console.error('Error sending internal user registration notification:', notificationError);
+        // Don't fail the registration if internal notification fails
+      }
       
       res.status(201).json({
         user: {

@@ -4,6 +4,7 @@ import { communityClaims, claimedCommunities, communities, users } from "@shared
 import { eq, and, desc } from "drizzle-orm";
 import { isAuthenticated as requireAuth, checkRole } from "../replitAuth";
 import { z } from "zod";
+import { internalNotifications } from "../services/internal-notifications";
 
 const createClaimSchema = z.object({
   communityId: z.number(),
@@ -62,6 +63,31 @@ export function registerClaimRoutes(app: Express) {
           status: 'Pending'
         })
         .returning();
+
+      // Get community details for notification
+      const [community] = await db
+        .select()
+        .from(communities)
+        .where(eq(communities.id, validatedData.communityId))
+        .limit(1);
+
+      // Send internal notification
+      try {
+        await internalNotifications.notifyCommunityClaimSubmitted({
+          claimId: newClaim.id,
+          communityId: validatedData.communityId,
+          communityName: community?.name || 'Unknown Community',
+          businessName: validatedData.businessName,
+          contactName: validatedData.contactName,
+          email: validatedData.email,
+          phone: validatedData.phone,
+          operatorType: validatedData.operatorType,
+          subscriptionPlan: validatedData.subscriptionPlan
+        });
+      } catch (notificationError) {
+        console.error('Error sending internal claim notification:', notificationError);
+        // Don't fail the claim submission if internal notification fails
+      }
 
       res.status(201).json(newClaim);
     } catch (error) {
@@ -165,6 +191,31 @@ export function registerClaimRoutes(app: Express) {
           .where(eq(communities.id, claim.communityId));
       });
 
+      // Get community details for notification
+      const [community] = await db
+        .select()
+        .from(communities)
+        .where(eq(communities.id, claim.communityId))
+        .limit(1);
+
+      // Send internal notification
+      try {
+        await internalNotifications.notifyCommunityClaimApproved({
+          claimId: claimId,
+          communityId: claim.communityId,
+          communityName: community?.name || 'Unknown Community',
+          businessName: claim.businessName,
+          contactName: claim.contactName,
+          email: claim.email,
+          operatorType: claim.operatorType,
+          subscriptionPlan: claim.subscriptionPlan,
+          approvedBy: req.user?.email || 'admin'
+        });
+      } catch (notificationError) {
+        console.error('Error sending internal claim approval notification:', notificationError);
+        // Don't fail the approval if internal notification fails
+      }
+
       res.json({ success: true, message: 'Claim approved successfully' });
     } catch (error) {
       console.error('Error approving claim:', error);
@@ -207,6 +258,30 @@ export function registerClaimRoutes(app: Express) {
           updatedAt: new Date()
         })
         .where(eq(communityClaims.id, claimId));
+
+      // Get community details for notification
+      const [community] = await db
+        .select()
+        .from(communities)
+        .where(eq(communities.id, claim.communityId))
+        .limit(1);
+
+      // Send internal notification
+      try {
+        await internalNotifications.notifyCommunityClaimRejected({
+          claimId: claimId,
+          communityId: claim.communityId,
+          communityName: community?.name || 'Unknown Community',
+          businessName: claim.businessName,
+          contactName: claim.contactName,
+          email: claim.email,
+          rejectionReason: reason,
+          rejectedBy: req.user?.email || 'admin'
+        });
+      } catch (notificationError) {
+        console.error('Error sending internal claim rejection notification:', notificationError);
+        // Don't fail the rejection if internal notification fails
+      }
 
       res.json({ success: true, message: 'Claim rejected' });
     } catch (error) {

@@ -2,6 +2,7 @@ import Stripe from 'stripe';
 import { db } from './db';
 import { paymentTransactions, users, communities } from '@shared/schema';
 import { eq } from 'drizzle-orm';
+import { internalNotifications } from './services/internal-notifications';
 
 // Initialize Stripe with the secret key
 const stripe = process.env.STRIPE_SECRET_KEY 
@@ -130,6 +131,27 @@ export class StripePaymentService {
         
         // Trigger notification to community about new connection
         await this.notifyCommunityOfConnection(paymentIntent);
+        
+        // Send internal notification
+        try {
+          const { communityName, paymentType, userId } = paymentIntent.metadata;
+          const amount = paymentIntent.amount / 100; // Convert from cents
+          
+          // Get user details for notification
+          const [user] = await db.select().from(users).where(eq(users.id, parseInt(userId))).limit(1);
+          
+          await internalNotifications.notifyPaymentReceived({
+            communityName: communityName || 'Unknown Community',
+            amount,
+            paymentType: paymentType as 'tour' | 'application' | 'deposit' | 'document' | 'priority_support' || 'tour',
+            userName: user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.email || 'Unknown User',
+            userEmail: user?.email || 'unknown@email.com',
+            paymentIntentId: paymentIntent.id
+          });
+        } catch (notificationError) {
+          console.error('Error sending internal payment notification:', notificationError);
+          // Don't fail the webhook if internal notification fails
+        }
         break;
 
       case 'payment_intent.payment_failed':

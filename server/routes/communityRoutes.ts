@@ -16,6 +16,7 @@ import { nationwidePricingResearch } from "../nationwide-pricing-research";
 import { eliminateCallForPricing } from "../intelligent-pricing-system";
 import { realDataAnalyzer } from "../real-data-analyzer";
 import { z } from "zod";
+import { internalNotifications } from "../services/internal-notifications";
 
 export function registerCommunityRoutes(app: Express) {
   // IMPORTANT: Specific routes must come BEFORE the /:id route
@@ -424,6 +425,22 @@ export function registerCommunityRoutes(app: Express) {
         .insert(communities)
         .values(validatedData)
         .returning();
+
+      // Send internal notification
+      try {
+        await internalNotifications.notifyCommunityAdded({
+          communityId: newCommunity.id,
+          communityName: newCommunity.name,
+          city: newCommunity.city,
+          state: newCommunity.state,
+          type: newCommunity.type,
+          services: newCommunity.services || [],
+          addedBy: req.user?.email || 'system'
+        });
+      } catch (notificationError) {
+        console.error('Error sending internal community notification:', notificationError);
+        // Don't fail the community creation if internal notification fails
+      }
 
       res.status(201).json(newCommunity);
     } catch (error) {

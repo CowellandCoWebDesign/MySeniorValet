@@ -7,6 +7,7 @@ import { authService } from "../auth";
 import { isAuthenticated as requireAuth } from "../replitAuth";
 import { z } from "zod";
 import { authLimiter, createRateLimitMiddleware } from "../infrastructure/rateLimiter";
+import { internalNotifications } from "../services/internal-notifications";
 
 export function registerAuthRoutes(app: Express) {
   // Auth limiter is already imported from infrastructure/rateLimiter
@@ -36,6 +37,20 @@ export function registerAuthRoutes(app: Express) {
         sameSite: 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
       });
+
+      // Send internal notification
+      try {
+        await internalNotifications.notifyUserRegistered({
+          userId: newUser.id,
+          userName: `${newUser.firstName} ${newUser.lastName}`.trim() || newUser.email,
+          userEmail: newUser.email,
+          role: newUser.role,
+          signupMethod: 'standard'
+        });
+      } catch (notificationError) {
+        console.error('Error sending internal user registration notification:', notificationError);
+        // Don't fail the registration if internal notification fails
+      }
 
       res.status(201).json({
         user: {
