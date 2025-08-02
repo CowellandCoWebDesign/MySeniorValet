@@ -2,7 +2,7 @@
 // Enforces feature restrictions based on subscription tiers
 
 export interface SubscriptionTier {
-  name: 'verified' | 'standard' | 'featured' | 'platinum';
+  name: 'basic' | 'spotlight' | 'premium' | 'platinum';
   price: number;
   displayName: string;
   badge?: string;
@@ -53,10 +53,10 @@ export interface TierFeatures {
 
 // Tier Definitions
 export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
-  verified: {
-    name: 'verified',
+  basic: {
+    name: 'basic',
     price: 0,
-    displayName: 'Verified Listing',
+    displayName: 'Basic',
     features: {
       // Basic
       editContactInfo: true,
@@ -65,7 +65,7 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       tourScheduling: true, // If email verified
       
       // Media
-      maxPhotos: 1, // Logo or exterior only
+      maxPhotos: 5, // Claimed listing gets 5 photos
       maxVideos: 0,
       maxVideoLength: 0,
       
@@ -100,11 +100,11 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
     }
   },
   
-  standard: {
-    name: 'standard',
+  spotlight: {
+    name: 'spotlight',
     price: 149,
-    displayName: 'Standard',
-    badge: 'Standard Verified',
+    displayName: 'Spotlight',
+    badge: 'Spotlight Community',
     features: {
       // Basic
       editContactInfo: true,
@@ -148,11 +148,11 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
     }
   },
   
-  featured: {
-    name: 'featured',
+  premium: {
+    name: 'premium',
     price: 249,
-    displayName: 'Featured',
-    badge: 'Featured Community',
+    displayName: 'Premium',
+    badge: 'Premium Community',
     features: {
       // Basic
       editContactInfo: true,
@@ -161,7 +161,7 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       tourScheduling: true,
       
       // Media
-      maxPhotos: 25,
+      maxPhotos: 999, // Unlimited uploads for Premium tier
       maxVideos: 1,
       maxVideoLength: 2,
       

@@ -28,7 +28,11 @@ The platform is built with a modern web stack designed for transparency and user
 - **Key Features**: Interactive Map System with AI analysis, AI-Powered Search with multi-AI verification, Transparent Pricing (including HUD-verified data), Comprehensive Community Profiles, Unified Admin Dashboard, Family Collaboration tools, and a Senior Vendor Marketplace.
 - **UI/UX Decisions**: Emphasizes a clean, modern aesthetic with cosmic imagery. Consistent design elements include horizontal sliders and AI-generated product imagery for compliance. The system incorporates an automated testing infrastructure.
 - **System Design**: Features a 5-table database architecture for services management, dual subscription tier systems:
-  - **Community Tiers** (Verified/Standard/Featured/Platinum): Photo limits (1/10/25/50), analytics access restrictions, messaging limits
+  - **Community Tiers** - OFFICIAL PRICING:
+    - Basic: Free (claimed listing, 5 photos, edit description, reply to reviews)
+    - Spotlight: $149/month (red tag promo, search boost, 10 photos, intake forms)
+    - Premium: $249/month (unlimited uploads, branded forms, analytics, tour tracker)
+    - Platinum: $349/month (homepage placement, sponsored content, concierge sync, API access)
   - **Vendor Tiers** - CRITICAL PRICING:
     - Basic Listing: $99/month (1 regional zip cluster, no photos/branding, $25 verification badge add-on)
     - Featured Vendor: $249/month (5 regional areas, logo/branding, featured placement, basic analytics) 
