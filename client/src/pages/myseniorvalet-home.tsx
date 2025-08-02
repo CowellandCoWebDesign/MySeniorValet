@@ -1013,10 +1013,13 @@ export default function MySeniorValetHome() {
               </h2>
               <div className="h-1 w-32 bg-gradient-to-r from-orange-500 to-red-500 mx-auto rounded-full"></div>
             </div>
-            <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-200 font-semibold mb-8">Beyond communities - everything seniors need for independent living</p>
+            <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-200 font-semibold mb-4">Beyond communities - everything seniors need for independent living</p>
+            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
+              Join 1,500+ trusted vendors reaching families nationwide • Starting FREE or from $99/month
+            </p>
             
-            {/* Status Pills - Smaller on mobile */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
+            {/* Status Pills with Vendor Count - Smaller on mobile */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
               <div className="relative">
                 <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-bold flex items-center gap-2 sm:gap-3 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                   <div className="relative">
@@ -1028,15 +1031,39 @@ export default function MySeniorValetHome() {
               </div>
               
               <div className="relative">
+                <Badge className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                  <span className="relative flex items-center gap-2">
+                    <Shield className="w-4 h-4" />
+                    <span>1,500+ VERIFIED VENDORS</span>
+                  </span>
+                </Badge>
+              </div>
+              
+              <div className="relative">
                 <Badge className="bg-gradient-to-r from-orange-500 to-amber-600 text-white px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                   <span className="relative">
                     <span className="absolute inset-0 animate-pulse">✨</span>
-                    <span className="relative">NEW ECOSYSTEM</span>
+                    <span className="relative">FREE TO START</span>
                   </span>
                 </Badge>
               </div>
             </div>
             
+            {/* Quick Vendor CTA */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+              <Link href="/vendor-marketplace-tiers">
+                <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                  <Briefcase className="w-5 h-5 mr-2" />
+                  Become a Vendor Partner
+                </Button>
+              </Link>
+              <Link href="/vendor-dashboard">
+                <Button variant="outline" className="border-2 border-purple-600 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 px-6 py-3 rounded-xl font-semibold transition-all duration-200">
+                  <LogIn className="w-5 h-5 mr-2" />
+                  Vendor Login
+                </Button>
+              </Link>
+            </div>
 
           </div>
 

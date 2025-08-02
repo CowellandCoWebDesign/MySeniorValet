@@ -21,12 +21,15 @@ import {
   TrendingUp,
   PhoneCall,
   Globe,
-  Briefcase
+  Briefcase,
+  Home,
+  Gift
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { Header } from "@/components/header";
 
 interface VendorTier {
   name: string;
@@ -65,6 +68,31 @@ interface VendorTier {
   };
 }
 
+// Add free tier to vendor tiers
+const freeTier: VendorTier = {
+  name: "Free Listing",
+  price: 0,
+  features: {
+    listingVisible: true,
+    regionalCoverage: 1, // Limited to 1 region
+    leadGeneration: 5, // Limited leads per month
+    featuredPlacement: false,
+    prioritySupport: false,
+    analyticsAccess: 'none',
+    profileCustomization: 'basic',
+    productListings: 1,
+    monthlyClicks: 50,
+    responseTime: '48-72 hours',
+    verifiedBadge: false,
+    promotionalOffers: 0,
+    userReviews: true,
+    affiliateTracking: false,
+    photos: false,
+    callToAction: false,
+    logo: false
+  }
+};
+
 export default function VendorMarketplaceTiers() {
   const [selectedTier, setSelectedTier] = useState<string>('featured');
   const [, setLocation] = useLocation();
@@ -76,6 +104,7 @@ export default function VendorMarketplaceTiers() {
   });
 
   const tierColors = {
+    free: "border-green-300 bg-green-50",
     basic: "border-gray-300 bg-gray-50",
     featured: "border-blue-500 bg-blue-50 ring-2 ring-blue-500",
     national: "border-purple-500 bg-purple-50",
@@ -83,6 +112,7 @@ export default function VendorMarketplaceTiers() {
   };
 
   const tierIcons = {
+    free: <Gift className="w-8 h-8 text-green-600" />,
     basic: <ShoppingBag className="w-8 h-8 text-gray-600" />,
     featured: <Star className="w-8 h-8 text-blue-600" />,
     national: <Globe className="w-8 h-8 text-purple-600" />,
@@ -91,23 +121,20 @@ export default function VendorMarketplaceTiers() {
 
   const handleUpgrade = async (tier: string) => {
     try {
-      // TODO: Integrate with Stripe for payment processing
+      // Show upgrade flow
       toast({
-        title: "Upgrade Process Started",
-        description: "Redirecting to payment processing...",
+        title: "Contact Sales",
+        description: `To upgrade to ${allTiers[tier]?.name} tier, please contact our sales team.`,
       });
       
-      // For now, just update the tier (in production, this would go through Stripe)
-      await apiRequest("POST", `/api/vendors/1/upgrade`, { targetTier: tier });
-      
-      toast({
-        title: "Subscription Upgraded",
-        description: `Successfully upgraded to ${vendorTiers?.[tier]?.name} tier!`,
-      });
+      // Redirect to contact sales page
+      setTimeout(() => {
+        setLocation('/contact-sales');
+      }, 1500);
     } catch (error) {
       toast({
-        title: "Upgrade Failed",
-        description: "Failed to process upgrade. Please try again.",
+        title: "Error",
+        description: "Something went wrong. Please try again.",
         variant: "destructive",
       });
     }
@@ -121,15 +148,23 @@ export default function VendorMarketplaceTiers() {
     );
   }
 
+  // Merge free tier with fetched vendor tiers
+  const allTiers = { free: freeTier, ...vendorTiers };
+
   return (
-    <div className="container mx-auto py-8 px-4 max-w-7xl">
-      {/* Header */}
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-4">Vendor Marketplace Tiers</h1>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          Choose the perfect plan to grow your senior care business and reach more families
-        </p>
-      </div>
+    <>
+      <Header />
+      <div className="container mx-auto py-8 px-4 max-w-7xl mt-16">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold mb-4">Vendor Marketplace Portal</h1>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            Join thousands of senior care providers reaching families nationwide
+          </p>
+          <p className="text-lg text-gray-500 dark:text-gray-400 mt-2">
+            Start with our free listing or upgrade to reach more families
+          </p>
+        </div>
 
       {/* Tier Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
@@ -463,7 +498,7 @@ export default function VendorMarketplaceTiers() {
         <Card className="max-w-2xl mx-auto bg-gradient-to-r from-blue-50 to-purple-50">
           <CardContent className="py-8">
             <h2 className="text-2xl font-bold mb-4">Ready to Grow Your Business?</h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
               Join thousands of vendors who trust MySeniorValet to connect with families seeking senior care services
             </p>
             <div className="flex justify-center gap-4">
@@ -480,5 +515,6 @@ export default function VendorMarketplaceTiers() {
         </Card>
       </div>
     </div>
+    </>
   );
 }
