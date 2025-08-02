@@ -186,7 +186,7 @@ export function RedTagDeals() {
               </div>
 
               {/* CTA Button */}
-              <Link href="/communities">
+              <Link href={`/red-tag-example/${deal.id === 1 ? 'sunrise-senior-living' : deal.id === 2 ? 'heritage-hills' : 'golden-years'}`}>
                 <Button className="w-full h-8 text-sm bg-red-600 hover:bg-red-700 text-white">
                   <Tag className="w-4 h-4 mr-2" />
                   Claim This Deal

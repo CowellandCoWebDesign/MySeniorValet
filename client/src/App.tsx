@@ -103,6 +103,7 @@ import SuperAdminDashboard from "@/pages/super-admin-dashboard";
 import FinancialDashboard from "@/pages/financial-dashboard";
 import { useAuth } from "@/hooks/useAuth";
 import CanadaPage from "@/pages/canada";
+import RedTagExample from "@/pages/red-tag-example";
 
 function Router() {
   const [location] = useLocation();
@@ -125,6 +126,7 @@ function Router() {
       <Route path="/ai-intelligence" component={AISearch} />
       <Route path="/community/:id" component={CommunityDetail} />
       <Route path="/communities/:id" component={CommunityDetail} />
+      <Route path="/red-tag-example/:communitySlug" component={RedTagExample} />
       <Route path="/community/:id/contribute" component={CommunityContribute} />
       <Route path="/claim/:communityId" component={Claim} />
       <Route path="/admin" component={AdminCreative} />
