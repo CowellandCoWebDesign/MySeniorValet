@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, Link } from 'wouter';
+import { Link, useRoute } from 'wouter';
 import { ArrowLeft, Tag, Star, MapPin, Phone, Globe, Calendar, Home, Building, 
          Clock, AlertCircle, ExternalLink, Sparkles, Users, Heart, Shield,
          TrendingUp, Award, CheckCircle, Settings, MessageSquare, Mail,
