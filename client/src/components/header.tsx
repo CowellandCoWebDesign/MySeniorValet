@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Home, Menu, Search, MapPin, Building2, Shield, HelpCircle } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { NotificationCenter } from "@/components/NotificationCenter";
 
 export function Header() {
   const [location] = useLocation();
@@ -58,6 +59,7 @@ export function Header() {
           </div>
           <div className="flex items-center space-x-3">
             <ThemeToggle />
+            <NotificationCenter />
             <Link to="/community-portal" className="hidden lg:block">
               <Button variant="ghost" className="text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700 font-medium">
                 <Building2 className="h-4 w-4 mr-2" />

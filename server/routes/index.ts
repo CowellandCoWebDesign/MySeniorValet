@@ -27,7 +27,7 @@ import { registerFamilyRoutes } from "./familyRoutes";
 import { registerPaymentRoutes } from "./paymentRoutes";
 import { registerStatsRoutes } from "./statsRoutes";
 import { registerPricingRoutes } from "./pricingRoutes";
-import { registerNotificationRoutes } from "./notificationRoutes";
+import notificationRoutes from "./notificationRoutes";
 import { registerDocumentRoutes } from "./documentRoutes";
 import { registerSecurityRoutes } from "./securityRoutes";
 import { registerInfrastructureRoutes } from "./infrastructureRoutes";
@@ -92,7 +92,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerPaymentRoutes(app);
   registerStatsRoutes(app);
   registerPricingRoutes(app);
-  registerNotificationRoutes(app);
+  app.use(notificationRoutes);
   registerDocumentRoutes(app);
   registerSecurityRoutes(app);
   registerInfrastructureRoutes(app);

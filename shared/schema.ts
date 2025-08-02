@@ -3850,3 +3850,174 @@ export const insertMarketplaceVendorClickSchema = createInsertSchema(marketplace
 });
 export type InsertMarketplaceVendorClick = z.infer<typeof insertMarketplaceVendorClickSchema>;
 export type MarketplaceVendorClick = typeof marketplaceVendorClicks.$inferSelect;
+
+// ============ SMART NOTIFICATION SYSTEM TABLES ============
+
+// Notifications table for community updates and milestones
+export const notifications = pgTable("notifications", {
+  id: serial("id").primaryKey(),
+  
+  // Notification Details
+  type: varchar("type", { length: 50 }).notNull(), // 'community_update', 'milestone', 'review', 'price_change', 'photo_added', 'availability', 'system'
+  category: varchar("category", { length: 50 }).notNull(), // 'updates', 'milestones', 'reviews', 'pricing', 'media', 'general'
+  priority: varchar("priority", { length: 20 }).default('normal'), // 'low', 'normal', 'high', 'urgent'
+  
+  // Content
+  title: varchar("title", { length: 255 }).notNull(),
+  message: text("message").notNull(),
+  actionUrl: varchar("action_url", { length: 500 }), // Link to relevant page
+  iconType: varchar("icon_type", { length: 50 }), // Icon identifier for UI
+  
+  // Target
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  communityId: integer("community_id").references(() => communities.id, { onDelete: "cascade" }),
+  
+  // Metadata
+  metadata: jsonb("metadata").$type<{
+    oldValue?: any;
+    newValue?: any;
+    milestone?: string;
+    threshold?: number;
+    contributorName?: string;
+    changeType?: string;
+  }>().default({}),
+  
+  // Status
+  isRead: boolean("is_read").default(false),
+  readAt: timestamp("read_at"),
+  emailSent: boolean("email_sent").default(false),
+  emailSentAt: timestamp("email_sent_at"),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  expiresAt: timestamp("expires_at"), // For auto-cleanup of old notifications
+}, (table) => [
+  index("notifications_user_id_idx").on(table.userId),
+  index("notifications_community_id_idx").on(table.communityId),
+  index("notifications_is_read_idx").on(table.isRead),
+  index("notifications_created_at_idx").on(table.createdAt),
+  index("notifications_type_idx").on(table.type),
+]);
+
+// User notification preferences
+export const userNotificationPreferences = pgTable("user_notification_preferences", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }).unique(),
+  
+  // Email Preferences
+  emailEnabled: boolean("email_enabled").default(true),
+  emailFrequency: varchar("email_frequency", { length: 20 }).default('immediate'), // 'immediate', 'daily', 'weekly', 'never'
+  
+  // Notification Type Preferences
+  communityUpdates: boolean("community_updates").default(true),
+  priceChanges: boolean("price_changes").default(true),
+  newPhotos: boolean("new_photos").default(true),
+  newReviews: boolean("new_reviews").default(true),
+  availabilityChanges: boolean("availability_changes").default(true),
+  milestones: boolean("milestones").default(true),
+  systemAnnouncements: boolean("system_announcements").default(true),
+  
+  // Community Tracking
+  watchedCommunities: integer("watched_communities").array().default([]), // Array of community IDs to watch
+  
+  // Quiet Hours
+  quietHoursEnabled: boolean("quiet_hours_enabled").default(false),
+  quietHoursStart: varchar("quiet_hours_start", { length: 5 }), // "22:00"
+  quietHoursEnd: varchar("quiet_hours_end", { length: 5 }), // "08:00"
+  timezone: varchar("timezone", { length: 50 }).default('America/New_York'),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("user_notification_preferences_user_id_idx").on(table.userId),
+]);
+
+// Community milestones tracking
+export const communityMilestones = pgTable("community_milestones", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").notNull().references(() => communities.id, { onDelete: "cascade" }),
+  
+  // Milestone Details
+  type: varchar("type", { length: 50 }).notNull(), // 'reviews', 'photos', 'verified', 'rating', 'popularity'
+  milestone: varchar("milestone", { length: 100 }).notNull(), // '10_reviews', '50_photos', 'fully_verified', '4_star_rating'
+  threshold: integer("threshold").notNull(), // Numeric threshold for the milestone
+  
+  // Achievement
+  achievedAt: timestamp("achieved_at"),
+  currentValue: integer("current_value").default(0),
+  notificationSent: boolean("notification_sent").default(false),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("community_milestones_community_id_idx").on(table.communityId),
+  index("community_milestones_type_idx").on(table.type),
+  unique("community_milestones_unique").on(table.communityId, table.type, table.milestone),
+]);
+
+// Notification queue for batch processing
+export const notificationQueue = pgTable("notification_queue", {
+  id: serial("id").primaryKey(),
+  
+  // Queue Details
+  notificationId: integer("notification_id").references(() => notifications.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  
+  // Processing
+  status: varchar("status", { length: 20 }).default('pending'), // 'pending', 'processing', 'sent', 'failed'
+  attempts: integer("attempts").default(0),
+  lastAttemptAt: timestamp("last_attempt_at"),
+  error: text("error"),
+  
+  // Email Details
+  emailTo: varchar("email_to", { length: 255 }),
+  emailSubject: varchar("email_subject", { length: 255 }),
+  emailBody: text("email_body"),
+  
+  // Scheduling
+  scheduledFor: timestamp("scheduled_for").defaultNow(),
+  sentAt: timestamp("sent_at"),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("notification_queue_status_idx").on(table.status),
+  index("notification_queue_scheduled_for_idx").on(table.scheduledFor),
+  index("notification_queue_user_id_idx").on(table.userId),
+]);
+
+// Insert schemas for notifications
+export const insertNotificationSchema = createInsertSchema(notifications).omit({
+  id: true,
+  createdAt: true,
+  readAt: true,
+  emailSentAt: true,
+});
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+export type Notification = typeof notifications.$inferSelect;
+
+export const insertUserNotificationPreferencesSchema = createInsertSchema(userNotificationPreferences).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertUserNotificationPreferences = z.infer<typeof insertUserNotificationPreferencesSchema>;
+export type UserNotificationPreferences = typeof userNotificationPreferences.$inferSelect;
+
+export const insertCommunityMilestoneSchema = createInsertSchema(communityMilestones).omit({
+  id: true,
+  createdAt: true,
+  achievedAt: true,
+});
+export type InsertCommunityMilestone = z.infer<typeof insertCommunityMilestoneSchema>;
+export type CommunityMilestone = typeof communityMilestones.$inferSelect;
+
+export const insertNotificationQueueSchema = createInsertSchema(notificationQueue).omit({
+  id: true,
+  createdAt: true,
+  lastAttemptAt: true,
+  sentAt: true,
+});
+export type InsertNotificationQueue = z.infer<typeof insertNotificationQueueSchema>;
+export type NotificationQueue = typeof notificationQueue.$inferSelect;

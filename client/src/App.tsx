@@ -73,6 +73,7 @@ import FamilyConnect from "@/pages/family-connect";
 import CommunityPaymentProgram from "@/pages/community-payment-program";
 import ResidentOnboarding from "@/pages/resident-onboarding";
 import LeaseDocumentManagement from "@/pages/lease-document-management";
+import { NotificationPreferencesPage } from "@/pages/notification-preferences";
 import NotFound from "@/pages/not-found";
 import QuizPage from "@/pages/quiz";
 import TestDebug from "@/pages/test-debug";
@@ -145,6 +146,7 @@ function Router() {
       <Route path="/tours" component={ToursPage} />
       <Route path="/messaging" component={Messaging} />
       <Route path="/messages" component={Messaging} />
+      <Route path="/notification-preferences" component={NotificationPreferencesPage} />
       <Route path="/support" component={SupportResources} />
       <Route path="/veterans" component={VeteransHousing} />
       {/* HudVashMap route removed */}
