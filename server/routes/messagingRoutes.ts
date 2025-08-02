@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { db } from '../db';
-import { vendorConversations, vendorConversationParticipants, vendorMessages, users, vendorRegistrations } from '../../shared/schema';
+import { vendorConversations, vendorConversationParticipants, vendorMessages, users, vendorRegistrations, communities } from '../../shared/schema';
 import { eq, and, or, desc, sql } from 'drizzle-orm';
+import { NotificationService } from '../notification-service';
 
 const router = Router();
 
@@ -150,6 +151,93 @@ router.post('/conversations/:conversationId/messages', async (req, res) => {
       [sender] = await db.select().from(users).where(eq(users.id, senderId));
     } else if (senderVendorId) {
       [sender] = await db.select().from(vendorRegistrations).where(eq(vendorRegistrations.id, senderVendorId));
+    }
+    
+    // Get conversation details to determine recipients and send notifications
+    const [conversation] = await db
+      .select()
+      .from(vendorConversations)
+      .where(eq(vendorConversations.id, parseInt(conversationId)));
+    
+    if (conversation) {
+      // Get all participants except the sender
+      const participants = await db
+        .select()
+        .from(vendorConversationParticipants)
+        .where(
+          and(
+            eq(vendorConversationParticipants.conversationId, parseInt(conversationId)),
+            senderId ? 
+              or(
+                vendorConversationParticipants.userId.isNot(senderId),
+                vendorConversationParticipants.vendorId.isNotNull()
+              ) :
+              vendorConversationParticipants.userId.isNotNull()
+          )
+        );
+      
+      // Create notifications for recipients
+      for (const participant of participants) {
+        if (participant.userId && participant.userId !== senderId) {
+          // Notification for user recipient
+          await NotificationService.createNotification({
+            userId: participant.userId,
+            type: 'message',
+            title: 'New Message',
+            message: `You have a new message from ${sender?.name || 'a community'}`,
+            category: 'messages',
+            priority: 'normal',
+            actionUrl: `/messaging`,
+            iconType: 'message-square',
+            metadata: {
+              conversationId: conversation.id,
+              messageId: message.id,
+              senderName: sender?.name || 'Community'
+            }
+          });
+        } else if (participant.vendorId) {
+          // For vendor/community recipients, we need to notify the community manager
+          // This would typically be handled by the vendor's notification system
+          // For now, we'll log it
+          console.log(`New message for vendor ${participant.vendorId} in conversation ${conversationId}`);
+        }
+      }
+      
+      // If conversation type is 'community', check if we need to notify community managers
+      if (conversation.type === 'community' && conversation.metadata?.communityId) {
+        const [community] = await db
+          .select()
+          .from(communities)
+          .where(eq(communities.id, conversation.metadata.communityId));
+        
+        if (community && community.claimedBy) {
+          // Get the user who claimed the community
+          const [communityManager] = await db
+            .select()
+            .from(users)
+            .where(eq(users.id, community.claimedBy));
+          
+          if (communityManager && communityManager.id !== senderId) {
+            await NotificationService.createNotification({
+              userId: communityManager.id,
+              type: 'message',
+              title: 'New Community Message',
+              message: `New message for ${community.name} from ${sender?.name || 'a user'}`,
+              category: 'messages',
+              priority: 'normal',
+              actionUrl: `/messaging`,
+              iconType: 'message-square',
+              communityId: community.id,
+              metadata: {
+                conversationId: conversation.id,
+                messageId: message.id,
+                communityName: community.name,
+                senderName: sender?.name || 'User'
+              }
+            });
+          }
+        }
+      }
     }
     
     res.json({ message, sender });
