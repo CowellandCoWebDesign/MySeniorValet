@@ -252,14 +252,17 @@ export function VendorMarketplaceTabs() {
     <div className="w-full">
       <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
         {/* Enhanced colorful tabs in 3-column grid layout */}
-        <TabsList className="grid grid-cols-3 gap-2 h-auto p-2 bg-gray-50 dark:bg-gray-900 rounded-xl mb-6 shadow-sm">
+        <TabsList className="grid grid-cols-3 gap-3 h-auto p-4 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-2xl mb-6 shadow-lg border border-gray-200 dark:border-gray-700">
           <TabsTrigger 
             value="all" 
-            className="group flex flex-col items-center justify-center gap-1 px-3 py-3 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all text-sm font-medium border border-gray-200 dark:border-gray-700 data-[state=active]:border-transparent h-full"
+            className="group flex flex-col items-center justify-center gap-2 px-4 py-4 bg-white dark:bg-gray-800 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:shadow-lg hover:scale-105 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-xl rounded-xl transition-all duration-200 text-sm font-medium border-2 border-gray-200 dark:border-gray-700 data-[state=active]:border-transparent h-full min-h-[100px]"
           >
-            <span className="text-2xl">🏪</span>
-            <span className="text-xs font-semibold">All Vendors</span>
-            <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full group-data-[state=active]:bg-white/20 group-data-[state=active]:text-white">
+            <div className="relative">
+              <span className="text-3xl mb-1 group-hover:scale-110 transition-transform duration-200">🏪</span>
+              <div className="absolute -inset-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full blur-md opacity-0 group-hover:opacity-20 group-data-[state=active]:opacity-30 transition-opacity duration-200"></div>
+            </div>
+            <span className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 group-data-[state=active]:text-white">All Vendors</span>
+            <span className="inline-flex items-center justify-center px-2.5 py-1 text-xs font-bold bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-700 dark:text-gray-300 rounded-full group-data-[state=active]:from-white/20 group-data-[state=active]:to-white/30 group-data-[state=active]:text-white shadow-sm group-hover:shadow-md transition-shadow duration-200">
               {vendors.length}
             </span>
           </TabsTrigger>
@@ -280,25 +283,28 @@ export function VendorMarketplaceTabs() {
             
             // Category-specific hover colors
             const categoryHovers: Record<string, string> = {
-              'groceries': 'hover:bg-green-50 dark:hover:bg-green-900/20',
-              'pharmacy': 'hover:bg-orange-50 dark:hover:bg-orange-900/20',
-              'transportation': 'hover:bg-blue-50 dark:hover:bg-blue-900/20',
-              'medical-supplies': 'hover:bg-red-50 dark:hover:bg-red-900/20',
-              'communication': 'hover:bg-purple-50 dark:hover:bg-purple-900/20',
-              'home-services': 'hover:bg-yellow-50 dark:hover:bg-yellow-900/20',
-              'financial': 'hover:bg-indigo-50 dark:hover:bg-indigo-900/20',
+              'groceries': 'hover:bg-gradient-to-br hover:from-green-50 hover:to-emerald-50 dark:hover:from-green-900/20 dark:hover:to-emerald-900/20',
+              'pharmacy': 'hover:bg-gradient-to-br hover:from-orange-50 hover:to-red-50 dark:hover:from-orange-900/20 dark:hover:to-red-900/20',
+              'transportation': 'hover:bg-gradient-to-br hover:from-blue-50 hover:to-cyan-50 dark:hover:from-blue-900/20 dark:hover:to-cyan-900/20',
+              'medical-supplies': 'hover:bg-gradient-to-br hover:from-red-50 hover:to-pink-50 dark:hover:from-red-900/20 dark:hover:to-pink-900/20',
+              'communication': 'hover:bg-gradient-to-br hover:from-purple-50 hover:to-indigo-50 dark:hover:from-purple-900/20 dark:hover:to-indigo-900/20',
+              'home-services': 'hover:bg-gradient-to-br hover:from-yellow-50 hover:to-amber-50 dark:hover:from-yellow-900/20 dark:hover:to-amber-900/20',
+              'financial': 'hover:bg-gradient-to-br hover:from-indigo-50 hover:to-blue-50 dark:hover:from-indigo-900/20 dark:hover:to-blue-900/20',
             };
             
             return (
               <TabsTrigger 
                 key={category.slug} 
                 value={category.slug} 
-                className={`group flex flex-col items-center justify-center gap-1 px-3 py-3 bg-white dark:bg-gray-800 ${categoryHovers[category.slug] || 'hover:bg-gray-50 dark:hover:bg-gray-700'} data-[state=active]:bg-gradient-to-r ${categoryGradients[category.slug] || 'data-[state=active]:from-gray-500 data-[state=active]:to-gray-600'} data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all text-sm font-medium border border-gray-200 dark:border-gray-700 data-[state=active]:border-transparent h-full`}
+                className={`group flex flex-col items-center justify-center gap-2 px-4 py-4 bg-white dark:bg-gray-800 hover:shadow-lg hover:scale-105 ${categoryHovers[category.slug] || 'hover:bg-gray-50 dark:hover:bg-gray-700'} data-[state=active]:bg-gradient-to-r ${categoryGradients[category.slug] || 'data-[state=active]:from-gray-500 data-[state=active]:to-gray-600'} data-[state=active]:text-white data-[state=active]:shadow-xl rounded-xl transition-all duration-200 text-sm font-medium border-2 border-gray-200 dark:border-gray-700 data-[state=active]:border-transparent h-full min-h-[100px]`}
               >
-                <Icon className="w-5 h-5" />
-                <span className="text-xs font-semibold text-center line-clamp-2">{category.name}</span>
+                <div className="relative">
+                  <Icon className="w-6 h-6 mb-1 group-hover:scale-110 transition-transform duration-200" />
+                  <div className={`absolute -inset-2 bg-gradient-to-r ${categoryGradients[category.slug]?.replace('data-[state=active]:', '') || 'from-gray-400 to-gray-500'} rounded-full blur-md opacity-0 group-hover:opacity-20 group-data-[state=active]:opacity-30 transition-opacity duration-200`}></div>
+                </div>
+                <span className="text-xs font-bold text-center line-clamp-2 uppercase tracking-wider text-gray-700 dark:text-gray-300 group-data-[state=active]:text-white">{category.name}</span>
                 {vendorCount > 0 && (
-                  <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full group-data-[state=active]:bg-white/20 group-data-[state=active]:text-white">
+                  <span className="inline-flex items-center justify-center px-2.5 py-1 text-xs font-bold bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-700 dark:text-gray-300 rounded-full group-data-[state=active]:from-white/20 group-data-[state=active]:to-white/30 group-data-[state=active]:text-white shadow-sm group-hover:shadow-md transition-shadow duration-200">
                     {vendorCount}
                   </span>
                 )}
