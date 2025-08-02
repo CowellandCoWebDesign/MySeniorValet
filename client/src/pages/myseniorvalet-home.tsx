@@ -2286,7 +2286,7 @@ export default function MySeniorValetHome() {
                   {/* Pricing */}
                   <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-6 w-full">
                     <p className="text-center text-sm font-medium text-blue-800 dark:text-blue-300">
-                      Free Basic • $149 Spotlight • $249 Premium • $349 Platinum
+                      Free Verified • $149 Standard • $249 Featured • $349 Platinum
                     </p>
                   </div>
 

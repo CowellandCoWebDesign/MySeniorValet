@@ -29,10 +29,10 @@ The platform is built with a modern web stack designed for transparency and user
 - **UI/UX Decisions**: Emphasizes a clean, modern aesthetic with cosmic imagery. Consistent design elements include horizontal sliders and AI-generated product imagery for compliance. The system incorporates an automated testing infrastructure.
 - **System Design**: Features a 5-table database architecture for services management, dual subscription tier systems:
   - **Community Tiers** - OFFICIAL PRICING:
-    - Basic: Free (claimed listing, 5 photos, edit description, reply to reviews)
-    - Spotlight: $149/month (red tag promo, search boost, 10 photos, intake forms)
-    - Premium: $249/month (unlimited uploads, branded forms, analytics, tour tracker)
-    - Platinum: $349/month (homepage placement, sponsored content, concierge sync, API access)
+    - Verified Listing: Free (1 photo, edit contact info, tour scheduling if email verified)
+    - Standard: $149/month (10 photos, 1 PDF, respond to reviews, basic analytics)
+    - Featured: $249/month (25 photos, 1 video, 3 PDFs, in-app messaging, featured placement)
+    - Platinum: $349/month (50 photos, 3 videos, unlimited PDFs, staff bios, monthly performance call)
   - **Vendor Tiers** - CRITICAL PRICING:
     - Basic Listing: $99/month (1 regional zip cluster, no photos/branding, $25 verification badge add-on)
     - Featured Vendor: $249/month (5 regional areas, logo/branding, featured placement, basic analytics) 

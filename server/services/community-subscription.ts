@@ -2,7 +2,7 @@
 // Enforces feature restrictions based on subscription tiers
 
 export interface SubscriptionTier {
-  name: 'basic' | 'spotlight' | 'premium' | 'platinum';
+  name: 'verified' | 'standard' | 'featured' | 'platinum';
   price: number;
   displayName: string;
   badge?: string;
@@ -53,10 +53,10 @@ export interface TierFeatures {
 
 // Tier Definitions
 export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
-  basic: {
-    name: 'basic',
+  verified: {
+    name: 'verified',
     price: 0,
-    displayName: 'Basic',
+    displayName: 'Verified Listing',
     features: {
       // Basic
       editContactInfo: true,
@@ -65,20 +65,20 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       tourScheduling: true, // If email verified
       
       // Media
-      maxPhotos: 5, // Claimed listing gets 5 photos
+      maxPhotos: 1, // Logo or exterior only
       maxVideos: 0,
       maxVideoLength: 0,
       
       // Documents
-      maxPdfs: 0,
+      maxPdfs: 0, // No PDF uploads
       
       // Engagement
-      respondToReviews: false,
-      inAppMessaging: false,
+      respondToReviews: false, // Cannot respond to reviews
+      inAppMessaging: false, // No in-app messaging
       aiResponseAssist: false,
       
       // Analytics
-      basicAnalytics: false,
+      basicAnalytics: false, // No analytics
       advancedAnalytics: false,
       monthlyPerformanceCall: false,
       
@@ -100,11 +100,11 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
     }
   },
   
-  spotlight: {
-    name: 'spotlight',
+  standard: {
+    name: 'standard',
     price: 149,
-    displayName: 'Spotlight',
-    badge: 'Spotlight Community',
+    displayName: 'Standard',
+    badge: 'Standard Verified',
     features: {
       // Basic
       editContactInfo: true,
@@ -113,20 +113,20 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       tourScheduling: true,
       
       // Media
-      maxPhotos: 10,
+      maxPhotos: 10, // Up to 10 photos
       maxVideos: 0,
       maxVideoLength: 0,
       
       // Documents
-      maxPdfs: 1,
+      maxPdfs: 1, // 1 brochure/PDF
       
       // Engagement
-      respondToReviews: true,
+      respondToReviews: true, // Can respond to reviews
       inAppMessaging: false,
       aiResponseAssist: false,
       
       // Analytics
-      basicAnalytics: true,
+      basicAnalytics: true, // Access basic listing analytics
       advancedAnalytics: false,
       monthlyPerformanceCall: false,
       
@@ -148,11 +148,11 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
     }
   },
   
-  premium: {
-    name: 'premium',
+  featured: {
+    name: 'featured',
     price: 249,
-    displayName: 'Premium',
-    badge: 'Premium Community',
+    displayName: 'Featured',
+    badge: 'Featured Community',
     features: {
       // Basic
       editContactInfo: true,
@@ -161,12 +161,12 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       tourScheduling: true,
       
       // Media
-      maxPhotos: 999, // Unlimited uploads for Premium tier
-      maxVideos: 1,
-      maxVideoLength: 2,
+      maxPhotos: 25, // Up to 25 photos
+      maxVideos: 1, // 1 video
+      maxVideoLength: 2, // Max 2 minutes
       
       // Documents
-      maxPdfs: 3,
+      maxPdfs: 3, // Up to 3 PDFs
       
       // Engagement
       respondToReviews: true,
@@ -209,12 +209,12 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       tourScheduling: true,
       
       // Media
-      maxPhotos: 50,
-      maxVideos: 3,
-      maxVideoLength: 5,
+      maxPhotos: 50, // Up to 50 photos
+      maxVideos: 3, // Up to 3 videos
+      maxVideoLength: 5, // Max 5 mins each
       
       // Documents
-      maxPdfs: 999, // Unlimited
+      maxPdfs: 999, // Unlimited PDFs
       
       // Engagement
       respondToReviews: true,
@@ -224,7 +224,7 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       // Analytics
       basicAnalytics: true,
       advancedAnalytics: true,
-      monthlyPerformanceCall: true,
+      monthlyPerformanceCall: true, // Monthly performance review call
       
       // Visibility
       featuredPlacement: true,
@@ -235,12 +235,12 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       
       // Advanced
       tourCalendarLink: true,
-      staffBios: true,
-      menus: true,
-      carePhilosophy: true,
-      jobListings: true,
-      realTimeAvailability: true,
-      multiPropertyDashboard: true,
+      staffBios: true, // Upload staff bios
+      menus: true, // Upload menus
+      carePhilosophy: true, // Upload care philosophy
+      jobListings: true, // Upload job listings
+      realTimeAvailability: true, // Real-time availability syncing
+      multiPropertyDashboard: true, // Multi-property admin dashboard
     }
   }
 };
