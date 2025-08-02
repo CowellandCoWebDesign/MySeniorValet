@@ -103,6 +103,16 @@ export function Footer() {
           </div>
           
           <div>
+            <h3 className="text-lg font-semibold mb-6 text-white">For Vendors</h3>
+            <ul className="space-y-3 text-gray-300">
+              <li><Link href="/vendor-marketplace" className="hover:text-blue-400 transition-colors font-medium">Marketplace</Link></li>
+              <li><Link href="/vendor-marketplace-tiers" className="hover:text-blue-400 transition-colors font-medium">Pricing & Tiers</Link></li>
+              <li><Link href="/vendor-dashboard" className="hover:text-blue-400 transition-colors font-medium">Vendor Dashboard</Link></li>
+              <li><Link href="/vendor-signup" className="hover:text-blue-400 transition-colors font-medium">Become a Vendor</Link></li>
+            </ul>
+          </div>
+          
+          <div>
             <h3 className="text-lg font-semibold mb-6 text-white">Legal & Compliance</h3>
             <ul className="space-y-3 text-gray-300">
               <li><Link href="/privacy" className="hover:text-blue-400 transition-colors font-medium">Privacy Policy</Link></li>

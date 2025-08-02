@@ -133,7 +133,8 @@ export default function VendorMarketplaceTiers() {
 
       {/* Tier Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        {vendorTiers && Object.entries(vendorTiers).map(([key, tier]) => (
+        {vendorTiers && Object.entries(vendorTiers).map(([key, tier]) => 
+          tier && tier.features ? (
           <Card 
             key={key}
             className={`relative overflow-hidden transition-all cursor-pointer ${
@@ -253,7 +254,8 @@ export default function VendorMarketplaceTiers() {
               </Button>
             </CardContent>
           </Card>
-        ))}
+          ) : null
+        )}
       </div>
 
       {/* Detailed Feature Comparison */}
