@@ -34,6 +34,7 @@ import { NavigationHeader } from "@/components/NavigationHeader";
 import { AuthenticPricingDisplay } from "@/components/AuthenticPricingDisplay";
 import { TourScheduler } from "@/components/TourScheduler";
 import { MessageCommunityButton } from "@/components/message-community-button";
+import { MissingPhotosPanel } from "@/components/MissingPhotosPanel";
 
 // Determine if community has verified pricing data
 const hasVerifiedPricing = (community: Community): boolean => {
@@ -574,25 +575,11 @@ export default function CommunityDetail() {
                       </div>
                     </>
                   ) : (
-                    <div className="h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                      <div className="text-center p-8">
-                        <div className="w-16 h-16 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                            {getInitials(community.name)}
-                          </span>
-                        </div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                          Photos Coming Soon
-                        </h3>
-                        <p className="text-gray-900 dark:text-gray-100 mb-4">
-                          Authentic community photos will be displayed when this facility claims their listing
-                        </p>
-                        <Badge className="bg-blue-100 text-blue-800 border border-blue-200">
-                          <Clock className="h-3 w-3 mr-1" />
-                          Pending Community Verification
-                        </Badge>
-                      </div>
-                    </div>
+                    <MissingPhotosPanel 
+                      communityId={community.id} 
+                      communityName={community.name}
+                      size="small"
+                    />
                   )}
 
                   {/* Action Buttons */}
@@ -1916,7 +1903,7 @@ export default function CommunityDetail() {
                         <CardContent className="space-y-4">
                           <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
                             <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-2">
-                              {community.type || 'Senior Living Community'}
+                              {(community as any).type || 'Senior Living Community'}
                             </h4>
                             <p className="text-sm text-blue-800 dark:text-blue-300">
                               This classification indicates the primary focus and services offered by the community.
@@ -1933,7 +1920,7 @@ export default function CommunityDetail() {
                             <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                               <h5 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Ownership</h5>
                               <p className="text-sm text-gray-700 dark:text-gray-300">
-                                {community.ownership || 'Privately Owned'} - Independent operation
+                                {(community as any).ownership || 'Privately Owned'} - Independent operation
                               </p>
                             </div>
                           </div>
@@ -2684,9 +2671,10 @@ export default function CommunityDetail() {
                           />
                         </div>
                       ) : (
-                        <div className="bg-gray-100 dark:bg-gray-700 p-8 rounded-lg text-center">
-                          <p className="text-gray-900 dark:text-gray-100">No photos available</p>
-                        </div>
+                        <MissingPhotosPanel 
+                          communityId={community.id} 
+                          communityName={community.name}
+                        />
                       )}
                     </div>
                   </TabsContent>

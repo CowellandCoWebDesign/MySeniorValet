@@ -35,6 +35,7 @@ import VeteransHousing from "@/pages/veterans-housing";
 import AffordableHousing from "@/pages/affordable-housing";
 import FamilyCollaboration from "@/pages/family-collaboration";
 import CommunityDetail from "@/pages/community-detail";
+import CommunityContribute from "@/pages/community-contribute";
 import MapSearch from "@/pages/map-search";
 // Rentals page removed - consolidated to use BasicSearch
 // MapboxTest removed
@@ -122,6 +123,7 @@ function Router() {
       <Route path="/ai-intelligence" component={AISearch} />
       <Route path="/community/:id" component={CommunityDetail} />
       <Route path="/communities/:id" component={CommunityDetail} />
+      <Route path="/community/:id/contribute" component={CommunityContribute} />
       <Route path="/claim/:communityId" component={Claim} />
       <Route path="/admin" component={AdminCreative} />
       <Route path="/admin-creative" component={AdminCreative} />
