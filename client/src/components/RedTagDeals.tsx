@@ -32,7 +32,7 @@ export function RedTagDeals() {
       dealType: "Move-In Special",
       highlights: ["No community fee", "First month 50% off", "Free moving assistance"],
       rating: 4.5,
-      heroImage: "https://images.unsplash.com/photo-1571508601b60-5c8d0869d40a?w=800&h=600&fit=crop"
+      heroImage: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&h=600&fit=crop"
     },
     {
       id: 2,
@@ -58,7 +58,7 @@ export function RedTagDeals() {
       dealType: "Summer Special",
       highlights: ["Reduced rates", "Free cable & internet", "Meal plan upgrade"],
       rating: 4.3,
-      heroImage: "https://images.unsplash.com/photo-1571508601108-4d53efdfeb6b?w=800&h=600&fit=crop"
+      heroImage: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&h=600&fit=crop"
     }
   ];
 
