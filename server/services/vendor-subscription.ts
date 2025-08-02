@@ -9,7 +9,7 @@ export const VENDOR_SUBSCRIPTION_TIERS = {
     price: 99,
     features: {
       listingVisible: true,
-      regionalCoverage: 1, // 1 regional zip cluster
+      regionalCoverage: 1, // 1 zip cluster
       leadGeneration: -1, // No lead tracking at basic
       featuredPlacement: false,
       prioritySupport: false,
@@ -32,17 +32,17 @@ export const VENDOR_SUBSCRIPTION_TIERS = {
     price: 249,
     features: {
       listingVisible: true,
-      regionalCoverage: 5, // Up to 5 regional areas
+      regionalCoverage: 5, // Coverage across 5 regions
       leadGeneration: -1, // Tracking enabled but no limit
       featuredPlacement: true,
       prioritySupport: false,
-      analyticsAccess: 'basic', // Views, clicks, user actions
+      analyticsAccess: 'basic', // Views, clicks, leads
       profileCustomization: 'advanced',
       productListings: -1, // Unlimited products
       monthlyClicks: -1, // Unlimited clicks tracked
       responseTime: '24 hours',
-      verifiedBadge: true, // "MySeniorValet Approved" badge
-      promotionalOffers: -1, // Can post promotions
+      verifiedBadge: true, // Must have affiliate link for "Approved" badge
+      promotionalOffers: -1, // Can post vendor promos
       userReviews: true,
       affiliateTracking: true, // Required at this tier
       photos: true,
@@ -52,11 +52,11 @@ export const VENDOR_SUBSCRIPTION_TIERS = {
     }
   },
   national: {
-    name: "National Partner",
+    name: "National Partner (Premium)",
     price: 499,
     features: {
       listingVisible: true,
-      regionalCoverage: -1, // Nationwide (no limits)
+      regionalCoverage: -1, // Nationwide visibility (no geo cap)
       leadGeneration: -1, // Unlimited
       featuredPlacement: true,
       prioritySupport: true,
@@ -68,52 +68,18 @@ export const VENDOR_SUBSCRIPTION_TIERS = {
       verifiedBadge: true,
       promotionalOffers: -1, // Unlimited
       userReviews: true,
-      affiliateTracking: true,
+      affiliateTracking: true, // Required
       photos: true,
       callToAction: true,
       logo: true,
       featuredCarousel: true,
       bannerRotation: true,
-      dedicatedProfilePage: true,
-      apiLeadPassback: true,
-      quarterlyReport: true,
-      topConciergeMatch: true,
-    }
-  },
-  enterprise: {
-    name: "Enterprise / Exclusivity",
-    price: 999, // Starting price, custom negotiated
-    features: {
-      listingVisible: true,
-      regionalCoverage: -1, // Custom regional or national
-      leadGeneration: -1, // Unlimited
-      featuredPlacement: true,
-      prioritySupport: true,
-      analyticsAccess: 'enterprise',
-      profileCustomization: 'white-label',
-      productListings: -1, // Unlimited
-      monthlyClicks: -1, // Unlimited
-      responseTime: 'Priority (4 hours)',
-      verifiedBadge: true,
-      promotionalOffers: -1, // Unlimited
-      userReviews: true,
-      affiliateTracking: true,
-      photos: true,
-      callToAction: true,
-      logo: true,
-      featuredCarousel: true,
-      bannerRotation: true,
-      dedicatedProfilePage: true,
-      apiLeadPassback: true,
-      quarterlyReport: true,
-      topConciergeMatch: true,
-      exclusiveCategory: true,
-      coBranding: true,
-      revenueShare: true, // Optional hybrid model
-      crossPlatformPlacement: true,
-      dedicatedAccountManager: true,
-      apiAccess: true,
-      customIntegrations: true,
+      dedicatedProfilePage: true, // Dedicated vendor microsite
+      apiLeadPassback: true, // Optional API or CSV lead passback
+      quarterlyReport: true, // Quarterly performance report
+      topConciergeMatch: true, // Concierge system priority & routing
+      aiLeadSummaries: true, // AI-generated lead summaries + scoring
+      successCalls: true, // Optional vendor success call
     }
   }
 } as const;

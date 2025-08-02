@@ -8,6 +8,7 @@ import {
   Crown,
   Building2,
   Users,
+  User,
   BarChart3,
   MessageSquare,
   Eye,
@@ -23,7 +24,11 @@ import {
   Globe,
   Briefcase,
   Home,
-  Gift
+  Gift,
+  FileText,
+  Building,
+  DollarSign,
+  Zap
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
@@ -68,30 +73,7 @@ interface VendorTier {
   };
 }
 
-// Add free tier to vendor tiers
-const freeTier: VendorTier = {
-  name: "Free Starter",
-  price: 0,
-  features: {
-    listingVisible: true,
-    regionalCoverage: 1, // Limited to 1 zip code
-    leadGeneration: 5, // Limited leads per month
-    featuredPlacement: false,
-    prioritySupport: false,
-    analyticsAccess: 'none',
-    profileCustomization: 'basic',
-    productListings: 1,
-    monthlyClicks: 50,
-    responseTime: '48-72 hours',
-    verifiedBadge: false,
-    promotionalOffers: 0,
-    userReviews: true,
-    affiliateTracking: false,
-    photos: false,
-    callToAction: false,
-    logo: false
-  }
-};
+// No free tier for vendors
 
 export default function VendorMarketplaceTiers() {
   const [selectedTier, setSelectedTier] = useState<string>('featured');
@@ -104,19 +86,15 @@ export default function VendorMarketplaceTiers() {
   });
 
   const tierColors = {
-    free: "border-green-500 bg-green-50 dark:bg-green-900/20 dark:border-green-400",
     basic: "border-gray-300 bg-gray-50 dark:bg-gray-800 dark:border-gray-600",
     featured: "border-blue-500 bg-blue-50 dark:bg-blue-900/20 ring-2 ring-blue-500 dark:border-blue-400",
-    national: "border-purple-500 bg-purple-50 dark:bg-purple-900/20 dark:border-purple-400",
-    enterprise: "border-amber-500 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-400"
+    national: "border-purple-500 bg-purple-50 dark:bg-purple-900/20 dark:border-purple-400"
   };
 
   const tierIcons = {
-    free: <Gift className="w-8 h-8 text-green-600" />,
     basic: <ShoppingBag className="w-8 h-8 text-gray-600" />,
     featured: <Star className="w-8 h-8 text-blue-600" />,
-    national: <Globe className="w-8 h-8 text-purple-600" />,
-    enterprise: <Crown className="w-8 h-8 text-amber-600" />
+    national: <Globe className="w-8 h-8 text-purple-600" />
   };
 
   const handleUpgrade = async (tier: string) => {
@@ -148,8 +126,8 @@ export default function VendorMarketplaceTiers() {
     );
   }
 
-  // Merge free tier with fetched vendor tiers
-  const allTiers = { free: freeTier, ...vendorTiers };
+  // Only use fetched vendor tiers (no free tier)
+  const allTiers = vendorTiers;
 
   return (
     <>
@@ -162,12 +140,12 @@ export default function VendorMarketplaceTiers() {
             Join thousands of senior care providers reaching families nationwide
           </p>
           <p className="text-lg text-gray-500 dark:text-gray-400 mt-2">
-            Start with our free listing or upgrade to reach more families
+            Choose the perfect tier for your business needs
           </p>
         </div>
 
       {/* Tier Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         {Object.entries(allTiers).map(([key, tier]) => 
           tier && tier.features ? (
           <Card 
@@ -177,11 +155,6 @@ export default function VendorMarketplaceTiers() {
             }`}
             onClick={() => setSelectedTier(key)}
           >
-            {key === 'free' && (
-              <div className="absolute top-0 right-0 bg-green-600 text-white px-3 py-1 text-sm rounded-bl-lg">
-                NEW!
-              </div>
-            )}
             {key === 'featured' && (
               <div className="absolute top-0 right-0 bg-blue-600 text-white px-3 py-1 text-sm rounded-bl-lg">
                 Most Popular
@@ -204,44 +177,27 @@ export default function VendorMarketplaceTiers() {
             <CardContent className="space-y-3">
               <div className="space-y-2">
                 {/* Tier-specific Features */}
-                {key === 'free' && (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <Globe className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">1 zip code coverage</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <User className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Basic public listing</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <MessageSquare className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">5 leads per month</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                      <span className="text-sm text-gray-500 dark:text-gray-400">No branding or photos</span>
-                    </div>
-                  </>
-                )}
-                
                 {key === 'basic' && (
                   <>
                     <div className="flex items-center gap-2">
                       <Globe className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">1 regional zip cluster</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">1 zip cluster</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <User className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                       <span className="text-sm text-gray-700 dark:text-gray-300">Name, phone, category, description</span>
                     </div>
                     <div className="flex items-center gap-2">
+                      <Shield className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Optional $25 verified badge</span>
+                    </div>
+                    <div className="flex items-center gap-2">
                       <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Affiliate tracking ID integration</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Affiliate link support (optional)</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                      <span className="text-sm text-gray-500 dark:text-gray-400">No photos or branding</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">No logo or analytics</span>
                     </div>
                   </>
                 )}
@@ -250,19 +206,27 @@ export default function VendorMarketplaceTiers() {
                   <>
                     <div className="flex items-center gap-2">
                       <Globe className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Up to 5 regional areas</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Coverage across 5 regions</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Custom logo & branding</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Logo, brand colors, CTA button</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <BarChart3 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Basic analytics dashboard</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Basic analytics (views, clicks, leads)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Gift className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Post vendor promos</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Star className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Featured placement</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Featured placement in vendor carousels</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Must have affiliate link for "Approved" badge</span>
                     </div>
                   </>
                 )}
@@ -271,7 +235,35 @@ export default function VendorMarketplaceTiers() {
                   <>
                     <div className="flex items-center gap-2">
                       <Globe className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Nationwide coverage</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Nationwide visibility (no geo cap)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Banner rotation in vendor discovery areas</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Crown className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Concierge system priority & routing</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <BarChart3 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">AI-generated lead summaries + scoring</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Optional API or CSV lead passback</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Building2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Dedicated vendor microsite</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Quarterly performance report</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <PhoneCall className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Optional vendor success call</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <TrendingUp className="w-4 h-4 text-purple-600 dark:text-purple-400" />
