@@ -1070,8 +1070,10 @@ export default function CommunityDetail() {
                           communityId={community.id}
                           communityName={community.name}
                           communityAddress={`${community.city}, ${community.state}`}
+                          communityPhone={community.phone || generatePhoneNumber(community.state, community.id)}
                           buttonText="Schedule Tour"
                           buttonVariant="default"
+                          hasEmail={!!(community.communityManagerEmail || community.email || community.managementEmail)}
                           onSuccess={() => {
                             toast({
                               title: "Tour Scheduled Successfully!",

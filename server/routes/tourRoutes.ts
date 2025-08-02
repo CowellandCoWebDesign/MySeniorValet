@@ -44,6 +44,19 @@ router.post('/api/tours/schedule', async (req: Request, res: Response) => {
     // Combine date and time
     const tourDateTime = new Date(`${tourDate}T${tourTime}`);
     
+    // Check if community has any email available
+    const communityHasEmail = community.communityManagerEmail || 
+                             community.email || 
+                             community.managementEmail;
+    
+    if (!communityHasEmail && !community.isClaimed) {
+      return res.status(400).json({ 
+        error: 'Unable to schedule tour', 
+        message: 'This community has not yet claimed their listing and we have no contact information on file. Please contact the community directly or try another community.',
+        suggestedAction: 'contactDirectly'
+      });
+    }
+    
     // Create user if not authenticated (guest booking)
     let userId = req.user?.id ? parseInt(req.user.id) : null;
     
@@ -152,70 +165,139 @@ router.post('/api/tours/schedule', async (req: Request, res: Response) => {
     
     const communityEmail = findBestCommunityEmail();
     const isTestMode = true; // Always in test mode for now
-    const isClaimed = false; // TODO: Check if community is claimed
+    const isClaimed = community.isClaimed || false;
     
     if (communityEmail || isTestMode) {
       try {
         const emailTo = isTestMode ? 'hello@myseniorvalet.com' : communityEmail || 'hello@myseniorvalet.com';
         
-        await EmailService.sendEmail({
-          to: emailTo,
-          cc: isTestMode ? [] : ['hello@myseniorvalet.com'], // CC in production only
-          subject: `${isTestMode ? '[TEST MODE] ' : ''}New Tour Interest - ${community.name}`,
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              ${isTestMode ? `<div style="background-color: #fef3c7; border: 2px solid #f59e0b; padding: 15px; margin-bottom: 20px; border-radius: 8px;"><p style="margin: 0; color: #92400e;"><strong>TEST MODE:</strong> This email would normally go to ${communityEmail || 'the community contact'}</p></div>` : ''}
-              
-              <div style="background-color: #1e40af; color: white; padding: 30px; text-align: center;">
-                <h1 style="margin: 0;">You Have a New Tour Scheduled!</h1>
-              </div>
-              
-              <div style="padding: 30px;">
-                <h2 style="color: #1e40af;">Tour Details</h2>
-                <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px;">
-                  <p><strong>Date/Time:</strong> ${format(tourDateTime, 'EEEE, MMMM d, yyyy at h:mm a')}</p>
-                  <p><strong>Guest Name:</strong> ${contactName}</p>
-                  <p><strong>Contact:</strong> ${contactEmail} ${contactPhone ? `| ${contactPhone}` : ''}</p>
-                  <p><strong>Tour Type:</strong> ${tourType.replace('_', ' ').charAt(0).toUpperCase() + tourType.slice(1).replace('_', ' ')}</p>
-                  <p><strong>Party Size:</strong> ${attendeeCount} ${attendeeCount === 1 ? 'person' : 'people'}</p>
-                  ${specialRequests ? `<p><strong>Special Requests:</strong> ${specialRequests}</p>` : ''}
-                </div>
-                
-                ${!isClaimed ? `
-                <div style="background-color: #e0f2fe; border: 2px solid #0ea5e9; padding: 20px; margin: 20px 0; border-radius: 8px;">
-                  <h3 style="color: #0c4a6e; margin-top: 0;">🌟 Claim Your Community Listing</h3>
-                  <p>Did you know MySeniorValet connects thousands of families with senior communities every month?</p>
-                  <ul style="color: #0c4a6e;">
-                    <li><strong>34,171+ communities</strong> across North America</li>
-                    <li><strong>Direct connection</strong> to qualified prospects</li>
-                    <li><strong>No middleman fees</strong> - we connect families directly to you</li>
-                    <li><strong>Tour tracking</strong> and feedback tools</li>
-                  </ul>
-                  <p><strong>Claim your listing today to:</strong></p>
-                  <ul style="color: #0c4a6e;">
-                    <li>✓ Update your community information and photos</li>
-                    <li>✓ Receive tour notifications instantly</li>
-                    <li>✓ Access analytics about your listing views</li>
-                    <li>✓ Get a "Verified Partner" badge</li>
-                  </ul>
-                  <div style="text-align: center; margin: 20px 0;">
-                    <a href="https://myseniorvalet.com/vendor-signup" style="background-color: #0ea5e9; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">Claim Your Listing - Starting at $49/month</a>
-                  </div>
+        // Different subject lines for claimed vs unclaimed
+        const subject = isClaimed 
+          ? `${isTestMode ? '[TEST MODE] ' : ''}New Tour Scheduled - ${community.name}` 
+          : `${isTestMode ? '[TEST MODE] ' : ''}🎉 Your First Tour Request! - ${community.name}`;
+        
+        // Different email templates based on claimed status
+        const emailHtml = isClaimed ? `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            ${isTestMode ? `<div style="background-color: #fef3c7; border: 2px solid #f59e0b; padding: 15px; margin-bottom: 20px; border-radius: 8px;"><p style="margin: 0; color: #92400e;"><strong>TEST MODE:</strong> This email would normally go to ${communityEmail || 'the community contact'}</p></div>` : ''}
+            
+            <div style="background-color: #1e40af; color: white; padding: 20px; text-align: center;">
+              <h2 style="margin: 0;">New Tour Scheduled</h2>
+            </div>
+            
+            <div style="padding: 20px;">
+              <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px;">
+                <h3 style="margin-top: 0; color: #1e40af;">Tour Details</h3>
+                <table style="width: 100%;">
+                  <tr>
+                    <td style="padding: 5px 0;"><strong>Date/Time:</strong></td>
+                    <td>${format(tourDateTime, 'EEEE, MMMM d, yyyy at h:mm a')}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 5px 0;"><strong>Guest Name:</strong></td>
+                    <td>${contactName}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 5px 0;"><strong>Contact:</strong></td>
+                    <td>${contactEmail} ${contactPhone ? `| ${contactPhone}` : ''}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 5px 0;"><strong>Tour Type:</strong></td>
+                    <td>${tourType.replace('_', ' ').charAt(0).toUpperCase() + tourType.slice(1).replace('_', ' ')}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 5px 0;"><strong>Party Size:</strong></td>
+                    <td>${attendeeCount} ${attendeeCount === 1 ? 'person' : 'people'}</td>
+                  </tr>
+                </table>
+                ${specialRequests ? `
+                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e5e7eb;">
+                  <strong>Special Requests:</strong><br>
+                  ${specialRequests}
                 </div>
                 ` : ''}
-                
-                <hr style="border: 1px solid #e5e7eb; margin: 30px 0;">
-                
+              </div>
+              
+              <div style="margin-top: 20px; text-align: center;">
                 <p style="color: #666; font-size: 14px;">
-                  <strong>About MySeniorValet:</strong> We're the transparency platform for senior living, connecting families directly with communities. No hidden fees, no data sales, just clear connections.
-                </p>
-                
-                <p style="color: #666; font-size: 14px;">
-                  This tour was scheduled through MySeniorValet.com. If you have questions, reply to this email or visit our platform.
+                  Tour scheduled via MySeniorValet - Your Verified Partner Platform
                 </p>
               </div>
             </div>
-          `
+          </div>
+        ` : `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            ${isTestMode ? `<div style="background-color: #fef3c7; border: 2px solid #f59e0b; padding: 15px; margin-bottom: 20px; border-radius: 8px;"><p style="margin: 0; color: #92400e;"><strong>TEST MODE:</strong> This email would normally go to ${communityEmail || 'the community contact'}</p></div>` : ''}
+            
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center;">
+              <h1 style="margin: 0;">🎉 Congratulations!</h1>
+              <h2 style="margin: 10px 0;">You Have Your First Tour Request!</h2>
+            </div>
+            
+            <div style="padding: 30px;">
+              <div style="background-color: #d1fae5; border-left: 4px solid #10b981; padding: 15px; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: #047857;">Great news!</h3>
+                <p style="margin: 5px 0;">A family found your community on MySeniorValet and wants to schedule a tour. This is your opportunity to make a great first impression!</p>
+              </div>
+              
+              <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px;">
+                <h3 style="margin-top: 0; color: #1e40af;">Tour Details</h3>
+                <p><strong>Date/Time:</strong> ${format(tourDateTime, 'EEEE, MMMM d, yyyy at h:mm a')}</p>
+                <p><strong>Guest Name:</strong> ${contactName}</p>
+                <p><strong>Contact:</strong> ${contactEmail} ${contactPhone ? `| ${contactPhone}` : ''}</p>
+                <p><strong>Tour Type:</strong> ${tourType.replace('_', ' ').charAt(0).toUpperCase() + tourType.slice(1).replace('_', ' ')}</p>
+                <p><strong>Party Size:</strong> ${attendeeCount} ${attendeeCount === 1 ? 'person' : 'people'}</p>
+                ${specialRequests ? `<p><strong>Special Requests:</strong> ${specialRequests}</p>` : ''}
+              </div>
+              
+              <div style="background-color: #e0f2fe; border: 2px solid #0ea5e9; padding: 20px; margin: 20px 0; border-radius: 8px;">
+                <h3 style="color: #0c4a6e; margin-top: 0;">🚀 Take Control of Your Listing!</h3>
+                <p>Your community is one of <strong>34,171+ communities</strong> on MySeniorValet. Stand out by claiming your listing today!</p>
+                
+                <div style="display: flex; gap: 20px; margin: 20px 0;">
+                  <div style="flex: 1;">
+                    <h4 style="color: #0c4a6e;">Without Claiming:</h4>
+                    <ul style="color: #666; margin: 5px 0;">
+                      <li>Basic listing only</li>
+                      <li>No photo updates</li>
+                      <li>No direct messaging</li>
+                      <li>Limited visibility</li>
+                    </ul>
+                  </div>
+                  <div style="flex: 1;">
+                    <h4 style="color: #0c4a6e;">With Claimed Status:</h4>
+                    <ul style="color: #047857; margin: 5px 0;">
+                      <li>✓ Update photos & info</li>
+                      <li>✓ Direct family messaging</li>
+                      <li>✓ Analytics dashboard</li>
+                      <li>✓ Verified Partner badge</li>
+                      <li>✓ Priority in searches</li>
+                      <li>✓ Tour tracking tools</li>
+                    </ul>
+                  </div>
+                </div>
+                
+                <div style="text-align: center; margin: 20px 0;">
+                  <a href="https://myseniorvalet.com/vendor-signup" style="background-color: #0ea5e9; color: white; padding: 15px 40px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 18px;">Claim Your Listing Now</a>
+                  <p style="margin: 10px 0; color: #0c4a6e;">Starting at just $49/month</p>
+                </div>
+              </div>
+              
+              <hr style="border: 1px solid #e5e7eb; margin: 30px 0;">
+              
+              <p style="color: #666; font-size: 14px; text-align: center;">
+                <strong>MySeniorValet Promise:</strong> We connect families directly with communities.<br>
+                No middleman fees. No data sales. Just clear connections.
+              </p>
+            </div>
+          </div>
+        `;
+        
+        await EmailService.sendEmail({
+          to: emailTo,
+          cc: isTestMode ? [] : ['hello@myseniorvalet.com'], // CC in production only
+          subject: subject,
+          html: emailHtml
         });
         console.log(`Community notification sent to: ${isTestMode ? 'hello@myseniorvalet.com (TEST MODE)' : emailTo}`);
       } catch (error) {
@@ -532,9 +614,9 @@ router.post('/api/tours/:tourId/feedback', async (req: Request, res: Response) =
     
     const isTestMode = process.env.NODE_ENV !== 'production' || true; // Always test mode for now
     const communityEmail = findBestCommunityEmail();
-    const isClaimed = false; // TODO: Check if community is claimed
+    const isClaimed = tourDetails.community?.isClaimed || false;
     
-    console.log(`Community email check - Manager Email: ${tourDetails.community?.communityManagerEmail}, Community Email: ${tourDetails.community?.email}, Management Email: ${tourDetails.community?.managementEmail}`);
+    console.log(`Community email check - Manager Email: ${tourDetails.community?.communityManagerEmail}, Community Email: ${tourDetails.community?.email}, Management Email: ${tourDetails.community?.managementEmail}, Is Claimed: ${isClaimed}`);
     
     if (communityEmail || isTestMode) {
       const emailTo = isTestMode ? 'hello@myseniorvalet.com' : communityEmail || 'hello@myseniorvalet.com';
@@ -571,21 +653,27 @@ router.post('/api/tours/:tourId/feedback', async (req: Request, res: Response) =
           </div>
         `;
       }
+      
+      // Different subject lines for claimed vs unclaimed
+      const subject = isClaimed 
+        ? `${isTestMode ? '[TEST MODE] ' : ''}Tour Feedback - ${tourDetails.community?.name}` 
+        : `${isTestMode ? '[TEST MODE] ' : ''}🌟 Tour Complete + Unlock More Features - ${tourDetails.community?.name}`;
 
-      const communityEmailHtml = `
+      // Different email templates based on claimed status
+      const communityEmailHtml = isClaimed ? `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           ${isTestMode ? `<div style="background-color: #fef3c7; border: 2px solid #f59e0b; padding: 15px; margin-bottom: 20px; border-radius: 8px;"><p style="margin: 0; color: #92400e;"><strong>TEST MODE:</strong> This email would normally go to ${communityEmail || 'the community contact'}</p></div>` : ''}
           
-          <div style="background-color: #1e40af; color: white; padding: 30px; text-align: center;">
-            <h1 style="margin: 0;">Tour Feedback Received!</h1>
+          <div style="background-color: #1e40af; color: white; padding: 20px; text-align: center;">
+            <h2 style="margin: 0;">Tour Feedback Received</h2>
           </div>
           
-          <div style="padding: 30px;">
+          <div style="padding: 20px;">
             <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
               <h3 style="margin-top: 0; color: #1e40af;">Tour Summary</h3>
               <table style="width: 100%;">
                 <tr>
-                  <td style="padding: 5px 0;"><strong>Date:</strong></td>
+                  <td style="padding: 5px 0; width: 40%;"><strong>Date:</strong></td>
                   <td>${format(tourDetails.tour.tourDate, 'EEEE, MMMM d, yyyy')}</td>
                 </tr>
                 <tr>
@@ -612,44 +700,94 @@ router.post('/api/tours/:tourId/feedback', async (req: Request, res: Response) =
             
             ${sharedInfo || '<p style="text-align: center; color: #666; padding: 20px;">The prospect chose not to share additional contact information at this time.</p>'}
             
-            ${!isClaimed ? `
-            <div style="background-color: #d1fae5; border: 2px solid #10b981; padding: 20px; margin: 20px 0; border-radius: 8px;">
-              <h3 style="color: #047857; margin-top: 0;">💎 Upgrade to Get More from Your Tours</h3>
-              <p>As a claimed community partner, you'll receive:</p>
-              <ul style="color: #047857;">
-                <li><strong>Real-time notifications</strong> when tours are scheduled</li>
-                <li><strong>Detailed analytics</strong> on your listing performance</li>
-                <li><strong>Priority placement</strong> in search results</li>
-                <li><strong>Direct messaging</strong> with prospects</li>
-                <li><strong>Custom pricing updates</strong> and special offers</li>
-                <li><strong>Professional photos</strong> and virtual tour options</li>
-              </ul>
-              <div style="text-align: center; margin: 20px 0;">
-                <a href="https://myseniorvalet.com/vendor-signup" style="background-color: #10b981; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">Claim Your Listing Today</a>
-              </div>
-              <p style="text-align: center; color: #047857; font-size: 14px;">
-                Plans start at just $49/month - less than the cost of one tour no-show!
+            <div style="margin-top: 20px; text-align: center;">
+              <p style="color: #666; font-size: 14px;">
+                Feedback provided via MySeniorValet - Your Verified Partner Platform
               </p>
+            </div>
+          </div>
+        </div>
+      ` : `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          ${isTestMode ? `<div style="background-color: #fef3c7; border: 2px solid #f59e0b; padding: 15px; margin-bottom: 20px; border-radius: 8px;"><p style="margin: 0; color: #92400e;"><strong>TEST MODE:</strong> This email would normally go to ${communityEmail || 'the community contact'}</p></div>` : ''}
+          
+          <div style="background: linear-gradient(135deg, #10b981 0%, #047857 100%); color: white; padding: 30px; text-align: center;">
+            <h1 style="margin: 0;">✅ Tour Complete!</h1>
+            <h2 style="margin: 10px 0;">Here's What Your Prospect Said</h2>
+          </div>
+          
+          <div style="padding: 30px;">
+            <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+              <h3 style="margin-top: 0; color: #1e40af;">Tour Feedback</h3>
+              <table style="width: 100%;">
+                <tr>
+                  <td style="padding: 8px 0; width: 40%;"><strong>Date:</strong></td>
+                  <td>${format(tourDetails.tour.tourDate, 'EEEE, MMMM d, yyyy')}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0;"><strong>Overall Rating:</strong></td>
+                  <td style="font-size: 20px;">${'⭐'.repeat(overallRating || 0)} (${overallRating || 0}/5)</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0;"><strong>Would Recommend:</strong></td>
+                  <td style="font-size: 18px;">${wouldRecommend ? '✅ YES!' : '❌ No'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0;"><strong>Move-in Likelihood:</strong></td>
+                  <td><strong style="color: ${likelihood === 'very_likely' ? '#047857' : '#666'};">${likelihood ? likelihood.replace('_', ' ').charAt(0).toUpperCase() + likelihood.slice(1).replace('_', ' ') : 'Not specified'}</strong></td>
+                </tr>
+              </table>
+            </div>
+            
+            ${overallImpression ? `
+            <div style="background-color: #e0f2fe; padding: 15px; border-radius: 6px; margin: 10px 0;">
+              <h4 style="margin-top: 0; color: #0c4a6e;">What They Said:</h4>
+              <p style="margin: 5px 0; font-style: italic;">"${overallImpression}"</p>
             </div>
             ` : ''}
             
+            ${sharedInfo || '<p style="text-align: center; color: #666; padding: 20px;">The prospect chose not to share additional contact information at this time.</p>'}
+            
+            <div style="background-color: #fef3c7; border: 2px solid #f59e0b; padding: 20px; margin: 20px 0; border-radius: 8px;">
+              <h3 style="color: #92400e; margin-top: 0;">⚡ Did You Know?</h3>
+              <p style="color: #92400e;">Communities that claim their listings see:</p>
+              <ul style="color: #92400e;">
+                <li><strong>3x more tour requests</strong> with enhanced visibility</li>
+                <li><strong>50% higher conversion rates</strong> with direct messaging</li>
+                <li><strong>Detailed analytics</strong> on who's viewing your listing</li>
+              </ul>
+              
+              <p style="color: #92400e; margin-top: 15px;"><strong>Right now, you're missing out on:</strong></p>
+              <div style="background-color: white; padding: 15px; border-radius: 6px; margin: 10px 0;">
+                <p style="margin: 5px 0; color: #666;">❌ <strong>Direct messaging</strong> with ${tourDetails.user?.firstName || 'this prospect'} for follow-up</p>
+                <p style="margin: 5px 0; color: #666;">❌ <strong>Analytics</strong> on how many families viewed your listing this week</p>
+                <p style="margin: 5px 0; color: #666;">❌ <strong>Priority placement</strong> in search results</p>
+                <p style="margin: 5px 0; color: #666;">❌ <strong>Verified Partner badge</strong> that builds trust</p>
+              </div>
+              
+              <div style="text-align: center; margin: 20px 0;">
+                <a href="https://myseniorvalet.com/vendor-signup" style="background-color: #f59e0b; color: white; padding: 15px 40px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 18px;">Claim Your Listing Now</a>
+                <p style="margin: 10px 0; color: #92400e;">
+                  <strong>Limited Time:</strong> First month just $25 (reg. $49)<br>
+                  <small>Less than the cost of one tour no-show!</small>
+                </p>
+              </div>
+            </div>
+            
             <hr style="border: 1px solid #e5e7eb; margin: 30px 0;">
             
-            <p style="color: #666; font-size: 14px;">
-              <strong>Why MySeniorValet?</strong> We believe in transparency and direct connections. Unlike other platforms, we never sell data or charge hidden referral fees. We simply connect families with communities, making the process clearer for everyone.
-            </p>
-            
             <p style="color: #666; font-size: 14px; text-align: center;">
-              Questions? Reply to this email or visit <a href="https://myseniorvalet.com">myseniorvalet.com</a>
+              <strong>MySeniorValet:</strong> 34,171+ communities. Direct connections. No middleman fees.<br>
+              <a href="https://myseniorvalet.com">Learn more about our platform</a>
             </p>
           </div>
         </div>
       `;
 
       const communityEmailSent = await EmailService.sendEmail({
-        to: communityEmail!,
-        cc: 'hello@myseniorvalet.com',
-        subject: `${isTestMode ? '[TEST MODE] ' : ''}Tour Completed - ${tourDetails.user?.firstName || 'Guest'} ${tourDetails.user?.lastName || ''}`,
+        to: emailTo,
+        cc: isTestMode ? [] : ['hello@myseniorvalet.com'], // CC in production only
+        subject: subject,
         html: communityEmailHtml
       });
       

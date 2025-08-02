@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, Clock, Users, MapPin } from "lucide-react";
+import { Calendar, Clock, Users, MapPin, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -10,23 +10,28 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface TourSchedulerProps {
   communityId: number;
   communityName: string;
   communityAddress?: string;
+  communityPhone?: string;
   buttonText?: string;
   buttonVariant?: "default" | "secondary" | "outline" | "ghost";
   onSuccess?: () => void;
+  hasEmail?: boolean;
 }
 
 export function TourScheduler({
   communityId,
   communityName,
   communityAddress,
+  communityPhone,
   buttonText = "Schedule Tour",
   buttonVariant = "default",
-  onSuccess
+  onSuccess,
+  hasEmail = true
 }: TourSchedulerProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -115,6 +120,38 @@ export function TourScheduler({
             </DialogDescription>
           </DialogHeader>
           
+          {!hasEmail ? (
+            <Alert className="mt-4 border-amber-200 bg-amber-50">
+              <AlertCircle className="h-4 w-4 text-amber-600" />
+              <AlertTitle className="text-amber-900">Tour Scheduling Unavailable</AlertTitle>
+              <AlertDescription className="text-amber-800 mt-2">
+                <p className="mb-3">
+                  Tour scheduling is currently unavailable for unclaimed communities as we cannot send confirmation emails.
+                </p>
+                <p className="font-semibold mb-2">This community would benefit from being claimed!</p>
+                <p className="text-sm">
+                  Once claimed for $49/month, the community will enjoy:
+                </p>
+                <ul className="text-sm mt-2 space-y-1">
+                  <li>• Real-time tour scheduling notifications</li>
+                  <li>• Direct messaging with families</li>
+                  <li>• Analytics dashboard to track interest</li>
+                  <li>• Priority placement in search results</li>
+                  <li>• Verified badge on community profile</li>
+                </ul>
+                <div className="mt-4">
+                  <Button 
+                    type="button"
+                    variant="default"
+                    className="w-full bg-amber-600 hover:bg-amber-700"
+                    onClick={() => window.open(`tel:${communityPhone || '1-800-SENIOR-1'}`, '_self')}
+                  >
+                    Call Community Directly
+                  </Button>
+                </div>
+              </AlertDescription>
+            </Alert>
+          ) : (
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-2 gap-4">
@@ -245,6 +282,7 @@ export function TourScheduler({
               </Button>
             </div>
           </form>
+          )}
         </DialogContent>
       </Dialog>
     </>
