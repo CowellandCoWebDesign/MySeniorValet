@@ -51,16 +51,31 @@ export default function MapSearch() {
   // Get search query from URL parameters
   const urlParams = new URLSearchParams(window.location.search);
   const initialQuery = urlParams.get('location') || urlParams.get('q') || '';
+  const budgetParam = urlParams.get('budget') || '';
+  const careTypesParam = urlParams.get('careTypes') || '';
+
+  // Map budget values from onboarding to filter values
+  const getBudgetFilter = (budget: string) => {
+    switch(budget) {
+      case 'hud': return 'HUD/Government';
+      case 'low': return 'Under $2,000';
+      case 'mid': return '$2,000-$4,000';
+      case 'high': return '$4,000-$6,000';
+      case 'premium': return 'Above $6,000';
+      case 'flexible': return 'Any Budget';
+      default: return 'Any Budget';
+    }
+  };
 
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [isDarkMode, setIsDarkMode] = useState(true); // Default to dark mode for eye comfort
   const [hasSearched, setHasSearched] = useState(false);
   const [filters, setFilters] = useState<SearchFilters>({
-    careType: 'All Types',
+    careType: careTypesParam || 'All Types',
     minRating: 0,
     amenities: [],
-    budget: 'Any Budget',
+    budget: getBudgetFilter(budgetParam),
     availability: 'All Status'
   });
   const [mapCenter, setMapCenter] = useState<[number, number]>([37.7749, -122.4194]); // San Francisco - city center
@@ -699,10 +714,29 @@ export default function MapSearch() {
     }
   };
 
-  // Handle initial search query from URL
+  // Handle initial search query from URL and onboarding data
   useEffect(() => {
     if (initialQuery && !hasSearched) {
-      console.log('Performing initial search for:', initialQuery);
+      console.log('Performing initial search with onboarding data:', {
+        location: initialQuery,
+        budget: budgetParam,
+        careTypes: careTypesParam
+      });
+      
+      // Apply budget filter from onboarding
+      if (budgetParam) {
+        setFilters(prev => ({ ...prev, budget: getBudgetFilter(budgetParam) }));
+      }
+      
+      // Apply care type filter from onboarding
+      if (careTypesParam) {
+        // The careTypes param might be a comma-separated list
+        const firstCareType = careTypesParam.split(',')[0];
+        if (firstCareType) {
+          setFilters(prev => ({ ...prev, careType: firstCareType }));
+        }
+      }
+      
       handleLocationSearch(initialQuery);
     }
   }, [initialQuery, hasSearched]); // Run when these dependencies change

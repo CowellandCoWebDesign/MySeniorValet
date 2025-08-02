@@ -261,7 +261,7 @@ export function OnboardingWizard({ isOpen, onComplete }: OnboardingWizardProps) 
                     id="budget"
                     value={userData.budget}
                     onChange={(e) => setUserData(prev => ({ ...prev, budget: e.target.value }))}
-                    className="w-full mt-1 p-2 border rounded-md"
+                    className="w-full mt-1 p-2 border rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
                   >
                     <option value="">Select your budget range</option>
                     <option value="hud">$0-$500 (HUD Income-Qualified)</option>
@@ -281,7 +281,7 @@ export function OnboardingWizard({ isOpen, onComplete }: OnboardingWizardProps) 
                     id="timeline"
                     value={userData.timeline}
                     onChange={(e) => setUserData(prev => ({ ...prev, timeline: e.target.value }))}
-                    className="w-full mt-1 p-2 border rounded-md"
+                    className="w-full mt-1 p-2 border rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
                   >
                     <option value="">Select your timeline</option>
                     <option value="immediate">Immediately (within 1 month)</option>
