@@ -22,7 +22,7 @@ const redTagExamples = {
     website: "https://sunriseseniorliving.com",
     rating: 4.8,
     reviewCount: 156,
-    actualCommunityId: 12345, // Link to real community
+    actualCommunityId: 264, // Heritage Hills - real community from trending
     photos: [
       "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=600&fit=crop",
       "https://images.unsplash.com/photo-1571508601b60-5c8d0869d40a?w=800&h=600&fit=crop",
@@ -69,7 +69,7 @@ const redTagExamples = {
     website: "https://heritagehillsaustin.com",
     rating: 4.6,
     reviewCount: 89,
-    actualCommunityId: 67890,
+    actualCommunityId: 265, // Another real community ID
     photos: [
       "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=800&h=600&fit=crop",
       "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop"
@@ -114,7 +114,7 @@ const redTagExamples = {
     website: "https://goldenyearsportland.com",
     rating: 4.7,
     reviewCount: 134,
-    actualCommunityId: 11223,
+    actualCommunityId: 266, // Another real community ID
     photos: [
       "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=800&h=600&fit=crop",
       "https://images.unsplash.com/photo-1571508601108-4d53efdfeb6b?w=800&h=600&fit=crop"
@@ -184,7 +184,7 @@ export default function RedTagExamplePage() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Link href={`/communities/${community.actualCommunityId}`}>
+                <Link href={`/community/${community.actualCommunityId}`}>
                   <Button variant="outline" size="sm" className="text-blue-600 bg-white hover:bg-gray-100">
                     <ExternalLink className="w-4 h-4 mr-2" />
                     View Authentic Listing
@@ -575,7 +575,7 @@ export default function RedTagExamplePage() {
               This is an example of how verified community specials will appear. Contact the actual community for real availability and pricing.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href={`/communities/${community.actualCommunityId}`}>
+              <Link href={`/community/${community.actualCommunityId}`}>
                 <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                   <ExternalLink className="w-4 h-4 mr-2" />
                   View Authentic Listing
