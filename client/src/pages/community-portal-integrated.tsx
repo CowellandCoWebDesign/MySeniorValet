@@ -196,8 +196,9 @@ export default function CommunityPortal() {
   // Landing Page
   if (currentStep === 'landing') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="max-w-7xl mx-auto px-4 py-12">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <NavigationHeader />
+        <div className="max-w-7xl mx-auto px-4 py-8 mt-16">
           {/* Header */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-6">
@@ -234,11 +235,18 @@ export default function CommunityPortal() {
           </div>
 
           {/* Pricing Tiers Section - HERO ELEMENT */}
-          <div className="mb-12">
-            <h2 className="text-3xl font-bold text-center mb-4">Choose Your Community Management Tier</h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 text-center mb-8">
-              All plans include authentic MySeniorValet verified listing
-            </p>
+          <div className="mb-16">
+            <div className="text-center mb-10">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Choose Your Community Management Tier
+              </h2>
+              <p className="text-lg text-gray-600 dark:text-gray-300">
+                Join 31,000+ communities enhancing their online presence
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                All plans include authentic MySeniorValet verified listing • Free onboarding support
+              </p>
+            </div>
             
             {productsLoading ? (
               <div className="text-center py-12">
@@ -247,65 +255,159 @@ export default function CommunityPortal() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {plans.map((plan: any) => (
-                  <Card 
-                    key={plan.id} 
-                    className={`relative cursor-pointer hover:shadow-xl transition-all duration-300 ${
-                      plan.popular ? 'ring-2 ring-blue-500 scale-105' : ''
-                    }`}
-                    onClick={() => handleSelectPlan(plan.id)}
-                  >
-                    {plan.popular && (
-                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                        <Badge className="bg-blue-600 text-white px-3 py-1">Most Popular</Badge>
-                      </div>
-                    )}
-                    <CardHeader className="text-center">
-                      <CardTitle className={`text-2xl ${
-                        plan.color === 'gray' ? 'text-gray-600' :
-                        plan.color === 'blue' ? 'text-blue-600' :
-                        plan.color === 'purple' ? 'text-purple-600' : 'text-yellow-600'
+                {[
+                  {
+                    id: 'basic-listing',
+                    name: 'Verified',
+                    price: 'FREE',
+                    description: 'Get listed today',
+                    color: 'gray',
+                    icon: Shield,
+                    features: [
+                      'Basic community listing',
+                      'Contact information display',
+                      'Search visibility',
+                      'Basic map placement'
+                    ]
+                  },
+                  {
+                    id: 'featured-spotlight',
+                    name: 'Standard',
+                    price: '$149/mo',
+                    description: 'Enhanced visibility',
+                    color: 'blue',
+                    icon: Star,
+                    popular: true,
+                    features: [
+                      'Everything in Free, plus:',
+                      'Profile editing & customization',
+                      'Featured placement in search',
+                      'Red tag special promotions',
+                      'Photo gallery (up to 10 photos)',
+                      'Custom intake forms',
+                      'Basic analytics dashboard'
+                    ]
+                  },
+                  {
+                    id: 'premium-tools',
+                    name: 'Featured',
+                    price: '$249/mo',
+                    description: 'Complete toolkit',
+                    color: 'purple',
+                    icon: Settings,
+                    features: [
+                      'Everything in Standard, plus:',
+                      'Branded intake questionnaires',
+                      'Availability management system',
+                      'Tour scheduler & tracking',
+                      'Unlimited photo uploads',
+                      'Advanced analytics & insights',
+                      'Family messaging platform',
+                      'Priority support'
+                    ]
+                  },
+                  {
+                    id: 'platinum-partner',
+                    name: 'Platinum',
+                    price: '$349/mo',
+                    description: 'White-glove service',
+                    color: 'yellow',
+                    icon: Building,
+                    features: [
+                      'Everything in Featured, plus:',
+                      'Homepage featured placement',
+                      'Concierge referral service',
+                      'Sponsored blog content',
+                      'AI-powered matching priority',
+                      'API access & integration',
+                      'White-label options',
+                      'Custom reporting suite',
+                      'Dedicated success manager'
+                    ]
+                  }
+                ].map((plan) => {
+                  const Icon = plan.icon;
+                  const isPopular = plan.popular;
+                  const isFree = plan.price === 'FREE';
+                  
+                  return (
+                    <Card 
+                      key={plan.id} 
+                      className={`relative transform transition-all duration-300 hover:scale-105 cursor-pointer ${
+                        isPopular ? 'border-2 border-purple-500 shadow-2xl' : 'border hover:shadow-lg'
+                      }`}
+                      onClick={() => handleSelectPlan(plan.id)}
+                    >
+                      {isPopular && (
+                        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+                          <Badge className="bg-purple-500 text-white px-4 py-1 text-sm font-bold">
+                            Most Popular
+                          </Badge>
+                        </div>
+                      )}
+                      
+                      <CardHeader className={`text-center pb-6 ${
+                        plan.color === 'gray' ? 'bg-gray-50 dark:bg-gray-900' : 
+                        plan.color === 'blue' ? 'bg-blue-50 dark:bg-blue-950' : 
+                        plan.color === 'purple' ? 'bg-purple-50 dark:bg-purple-950' : 
+                        'bg-yellow-50 dark:bg-yellow-950'
                       }`}>
-                        {plan.name}
-                      </CardTitle>
-                      <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                        {plan.price}
-                      </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">{plan.description}</p>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3 mb-6">
-                        {plan.features.slice(0, 6).map((feature: string, index: number) => (
-                          <div key={index} className="flex items-start gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">{feature}</span>
-                          </div>
-                        ))}
-                        {plan.features.length > 6 && (
-                          <div className="text-sm text-gray-500 italic">
-                            +{plan.features.length - 6} more features...
-                          </div>
-                        )}
-                      </div>
-                      <Button 
-                        className="w-full" 
-                        disabled={createCheckoutMutation.isPending}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleSelectPlan(plan.id);
-                        }}
-                      >
-                        {createCheckoutMutation.isPending ? (
-                          "Loading..."
-                        ) : plan.price === '$0' ? (
-                          "Start Free"
-                        ) : (
-                          `Choose ${plan.name}`
-                        )}
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
+                        <Icon className={`w-10 h-10 mx-auto mb-3 ${
+                          plan.color === 'gray' ? 'text-gray-600' :
+                          plan.color === 'blue' ? 'text-blue-600' :
+                          plan.color === 'purple' ? 'text-purple-600' : 'text-yellow-600'
+                        }`} />
+                        <CardTitle className="text-2xl font-bold mb-2">{plan.name}</CardTitle>
+                        <div className="text-4xl font-bold mb-2">
+                          {isFree ? (
+                            <span className="text-green-600">FREE</span>
+                          ) : (
+                            <span className={
+                              plan.color === 'blue' ? 'text-blue-600' :
+                              plan.color === 'purple' ? 'text-purple-600' : 'text-yellow-600'
+                            }>{plan.price}</span>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">{plan.description}</p>
+                      </CardHeader>
+                      
+                      <CardContent className="pt-6">
+                        <ul className="space-y-3 mb-6">
+                          {plan.features.map((feature: string, index: number) => (
+                            <li key={index} className="flex items-start gap-2">
+                              <CheckCircle className={`w-4 h-4 mt-0.5 flex-shrink-0 ${
+                                isFree ? 'text-gray-500' : 'text-green-600'
+                              }`} />
+                              <span className="text-sm text-gray-700 dark:text-gray-300">{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        
+                        <Button 
+                          className={`w-full ${
+                            isFree ? 'bg-gray-600 hover:bg-gray-700' :
+                            plan.color === 'blue' ? 'bg-blue-600 hover:bg-blue-700' :
+                            plan.color === 'purple' ? 'bg-purple-600 hover:bg-purple-700' :
+                            'bg-yellow-600 hover:bg-yellow-700'
+                          } text-white`}
+                          disabled={createCheckoutMutation.isPending}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSelectPlan(plan.id);
+                          }}
+                        >
+                          {createCheckoutMutation.isPending ? (
+                            "Loading..."
+                          ) : isFree ? (
+                            "Start Free"
+                          ) : (
+                            `Choose ${plan.name}`
+                          )}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             )}
           </div>
