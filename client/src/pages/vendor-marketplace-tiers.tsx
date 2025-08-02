@@ -28,7 +28,8 @@ import {
   FileText,
   Building,
   DollarSign,
-  Zap
+  Zap,
+  X
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
