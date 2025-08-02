@@ -88,6 +88,7 @@ import AIMapShowcase from "@/pages/ai-map-showcase";
 import AISearchIntelligence from "@/pages/ai-search-intelligence";
 import VendorSignup from "@/pages/vendor-signup";
 import VendorDashboard from "@/pages/vendor-dashboard";
+import VendorWelcome from "@/pages/vendor-welcome";
 import ServicesManagementDashboard from "@/pages/ServicesManagementDashboard";
 import TestTierAccess from "@/pages/test-tier-access";
 import AmazonProductAdmin from "@/pages/AmazonProductAdmin";
@@ -196,7 +197,9 @@ function Router() {
       <Route path="/subscriptions" component={SubscriptionManagement} />
       <Route path="/ai-demo" component={AIDemoPage} />
       <Route path="/ai-map-showcase" component={AIMapShowcase} />
+      <Route path="/vendor-signup" component={VendorSignup} />
       <Route path="/vendor/signup" component={VendorSignup} />
+      <Route path="/vendor-welcome" component={VendorWelcome} />
       <Route path="/vendor/dashboard" component={VendorDashboard} />
       <Route path="/test-tier-access" component={TestTierAccess} />
       <Route path="/financial-dashboard" component={FinancialDashboard} />

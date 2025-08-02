@@ -2075,6 +2075,36 @@ export const dataBackups = pgTable("data_backups", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Vendor Registrations - for vendor signup and subscriptions
+export const vendorRegistrations = pgTable("vendor_registrations", {
+  id: serial("id").primaryKey(),
+  businessName: varchar("business_name", { length: 255 }).notNull(),
+  contactName: varchar("contact_name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  phone: varchar("phone", { length: 20 }).notNull(),
+  website: varchar("website", { length: 255 }),
+  businessType: varchar("business_type", { length: 100 }).notNull(),
+  description: text("description").notNull(),
+  serviceAreas: text("service_areas").array().notNull(),
+  planType: text("plan_type", {
+    enum: ["basic", "professional", "enterprise"]
+  }).notNull(),
+  stripeCustomerId: varchar("stripe_customer_id", { length: 255 }).notNull(),
+  stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }).notNull(),
+  status: text("status", {
+    enum: ["active", "inactive", "pending", "cancelled"]
+  }).default("pending"),
+  verifiedPartner: boolean("verified_partner").default(false),
+  monthlyAmount: decimal("monthly_amount", { precision: 10, scale: 2 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  emailIdx: index("vendor_registrations_email_idx").on(table.email),
+  stripeCustomerIdx: index("vendor_registrations_stripe_customer_idx").on(table.stripeCustomerId),
+  statusIdx: index("vendor_registrations_status_idx").on(table.status),
+  planTypeIdx: index("vendor_registrations_plan_type_idx").on(table.planType)
+}));
+
 // Relations
 export const communitiesRelations = relations(communities, ({ many }) => ({
   inspections: many(inspections),

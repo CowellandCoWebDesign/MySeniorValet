@@ -13,7 +13,7 @@ const SECURITY_CONFIG = {
     authMaxRequests: 50, // for auth endpoints - increased for demo testing
   },
   headers: {
-    contentSecurityPolicy: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://api.mapbox.com; img-src 'self' data: https: blob:; connect-src 'self' https: https://api.mapbox.com https://events.mapbox.com; font-src 'self' data:;",
+    contentSecurityPolicy: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://api.mapbox.com https://fonts.googleapis.com; img-src 'self' data: https: blob:; connect-src 'self' https: https://api.mapbox.com https://events.mapbox.com https://api.stripe.com; font-src 'self' data: https://fonts.gstatic.com; frame-src 'self' https://js.stripe.com https://checkout.stripe.com;",
     hsts: 'max-age=31536000; includeSubDomains; preload',
   }
 };
