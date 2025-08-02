@@ -44,7 +44,7 @@ export default function Contact() {
                     <MapPin className="w-5 h-5 text-purple-600 mr-3" />
                     <div>
                       <div className="font-medium">Business Address</div>
-                      <div className="text-gray-600">5048 Main Street, Shasta Lake, CA</div>
+                      <div className="text-gray-600">Contact for business inquiries</div>
                     </div>
                   </div>
 
@@ -73,10 +73,13 @@ export default function Contact() {
                 </div>
 
                 <div className="mt-8 p-4 bg-blue-50 rounded-lg">
-                  <h3 className="font-semibold text-blue-900 mb-2">About the Founder</h3>
+                  <h3 className="font-semibold text-blue-900 mb-2">Why I Built This</h3>
                   <p className="text-blue-800 text-sm">
-                    William Scott Cowell created MySeniorValet to help families navigate the senior living search process 
-                    with transparency and confidence. Based in Shasta Lake, California, the platform serves families nationwide.
+                    My mother's senior living journey revealed a shocking truth: no single place showed all available 
+                    options with honest pricing. Families deserve better. MySeniorValet provides complete transparency 
+                    across all senior housing types - from luxury communities to HUD-subsidized options. My mission is 
+                    simple: support families, connect them with trusted vendors, and ensure communities can showcase 
+                    their unique value. Together, we're building a marketplace where everyone wins.
                   </p>
                 </div>
               </CardContent>

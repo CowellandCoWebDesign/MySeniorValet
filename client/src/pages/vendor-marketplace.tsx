@@ -231,7 +231,7 @@ export default function VendorMarketplace() {
             If you provide services or products for seniors and their families, 
             apply to be featured in our marketplace.
           </p>
-          <Link href="/contact">
+          <Link href="/vendor-signup">
             <Button size="lg" className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
               Apply to Be a Vendor
               <TrendingUp className="w-5 h-5 ml-2" />

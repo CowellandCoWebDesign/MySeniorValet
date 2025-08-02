@@ -54,7 +54,7 @@ export default function Team() {
               <div className="space-y-4">
                 <div className="flex items-center space-x-2">
                   <MapPin className="w-4 h-4 text-gray-500" />
-                  <span className="text-gray-700">5048 Main Street, Shasta Lake, CA</span>
+                  <span className="text-gray-700">California, USA</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Mail className="w-4 h-4 text-gray-500" />
