@@ -234,6 +234,41 @@ export default function CommunityPortal() {
             </Card>
           </div>
 
+          {/* Benefits - Moved above pricing */}
+          <div className="mb-16">
+            <h3 className="text-2xl font-bold text-center mb-8">Why Claim Your Community?</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card className="text-center hover:shadow-lg transition-shadow">
+                <CardContent className="pt-6">
+                  <Eye className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+                  <h3 className="font-semibold mb-2">Increased Visibility</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Get found by families actively searching for senior living options</p>
+                </CardContent>
+              </Card>
+              <Card className="text-center hover:shadow-lg transition-shadow">
+                <CardContent className="pt-6">
+                  <Camera className="w-12 h-12 text-green-600 mx-auto mb-4" />
+                  <h3 className="font-semibold mb-2">Showcase Your Community</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Upload photos, videos, and highlight your unique amenities</p>
+                </CardContent>
+              </Card>
+              <Card className="text-center hover:shadow-lg transition-shadow">
+                <CardContent className="pt-6">
+                  <Users className="w-12 h-12 text-purple-600 mx-auto mb-4" />
+                  <h3 className="font-semibold mb-2">Direct Family Communication</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Connect directly with interested families through secure messaging</p>
+                </CardContent>
+              </Card>
+              <Card className="text-center hover:shadow-lg transition-shadow">
+                <CardContent className="pt-6">
+                  <Settings className="w-12 h-12 text-orange-600 mx-auto mb-4" />
+                  <h3 className="font-semibold mb-2">Powerful Management Tools</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Analytics, lead tracking, and resident management features</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
           {/* Pricing Tiers Section - HERO ELEMENT */}
           <div className="mb-16">
             <div className="text-center mb-10">
@@ -413,7 +448,7 @@ export default function CommunityPortal() {
           </div>
 
           {/* Quick Action Buttons */}
-          <div className="text-center space-y-4">
+          <div className="text-center space-y-4 mt-12">
             <div className="text-sm text-gray-600 dark:text-gray-400">
               Already have an account?
             </div>
@@ -430,38 +465,6 @@ export default function CommunityPortal() {
             <div className="text-sm text-gray-500 dark:text-gray-400">
               Already managing your community? <Link to="/community-dashboard/1" className="text-blue-600 hover:underline">Access your dashboard</Link>
             </div>
-          </div>
-
-          {/* Benefits */}
-          <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardContent className="pt-6">
-                <Eye className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Increased Visibility</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Get found by families actively searching for senior living options</p>
-              </CardContent>
-            </Card>
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardContent className="pt-6">
-                <Camera className="w-12 h-12 text-green-600 mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Showcase Your Community</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Upload photos, videos, and highlight your unique amenities</p>
-              </CardContent>
-            </Card>
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardContent className="pt-6">
-                <Users className="w-12 h-12 text-purple-600 mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Direct Family Communication</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Connect directly with interested families through secure messaging</p>
-              </CardContent>
-            </Card>
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardContent className="pt-6">
-                <Settings className="w-12 h-12 text-orange-600 mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Powerful Management Tools</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Analytics, lead tracking, and resident management features</p>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>
