@@ -814,6 +814,14 @@ export default function CommunityDetail() {
               </CardHeader>
             </Card>
 
+            {/* In-App Messaging Button - Prominently Placed */}
+            <div className="flex justify-center my-4">
+              <MessageCommunityButton
+                communityId={community.id}
+                communityName={community.name}
+              />
+            </div>
+
             {/* Community Claim Status Card */}
             <Card className="border-2 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20">
               <CardContent className="p-4">
@@ -1065,7 +1073,7 @@ export default function CommunityDetail() {
                       </div>
 
                       {/* Main Action Buttons */}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <TourScheduler
                           communityId={community.id}
                           communityName={community.name}
@@ -1090,11 +1098,6 @@ export default function CommunityDetail() {
                           <Phone className="w-5 h-5 mr-2" />
                           Call Now
                         </Button>
-                        
-                        <MessageCommunityButton
-                          communityId={community.id}
-                          communityName={community.name}
-                        />
                       </div>
 
                       {/* Waitlist Dialog */}
