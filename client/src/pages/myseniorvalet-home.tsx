@@ -2220,64 +2220,114 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Platform Removal Request Section */}
-      <section className="px-4 py-8 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
-        <div className="max-w-4xl mx-auto">
-          <Card className="border-2 border-red-200 dark:border-red-800 bg-white dark:bg-gray-800 shadow-lg">
+      {/* Vendor Onboarding & Platform Information Section */}
+      <section className="py-20 px-4 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <Card className="shadow-xl overflow-hidden border-0">
             <CardContent className="p-8">
-              <div className="flex items-start gap-4 mb-6">
-                <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg">
-                  <Flag className="w-6 h-6 text-red-600 dark:text-red-400" />
+              <div className="flex flex-col md:flex-row gap-8">
+                <div className="md:w-1/5 flex justify-center items-start">
+                  <ShoppingBasket className="w-12 h-12 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                    Platform Removal Request
+                  <h3 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                    Are You a Vendor Who Would Like to Be Listed on Our Platform?
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
-                    MySeniorValet aggregates publicly available information about senior services to help families make informed decisions. 
-                    We respect the rights of all service providers and vendors listed on our platform.
+                  <p className="text-lg text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
+                    Join thousands of senior-focused businesses reaching families across North America. 
+                    MySeniorValet connects quality vendors with seniors and their families who need your services.
                   </p>
-                  <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-4 mb-6">
-                    <h4 className="font-semibold text-amber-900 dark:text-amber-200 mb-2 flex items-center gap-2">
-                      <AlertCircle className="w-5 h-5" />
-                      Important Information
-                    </h4>
-                    <ul className="text-sm text-amber-800 dark:text-amber-300 space-y-2">
-                      <li className="flex items-start gap-2">
-                        <span className="text-amber-600 dark:text-amber-400 mt-0.5">•</span>
-                        <span>We only display publicly available information found on official websites, directories, and public records</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-amber-600 dark:text-amber-400 mt-0.5">•</span>
-                        <span>No proprietary or confidential information is collected or displayed</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-amber-600 dark:text-amber-400 mt-0.5">•</span>
-                        <span>Our goal is to help seniors and families access services more easily</span>
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="space-y-4">
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100">
-                      Request Your Platform's Removal
-                    </h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      If you are an authorized representative of a service listed on MySeniorValet and wish to have your information removed, 
-                      please click the button below to submit a removal request. Our admin team will review your request within 48 hours.
-                    </p>
-                    <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
-                        By submitting a removal request, you confirm that you are an authorized representative of the platform/service 
-                        and understand that this will remove all publicly sourced information about your service from MySeniorValet.
-                      </p>
-                      <Button
-                        className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
-                        onClick={() => setShowRemovalModal(true)}
-                      >
-                        <Flag className="w-4 h-4 mr-2" />
-                        Submit Removal Request
-                      </Button>
+                  
+                  {/* Benefits Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <div className="flex items-start gap-3 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
+                      <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100">Reach 34,000+ Communities</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Connect with seniors across all 50 states and Canada</p>
+                      </div>
                     </div>
+                    <div className="flex items-start gap-3 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
+                      <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100">Analytics & Insights</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Track engagement and optimize your listings</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
+                      <Shield className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100">Verified Partner Badge</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Stand out as an official MySeniorValet partner</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
+                      <Users2 className="w-5 h-5 text-orange-600 dark:text-orange-400 mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100">Targeted Audience</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Reach families actively seeking senior services</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* CTA Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                    <Button
+                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold px-8 py-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                      onClick={() => setLocation('/vendor-signup')}
+                    >
+                      <Sparkles className="w-5 h-5 mr-2" />
+                      Become a Verified Partner
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="border-2 border-purple-600 text-purple-600 hover:bg-purple-50 dark:border-purple-400 dark:text-purple-400 dark:hover:bg-purple-900/20 font-semibold px-8 py-4 rounded-lg"
+                      onClick={() => setLocation('/vendor-marketplace')}
+                    >
+                      <ExternalLink className="w-5 h-5 mr-2" />
+                      View Current Vendors
+                    </Button>
+                  </div>
+
+                  {/* Disclaimer */}
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-6">
+                    <p className="text-sm text-blue-800 dark:text-blue-300">
+                      <strong>Note:</strong> These listings are curated for convenience only. Inclusion does not imply endorsement or affiliation unless marked as "Official Partner."
+                    </p>
+                  </div>
+
+                  {/* Removal Option (Subtle) */}
+                  <div className="border-t pt-6 mt-8">
+                    <details className="group">
+                      <summary className="cursor-pointer text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors duration-200 list-none flex items-center gap-2">
+                        <ChevronRight className="w-4 h-4 transition-transform group-open:rotate-90" />
+                        Already listed and need to update or remove your information?
+                      </summary>
+                      <div className="mt-4 pl-6 space-y-4">
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                          We aggregate publicly available information to help families find senior services. 
+                          If you're an authorized representative and need to manage your listing:
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-3">
+                          <Button
+                            variant="outline"
+                            className="text-sm"
+                            onClick={() => setLocation('/claim-listing')}
+                          >
+                            <Shield className="w-4 h-4 mr-2" />
+                            Claim Your Listing
+                          </Button>
+                          <Button
+                            variant="outline"
+                            className="text-sm text-red-600 hover:text-red-700 border-red-300 hover:border-red-400"
+                            onClick={() => setShowRemovalModal(true)}
+                          >
+                            <Flag className="w-4 h-4 mr-2" />
+                            Request Removal
+                          </Button>
+                        </div>
+                      </div>
+                    </details>
                   </div>
                 </div>
               </div>
