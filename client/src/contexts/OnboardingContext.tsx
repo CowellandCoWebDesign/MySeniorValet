@@ -31,6 +31,13 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
+    // Check if user has skipped onboarding
+    const hasSkipped = localStorage.getItem('myseniorvalet_onboarding_skipped');
+    if (hasSkipped) {
+      setShowOnboarding(false);
+      return;
+    }
+
     // Check localStorage for existing onboarding data
     const savedData = localStorage.getItem('myseniorvalet_onboarding');
     if (savedData) {

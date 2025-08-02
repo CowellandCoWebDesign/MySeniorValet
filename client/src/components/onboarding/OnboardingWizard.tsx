@@ -26,6 +26,7 @@ import {
 interface OnboardingWizardProps {
   isOpen: boolean;
   onComplete: (userData: OnboardingData) => void;
+  onSkip?: () => void;
 }
 
 export interface OnboardingData {
@@ -113,7 +114,7 @@ const careTypes = [
   { id: 'active', label: '55+ Communities', icon: Star, description: 'Active adult lifestyle' }
 ];
 
-export function OnboardingWizard({ isOpen, onComplete }: OnboardingWizardProps) {
+export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizardProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [userData, setUserData] = useState<OnboardingData>({
     name: '',
@@ -163,7 +164,11 @@ export function OnboardingWizard({ isOpen, onComplete }: OnboardingWizardProps) 
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => {}}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open && onSkip) {
+        onSkip();
+      }
+    }}>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-between">

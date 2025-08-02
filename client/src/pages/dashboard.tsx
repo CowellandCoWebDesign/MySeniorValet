@@ -41,6 +41,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { Footer } from "@/components/footer";
+import { PersonalizedBanner } from "@/components/onboarding/PersonalizedBanner";
 
 import { MessagesSection } from "@/components/MessagesSection";
 
@@ -338,6 +339,9 @@ export default function Dashboard() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-8">
+            {/* Personalized Preferences Banner */}
+            <PersonalizedBanner />
+            
             {/* AI-Powered Recommendations */}
             <Card className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white border-0 shadow-2xl rounded-3xl overflow-hidden">
               <CardHeader className="p-8 pb-6">

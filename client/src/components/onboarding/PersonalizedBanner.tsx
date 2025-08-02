@@ -38,14 +38,32 @@ export function PersonalizedBanner() {
 
   return (
     <Card className="mb-6 bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 dark:from-blue-950 dark:via-purple-950 dark:to-pink-950 border-2 border-blue-200 dark:border-blue-700">
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between">
+      <CardContent className="p-4 md:p-6">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
           <div className="flex-1">
-            <div className="flex items-center gap-2 mb-3">
-              <Sparkles className="h-5 w-5 text-blue-600" />
-              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                {getPersonalizedGreeting()}
-              </h2>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-blue-600" />
+                <h2 className="text-lg md:text-xl font-bold text-gray-900 dark:text-gray-100">
+                  {getPersonalizedGreeting()}
+                </h2>
+              </div>
+              {/* Mobile Actions */}
+              <div className="flex gap-2 md:hidden">
+                <Link href={`/map-search?query=${encodeURIComponent(onboardingData?.location || '')}&budget=${onboardingData?.budget || ''}&careTypes=${onboardingData?.careType?.join(',') || ''}`}>
+                  <Button size="sm" variant="default" className="px-3">
+                    <Home className="h-4 w-4" />
+                  </Button>
+                </Link>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => setShowOnboarding(true)}
+                  className="px-3"
+                >
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
             
             {welcomeMessage && (
@@ -54,59 +72,64 @@ export function PersonalizedBanner() {
               </p>
             )}
 
-            {/* Personalized Preferences Display */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+            {/* Personalized Preferences Display - Optimized for Mobile */}
+            <div className="space-y-3 mb-4">
+              {/* Location */}
               {onboardingData?.location && (
-                <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg p-3 border">
-                  <MapPin className="h-4 w-4 text-blue-600" />
-                  <div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">Location</div>
-                    <div className="text-sm font-medium">{onboardingData.location}</div>
+                <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg p-2 border">
+                  <MapPin className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Location</span>
+                    <span className="text-sm font-medium">{onboardingData.location}</span>
                   </div>
                 </div>
               )}
 
+              {/* Budget */}
               {budgetFilter && (
-                <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg p-3 border">
-                  <DollarSign className="h-4 w-4 text-green-600" />
-                  <div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">Budget</div>
-                    <div className="text-sm font-medium">{budgetFilter}</div>
+                <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg p-2 border">
+                  <DollarSign className="h-4 w-4 text-green-600 flex-shrink-0" />
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Budget</span>
+                    <span className="text-sm font-medium">{budgetFilter}</span>
                   </div>
                 </div>
               )}
 
-              {onboardingData?.timeline && (
-                <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg p-3 border">
-                  <Calendar className="h-4 w-4 text-purple-600" />
-                  <div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">Timeline</div>
-                    <div className="text-sm font-medium">{onboardingData.timeline}</div>
+              {/* Timeline and Care Types on same row */}
+              <div className="flex gap-2">
+                {onboardingData?.timeline && (
+                  <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg p-2 border flex-1">
+                    <Calendar className="h-4 w-4 text-purple-600 flex-shrink-0" />
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">Timeline</span>
+                      <span className="text-sm font-medium">{onboardingData.timeline}</span>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
+                {careTypes.length > 0 && (
+                  <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg p-2 border flex-1">
+                    <Heart className="h-4 w-4 text-red-600 flex-shrink-0" />
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">Care Types</span>
+                      <span className="text-sm font-medium">{careTypes.length} selected</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Care Types Badges - Inline */}
               {careTypes.length > 0 && (
-                <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg p-3 border">
-                  <Heart className="h-4 w-4 text-red-600" />
-                  <div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">Care Types</div>
-                    <div className="text-sm font-medium">{careTypes.length} selected</div>
-                  </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {careTypes.map((type, index) => (
+                    <Badge key={index} variant="secondary" className="text-xs px-2 py-0.5">
+                      {type}
+                    </Badge>
+                  ))}
                 </div>
               )}
             </div>
-
-            {/* Care Types Badges */}
-            {careTypes.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-4">
-                {careTypes.map((type, index) => (
-                  <Badge key={index} variant="secondary" className="text-xs">
-                    {type}
-                  </Badge>
-                ))}
-              </div>
-            )}
 
             {/* Special HUD Budget Hint */}
             {shouldShowBudgetHint() && (
@@ -121,8 +144,8 @@ export function PersonalizedBanner() {
             )}
           </div>
 
-          {/* Actions */}
-          <div className="flex flex-col gap-2 ml-4">
+          {/* Desktop Actions */}
+          <div className="hidden md:flex flex-col gap-2 ml-4">
             <Link href={`/map-search?query=${encodeURIComponent(onboardingData?.location || '')}&budget=${onboardingData?.budget || ''}&careTypes=${onboardingData?.careType?.join(',') || ''}`}>
               <Button size="sm" className="gap-2">
                 <Home className="h-4 w-4" />
