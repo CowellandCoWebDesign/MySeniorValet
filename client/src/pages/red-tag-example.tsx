@@ -1,18 +1,18 @@
-import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
+import React, { useState } from 'react';
+import { useParams, Link } from 'wouter';
+import { ArrowLeft, Tag, Star, MapPin, Phone, Globe, Calendar, Home, Building, 
+         Clock, AlertCircle, ExternalLink, Sparkles, Users, Heart, Shield,
+         TrendingUp, Award, CheckCircle, Settings, MessageSquare, Mail,
+         ChevronLeft, ChevronRight, Info, Navigation, UserCheck, Gem, Crown,
+         Activity, UtensilsCrossed, Car, ChevronDown, ChevronUp, FileText } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { 
-  MapPin, Phone, Globe, Star, Users, Building, Calendar, 
-  DollarSign, Camera, Wifi, Car, Utensils, Heart, 
-  CheckCircle, AlertCircle, Clock, Home, Sparkles,
-  ArrowRight, ExternalLink, Tag
-} from "lucide-react";
-import { Link, useRoute } from "wouter";
+import { NavigationHeader } from "@/components/NavigationHeader";
 
-// Mock data for red tag examples
+// Mock data for red tag examples (same as before)
 const redTagExamples = {
   "sunrise-senior-living": {
     id: 1,
@@ -22,17 +22,12 @@ const redTagExamples = {
     website: "https://sunriseseniorliving.com",
     rating: 4.8,
     reviewCount: 156,
-    actualCommunityId: 264, // Heritage Hills - real community from trending
+    actualCommunityId: 264,
     photos: [
       "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=600&fit=crop",
       "https://images.unsplash.com/photo-1571508601b60-5c8d0869d40a?w=800&h=600&fit=crop",
       "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?w=800&h=600&fit=crop"
     ],
-    unitPhotos: {
-      studio: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop",
-      oneBedroom: "https://images.unsplash.com/photo-1631679706909-1844bbd07221?w=600&h=400&fit=crop",
-      twoBedroom: "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=600&h=400&fit=crop"
-    },
     redTagSpecial: {
       title: "First Month FREE + $500 Move-in Credit",
       description: "Limited time offer for new residents. Save over $3,000 on your first year!",
@@ -42,136 +37,201 @@ const redTagExamples = {
       unitsAvailable: 3,
       unitTypes: ["Studio", "1-Bedroom"]
     },
-    occupancy: {
-      total: 120,
-      occupied: 89,
-      available: 31,
-      rate: 74.2
-    },
-    unitAvailability: {
-      studio: { total: 40, available: 8, waitlist: 2, price: 3200, specialPrice: 2700 },
-      oneBedroom: { total: 50, available: 15, waitlist: 0, price: 4200, specialPrice: 3700 },
-      twoBedroom: { total: 30, available: 8, waitlist: 5, price: 5800, specialPrice: null }
-    },
-    amenities: [
-      "24/7 Concierge Service", "Fitness Center & Pool", "Gourmet Dining", 
-      "Memory Care Wing", "Transportation Services", "Beauty Salon & Spa",
-      "Library & Computer Lab", "Pet-Friendly Suites", "Emergency Response System"
-    ],
-    careServices: ["Independent Living", "Assisted Living", "Memory Care"],
-    description: "Luxury senior living community offering exceptional care and amenities in the heart of Beverly Hills."
+    description: "Luxury senior living with concierge services, gourmet dining, and wellness programs. Our beautiful community offers independence with peace of mind.",
+    careTypes: ["Independent Living", "Assisted Living"],
+    amenities: ["Fitness Center", "Dining Room", "Library", "Garden", "Transportation"],
+    services: ["Concierge", "Housekeeping", "Wellness Programs", "Activities"]
   },
   "heritage-hills": {
-    id: 2, 
+    id: 2,
     name: "Heritage Hills Senior Community",
-    address: "456 Oak Tree Lane, Austin, TX 78701",
+    address: "456 Oak Tree Lane, Austin, TX 78704",
     phone: "(555) 987-6543",
     website: "https://heritagehillsaustin.com",
     rating: 4.6,
     reviewCount: 89,
-    actualCommunityId: 265, // Another real community ID
+    actualCommunityId: 265,
     photos: [
       "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=800&h=600&fit=crop",
       "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop"
     ],
-    unitPhotos: {
-      studio: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&h=400&fit=crop",
-      oneBedroom: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop",
-      twoBedroom: "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=600&h=400&fit=crop"
-    },
     redTagSpecial: {
-      title: "50% Off First 3 Months + Waived Fees",
-      description: "Special pricing for select apartment homes. Move-in by month end!",
+      title: "No Deposit + 2 Months FREE Rent",
+      description: "Move in today with no security deposit required. Limited availability!",
       originalPrice: 3800,
-      specialPrice: 1900,
-      validUntil: "November 30, 2025",
-      unitsAvailable: 5,
+      specialPrice: 3200,
+      validUntil: "January 15, 2026",
+      unitsAvailable: 2,
       unitTypes: ["1-Bedroom", "2-Bedroom"]
     },
-    occupancy: {
-      total: 88,
-      occupied: 71,
-      available: 17,
-      rate: 80.7
-    },
-    unitAvailability: {
-      studio: { total: 20, available: 3, waitlist: 1, price: 2800, specialPrice: null },
-      oneBedroom: { total: 38, available: 9, waitlist: 0, price: 3800, specialPrice: 1900 },
-      twoBedroom: { total: 30, available: 5, waitlist: 2, price: 4600, specialPrice: 2300 }
-    },
-    amenities: [
-      "Resort-Style Pool", "Golf Simulator", "Yoga Studio", "Community Garden",
-      "Dog Park", "Game Room", "Chef's Kitchen", "Wine Cellar", "Movie Theater"
-    ],
-    careServices: ["Independent Living", "Assisted Living"],
-    description: "Active adult community featuring resort-style amenities and vibrant social opportunities."
+    description: "Comfortable senior living in the heart of Austin with easy access to local attractions and medical facilities.",
+    careTypes: ["Independent Living"],
+    amenities: ["Pool", "Community Room", "Kitchen", "Parking"],
+    services: ["Maintenance", "Social Activities", "Transportation"]
   },
   "golden-years": {
     id: 3,
-    name: "Golden Years Residence", 
-    address: "789 Maple Street, Portland, OR 97201",
+    name: "Golden Years Assisted Living",
+    address: "789 Maple Street, Portland, OR 97205",
     phone: "(555) 456-7890",
     website: "https://goldenyearsportland.com",
     rating: 4.7,
     reviewCount: 134,
-    actualCommunityId: 266, // Another real community ID
+    actualCommunityId: 266,
     photos: [
       "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=800&h=600&fit=crop",
       "https://images.unsplash.com/photo-1571508601108-4d53efdfeb6b?w=800&h=600&fit=crop"
     ],
-    unitPhotos: {
-      studio: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&h=400&fit=crop",
-      oneBedroom: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop",
-      twoBedroom: "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=600&h=400&fit=crop"
-    },
     redTagSpecial: {
-      title: "Move-in Special: $1,000 Credit + Free WiFi",
-      description: "Immediate availability in our newly renovated wing with premium finishes.",
-      originalPrice: 3400,
-      specialPrice: 2400,
-      validUntil: "January 15, 2026",
-      unitsAvailable: 7,
-      unitTypes: ["Studio", "1-Bedroom", "2-Bedroom"]
+      title: "$1,000 Off First 3 Months + Free Care Assessment",
+      description: "Professional care assessment included. Start your journey with personalized support.",
+      originalPrice: 4500,
+      specialPrice: 4100,
+      validUntil: "February 28, 2026",
+      unitsAvailable: 1,
+      unitTypes: ["Studio", "1-Bedroom"]
     },
-    occupancy: {
-      total: 95,
-      occupied: 82,
-      available: 13,
-      rate: 86.3
-    },
-    unitAvailability: {
-      studio: { total: 25, available: 4, waitlist: 0, price: 2600, specialPrice: 2100 },
-      oneBedroom: { total: 45, available: 6, waitlist: 1, price: 3400, specialPrice: 2400 },
-      twoBedroom: { total: 25, available: 3, waitlist: 3, price: 4200, specialPrice: 3200 }
-    },
-    amenities: [
-      "Rooftop Garden", "Fitness Center", "Library", "Arts & Crafts Studio",
-      "Physical Therapy", "Medication Management", "Housekeeping", "Laundry Service"
-    ],
-    careServices: ["Independent Living", "Assisted Living", "Respite Care"],
-    description: "Intimate senior community providing personalized care in a warm, home-like environment."
+    description: "Specialized assisted living with 24/7 care, medication management, and therapeutic programs.",
+    careTypes: ["Assisted Living", "Memory Care"],
+    amenities: ["Nursing Station", "Therapy Room", "Secure Garden", "Dining Room"],
+    services: ["24/7 Care", "Medication Management", "Physical Therapy", "Social Work"]
   }
 };
 
+// Hero Photo Carousel Component (same as authentic page)
+const HeroPhotoCarousel = ({ photos, communityName }: { photos: string[], communityName: string }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+
+  const nextPhoto = () => {
+    setCurrentIndex((prev) => (prev + 1) % photos.length);
+  };
+
+  const prevPhoto = () => {
+    setCurrentIndex((prev) => (prev - 1 + photos.length) % photos.length);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe) {
+      nextPhoto();
+    }
+    if (isRightSwipe) {
+      prevPhoto();
+    }
+  };
+
+  return (
+    <div className="relative">
+      <div 
+        className="w-full h-80 lg:h-96 relative overflow-hidden rounded-xl shadow-lg"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        <img
+          src={photos[currentIndex]}
+          alt={`${communityName} - Photo ${currentIndex + 1}`}
+          className="w-full h-full object-cover transition-opacity duration-300"
+        />
+        
+        {/* Navigation arrows */}
+        {photos.length > 1 && (
+          <>
+            <button
+              onClick={prevPhoto}
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-all"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              onClick={nextPhoto}
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-all"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </>
+        )}
+
+        {/* Photo indicators */}
+        {photos.length > 1 && (
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+            {photos.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  index === currentIndex ? 'bg-white' : 'bg-white/50'
+                }`}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Red Tag Badge Overlay */}
+        <div className="absolute top-4 left-4">
+          <Badge className="bg-red-600 text-white text-sm font-semibold px-3 py-1">
+            <Tag className="w-4 h-4 mr-1" />
+            RED TAG SPECIAL
+          </Badge>
+        </div>
+
+        {/* Photo count */}
+        <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+          {currentIndex + 1} / {photos.length}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function RedTagExamplePage() {
-  const [match, params] = useRoute("/red-tag-example/:communitySlug");
-  const [selectedUnit, setSelectedUnit] = useState<string | null>(null);
+  const [, params] = useRoute('/red-tag-example/:slug');
   const [showAuthenticDisclaimer, setShowAuthenticDisclaimer] = useState(true);
+  const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
+  const [selectedTab, setSelectedTab] = useState("overview");
 
-  if (!match || !params?.communitySlug) {
-    return <div>Community not found</div>;
-  }
+  const slug = params?.slug || 'sunrise-senior-living';
+  const community = redTagExamples[slug as keyof typeof redTagExamples];
 
-  const community = redTagExamples[params.communitySlug as keyof typeof redTagExamples];
   if (!community) {
-    return <div>Community not found</div>;
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            Red Tag Example Not Found
+          </h1>
+          <Link href="/">
+            <Button>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
   }
-
-  const occupancyPercentage = (community.occupancy.occupied / community.occupancy.total) * 100;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Authentic Data Disclaimer Banner */}
+      {/* Navigation Header */}
+      <NavigationHeader />
+
+      {/* Red Tag Disclaimer Banner */}
       {showAuthenticDisclaimer && (
         <div className="bg-blue-600 text-white">
           <div className="max-w-7xl mx-auto px-4 py-3">
@@ -205,60 +265,246 @@ export default function RedTagExamplePage() {
       )}
 
       <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Header Section */}
-        <div className="mb-8">
-          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
-            {/* Community Info */}
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-3">
-                <Badge className="bg-red-600 text-white">
-                  <Tag className="w-3 h-3 mr-1" />
-                  RED TAG DEAL
-                </Badge>
-                <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                  <Sparkles className="w-3 h-3 mr-1" />
-                  Example Features
-                </Badge>
-              </div>
-              
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                {community.name}
-              </h1>
-              
-              <div className="flex flex-wrap items-center gap-6 text-gray-600 dark:text-gray-400 mb-4">
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5" />
-                  <span>{community.address}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Phone className="w-5 h-5" />
-                  <span>{community.phone}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Globe className="w-5 h-5" />
-                  <a href={community.website} className="text-blue-600 hover:underline">
-                    Visit Website
-                  </a>
-                </div>
-              </div>
+        {/* Main Content Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column - Community Info */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Hero Photo Gallery */}
+            <HeroPhotoCarousel photos={community.photos} communityName={community.name} />
 
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                  <span className="font-semibold">{community.rating}</span>
-                  <span className="text-gray-600 dark:text-gray-400">
-                    ({community.reviewCount} reviews)
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Building className="w-5 h-5 text-blue-600" />
-                  <span>{community.occupancy.available} units available</span>
-                </div>
-              </div>
-            </div>
+            {/* Community Header */}
+            <Card>
+              <CardHeader className="pb-4">
+                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                  <div className="flex-1">
+                    {/* Badges */}
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <Badge className="bg-red-600 text-white">
+                        <Tag className="w-3 h-3 mr-1" />
+                        RED TAG DEAL
+                      </Badge>
+                      <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                        <Sparkles className="w-3 h-3 mr-1" />
+                        Example Features
+                      </Badge>
+                      <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                        <Crown className="w-3 h-3 mr-1" />
+                        Featured Community
+                      </Badge>
+                    </div>
+                    
+                    <CardTitle className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                      {community.name}
+                    </CardTitle>
+                    
+                    <div className="flex flex-wrap items-center gap-6 text-gray-600 dark:text-gray-400 mb-4">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-5 h-5" />
+                        <span>{community.address}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Phone className="w-5 h-5" />
+                        <span>{community.phone}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Globe className="w-5 h-5" />
+                        <a href={community.website} className="text-blue-600 hover:underline">
+                          Visit Website
+                        </a>
+                      </div>
+                    </div>
 
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <Star className="w-5 h-5 text-yellow-400 fill-current" />
+                        <span className="font-semibold">{community.rating}</span>
+                        <span className="text-gray-600 dark:text-gray-400">
+                          ({community.reviewCount} reviews)
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Building className="w-5 h-5 text-blue-600" />
+                        <span>{community.redTagSpecial.unitsAvailable} units available</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Live Pricing Display */}
+                  <div className="text-right">
+                    <div className="mb-3">
+                      <div className="flex items-center justify-end mb-1">
+                        <Badge className="bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200 mr-2">
+                          <div className="w-2 h-2 bg-green-500 dark:bg-green-400 rounded-full mr-1"></div>
+                          Live Pricing (Example)
+                        </Badge>
+                      </div>
+                      <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                        ${community.redTagSpecial.specialPrice.toLocaleString()}/month
+                      </div>
+                      <div className="text-sm text-gray-900 dark:text-gray-100">
+                        Red Tag Special Rate
+                      </div>
+                      <div className="text-sm text-gray-500 line-through mt-1">
+                        Regular: ${community.redTagSpecial.originalPrice.toLocaleString()}/month
+                      </div>
+                    </div>
+
+                    {/* Availability Status */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-end">
+                        <div className="w-3 h-3 rounded-full mr-2 bg-green-500"></div>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-400">
+                          {community.redTagSpecial.unitsAvailable} Units Available
+                        </span>
+                      </div>
+
+                      <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
+                        <div className="text-sm text-green-700 dark:text-green-300 font-medium">
+                          Red Tag Special Active
+                        </div>
+                        <div className="text-xs text-green-600 dark:text-green-400 mt-1">
+                          Valid until {community.redTagSpecial.validUntil}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+
+            {/* Tabbed Content */}
+            <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="amenities">Amenities</TabsTrigger>
+                <TabsTrigger value="photos">Photos</TabsTrigger>
+                <TabsTrigger value="pricing">Pricing</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="overview" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Community Overview</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600 dark:text-gray-400 mb-4">
+                      {community.description}
+                    </p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Care Types</h4>
+                        <div className="space-y-1">
+                          {community.careTypes.map((type, idx) => (
+                            <div key={idx} className="flex items-center gap-2">
+                              <CheckCircle className="w-4 h-4 text-green-500" />
+                              <span className="text-sm">{type}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Key Services</h4>
+                        <div className="space-y-1">
+                          {community.services.slice(0, 4).map((service, idx) => (
+                            <div key={idx} className="flex items-center gap-2">
+                              <CheckCircle className="w-4 h-4 text-blue-500" />
+                              <span className="text-sm">{service}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="amenities" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Community Amenities</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {community.amenities.map((amenity, idx) => (
+                        <div key={idx} className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                          <span className="text-sm">{amenity}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="photos" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Photo Gallery</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {community.photos.map((photo, idx) => (
+                        <img 
+                          key={idx}
+                          src={photo} 
+                          alt={`${community.name} - Photo ${idx + 1}`}
+                          className="w-full h-64 object-cover rounded-lg"
+                        />
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="pricing" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Red Tag Special Pricing</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="bg-red-50 dark:bg-red-900/20 p-6 rounded-lg border border-red-200 dark:border-red-800">
+                      <div className="text-center mb-4">
+                        <h3 className="text-xl font-bold text-red-800 dark:text-red-200">
+                          {community.redTagSpecial.title}
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                          {community.redTagSpecial.description}
+                        </p>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                        <div className="p-4 bg-white dark:bg-gray-800 rounded-lg">
+                          <div className="text-2xl font-bold text-red-600">
+                            ${community.redTagSpecial.specialPrice.toLocaleString()}
+                          </div>
+                          <div className="text-sm text-gray-500">Special Rate</div>
+                        </div>
+                        <div className="p-4 bg-white dark:bg-gray-800 rounded-lg">
+                          <div className="text-2xl font-bold text-gray-400 line-through">
+                            ${community.redTagSpecial.originalPrice.toLocaleString()}
+                          </div>
+                          <div className="text-sm text-gray-500">Regular Rate</div>
+                        </div>
+                        <div className="p-4 bg-white dark:bg-gray-800 rounded-lg">
+                          <div className="text-2xl font-bold text-green-600">
+                            ${(community.redTagSpecial.originalPrice - community.redTagSpecial.specialPrice).toLocaleString()}
+                          </div>
+                          <div className="text-sm text-gray-500">Monthly Savings</div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+
+          {/* Right Column - Sidebar */}
+          <div className="space-y-6">
             {/* Red Tag Special Card */}
-            <Card className="lg:w-80 border-red-200 dark:border-red-800">
+            <Card className="border-red-200 dark:border-red-800">
               <CardHeader className="bg-red-50 dark:bg-red-950/30">
                 <CardTitle className="text-red-800 dark:text-red-200 flex items-center gap-2">
                   <Tag className="w-5 h-5" />
@@ -281,7 +527,7 @@ export default function RedTagExamplePage() {
                   </div>
                 </div>
 
-                <div className="text-center">
+                <div className="text-center mb-4">
                   <div className="text-2xl font-bold text-red-600 dark:text-red-400">
                     ${community.redTagSpecial.specialPrice.toLocaleString()}/month
                   </div>
@@ -293,301 +539,76 @@ export default function RedTagExamplePage() {
                   </div>
                 </div>
 
-                <Button className="w-full mt-4 bg-red-600 hover:bg-red-700 text-white" disabled>
+                <Button className="w-full mb-3 bg-red-600 hover:bg-red-700 text-white" disabled>
                   <Tag className="w-4 h-4 mr-2" />
                   Reserve Now (Example)
                 </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
 
-        {/* Photo Gallery */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="md:col-span-2">
-            <img 
-              src={community.photos[0]} 
-              alt={`${community.name} exterior`}
-              className="w-full h-80 object-cover rounded-lg"
-            />
-          </div>
-          <div className="space-y-4">
-            {community.photos.slice(1).map((photo, idx) => (
-              <img 
-                key={idx}
-                src={photo} 
-                alt={`${community.name} interior ${idx + 1}`}
-                className="w-full h-36 object-cover rounded-lg"
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Main Content Tabs */}
-        <Tabs defaultValue="availability" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="availability">Live Availability</TabsTrigger>
-            <TabsTrigger value="amenities">Amenities</TabsTrigger>
-            <TabsTrigger value="pricing">Full Pricing</TabsTrigger>
-            <TabsTrigger value="photos">Unit Photos</TabsTrigger>
-          </TabsList>
-
-          {/* Live Availability Tab */}
-          <TabsContent value="availability" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-blue-600" />
-                  Live Occupancy & Availability
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                  <div className="text-center p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-600">{community.occupancy.total}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Total Units</div>
-                  </div>
-                  <div className="text-center p-4 bg-green-50 dark:bg-green-950/30 rounded-lg">
-                    <div className="text-2xl font-bold text-green-600">{community.occupancy.available}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Available Now</div>
-                  </div>
-                  <div className="text-center p-4 bg-orange-50 dark:bg-orange-950/30 rounded-lg">
-                    <div className="text-2xl font-bold text-orange-600">{community.occupancy.occupied}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Occupied</div>
-                  </div>
-                  <div className="text-center p-4 bg-purple-50 dark:bg-purple-950/30 rounded-lg">
-                    <div className="text-2xl font-bold text-purple-600">{occupancyPercentage.toFixed(1)}%</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Occupancy Rate</div>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  {Object.entries(community.unitAvailability).map(([unitType, data]) => (
-                    <Card key={unitType} className={`border-2 ${data.specialPrice ? 'border-red-200 dark:border-red-800' : 'border-gray-200 dark:border-gray-700'}`}>
-                      <CardContent className="p-4">
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <h3 className="font-semibold capitalize text-lg">
-                                {unitType === 'oneBedroom' ? '1-Bedroom' : unitType === 'twoBedroom' ? '2-Bedroom' : 'Studio'} Apartment
-                              </h3>
-                              {data.specialPrice && (
-                                <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                                  RED TAG SPECIAL
-                                </Badge>
-                              )}
-                            </div>
-                            
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                              <div>
-                                <span className="text-gray-600 dark:text-gray-400">Available:</span>
-                                <span className="ml-2 font-semibold text-green-600">{data.available} units</span>
-                              </div>
-                              <div>
-                                <span className="text-gray-600 dark:text-gray-400">Total:</span>
-                                <span className="ml-2 font-semibold">{data.total} units</span>
-                              </div>
-                              <div>
-                                <span className="text-gray-600 dark:text-gray-400">Waitlist:</span>
-                                <span className="ml-2 font-semibold text-orange-600">{data.waitlist} people</span>
-                              </div>
-                              <div>
-                                <span className="text-gray-600 dark:text-gray-400">Rate:</span>
-                                <span className="ml-2 font-semibold">{((data.total - data.available) / data.total * 100).toFixed(1)}%</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex flex-col md:items-end gap-3">
-                            <div className="text-right">
-                              {data.specialPrice ? (
-                                <>
-                                  <div className="text-2xl font-bold text-red-600 dark:text-red-400">
-                                    ${data.specialPrice.toLocaleString()}/month
-                                  </div>
-                                  <div className="text-sm text-gray-500 line-through">
-                                    Was ${data.price.toLocaleString()}/month
-                                  </div>
-                                </>
-                              ) : (
-                                <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                                  ${data.price.toLocaleString()}/month
-                                </div>
-                              )}
-                            </div>
-                            
-                            <div className="flex gap-2">
-                              <Dialog>
-                                <DialogTrigger asChild>
-                                  <Button variant="outline" size="sm">
-                                    <Camera className="w-4 h-4 mr-2" />
-                                    View Unit
-                                  </Button>
-                                </DialogTrigger>
-                                <DialogContent className="max-w-2xl">
-                                  <DialogHeader>
-                                    <DialogTitle>
-                                      {unitType === 'oneBedroom' ? '1-Bedroom' : unitType === 'twoBedroom' ? '2-Bedroom' : 'Studio'} Unit Photos
-                                    </DialogTitle>
-                                  </DialogHeader>
-                                  <img 
-                                    src={community.unitPhotos[unitType as keyof typeof community.unitPhotos]} 
-                                    alt={`${unitType} unit interior`}
-                                    className="w-full h-96 object-cover rounded-lg"
-                                  />
-                                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                                    Example unit layout and finishes. Actual units may vary.
-                                  </p>
-                                </DialogContent>
-                              </Dialog>
-                              
-                              <Button 
-                                size="sm" 
-                                className={data.specialPrice ? "bg-red-600 hover:bg-red-700" : "bg-blue-600 hover:bg-blue-700"}
-                                disabled
-                              >
-                                <Calendar className="w-4 h-4 mr-2" />
-                                {data.available > 0 ? 'Reserve Now' : 'Join Waitlist'}
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Amenities Tab */}
-          <TabsContent value="amenities">
-            <Card>
-              <CardHeader>
-                <CardTitle>Community Amenities</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {community.amenities.map((amenity, idx) => (
-                    <div key={idx} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                      <span>{amenity}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Full Pricing Tab */}
-          <TabsContent value="pricing">
-            <Card>
-              <CardHeader>
-                <CardTitle>Complete Pricing Structure</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {Object.entries(community.unitAvailability).map(([unitType, data]) => (
-                    <div key={unitType} className="border rounded-lg p-6">
-                      <h3 className="text-xl font-semibold mb-4 capitalize">
-                        {unitType === 'oneBedroom' ? '1-Bedroom' : unitType === 'twoBedroom' ? '2-Bedroom' : 'Studio'} Units
-                      </h3>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <h4 className="font-medium mb-3">Standard Pricing</h4>
-                          <div className="space-y-2">
-                            <div className="flex justify-between">
-                              <span>Base Rent:</span>
-                              <span className="font-semibold">${data.price.toLocaleString()}/month</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Care Services:</span>
-                              <span className="font-semibold">+$200-800/month</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Utilities:</span>
-                              <span className="font-semibold">Included</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {data.specialPrice && (
-                          <div className="bg-red-50 dark:bg-red-950/30 p-4 rounded-lg">
-                            <h4 className="font-medium mb-3 text-red-800 dark:text-red-200">Red Tag Special</h4>
-                            <div className="space-y-2">
-                              <div className="flex justify-between">
-                                <span>Special Rate:</span>
-                                <span className="font-semibold text-red-600">${data.specialPrice.toLocaleString()}/month</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>Monthly Savings:</span>
-                                <span className="font-semibold text-green-600">-${(data.price - data.specialPrice).toLocaleString()}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>Annual Savings:</span>
-                                <span className="font-semibold text-green-600">-${((data.price - data.specialPrice) * 12).toLocaleString()}</span>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Unit Photos Tab */}
-          <TabsContent value="photos">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {Object.entries(community.unitPhotos).map(([unitType, photo]) => (
-                <Card key={unitType}>
-                  <CardHeader>
-                    <CardTitle className="capitalize">
-                      {unitType === 'oneBedroom' ? '1-Bedroom' : unitType === 'twoBedroom' ? '2-Bedroom' : 'Studio'} Unit
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <img 
-                      src={photo} 
-                      alt={`${unitType} unit interior`}
-                      className="w-full h-48 object-cover rounded-lg mb-4"
-                    />
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Example unit layout and finishes. Actual units may vary based on availability and community standards.
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
-
-        {/* Bottom CTA */}
-        <Card className="mt-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30 border-red-200 dark:border-red-800">
-          <CardContent className="p-6 text-center">
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              Ready to Claim This Red Tag Deal?
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              This is an example of how verified community specials will appear. Contact the actual community for real availability and pricing.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href={`/community/${community.actualCommunityId}`}>
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  View Authentic Listing
+                <Button variant="outline" className="w-full" disabled>
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Schedule Tour (Example)
                 </Button>
-              </Link>
-              <Button variant="outline" disabled>
-                <Phone className="w-4 h-4 mr-2" />
-                Call for Real Pricing
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+
+            {/* Contact Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Contact Information</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <Phone className="w-5 h-5 text-blue-600" />
+                    <div>
+                      <div className="font-semibold">{community.phone}</div>
+                      <div className="text-sm text-gray-500">Main Office</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Globe className="w-5 h-5 text-blue-600" />
+                    <div>
+                      <a href={community.website} className="text-blue-600 hover:underline font-semibold">
+                        Visit Website
+                      </a>
+                      <div className="text-sm text-gray-500">Community Website</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <MapPin className="w-5 h-5 text-blue-600" />
+                    <div>
+                      <div className="font-semibold">Location</div>
+                      <div className="text-sm text-gray-500">{community.address}</div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Disclaimer Card */}
+            <Card className="border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20">
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <AlertCircle className="w-8 h-8 text-blue-600 mx-auto mb-3" />
+                  <h3 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">
+                    Red Tag Example
+                  </h3>
+                  <p className="text-sm text-blue-700 dark:text-blue-300 mb-4">
+                    This is an example of how verified community specials will appear. Contact the actual community for real availability and pricing.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <Link href={`/community/${community.actualCommunityId}`}>
+                      <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        View Authentic Listing
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
