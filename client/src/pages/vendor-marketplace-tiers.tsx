@@ -32,14 +32,33 @@ interface VendorTier {
   name: string;
   price: number;
   features: {
+    listingVisible: boolean;
+    regionalCoverage: number; // -1 for unlimited, else number of regions
     leadGeneration: number;
     featuredPlacement: boolean;
+    prioritySupport: boolean;
     analyticsAccess: string;
+    profileCustomization: string;
     productListings: number;
     monthlyClicks: number;
     responseTime: string;
     verifiedBadge: boolean;
     promotionalOffers: number;
+    userReviews: boolean;
+    affiliateTracking: boolean;
+    photos: boolean;
+    callToAction: boolean;
+    logo: boolean;
+    featuredCarousel?: boolean;
+    bannerRotation?: boolean;
+    dedicatedProfilePage?: boolean;
+    apiLeadPassback?: boolean;
+    quarterlyReport?: boolean;
+    topConciergeMatch?: boolean;
+    exclusiveCategory?: boolean;
+    coBranding?: boolean;
+    revenueShare?: boolean;
+    crossPlatformPlacement?: boolean;
     dedicatedAccountManager?: boolean;
     apiAccess?: boolean;
     customIntegrations?: boolean;
@@ -141,49 +160,83 @@ export default function VendorMarketplaceTiers() {
             
             <CardContent className="space-y-3">
               <div className="space-y-2">
+                {/* Regional Coverage */}
                 <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-gray-600" />
+                  <Globe className="w-4 h-4 text-gray-600" />
                   <span className="text-sm">
-                    {tier.features.leadGeneration === -1 
-                      ? 'Unlimited leads' 
-                      : `${tier.features.leadGeneration} leads/month`}
+                    {tier.features.regionalCoverage === -1 
+                      ? 'Nationwide coverage' 
+                      : tier.features.regionalCoverage === 1
+                      ? '1 regional zip cluster'
+                      : `Up to ${tier.features.regionalCoverage} regional areas`}
                   </span>
                 </div>
                 
-                <div className="flex items-center gap-2">
-                  <Eye className="w-4 h-4 text-gray-600" />
-                  <span className="text-sm">
-                    {tier.features.monthlyClicks === -1 
-                      ? 'Unlimited clicks' 
-                      : `${tier.features.monthlyClicks} clicks/month`}
-                  </span>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <ShoppingBag className="w-4 h-4 text-gray-600" />
-                  <span className="text-sm">
-                    {tier.features.productListings === -1 
-                      ? 'Unlimited products' 
-                      : `${tier.features.productListings} products`}
-                  </span>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-gray-600" />
-                  <span className="text-sm">{tier.features.responseTime} response</span>
-                </div>
-                
-                {tier.features.verifiedBadge && (
+                {/* Analytics Access */}
+                {tier.features.analyticsAccess !== 'none' && (
                   <div className="flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-blue-600" />
-                    <span className="text-sm font-medium">Verified Badge</span>
+                    <BarChart3 className="w-4 h-4 text-gray-600" />
+                    <span className="text-sm">
+                      {tier.features.analyticsAccess === 'basic' && 'Basic analytics dashboard'}
+                      {tier.features.analyticsAccess === 'advanced' && 'Advanced analytics & reports'}
+                      {tier.features.analyticsAccess === 'enterprise' && 'Enterprise analytics suite'}
+                    </span>
                   </div>
                 )}
                 
+                {/* Photos & Branding */}
+                {tier.features.photos ? (
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-medium">Custom logo & branding</span>
+                  </div>
+                ) : key === 'basic' && (
+                  <div className="flex items-center gap-2">
+                    <Lock className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm text-gray-500">No photos or branding</span>
+                  </div>
+                )}
+                
+                {/* Verified Badge */}
+                {key === 'basic' ? (
+                  <div className="flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm">$25 verification badge add-on</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-medium">MySeniorValet Approved badge</span>
+                  </div>
+                )}
+                
+                {/* Featured Placement */}
                 {tier.features.featuredPlacement && (
                   <div className="flex items-center gap-2">
                     <Star className="w-4 h-4 text-yellow-600" />
-                    <span className="text-sm font-medium">Featured Placement</span>
+                    <span className="text-sm font-medium">Featured placement</span>
+                  </div>
+                )}
+                
+                {/* Special Features */}
+                {tier.features.bannerRotation && (
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 text-purple-600" />
+                    <span className="text-sm font-medium">Banner rotation</span>
+                  </div>
+                )}
+                
+                {tier.features.dedicatedProfilePage && (
+                  <div className="flex items-center gap-2">
+                    <Briefcase className="w-4 h-4 text-purple-600" />
+                    <span className="text-sm font-medium">Dedicated vendor page</span>
+                  </div>
+                )}
+                
+                {tier.features.exclusiveCategory && (
+                  <div className="flex items-center gap-2">
+                    <Crown className="w-4 h-4 text-amber-600" />
+                    <span className="text-sm font-medium">Exclusive category access</span>
                   </div>
                 )}
               </div>
@@ -222,11 +275,18 @@ export default function VendorMarketplaceTiers() {
               </thead>
               <tbody>
                 <tr className="border-b">
+                  <td className="py-3 px-4 font-medium">Monthly Price</td>
+                  <td className="text-center py-3 px-4 font-bold">$99</td>
+                  <td className="text-center py-3 px-4 font-bold">$249</td>
+                  <td className="text-center py-3 px-4 font-bold">$499</td>
+                  <td className="text-center py-3 px-4 font-bold">$999+</td>
+                </tr>
+                <tr className="border-b">
                   <td className="py-3 px-4 font-medium">Regional Coverage</td>
-                  <td className="text-center py-3 px-4">1 Zip Cluster</td>
-                  <td className="text-center py-3 px-4">5 Regions</td>
+                  <td className="text-center py-3 px-4">1 zip cluster</td>
+                  <td className="text-center py-3 px-4">Up to 5 regions</td>
                   <td className="text-center py-3 px-4">Nationwide</td>
-                  <td className="text-center py-3 px-4">Custom</td>
+                  <td className="text-center py-3 px-4">Custom/Exclusive</td>
                 </tr>
                 <tr className="border-b">
                   <td className="py-3 px-4 font-medium">Featured Placement</td>
@@ -294,11 +354,86 @@ export default function VendorMarketplaceTiers() {
                   </td>
                 </tr>
                 <tr className="border-b">
+                  <td className="py-3 px-4 font-medium">Call-to-Action Button</td>
+                  <td className="text-center py-3 px-4">
+                    <Lock className="w-4 h-4 text-gray-400 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                  </td>
+                </tr>
+                <tr className="border-b">
+                  <td className="py-3 px-4 font-medium">Promotions & Offers</td>
+                  <td className="text-center py-3 px-4">
+                    <Lock className="w-4 h-4 text-gray-400 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                  </td>
+                </tr>
+                <tr className="border-b">
                   <td className="py-3 px-4 font-medium">Affiliate Tracking</td>
                   <td className="text-center py-3 px-4">Optional</td>
                   <td className="text-center py-3 px-4">Required</td>
                   <td className="text-center py-3 px-4">Required</td>
                   <td className="text-center py-3 px-4">Required</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="py-3 px-4 font-medium">Dedicated Profile Page</td>
+                  <td className="text-center py-3 px-4">
+                    <Lock className="w-4 h-4 text-gray-400 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <Lock className="w-4 h-4 text-gray-400 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                  </td>
+                </tr>
+                <tr className="border-b">
+                  <td className="py-3 px-4 font-medium">API/CSV Lead Passback</td>
+                  <td className="text-center py-3 px-4">
+                    <Lock className="w-4 h-4 text-gray-400 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <Lock className="w-4 h-4 text-gray-400 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                  </td>
+                </tr>
+                <tr className="border-b">
+                  <td className="py-3 px-4 font-medium">Quarterly Reports</td>
+                  <td className="text-center py-3 px-4">
+                    <Lock className="w-4 h-4 text-gray-400 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <Lock className="w-4 h-4 text-gray-400 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                  </td>
+                  <td className="text-center py-3 px-4">
+                    <CheckCircle className="w-4 h-4 text-green-600 inline" />
+                  </td>
                 </tr>
                 <tr className="border-b">
                   <td className="py-3 px-4 font-medium">Exclusive Category Access</td>
