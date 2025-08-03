@@ -18,36 +18,39 @@ export function MoveInCostCalculator() {
   const [homePrep, setHomePrep] = useState(800);
   const [otherCosts, setOtherCosts] = useState(500);
 
-  // Update dependent costs when slider changes AND user inputs change
+  // State to track if user has manually customized values
+  const [isFirstMonthCustomized, setIsFirstMonthCustomized] = useState(false);
+  const [isLastMonthCustomized, setIsLastMonthCustomized] = useState(false);
+  const [isSecurityDepositCustomized, setIsSecurityDepositCustomized] = useState(false);
+
+  // Update dependent costs when slider changes
   useEffect(() => {
     const monthlyCost = seniorLivingCost[0];
-    // Only auto-update if user hasn't manually changed these values significantly
-    if (Math.abs(firstMonth - monthlyCost) > 200) {
-      // User has customized, don't auto-update
-    } else {
+    
+    // Auto-update values only if user hasn't manually customized them
+    if (!isFirstMonthCustomized) {
       setFirstMonth(monthlyCost);
     }
     
-    if (Math.abs(lastMonth - monthlyCost) > 200) {
-      // User has customized, don't auto-update
-    } else {
+    if (!isLastMonthCustomized) {
       setLastMonth(monthlyCost);
     }
     
-    if (Math.abs(securityDeposit - (monthlyCost * 0.5)) > 200) {
-      // User has customized, don't auto-update
-    } else {
-      setSecurityDeposit(monthlyCost * 0.5);
+    if (!isSecurityDepositCustomized) {
+      setSecurityDeposit(Math.round(monthlyCost * 0.5)); // Round to avoid decimals
     }
-  }, [seniorLivingCost]);
+  }, [seniorLivingCost, isFirstMonthCustomized, isLastMonthCustomized, isSecurityDepositCustomized]);
 
   const calculateTotal = () => {
     return applicationFee + securityDeposit + firstMonth + lastMonth + movingServices + homePrep + otherCosts;
   };
 
-  const handleCostChange = (setter: (value: number) => void) => (value: string) => {
+  const handleCostChange = (setter: (value: number) => void, customizedSetter?: (value: boolean) => void) => (value: string) => {
     const numValue = parseFloat(value) || 0;
     setter(numValue);
+    if (customizedSetter) {
+      customizedSetter(true); // Mark as manually customized
+    }
   };
 
   // Calculate total that updates in real-time as user changes inputs
@@ -125,6 +128,20 @@ export function MoveInCostCalculator() {
             </div>
             <div className="text-center text-xs text-gray-500 dark:text-gray-400">
               💡 Slider automatically adjusts security deposit and rent amounts below
+              {(isFirstMonthCustomized || isLastMonthCustomized || isSecurityDepositCustomized) && (
+                <div className="mt-1">
+                  <button 
+                    onClick={() => {
+                      setIsFirstMonthCustomized(false);
+                      setIsLastMonthCustomized(false); 
+                      setIsSecurityDepositCustomized(false);
+                    }}
+                    className="text-purple-600 dark:text-purple-400 hover:underline text-xs"
+                  >
+                    Reset to auto-calculate
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </CardContent>
@@ -178,7 +195,7 @@ export function MoveInCostCalculator() {
                   id="securityDeposit"
                   type="number"
                   value={securityDeposit}
-                  onChange={(e) => handleCostChange(setSecurityDeposit)(e.target.value)}
+                  onChange={(e) => handleCostChange(setSecurityDeposit, setIsSecurityDepositCustomized)(e.target.value)}
                   className="pl-8"
                   min="0"
                   step="100"
@@ -199,7 +216,7 @@ export function MoveInCostCalculator() {
                   id="firstMonth"
                   type="number"
                   value={firstMonth}
-                  onChange={(e) => handleCostChange(setFirstMonth)(e.target.value)}
+                  onChange={(e) => handleCostChange(setFirstMonth, setIsFirstMonthCustomized)(e.target.value)}
                   className="pl-8"
                   min="0"
                   step="100"
@@ -220,7 +237,7 @@ export function MoveInCostCalculator() {
                   id="lastMonth"
                   type="number"
                   value={lastMonth}
-                  onChange={(e) => handleCostChange(setLastMonth)(e.target.value)}
+                  onChange={(e) => handleCostChange(setLastMonth, setIsLastMonthCustomized)(e.target.value)}
                   className="pl-8"
                   min="0"
                   step="100"
