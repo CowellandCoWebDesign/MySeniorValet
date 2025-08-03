@@ -2188,277 +2188,176 @@ export default function MySeniorValetHome() {
             <p className="text-lg text-gray-600 dark:text-gray-400 mt-4">Essential programs, government assistance, and support services</p>
           </div>
 
-          {/* Senior Support Programs */}
-          <div className="mb-12">
-            <h4 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Assistance Programs</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Food Banks */}
-              <Card className="hover:shadow-lg transition-shadow border-2 border-purple-200">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <Utensils className="h-8 w-8 text-green-600" />
-                    <h4 className="font-semibold text-xl">Food Banks</h4>
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-400 mb-4">
-                    Find senior-specific food assistance programs in your area
-                  </p>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                      <span>Home delivery for seniors</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                      <span>Commodity supplemental programs</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                      <span>Brown bag programs</span>
-                    </div>
-                  </div>
-                  <div className="mt-4">
-                    <p className="text-xs text-gray-500 mb-2">Available in:</p>
-                    <div className="flex flex-wrap gap-1">
-                      <Badge variant="secondary" className="text-xs">CA</Badge>
-                      <Badge variant="secondary" className="text-xs">FL</Badge>
-                      <Badge variant="secondary" className="text-xs">TX</Badge>
-                      <Badge variant="secondary" className="text-xs">AZ</Badge>
-                      <Badge variant="secondary" className="text-xs">NV</Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+          {/* Government Resources - moved to position 1 */}
+          <div>
+            <h4 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Government Programs & Resources</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {/* Essential Resources */}
+              {[
+                {
+                  category: 'Healthcare',
+                  name: 'Medicare',
+                  description: 'Federal health insurance for people 65 or older',
+                  phone: '1-800-MEDICARE (1-800-633-4227)',
+                  website: 'https://www.medicare.gov',
+                  icon: Stethoscope,
+                  color: 'blue'
+                },
+                {
+                  category: 'Financial',
+                  name: 'Social Security',
+                  description: 'Retirement, disability, and survivor benefits',
+                  phone: '1-800-772-1213',
+                  website: 'https://www.ssa.gov',
+                  icon: DollarSign,
+                  color: 'green'
+                },
+                {
+                  category: 'Veterans',
+                  name: 'VA Benefits',
+                  description: 'Healthcare and benefits for military veterans',
+                  phone: '1-800-827-1000',
+                  website: 'https://www.va.gov',
+                  icon: Shield,
+                  color: 'red'
+                },
+                {
+                  category: 'Nutrition',
+                  name: 'SNAP (Food Stamps)',
+                  description: 'Supplemental Nutrition Assistance Program',
+                  phone: '1-800-221-5689',
+                  website: 'https://www.fns.usda.gov/snap',
+                  icon: ShoppingBasket,
+                  color: 'orange'
+                },
+                {
+                  category: 'Transportation',
+                  name: 'Eldercare Locator',
+                  description: 'Connect to local transportation services',
+                  phone: '1-800-677-1116',
+                  website: 'https://eldercare.acl.gov',
+                  icon: Car,
+                  color: 'yellow'
+                },
+                {
+                  category: 'Health Info',
+                  name: 'NIH Senior Health',
+                  description: 'Health information from National Institutes',
+                  phone: '1-800-222-2225',
+                  website: 'https://www.nia.nih.gov',
+                  icon: Brain,
+                  color: 'cyan'
+                },
+                {
+                  category: 'Prescription Help',
+                  name: 'Extra Help/LIS',
+                  description: 'Medicare prescription drug cost assistance',
+                  phone: '1-800-772-1213',
+                  website: 'https://www.ssa.gov/medicare/prescriptionhelp',
+                  icon: Pill,
+                  color: 'emerald'
+                },
+                {
+                  category: 'Emergency',
+                  name: 'Crisis Support',
+                  description: '24/7 mental health crisis support',
+                  phone: '988',
+                  website: 'https://988lifeline.org',
+                  icon: Phone,
+                  color: 'rose'
+                },
+                {
+                  category: 'Nutrition',
+                  name: 'Food Banks & Assistance',
+                  description: 'Senior-specific food programs with home delivery',
+                  phone: '1-866-3-HUNGRY',
+                  website: 'https://www.feedingamerica.org',
+                  icon: Utensils,
+                  color: 'green'
+                },
+                {
+                  category: 'Home Care',
+                  name: 'IHSS (In-Home Support)',
+                  description: 'Personal care, housekeeping & daily living assistance',
+                  phone: '1-877-323-1165',
+                  website: 'https://www.cdss.ca.gov/in-home-supportive-services',
+                  icon: Home,
+                  color: 'blue'
+                },
+                {
+                  category: 'Independent Living',
+                  name: 'SLS (Supported Living)',
+                  description: '24/7 support for independent living & skills training',
+                  phone: '1-800-677-1116',
+                  website: 'https://www.dds.ca.gov/services/adult-services/supported-living-services/',
+                  icon: Users,
+                  color: 'purple'
+                }
+              ].map((resource, index) => {
+                const Icon = resource.icon;
+                const colorClasses = {
+                  blue: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700',
+                  green: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 border-green-300 dark:border-green-700',
+                  red: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 border-red-300 dark:border-red-700',
+                  orange: 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200 border-orange-300 dark:border-orange-700',
+                  yellow: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 border-yellow-300 dark:border-yellow-700',
+                  cyan: 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-800 dark:text-cyan-200 border-cyan-300 dark:border-cyan-700',
+                  emerald: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-200 border-emerald-300 dark:border-emerald-700',
+                  rose: 'bg-rose-100 dark:bg-rose-900/30 text-rose-800 dark:text-rose-200 border-rose-300 dark:border-rose-700',
+                  purple: 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 border-purple-300 dark:border-purple-700'
+                };
 
-              {/* IHSS */}
-              <Card className="hover:shadow-lg transition-shadow border-2 border-blue-200">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <Home className="h-8 w-8 text-blue-600" />
-                    <h4 className="font-semibold text-xl">IHSS</h4>
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-400 mb-4">
-                    In-Home Supportive Services for daily living assistance
-                  </p>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="h-4 w-4 text-blue-500 mt-0.5" />
-                      <span>Personal care services</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="h-4 w-4 text-blue-500 mt-0.5" />
-                      <span>Housekeeping & meal prep</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="h-4 w-4 text-blue-500 mt-0.5" />
-                      <span>Transportation assistance</span>
-                    </div>
-                  </div>
-                  <div className="mt-4">
-                    <p className="text-xs text-gray-500 mb-2">Primary state:</p>
-                    <Badge className="bg-blue-100 text-blue-800">California Program</Badge>
-                  </div>
-                </CardContent>
-              </Card>
+                const colorMap = {
+                  blue: { bg: 'bg-blue-500', hover: 'hover:bg-blue-600' },
+                  green: { bg: 'bg-green-500', hover: 'hover:bg-green-600' },
+                  red: { bg: 'bg-red-500', hover: 'hover:bg-red-600' },
+                  orange: { bg: 'bg-orange-500', hover: 'hover:bg-orange-600' },
+                  yellow: { bg: 'bg-yellow-500', hover: 'hover:bg-yellow-600' },
+                  cyan: { bg: 'bg-cyan-500', hover: 'hover:bg-cyan-600' },
+                  emerald: { bg: 'bg-emerald-500', hover: 'hover:bg-emerald-600' },
+                  rose: { bg: 'bg-rose-500', hover: 'hover:bg-rose-600' },
+                  purple: { bg: 'bg-purple-500', hover: 'hover:bg-purple-600' }
+                };
 
-              {/* SLS */}
-              <Card className="hover:shadow-lg transition-shadow border-2 border-purple-200">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <Users className="h-8 w-8 text-purple-600" />
-                    <h4 className="font-semibold text-xl">SLS</h4>
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-400 mb-4">
-                    Supported Living Services for independent living
-                  </p>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="h-4 w-4 text-purple-500 mt-0.5" />
-                      <span>24/7 support available</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="h-4 w-4 text-purple-500 mt-0.5" />
-                      <span>Skills training</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="h-4 w-4 text-purple-500 mt-0.5" />
-                      <span>Community integration</span>
-                    </div>
-                  </div>
-                  <div className="mt-4">
-                    <p className="text-xs text-gray-500 mb-2">Coordinated by:</p>
-                    <Badge className="bg-purple-100 text-purple-800">Regional Centers</Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Quick Contact Info */}
-            <div className="mt-8 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6">
-              <h4 className="font-semibold mb-4 flex items-center gap-2">
-                <Phone className="h-5 w-5 text-gray-600" />
-                Quick Access Hotlines
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                <div>
-                  <p className="font-medium text-gray-700 dark:text-gray-300">National Hunger Hotline</p>
-                  <a href="tel:1-866-348-6479" className="text-blue-600 hover:underline">1-866-3-HUNGRY</a>
-                  <p className="text-xs text-gray-500">Mon-Fri 7AM-10PM EST</p>
-                </div>
-                <div>
-                  <p className="font-medium text-gray-700 dark:text-gray-300">California IHSS</p>
-                  <a href="tel:1-877-323-1165" className="text-blue-600 hover:underline">1-877-323-1165</a>
-                  <p className="text-xs text-gray-500">County-specific assistance</p>
-                </div>
-                <div>
-                  <p className="font-medium text-gray-700 dark:text-gray-300">Eldercare Locator</p>
-                  <a href="tel:1-800-677-1116" className="text-blue-600 hover:underline">1-800-677-1116</a>
-                  <p className="text-xs text-gray-500">Find local services</p>
-                </div>
-              </div>
+                return (
+                  <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-all duration-200 overflow-hidden group">
+                    <CardContent className="p-4">
+                      <div className="flex items-start space-x-3">
+                        <div className={`p-3 rounded-lg ${colorMap[resource.color as keyof typeof colorMap]?.bg || colorMap.blue.bg} bg-opacity-10 group-hover:scale-110 transition-transform duration-200`}>
+                          <Icon className={`w-6 h-6 ${resource.color === 'blue' ? 'text-blue-600 dark:text-blue-400' : resource.color === 'green' ? 'text-green-600 dark:text-green-400' : resource.color === 'red' ? 'text-red-600 dark:text-red-400' : resource.color === 'orange' ? 'text-orange-600 dark:text-orange-400' : resource.color === 'yellow' ? 'text-yellow-600 dark:text-yellow-400' : resource.color === 'cyan' ? 'text-cyan-600 dark:text-cyan-400' : resource.color === 'emerald' ? 'text-emerald-600 dark:text-emerald-400' : resource.color === 'purple' ? 'text-purple-600 dark:text-purple-400' : 'text-rose-600 dark:text-rose-400'}`} />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-1">
+                            <h4 className="font-semibold text-gray-900 dark:text-gray-100">{resource.name}</h4>
+                            <Badge className={`text-xs ${colorClasses[resource.color as keyof typeof colorClasses] || colorClasses.blue} border`}>
+                              {resource.category}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">{resource.description}</p>
+                          <div className="space-y-2">
+                            <a href={`tel:${resource.phone.replace(/\D/g, '')}`} className="flex items-center text-sm text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                              <Phone className="w-4 h-4 mr-2" />
+                              {resource.phone}
+                            </a>
+                            {resource.website && (
+                              <a href={resource.website} target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                                <Globe className="w-4 h-4 mr-2" />
+                                Visit Website
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </div>
 
           {/* VA Aid & Attendance Benefits */}
           <div className="mb-12">
             <AidAndAttendance />
-          </div>
-
-          {/* Government Resources */}
-          <div>
-            <h4 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Government Programs & Resources</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {/* Essential Resources */}
-            {[
-              {
-                category: 'Healthcare',
-                name: 'Medicare',
-                description: 'Federal health insurance for people 65 or older',
-                phone: '1-800-MEDICARE (1-800-633-4227)',
-                website: 'https://www.medicare.gov',
-                icon: Stethoscope,
-                color: 'blue'
-              },
-              {
-                category: 'Financial',
-                name: 'Social Security',
-                description: 'Retirement, disability, and survivor benefits',
-                phone: '1-800-772-1213',
-                website: 'https://www.ssa.gov',
-                icon: DollarSign,
-                color: 'green'
-              },
-              {
-                category: 'Veterans',
-                name: 'VA Benefits',
-                description: 'Healthcare and benefits for military veterans',
-                phone: '1-800-827-1000',
-                website: 'https://www.va.gov',
-                icon: Shield,
-                color: 'red'
-              },
-              {
-                category: 'Nutrition',
-                name: 'SNAP (Food Stamps)',
-                description: 'Supplemental Nutrition Assistance Program',
-                phone: '1-800-221-5689',
-                website: 'https://www.fns.usda.gov/snap',
-                icon: ShoppingBasket,
-                color: 'orange'
-              },
-              {
-                category: 'Transportation',
-                name: 'Eldercare Locator',
-                description: 'Connect to local transportation services',
-                phone: '1-800-677-1116',
-                website: 'https://eldercare.acl.gov',
-                icon: Car,
-                color: 'yellow'
-              },
-              {
-                category: 'Health Info',
-                name: 'NIH Senior Health',
-                description: 'Health information from National Institutes',
-                phone: '1-800-222-2225',
-                website: 'https://www.nia.nih.gov',
-                icon: Brain,
-                color: 'cyan'
-              },
-              {
-                category: 'Prescription Help',
-                name: 'Extra Help/LIS',
-                description: 'Medicare prescription drug cost assistance',
-                phone: '1-800-772-1213',
-                website: 'https://www.ssa.gov/medicare/prescriptionhelp',
-                icon: Pill,
-                color: 'emerald'
-              },
-              {
-                category: 'Emergency',
-                name: 'Crisis Support',
-                description: '24/7 mental health crisis support',
-                phone: '988',
-                website: 'https://988lifeline.org',
-                icon: Phone,
-                color: 'rose'
-              }
-            ].map((resource, index) => {
-              const Icon = resource.icon;
-              const colorClasses = {
-                blue: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700',
-                green: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 border-green-300 dark:border-green-700',
-                red: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 border-red-300 dark:border-red-700',
-                orange: 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200 border-orange-300 dark:border-orange-700',
-                yellow: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 border-yellow-300 dark:border-yellow-700',
-                cyan: 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-800 dark:text-cyan-200 border-cyan-300 dark:border-cyan-700',
-                emerald: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-200 border-emerald-300 dark:border-emerald-700',
-                rose: 'bg-rose-100 dark:bg-rose-900/30 text-rose-800 dark:text-rose-200 border-rose-300 dark:border-rose-700'
-              };
-
-              const colorMap = {
-                blue: { bg: 'bg-blue-500', hover: 'hover:bg-blue-600' },
-                green: { bg: 'bg-green-500', hover: 'hover:bg-green-600' },
-                red: { bg: 'bg-red-500', hover: 'hover:bg-red-600' },
-                orange: { bg: 'bg-orange-500', hover: 'hover:bg-orange-600' },
-                yellow: { bg: 'bg-yellow-500', hover: 'hover:bg-yellow-600' },
-                cyan: { bg: 'bg-cyan-500', hover: 'hover:bg-cyan-600' },
-                emerald: { bg: 'bg-emerald-500', hover: 'hover:bg-emerald-600' },
-                rose: { bg: 'bg-rose-500', hover: 'hover:bg-rose-600' }
-              };
-
-              return (
-                <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-all duration-200 overflow-hidden group">
-                  <CardContent className="p-4">
-                    <div className="flex items-start space-x-3">
-                      <div className={`p-3 rounded-lg ${colorMap[resource.color as keyof typeof colorMap]?.bg || colorMap.blue.bg} bg-opacity-10 group-hover:scale-110 transition-transform duration-200`}>
-                        <Icon className={`w-6 h-6 ${resource.color === 'blue' ? 'text-blue-600 dark:text-blue-400' : resource.color === 'green' ? 'text-green-600 dark:text-green-400' : resource.color === 'red' ? 'text-red-600 dark:text-red-400' : resource.color === 'orange' ? 'text-orange-600 dark:text-orange-400' : resource.color === 'yellow' ? 'text-yellow-600 dark:text-yellow-400' : resource.color === 'cyan' ? 'text-cyan-600 dark:text-cyan-400' : resource.color === 'emerald' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`} />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-1">
-                          <h4 className="font-semibold text-gray-900 dark:text-gray-100">{resource.name}</h4>
-                          <Badge className={`text-xs ${colorClasses[resource.color as keyof typeof colorClasses] || colorClasses.blue} border`}>
-                            {resource.category}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">{resource.description}</p>
-                        <div className="space-y-2">
-                          <a href={`tel:${resource.phone.replace(/\D/g, '')}`} className="flex items-center text-sm text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                            <Phone className="w-4 h-4 mr-2" />
-                            {resource.phone}
-                          </a>
-                          {resource.website && (
-                            <a href={resource.website} target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                              <Globe className="w-4 h-4 mr-2" />
-                              Visit Website
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-            </div>
           </div>
         </div>
       </section>
