@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { NavigationHeader } from "@/components/NavigationHeader";
+import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { TourScheduler } from "@/components/TourScheduler";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -179,6 +180,18 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900">
       <NavigationHeader title="Dashboard" />
+
+      {/* Breadcrumb Navigation */}
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+        <div className="container mx-auto">
+          <BreadcrumbNavigation 
+            items={[
+              { label: 'Home', href: '/' },
+              { label: 'Dashboard' }
+            ]}
+          />
+        </div>
+      </div>
 
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Enhanced Analytics Hero Section */}

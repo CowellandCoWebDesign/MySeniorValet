@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 import { NavigationHeader } from "@/components/NavigationHeader";
+import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 
 export default function CareGuide() {
   const careTypes = [
@@ -175,6 +176,18 @@ export default function CareGuide() {
         title="Senior Care Guide" 
         subtitle="Understanding care types and pricing across 25,782 communities"
       />
+
+      {/* Breadcrumb Navigation */}
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-6xl mx-auto">
+          <BreadcrumbNavigation 
+            items={[
+              { label: 'Home', href: '/' },
+              { label: 'Senior Care Guide' }
+            ]}
+          />
+        </div>
+      </div>
 
       <div className="max-w-6xl mx-auto px-4 py-12">
         {/* Care Types Overview */}

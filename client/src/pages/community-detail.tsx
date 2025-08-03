@@ -31,6 +31,7 @@ import {
   type AmenityStatus
 } from "@/lib/amenities-checklists";
 import { NavigationHeader } from "@/components/NavigationHeader";
+import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { AuthenticPricingDisplay } from "@/components/AuthenticPricingDisplay";
 import { TourScheduler } from "@/components/TourScheduler";
 import { MessageCommunityButton } from "@/components/message-community-button";
@@ -587,6 +588,19 @@ export default function CommunityDetail() {
         title={community?.name || "Community Details"} 
         subtitle={`${community?.city || ""}, ${community?.state || ""}`}
       />
+      
+      {/* Breadcrumb Navigation */}
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-7xl mx-auto">
+          <BreadcrumbNavigation 
+            items={[
+              { label: 'Home', href: '/' },
+              { label: 'Communities', href: '/search' },
+              { label: community?.name || 'Community Details' }
+            ]}
+          />
+        </div>
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

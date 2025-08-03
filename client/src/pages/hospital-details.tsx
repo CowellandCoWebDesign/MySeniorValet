@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "wouter";
+import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { 
   Hospital, 
   Star, 
@@ -161,17 +162,13 @@ export default function HospitalDetails() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-6">
-          <Link href="/" className="hover:text-blue-600 dark:hover:text-blue-400">
-            Home
-          </Link>
-          <span>/</span>
-          <Link href="/hospitals" className="hover:text-blue-600 dark:hover:text-blue-400">
-            Hospital Directory
-          </Link>
-          <span>/</span>
-          <span className="text-gray-900 dark:text-white font-medium">{hospital.name}</span>
-        </div>
+        <BreadcrumbNavigation 
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'Hospital Directory', href: '/hospitals' },
+            { label: hospital.name }
+          ]}
+        />
 
         {/* Hospital Header */}
         <Card className="mb-8 overflow-hidden">

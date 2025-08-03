@@ -27,6 +27,7 @@ import { AidAndAttendance } from "@/components/AidAndAttendance";
 import { CostComparisonWorksheet } from "@/components/CostComparisonWorksheet";
 import HospitalCarousel from "@/components/HospitalCarousel";
 import { Footer } from "@/components/footer";
+import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 
 
 
@@ -354,6 +355,17 @@ export default function MySeniorValetHome() {
       <div className="px-4 py-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-6xl mx-auto">
           <PersonalizedBanner />
+        </div>
+      </div>
+
+      {/* Breadcrumb Navigation */}
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-7xl mx-auto">
+          <BreadcrumbNavigation 
+            items={[
+              { label: 'Home' }
+            ]}
+          />
         </div>
       </div>
 

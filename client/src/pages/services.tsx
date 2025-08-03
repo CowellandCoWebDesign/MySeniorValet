@@ -32,6 +32,7 @@ import {
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { NavigationHeader } from "@/components/NavigationHeader";
+import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 
 interface Service {
   id: string;
@@ -292,6 +293,18 @@ export default function Services() {
         title="Senior Living Services" 
         subtitle="Complete services for every aspect of senior transitions"
       />
+      
+      {/* Breadcrumb Navigation */}
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-7xl mx-auto">
+          <BreadcrumbNavigation 
+            items={[
+              { label: 'Home', href: '/' },
+              { label: 'Senior Living Services' }
+            ]}
+          />
+        </div>
+      </div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}

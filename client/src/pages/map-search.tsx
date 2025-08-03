@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useLocation } from 'wouter';
 import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle } from 'lucide-react';
 import { NavigationHeader } from "@/components/NavigationHeader";
+import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -978,6 +979,18 @@ export default function MapSearch() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Breadcrumb Navigation */}
+      <div className={"border-b " + (isDarkMode ? 'bg-gray-900 border-gray-700' : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700')}>
+        <div className="max-w-7xl mx-auto">
+          <BreadcrumbNavigation 
+            items={[
+              { label: 'Home', href: '/' },
+              { label: 'Map Search' }
+            ]}
+          />
         </div>
       </div>
 

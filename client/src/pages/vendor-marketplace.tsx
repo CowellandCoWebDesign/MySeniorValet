@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { BreadcrumbNavigation } from '@/components/BreadcrumbNavigation';
 import { ShoppingCart, Pill, Car, Stethoscope, Phone, Home, DollarSign, ExternalLink, Star, TrendingUp, Sparkles } from 'lucide-react';
 
 interface MarketplaceCategory {
@@ -117,6 +118,18 @@ export default function VendorMarketplace() {
             Vendors shown are for your convenience and do not imply partnership. 
             MySeniorValet does not currently receive compensation from these listings.
           </p>
+        </div>
+      </div>
+
+      {/* Breadcrumb Navigation */}
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+        <div className="container mx-auto">
+          <BreadcrumbNavigation 
+            items={[
+              { label: 'Home', href: '/' },
+              { label: 'Senior Services & Vendor Marketplace' }
+            ]}
+          />
         </div>
       </div>
 

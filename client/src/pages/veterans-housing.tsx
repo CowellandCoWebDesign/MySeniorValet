@@ -10,6 +10,7 @@ import {
   Building, HandHeart, Briefcase
 } from "lucide-react";
 import { NavigationHeader } from "@/components/NavigationHeader";
+import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 
 export default function VeteransHousing() {
   const { data: hudVashFacilities, isLoading } = useQuery({
@@ -51,6 +52,19 @@ export default function VeteransHousing() {
         title="Veterans Housing" 
         subtitle="HUD-VASH affordable housing options for veterans"
       />
+      
+      {/* Breadcrumb Navigation */}
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+        <div className="container mx-auto">
+          <BreadcrumbNavigation 
+            items={[
+              { label: 'Home', href: '/' },
+              { label: 'Veterans Housing' }
+            ]}
+          />
+        </div>
+      </div>
+      
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-800 to-blue-900 text-white">
         <div className="container mx-auto px-4 py-12">
