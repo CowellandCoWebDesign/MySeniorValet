@@ -1381,12 +1381,10 @@ export default function MySeniorValetHome() {
 
           </div>
 
-
-
-
-
-
-
+          {/* Vendor Marketplace Tabs */}
+          <div className="mb-12">
+            <VendorMarketplaceTabs />
+          </div>
 
           {/* Senior Vendor Marketplace Grid - 3x3 Layout */}
           <div className="grid grid-cols-3 gap-3 md:gap-4 mb-8 max-w-4xl mx-auto">
