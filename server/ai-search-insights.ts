@@ -232,26 +232,34 @@ export class AISearchInsights {
       const avgRating = communities.reduce((sum, c) => sum + parseFloat(c.rating || '0'), 0) / communities.length;
       const priceRanges = communities.map(c => c.displayPricing?.priceRange || c.priceRange).filter(Boolean);
       const avgMinPrice = priceRanges.reduce((sum, r) => sum + (r.min || 0), 0) / priceRanges.length;
+      const hudCount = communities.filter(c => c.hudPropertyId || c.rentPerMonth).length;
+      const highRatedCount = communities.filter(c => parseFloat(c.rating || '0') >= 4.0).length;
       
-      const prompt = `Analyze this senior living market data and provide a 2-sentence summary:
-- ${communities.length} communities visible
-- Average rating: ${avgRating.toFixed(1)}/5
-- Average starting price: $${Math.round(avgMinPrice)}/month
-- States represented: ${[...new Set(communities.map(c => c.state))].join(', ')}
+      const prompt = `As a senior living market analyst with access to comprehensive review data, analyze this market:
 
-Provide a concise, helpful market summary for families searching for senior care.`;
+MARKET DATA:
+- ${communities.length} communities visible
+- Average MySeniorValet rating: ${avgRating.toFixed(1)}/5 
+- ${hudCount} HUD-verified properties with government pricing
+- ${highRatedCount} communities with 4.0+ ratings
+- Average starting price: $${Math.round(avgMinPrice)}/month
+- Geographic coverage: ${[...new Set(communities.map(c => c.state))].join(', ')}
+
+CONTEXT: These communities likely have additional reviews on Google Reviews, Yelp, and family forums that provide real-world insights about daily life, staff quality, food service, activities, and family satisfaction. Consider that families often share detailed experiences about move-in processes, responsiveness to concerns, and long-term care quality on these platforms.
+
+Provide a 2-sentence market summary that acknowledges the broader review landscape and helps families understand what to look for in their research beyond our platform.`;
 
       const response = await openai.chat.completions.create({
         model: 'gpt-4o',
         messages: [{ role: 'user', content: prompt }],
-        max_tokens: 100
+        max_tokens: 120
       });
       
       return response.choices[0].message.content || 'Market analysis in progress.';
       
     } catch (error) {
       console.error('Error generating market summary:', error);
-      return `This area shows ${communities.length} senior living communities with diverse options across different care levels and price points.`;
+      return `This area shows ${communities.length} senior living communities with diverse options across different care levels and price points. Consider checking Google Reviews and family forums for additional resident and family experiences.`;
     }
   }
   
@@ -302,36 +310,56 @@ Provide a concise, helpful market summary for families searching for senior care
   }
   
   /**
-   * Generate personalized recommendations
+   * Generate personalized recommendations with external review context
    */
   private static async generateRecommendations(data: any): Promise<string[]> {
     const recommendations: string[] = [];
+    const hudProperties = data.communities.filter((c: any) => c.hudPropertyId || c.rentPerMonth);
+    const totalCommunities = data.communities.length;
     
-    // Value seekers
+    try {
+      const prompt = `As a senior living research expert familiar with Google Reviews, Yelp, and family forums, provide 4 strategic recommendations for families researching these ${totalCommunities} communities:
+
+RESEARCH CONTEXT:
+- ${data.bestValue.length} value options identified on our platform
+- ${data.topRated.length} highly-rated communities (4.5+ stars)
+- ${hudProperties.length} HUD-verified properties with transparent government pricing
+- Families typically cross-reference our data with external reviews for complete picture
+
+EXTERNAL REVIEW PATTERNS: Google Reviews often reveal insights about staff consistency, meal quality, activity programming, family communication, and move-in experiences that complement our transparency data.
+
+Generate 4 specific, actionable recommendations that help families use both our platform and external review sources strategically.`;
+
+      const response = await openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 200
+      });
+      
+      const content = response.choices[0].message.content || '';
+      const aiRecommendations = content.split('\n').filter(line => line.trim()).slice(0, 4);
+      
+      if (aiRecommendations.length > 0) {
+        return aiRecommendations;
+      }
+    } catch (error) {
+      console.error('Error generating AI recommendations:', error);
+    }
+    
+    // Fallback recommendations with external review awareness
     if (data.bestValue.length > 0) {
-      recommendations.push(`For great value: Consider ${data.bestValue[0].name} with ${data.bestValue[0].rating}/5 stars`);
+      recommendations.push(`Cross-check ${data.bestValue[0].name} (${data.bestValue[0].rating}/5 stars) on Google Reviews for value perception from current families`);
     }
     
-    // Premium seekers
-    if (data.topRated.length > 0 && data.topRated[0].rating >= 4.8) {
-      recommendations.push(`For premium care: ${data.topRated[0].name} offers exceptional ratings at ${data.topRated[0].rating}/5`);
+    if (data.topRated.length > 0) {
+      recommendations.push(`Research ${data.topRated[0].name} on multiple review platforms to understand what drives their ${data.topRated[0].rating}/5 rating`);
     }
     
-    // Budget conscious
-    const budgetOptions = data.communities.filter((c: any) => {
-      const min = c.displayPricing?.priceRange?.min || 999999;
-      return min < 3000 && parseFloat(c.rating || '0') >= 3.5;
-    });
-    
-    if (budgetOptions.length > 0) {
-      recommendations.push(`${budgetOptions.length} communities offer options under $3,000/month`);
-    }
-    
-    // HUD properties
-    const hudProperties = data.communities.filter((c: any) => c.hudPropertyId);
     if (hudProperties.length > 0) {
-      recommendations.push(`${hudProperties.length} government-subsidized properties available for qualified seniors`);
+      recommendations.push(`${hudProperties.length} HUD properties offer verified pricing - check resident reviews for quality insights`);
     }
+    
+    recommendations.push('Look for review patterns about staff turnover, meal quality, and emergency response in Google/Yelp reviews');
     
     return recommendations.slice(0, 4);
   }

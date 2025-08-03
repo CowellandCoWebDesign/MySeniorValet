@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Home, DollarSign, Users, Building, MapPin, Star, Zap, Shield, CheckCircle, Award, Sparkles, Phone } from "lucide-react";
 import { Link } from "wouter";
@@ -107,29 +108,31 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
      community.priceRange?.min ? `$${community.priceRange.min.toLocaleString()}/month` : 
      'Contact for Pricing');
 
-  // Simple list variant for search results
+  // Enhanced list variant for search results with better styling
   if (variant === 'list') {
     return (
       <Card 
-        className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-2 hover:border-blue-300 dark:hover:border-blue-600"
+        className="group cursor-pointer hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 bg-white dark:bg-gray-800 rounded-xl overflow-hidden"
         onClick={onSelect}
       >
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between">
-            <div className="flex-1 pr-4">
-              {/* Name and Location */}
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-1">
-                {community.name}
-              </h3>
-              <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-2">
-                <MapPin className="h-3 w-3 mr-1 flex-shrink-0" />
-                <span>{community.city}, {community.state} {community.zipCode || ''}</span>
+        <CardContent className="p-6">
+          <div className="flex items-start justify-between gap-6">
+            <div className="flex-1 min-w-0">
+              {/* Header */}
+              <div className="mb-4">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-2 line-clamp-2">
+                  {community.name}
+                </h3>
+                <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  <MapPin className="h-4 w-4 mr-2 flex-shrink-0 text-gray-400" />
+                  <span>{community.city}, {community.state} {community.zipCode || ''}</span>
+                </div>
               </div>
 
               {/* Key Information Row */}
-              <div className="flex flex-wrap items-center gap-3 text-sm mb-2">
+              <div className="flex flex-wrap items-center gap-4 text-sm mb-3">
                 {community.rating && (
-                  <div className="flex items-center">
+                  <div className="flex items-center bg-gray-50 dark:bg-gray-700 px-2 py-1 rounded-full">
                     <Star className="h-3 w-3 text-yellow-400 mr-1" />
                     <span className="font-medium">{community.rating.toFixed(1)}</span>
                   </div>
@@ -143,19 +146,19 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
                 )}
                 
                 {community.careTypes && community.careTypes.length > 0 && (
-                  <span className="text-gray-600 dark:text-gray-400">
-                    • {community.careTypes[0]}
+                  <span className="text-gray-600 dark:text-gray-400 font-medium">
+                    {community.careTypes[0]}
                   </span>
                 )}
               </div>
 
               {/* Badges */}
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-2 mb-2">
                 {/* Community Subtype Badge */}
                 {community.communitySubtype && (() => {
                   const badge = getSubtypeBadge(community.communitySubtype);
                   return badge ? (
-                    <Badge className={`text-xs ${badge.color} border-0`}>
+                    <Badge className={`text-xs ${badge.color} border-0 font-medium`}>
                       <span className="mr-1">{badge.emoji}</span>
                       {badge.label}
                     </Badge>
@@ -163,75 +166,64 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
                 })()}
                 
                 {isHudProperty && !community.communitySubtype?.includes('hud') && (
-                  <Badge className="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border border-green-300 dark:border-green-700">
+                  <Badge className="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border border-green-300 dark:border-green-700 font-medium">
                     <Shield className="h-3 w-3 mr-1" />
                     HUD Verified
                   </Badge>
                 )}
                 
                 {community.dataQuality?.qualityScore && community.dataQuality.qualityScore >= 80 && (
-                  <Badge className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 border border-blue-300 dark:border-blue-700">
+                  <Badge className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 border border-blue-300 dark:border-blue-700 font-medium">
                     <CheckCircle className="h-3 w-3 mr-1" />
                     Verified
                   </Badge>
                 )}
                 
                 {community.transparencyBadges && community.transparencyBadges.length > 0 && (
-                  <Badge className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 border border-purple-300 dark:border-purple-700">
+                  <Badge className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 border border-purple-300 dark:border-purple-700 font-medium">
                     <Award className="h-3 w-3 mr-1" />
                     {community.transparencyBadges.length} Badges
-                  </Badge>
-                )}
-                
-                {displayPrice === 'Contact for Pricing' && community.sizeCategory && (
-                  <Badge className="text-xs bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 border border-orange-300 dark:border-orange-700">
-                    {community.sizeCategory}
-                  </Badge>
-                )}
-                
-                {/* Amenities Badge */}
-                {community.amenities && community.amenities.length > 5 && (
-                  <Badge className="text-xs bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 border border-indigo-300 dark:border-indigo-700">
-                    <Sparkles className="h-3 w-3 mr-1" />
-                    {community.amenities.length} Amenities
                   </Badge>
                 )}
               </div>
             </div>
 
-            {/* Pricing Column */}
-            <div className="text-right">
-              {displayPrice === 'Contact for Pricing' ? (
-                <div className="flex flex-col items-end">
-                  <Phone className="h-5 w-5 text-gray-400 mb-1" />
-                  <div className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    Call for pricing
+            {/* Pricing & Actions Column */}
+            <div className="text-right flex-shrink-0 min-w-[160px]">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700/50">
+                <div className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+                  {displayPrice}
+                </div>
+                {hasAuthenticPricing && (
+                  <div className="text-xs text-green-700 dark:text-green-300 mb-2 flex items-center justify-end">
+                    <Shield className="h-3 w-3 mr-1" />
+                    Official Pricing
                   </div>
-                </div>
-              ) : (
-                <div className="flex flex-col items-end">
-                  <div className="text-lg font-bold text-gray-900 dark:text-white">
-                    {displayPrice}
-                  </div>
-                  {hasAuthenticPricing && (
-                    <span className="text-xs text-green-600 dark:text-green-400 font-medium">
-                      Official
-                    </span>
+                )}
+                <div className="space-y-2">
+                  {community.phone && (
+                    <Button 
+                      size="sm" 
+                      className="w-full text-xs bg-blue-600 hover:bg-blue-700 text-white"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(`tel:${community.phone}`, '_self');
+                      }}
+                    >
+                      <Phone className="h-3 w-3 mr-1" />
+                      Call
+                    </Button>
                   )}
-                  {!hasAuthenticPricing && community.displayPricing?.priceLabel === 'Market Estimate' && (
-                    <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-                      Market Estimate
-                    </span>
-                  )}
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="w-full text-xs border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900/20"
+                  >
+                    <Home className="h-3 w-3 mr-1" />
+                    Details
+                  </Button>
                 </div>
-              )}
-              
-              {/* Availability Status */}
-              {community.displayAvailability?.availabilityStatus && (
-                <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
-                  {community.displayAvailability.availabilityStatus}
-                </div>
-              )}
+              </div>
             </div>
           </div>
         </CardContent>
