@@ -100,6 +100,16 @@ export class HospitalDataService {
       .orderBy(hospitals.name);
   }
   
+  // Get hospital by slug
+  async getHospitalBySlug(slug: string) {
+    const [hospital] = await db
+      .select()
+      .from(hospitals)
+      .where(and(eq(hospitals.slug, slug), eq(hospitals.isActive, true)));
+    
+    return hospital || null;
+  }
+
   // Search hospitals
   async searchHospitals(query: string, filters?: {
     state?: string;

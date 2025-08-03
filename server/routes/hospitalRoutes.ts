@@ -70,6 +70,23 @@ export function registerHospitalRoutes(app: Express) {
     }
   });
 
+  // Get hospital by slug for details page
+  app.get("/api/hospitals/by-slug/:slug", async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const hospital = await hospitalDataService.getHospitalBySlug(slug);
+      
+      if (!hospital) {
+        return res.status(404).json({ error: "Hospital not found" });
+      }
+      
+      res.json(hospital);
+    } catch (error) {
+      console.error("Error fetching hospital by slug:", error);
+      res.status(500).json({ error: "Failed to fetch hospital" });
+    }
+  });
+
   // Search hospitals
   app.get("/api/hospitals/search", async (req, res) => {
     try {

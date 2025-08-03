@@ -72,7 +72,10 @@ const HospitalCard = ({ hospital }: { hospital: HospitalType }) => {
     }
   };
 
-  const getOwnershipBadge = (ownership: string) => {
+  const getOwnershipBadge = (ownership: string | null) => {
+    if (!ownership) {
+      return <Badge className="bg-gray-600 text-white text-xs">N/A</Badge>;
+    }
     if (ownership.includes("Government")) {
       return <Badge className="bg-blue-600 text-white text-xs">Government</Badge>;
     }
@@ -192,7 +195,12 @@ const HospitalCard = ({ hospital }: { hospital: HospitalType }) => {
             </div>
           )}
           
-          <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm">
+          <Button 
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm"
+            onClick={() => {
+              window.location.href = `/hospital/${hospital.slug}`;
+            }}
+          >
             View Hospital Details
             <ChevronRight className="ml-1 h-3 w-3" />
           </Button>
