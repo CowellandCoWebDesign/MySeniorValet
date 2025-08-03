@@ -32,6 +32,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register all modular routes
   registerModularRoutes(app);
+  
+  // Register test routes
+  const { registerTestRoutes } = await import('./test-system');
+  registerTestRoutes(app);
 
   // Register remaining special routes
   app.use('/api/subscriptions', subscriptionRoutes);
