@@ -131,6 +131,34 @@ const services: Service[] = [
     priority: "medium"
   },
 
+  // Personal Care Services
+  {
+    id: "companion-care",
+    name: "Companion Care Services",
+    description: "Non-medical personal care and companionship services",
+    icon: Users,
+    category: "personal-care",
+    pricing: "$25 - $40/hour",
+    commission: "10-15%",
+    affiliatePartner: "Care.com / Sittercity",
+    features: ["Meal preparation", "Light housekeeping", "Transportation", "Social companionship"],
+    availability: "integration-ready",
+    priority: "high"
+  },
+  {
+    id: "personal-grooming",
+    name: "In-Home Personal Care",
+    description: "Assistance with bathing, dressing, and personal hygiene",
+    icon: Heart,
+    category: "personal-care",
+    pricing: "$30 - $50/hour",
+    commission: "12-18%",
+    affiliatePartner: "Comfort Keepers / Right at Home",
+    features: ["Bathing assistance", "Grooming support", "Dressing help", "Mobility assistance"],
+    availability: "integration-ready",
+    priority: "high"
+  },
+
   // Insurance & Financial Services
   {
     id: "medicare-insurance",
@@ -249,12 +277,13 @@ export default function Services() {
 
   const categories = [
     { id: "all", name: "All Services", count: services.length },
-    { id: "moving", name: "Moving & Relocation", count: services.filter(s => s.category === "moving").length },
-    { id: "healthcare", name: "Healthcare", count: services.filter(s => s.category === "healthcare").length },
+    { id: "healthcare", name: "Healthcare & Medical", count: services.filter(s => s.category === "healthcare").length },
+    { id: "personal-care", name: "Personal Care", count: services.filter(s => s.category === "personal-care").length },
+    { id: "moving", name: "Moving & Transition", count: services.filter(s => s.category === "moving").length },
     { id: "insurance", name: "Insurance & Financial", count: services.filter(s => s.category === "insurance").length },
     { id: "transportation", name: "Transportation", count: services.filter(s => s.category === "transportation").length },
     { id: "professional", name: "Professional Services", count: services.filter(s => s.category === "professional").length },
-    { id: "technology", name: "Technology", count: services.filter(s => s.category === "technology").length }
+    { id: "technology", name: "Technology Support", count: services.filter(s => s.category === "technology").length }
   ];
 
   const filteredServices = selectedCategory === "all" 
@@ -290,8 +319,8 @@ export default function Services() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-blue-900 dark:to-purple-900 isolate">
       <NavigationHeader 
-        title="Senior Living Services" 
-        subtitle="Complete services for every aspect of senior transitions"
+        title="Healthcare and Care Services Directory" 
+        subtitle="Comprehensive healthcare, caregiving, and support services for seniors"
       />
       
       {/* Breadcrumb Navigation */}
@@ -300,48 +329,83 @@ export default function Services() {
           <BreadcrumbNavigation 
             items={[
               { label: 'Home', href: '/' },
-              { label: 'Senior Living Services' }
+              { label: 'Healthcare and Care Services Directory' }
             ]}
           />
         </div>
       </div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header Section */}
-        <div className="text-center mb-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Complete Senior Living Services
+        {/* Header Section - Integrated with content flow */}
+        <div className="text-center mb-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+            Your Complete Healthcare Resource Hub
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            End-to-end services for every aspect of senior living transitions. 
-            From moving and healthcare to insurance and technology support.
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto mb-6">
+            Browse comprehensive healthcare services, medical facilities, caregiving support, and wellness resources. 
+            From hospitals and home healthcare to specialized therapies and medical equipment - everything seniors need in one place.
           </p>
-          <div className="mt-6 flex justify-center space-x-4">
-            <Badge className="bg-green-600 text-white">
+          <div className="flex flex-wrap justify-center gap-3">
+            <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white text-sm px-4 py-1.5">
               <CheckCircle className="h-4 w-4 mr-1" />
-              {services.filter(s => s.availability === "integration-ready").length} Services Ready
+              {services.filter(s => s.category === "healthcare").length} Healthcare Services
             </Badge>
-            <Badge className="bg-blue-600 text-white">
-              <DollarSign className="h-4 w-4 mr-1" />
-              Revenue Opportunities Available
+            <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm px-4 py-1.5">
+              <Heart className="h-4 w-4 mr-1" />
+              {services.filter(s => s.category === "personal-care").length} Personal Care Options
+            </Badge>
+            <Badge className="bg-gradient-to-r from-purple-500 to-purple-600 text-white text-sm px-4 py-1.5">
+              <Shield className="h-4 w-4 mr-1" />
+              {services.filter(s => s.category === "insurance").length} Insurance Services
+            </Badge>
+            <Badge className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white text-sm px-4 py-1.5">
+              <Users className="h-4 w-4 mr-1" />
+              {services.length} Total Services
             </Badge>
           </div>
         </div>
 
-        {/* Category Navigation */}
-        <div className="mb-8 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
+        {/* Category Navigation - Seamlessly integrated */}
+        <div className="mb-10 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
           <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-            <TabsList className="flex flex-wrap justify-center gap-1 w-full max-w-6xl mx-auto h-auto p-2 dark:bg-gray-800">
+            <TabsList className="flex flex-wrap justify-center gap-2 w-full max-w-7xl mx-auto h-auto p-3 bg-transparent border-0 dark:bg-transparent">
               {categories.map((category) => (
-                <TabsTrigger key={category.id} value={category.id} className="text-xs px-3 py-2 whitespace-nowrap dark:text-gray-300 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white">
-                  {category.name}
-                  <Badge variant="secondary" className="ml-1 text-xs dark:bg-gray-700 dark:text-gray-300">
-                    {category.count}
-                  </Badge>
+                <TabsTrigger 
+                  key={category.id} 
+                  value={category.id} 
+                  className={`
+                    px-5 py-3 rounded-xl font-medium transition-all duration-300
+                    ${selectedCategory === category.id 
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg transform scale-105' 
+                      : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
+                    }
+                  `}
+                >
+                  <span className="flex items-center gap-2">
+                    {category.name}
+                    <Badge 
+                      variant="secondary" 
+                      className={`text-xs ${
+                        selectedCategory === category.id 
+                          ? 'bg-white/20 text-white' 
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
+                      }`}
+                    >
+                      {category.count}
+                    </Badge>
+                  </span>
                 </TabsTrigger>
               ))}
             </TabsList>
           </Tabs>
+        </div>
+
+        {/* Seamless transition content */}
+        <div className="text-center mb-8 animate-in fade-in slide-in-from-bottom-5 duration-700 delay-300">
+          <p className="text-lg text-gray-600 dark:text-gray-400">
+            Browse our comprehensive network of vetted healthcare providers and care services.
+            Each service is carefully selected to support seniors and their families through every step of their journey.
+          </p>
         </div>
 
         {/* Services Grid */}
