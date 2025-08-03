@@ -87,7 +87,7 @@ const HospitalCard = ({ hospital }: { hospital: HospitalType }) => {
   };
 
   return (
-    <Card className="flex-shrink-0 w-80 h-[28rem] border-2 border-blue-100 dark:border-blue-900/50 hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-white via-blue-50/30 to-cyan-50/20 dark:from-gray-800 dark:via-gray-900 dark:to-blue-900/20 backdrop-blur-sm relative overflow-hidden group">
+    <Card className="flex-shrink-0 w-80 h-[36rem] border-2 border-blue-100 dark:border-blue-900/50 hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-white via-blue-50/30 to-cyan-50/20 dark:from-gray-800 dark:via-gray-900 dark:to-blue-900/20 backdrop-blur-sm relative overflow-hidden group">
       
       {/* Demo Data Notation Banner */}
       {hospital.dataSourceNote && (
@@ -132,7 +132,7 @@ const HospitalCard = ({ hospital }: { hospital: HospitalType }) => {
         </div>
       </div>
 
-      <CardContent className="p-4 flex flex-col h-[calc(100%-8.5rem)] relative z-10">
+      <CardContent className="p-4 flex flex-col h-[calc(100%-10rem)] relative z-10">
         {/* Premium Hospital Details */}
         <div className="flex-1 overflow-hidden">
           <div className="flex flex-wrap gap-2 mb-4">
@@ -156,15 +156,15 @@ const HospitalCard = ({ hospital }: { hospital: HospitalType }) => {
               Key Services
             </h4>
             <div className="space-y-2">
-              {hospital.services.slice(0, 3).map((service, idx) => (
+              {hospital.services.slice(0, 5).map((service, idx) => (
                 <div key={idx} className="flex items-center gap-3 text-sm">
                   <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex-shrink-0 shadow-sm"></div>
                   <span className="text-gray-700 dark:text-gray-300 truncate font-medium">{service}</span>
                 </div>
               ))}
-              {hospital.services.length > 3 && (
+              {hospital.services.length > 5 && (
                 <div className="text-sm text-blue-600 dark:text-blue-400 font-semibold pl-5">
-                  +{hospital.services.length - 3} more specialties
+                  +{hospital.services.length - 5} more specialties
                 </div>
               )}
             </div>
@@ -189,6 +189,35 @@ const HospitalCard = ({ hospital }: { hospital: HospitalType }) => {
               </div>
             )}
           </div>
+
+          {/* Quality Ratings */}
+          {(hospital.mortalityRating || hospital.safetyRating || hospital.readmissionRating || hospital.experienceRating) && (
+            <div className="mb-4 space-y-2">
+              <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Quality Ratings</h4>
+              <div className="flex flex-wrap gap-2">
+                {hospital.mortalityRating && (
+                  <Badge className={`text-xs ${getRatingColor(hospital.mortalityRating)}`}>
+                    Mortality: {hospital.mortalityRating}
+                  </Badge>
+                )}
+                {hospital.safetyRating && (
+                  <Badge className={`text-xs ${getRatingColor(hospital.safetyRating)}`}>
+                    Safety: {hospital.safetyRating}
+                  </Badge>
+                )}
+                {hospital.readmissionRating && (
+                  <Badge className={`text-xs ${getRatingColor(hospital.readmissionRating)}`}>
+                    Readmission: {hospital.readmissionRating}
+                  </Badge>
+                )}
+                {hospital.experienceRating && (
+                  <Badge className={`text-xs ${getRatingColor(hospital.experienceRating)}`}>
+                    Experience: {hospital.experienceRating}
+                  </Badge>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Premium Contact Section */}
@@ -231,7 +260,7 @@ export default function HospitalCarousel() {
 
   if (error) {
     return (
-      <Card className="flex-shrink-0 w-80 h-[32rem] border border-red-200 bg-red-50 dark:bg-red-950/20">
+      <Card className="flex-shrink-0 w-80 h-[36rem] border border-red-200 bg-red-50 dark:bg-red-950/20">
         <CardContent className="p-6 text-center">
           <Stethoscope className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <h3 className="text-lg font-bold text-red-700 dark:text-red-300 mb-2">
@@ -252,7 +281,7 @@ export default function HospitalCarousel() {
     return (
       <>
         {Array.from({ length: 6 }).map((_, index) => (
-          <Card key={index} className="flex-shrink-0 w-72 h-[28rem] border border-gray-200 animate-pulse">
+          <Card key={index} className="flex-shrink-0 w-80 h-[36rem] border border-gray-200 animate-pulse">
             <div className="bg-gradient-to-r from-blue-200 to-cyan-200 dark:bg-gray-700 h-20"></div>
             <CardContent className="p-3">
               <div className="space-y-2">
