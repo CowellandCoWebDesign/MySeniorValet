@@ -4,7 +4,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Pill, Car, Stethoscope, Phone, Home, DollarSign, ExternalLink, CheckCircle, Shield } from 'lucide-react';
+import { Link } from 'wouter';
+import { ShoppingCart, Pill, Car, Stethoscope, Phone, Home, DollarSign, ExternalLink, CheckCircle, Shield, Truck, Building, Users, Scale, Calculator, Scissors, Users2 } from 'lucide-react';
 
 interface MarketplaceCategory {
   id: number;
@@ -250,67 +251,183 @@ export function VendorMarketplaceTabs() {
 
   return (
     <div className="w-full">
+      {/* Senior Vendor Marketplace Grid - 3x4 Layout */}
+      <div className="grid grid-cols-3 gap-3 md:gap-4 mb-8 max-w-4xl mx-auto">
+        <Link href="/moving">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 relative overflow-hidden h-full">
+            <CardContent className="p-2 sm:p-3 text-center">
+              <div className="absolute top-1 right-1">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              </div>
+              <Truck className="w-6 h-6 sm:w-8 sm:h-8 text-green-500 mx-auto mb-1.5" />
+              <h4 className="font-semibold text-xs sm:text-sm text-green-700 dark:text-green-300 line-clamp-2">Moving Services</h4>
+              <p className="text-[10px] sm:text-xs text-green-600 dark:text-green-400 mt-0.5 line-clamp-2">Senior move specialists</p>
+              <div className="flex flex-col gap-0.5 mt-1">
+                <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0.5">✓ VERIFIED</Badge>
+                <Badge className="bg-blue-500 text-white text-[10px] px-1.5 py-0.5">TWO MEN</Badge>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
+          <CardContent className="p-2 sm:p-3 text-center">
+            <Pill className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500 mx-auto mb-1.5" />
+            <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Rx Delivery</h4>
+            <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Medication services</p>
+            <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
+          </CardContent>
+        </Card>
+        
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
+          <CardContent className="p-2 sm:p-3 text-center">
+            <Building className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500 mx-auto mb-1.5" />
+            <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Senior Centers</h4>
+            <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Community programs</p>
+            <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
+          </CardContent>
+        </Card>
+        
+        <Link href="/transportation">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-sky-50 dark:from-blue-900/20 dark:to-sky-900/20 relative overflow-hidden h-full">
+            <CardContent className="p-2 sm:p-3 text-center">
+              <div className="absolute top-1 right-1">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              </div>
+              <Car className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500 mx-auto mb-1.5" />
+              <h4 className="font-semibold text-xs sm:text-sm text-blue-700 dark:text-blue-300 line-clamp-2">Transportation</h4>
+              <p className="text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 mt-0.5 line-clamp-2">No smartphone needed</p>
+              <div className="flex flex-col gap-0.5 mt-1">
+                <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0.5">✓ VERIFIED</Badge>
+                <Badge className="bg-blue-500 text-white text-[10px] px-1.5 py-0.5">GOGO</Badge>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        
+        <Link href="/family-connect">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 relative overflow-hidden h-full">
+            <CardContent className="p-2 sm:p-3 text-center">
+              <div className="absolute top-1 right-1">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              </div>
+              <Users className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-500 mx-auto mb-1.5" />
+              <h4 className="font-semibold text-xs sm:text-sm text-indigo-700 dark:text-indigo-300 line-clamp-2">Family Connect</h4>
+              <p className="text-[10px] sm:text-xs text-indigo-600 dark:text-indigo-400 mt-0.5 line-clamp-2">Coordinate care together</p>
+              <div className="flex flex-col gap-0.5 mt-1">
+                <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0.5">✓ NEW</Badge>
+                <Badge className="bg-indigo-500 text-white text-[10px] px-1.5 py-0.5">SECURE</Badge>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/vendor/1800florals">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-pink-200 bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 relative overflow-hidden h-full">
+            <CardContent className="p-2 sm:p-3 text-center">
+              <div className="absolute top-1 right-1">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              </div>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-1.5 rounded-lg overflow-hidden bg-white shadow-sm">
+                <img 
+                  src="https://www.800florals.com/img/4810Dmd.jpg" 
+                  alt="1-800-FLORALS Arrangements"
+                  className="w-full h-full object-cover"
+                  crossOrigin="anonymous"
+                  loading="eager"
+                />
+                <div className="w-full h-full hidden items-center justify-center text-pink-500 text-xl font-bold">🌸</div>
+              </div>
+              <h4 className="font-semibold text-xs sm:text-sm text-pink-700 dark:text-pink-300 line-clamp-2">Professional Florals</h4>
+              <p className="text-[10px] sm:text-xs text-pink-600 dark:text-pink-400 mt-0.5 line-clamp-2">Move-in arrangements</p>
+              <div className="flex flex-col gap-0.5 mt-1">
+                <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0.5">✓ VERIFIED</Badge>
+                <Badge className="bg-pink-500 text-white text-[10px] px-1.5 py-0.5">1-800-FLORALS</Badge>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/vendor-marketplace">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 relative overflow-hidden h-full">
+            <CardContent className="p-2 sm:p-3 text-center">
+              <div className="absolute top-1 right-1">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              </div>
+              <ShoppingCart className="w-6 h-6 sm:w-8 sm:h-8 text-amber-500 mx-auto mb-1.5" />
+              <h4 className="font-semibold text-xs sm:text-sm text-amber-700 dark:text-amber-300 line-clamp-2">Vendor Marketplace</h4>
+              <p className="text-[10px] sm:text-xs text-amber-600 dark:text-amber-400 mt-0.5 line-clamp-2">Trusted senior brands</p>
+              <div className="flex flex-col gap-0.5 mt-1">
+                <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0.5">✓ NEW</Badge>
+                <Badge className="bg-amber-500 text-white text-[10px] px-1.5 py-0.5">CURATED</Badge>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
+          <CardContent className="p-2 sm:p-3 text-center">
+            <Scale className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-500 mx-auto mb-1.5" />
+            <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Legal Services</h4>
+            <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Elder law attorneys</p>
+            <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
+          </CardContent>
+        </Card>
+        
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
+          <CardContent className="p-2 sm:p-3 text-center">
+            <Calculator className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-500 mx-auto mb-1.5" />
+            <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Financial Planning</h4>
+            <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Senior financial advisors</p>
+            <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
+          </CardContent>
+        </Card>
+        
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+          <CardContent className="p-4 text-center relative">
+            <Scissors className="w-10 h-10 text-pink-500 mx-auto mb-2" />
+            <h4 className="font-semibold text-sm">Personal Care</h4>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Mobile barber & beauty</p>
+            <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+          <CardContent className="p-4 text-center relative">
+            <Users2 className="w-10 h-10 text-cyan-500 mx-auto mb-2" />
+            <h4 className="font-semibold text-sm">Companion Care</h4>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Social companionship</p>
+            <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
+          </CardContent>
+        </Card>
+        
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+          <CardContent className="p-4 text-center relative">
+            <Phone className="w-10 h-10 text-violet-500 mx-auto mb-2" />
+            <h4 className="font-semibold text-sm">Tech Support</h4>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Device setup & training</p>
+            <Badge className="bg-gray-400 text-white text-xs px-2 py-0.5 mt-1">Example Service</Badge>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="text-center mb-8">
+        <Link href="/senior-services">
+          <Button className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+            Browse All Services →
+          </Button>
+        </Link>
+      </div>
+
       <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
-        {/* Enhanced colorful tabs in 3-column grid layout */}
-        <TabsList className="grid grid-cols-3 gap-3 h-auto p-4 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-2xl mb-6 shadow-lg border border-gray-200 dark:border-gray-700">
-          <TabsTrigger 
-            value="all" 
-            className="group flex flex-col items-center justify-center gap-2 px-4 py-4 bg-white dark:bg-gray-800 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:shadow-lg hover:scale-105 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-xl rounded-xl transition-all duration-200 text-sm font-medium border-2 border-gray-200 dark:border-gray-700 data-[state=active]:border-transparent h-full min-h-[100px]"
-          >
-            <div className="relative">
-              <span className="text-3xl mb-1 group-hover:scale-110 transition-transform duration-200">🏪</span>
-              <div className="absolute -inset-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full blur-md opacity-0 group-hover:opacity-20 group-data-[state=active]:opacity-30 transition-opacity duration-200"></div>
-            </div>
-            <span className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 group-data-[state=active]:text-white">All Vendors</span>
-            <span className="inline-flex items-center justify-center px-2.5 py-1 text-xs font-bold bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-700 dark:text-gray-300 rounded-full group-data-[state=active]:from-white/20 group-data-[state=active]:to-white/30 group-data-[state=active]:text-white shadow-sm group-hover:shadow-md transition-shadow duration-200">
-              {vendors.length}
-            </span>
-          </TabsTrigger>
-          {categories.map((category) => {
-            const Icon = iconMap[category.icon || 'ShoppingCart'];
-            const vendorCount = vendors.filter(v => v.categoryId === category.id).length;
-            
-            // Category-specific gradient colors
-            const categoryGradients: Record<string, string> = {
-              'groceries': 'data-[state=active]:from-green-500 data-[state=active]:to-emerald-500',
-              'pharmacy': 'data-[state=active]:from-orange-500 data-[state=active]:to-red-500',
-              'transportation': 'data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500',
-              'medical-supplies': 'data-[state=active]:from-red-500 data-[state=active]:to-pink-500',
-              'communication': 'data-[state=active]:from-purple-500 data-[state=active]:to-indigo-500',
-              'home-services': 'data-[state=active]:from-yellow-500 data-[state=active]:to-amber-500',
-              'financial': 'data-[state=active]:from-indigo-500 data-[state=active]:to-blue-600',
-            };
-            
-            // Category-specific hover colors
-            const categoryHovers: Record<string, string> = {
-              'groceries': 'hover:bg-gradient-to-br hover:from-green-50 hover:to-emerald-50 dark:hover:from-green-900/20 dark:hover:to-emerald-900/20',
-              'pharmacy': 'hover:bg-gradient-to-br hover:from-orange-50 hover:to-red-50 dark:hover:from-orange-900/20 dark:hover:to-red-900/20',
-              'transportation': 'hover:bg-gradient-to-br hover:from-blue-50 hover:to-cyan-50 dark:hover:from-blue-900/20 dark:hover:to-cyan-900/20',
-              'medical-supplies': 'hover:bg-gradient-to-br hover:from-red-50 hover:to-pink-50 dark:hover:from-red-900/20 dark:hover:to-pink-900/20',
-              'communication': 'hover:bg-gradient-to-br hover:from-purple-50 hover:to-indigo-50 dark:hover:from-purple-900/20 dark:hover:to-indigo-900/20',
-              'home-services': 'hover:bg-gradient-to-br hover:from-yellow-50 hover:to-amber-50 dark:hover:from-yellow-900/20 dark:hover:to-amber-900/20',
-              'financial': 'hover:bg-gradient-to-br hover:from-indigo-50 hover:to-blue-50 dark:hover:from-indigo-900/20 dark:hover:to-blue-900/20',
-            };
-            
-            return (
-              <TabsTrigger 
-                key={category.slug} 
-                value={category.slug} 
-                className={`group flex flex-col items-center justify-center gap-2 px-4 py-4 bg-white dark:bg-gray-800 hover:shadow-lg hover:scale-105 ${categoryHovers[category.slug] || 'hover:bg-gray-50 dark:hover:bg-gray-700'} data-[state=active]:bg-gradient-to-r ${categoryGradients[category.slug] || 'data-[state=active]:from-gray-500 data-[state=active]:to-gray-600'} data-[state=active]:text-white data-[state=active]:shadow-xl rounded-xl transition-all duration-200 text-sm font-medium border-2 border-gray-200 dark:border-gray-700 data-[state=active]:border-transparent h-full min-h-[100px]`}
-              >
-                <div className="relative">
-                  <Icon className="w-6 h-6 mb-1 group-hover:scale-110 transition-transform duration-200" />
-                  <div className={`absolute -inset-2 bg-gradient-to-r ${categoryGradients[category.slug]?.replace('data-[state=active]:', '') || 'from-gray-400 to-gray-500'} rounded-full blur-md opacity-0 group-hover:opacity-20 group-data-[state=active]:opacity-30 transition-opacity duration-200`}></div>
-                </div>
-                <span className="text-xs font-bold text-center line-clamp-2 uppercase tracking-wider text-gray-700 dark:text-gray-300 group-data-[state=active]:text-white">{category.name}</span>
-                {vendorCount > 0 && (
-                  <span className="inline-flex items-center justify-center px-2.5 py-1 text-xs font-bold bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-700 dark:text-gray-300 rounded-full group-data-[state=active]:from-white/20 group-data-[state=active]:to-white/30 group-data-[state=active]:text-white shadow-sm group-hover:shadow-md transition-shadow duration-200">
-                    {vendorCount}
-                  </span>
-                )}
-              </TabsTrigger>
-            );
-          })}
+        {/* Hidden tabs list for functionality */}
+        <TabsList className="hidden">
+          <TabsTrigger value="all">All</TabsTrigger>
+          {categories.map((category) => (
+            <TabsTrigger key={category.slug} value={category.slug}>
+              {category.name}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
         <TabsContent value="all" className="mt-6">
