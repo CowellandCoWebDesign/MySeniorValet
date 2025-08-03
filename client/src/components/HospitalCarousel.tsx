@@ -87,7 +87,7 @@ const HospitalCard = ({ hospital }: { hospital: HospitalType }) => {
   };
 
   return (
-    <Card className="flex-shrink-0 w-80 h-[32rem] border-2 border-blue-100 dark:border-blue-900/50 hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-white via-blue-50/30 to-cyan-50/20 dark:from-gray-800 dark:via-gray-900 dark:to-blue-900/20 backdrop-blur-sm relative overflow-hidden group">
+    <Card className="flex-shrink-0 w-80 h-[28rem] border-2 border-blue-100 dark:border-blue-900/50 hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-white via-blue-50/30 to-cyan-50/20 dark:from-gray-800 dark:via-gray-900 dark:to-blue-900/20 backdrop-blur-sm relative overflow-hidden group">
       
       {/* Demo Data Notation Banner */}
       {hospital.dataSourceNote && (
