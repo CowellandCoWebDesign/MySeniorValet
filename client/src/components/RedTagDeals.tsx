@@ -103,13 +103,21 @@ export function RedTagDeals() {
           Exclusive discounts and move-in specials from top-rated communities
         </p>
         
-        {/* Compact Launch Notice */}
-        <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-md max-w-2xl mx-auto">
-          <div className="flex items-center gap-2 justify-center">
-            <AlertCircle className="w-3 h-3 text-gray-500 flex-shrink-0" />
-            <p className="text-xs text-gray-600 dark:text-gray-400">
-              <span className="font-medium">Demo Notice:</span> The deals below are examples showing how verified community specials will appear.
-            </p>
+        {/* Launch Transparency Notice - Compact */}
+        <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-700 rounded-lg max-w-4xl mx-auto">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+            <div className="text-left">
+              <p className="text-sm text-blue-800 dark:text-blue-200 font-medium mb-1">
+                Recent Launch Notice
+              </p>
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                The three deal cards below (Sunrise Senior Living, Heritage Hills, Golden Years) are example demonstrations 
+                showing how verified community specials will appear. Our 34,171 authentic communities and HUD pricing data 
+                are 100% real - only these specific deal examples are demonstrations until communities claim their profiles 
+                and submit verified specials.
+              </p>
+            </div>
           </div>
         </div>
       </div>
