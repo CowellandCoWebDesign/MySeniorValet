@@ -1,12 +1,8 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { GoogleGenAI } from '@google/genai';
-
 // Initialize AI services
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
-
-const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
 
 // AI Service Types
 export interface CommunityRecommendation {
@@ -213,53 +209,10 @@ Focus on: care quality, staff behavior, facility conditions, food quality, activ
       };
     }
   }
-}
 
-// Gemini AI Services (Multimodal Capabilities)
-export class GeminiAIService {
-  // Image Analysis for Community Photos
-  static async analyzeCommunityImage(imageBase64: string): Promise<string> {
-    try {
-      const response = await genai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: [
-          {
-            parts: [
-              {
-                inlineData: {
-                  data: imageBase64,
-                  mimeType: "image/jpeg"
-                }
-              },
-              {
-                text: `Analyze this senior living community image. Provide detailed insights about:
-        
-        1. Facility Quality & Condition
-        2. Accessibility Features
-        3. Safety & Security Elements  
-        4. Amenities & Common Areas
-        5. Overall Atmosphere & Appeal
-        6. Maintenance & Cleanliness
-        7. Potential Concerns or Red Flags
-
-        Format as a professional assessment for families evaluating senior living options.`
-              }
-            ]
-          }
-        ]
-      });
-
-      return response.text || 'Unable to analyze image';
-    } catch (error) {
-      console.error('Error analyzing community image:', error);
-      return 'Unable to analyze image at this time.';
-    }
-  }
-
-  // Smart Search Enhancement using Claude instead (more reliable)
+  // Smart Search Enhancement (moved from Gemini to Claude)
   static async enhanceSearchQuery(naturalLanguageQuery: string): Promise<any> {
     try {
-      // Use Claude for more reliable text processing
       const prompt = `Parse this natural language search query for senior living communities:
 
 "${naturalLanguageQuery}"
@@ -292,32 +245,9 @@ Understand context like "near my daughter in Sacramento", "pet-friendly", "under
       return {};
     }
   }
-
-  // Multi-language Support (simplified)
-  static async translateContent(text: string, targetLanguage: string): Promise<string> {
-    try {
-      const prompt = `Translate this senior living content to ${targetLanguage}, maintaining professional tone and accuracy:
-
-"${text}"
-
-Ensure cultural sensitivity and appropriate terminology for senior care discussions.`;
-
-      const response = await anthropic.messages.create({
-        model: "claude-3-5-sonnet-20241022",
-        max_tokens: 2000,
-        messages: [{ role: 'user', content: prompt }],
-        system: "You are a professional translator specializing in senior care and healthcare content."
-      });
-
-      const firstContent = response.content[0];
-      if (firstContent.type !== 'text') throw new Error('Expected text response');
-      return firstContent.text;
-    } catch (error) {
-      console.error('Error translating content:', error);
-      return text;
-    }
-  }
 }
+
+// NOTE: Gemini AI Services removed - using 3-AI orchestration with Claude + Perplexity + ChatGPT
 
 // Combined AI Service Orchestrator
 export class AIOrchestrator {
@@ -328,8 +258,8 @@ export class AIOrchestrator {
     preferences?: any
   ): Promise<any> {
     try {
-      // Use Gemini to parse the query
-      const enhancedSearch = await GeminiAIService.enhanceSearchQuery(userQuery);
+      // Use Claude for search query parsing (replacing Gemini)
+      const enhancedSearch = await AnthropicAIService.enhanceSearchQuery(userQuery);
       
       // Use Anthropic for intelligent recommendations
       const recommendations = await AnthropicAIService.generateCommunityRecommendations(

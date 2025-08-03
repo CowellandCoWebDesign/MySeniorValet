@@ -106,6 +106,6 @@ The platform is built with a modern web stack designed for transparency and user
 - **Routing**: `wouter`
 - **UI Libraries**: `@radix-ui/*`, `tailwindcss`, `lucide-react`
 - **Mapping**: `react-leaflet`
-- **AI Integrations**: `@anthropic-ai/sdk` (Claude), `@google/genai` (Gemini), `openai` (ChatGPT), `Perplexity API`, `XAI integration` (Grok infrastructure ready).
+- **AI Integrations**: `@anthropic-ai/sdk` (Claude), `openai` (ChatGPT), `Perplexity API`, `XAI integration` (Grok infrastructure ready). The 3-AI orchestration system uses Claude + Perplexity + ChatGPT (Gemini removed).
 - **Email Service**: SendGrid
 - **Payment Processing**: Stripe

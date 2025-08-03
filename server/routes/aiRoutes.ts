@@ -4,7 +4,7 @@ import { communities, services } from "@shared/schema";
 import { eq, sql, and, or, like, inArray } from "drizzle-orm";
 import { aiRecommendationEngine, RecommendationRequest } from "../ai-recommendations";
 import { MultiAIOrchestrator } from "../multi-ai-intelligence";
-import { AnthropicAIService, GeminiAIService, AIOrchestrator } from "../ai-services";
+import { AnthropicAIService, AIOrchestrator } from "../ai-services";
 import { aiSearchService } from "../ai-search-service";
 // Google Reviews AI removed to prevent API charges
 import { perplexityService } from "../perplexity-ai-service";
