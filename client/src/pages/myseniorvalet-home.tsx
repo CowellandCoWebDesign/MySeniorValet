@@ -103,6 +103,13 @@ export default function MySeniorValetHome() {
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
+  // Florida communities for Florida slider
+  const { data: floridaCommunities, isLoading: floridaLoading } = useQuery({
+    queryKey: ["/api/communities/by-location/Florida"],
+    retry: false,
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+  });
+
   // Keep trending for other sections that may need it
   const { data: trendingCommunities, isLoading: trendingLoading } = useQuery({
     queryKey: ["/api/communities/trending"],
@@ -570,7 +577,7 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Florida Communities Promotional Section */}
+      {/* Florida Communities Section - Authentic Data */}
       <section className="px-4 py-12 bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
@@ -590,116 +597,88 @@ export default function MySeniorValetHome() {
             </div>
           </div>
           
-          {/* Florida Communities Slider */}
-          <div className="relative">
-            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
-              {(() => {
-                // Mock Florida community data
-                const floridaCommunities = [
-                  {
-                    id: 'fl1',
-                    name: 'Sunset Bay Senior Resort',
-                    location: 'Naples, FL',
-                    price: 4200,
-                    image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2080&q=80',
-                    careType: 'Resort Living',
-                    rating: 4.9,
-                    features: ['Beach Access', 'Golf Course', 'Marina']
-                  },
-                  {
-                    id: 'fl2',
-                    name: 'Palm Beach Gardens Senior Living',
-                    location: 'Palm Beach, FL',
-                    price: 3800,
-                    image: 'https://images.unsplash.com/photo-1520637836862-4d197d17c85a?ixlib=rb-4.0.3&auto=format&fit=crop&w=2069&q=80',
-                    careType: 'Active Adult',
-                    rating: 4.8,
-                    features: ['Tennis Courts', 'Spa Services', 'Fine Dining']
-                  },
-                  {
-                    id: 'fl3',
-                    name: 'Everglades Villa',
-                    location: 'Fort Myers, FL',
-                    price: 3400,
-                    image: 'https://images.unsplash.com/photo-1582407947304-fd86f028f716?ixlib=rb-4.0.3&auto=format&fit=crop&w=2187&q=80',
-                    careType: 'Assisted Living',
-                    rating: 4.7,
-                    features: ['Nature Preserve', 'Bird Watching', 'Wellness Center']
-                  },
-                  {
-                    id: 'fl4',
-                    name: 'Keys Senior Paradise',
-                    location: 'Key Largo, FL',
-                    price: 4500,
-                    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-                    careType: 'Luxury Resort',
-                    rating: 5.0,
-                    features: ['Ocean Views', 'Fishing Charters', 'Tropical Gardens']
-                  },
-                  {
-                    id: 'fl5',
-                    name: 'Orlando Senior Springs',
-                    location: 'Orlando, FL',
-                    price: 3200,
-                    image: 'https://images.unsplash.com/photo-1559599101-f09722fb4948?ixlib=rb-4.0.3&auto=format&fit=crop&w=2069&q=80',
-                    careType: 'Independent Living',
-                    rating: 4.6,
-                    features: ['Theme Park Access', 'Cultural Events', 'Shopping Districts']
-                  }
-                ];
-
-                return floridaCommunities.map((community) => (
-                  <Card key={community.id} className="min-w-[280px] hover:shadow-lg transition-shadow border-cyan-200 dark:border-cyan-800">
-                    <div className="relative h-40 overflow-hidden rounded-t-lg">
-                      <img 
-                        src={community.image} 
-                        alt={community.name}
-                        className="w-full h-full object-cover"
-                      />
+          {/* Florida Communities Slider - Using Real API Data */}
+          {floridaLoading ? (
+            <div className="flex items-center justify-center h-40">
+              <div className="animate-spin w-8 h-8 border-4 border-cyan-600 border-t-transparent rounded-full"></div>
+            </div>
+          ) : !floridaCommunities?.length ? (
+            <div className="text-center text-gray-600 dark:text-gray-400">
+              <p>No Florida communities available at this time.</p>
+              <Button 
+                variant="outline" 
+                className="mt-4"
+                onClick={() => setLocation('/search?state=Florida')}
+              >
+                Search All Florida Communities
+              </Button>
+            </div>
+          ) : (
+            <div className="relative">
+              <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+                {floridaCommunities.slice(0, 6).map((community: any) => (
+                  <Card key={community.id} className="min-w-[280px] hover:shadow-lg transition-shadow border-cyan-200 dark:border-cyan-800 cursor-pointer">
+                    <div className="relative h-40 overflow-hidden rounded-t-lg bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-900 dark:to-blue-900">
+                      {community.photoUrl ? (
+                        <img 
+                          src={community.photoUrl} 
+                          alt={community.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Building className="w-16 h-16 text-cyan-600 dark:text-cyan-400" />
+                        </div>
+                      )}
                       <Badge className="absolute top-2 left-2 bg-cyan-600 text-white">
                         Florida
                       </Badge>
-                      <Badge className="absolute top-2 right-2 bg-blue-600 text-white">
-                        ${community.price.toLocaleString()}/mo
-                      </Badge>
+                      {community.monthlyRent && (
+                        <Badge className="absolute top-2 right-2 bg-blue-600 text-white">
+                          ${Number(community.monthlyRent).toLocaleString()}/mo
+                        </Badge>
+                      )}
                     </div>
                     
                     <CardContent className="p-4">
-                      <h3 className="font-bold text-lg mb-1">{community.name}</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{community.careType}</p>
+                      <h3 className="font-bold text-lg mb-1 line-clamp-2">{community.name}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                        {community.city}, {community.state} {community.zipCode}
+                      </p>
                       
-                      <div className="flex items-center gap-1 mb-3">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-3 h-3 ${
-                              i < Math.floor(community.rating)
-                                ? "fill-yellow-400 text-yellow-400"
-                                : "text-gray-300"
-                            }`}
-                          />
-                        ))}
-                        <span className="text-sm ml-1">({community.rating})</span>
-                      </div>
+                      {community.careTypes && (
+                        <div className="mb-3">
+                          <Badge className="bg-cyan-100 dark:bg-cyan-900 text-cyan-800 dark:text-cyan-200 text-xs">
+                            {community.careTypes}
+                          </Badge>
+                        </div>
+                      )}
 
-                      <div className="space-y-1 mb-4">
-                        {community.features.map((feature, idx) => (
-                          <div key={idx} className="flex items-center gap-2 text-xs">
-                            <CheckCircle className="w-3 h-3 text-cyan-600" />
-                            <span>{feature}</span>
-                          </div>
-                        ))}
-                      </div>
-
-                      <Button className="w-full bg-cyan-600 hover:bg-cyan-700 text-white">
+                      <Button 
+                        className="w-full bg-cyan-600 hover:bg-cyan-700 text-white"
+                        onClick={() => setLocation(`/community/${community.id}`)}
+                      >
                         View Details
                       </Button>
                     </CardContent>
                   </Card>
-                ));
-              })()}
+                ))}
+              </div>
+              
+              <div className="text-center mt-6">
+                <Button 
+                  variant="outline" 
+                  className="border-cyan-300 text-cyan-700 hover:bg-cyan-50 dark:border-cyan-600 dark:text-cyan-300 dark:hover:bg-cyan-900/20"
+                  onClick={() => setLocation('/search?state=Florida')}
+                >
+                  View All Florida Communities
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </section>
 
