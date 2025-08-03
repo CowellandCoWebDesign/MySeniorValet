@@ -446,9 +446,9 @@ export default function MySeniorValetHome() {
             Government transparency and income-based options
           </p>
           
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-6">
-            <p className="text-sm text-blue-800 dark:text-blue-200 font-medium">
-              <span className="font-bold">Platform Promise:</span> Not all senior housing requires a six-figure budget. 
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-md p-2 mb-4">
+            <p className="text-xs text-blue-800 dark:text-blue-200">
+              <span className="font-medium">Platform Promise:</span> Not all senior housing requires a six-figure budget. 
               MySeniorValet shows everything — from $0 HUD properties to full-service memory care.
             </p>
           </div>
@@ -458,7 +458,7 @@ export default function MySeniorValetHome() {
             {(!hudProperties || (hudProperties as any[]).length === 0) ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border border-gray-200 animate-pulse">
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[26rem] border border-gray-200 animate-pulse">
                   <div className="aspect-[4/3] bg-gray-200"></div>
                   <CardContent className="p-3">
                     <div className="h-6 bg-gray-200 rounded mb-2"></div>
@@ -481,7 +481,7 @@ export default function MySeniorValetHome() {
                 
                 {/* View All HUD Communities Card */}
                 <Link href="/search?careType=hud-affordable">
-                  <Card className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border-2 border-green-500 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 hover:shadow-2xl transition-all cursor-pointer group">
+                  <Card className="overflow-hidden flex-shrink-0 w-56 h-[26rem] border-2 border-green-500 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 hover:shadow-2xl transition-all cursor-pointer group">
                     <div className="aspect-[4/3] bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
                       <div className="text-center text-white">
                         <Building2 className="h-16 w-16 mx-auto mb-3" />
