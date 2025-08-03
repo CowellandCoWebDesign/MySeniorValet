@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, Home, DollarSign, Users, Building, MapPin, Star, Zap, Shield, CheckCircle, Award, Sparkles, Phone } from "lucide-react";
+import { Heart, Home, DollarSign, Users, Building, MapPin, Star, Zap, Shield, CheckCircle, Award, Sparkles, Phone, ExternalLink } from "lucide-react";
 import { Link } from "wouter";
 
 interface CommunityCardProps {
@@ -126,21 +126,78 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
                 <span>{community.city}, {community.state} {community.zipCode || ''}</span>
               </div>
 
-              {/* Key Information Row */}
+              {/* Key Information Row - Prominent Unit Count & Occupancy */}
+              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-2 mb-2 border border-gray-200 dark:border-gray-700">
+                <div className="flex flex-wrap items-center gap-4 text-sm">
+                  {/* Unit Count - Prominent */}
+                  {(community.totalUnits || community.totalUnitsHud) && (
+                    <div className="flex items-center font-semibold text-gray-900 dark:text-white">
+                      <Building className="h-4 w-4 mr-1 text-blue-600 dark:text-blue-400" />
+                      <span className="text-base">{community.totalUnits || community.totalUnitsHud} units</span>
+                    </div>
+                  )}
+                  
+                  {/* Occupancy Rate - Prominent */}
+                  {(community.occupancyRate || community.occupancyRateHud || community.displayAvailability?.occupancyDisplay) && (
+                    <div className="flex items-center font-semibold">
+                      <Users className="h-4 w-4 mr-1 text-green-600 dark:text-green-400" />
+                      <span className={`text-base ${
+                        Number(community.occupancyRate || community.occupancyRateHud || 100) < 85 
+                          ? 'text-green-600 dark:text-green-400' 
+                          : 'text-orange-600 dark:text-orange-400'
+                      }`}>
+                        {community.displayAvailability?.occupancyDisplay || 
+                         `${Math.round(Number(community.occupancyRate || community.occupancyRateHud || 0))}% occupied`}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {/* Phone Number */}
+                  {community.phone && (
+                    <div className="flex items-center text-gray-700 dark:text-gray-300">
+                      <Phone className="h-3 w-3 mr-1" />
+                      <a href={`tel:${community.phone}`} className="hover:text-blue-600 dark:hover:text-blue-400" onClick={(e) => e.stopPropagation()}>
+                        {community.phone}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Reviews Row with Links */}
               <div className="flex flex-wrap items-center gap-3 text-sm mb-2">
+                {/* Google Reviews */}
                 {community.rating && (
-                  <div className="flex items-center">
-                    <Star className="h-3 w-3 text-yellow-400 mr-1" />
-                    <span className="font-medium">{community.rating.toFixed(1)}</span>
-                  </div>
+                  <a 
+                    href={`https://www.google.com/search?q=${encodeURIComponent(community.name + ' ' + community.city + ' ' + community.state)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 px-2 py-1 bg-white dark:bg-gray-700 rounded-md border border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-400 transition-colors group"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <img src="https://www.google.com/favicon.ico" alt="Google" className="h-3 w-3" />
+                    <Star className="h-3 w-3 text-yellow-400" />
+                    <span className="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                      {community.rating.toFixed(1)}
+                    </span>
+                    <ExternalLink className="h-2.5 w-2.5 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
+                  </a>
                 )}
                 
-                {community.totalUnits && (
-                  <div className="flex items-center text-gray-600 dark:text-gray-400">
-                    <Building className="h-3 w-3 mr-1" />
-                    <span>{community.totalUnits} units</span>
-                  </div>
-                )}
+                {/* Yelp Reviews - Placeholder for now */}
+                <a 
+                  href={`https://www.yelp.com/search?find_desc=${encodeURIComponent(community.name)}&find_loc=${encodeURIComponent(community.city + ', ' + community.state)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 px-2 py-1 bg-white dark:bg-gray-700 rounded-md border border-gray-300 dark:border-gray-600 hover:border-red-400 dark:hover:border-red-400 transition-colors group"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <img src="https://www.yelp.com/favicon.ico" alt="Yelp" className="h-3 w-3" />
+                  <span className="text-xs text-gray-600 dark:text-gray-400 group-hover:text-red-600 dark:group-hover:text-red-400">
+                    View on Yelp
+                  </span>
+                  <ExternalLink className="h-2.5 w-2.5 text-gray-400 group-hover:text-red-600 dark:group-hover:text-red-400" />
+                </a>
                 
                 {community.careTypes && community.careTypes.length > 0 && (
                   <span className="text-gray-600 dark:text-gray-400">

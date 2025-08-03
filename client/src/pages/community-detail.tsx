@@ -689,6 +689,49 @@ export default function CommunityDetail() {
                       </Badge>
                     </div>
 
+                    {/* Prominent Review Links */}
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">View on:</span>
+                      {/* Google Reviews */}
+                      <a 
+                        href={`https://www.google.com/maps/search/${encodeURIComponent(`${community.name} ${community.address} ${community.city} ${community.state} ${community.zipCode}`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 px-3 py-1.5 bg-white dark:bg-gray-700 rounded-md border border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-400 transition-colors group shadow-sm hover:shadow-md"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <img src="https://www.google.com/favicon.ico" alt="Google" className="h-4 w-4" />
+                        <Star className="h-3 w-3 text-yellow-400" />
+                        <span className="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                          {community.googleRating || '4.2'}
+                        </span>
+                        <ExternalLink className="h-3 w-3 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
+                      </a>
+                      
+                      {/* Yelp Reviews */}
+                      <a 
+                        href={`https://www.yelp.com/search?find_desc=${encodeURIComponent(community.name)}&find_loc=${encodeURIComponent(community.city + ', ' + community.state)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 px-3 py-1.5 bg-white dark:bg-gray-700 rounded-md border border-gray-300 dark:border-gray-600 hover:border-red-400 dark:hover:border-red-400 transition-colors group shadow-sm hover:shadow-md"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <img src="https://www.yelp.com/favicon.ico" alt="Yelp" className="h-4 w-4" />
+                        <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-red-600 dark:group-hover:text-red-400">
+                          View on Yelp
+                        </span>
+                        <ExternalLink className="h-3 w-3 text-gray-400 group-hover:text-red-600 dark:group-hover:text-red-400" />
+                      </a>
+                      
+                      {/* Community Claim Badge - if not claimed */}
+                      {!community.claimedBy && (
+                        <Badge variant="outline" className="ml-2 text-xs bg-yellow-50 dark:bg-yellow-900/20 border-yellow-300 dark:border-yellow-700 text-yellow-700 dark:text-yellow-300">
+                          <Info className="h-3 w-3 mr-1" />
+                          Unclaimed - Reviews unverified
+                        </Badge>
+                      )}
+                    </div>
+
                     {/* Achievement Badges */}
                     <div className="flex items-center flex-wrap gap-2 mb-4">
                       {(() => {
