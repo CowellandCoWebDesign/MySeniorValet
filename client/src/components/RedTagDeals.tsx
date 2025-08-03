@@ -94,30 +94,22 @@ export function RedTagDeals() {
 
   return (
     <div className="space-y-4">
-      <div className="text-center mb-3">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <Tag className="w-5 h-5 text-red-600" />
-          <h2 className="text-xl font-bold">Red Tag Deals & Special Offers</h2>
+      <div className="text-center mb-4">
+        <div className="flex items-center justify-center gap-3 mb-3">
+          <Tag className="w-7 h-7 text-red-600" />
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Red Tag Deals & Special Offers</h2>
         </div>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-lg text-gray-700 dark:text-gray-300 font-medium mb-4">
           Exclusive discounts and move-in specials from top-rated communities
         </p>
         
-        {/* Launch Transparency Disclaimer */}
-        <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-700 rounded-lg">
-          <div className="flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-            <div className="text-left">
-              <p className="text-xs text-blue-800 dark:text-blue-200 font-medium mb-1">
-                Recent Launch Notice
-              </p>
-              <p className="text-xs text-blue-700 dark:text-blue-300">
-                The three deal cards below (Sunrise Senior Living, Heritage Hills, Golden Years) are example demonstrations 
-                showing how verified community specials will appear. Our 34,171 authentic communities and HUD pricing data 
-                are 100% real - only these specific deal examples are demonstrations until communities claim their profiles 
-                and submit verified specials.
-              </p>
-            </div>
+        {/* Compact Launch Notice */}
+        <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-md max-w-2xl mx-auto">
+          <div className="flex items-center gap-2 justify-center">
+            <AlertCircle className="w-3 h-3 text-gray-500 flex-shrink-0" />
+            <p className="text-xs text-gray-600 dark:text-gray-400">
+              <span className="font-medium">Demo Notice:</span> The deals below are examples showing how verified community specials will appear.
+            </p>
           </div>
         </div>
       </div>
