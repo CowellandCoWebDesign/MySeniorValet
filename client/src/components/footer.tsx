@@ -3,12 +3,10 @@ import { Home, Facebook, Twitter, Linkedin, MapPin, Building, Shield, Settings, 
 import { useQuery } from "@tanstack/react-query";
 
 export function Footer() {
-  // TEMPORARY DEV MODE: Disable caching to see changes immediately
   const { data: formattedStats, isLoading } = useQuery({
-    queryKey: ["/api/platform/stats/formatted", Date.now()], // Cache busting for dev
-    refetchInterval: 5000, // Refetch every 5 seconds in dev
-    staleTime: 0, // No stale time - always fresh data
-    gcTime: 0, // Don't cache at all
+    queryKey: ["/api/platform/stats/formatted"],
+    refetchInterval: 30 * 60 * 1000, // Refetch every 30 minutes
+    staleTime: 15 * 60 * 1000, // Consider data stale after 15 minutes
   });
 
   return (
