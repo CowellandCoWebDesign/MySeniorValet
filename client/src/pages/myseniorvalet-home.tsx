@@ -1397,13 +1397,13 @@ export default function MySeniorValetHome() {
           <div className="grid grid-cols-3 gap-3 md:gap-4 mb-8 max-w-4xl mx-auto">
             <Link href="/moving">
               <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 relative overflow-hidden h-full">
-                <CardContent className="p-3 sm:p-4 text-center">
+                <CardContent className="p-2 sm:p-3 text-center">
                   <div className="absolute top-1 right-1">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                   </div>
-                  <Truck className="w-8 h-8 sm:w-10 sm:h-10 text-green-500 mx-auto mb-2" />
+                  <Truck className="w-6 h-6 sm:w-8 sm:h-8 text-green-500 mx-auto mb-1.5" />
                   <h4 className="font-semibold text-xs sm:text-sm text-green-700 dark:text-green-300 line-clamp-2">Moving Services</h4>
-                  <p className="text-[10px] sm:text-xs text-green-600 dark:text-green-400 mt-1 line-clamp-2">Senior move specialists</p>
+                  <p className="text-[10px] sm:text-xs text-green-600 dark:text-green-400 mt-0.5 line-clamp-2">Senior move specialists</p>
                   <div className="flex flex-col gap-0.5 mt-1">
                     <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0.5">✓ VERIFIED</Badge>
                     <Badge className="bg-blue-500 text-white text-[10px] px-1.5 py-0.5">TWO MEN</Badge>
@@ -1413,32 +1413,32 @@ export default function MySeniorValetHome() {
             </Link>
             
             <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
-              <CardContent className="p-3 sm:p-4 text-center">
-                <Pill className="w-8 h-8 sm:w-10 sm:h-10 text-blue-500 mx-auto mb-2" />
+              <CardContent className="p-2 sm:p-3 text-center">
+                <Pill className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500 mx-auto mb-1.5" />
                 <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Rx Delivery</h4>
-                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">Medication services</p>
+                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Medication services</p>
                 <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
             
             <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
-              <CardContent className="p-3 sm:p-4 text-center">
-                <Building className="w-8 h-8 sm:w-10 sm:h-10 text-purple-500 mx-auto mb-2" />
+              <CardContent className="p-2 sm:p-3 text-center">
+                <Building className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500 mx-auto mb-1.5" />
                 <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Senior Centers</h4>
-                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">Community programs</p>
+                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Community programs</p>
                 <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
             
             <Link href="/transportation">
               <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-sky-50 dark:from-blue-900/20 dark:to-sky-900/20 relative overflow-hidden h-full">
-                <CardContent className="p-3 sm:p-4 text-center">
+                <CardContent className="p-2 sm:p-3 text-center">
                   <div className="absolute top-1 right-1">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                   </div>
-                  <Car className="w-8 h-8 sm:w-10 sm:h-10 text-blue-500 mx-auto mb-2" />
+                  <Car className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500 mx-auto mb-1.5" />
                   <h4 className="font-semibold text-xs sm:text-sm text-blue-700 dark:text-blue-300 line-clamp-2">Transportation</h4>
-                  <p className="text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 mt-1 line-clamp-2">No smartphone needed</p>
+                  <p className="text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 mt-0.5 line-clamp-2">No smartphone needed</p>
                   <div className="flex flex-col gap-0.5 mt-1">
                     <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0.5">✓ VERIFIED</Badge>
                     <Badge className="bg-blue-500 text-white text-[10px] px-1.5 py-0.5">GOGO</Badge>
@@ -1449,13 +1449,13 @@ export default function MySeniorValetHome() {
             
             <Link href="/family-connect">
               <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 relative overflow-hidden h-full">
-                <CardContent className="p-3 sm:p-4 text-center">
+                <CardContent className="p-2 sm:p-3 text-center">
                   <div className="absolute top-1 right-1">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                   </div>
-                  <Users className="w-8 h-8 sm:w-10 sm:h-10 text-indigo-500 mx-auto mb-2" />
+                  <Users className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-500 mx-auto mb-1.5" />
                   <h4 className="font-semibold text-xs sm:text-sm text-indigo-700 dark:text-indigo-300 line-clamp-2">Family Connect</h4>
-                  <p className="text-[10px] sm:text-xs text-indigo-600 dark:text-indigo-400 mt-1 line-clamp-2">Coordinate care together</p>
+                  <p className="text-[10px] sm:text-xs text-indigo-600 dark:text-indigo-400 mt-0.5 line-clamp-2">Coordinate care together</p>
                   <div className="flex flex-col gap-0.5 mt-1">
                     <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0.5">✓ NEW</Badge>
                     <Badge className="bg-indigo-500 text-white text-[10px] px-1.5 py-0.5">SECURE</Badge>
@@ -1466,11 +1466,11 @@ export default function MySeniorValetHome() {
 
             <Link href="/vendor/1800florals">
               <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-pink-200 bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 relative overflow-hidden h-full">
-                <CardContent className="p-3 sm:p-4 text-center">
+                <CardContent className="p-2 sm:p-3 text-center">
                   <div className="absolute top-1 right-1">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                   </div>
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-2 rounded-lg overflow-hidden bg-white shadow-sm">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-1.5 rounded-lg overflow-hidden bg-white shadow-sm">
                     <img 
                       src="https://www.800florals.com/img/4810Dmd.jpg" 
                       alt="1-800-FLORALS Arrangements"
@@ -1481,7 +1481,7 @@ export default function MySeniorValetHome() {
                     <div className="w-full h-full hidden items-center justify-center text-pink-500 text-xl font-bold">🌸</div>
                   </div>
                   <h4 className="font-semibold text-xs sm:text-sm text-pink-700 dark:text-pink-300 line-clamp-2">Professional Florals</h4>
-                  <p className="text-[10px] sm:text-xs text-pink-600 dark:text-pink-400 mt-1 line-clamp-2">Move-in arrangements</p>
+                  <p className="text-[10px] sm:text-xs text-pink-600 dark:text-pink-400 mt-0.5 line-clamp-2">Move-in arrangements</p>
                   <div className="flex flex-col gap-0.5 mt-1">
                     <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0.5">✓ VERIFIED</Badge>
                     <Badge className="bg-pink-500 text-white text-[10px] px-1.5 py-0.5">1-800-FLORALS</Badge>
@@ -1492,13 +1492,13 @@ export default function MySeniorValetHome() {
 
             <Link href="/vendor-marketplace">
               <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 relative overflow-hidden h-full">
-                <CardContent className="p-3 sm:p-4 text-center">
+                <CardContent className="p-2 sm:p-3 text-center">
                   <div className="absolute top-1 right-1">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                   </div>
-                  <ShoppingCart className="w-8 h-8 sm:w-10 sm:h-10 text-amber-500 mx-auto mb-2" />
+                  <ShoppingCart className="w-6 h-6 sm:w-8 sm:h-8 text-amber-500 mx-auto mb-1.5" />
                   <h4 className="font-semibold text-xs sm:text-sm text-amber-700 dark:text-amber-300 line-clamp-2">Vendor Marketplace</h4>
-                  <p className="text-[10px] sm:text-xs text-amber-600 dark:text-amber-400 mt-1 line-clamp-2">Trusted senior brands</p>
+                  <p className="text-[10px] sm:text-xs text-amber-600 dark:text-amber-400 mt-0.5 line-clamp-2">Trusted senior brands</p>
                   <div className="flex flex-col gap-0.5 mt-1">
                     <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0.5">✓ NEW</Badge>
                     <Badge className="bg-amber-500 text-white text-[10px] px-1.5 py-0.5">CURATED</Badge>
@@ -1509,19 +1509,19 @@ export default function MySeniorValetHome() {
 
             
             <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
-              <CardContent className="p-3 sm:p-4 text-center">
-                <Scale className="w-8 h-8 sm:w-10 sm:h-10 text-indigo-500 mx-auto mb-2" />
+              <CardContent className="p-2 sm:p-3 text-center">
+                <Scale className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-500 mx-auto mb-1.5" />
                 <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Legal Services</h4>
-                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">Elder law attorneys</p>
+                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Elder law attorneys</p>
                 <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
             
             <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
-              <CardContent className="p-3 sm:p-4 text-center">
-                <Calculator className="w-8 h-8 sm:w-10 sm:h-10 text-emerald-500 mx-auto mb-2" />
+              <CardContent className="p-2 sm:p-3 text-center">
+                <Calculator className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-500 mx-auto mb-1.5" />
                 <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Financial Planning</h4>
-                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">Senior financial advisors</p>
+                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Senior financial advisors</p>
                 <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
