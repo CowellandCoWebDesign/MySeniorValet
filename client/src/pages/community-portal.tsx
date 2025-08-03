@@ -159,22 +159,64 @@ export default function CommunityPortal() {
     }
   ];
 
-  const handleUpgrade = async (tier: string) => {
+  const handleUpgrade = async (planName: string) => {
     try {
-      // Show upgrade flow
-      toast({
-        title: "Join MySeniorValet",
-        description: `Ready to upgrade to ${tier}? Let's get your community set up!`,
+      // Map plan names to product IDs
+      const productIdMap: Record<string, string> = {
+        'Verified': 'basic-listing',
+        'Standard': 'featured-spotlight', 
+        'Featured': 'premium-tools',
+        'Platinum': 'platinum-partner'
+      };
+
+      const productId = productIdMap[planName];
+      if (!productId) {
+        throw new Error('Invalid plan selected');
+      }
+
+      // For free tier, just show success message
+      if (productId === 'basic-listing') {
+        toast({
+          title: "Welcome to MySeniorValet!",
+          description: "Your free verified listing is ready. Complete your profile to get started.",
+        });
+        setTimeout(() => {
+          setLocation('/community-claim');
+        }, 1500);
+        return;
+      }
+
+      // Create Stripe checkout session for paid tiers
+      const response = await fetch('/api/payments/create-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId,
+          successUrl: `${window.location.origin}/payment/success`,
+          cancelUrl: `${window.location.origin}/community-portal`
+        })
       });
-      
-      // Redirect to signup/claim flow
-      setTimeout(() => {
-        setLocation('/community-claim');
-      }, 1500);
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create checkout session');
+      }
+
+      // Redirect to Stripe checkout
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL received');
+      }
+
     } catch (error) {
+      console.error('Payment error:', error);
       toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
+        title: "Payment Error",
+        description: "Unable to process payment. Please try again or contact support.",
         variant: "destructive",
       });
     }
@@ -331,6 +373,3 @@ export default function CommunityPortal() {
     </div>
   );
 }
-      color: 'gold',
-      description: 'All Tier 3 features, plus (For Communities Only):',
-      features: [

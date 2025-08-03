@@ -212,6 +212,8 @@ function Router() {
       <Route path="/vendor/dashboard" component={VendorDashboard} />
       <Route path="/test-tier-access" component={TestTierAccess} />
       <Route path="/financial-dashboard" component={FinancialDashboard} />
+      <Route path="/payment/success" component={() => import('./pages/payment-success').then(m => m.default)} />
+      <Route path="/payment/cancel" component={() => import('./pages/payment-cancel').then(m => m.default)} />
       <Route component={NotFound} />
     </Switch>
   );

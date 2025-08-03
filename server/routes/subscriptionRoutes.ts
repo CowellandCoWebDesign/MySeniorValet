@@ -1,6 +1,6 @@
 // MySeniorValet - Subscription Management Routes
 import { Router } from 'express';
-import { stripeService } from '../stripe-subscription-service';
+import { stripeSubscriptionService } from '../stripe-subscription-service';
 import Stripe from 'stripe';
 
 const router = Router();
@@ -8,7 +8,7 @@ const router = Router();
 // Get all available subscription products
 router.get('/products', async (req, res) => {
   try {
-    const products = await stripeService.getAllProducts();
+    const products = await stripeSubscriptionService.getAllProducts();
     res.json(products);
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -20,7 +20,7 @@ router.get('/products', async (req, res) => {
 router.get('/community/:communityId', async (req, res) => {
   try {
     const communityId = parseInt(req.params.communityId);
-    const subscription = await stripeService.getCommunitySubscription(communityId);
+    const subscription = await stripeSubscriptionService.getCommunitySubscription(communityId);
     
     res.json({
       subscription,
@@ -44,7 +44,7 @@ router.post('/checkout', async (req, res) => {
     const successUrl = `${req.protocol}://${req.get('host')}/subscription/success?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${req.protocol}://${req.get('host')}/subscription/cancel`;
 
-    const session = await stripeService.createCheckoutSession(
+    const session = await stripeSubscriptionService.createCheckoutSession(
       communityId,
       productId,
       successUrl,
@@ -81,7 +81,7 @@ router.post('/webhook', async (req, res) => {
       process.env.STRIPE_WEBHOOK_SECRET
     );
 
-    await stripeService.handleWebhook(event);
+    await stripeSubscriptionService.handleWebhook(event);
     
     res.json({ received: true });
   } catch (error) {

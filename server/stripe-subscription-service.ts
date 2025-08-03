@@ -291,4 +291,4 @@ export class StripeSubscriptionService {
   }
 }
 
-export const stripeService = new StripeSubscriptionService();
+export const stripeSubscriptionService = new StripeSubscriptionService();

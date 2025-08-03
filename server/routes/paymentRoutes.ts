@@ -4,35 +4,42 @@ import { db } from "../db";
 import { users, paymentTransactions } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
 import { isAuthenticated as requireAuth } from "../replitAuth";
-import { stripePaymentService } from "../stripe-payments";
+import { stripeSubscriptionService } from "../stripe-subscription-service";
 import Stripe from "stripe";
 
 export function registerPaymentRoutes(app: Express) {
-  // Create checkout session
-  app.post('/api/payments/create-checkout-session', requireAuth, async (req: any, res) => {
+  // Create checkout session for subscription
+  app.post('/api/payments/create-session', async (req, res) => {
     try {
-      const userId = req.user?.id;
-      if (!userId) {
-        return res.status(401).json({ message: 'User not authenticated' });
+      const { productId, successUrl, cancelUrl } = req.body;
+
+      if (!productId) {
+        return res.status(400).json({ error: 'Product ID is required' });
       }
 
-      const { priceId, successUrl, cancelUrl } = req.body;
+      // Use community ID 1 as default for now (this can be enhanced later)
+      const communityId = 1;
+      
+      const session = await stripeSubscriptionService.createCheckoutSession(
+        communityId,
+        productId,
+        successUrl || `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/payment/success`,
+        cancelUrl || `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/payment/cancel`
+      );
 
-      if (!priceId) {
-        return res.status(400).json({ message: 'Price ID is required' });
-      }
-
-      const session = await stripePaymentService.createCheckoutSession({
-        userId,
-        priceId,
-        successUrl: successUrl || `${process.env.SITE_URL}/payment/success`,
-        cancelUrl: cancelUrl || `${process.env.SITE_URL}/payment/cancel`
+      res.json({ 
+        sessionId: session.id, 
+        url: session.url,
+        _version: "v4_streamlined_hero_" + Date.now(),
+        _timestamp: Date.now()
       });
-
-      res.json({ sessionId: session.id, url: session.url });
     } catch (error) {
       console.error('Error creating checkout session:', error);
-      res.status(500).json({ message: 'Failed to create checkout session' });
+      res.status(500).json({ 
+        error: 'Failed to create checkout session',
+        _version: "v4_streamlined_hero_" + Date.now(),
+        _timestamp: Date.now()
+      });
     }
   });
 
@@ -260,9 +267,9 @@ export function registerPaymentRoutes(app: Express) {
 
       const paymentHistory = await db
         .select()
-        .from(payments)
-        .where(eq(payments.userId, userId))
-        .orderBy(desc(payments.createdAt))
+        .from(paymentTransactions)
+        .where(eq(paymentTransactions.userId, userId))
+        .orderBy(desc(paymentTransactions.createdAt))
         .limit(50);
 
       res.json(paymentHistory);
