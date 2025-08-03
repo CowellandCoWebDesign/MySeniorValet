@@ -119,31 +119,31 @@ export function MarketIntelligence() {
         </CardContent>
       </Card>
 
-      {/* Real-Time Fact Checking */}
+      {/* Compact Fact Checking */}
       <Card className="border-orange-200 dark:border-orange-800">
-        <CardHeader className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950 dark:to-red-950">
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="w-6 h-6 text-orange-600" />
+        <CardHeader className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950 dark:to-red-950 pb-2">
+          <CardTitle className="flex items-center gap-2 text-sm">
+            <Shield className="w-4 h-4 text-orange-600" />
             Real-Time Fact Checking
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-6">
-          <div className="space-y-3">
-            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">
+        <CardContent className="pt-3">
+          <div className="grid grid-cols-2 gap-2">
+            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300 text-xs py-1">
               <CheckCircle className="w-3 h-3 mr-1" />
-              Medicare Certified: Verified against CMS database
+              Medicare Certified
             </Badge>
-            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300">
+            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300 text-xs py-1">
               <CheckCircle className="w-3 h-3 mr-1" />
-              State Licensed: Validated with state regulatory boards
+              State Licensed
             </Badge>
-            <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-300">
+            <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-300 text-xs py-1">
               <CheckCircle className="w-3 h-3 mr-1" />
-              Financial Transparency: Live pricing from actual residents
+              Financial Transparency
             </Badge>
-            <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-300">
+            <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-300 text-xs py-1">
               <AlertCircle className="w-3 h-3 mr-1" />
-              Red Flag Detection: AI monitors for compliance issues
+              Red Flag Detection
             </Badge>
           </div>
         </CardContent>
