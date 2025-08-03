@@ -1460,6 +1460,75 @@ export default function MySeniorValetHome() {
               </Card>
             </Link>
             
+            {/* Therapy Services - REAL DATA */}
+            {(() => {
+              const services = (careServicesData as any)?.services || [];
+              const therapyCount = services.filter((s: any) => s.serviceCategory === 'Therapy Services').length;
+              
+              return (
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 relative overflow-hidden h-full">
+                  <CardContent className="p-2 sm:p-3 text-center">
+                    <div className="absolute top-1 right-1">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    </div>
+                    <Activity className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500 mx-auto mb-1.5" />
+                    <h4 className="font-semibold text-xs sm:text-sm text-purple-700 dark:text-purple-300 line-clamp-2">Therapy Services</h4>
+                    <p className="text-[10px] sm:text-xs text-purple-600 dark:text-purple-400 mt-0.5 line-clamp-2">{therapyCount} providers</p>
+                    <div className="flex flex-col gap-0.5 mt-1">
+                      <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0.5">✓ VERIFIED</Badge>
+                      <Badge className="bg-purple-500 text-white text-[10px] px-1.5 py-0.5">PT/OT/SPEECH</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })()}
+            
+            {/* Adult Day Care - REAL DATA */}
+            {(() => {
+              const services = (careServicesData as any)?.services || [];
+              const adultDayCareCount = services.filter((s: any) => s.serviceCategory === 'Adult Day Care').length;
+              
+              return (
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-teal-200 bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 relative overflow-hidden h-full">
+                  <CardContent className="p-2 sm:p-3 text-center">
+                    <div className="absolute top-1 right-1">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    </div>
+                    <Users className="w-6 h-6 sm:w-8 sm:h-8 text-teal-500 mx-auto mb-1.5" />
+                    <h4 className="font-semibold text-xs sm:text-sm text-teal-700 dark:text-teal-300 line-clamp-2">Adult Day Care</h4>
+                    <p className="text-[10px] sm:text-xs text-teal-600 dark:text-teal-400 mt-0.5 line-clamp-2">{adultDayCareCount} programs</p>
+                    <div className="flex flex-col gap-0.5 mt-1">
+                      <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0.5">✓ VERIFIED</Badge>
+                      <Badge className="bg-teal-500 text-white text-[10px] px-1.5 py-0.5">MEALS + TRANSPORT</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })()}
+            
+            {/* Personal Care Services - REAL DATA */}
+            {(() => {
+              const services = (careServicesData as any)?.services || [];
+              const personalCareCount = services.filter((s: any) => s.serviceCategory === 'Personal Care Services').length;
+              
+              return (
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 relative overflow-hidden h-full">
+                  <CardContent className="p-2 sm:p-3 text-center">
+                    <div className="absolute top-1 right-1">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    </div>
+                    <Users2 className="w-6 h-6 sm:w-8 sm:h-8 text-orange-500 mx-auto mb-1.5" />
+                    <h4 className="font-semibold text-xs sm:text-sm text-orange-700 dark:text-orange-300 line-clamp-2">Personal Care</h4>
+                    <p className="text-[10px] sm:text-xs text-orange-600 dark:text-orange-400 mt-0.5 line-clamp-2">{personalCareCount} providers</p>
+                    <div className="flex flex-col gap-0.5 mt-1">
+                      <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0.5">✓ VERIFIED</Badge>
+                      <Badge className="bg-orange-500 text-white text-[10px] px-1.5 py-0.5">DAILY LIVING</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })()}
+
             <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
               <CardContent className="p-2 sm:p-3 text-center">
                 <Phone className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500 mx-auto mb-1.5" />
@@ -1489,15 +1558,6 @@ export default function MySeniorValetHome() {
 
             <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
               <CardContent className="p-2 sm:p-3 text-center">
-                <Stethoscope className="w-6 h-6 sm:w-8 sm:h-8 text-red-500 mx-auto mb-1.5" />
-                <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Physical Therapy</h4>
-                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Rehabilitation services</p>
-                <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
-              </CardContent>
-            </Card>
-            
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
-              <CardContent className="p-2 sm:p-3 text-center">
                 <Users className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-500 mx-auto mb-1.5" />
                 <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Mental Health</h4>
                 <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Counseling & therapy</p>
@@ -1510,33 +1570,6 @@ export default function MySeniorValetHome() {
                 <ShoppingCart className="w-6 h-6 sm:w-8 sm:h-8 text-amber-500 mx-auto mb-1.5" />
                 <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Medical Equipment</h4>
                 <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Mobility aids & devices</p>
-                <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
-              </CardContent>
-            </Card>
-            
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
-              <CardContent className="p-2 sm:p-3 text-center">
-                <Building className="w-6 h-6 sm:w-8 sm:h-8 text-teal-500 mx-auto mb-1.5" />
-                <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Adult Day Programs</h4>
-                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Social & health activities</p>
-                <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
-              </CardContent>
-            </Card>
-            
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
-              <CardContent className="p-2 sm:p-3 text-center">
-                <Stethoscope className="w-6 h-6 sm:w-8 sm:h-8 text-pink-500 mx-auto mb-1.5" />
-                <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Rehabilitation</h4>
-                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Recovery services</p>
-                <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
-              </CardContent>
-            </Card>
-            
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
-              <CardContent className="p-2 sm:p-3 text-center">
-                <Users className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-500 mx-auto mb-1.5" />
-                <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Social Services</h4>
-                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Community support</p>
                 <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
               </CardContent>
             </Card>
