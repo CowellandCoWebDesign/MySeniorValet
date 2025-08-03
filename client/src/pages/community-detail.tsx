@@ -689,48 +689,7 @@ export default function CommunityDetail() {
                       </Badge>
                     </div>
 
-                    {/* Prominent Review Links */}
-                    <div className="flex items-center gap-3 mb-4">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">View on:</span>
-                      {/* Google Reviews */}
-                      <a 
-                        href={`https://www.google.com/maps/search/${encodeURIComponent(`${community.name} ${community.address} ${community.city} ${community.state} ${community.zipCode}`)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 px-3 py-1.5 bg-white dark:bg-gray-700 rounded-md border border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-400 transition-colors group shadow-sm hover:shadow-md"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <img src="https://www.google.com/favicon.ico" alt="Google" className="h-4 w-4" />
-                        <Star className="h-3 w-3 text-yellow-400" />
-                        <span className="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                          {community.googleRating || '4.2'}
-                        </span>
-                        <ExternalLink className="h-3 w-3 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
-                      </a>
-                      
-                      {/* Yelp Reviews */}
-                      <a 
-                        href={`https://www.yelp.com/search?find_desc=${encodeURIComponent(community.name)}&find_loc=${encodeURIComponent(community.city + ', ' + community.state)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 px-3 py-1.5 bg-white dark:bg-gray-700 rounded-md border border-gray-300 dark:border-gray-600 hover:border-red-400 dark:hover:border-red-400 transition-colors group shadow-sm hover:shadow-md"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <img src="https://www.yelp.com/favicon.ico" alt="Yelp" className="h-4 w-4" />
-                        <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-red-600 dark:group-hover:text-red-400">
-                          View on Yelp
-                        </span>
-                        <ExternalLink className="h-3 w-3 text-gray-400 group-hover:text-red-600 dark:group-hover:text-red-400" />
-                      </a>
-                      
-                      {/* Community Claim Badge - if not claimed */}
-                      {!community.claimedBy && (
-                        <Badge variant="outline" className="ml-2 text-xs bg-yellow-50 dark:bg-yellow-900/20 border-yellow-300 dark:border-yellow-700 text-yellow-700 dark:text-yellow-300">
-                          <Info className="h-3 w-3 mr-1" />
-                          Unclaimed - Reviews unverified
-                        </Badge>
-                      )}
-                    </div>
+
 
                     {/* Achievement Badges */}
                     <div className="flex items-center flex-wrap gap-2 mb-4">
@@ -2943,37 +2902,56 @@ export default function CommunityDetail() {
                 </div>
 
                 {/* External Review Platform Links */}
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <p className="text-xs text-gray-900 dark:text-gray-100 text-center">View detailed reviews on:</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="text-xs"
-                      onClick={() => {
-                        // Use Google Maps search for more accurate business results
-                        const searchQuery = encodeURIComponent(`${community.name} ${community.address} ${community.city} ${community.state} ${community.zipCode}`);
-                        window.open(`https://www.google.com/maps/search/${searchQuery}`, '_blank');
-                      }}
+                  <div className="flex flex-col gap-2">
+                    {/* Google Reviews */}
+                    <a 
+                      href={`https://www.google.com/maps/search/${encodeURIComponent(`${community.name} ${community.address} ${community.city} ${community.state} ${community.zipCode}`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 px-3 py-2 bg-white dark:bg-gray-700 rounded-md border border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-400 transition-colors group shadow-sm hover:shadow-md"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      <ExternalLink className="w-3 h-3 mr-1" />
-                      Google ({community.googleReviewCount || '47'})
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="text-xs"
-                      onClick={() => {
-                        // For Yelp, use location parameter for better results
-                        const businessName = encodeURIComponent(community.name);
-                        const location = encodeURIComponent(`${community.city}, ${community.state} ${community.zipCode}`);
-                        window.open(`https://www.yelp.com/search?find_desc=${businessName}&find_loc=${location}`, '_blank');
-                      }}
+                      <img src="https://www.google.com/favicon.ico" alt="Google" className="h-4 w-4" />
+                      <Star className="h-3 w-3 text-yellow-400" />
+                      <span className="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                        {community.googleRating || '4.2'} 
+                      </span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        ({community.googleReviewCount || '47'} reviews)
+                      </span>
+                      <ExternalLink className="h-3 w-3 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
+                    </a>
+                    
+                    {/* Yelp Reviews */}
+                    <a 
+                      href={`https://www.yelp.com/search?find_desc=${encodeURIComponent(community.name)}&find_loc=${encodeURIComponent(community.city + ', ' + community.state)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 px-3 py-2 bg-white dark:bg-gray-700 rounded-md border border-gray-300 dark:border-gray-600 hover:border-red-400 dark:hover:border-red-400 transition-colors group shadow-sm hover:shadow-md"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      <ExternalLink className="w-3 h-3 mr-1" />
-                      Yelp ({community.yelpReviewCount || '23'})
-                    </Button>
+                      <img src="https://www.yelp.com/favicon.ico" alt="Yelp" className="h-4 w-4" />
+                      <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-red-600 dark:group-hover:text-red-400">
+                        View on Yelp 
+                      </span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        ({community.yelpReviewCount || '23'} reviews)
+                      </span>
+                      <ExternalLink className="h-3 w-3 text-gray-400 group-hover:text-red-600 dark:group-hover:text-red-400" />
+                    </a>
                   </div>
+                  
+                  {/* Community Claim Badge - if not claimed */}
+                  {!community.claimedBy && (
+                    <div className="text-center mt-2">
+                      <Badge variant="outline" className="text-xs bg-yellow-50 dark:bg-yellow-900/20 border-yellow-300 dark:border-yellow-700 text-yellow-700 dark:text-yellow-300">
+                        <Info className="h-3 w-3 mr-1" />
+                        Unclaimed - Reviews unverified
+                      </Badge>
+                    </div>
+                  )}
                 </div>
 
                 {/* MySeniorValet Verification Badge */}
