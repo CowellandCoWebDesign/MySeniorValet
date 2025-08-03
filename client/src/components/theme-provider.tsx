@@ -23,7 +23,7 @@ interface ThemeProviderProps {
   defaultTheme?: Theme;
 }
 
-export function ThemeProvider({ children, defaultTheme = "light" }: ThemeProviderProps) {
+export function ThemeProvider({ children, defaultTheme = "dark" }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(() => {
     const stored = localStorage.getItem("theme");
     return (stored as Theme) || defaultTheme;
