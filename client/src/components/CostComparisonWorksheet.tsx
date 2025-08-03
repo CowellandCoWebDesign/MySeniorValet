@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calculator, Home, DollarSign, TrendingUp, CheckCircle, AlertCircle, Info, Download, Printer } from "lucide-react";
+import { Calculator, Home, DollarSign, TrendingUp, CheckCircle, AlertCircle, Info, Download, Printer, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ExpenseCategory {
@@ -35,6 +35,8 @@ export function CostComparisonWorksheet() {
     other: 200
   });
 
+  const [isExpanded, setIsExpanded] = useState(false);
+
   const calculateTotal = () => {
     return Object.values(expenses).reduce((sum, value) => sum + value, 0);
   };
@@ -45,22 +47,27 @@ export function CostComparisonWorksheet() {
   };
 
   const expenseCategories = [
-    { id: 'mortgage', label: 'Mortgage/Rent', icon: Home, includesInSeniorLiving: true },
-    { id: 'utilities', label: 'Utilities (Electric, Gas, Water)', icon: DollarSign, includesInSeniorLiving: true },
-    { id: 'insurance', label: 'Home/Renters Insurance', icon: DollarSign, includesInSeniorLiving: true },
-    { id: 'propertyTax', label: 'Property Tax', icon: DollarSign, includesInSeniorLiving: true },
-    { id: 'maintenance', label: 'Home Maintenance & Repairs', icon: DollarSign, includesInSeniorLiving: true },
-    { id: 'groceries', label: 'Groceries & Food', icon: DollarSign, includesInSeniorLiving: true },
-    { id: 'dining', label: 'Dining Out', icon: DollarSign, includesInSeniorLiving: true },
-    { id: 'transportation', label: 'Car Payment, Gas, Insurance', icon: DollarSign, includesInSeniorLiving: true },
-    { id: 'housekeeping', label: 'Housekeeping Services', icon: DollarSign, includesInSeniorLiving: true },
-    { id: 'lawnCare', label: 'Lawn Care & Snow Removal', icon: DollarSign, includesInSeniorLiving: true },
-    { id: 'personalCare', label: 'Personal Care Services', icon: DollarSign, includesInSeniorLiving: true },
-    { id: 'healthcare', label: 'Healthcare & Medications', icon: DollarSign, includesInSeniorLiving: false },
-    { id: 'entertainment', label: 'Entertainment & Activities', icon: DollarSign, includesInSeniorLiving: true },
-    { id: 'cable', label: 'Cable/Internet/Phone', icon: DollarSign, includesInSeniorLiving: true },
-    { id: 'other', label: 'Other Monthly Expenses', icon: DollarSign, includesInSeniorLiving: false }
+    { id: 'mortgage', label: 'Mortgage/Rent', icon: Home, includesInSeniorLiving: true, priority: 'high' },
+    { id: 'utilities', label: 'Utilities (Electric, Gas, Water)', icon: DollarSign, includesInSeniorLiving: true, priority: 'high' },
+    { id: 'groceries', label: 'Groceries & Food', icon: DollarSign, includesInSeniorLiving: true, priority: 'high' },
+    { id: 'healthcare', label: 'Healthcare & Medications', icon: DollarSign, includesInSeniorLiving: false, priority: 'high' },
+    { id: 'insurance', label: 'Home/Renters Insurance', icon: DollarSign, includesInSeniorLiving: true, priority: 'medium' },
+    { id: 'propertyTax', label: 'Property Tax', icon: DollarSign, includesInSeniorLiving: true, priority: 'medium' },
+    { id: 'maintenance', label: 'Home Maintenance & Repairs', icon: DollarSign, includesInSeniorLiving: true, priority: 'medium' },
+    { id: 'dining', label: 'Dining Out', icon: DollarSign, includesInSeniorLiving: true, priority: 'medium' },
+    { id: 'transportation', label: 'Car Payment, Gas, Insurance', icon: DollarSign, includesInSeniorLiving: true, priority: 'medium' },
+    { id: 'housekeeping', label: 'Housekeeping Services', icon: DollarSign, includesInSeniorLiving: true, priority: 'medium' },
+    { id: 'lawnCare', label: 'Lawn Care & Snow Removal', icon: DollarSign, includesInSeniorLiving: true, priority: 'medium' },
+    { id: 'personalCare', label: 'Personal Care Services', icon: DollarSign, includesInSeniorLiving: true, priority: 'medium' },
+    { id: 'entertainment', label: 'Entertainment & Activities', icon: DollarSign, includesInSeniorLiving: true, priority: 'medium' },
+    { id: 'cable', label: 'Cable/Internet/Phone', icon: DollarSign, includesInSeniorLiving: true, priority: 'medium' },
+    { id: 'other', label: 'Other Monthly Expenses', icon: DollarSign, includesInSeniorLiving: false, priority: 'medium' }
   ];
+
+  // Show only high priority items initially, rest when expanded
+  const priorityCategories = expenseCategories.filter(cat => cat.priority === 'high');
+  const remainingCategories = expenseCategories.filter(cat => cat.priority === 'medium');
+  const displayCategories = isExpanded ? expenseCategories : priorityCategories;
 
   const totalHomeExpenses = calculateTotal();
   const averageSeniorLivingCost = 4500; // Average cost
@@ -123,7 +130,7 @@ export function CostComparisonWorksheet() {
         </CardHeader>
         <CardContent className="px-4 pb-4">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {expenseCategories.map((category) => (
+            {displayCategories.map((category) => (
               <div key={category.id} className="space-y-1">
                 <Label htmlFor={category.id} className="flex items-center justify-between">
                   <span className="text-xs">{category.label}</span>
@@ -145,6 +152,28 @@ export function CostComparisonWorksheet() {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Expand/Collapse Button */}
+          <div className="flex justify-center mt-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="flex items-center gap-2 text-purple-600 hover:text-purple-700"
+            >
+              {isExpanded ? (
+                <>
+                  <ChevronUp className="w-4 h-4" />
+                  Show fewer expenses ({remainingCategories.length} hidden)
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="w-4 h-4" />
+                  Show all expenses ({remainingCategories.length} more)
+                </>
+              )}
+            </Button>
           </div>
         </CardContent>
       </Card>
