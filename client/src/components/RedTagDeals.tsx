@@ -32,7 +32,7 @@ export function RedTagDeals() {
       dealType: "Move-In Special",
       highlights: ["No community fee", "First month 50% off", "Free moving assistance"],
       rating: 4.5,
-      heroImage: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&h=600&fit=crop"
+      heroImage: "https://cdn.pixabay.com/photo/2016/11/18/17/20/living-room-1835923_1280.jpg"
     },
     {
       id: 2,
@@ -45,7 +45,7 @@ export function RedTagDeals() {
       dealType: "Limited Time Offer",
       highlights: ["Waived deposit", "Complimentary care assessment", "Priority placement"],
       rating: 4.8,
-      heroImage: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop"
+      heroImage: "https://cdn.pixabay.com/photo/2016/11/30/08/46/living-room-1872192_1280.jpg"
     },
     {
       id: 3,
@@ -58,7 +58,7 @@ export function RedTagDeals() {
       dealType: "Summer Special",
       highlights: ["Reduced rates", "Free cable & internet", "Meal plan upgrade"],
       rating: 4.3,
-      heroImage: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&h=600&fit=crop"
+      heroImage: "https://cdn.pixabay.com/photo/2017/03/28/12/10/chairs-2181947_1280.jpg"
     }
   ];
 
