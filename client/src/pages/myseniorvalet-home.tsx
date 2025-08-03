@@ -26,6 +26,7 @@ import { RedTagDeals } from "@/components/RedTagDeals";
 import { AidAndAttendance } from "@/components/AidAndAttendance";
 import { CostComparisonWorksheet } from "@/components/CostComparisonWorksheet";
 import HospitalCarousel from "@/components/HospitalCarousel";
+import { Footer } from "@/components/footer";
 
 
 
@@ -2899,34 +2900,8 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-300 py-8">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <h4 className="text-white font-semibold mb-4">MySeniorValet</h4>
-              <p className="text-sm">Your trusted platform for senior living transparency.</p>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">Quick Links</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/about" className="hover:text-white">About Us</Link></li>
-                <li><Link href="/communities" className="hover:text-white">Communities</Link></li>
-                <li><Link href="/vendor-marketplace" className="hover:text-white">Vendor Marketplace</Link></li>
-                <li><Link href="/senior-resources" className="hover:text-white">Resources</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">Contact</h4>
-              <p className="text-sm">Questions? Contact our support team.</p>
-              <p className="text-sm mt-2">hello@myseniorvalet.com</p>
-            </div>
-          </div>
-          <div className="mt-8 pt-8 border-t border-gray-800 text-center text-sm">
-            <p>&copy; 2025 MySeniorValet. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      {/* Enhanced Footer with Dashboard Login Buttons */}
+      <Footer />
       
       {/* Removal Request Modal */}
       <RemovalRequestModal
