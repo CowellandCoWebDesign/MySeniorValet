@@ -86,40 +86,38 @@ const HospitalCard = ({ hospital }: { hospital: HospitalType }) => {
   };
 
   return (
-    <Card className="flex-shrink-0 w-80 h-[32rem] border border-blue-200 dark:border-blue-800 hover:shadow-xl transition-all duration-300 bg-white dark:bg-gray-800">
+    <Card className="flex-shrink-0 w-72 h-[28rem] border border-blue-200 dark:border-blue-800 hover:shadow-xl transition-all duration-300 bg-white dark:bg-gray-800">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-500 to-cyan-500 p-4 text-white">
+      <div className="bg-gradient-to-r from-blue-500 to-cyan-500 p-3 text-white">
         <div className="flex items-start justify-between mb-2">
           <div className="flex items-center gap-2">
             {getHospitalIcon(hospital.hospitalType)}
-            <div>
-              <Badge className="bg-white/20 text-white text-xs">
-                {hospital.hospitalType}
-              </Badge>
-            </div>
+            <Badge className="bg-white/20 text-white text-xs">
+              {hospital.hospitalType}
+            </Badge>
           </div>
           {hospital.cmsRating && (
             <div className="flex items-center gap-1 bg-white/20 rounded-full px-2 py-1">
-              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-              <span className="text-sm font-bold">{hospital.cmsRating}/5</span>
+              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+              <span className="text-xs font-bold">{hospital.cmsRating}/5</span>
             </div>
           )}
         </div>
         
-        <h3 className="font-bold text-lg leading-tight mb-1 line-clamp-2">
+        <h3 className="font-bold text-base leading-tight mb-1 line-clamp-2">
           {hospital.name}
         </h3>
         
-        <div className="flex items-center gap-1 text-sm opacity-90">
+        <div className="flex items-center gap-1 text-xs opacity-90">
           <MapPin className="w-3 h-3" />
-          <span>{hospital.city}, {hospital.state}</span>
+          <span className="truncate">{hospital.city}, {hospital.state}</span>
         </div>
       </div>
 
-      <CardContent className="p-4 flex flex-col h-[calc(100%-8rem)]">
+      <CardContent className="p-3 flex flex-col h-[calc(100%-7rem)]">
         {/* Hospital Details */}
-        <div className="flex-1">
-          <div className="grid grid-cols-2 gap-2 mb-4">
+        <div className="flex-1 overflow-hidden">
+          <div className="flex flex-wrap gap-1 mb-3">
             {getOwnershipBadge(hospital.ownership)}
             {hospital.traumaLevel && (
               <Badge className="bg-red-600 text-white text-xs">
@@ -129,49 +127,30 @@ const HospitalCard = ({ hospital }: { hospital: HospitalType }) => {
           </div>
 
           {/* Services */}
-          <div className="mb-4">
-            <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          <div className="mb-3">
+            <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
               Key Services
             </h4>
             <div className="space-y-1">
-              {hospital.services.slice(0, 3).map((service, idx) => (
+              {hospital.services.slice(0, 2).map((service, idx) => (
                 <div key={idx} className="flex items-center gap-2 text-xs">
-                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
-                  <span className="text-gray-600 dark:text-gray-400">{service}</span>
+                  <div className="w-1 h-1 bg-blue-500 rounded-full flex-shrink-0"></div>
+                  <span className="text-gray-600 dark:text-gray-400 truncate">{service}</span>
                 </div>
               ))}
-              {hospital.services.length > 3 && (
+              {hospital.services.length > 2 && (
                 <div className="text-xs text-blue-600 dark:text-blue-400">
-                  +{hospital.services.length - 3} more services
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Quality Ratings */}
-          <div className="mb-4">
-            <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-              Quality Ratings
-            </h4>
-            <div className="grid grid-cols-2 gap-1">
-              {hospital.mortalityRating && (
-                <div className={`px-2 py-1 rounded text-xs font-medium ${getRatingColor(hospital.mortalityRating)}`}>
-                  Mortality: {hospital.mortalityRating}
-                </div>
-              )}
-              {hospital.safetyRating && (
-                <div className={`px-2 py-1 rounded text-xs font-medium ${getRatingColor(hospital.safetyRating)}`}>
-                  Safety: {hospital.safetyRating}
+                  +{hospital.services.length - 2} more services
                 </div>
               )}
             </div>
           </div>
 
           {/* Hospital Stats */}
-          <div className="grid grid-cols-2 gap-4 mb-4 text-center">
+          <div className="grid grid-cols-2 gap-2 mb-3 text-center">
             {hospital.bedCount && (
               <div>
-                <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                <div className="text-sm font-bold text-blue-600 dark:text-blue-400">
                   {hospital.bedCount.toLocaleString()}
                 </div>
                 <div className="text-xs text-gray-500">Beds</div>
@@ -179,7 +158,7 @@ const HospitalCard = ({ hospital }: { hospital: HospitalType }) => {
             )}
             {hospital.emergencyServices && (
               <div>
-                <div className="text-lg font-bold text-red-600 dark:text-red-400">24/7</div>
+                <div className="text-sm font-bold text-red-600 dark:text-red-400">24/7</div>
                 <div className="text-xs text-gray-500">Emergency</div>
               </div>
             )}
@@ -187,21 +166,21 @@ const HospitalCard = ({ hospital }: { hospital: HospitalType }) => {
         </div>
 
         {/* Contact Info */}
-        <div className="border-t pt-3 mt-auto">
+        <div className="border-t pt-2 mt-auto">
           {hospital.phone && (
-            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
+            <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 mb-2">
               <Phone className="w-3 h-3" />
-              <span>{hospital.phone}</span>
+              <span className="truncate">{hospital.phone}</span>
             </div>
           )}
           
           <Button 
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs py-2"
             onClick={() => {
               window.location.href = `/hospital/${hospital.slug}`;
             }}
           >
-            View Hospital Details
+            View Details
             <ChevronRight className="ml-1 h-3 w-3" />
           </Button>
         </div>
@@ -245,21 +224,20 @@ export default function HospitalCarousel() {
     return (
       <>
         {Array.from({ length: 6 }).map((_, index) => (
-          <Card key={index} className="flex-shrink-0 w-80 h-[32rem] border border-gray-200 animate-pulse">
-            <div className="bg-gradient-to-r from-blue-200 to-cyan-200 dark:bg-gray-700 h-24"></div>
-            <CardContent className="p-4">
-              <div className="space-y-3">
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+          <Card key={index} className="flex-shrink-0 w-72 h-[28rem] border border-gray-200 animate-pulse">
+            <div className="bg-gradient-to-r from-blue-200 to-cyan-200 dark:bg-gray-700 h-20"></div>
+            <CardContent className="p-3">
+              <div className="space-y-2">
+                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
                 </div>
-                <div className="space-y-2">
-                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                <div className="space-y-1">
+                  <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded"></div>
                 </div>
               </div>
             </CardContent>
