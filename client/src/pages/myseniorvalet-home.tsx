@@ -103,9 +103,16 @@ export default function MySeniorValetHome() {
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
-  // Florida communities for Florida slider
+  // Florida communities for Florida slider - use search with state filter
   const { data: floridaCommunities, isLoading: floridaLoading } = useQuery({
-    queryKey: ["/api/communities/by-location/Florida"],
+    queryKey: ["/api/communities/search?state=FL"],
+    retry: false,
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+  });
+
+  // Texas communities for Fort Worth slider - use search with state filter
+  const { data: texasCommunities, isLoading: texasLoading } = useQuery({
+    queryKey: ["/api/communities/search?state=TX"],
     retry: false,
     staleTime: 10 * 60 * 1000, // Cache for 10 minutes
   });
@@ -127,13 +134,12 @@ export default function MySeniorValetHome() {
     enabled: false, // Disable automatic fetching - load on demand
   });
 
-  // Coastal communities - search for actual coastal cities (cached and deferred)
-  const { data: coastalCommunities, isLoading: coastalLoading } = useQuery({
-    queryKey: ["/api/communities/coastal"],
+  // New York communities - focus on populated results instead of coastal 
+  const { data: newYorkCommunities, isLoading: newYorkLoading } = useQuery({
+    queryKey: ["/api/communities/search?state=NY"],
     retry: false,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     gcTime: 15 * 60 * 1000,   // Keep in cache for 15 minutes
-    enabled: false, // Disable automatic fetching - load on demand
   });
 
   // California communities - search for California-wide communities
@@ -174,12 +180,6 @@ export default function MySeniorValetHome() {
   });
 
   const featuredCommunities = (trendingCommunities as any[])?.slice(0, 8) || [];
-  
-  // Combine coastal and featured communities for the top section
-  const premiumCommunities = [
-    ...((coastalCommunities as any[]) || []).slice(0, 4),
-    ...((featuredCommunities as any[]) || []).slice(0, 4)
-  ];
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
@@ -602,7 +602,7 @@ export default function MySeniorValetHome() {
             <div className="flex items-center justify-center h-40">
               <div className="animate-spin w-8 h-8 border-4 border-cyan-600 border-t-transparent rounded-full"></div>
             </div>
-          ) : !floridaCommunities?.length ? (
+          ) : !(floridaCommunities as any)?.communities?.length ? (
             <div className="text-center text-gray-600 dark:text-gray-400">
               <p>No Florida communities available at this time.</p>
               <Button 
@@ -616,7 +616,7 @@ export default function MySeniorValetHome() {
           ) : (
             <div className="relative">
               <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
-                {floridaCommunities.slice(0, 6).map((community: any) => (
+                {((floridaCommunities as any)?.communities || []).slice(0, 6).map((community: any) => (
                   <Card key={community.id} className="min-w-[280px] hover:shadow-lg transition-shadow border-cyan-200 dark:border-cyan-800 cursor-pointer">
                     <div className="relative h-40 overflow-hidden rounded-t-lg bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-900 dark:to-blue-900">
                       {community.photoUrl ? (
@@ -718,103 +718,76 @@ export default function MySeniorValetHome() {
           
           {/* Fort Worth Communities Slider */}
           <div className="relative">
-            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
-              {(() => {
-                // Mock Fort Worth community data
-                const fortWorthCommunities = [
-                  {
-                    id: 'fw1',
-                    name: 'The Heritage at Fort Worth',
-                    location: 'Fort Worth, TX',
-                    price: 2800,
-                    image: 'https://images.unsplash.com/photo-1582407947304-fd86f028f716?ixlib=rb-4.0.3&auto=format&fit=crop&w=2187&q=80',
-                    careType: 'Independent Living',
-                    rating: 4.8,
-                    features: ['Texas BBQ Nights', 'Country Music Events', 'Golf Course Access']
-                  },
-                  {
-                    id: 'fw2',
-                    name: 'Cowtown Senior Village',
-                    location: 'Fort Worth, TX',
-                    price: 3200,
-                    image: 'https://images.unsplash.com/photo-1560184897-67f4a3f9a7fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-                    careType: 'Assisted Living',
-                    rating: 4.7,
-                    features: ['Rodeo Events', 'Western Culture', 'Line Dancing']
-                  },
-                  {
-                    id: 'fw3',
-                    name: 'Trinity River Estates',
-                    location: 'Fort Worth, TX',
-                    price: 3500,
-                    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-                    careType: 'Memory Care',
-                    rating: 4.9,
-                    features: ['River Views', 'Art District Tours', 'Live Music']
-                  },
-                  {
-                    id: 'fw4',
-                    name: 'Stockyards Senior Living',
-                    location: 'Fort Worth, TX',
-                    price: 2950,
-                    image: 'https://images.unsplash.com/photo-1559599101-f09722fb4948?ixlib=rb-4.0.3&auto=format&fit=crop&w=2069&q=80',
-                    careType: 'Independent Living',
-                    rating: 4.6,
-                    features: ['Historic District', 'Cattle Drive Shows', 'Western Heritage']
-                  }
-                ];
-
-                return fortWorthCommunities.map((community) => (
-                  <Card key={community.id} className="min-w-[280px] hover:shadow-lg transition-shadow border-orange-200 dark:border-orange-800">
-                    <div className="relative h-40 overflow-hidden rounded-t-lg">
-                      <img 
-                        src={community.image} 
-                        alt={community.name}
-                        className="w-full h-full object-cover"
-                      />
+            {texasLoading ? (
+              <div className="flex items-center justify-center h-40">
+                <div className="animate-spin w-8 h-8 border-4 border-orange-600 border-t-transparent rounded-full"></div>
+              </div>
+            ) : !(texasCommunities as any)?.communities?.length ? (
+              <div className="text-center text-gray-600 dark:text-gray-400">
+                <p>No Texas communities available at this time.</p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-2"
+                  onClick={() => setLocation('/search?state=TX')}
+                >
+                  Search Texas Communities
+                </Button>
+              </div>
+            ) : (
+              <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+                {((texasCommunities as any)?.communities || []).slice(0, 6).map((community: any) => (
+                  <Card key={community.id} className="min-w-[280px] hover:shadow-lg transition-shadow border-orange-200 dark:border-orange-800 cursor-pointer">
+                    <div className="relative h-40 overflow-hidden rounded-t-lg bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900 dark:to-red-900">
+                      {community.photoUrl ? (
+                        <img 
+                          src={community.photoUrl} 
+                          alt={community.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Building className="w-16 h-16 text-orange-600 dark:text-orange-400" />
+                        </div>
+                      )}
                       <Badge className="absolute top-2 left-2 bg-orange-600 text-white">
-                        Fort Worth
+                        Texas
                       </Badge>
-                      <Badge className="absolute top-2 right-2 bg-red-600 text-white">
-                        ${community.price.toLocaleString()}/mo
-                      </Badge>
+                      {(community.displayPricing?.displayPrice || community.monthlyRent) && (
+                        <Badge className="absolute top-2 right-2 bg-red-600 text-white">
+                          {community.displayPricing?.displayPrice || `$${Number(community.monthlyRent).toLocaleString()}/mo`}
+                        </Badge>
+                      )}
                     </div>
                     
                     <CardContent className="p-4">
-                      <h3 className="font-bold text-lg mb-1">{community.name}</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{community.careType}</p>
+                      <h3 className="font-bold text-lg mb-1 line-clamp-2">{community.name}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                        {community.city}, {community.state} {community.zipCode}
+                      </p>
                       
-                      <div className="flex items-center gap-1 mb-3">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-3 h-3 ${
-                              i < Math.floor(community.rating)
-                                ? "fill-yellow-400 text-yellow-400"
-                                : "text-gray-300"
-                            }`}
-                          />
-                        ))}
-                        <span className="text-sm ml-1">({community.rating})</span>
-                      </div>
+                      {community.careTypes && community.careTypes.length > 0 && (
+                        <div className="mb-3">
+                          <Badge className="bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 text-xs">
+                            {Array.isArray(community.careTypes) ? community.careTypes[0] : community.careTypes}
+                          </Badge>
+                        </div>
+                      )}
 
-                      <div className="space-y-1 mb-4">
-                        {community.features.map((feature, idx) => (
-                          <div key={idx} className="flex items-center gap-2 text-xs">
-                            <CheckCircle className="w-3 h-3 text-orange-600" />
-                            <span>{feature}</span>
-                          </div>
-                        ))}
-                      </div>
-
-                      <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white">
+                      <Button 
+                        className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                        onClick={() => setLocation(`/community/${community.id}`)}
+                      >
                         View Details
                       </Button>
                     </CardContent>
                   </Card>
-                ));
-              })()}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -828,43 +801,43 @@ export default function MySeniorValetHome() {
 
       {/* Featured & Coastal Communities Section - Position 3 (Moved from Position 2) */}
       <section className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
-        {/* Background Ocean Wave Image */}
+        {/* Background New York Skyline Image */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="https://images.unsplash.com/photo-1505142468610-359e7d316be0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-            alt="Ocean waves background"
+            src="https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+            alt="New York skyline background"
             className="w-full h-full object-cover opacity-75"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-50/40 to-cyan-50/40 dark:from-gray-900/60 dark:to-gray-800/60"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-50/40 to-blue-50/40 dark:from-gray-900/60 dark:to-gray-800/60"></div>
         </div>
         
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                Featured & Coastal Communities
+                🗽 New York Communities
               </h2>
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-purple-700 dark:text-purple-300 font-medium">Premium communities</span>
+                <span className="text-sm text-purple-700 dark:text-purple-300 font-medium">Empire State living</span>
                 <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">Ocean views available</span>
+                <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">Metropolitan access</span>
               </div>
             </div>
             <div className="text-right">
               <div className="text-lg font-bold text-gray-900 dark:text-gray-100">$3,200 - $4,800</div>
-              <div className="text-sm text-purple-600 dark:text-purple-300 font-medium">Featured & coastal</div>
+              <div className="text-sm text-purple-600 dark:text-purple-300 font-medium">New York State</div>
             </div>
           </div>
           
           <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
-            {(((coastalCommunities as any[])?.length || 0) + ((featuredCommunities as any[])?.length || 0))} premium communities • 
-            Featured selections and coastal charm
+            {((newYorkCommunities as any)?.communities?.length || 0)} New York communities • 
+            Empire State senior living excellence
           </p>
         
           <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-            {/* Show combined premium communities (coastal + featured) */}
-            {(coastalLoading || trendingLoading) ? (
+            {/* Show New York communities */}
+            {newYorkLoading ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
                 <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border border-gray-200 animate-pulse">
@@ -877,18 +850,22 @@ export default function MySeniorValetHome() {
                   </CardContent>
                 </Card>
               ))
+            ) : ((newYorkCommunities as any)?.communities || []).length === 0 ? (
+              <div className="text-center text-gray-600 dark:text-gray-400 py-8 w-full">
+                <Building className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                <p>No New York communities available at this time.</p>
+              </div>
             ) : (
-              premiumCommunities.map((community: any, index) => {
-                const isCoastal = index < 4;
+              ((newYorkCommunities as any)?.communities || []).slice(0, 6).map((community: any, index: number) => {
                 return (
                   <Link key={`premium-${community.id}-${index}`} href={`/community/${community.id}`}>
                     <Card className="overflow-hidden flex-shrink-0 w-56 h-[30rem] animate-float premium-card dark:bg-gray-700 hover:shadow-xl transition-all" style={{animationDelay: `${index * 0.2}s`}}>
                       <div className="relative">
-                        <div className={`aspect-[4/3] bg-gradient-to-br ${isCoastal ? 'from-blue-100 to-cyan-200 dark:from-blue-900 dark:to-cyan-800' : 'from-purple-100 to-pink-200 dark:from-purple-900 dark:to-pink-800'} flex items-center justify-center`}>
+                        <div className="aspect-[4/3] bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900 dark:to-blue-900 flex items-center justify-center">
                           <div className="text-center">
                             <div className="text-2xl mb-2">📷</div>
-                            <div className={`text-sm font-medium ${isCoastal ? 'text-blue-800 dark:text-blue-200' : 'text-purple-800 dark:text-purple-200'}`}>Photos Coming Soon</div>
-                            <div className={`text-xs ${isCoastal ? 'text-blue-600 dark:text-blue-300' : 'text-purple-600 dark:text-purple-300'}`}>Verifying authentic images</div>
+                            <div className="text-sm font-medium text-purple-800 dark:text-purple-200">Photos Coming Soon</div>
+                            <div className="text-xs text-purple-600 dark:text-purple-300">Verifying authentic images</div>
                           </div>
                         </div>
                         
@@ -918,15 +895,9 @@ export default function MySeniorValetHome() {
                         </Badge>
                         
                         {/* Location Type Badge */}
-                        {isCoastal ? (
-                          <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
-                            🌊 Coastal
-                          </Badge>
-                        ) : (
-                          <Badge className="absolute bottom-3 right-3 bg-purple-600 text-white text-xs px-2 py-1 font-medium">
-                            ⭐ Featured
-                          </Badge>
-                        )}
+                        <Badge className="absolute bottom-3 right-3 bg-purple-600 text-white text-xs px-2 py-1 font-medium">
+                          🗽 New York
+                        </Badge>
                       </div>
                       
                       <CardContent className="p-3">
@@ -947,8 +918,8 @@ export default function MySeniorValetHome() {
                         
                         <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
                           {community.careTypes?.length > 0 ? 
-                            `${community.careTypes[0]} • ${isCoastal ? 'Ocean Views' : 'Premium Care'}` : 
-                            `Assisted Living • ${isCoastal ? 'Coastal Living' : 'Featured Community'}`
+                            `${community.careTypes[0]} • Metro Access` : 
+                            `Assisted Living • New York State`
                           }
                         </div>
                         
@@ -965,15 +936,13 @@ export default function MySeniorValetHome() {
                         
                         {/* Special Features */}
                         <div className="space-y-1">
-                          {isCoastal && (
-                            <div className="text-xs text-blue-600 dark:text-blue-400 flex items-center">
-                              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1"></div>
-                              Ocean or bay views
-                            </div>
-                          )}
+                          <div className="text-xs text-purple-600 dark:text-purple-400 flex items-center">
+                            <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mr-1"></div>
+                            Metro area access
+                          </div>
                           <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center">
                             <div className="w-1.5 h-1.5 bg-gray-500 rounded-full mr-1"></div>
-                            {isCoastal ? 'Premium coastal location' : 'Highly rated community'}
+                            Highly rated community
                           </div>
                         </div>
                       </CardContent>
