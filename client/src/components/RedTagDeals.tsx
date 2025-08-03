@@ -182,41 +182,41 @@ export function RedTagDeals() {
               </div>
             </div>
 
-            <CardContent className="p-4">
-              {/* Two-column layout: Contact info left, Pricing right */}
+            <CardContent className="p-3">
+              {/* Compact header with all key info */}
               <div className="flex justify-between items-start mb-3">
                 {/* Left: Community info and contact */}
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold mb-1">{deal.communityName}</h3>
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
+                <div className="flex-1 pr-3">
+                  <h3 className="text-base font-bold mb-1 leading-tight">{deal.communityName}</h3>
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
                     <MapPin className="w-3 h-3" />
                     <span>{deal.location}</span>
                   </div>
-                  <div className="space-y-1 text-xs">
-                    <div className="text-blue-600 hover:underline cursor-pointer">
-                      📞 (916) 555-{deal.id}123
-                    </div>
-                    <div className="text-blue-600 hover:underline cursor-pointer">
-                      🌐 Visit Website
+                  <div className="flex items-center gap-3 text-xs">
+                    <span className="text-blue-600 hover:underline cursor-pointer">📞 Call</span>
+                    <span className="text-blue-600 hover:underline cursor-pointer">🌐 Web</span>
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-orange-500" />
+                      <span className="text-gray-600">{getDaysRemaining(deal.expirationDate)}d</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Right: Pricing and rating */}
-                <div className="text-right">
-                  <div className="flex items-center gap-2 mb-1 justify-end">
-                    <span className="text-xl font-bold text-red-600">
+                {/* Right: Pricing and rating aligned */}
+                <div className="text-right flex-shrink-0">
+                  <div className="flex items-center gap-1 mb-0.5">
+                    <span className="text-lg font-bold text-red-600">
                       {formatCurrency(deal.discountedPrice)}
                     </span>
-                    <span className="text-sm text-muted-foreground line-through">
+                    <span className="text-xs text-gray-500 line-through">
                       {formatCurrency(deal.originalPrice)}
                     </span>
                   </div>
-                  <div className="flex items-center gap-0.5 justify-end mb-1">
+                  <div className="flex items-center gap-0.5 justify-end">
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        className={`w-3 h-3 ${
+                        className={`w-2.5 h-2.5 ${
                           i < Math.floor(deal.rating)
                             ? "fill-yellow-400 text-yellow-400"
                             : "text-gray-300"
@@ -225,70 +225,68 @@ export function RedTagDeals() {
                     ))}
                     <span className="text-xs ml-1">({deal.rating})</span>
                   </div>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground justify-end">
-                    <Clock className="w-3 h-3" />
-                    <span>{getDaysRemaining(deal.expirationDate)} days left</span>
-                  </div>
                 </div>
               </div>
 
-              {/* Two Column Layout for Amenities and Incentives */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-                {/* Top Amenities */}
-                <div>
-                  <h4 className="text-sm font-semibold mb-2 text-gray-900 dark:text-gray-100">Top Amenities</h4>
-                  <div className="space-y-1">
-                    {deal.amenities.slice(0, 4).map((amenity, index) => {
+              {/* Compact Features Grid */}
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                {/* Amenities */}
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-md p-2">
+                  <h4 className="text-xs font-semibold mb-1.5 text-gray-900 dark:text-gray-100">Amenities</h4>
+                  <div className="space-y-0.5">
+                    {deal.amenities.slice(0, 3).map((amenity, index) => {
                       const getAmenityIcon = (amenity: string) => {
-                        if (amenity.toLowerCase().includes('fitness') || amenity.toLowerCase().includes('activities')) return <Activity className="w-3 h-3 text-blue-600" />;
-                        if (amenity.toLowerCase().includes('dining') || amenity.toLowerCase().includes('restaurant')) return <Utensils className="w-3 h-3 text-orange-600" />;
-                        if (amenity.toLowerCase().includes('wifi') || amenity.toLowerCase().includes('internet')) return <Wifi className="w-3 h-3 text-green-600" />;
-                        if (amenity.toLowerCase().includes('transport') || amenity.toLowerCase().includes('car')) return <Car className="w-3 h-3 text-purple-600" />;
-                        if (amenity.toLowerCase().includes('care') || amenity.toLowerCase().includes('nursing')) return <Heart className="w-3 h-3 text-red-600" />;
-                        if (amenity.toLowerCase().includes('security') || amenity.toLowerCase().includes('secured')) return <Shield className="w-3 h-3 text-indigo-600" />;
-                        return <CheckCircle className="w-3 h-3 text-green-600" />;
+                        if (amenity.toLowerCase().includes('fitness')) return <Activity className="w-2.5 h-2.5 text-blue-600" />;
+                        if (amenity.toLowerCase().includes('dining')) return <Utensils className="w-2.5 h-2.5 text-orange-600" />;
+                        if (amenity.toLowerCase().includes('wifi')) return <Wifi className="w-2.5 h-2.5 text-green-600" />;
+                        if (amenity.toLowerCase().includes('transport')) return <Car className="w-2.5 h-2.5 text-purple-600" />;
+                        return <CheckCircle className="w-2.5 h-2.5 text-green-600" />;
                       };
 
                       return (
-                        <div key={index} className="flex items-center gap-1.5 text-xs">
+                        <div key={index} className="flex items-center gap-1 text-xs">
                           {getAmenityIcon(amenity)}
-                          <span className="text-gray-700 dark:text-gray-300">{amenity}</span>
+                          <span className="text-gray-700 dark:text-gray-300 truncate">{amenity}</span>
                         </div>
                       );
                     })}
                   </div>
                 </div>
 
-                {/* Special Incentives */}
-                <div>
-                  <h4 className="text-sm font-semibold mb-2 text-gray-900 dark:text-gray-100">Special Incentives</h4>
-                  <div className="space-y-1">
-                    {deal.specialIncentives.map((incentive, index) => (
-                      <div key={index} className="flex items-center gap-1.5 text-xs">
-                        <Tag className="w-3 h-3 text-red-600 flex-shrink-0" />
-                        <span className="text-red-700 dark:text-red-300 font-medium">{incentive}</span>
+                {/* Incentives */}
+                <div className="bg-red-50 dark:bg-red-950/30 rounded-md p-2">
+                  <h4 className="text-xs font-semibold mb-1.5 text-red-800 dark:text-red-200">Specials</h4>
+                  <div className="space-y-0.5">
+                    {deal.specialIncentives.slice(0, 3).map((incentive, index) => (
+                      <div key={index} className="flex items-center gap-1 text-xs">
+                        <Tag className="w-2.5 h-2.5 text-red-600 flex-shrink-0" />
+                        <span className="text-red-700 dark:text-red-300 font-medium truncate">{incentive}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
 
-              {/* Original Highlights - Condensed */}
-              <div className="mb-4">
-                <h4 className="text-sm font-semibold mb-2 text-gray-900 dark:text-gray-100">Move-in Benefits</h4>
+              {/* Benefits as horizontal badges */}
+              <div className="mb-3">
                 <div className="flex flex-wrap gap-1">
-                  {deal.highlights.map((highlight, index) => (
-                    <Badge key={index} variant="secondary" className="text-xs px-2 py-0.5">
+                  {deal.highlights.slice(0, 4).map((highlight, index) => (
+                    <Badge key={index} variant="secondary" className="text-xs px-1.5 py-0.5">
                       {highlight}
                     </Badge>
                   ))}
+                  {deal.highlights.length > 4 && (
+                    <Badge variant="outline" className="text-xs px-1.5 py-0.5">
+                      +{deal.highlights.length - 4}
+                    </Badge>
+                  )}
                 </div>
               </div>
 
-              {/* CTA Button */}
+              {/* Compact CTA Button */}
               <Link href={`/red-tag-example/${deal.id === 1 ? 'sunrise-senior-living' : deal.id === 2 ? 'heritage-hills' : 'golden-years'}`}>
-                <Button className="w-full h-9 text-sm bg-red-600 hover:bg-red-700 text-white">
-                  <Tag className="w-4 h-4 mr-2" />
+                <Button className="w-full h-8 text-xs bg-red-600 hover:bg-red-700 text-white">
+                  <Tag className="w-3 h-3 mr-1.5" />
                   Claim This Deal
                 </Button>
               </Link>
