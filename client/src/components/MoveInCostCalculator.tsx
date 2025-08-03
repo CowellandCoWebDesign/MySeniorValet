@@ -5,8 +5,10 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
-import { Calculator, DollarSign, TrendingUp, Calendar, ChevronDown, ChevronUp, Minimize2, Maximize2 } from "lucide-react";
+import { Calculator, DollarSign, TrendingUp, Calendar, ChevronDown, ChevronUp, Minimize2, Maximize2, Save, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 
 export function MoveInCostCalculator() {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -17,6 +19,10 @@ export function MoveInCostCalculator() {
   const [movingServices, setMovingServices] = useState(1200);
   const [homePrep, setHomePrep] = useState(800);
   const [otherCosts, setOtherCosts] = useState(500);
+  const [isSaved, setIsSaved] = useState(false);
+  
+  const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   // State to track if user has manually customized values
   const [isFirstMonthCustomized, setIsFirstMonthCustomized] = useState(false);
@@ -384,11 +390,59 @@ export function MoveInCostCalculator() {
 
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
-        <Button variant="outline" className="flex items-center gap-2">
-          <Calculator className="w-4 h-4" />
-          Save Calculation
+        <Button 
+          variant="outline" 
+          className="flex items-center gap-2"
+          onClick={() => {
+            const calculationData = {
+              totalCost,
+              seniorLivingCost: seniorLivingCost[0],
+              communityFee,
+              securityDeposit,
+              firstMonth,
+              movingServices,
+              homePrep,
+              otherCosts,
+              timestamp: new Date().toISOString()
+            };
+            
+            // Save to localStorage for persistence
+            localStorage.setItem('moveInCalculation', JSON.stringify(calculationData));
+            setIsSaved(true);
+            
+            toast({
+              title: "Calculation Saved",
+              description: `Your $${totalCost.toLocaleString()} move-in estimate has been saved successfully.`,
+            });
+            
+            // Reset saved indicator after 3 seconds
+            setTimeout(() => setIsSaved(false), 3000);
+          }}
+        >
+          {isSaved ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
+          {isSaved ? 'Calculation Saved!' : 'Save Calculation'}
         </Button>
-        <Button className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2">
+        <Button 
+          className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
+          onClick={() => {
+            // Save current calculation and redirect to search with budget filter
+            const calculationData = {
+              totalCost,
+              seniorLivingCost: seniorLivingCost[0],
+              timestamp: new Date().toISOString()
+            };
+            
+            localStorage.setItem('budgetComparison', JSON.stringify(calculationData));
+            
+            toast({
+              title: "Redirecting to Search",
+              description: `Finding communities under $${seniorLivingCost[0].toLocaleString()}/month...`,
+            });
+            
+            // Redirect to search with price filter
+            setLocation(`/search?maxPrice=${seniorLivingCost[0]}&budget=${totalCost}`);
+          }}
+        >
           <TrendingUp className="w-4 h-4" />
           Compare Communities
         </Button>

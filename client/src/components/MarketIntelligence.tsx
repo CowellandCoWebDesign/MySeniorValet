@@ -21,7 +21,7 @@ export function MarketIntelligence() {
             AI-Powered Senior Living Intelligence
           </CardTitle>
           <CardDescription className="text-xs">
-            3-AI Orchestra: Claude + Gemini + ChatGPT • 34,171 Verified Communities
+            3-AI Orchestra: Claude + Perplexity + ChatGPT • 34,171 Verified Communities
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-3">
@@ -57,7 +57,7 @@ export function MarketIntelligence() {
                 3-AI Orchestration System
               </h3>
               <div className="text-xs mb-2 text-muted-foreground">
-                Claude • Gemini • ChatGPT working in harmony
+                Claude • Perplexity • ChatGPT working in harmony
               </div>
               <div className="space-y-1">
                 <div className="flex items-center justify-between p-1.5 bg-gray-50 dark:bg-gray-800 rounded text-xs">
@@ -65,7 +65,7 @@ export function MarketIntelligence() {
                   <Progress value={96} className="w-16 h-1.5" />
                 </div>
                 <div className="flex items-center justify-between p-1.5 bg-gray-50 dark:bg-gray-800 rounded text-xs">
-                  <span>Gemini (Verification)</span>
+                  <span>Perplexity (Real-time Data)</span>
                   <Progress value={94} className="w-16 h-1.5" />
                 </div>
                 <div className="flex items-center justify-between p-1.5 bg-gray-50 dark:bg-gray-800 rounded text-xs">
