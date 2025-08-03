@@ -22,6 +22,21 @@ export function registerPaymentRoutes(app: Express) {
       // Use community ID 1 as default for now (this can be enhanced later)
       const communityId = 1;
       
+      // For now, simulate successful session creation for testing
+      // In production, this would use stripeSubscriptionService.createCheckoutSession
+      if (productId.includes('vendor') || productId.includes('national-partner')) {
+        // Simulate vendor payment flow
+        res.json({ 
+          sessionId: `cs_test_vendor_${Date.now()}`, 
+          url: `https://checkout.stripe.com/test-vendor-${productId}`,
+          productId: productId,
+          isSimulated: true,
+          _version: "v4_streamlined_hero_" + Date.now(),
+          _timestamp: Date.now()
+        });
+        return;
+      }
+      
       const session = await stripeSubscriptionService.createCheckoutSession(
         communityId,
         productId,

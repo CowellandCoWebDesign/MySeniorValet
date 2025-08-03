@@ -9,7 +9,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2025-06-30.basil'
+  apiVersion: '2025-07-30.basil'
 });
 
 export interface SubscriptionProduct {
@@ -89,6 +89,62 @@ export const SUBSCRIPTION_PRODUCTS: SubscriptionProduct[] = [
   }
 ];
 
+// Vendor Marketplace Products
+export const VENDOR_PRODUCTS: SubscriptionProduct[] = [
+  {
+    id: 'basic-vendor',
+    name: 'Basic Listing',
+    description: 'Public listing in vendor directory, limited to 1 zip cluster, optional $25 verified badge.',
+    price: 9900, // $99.00/month
+    interval: 'month',
+    type: 'product',
+    features: [
+      'Public listing in vendor directory',
+      'Region-limited to 1 zip cluster',
+      'Name, phone, category, description',
+      'Optional $25 verified badge',
+      'User reviews allowed',
+      'Affiliate link support'
+    ]
+  },
+  {
+    id: 'featured-vendor',
+    name: 'Featured Vendor',
+    description: 'Coverage across 5 regions, logo upload, analytics, featured placement in vendor carousels.',
+    price: 24900, // $249.00/month
+    interval: 'month',
+    type: 'product',
+    features: [
+      'All Basic Listing features',
+      'Coverage across 5 regions',
+      'Upload logo, brand colors, CTA button',
+      'Basic analytics (views, clicks, leads)',
+      'Post vendor promos',
+      'Featured placement in vendor carousels',
+      'Must have affiliate link for "Approved" badge'
+    ]
+  },
+  {
+    id: 'national-partner',
+    name: 'National Partner (Premium)',
+    description: 'Nationwide visibility, banner rotation, concierge priority, AI-generated lead summaries.',
+    price: 49900, // $499.00/month
+    interval: 'month',
+    type: 'product',
+    features: [
+      'All Featured Vendor features',
+      'Nationwide visibility (no geo cap)',
+      'Banner rotation in major discovery areas',
+      'Concierge system priority & routing',
+      'AI-generated lead summaries + scoring',
+      'Optional API or CSV lead passback',
+      'Dedicated vendor microsite',
+      'Quarterly performance report',
+      'Optional vendor success call'
+    ]
+  }
+];
+
 export const ADD_ON_PRODUCTS: SubscriptionProduct[] = [
   {
     id: 'additional-location',
@@ -155,7 +211,7 @@ export class StripeSubscriptionService {
     successUrl: string,
     cancelUrl: string
   ) {
-    const product = [...SUBSCRIPTION_PRODUCTS, ...ADD_ON_PRODUCTS].find(p => p.id === productId);
+    const product = [...SUBSCRIPTION_PRODUCTS, ...ADD_ON_PRODUCTS, ...VENDOR_PRODUCTS].find(p => p.id === productId);
     
     if (!product || product.price === 0) {
       throw new Error('Invalid product or free product');
