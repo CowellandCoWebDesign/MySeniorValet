@@ -660,7 +660,7 @@ export default function CommunityDetail() {
                       </CardTitle>
                       {/* Subscription Tier Badge */}
                       {(() => {
-                        const tierBadge = getSubscriptionTierBadge(community.subscriptionTier);
+                        const tierBadge = getSubscriptionTierBadge(community.subscriptionTier || 'verified');
                         const TierIcon = tierBadge.icon;
                         return (
                           <Badge className={`flex items-center gap-1 px-3 py-1 border ${tierBadge.className}`}>
@@ -848,7 +848,16 @@ export default function CommunityDetail() {
                           `$${community.priceRange.min.toLocaleString()} - $${community.priceRange.max.toLocaleString()}` : 
                           (community as any).rentPerMonth ? 
                           `$${(community as any).rentPerMonth}/month` :
-                          "Contact for pricing"
+                          // Show market intelligence estimates instead of "Contact for pricing"
+                          community.communitySubtype === 'hud_senior_housing' ? 
+                          "$200 - $800" :
+                          community.careTypes?.includes('memory_care') ?
+                          "$5,000 - $8,000" :
+                          community.careTypes?.includes('assisted_living') ?
+                          "$3,500 - $5,500" :
+                          community.careTypes?.includes('independent_living') ?
+                          "$2,500 - $4,500" :
+                          "$2,000 - $6,000"
                         }
                       </div>
                       <div className="text-sm text-gray-900 dark:text-gray-100">
@@ -856,11 +865,14 @@ export default function CommunityDetail() {
                           "per month starting rate" : 
                           (community as any).rentPerMonth ? 
                           "HUD verified monthly rent" : 
+                          // Show market intelligence source instead of generic text
+                          !community.claimedBy ? 
+                          "Market Intelligence Estimate" :
                           "Pricing available upon request"}
                       </div>
                       
                       {/* Compact Pricing Attribution for Estimates */}
-                      {!hasLiveData && community.priceRange && community.priceRange.min > 0 && (
+                      {!hasLiveData && !community.claimedBy && (
                         <div className="mt-2 flex items-center justify-end gap-2 text-xs">
                           <Info className="h-3 w-3 text-blue-600 dark:text-blue-400" />
                           <a 
@@ -2971,7 +2983,7 @@ export default function CommunityDetail() {
         </div>
         
         {/* Detailed Pricing Methodology Section */}
-        {!hasLiveData && community.priceRange && community.priceRange.min > 0 && (
+        {!hasLiveData && !community.claimedBy && (
           <div id="pricing-methodology" className="mt-12 mb-8">
             <Card>
               <CardHeader>
