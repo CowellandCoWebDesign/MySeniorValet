@@ -1,0 +1,24 @@
+{
+  "timestamp": "2025-08-03T21:29:43.501250",
+  "stats": {
+    "total_processed": 190,
+    "total_inserted": 167,
+    "total_errors": 0,
+    "states_completed": [
+      "PA",
+      "RI",
+      "SC",
+      "SD",
+      "TN",
+      "TX",
+      "UT",
+      "VT",
+      "VA",
+      "WA",
+      "WV",
+      "WI",
+      "WY"
+    ],
+    "start_time": "2025-08-03T21:26:11.996943"
+  }
+}
