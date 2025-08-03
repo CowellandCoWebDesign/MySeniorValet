@@ -12,6 +12,8 @@ interface SearchParams {
   query?: string;          // Alias for q
   location?: string;       // City, state, or zip
   careType?: string;       // Care type filter
+  state?: string;          // State filter (FL, NY, TX, etc.)
+  city?: string;           // City filter
   
   // Map search params
   bounds?: string;         // west,south,east,north
@@ -36,12 +38,14 @@ export function registerUnifiedSearchRoutes(app: Express) {
     try {
       const params = req.query as unknown as SearchParams;
       const { 
-        q, query, location, careType, bounds,
+        q, query, location, careType, state, city, bounds,
         limit = 50, offset = 0,
         minRating, priceMin, priceMax,
         hasPhotos, hudOnly,
         sortBy = 'relevance', sortOrder = 'desc'
       } = params;
+      
+      console.log('Search request with params:', { q, query, location, careType, state, city, bounds });
       
       // Determine search type
       const searchQuery = q || query;
@@ -101,6 +105,22 @@ export function registerUnifiedSearchRoutes(app: Express) {
             sql`${communities.zipCode} = ${location}`, // Exact zip match
             sql`${communities.address} ILIKE ${locationTerm}`
           )
+        );
+      }
+      
+      // State filter - CRITICAL FIX for state-specific searches
+      if (state) {
+        console.log(`🔍 Filtering by state: ${state}`);
+        whereConditions.push(
+          sql`${communities.state} = ${state.toUpperCase()}`
+        );
+      }
+      
+      // City filter
+      if (city) {
+        console.log(`🔍 Filtering by city: ${city}`);
+        whereConditions.push(
+          sql`${communities.city} ILIKE ${`%${city}%`}`
         );
       }
       
