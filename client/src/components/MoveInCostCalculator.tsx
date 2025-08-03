@@ -10,17 +10,16 @@ import { cn } from "@/lib/utils";
 
 export function MoveInCostCalculator() {
   const [seniorLivingCost, setSeniorLivingCost] = useState([4500]);
-  const [applicationFee, setApplicationFee] = useState(300);
+  const [communityFee, setCommunityFee] = useState(2500);
   const [securityDeposit, setSecurityDeposit] = useState(2250);
   const [firstMonth, setFirstMonth] = useState(4500);
-  const [lastMonth, setLastMonth] = useState(4500);
   const [movingServices, setMovingServices] = useState(1200);
   const [homePrep, setHomePrep] = useState(800);
   const [otherCosts, setOtherCosts] = useState(500);
 
   // State to track if user has manually customized values
   const [isFirstMonthCustomized, setIsFirstMonthCustomized] = useState(false);
-  const [isLastMonthCustomized, setIsLastMonthCustomized] = useState(false);
+  const [isCommunityFeeCustomized, setIsCommunityFeeCustomized] = useState(false);
   const [isSecurityDepositCustomized, setIsSecurityDepositCustomized] = useState(false);
 
   // Update dependent costs when slider changes
@@ -32,17 +31,19 @@ export function MoveInCostCalculator() {
       setFirstMonth(monthlyCost);
     }
     
-    if (!isLastMonthCustomized) {
-      setLastMonth(monthlyCost);
+    if (!isCommunityFeeCustomized) {
+      // Community fee is typically between $1500 and one month's rent
+      const feeAmount = Math.max(1500, Math.round(monthlyCost));
+      setCommunityFee(feeAmount);
     }
     
     if (!isSecurityDepositCustomized) {
       setSecurityDeposit(Math.round(monthlyCost * 0.5)); // Round to avoid decimals
     }
-  }, [seniorLivingCost, isFirstMonthCustomized, isLastMonthCustomized, isSecurityDepositCustomized]);
+  }, [seniorLivingCost, isFirstMonthCustomized, isCommunityFeeCustomized, isSecurityDepositCustomized]);
 
   const calculateTotal = () => {
-    return applicationFee + securityDeposit + firstMonth + lastMonth + movingServices + homePrep + otherCosts;
+    return communityFee + securityDeposit + firstMonth + movingServices + homePrep + otherCosts;
   };
 
   const handleCostChange = (setter: (value: number) => void, customizedSetter?: (value: boolean) => void) => (value: string) => {
@@ -83,12 +84,12 @@ export function MoveInCostCalculator() {
             </p>
             <div className="mt-3 grid grid-cols-3 gap-4 text-sm">
               <div>
-                <div className="font-semibold text-gray-900 dark:text-gray-100">${(applicationFee + securityDeposit).toLocaleString()}</div>
-                <div className="text-xs text-gray-500">Deposits & Fees</div>
+                <div className="font-semibold text-gray-900 dark:text-gray-100">${(communityFee + securityDeposit).toLocaleString()}</div>
+                <div className="text-xs text-gray-500">Community & Deposits</div>
               </div>
               <div>
-                <div className="font-semibold text-gray-900 dark:text-gray-100">${(firstMonth + lastMonth).toLocaleString()}</div>
-                <div className="text-xs text-gray-500">Rent Payments</div>
+                <div className="font-semibold text-gray-900 dark:text-gray-100">${firstMonth.toLocaleString()}</div>
+                <div className="text-xs text-gray-500">First Month's Rent</div>
               </div>
               <div>
                 <div className="font-semibold text-gray-900 dark:text-gray-100">${(movingServices + homePrep + otherCosts).toLocaleString()}</div>
@@ -127,13 +128,13 @@ export function MoveInCostCalculator() {
               <span>$8,000/mo</span>
             </div>
             <div className="text-center text-xs text-gray-500 dark:text-gray-400">
-              💡 Slider automatically adjusts security deposit and rent amounts below
-              {(isFirstMonthCustomized || isLastMonthCustomized || isSecurityDepositCustomized) && (
+              💡 Slider automatically adjusts community fee, security deposit, and first month's rent
+              {(isFirstMonthCustomized || isCommunityFeeCustomized || isSecurityDepositCustomized) && (
                 <div className="mt-1">
                   <button 
                     onClick={() => {
                       setIsFirstMonthCustomized(false);
-                      setIsLastMonthCustomized(false); 
+                      setIsCommunityFeeCustomized(false); 
                       setIsSecurityDepositCustomized(false);
                     }}
                     className="text-purple-600 dark:text-purple-400 hover:underline text-xs"
@@ -162,23 +163,23 @@ export function MoveInCostCalculator() {
         </CardHeader>
         <CardContent>
           <div className="grid md:grid-cols-2 gap-4">
-            {/* Application Fee */}
+            {/* Community Fee */}
             <div className="space-y-2">
-              <Label htmlFor="applicationFee" className="text-sm font-medium flex items-center justify-between">
-                Application Fee
-                <span className="text-xs text-gray-500">${applicationFee.toLocaleString()}</span>
+              <Label htmlFor="communityFee" className="text-sm font-medium flex items-center justify-between">
+                Community Fee (One-time)
+                <span className="text-xs text-gray-500">${communityFee.toLocaleString()}</span>
               </Label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
                 <Input
-                  id="applicationFee"
+                  id="communityFee"
                   type="number"
-                  value={applicationFee}
-                  onChange={(e) => handleCostChange(setApplicationFee)(e.target.value)}
+                  value={communityFee}
+                  onChange={(e) => handleCostChange(setCommunityFee, setIsCommunityFeeCustomized)(e.target.value)}
                   className="pl-8"
                   min="0"
-                  step="25"
-                  placeholder="Typical: $200-$500"
+                  step="100"
+                  placeholder="Typical: $1500 to 1 month rent"
                 />
               </div>
             </div>
@@ -225,26 +226,7 @@ export function MoveInCostCalculator() {
               </div>
             </div>
 
-            {/* Last Month */}
-            <div className="space-y-2">
-              <Label htmlFor="lastMonth" className="text-sm font-medium flex items-center justify-between">
-                Last Month's Rent
-                <span className="text-xs text-gray-500">${lastMonth.toLocaleString()}</span>
-              </Label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
-                <Input
-                  id="lastMonth"
-                  type="number"
-                  value={lastMonth}
-                  onChange={(e) => handleCostChange(setLastMonth, setIsLastMonthCustomized)(e.target.value)}
-                  className="pl-8"
-                  min="0"
-                  step="100"
-                  placeholder="If required by community"
-                />
-              </div>
-            </div>
+
 
             {/* Moving Services */}
             <div className="space-y-2">
@@ -321,10 +303,9 @@ export function MoveInCostCalculator() {
         <CardContent>
           <div className="space-y-3">
             {[
-              { label: 'Application Fee', amount: applicationFee, color: 'bg-blue-500', percentage: (applicationFee / totalCost * 100).toFixed(1) },
+              { label: 'Community Fee (One-time)', amount: communityFee, color: 'bg-blue-500', percentage: (communityFee / totalCost * 100).toFixed(1) },
               { label: 'Security Deposit', amount: securityDeposit, color: 'bg-green-500', percentage: (securityDeposit / totalCost * 100).toFixed(1) },
               { label: 'First Month\'s Rent', amount: firstMonth, color: 'bg-purple-500', percentage: (firstMonth / totalCost * 100).toFixed(1) },
-              { label: 'Last Month\'s Rent', amount: lastMonth, color: 'bg-indigo-500', percentage: (lastMonth / totalCost * 100).toFixed(1) },
               { label: 'Moving Services', amount: movingServices, color: 'bg-yellow-500', percentage: (movingServices / totalCost * 100).toFixed(1) },
               { label: 'Home Preparation', amount: homePrep, color: 'bg-red-500', percentage: (homePrep / totalCost * 100).toFixed(1) },
               { label: 'Other Costs', amount: otherCosts, color: 'bg-gray-500', percentage: (otherCosts / totalCost * 100).toFixed(1) }
