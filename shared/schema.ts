@@ -3669,6 +3669,127 @@ export const serviceClicks = pgTable("service_clicks", {
   clickedAt: timestamp("clicked_at").defaultNow(),
 });
 
+// ========== US HOSPITALS DIRECTORY ==========
+// Comprehensive US Hospital Database with systematic nationwide coverage
+export const hospitals = pgTable("hospitals", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  slug: varchar("slug", { length: 200 }).unique(),
+  description: text("description"),
+  address: text("address").notNull(),
+  city: text("city").notNull(),
+  state: text("state").notNull(),
+  zipCode: text("zip_code").notNull(),
+  county: text("county").notNull(),
+  phone: text("phone"),
+  website: text("website"),
+  
+  // Geographic data for mapping
+  latitude: decimal("latitude", { precision: 11, scale: 8 }),
+  longitude: decimal("longitude", { precision: 11, scale: 8 }),
+  location: geographyPoint('location'), // PostGIS geography point for efficient spatial queries
+  
+  // Hospital Classification
+  hospitalType: text("hospital_type", {
+    enum: [
+      "General Acute Care", "Critical Access", "Specialty", "Teaching Hospital", 
+      "Children's Hospital", "Psychiatric", "Rehabilitation", "Long-term Care",
+      "Veterans Affairs", "Military", "Federal", "Ambulatory Surgery Center"
+    ]
+  }).notNull(),
+  ownership: text("ownership", {
+    enum: [
+      "Government - Federal", "Government - State", "Government - Local",
+      "Private - For Profit", "Private - Non-profit", "Private - Church Related"
+    ]
+  }),
+  
+  // Medical Services & Specialties
+  services: text("services").array().default([]), // ['Emergency Services', 'ICU', 'Surgery', 'Maternity', 'Cardiology']
+  specialties: text("specialties").array().default([]), // ['Cardiac Surgery', 'Neurology', 'Oncology', 'Orthopedics']
+  traumaLevel: text("trauma_level", { enum: ["Level I", "Level II", "Level III", "Level IV", "None"] }),
+  emergencyServices: boolean("emergency_services").default(false),
+  
+  // Capacity & Size
+  bedCount: integer("bed_count"),
+  totalDischarges: integer("total_discharges"), // Annual discharges
+  patientDays: integer("patient_days"), // Annual patient days
+  grossCharges: numeric("gross_charges", { precision: 15, scale: 2 }), // Annual gross charges
+  
+  // Quality & Ratings
+  cmsRating: integer("cms_rating"), // CMS Hospital Compare overall rating (1-5 stars)
+  mortalityRating: text("mortality_rating", { enum: ["Below", "Same", "Above"] }), // Compared to national average
+  safetyRating: text("safety_rating", { enum: ["Below", "Same", "Above"] }),
+  readmissionRating: text("readmission_rating", { enum: ["Below", "Same", "Above"] }),
+  experienceRating: text("experience_rating", { enum: ["Below", "Same", "Above"] }),
+  
+  // Network & Insurance
+  insuranceAccepted: text("insurance_accepted").array().default([]), // ['Medicare', 'Medicaid', 'Blue Cross', 'Aetna']
+  networkAffiliations: text("network_affiliations").array().default([]), // ['Mayo Clinic Network', 'Johns Hopkins']
+  
+  // Administrative Data
+  cmsProviderNumber: text("cms_provider_number").unique(), // CMS Certification Number
+  npiNumber: text("npi_number"), // National Provider Identifier
+  isActive: boolean("is_active").default(true),
+  isCertified: boolean("is_certified").default(true), // CMS Certified
+  
+  // Data Sources & Verification
+  dataSource: text("data_source").default("CMS Hospital Compare"), // 'CMS', 'AHA', 'State Licensing', 'Manual Entry'
+  lastVerified: timestamp("last_verified"),
+  verificationStatus: text("verification_status", {
+    enum: ["Verified", "Pending", "Needs Review", "Outdated"]
+  }).default("Pending"),
+  
+  // Search & Discovery
+  searchTerms: text("search_terms").array().default([]), // For search optimization
+  tags: text("tags").array().default([]), // ['Level 1 Trauma', 'Magnet Hospital', 'Teaching']
+  
+  // Performance Metrics
+  averageStay: decimal("average_stay", { precision: 5, scale: 2 }), // Average length of stay in days
+  occupancyRate: decimal("occupancy_rate", { precision: 5, scale: 2 }), // Bed occupancy percentage
+  
+  // Contact & Hours
+  emergencyPhone: text("emergency_phone"),
+  operatingHours: json("operating_hours").$type<{
+    emergency?: string; // "24/7" or specific hours
+    general?: string;
+    visiting?: string;
+  }>().default({}),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Hospital Departments/Services - Detailed breakdown of services offered
+export const hospitalDepartments = pgTable("hospital_departments", {
+  id: serial("id").primaryKey(),
+  hospitalId: integer("hospital_id").references(() => hospitals.id).notNull(),
+  departmentName: text("department_name").notNull(), // 'Cardiology', 'Emergency Medicine', 'Pediatrics'
+  departmentType: text("department_type", {
+    enum: ["Medical", "Surgical", "Emergency", "Diagnostic", "Support", "Administrative"]
+  }).notNull(),
+  services: text("services").array().default([]), // Specific services within department
+  phone: text("phone"),
+  emergencyContact: text("emergency_contact"),
+  hours: text("hours"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Hospital Quality Metrics - Detailed CMS quality data
+export const hospitalQualityMetrics = pgTable("hospital_quality_metrics", {
+  id: serial("id").primaryKey(),
+  hospitalId: integer("hospital_id").references(() => hospitals.id).notNull(),
+  metricType: text("metric_type").notNull(), // 'Mortality', 'Safety', 'Readmission', 'Experience'
+  measureId: text("measure_id").notNull(), // CMS measure ID
+  measureName: text("measure_name").notNull(),
+  score: text("score"), // Could be percentage, rating, or text
+  nationalAverage: text("national_average"),
+  performance: text("performance", { enum: ["Better", "Same", "Worse", "Not Available"] }),
+  reportingPeriod: text("reporting_period"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Service Relations
 export const serviceCategoriesRelations = relations(serviceCategories, ({ many }) => ({
   services: many(services),
@@ -3886,6 +4007,29 @@ export const insertMarketplaceVendorClickSchema = createInsertSchema(marketplace
 });
 export type InsertMarketplaceVendorClick = z.infer<typeof insertMarketplaceVendorClickSchema>;
 export type MarketplaceVendorClick = typeof marketplaceVendorClicks.$inferSelect;
+
+// Hospital Insert Schemas and Types
+export const insertHospitalSchema = createInsertSchema(hospitals).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertHospital = z.infer<typeof insertHospitalSchema>;
+export type Hospital = typeof hospitals.$inferSelect;
+
+export const insertHospitalDepartmentSchema = createInsertSchema(hospitalDepartments).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertHospitalDepartment = z.infer<typeof insertHospitalDepartmentSchema>;
+export type HospitalDepartment = typeof hospitalDepartments.$inferSelect;
+
+export const insertHospitalQualityMetricsSchema = createInsertSchema(hospitalQualityMetrics).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertHospitalQualityMetrics = z.infer<typeof insertHospitalQualityMetricsSchema>;
+export type HospitalQualityMetrics = typeof hospitalQualityMetrics.$inferSelect;
 
 // ============ SMART NOTIFICATION SYSTEM TABLES ============
 

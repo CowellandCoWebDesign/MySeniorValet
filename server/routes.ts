@@ -74,6 +74,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const { vendorSubscriptionRouter } = await import('./routes/vendor-subscription');
   app.use('/api', vendorSubscriptionRouter);
   
+  // Register hospital routes
+  const { registerHospitalRoutes } = await import('./routes/hospitalRoutes');
+  registerHospitalRoutes(app);
+  
   // Register vendor Stripe payment routes
   const { registerVendorStripeRoutes } = await import('./routes/vendor-stripe');
   registerVendorStripeRoutes(app);

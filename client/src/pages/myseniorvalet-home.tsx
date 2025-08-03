@@ -25,6 +25,7 @@ import { MoveInCostCalculator } from "@/components/MoveInCostCalculator";
 import { RedTagDeals } from "@/components/RedTagDeals";
 import { AidAndAttendance } from "@/components/AidAndAttendance";
 import { CostComparisonWorksheet } from "@/components/CostComparisonWorksheet";
+import HospitalCarousel from "@/components/HospitalCarousel";
 
 
 
@@ -1813,6 +1814,43 @@ export default function MySeniorValetHome() {
 
 
 
+
+      {/* Hospital Directory Section */}
+      <section className="px-4 py-12 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                US Hospital Directory
+              </h2>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">CMS verified data</span>
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-sm text-green-700 dark:text-green-300 font-medium">Quality ratings</span>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-lg font-bold text-gray-900 dark:text-gray-100">Teaching & Trauma Centers</div>
+              <div className="text-sm text-blue-600 dark:text-blue-300 font-medium">Nationwide coverage</div>
+            </div>
+          </div>
+          
+          <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
+            Comprehensive hospital information including quality ratings, trauma levels, and emergency services
+          </p>
+          
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-6">
+            <p className="text-sm text-blue-800 dark:text-blue-200 font-medium">
+              <span className="font-bold">Hospital Intelligence:</span> Find top-rated medical centers, trauma centers, children's hospitals, and VA facilities with verified CMS quality data and emergency services information.
+            </p>
+          </div>
+        
+          <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+            <HospitalCarousel />
+          </div>
+        </div>
+      </section>
 
       {/* Care Marketplace Section */}
       <section className="px-4 py-8">
