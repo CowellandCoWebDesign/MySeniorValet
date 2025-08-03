@@ -564,6 +564,139 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
+      {/* Florida Communities Promotional Section */}
+      <section className="px-4 py-12 bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+              🌴 Florida Senior Living Paradise
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 mb-4">
+              Year-round sunshine and world-class senior communities
+            </p>
+            <div className="flex items-center justify-center gap-4 mb-6">
+              <Badge className="bg-cyan-600 text-white px-3 py-1">
+                No State Income Tax
+              </Badge>
+              <Badge className="bg-blue-600 text-white px-3 py-1">
+                Beach & Golf Communities
+              </Badge>
+            </div>
+          </div>
+          
+          {/* Florida Communities Slider */}
+          <div className="relative">
+            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+              {(() => {
+                // Mock Florida community data
+                const floridaCommunities = [
+                  {
+                    id: 'fl1',
+                    name: 'Sunset Bay Senior Resort',
+                    location: 'Naples, FL',
+                    price: 4200,
+                    image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2080&q=80',
+                    careType: 'Resort Living',
+                    rating: 4.9,
+                    features: ['Beach Access', 'Golf Course', 'Marina']
+                  },
+                  {
+                    id: 'fl2',
+                    name: 'Palm Beach Gardens Senior Living',
+                    location: 'Palm Beach, FL',
+                    price: 3800,
+                    image: 'https://images.unsplash.com/photo-1520637836862-4d197d17c85a?ixlib=rb-4.0.3&auto=format&fit=crop&w=2069&q=80',
+                    careType: 'Active Adult',
+                    rating: 4.8,
+                    features: ['Tennis Courts', 'Spa Services', 'Fine Dining']
+                  },
+                  {
+                    id: 'fl3',
+                    name: 'Everglades Villa',
+                    location: 'Fort Myers, FL',
+                    price: 3400,
+                    image: 'https://images.unsplash.com/photo-1582407947304-fd86f028f716?ixlib=rb-4.0.3&auto=format&fit=crop&w=2187&q=80',
+                    careType: 'Assisted Living',
+                    rating: 4.7,
+                    features: ['Nature Preserve', 'Bird Watching', 'Wellness Center']
+                  },
+                  {
+                    id: 'fl4',
+                    name: 'Keys Senior Paradise',
+                    location: 'Key Largo, FL',
+                    price: 4500,
+                    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+                    careType: 'Luxury Resort',
+                    rating: 5.0,
+                    features: ['Ocean Views', 'Fishing Charters', 'Tropical Gardens']
+                  },
+                  {
+                    id: 'fl5',
+                    name: 'Orlando Senior Springs',
+                    location: 'Orlando, FL',
+                    price: 3200,
+                    image: 'https://images.unsplash.com/photo-1559599101-f09722fb4948?ixlib=rb-4.0.3&auto=format&fit=crop&w=2069&q=80',
+                    careType: 'Independent Living',
+                    rating: 4.6,
+                    features: ['Theme Park Access', 'Cultural Events', 'Shopping Districts']
+                  }
+                ];
+
+                return floridaCommunities.map((community) => (
+                  <Card key={community.id} className="min-w-[280px] hover:shadow-lg transition-shadow border-cyan-200 dark:border-cyan-800">
+                    <div className="relative h-40 overflow-hidden rounded-t-lg">
+                      <img 
+                        src={community.image} 
+                        alt={community.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <Badge className="absolute top-2 left-2 bg-cyan-600 text-white">
+                        Florida
+                      </Badge>
+                      <Badge className="absolute top-2 right-2 bg-blue-600 text-white">
+                        ${community.price.toLocaleString()}/mo
+                      </Badge>
+                    </div>
+                    
+                    <CardContent className="p-4">
+                      <h3 className="font-bold text-lg mb-1">{community.name}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{community.careType}</p>
+                      
+                      <div className="flex items-center gap-1 mb-3">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`w-3 h-3 ${
+                              i < Math.floor(community.rating)
+                                ? "fill-yellow-400 text-yellow-400"
+                                : "text-gray-300"
+                            }`}
+                          />
+                        ))}
+                        <span className="text-sm ml-1">({community.rating})</span>
+                      </div>
+
+                      <div className="space-y-1 mb-4">
+                        {community.features.map((feature, idx) => (
+                          <div key={idx} className="flex items-center gap-2 text-xs">
+                            <CheckCircle className="w-3 h-3 text-cyan-600" />
+                            <span>{feature}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <Button className="w-full bg-cyan-600 hover:bg-cyan-700 text-white">
+                        View Details
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ));
+              })()}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Move-In Cost Calculator Section */}
       <section className="px-4 py-12 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-6xl mx-auto">
@@ -575,6 +708,129 @@ export default function MySeniorValetHome() {
       <section className="px-4 py-12 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-6xl mx-auto">
           <CostComparisonWorksheet />
+        </div>
+      </section>
+
+      {/* Fort Worth, Texas Communities Promotional Section */}
+      <section className="px-4 py-12 bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+              ⭐ Fort Worth, Texas Communities
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 mb-4">
+              Discover premier senior living options in the heart of Texas
+            </p>
+            <div className="flex items-center justify-center gap-4 mb-6">
+              <Badge className="bg-orange-600 text-white px-3 py-1">
+                Authentic Texas Hospitality
+              </Badge>
+              <Badge className="bg-red-600 text-white px-3 py-1">
+                Starting from $2,800/month
+              </Badge>
+            </div>
+          </div>
+          
+          {/* Fort Worth Communities Slider */}
+          <div className="relative">
+            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+              {(() => {
+                // Mock Fort Worth community data
+                const fortWorthCommunities = [
+                  {
+                    id: 'fw1',
+                    name: 'The Heritage at Fort Worth',
+                    location: 'Fort Worth, TX',
+                    price: 2800,
+                    image: 'https://images.unsplash.com/photo-1582407947304-fd86f028f716?ixlib=rb-4.0.3&auto=format&fit=crop&w=2187&q=80',
+                    careType: 'Independent Living',
+                    rating: 4.8,
+                    features: ['Texas BBQ Nights', 'Country Music Events', 'Golf Course Access']
+                  },
+                  {
+                    id: 'fw2',
+                    name: 'Cowtown Senior Village',
+                    location: 'Fort Worth, TX',
+                    price: 3200,
+                    image: 'https://images.unsplash.com/photo-1560184897-67f4a3f9a7fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+                    careType: 'Assisted Living',
+                    rating: 4.7,
+                    features: ['Rodeo Events', 'Western Culture', 'Line Dancing']
+                  },
+                  {
+                    id: 'fw3',
+                    name: 'Trinity River Estates',
+                    location: 'Fort Worth, TX',
+                    price: 3500,
+                    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+                    careType: 'Memory Care',
+                    rating: 4.9,
+                    features: ['River Views', 'Art District Tours', 'Live Music']
+                  },
+                  {
+                    id: 'fw4',
+                    name: 'Stockyards Senior Living',
+                    location: 'Fort Worth, TX',
+                    price: 2950,
+                    image: 'https://images.unsplash.com/photo-1559599101-f09722fb4948?ixlib=rb-4.0.3&auto=format&fit=crop&w=2069&q=80',
+                    careType: 'Independent Living',
+                    rating: 4.6,
+                    features: ['Historic District', 'Cattle Drive Shows', 'Western Heritage']
+                  }
+                ];
+
+                return fortWorthCommunities.map((community) => (
+                  <Card key={community.id} className="min-w-[280px] hover:shadow-lg transition-shadow border-orange-200 dark:border-orange-800">
+                    <div className="relative h-40 overflow-hidden rounded-t-lg">
+                      <img 
+                        src={community.image} 
+                        alt={community.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <Badge className="absolute top-2 left-2 bg-orange-600 text-white">
+                        Fort Worth
+                      </Badge>
+                      <Badge className="absolute top-2 right-2 bg-red-600 text-white">
+                        ${community.price.toLocaleString()}/mo
+                      </Badge>
+                    </div>
+                    
+                    <CardContent className="p-4">
+                      <h3 className="font-bold text-lg mb-1">{community.name}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{community.careType}</p>
+                      
+                      <div className="flex items-center gap-1 mb-3">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`w-3 h-3 ${
+                              i < Math.floor(community.rating)
+                                ? "fill-yellow-400 text-yellow-400"
+                                : "text-gray-300"
+                            }`}
+                          />
+                        ))}
+                        <span className="text-sm ml-1">({community.rating})</span>
+                      </div>
+
+                      <div className="space-y-1 mb-4">
+                        {community.features.map((feature, idx) => (
+                          <div key={idx} className="flex items-center gap-2 text-xs">
+                            <CheckCircle className="w-3 h-3 text-orange-600" />
+                            <span>{feature}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white">
+                        View Details
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ));
+              })()}
+            </div>
+          </div>
         </div>
       </section>
 
