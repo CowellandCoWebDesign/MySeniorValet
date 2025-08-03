@@ -86,102 +86,120 @@ const HospitalCard = ({ hospital }: { hospital: HospitalType }) => {
   };
 
   return (
-    <Card className="flex-shrink-0 w-72 h-[28rem] border border-blue-200 dark:border-blue-800 hover:shadow-xl transition-all duration-300 bg-white dark:bg-gray-800">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-500 to-cyan-500 p-3 text-white">
-        <div className="flex items-start justify-between mb-2">
-          <div className="flex items-center gap-2">
-            {getHospitalIcon(hospital.hospitalType)}
-            <Badge className="bg-white/20 text-white text-xs">
-              {hospital.hospitalType}
-            </Badge>
-          </div>
-          {hospital.cmsRating && (
-            <div className="flex items-center gap-1 bg-white/20 rounded-full px-2 py-1">
-              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-              <span className="text-xs font-bold">{hospital.cmsRating}/5</span>
+    <Card className="flex-shrink-0 w-80 h-[32rem] border-2 border-blue-100 dark:border-blue-900/50 hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-white via-blue-50/30 to-cyan-50/20 dark:from-gray-800 dark:via-gray-900 dark:to-blue-900/20 backdrop-blur-sm relative overflow-hidden group">
+      
+      {/* Premium Background Pattern */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-200/20 to-transparent rounded-full -translate-y-16 translate-x-16"></div>
+      
+      {/* Enhanced Header */}
+      <div className="bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-400 p-4 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-50"></div>
+        <div className="relative z-10">
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                {getHospitalIcon(hospital.hospitalType)}
+              </div>
+              <Badge className="bg-white/25 hover:bg-white/35 text-white text-xs font-medium px-3 py-1 rounded-full backdrop-blur-sm">
+                {hospital.hospitalType}
+              </Badge>
             </div>
-          )}
-        </div>
-        
-        <h3 className="font-bold text-base leading-tight mb-1 line-clamp-2">
-          {hospital.name}
-        </h3>
-        
-        <div className="flex items-center gap-1 text-xs opacity-90">
-          <MapPin className="w-3 h-3" />
-          <span className="truncate">{hospital.city}, {hospital.state}</span>
+            {hospital.cmsRating && (
+              <div className="flex items-center gap-2 bg-gradient-to-r from-yellow-400/20 to-orange-400/20 rounded-full px-3 py-1.5 backdrop-blur-sm border border-white/20">
+                <Star className="w-4 h-4 fill-yellow-300 text-yellow-300" />
+                <span className="text-sm font-bold">{hospital.cmsRating}/5</span>
+              </div>
+            )}
+          </div>
+          
+          <h3 className="font-bold text-lg leading-tight mb-2 line-clamp-2 drop-shadow-sm">
+            {hospital.name}
+          </h3>
+          
+          <div className="flex items-center gap-2 text-sm opacity-95">
+            <MapPin className="w-4 h-4" />
+            <span className="truncate font-medium">{hospital.city}, {hospital.state}</span>
+          </div>
         </div>
       </div>
 
-      <CardContent className="p-3 flex flex-col h-[calc(100%-7rem)]">
-        {/* Hospital Details */}
+      <CardContent className="p-4 flex flex-col h-[calc(100%-8.5rem)] relative z-10">
+        {/* Premium Hospital Details */}
         <div className="flex-1 overflow-hidden">
-          <div className="flex flex-wrap gap-1 mb-3">
+          <div className="flex flex-wrap gap-2 mb-4">
             {getOwnershipBadge(hospital.ownership)}
             {hospital.traumaLevel && (
-              <Badge className="bg-red-600 text-white text-xs">
+              <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-medium px-2 py-1 rounded-full shadow-sm">
                 {hospital.traumaLevel}
+              </Badge>
+            )}
+            {hospital.emergencyServices && (
+              <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-medium px-2 py-1 rounded-full shadow-sm">
+                24/7 Emergency
               </Badge>
             )}
           </div>
 
-          {/* Services */}
-          <div className="mb-3">
-            <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+          {/* Enhanced Services */}
+          <div className="mb-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl p-3 border border-blue-100 dark:border-blue-800/50">
+            <h4 className="text-sm font-bold text-blue-800 dark:text-blue-300 mb-2 flex items-center gap-2">
+              <Heart className="w-4 h-4" />
               Key Services
             </h4>
-            <div className="space-y-1">
-              {hospital.services.slice(0, 2).map((service, idx) => (
-                <div key={idx} className="flex items-center gap-2 text-xs">
-                  <div className="w-1 h-1 bg-blue-500 rounded-full flex-shrink-0"></div>
-                  <span className="text-gray-600 dark:text-gray-400 truncate">{service}</span>
+            <div className="space-y-2">
+              {hospital.services.slice(0, 3).map((service, idx) => (
+                <div key={idx} className="flex items-center gap-3 text-sm">
+                  <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex-shrink-0 shadow-sm"></div>
+                  <span className="text-gray-700 dark:text-gray-300 truncate font-medium">{service}</span>
                 </div>
               ))}
-              {hospital.services.length > 2 && (
-                <div className="text-xs text-blue-600 dark:text-blue-400">
-                  +{hospital.services.length - 2} more services
+              {hospital.services.length > 3 && (
+                <div className="text-sm text-blue-600 dark:text-blue-400 font-semibold pl-5">
+                  +{hospital.services.length - 3} more specialties
                 </div>
               )}
             </div>
           </div>
 
-          {/* Hospital Stats */}
-          <div className="grid grid-cols-2 gap-2 mb-3 text-center">
+          {/* Premium Hospital Stats */}
+          <div className="grid grid-cols-2 gap-3 mb-4">
             {hospital.bedCount && (
-              <div>
-                <div className="text-sm font-bold text-blue-600 dark:text-blue-400">
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-xl p-3 text-center border border-gray-200 dark:border-gray-600">
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                   {hospital.bedCount.toLocaleString()}
                 </div>
-                <div className="text-xs text-gray-500">Beds</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">Licensed Beds</div>
               </div>
             )}
-            {hospital.emergencyServices && (
-              <div>
-                <div className="text-sm font-bold text-red-600 dark:text-red-400">24/7</div>
-                <div className="text-xs text-gray-500">Emergency</div>
+            {hospital.cmsRating && (
+              <div className="bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-xl p-3 text-center border border-yellow-200 dark:border-yellow-700">
+                <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                  {hospital.cmsRating}/5
+                </div>
+                <div className="text-xs text-orange-600 dark:text-orange-400 font-medium">CMS Rating</div>
               </div>
             )}
           </div>
         </div>
 
-        {/* Contact Info */}
-        <div className="border-t pt-2 mt-auto">
+        {/* Premium Contact Section */}
+        <div className="border-t-2 border-gradient-to-r from-blue-100 to-cyan-100 dark:from-blue-800 dark:to-cyan-800 pt-3 mt-auto">
           {hospital.phone && (
-            <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 mb-2">
-              <Phone className="w-3 h-3" />
-              <span className="truncate">{hospital.phone}</span>
+            <div className="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300 mb-3 bg-gray-50 dark:bg-gray-800 rounded-lg p-2">
+              <Phone className="w-4 h-4 text-blue-500" />
+              <span className="truncate font-medium">{hospital.phone}</span>
             </div>
           )}
           
           <Button 
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs py-2"
+            className="w-full bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 hover:from-blue-700 hover:via-blue-600 hover:to-cyan-600 text-white text-sm py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
             onClick={() => {
               window.location.href = `/hospital/${hospital.slug}`;
             }}
           >
-            View Details
-            <ChevronRight className="ml-1 h-3 w-3" />
+            View Hospital Details
+            <ChevronRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
       </CardContent>
