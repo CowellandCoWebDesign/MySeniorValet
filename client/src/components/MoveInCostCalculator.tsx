@@ -5,10 +5,11 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
-import { Calculator, DollarSign, TrendingUp, Calendar } from "lucide-react";
+import { Calculator, DollarSign, TrendingUp, Calendar, ChevronDown, ChevronUp, Minimize2, Maximize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function MoveInCostCalculator() {
+  const [isExpanded, setIsExpanded] = useState(false);
   const [seniorLivingCost, setSeniorLivingCost] = useState([4500]);
   const [communityFee, setCommunityFee] = useState(2500);
   const [securityDeposit, setSecurityDeposit] = useState(2250);
@@ -59,12 +60,57 @@ export function MoveInCostCalculator() {
 
 
 
+  if (!isExpanded) {
+    return (
+      <Card className="border-purple-200 dark:border-purple-800 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-950 dark:to-indigo-950">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+                <Calculator className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Move-In Cost Calculator</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Estimate your moving expenses</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                  ${totalCost.toLocaleString()}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Total estimated cost</div>
+              </div>
+              <Button 
+                onClick={() => setIsExpanded(true)}
+                variant="outline"
+                size="sm"
+                className="text-purple-600 border-purple-200 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-800 dark:hover:bg-purple-950"
+              >
+                <Maximize2 className="w-4 h-4 mr-2" />
+                Calculate
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
         <div className="flex items-center justify-center gap-2 mb-2">
           <Calendar className="w-6 h-6 text-purple-600" />
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Move-In Cost Calculator</h2>
+          <Button 
+            onClick={() => setIsExpanded(false)}
+            variant="ghost"
+            size="sm"
+            className="ml-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          >
+            <Minimize2 className="w-4 h-4" />
+          </Button>
         </div>
         <p className="text-gray-600 dark:text-gray-300">
           Plan your transition with accurate move-in cost estimates based on your actual expenses
