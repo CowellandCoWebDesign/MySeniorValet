@@ -1381,11 +1381,6 @@ export default function MySeniorValetHome() {
 
           </div>
 
-          {/* Vendor Marketplace Tabs */}
-          <div className="mb-12">
-            <VendorMarketplaceTabs />
-          </div>
-
 
 
 
