@@ -1815,42 +1815,7 @@ export default function MySeniorValetHome() {
 
 
 
-      {/* Hospital Directory Section */}
-      <section className="px-4 py-12 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                US Hospital Directory
-              </h2>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">CMS verified data</span>
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-green-700 dark:text-green-300 font-medium">Quality ratings</span>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-lg font-bold text-gray-900 dark:text-gray-100">Teaching & Trauma Centers</div>
-              <div className="text-sm text-blue-600 dark:text-blue-300 font-medium">Nationwide coverage</div>
-            </div>
-          </div>
-          
-          <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
-            Comprehensive hospital information including quality ratings, trauma levels, and emergency services
-          </p>
-          
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-6">
-            <p className="text-sm text-blue-800 dark:text-blue-200 font-medium">
-              <span className="font-bold">Hospital Intelligence:</span> Find top-rated medical centers, trauma centers, children's hospitals, and VA facilities with verified CMS quality data and emergency services information.
-            </p>
-          </div>
-        
-          <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-            <HospitalCarousel />
-          </div>
-        </div>
-      </section>
+
 
       {/* Care Marketplace Section */}
       <section className="px-4 py-8">
@@ -1873,7 +1838,60 @@ export default function MySeniorValetHome() {
             </Card>
           </div>
 
-          {/* Home Care Services Tab and Slider */}
+          {/* 1. Hospital Directory Tab and Slider */}
+          <div className="mb-8">
+            {/* Hospital Directory Tab */}
+            <div className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Stethoscope className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">US Hospital Directory</h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">Comprehensive hospital information with CMS ratings</p>
+                  </div>
+                </div>
+                <div className="hidden sm:block flex-1">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-blue-700 dark:text-blue-300" />
+                      <span className="text-xs text-gray-600 dark:text-gray-400">Teaching hospitals</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-blue-700 dark:text-blue-300" />
+                      <span className="text-xs text-gray-600 dark:text-gray-400">Trauma centers</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-blue-700 dark:text-blue-300" />
+                      <span className="text-xs text-gray-600 dark:text-gray-400">Emergency services</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-blue-700 dark:text-blue-300" />
+                      <span className="text-xs text-gray-600 dark:text-gray-400">Quality ratings</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">6,000+</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Hospitals</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-blue-600 dark:text-blue-400">CMS</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Verified</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Hospital Directory Slider */}
+            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+              <HospitalCarousel />
+            </div>
+          </div>
+
+          {/* 2. Home Care Services Tab and Slider */}
           {(() => {
             const services = (careServicesData as any)?.services || [];
             const homeCareCount = services.filter((s: any) => s.serviceCategory === 'Home Care Services').length;
@@ -1881,10 +1899,7 @@ export default function MySeniorValetHome() {
             return (
               <div className="mb-8">
                 {/* Home Care Tab */}
-                <div
-                  className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 border-2 rounded-xl p-6 cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4"
-                  onClick={() => setSelectedCategory('Home Care Services')}
-                >
+                <div className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4">
                   <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
                     <div className="flex items-center gap-4 flex-1">
                       <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
