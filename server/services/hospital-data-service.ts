@@ -65,7 +65,8 @@ export class HospitalDataService {
         ownership: hospitals.ownership,
         phone: hospitals.phone,
         cmsRating: hospitals.cmsRating,
-        services: hospitals.services
+        services: hospitals.services,
+        dataSourceNote: hospitals.dataSourceNote
       })
       .from(hospitals)
       .where(eq(hospitals.isActive, true))

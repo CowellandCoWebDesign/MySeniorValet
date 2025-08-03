@@ -3735,6 +3735,7 @@ export const hospitals = pgTable("hospitals", {
   
   // Data Sources & Verification
   dataSource: text("data_source").default("CMS Hospital Compare"), // 'CMS', 'AHA', 'State Licensing', 'Manual Entry'
+  dataSourceNote: text("data_source_note"), // Note about data authenticity
   lastVerified: timestamp("last_verified"),
   verificationStatus: text("verification_status", {
     enum: ["Verified", "Pending", "Needs Review", "Outdated"]

@@ -42,6 +42,7 @@ interface HospitalType {
   experienceRating: string | null;
   tags: string[];
   emergencyPhone: string | null;
+  dataSourceNote?: string | null;
 }
 
 const HospitalCard = ({ hospital }: { hospital: HospitalType }) => {
@@ -87,6 +88,13 @@ const HospitalCard = ({ hospital }: { hospital: HospitalType }) => {
 
   return (
     <Card className="flex-shrink-0 w-80 h-[32rem] border-2 border-blue-100 dark:border-blue-900/50 hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-white via-blue-50/30 to-cyan-50/20 dark:from-gray-800 dark:via-gray-900 dark:to-blue-900/20 backdrop-blur-sm relative overflow-hidden group">
+      
+      {/* Demo Data Notation Banner */}
+      {hospital.dataSourceNote && (
+        <div className="absolute top-0 left-0 right-0 bg-yellow-500 text-black text-xs font-bold px-2 py-1 text-center z-20">
+          ⚠️ {hospital.dataSourceNote}
+        </div>
+      )}
       
       {/* Premium Background Pattern */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
