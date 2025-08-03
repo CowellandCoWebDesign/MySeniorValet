@@ -1424,6 +1424,132 @@ export default function MySeniorValetHome() {
             </Card>
           </div>
 
+          {/* Care Services Grid - 3x4 Layout */}
+          <div className="grid grid-cols-3 gap-3 md:gap-4 mb-8 max-w-4xl mx-auto">
+            <Link href="/hospitals">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 relative overflow-hidden h-full">
+                <CardContent className="p-2 sm:p-3 text-center">
+                  <div className="absolute top-1 right-1">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  </div>
+                  <Stethoscope className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500 mx-auto mb-1.5" />
+                  <h4 className="font-semibold text-xs sm:text-sm text-blue-700 dark:text-blue-300 line-clamp-2">Hospital Services</h4>
+                  <p className="text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 mt-0.5 line-clamp-2">6,000+ CMS verified</p>
+                  <div className="flex flex-col gap-0.5 mt-1">
+                    <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0.5">✓ VERIFIED</Badge>
+                    <Badge className="bg-blue-500 text-white text-[10px] px-1.5 py-0.5">CMS RATED</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+            
+            <Link href="/home-care">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 relative overflow-hidden h-full">
+                <CardContent className="p-2 sm:p-3 text-center">
+                  <div className="absolute top-1 right-1">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  </div>
+                  <Home className="w-6 h-6 sm:w-8 sm:h-8 text-green-500 mx-auto mb-1.5" />
+                  <h4 className="font-semibold text-xs sm:text-sm text-green-700 dark:text-green-300 line-clamp-2">Home Care Services</h4>
+                  <p className="text-[10px] sm:text-xs text-green-600 dark:text-green-400 mt-0.5 line-clamp-2">Licensed caregivers</p>
+                  <div className="flex flex-col gap-0.5 mt-1">
+                    <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0.5">✓ VERIFIED</Badge>
+                    <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0.5">24/7</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
+              <CardContent className="p-2 sm:p-3 text-center">
+                <Phone className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500 mx-auto mb-1.5" />
+                <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Telemedicine</h4>
+                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Virtual consultations</p>
+                <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
+              <CardContent className="p-2 sm:p-3 text-center">
+                <Pill className="w-6 h-6 sm:w-8 sm:h-8 text-orange-500 mx-auto mb-1.5" />
+                <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Pharmacy Services</h4>
+                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Medication delivery</p>
+                <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
+              <CardContent className="p-2 sm:p-3 text-center">
+                <Car className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500 mx-auto mb-1.5" />
+                <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Medical Transport</h4>
+                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Wheelchair accessible</p>
+                <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
+              <CardContent className="p-2 sm:p-3 text-center">
+                <Stethoscope className="w-6 h-6 sm:w-8 sm:h-8 text-red-500 mx-auto mb-1.5" />
+                <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Physical Therapy</h4>
+                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Rehabilitation services</p>
+                <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
+              <CardContent className="p-2 sm:p-3 text-center">
+                <Users className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-500 mx-auto mb-1.5" />
+                <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Mental Health</h4>
+                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Counseling & therapy</p>
+                <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
+              <CardContent className="p-2 sm:p-3 text-center">
+                <ShoppingCart className="w-6 h-6 sm:w-8 sm:h-8 text-amber-500 mx-auto mb-1.5" />
+                <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Medical Equipment</h4>
+                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Mobility aids & devices</p>
+                <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
+              <CardContent className="p-2 sm:p-3 text-center">
+                <Building className="w-6 h-6 sm:w-8 sm:h-8 text-teal-500 mx-auto mb-1.5" />
+                <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Adult Day Programs</h4>
+                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Social & health activities</p>
+                <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
+              <CardContent className="p-2 sm:p-3 text-center">
+                <Stethoscope className="w-6 h-6 sm:w-8 sm:h-8 text-pink-500 mx-auto mb-1.5" />
+                <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Rehabilitation</h4>
+                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Recovery services</p>
+                <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
+              <CardContent className="p-2 sm:p-3 text-center">
+                <Users className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-500 mx-auto mb-1.5" />
+                <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Social Services</h4>
+                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Community support</p>
+                <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center mb-8">
+            <Link href="/care-services">
+              <Button className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                Browse All Care Services →
+              </Button>
+            </Link>
+          </div>
+
           {/* 1. Hospital Directory Tab and Slider */}
           <div className="mb-8">
             {/* Hospital Directory Tab */}
