@@ -67,7 +67,7 @@ export class AISearchInsights {
         careTypeAnalysis,
         priceAnalysis,
         recommendations,
-        generatedBy: ['Claude AI', 'Perplexity AI', 'ChatGPT', 'Real Data Analysis'],
+        generatedBy: ['Claude AI', 'Gemini AI', 'ChatGPT', 'Real Data Analysis'],
         timestamp: new Date().toISOString()
       };
       
